@@ -15,6 +15,7 @@ import type {
   JsonApiResource,
   JsonApiValidationError,
 } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
+import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
@@ -46,11 +47,13 @@ const EMPTY_ITERATOR = {
   @class RecordDataDefault
   @public
  */
-export default class RecordDataDefault implements RelationshipRecordData {
+export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>
+  implements RelationshipRecordData
+{
   declare _errors?: JsonApiValidationError[];
-  declare modelName: string;
+  declare modelName: T;
   declare clientId: string;
-  declare identifier: StableRecordIdentifier;
+  declare identifier: StableRecordIdentifier<T>;
   declare id: string | null;
   declare isDestroyed: boolean;
   declare _isNew: boolean;
@@ -61,9 +64,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
   declare _scheduledDestroy: any;
   declare _isDeleted: boolean;
   declare _isDeletionCommited: boolean;
-  declare storeWrapper: RecordDataStoreWrapper;
+  declare storeWrapper: RecordDataStoreWrapper<R>;
 
-  constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+  constructor(identifier: RecordIdentifier<T>, storeWrapper: RecordDataStoreWrapper<R>) {
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
     this.id = identifier.id;
@@ -80,7 +83,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   // PUBLIC API
-  getResourceIdentifier(): StableRecordIdentifier {
+  getResourceIdentifier(): StableRecordIdentifier<T> {
     return this.identifier;
   }
 
@@ -368,8 +371,8 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
   }
 
-  getBelongsTo(key: string): DefaultSingleResourceRelationship {
-    return (graphFor(this.storeWrapper).get(this.identifier, key) as BelongsToRelationship).getData();
+  getBelongsTo<K extends RecordField<R, T>>(key: K): DefaultSingleResourceRelationship<R, T, K> {
+    return (graphFor(this.storeWrapper).get(this.identifier, key) as BelongsToRelationship<R, T, K>).getData();
   }
 
   setDirtyBelongsTo(key: string, recordData: RecordData) {

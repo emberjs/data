@@ -4,6 +4,8 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+
 import coerceId from '../system/coerce-id';
 import normalizeModelName from '../system/normalize-model-name';
 import WeakCache from '../system/weak-cache';
@@ -20,7 +22,6 @@ import type {
   UpdateMethod,
 } from '../ts-interfaces/identifier';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
-import type { ConfidentDict } from '../ts-interfaces/utils';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
@@ -32,19 +33,22 @@ function freeze<T>(obj: T): T {
   return obj;
 }
 
-interface KeyOptions {
-  lid: IdentifierMap;
-  id: IdentifierMap;
-  _allIdentifiers: StableRecordIdentifier[];
+interface KeyOptions<T extends string> {
+  lid: IdentifierMap<T>;
+  id: IdentifierMap<T>;
+  _allIdentifiers: StableRecordIdentifier<T>[];
 }
 
-type IdentifierMap = ConfidentDict<StableRecordIdentifier>;
-type TypeMap = ConfidentDict<KeyOptions>;
-export type MergeMethod = (
-  targetIdentifier: StableRecordIdentifier,
-  matchedIdentifier: StableRecordIdentifier,
-  resourceData: ResourceIdentifierObject | ExistingResourceObject
-) => StableRecordIdentifier;
+type IdentifierMap<T extends string> = Record<string, StableRecordIdentifier<T>>;
+type TypeMap<R extends ResolvedRegistry<RegistryMap>> = {
+  [K in RecordType<R>]: KeyOptions<K>;
+};
+
+export type MergeMethod<K extends string> = <T extends K>(
+  targetIdentifier: StableRecordIdentifier<T>,
+  matchedIdentifier: StableRecordIdentifier<T>,
+  resourceData: ResourceIdentifierObject<T> | ExistingResourceObject<T>
+) => StableRecordIdentifier<T>;
 
 let configuredForgetMethod: ForgetMethod | null;
 let configuredGenerationMethod: GenerationMethod | null;
@@ -88,6 +92,20 @@ if (DEBUG) {
   DEBUG_MAP = new WeakCache<StableRecordIdentifier, StableRecordIdentifier>('identifier-proxy-target');
 }
 
+// fromMap is a util that juggle the subtype constraint
+// for us, as in this location there's no other choice.
+// we don't have a way to thread T through the map
+// as the key is an `lid`. However, since the key
+// is an `lid` we can be sure that the T matches
+// the resulting identifier satisfactorily.
+// this may be somewhat wrong in the polymorphic case
+// bit it'll satisfactorily pass :)
+function fromMap<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  map: IdentifierMap<RecordType<R>>,
+  key: string
+): StableRecordIdentifier<T> | undefined {
+  return (map as IdentifierMap<T>)[key];
+}
 /**
  * Each instance of {Store} receives a unique instance of a IdentifierCache.
  *
@@ -101,22 +119,27 @@ if (DEBUG) {
  * @class IdentifierCache
    @public
  */
-export class IdentifierCache {
+export class IdentifierCache<R extends ResolvedRegistry<RegistryMap>> {
   // Typescript still leaks private properties in the final
   // compiled class, so we may want to move these from _underscore
   // to a WeakMap to avoid leaking
   // currently we leak this for test purposes
-  _cache = {
-    lids: Object.create(null) as IdentifierMap,
-    types: Object.create(null) as TypeMap,
+  declare _cache: {
+    lids: IdentifierMap<RecordType<R>>;
+    types: TypeMap<R>;
   };
-  private _generate: GenerationMethod;
-  private _update: UpdateMethod;
-  private _forget: ForgetMethod;
-  private _reset: ResetMethod;
-  private _merge: MergeMethod;
+  declare _generate: GenerationMethod;
+  declare _update: UpdateMethod;
+  declare _forget: ForgetMethod;
+  declare _reset: ResetMethod;
+  declare _merge: MergeMethod<RecordType<R>>;
 
   constructor() {
+    this._cache = {
+      lids: Object.create(null) as IdentifierMap<RecordType<R>>,
+      types: Object.create(null) as TypeMap<R>,
+    };
+
     // we cache the user configuredGenerationMethod at init because it must
     // be configured prior and is not allowed to be changed
     this._generate = configuredGenerationMethod || defaultGenerationMethod;
@@ -135,7 +158,7 @@ export class IdentifierCache {
    * @method __configureMerge
    * @private
    */
-  __configureMerge(method: MergeMethod | null) {
+  __configureMerge<T extends RecordType<R>>(method: MergeMethod<T> | null) {
     this._merge = method || defaultEmptyCallback;
   }
 
@@ -143,17 +166,20 @@ export class IdentifierCache {
    * @method _getRecordIdentifier
    * @private
    */
-  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
-  private _getRecordIdentifier(
-    resource: ResourceIdentifierObject,
+  private _getRecordIdentifier<T extends RecordType<R>>(
+    resource: ResourceIdentifierObject<T>,
+    shouldGenerate: true
+  ): StableRecordIdentifier<T>;
+  private _getRecordIdentifier<T extends RecordType<R>>(
+    resource: ResourceIdentifierObject<T>,
     shouldGenerate: false
-  ): StableRecordIdentifier | undefined;
-  private _getRecordIdentifier(
-    resource: ResourceIdentifierObject,
+  ): StableRecordIdentifier<T> | undefined;
+  private _getRecordIdentifier<T extends RecordType<R>>(
+    resource: ResourceIdentifierObject<T>,
     shouldGenerate: boolean = false
-  ): StableRecordIdentifier | undefined {
+  ): StableRecordIdentifier<T> | undefined {
     // short circuit if we're already the stable version
-    if (isStableIdentifier(resource)) {
+    if (isStableIdentifier<T>(resource)) {
       if (DEBUG) {
         // TODO should we instead just treat this case as a new generation skipping the short circuit?
         if (!(resource.lid in this._cache.lids) || this._cache.lids[resource.lid] !== resource) {
@@ -164,7 +190,8 @@ export class IdentifierCache {
     }
 
     let lid = coerceId(resource.lid);
-    let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids[lid] : undefined;
+    let identifier: StableRecordIdentifier<T> | undefined =
+      lid !== null ? fromMap<R, T>(this._cache.lids, lid) : undefined;
 
     if (identifier !== undefined) {
       return identifier;
@@ -179,7 +206,7 @@ export class IdentifierCache {
     // `type` must always be present
     assert('resource.type needs to be a string', 'type' in resource && isNonEmptyString(resource.type));
 
-    let type = resource.type && normalizeModelName(resource.type);
+    let type = resource.type && normalizeModelName<R, T>(resource.type);
     let id = coerceId(resource.id);
 
     let keyOptions = getTypeIndex(this._cache.types, type);
@@ -216,7 +243,7 @@ export class IdentifierCache {
       if (shouldGenerate === true) {
         if (identifier === undefined) {
           // if we still don't have an identifier, time to generate one
-          identifier = makeStableRecordIdentifier(id, type, newLid, 'record', false);
+          identifier = makeStableRecordIdentifier<R, T>(id, type, newLid, 'record', false);
 
           // populate our unique table
           if (DEBUG) {
@@ -267,7 +294,9 @@ export class IdentifierCache {
    * @returns {StableRecordIdentifier | undefined}
    * @private
    */
-  peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
+  peekRecordIdentifier<T extends RecordType<R>>(
+    resource: ResourceIdentifierObject<T> | Identifier
+  ): StableRecordIdentifier<T> | undefined {
     return this._getRecordIdentifier(resource, false);
   }
 
@@ -286,7 +315,9 @@ export class IdentifierCache {
     @returns {StableRecordIdentifier}
     @public
   */
-  getOrCreateRecordIdentifier(resource: ResourceData | Identifier): StableRecordIdentifier {
+  getOrCreateRecordIdentifier<T extends RecordType<R>>(
+    resource: ResourceData<T> | Identifier
+  ): StableRecordIdentifier<T> {
     return this._getRecordIdentifier(resource, true);
   }
 
@@ -303,9 +334,12 @@ export class IdentifierCache {
    @returns {StableRecordIdentifier}
    @public
   */
-  createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
+  createIdentifierForNewRecord<T extends RecordType<R>>(data: {
+    type: T;
+    id?: string | null;
+  }): StableRecordIdentifier<T> {
     let newLid = this._generate(data, 'record');
-    let identifier = makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
+    let identifier = makeStableRecordIdentifier<R, T>(data.id || null, data.type, newLid, 'record', true);
     let keyOptions = getTypeIndex(this._cache.types, data.type);
 
     // populate our unique table
@@ -347,16 +381,19 @@ export class IdentifierCache {
     @returns {StableRecordIdentifier}
     @public
   */
-  updateRecordIdentifier(identifierObject: RecordIdentifier, data: ResourceData): StableRecordIdentifier {
+  updateRecordIdentifier<T extends RecordType<R>>(
+    identifierObject: RecordIdentifier<T>,
+    data: ResourceData<T>
+  ): StableRecordIdentifier<T> {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
     let newId = 'id' in data ? coerceId(data.id) : null;
-    let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
+    let existingIdentifier = detectMerge<R, T>(this._cache.types, identifier, data, newId, this._cache.lids);
 
     if (!existingIdentifier) {
       // If the incoming type does not match the identifier type, we need to create an identifier for the incoming
       // data so we can merge the incoming data with the existing identifier, see #7325 and #7363
-      if ('type' in data && data.type && identifier.type !== normalizeModelName(data.type)) {
+      if ('type' in data && data.type && identifier.type !== normalizeModelName<R, T>(data.type)) {
         let incomingDataResource = { ...data };
         // Need to strip the lid from the incomingData in order force a new identifier creation
         delete incomingDataResource.lid;
@@ -370,7 +407,7 @@ export class IdentifierCache {
     }
 
     let id = identifier.id;
-    performRecordIdentifierUpdate(identifier, data, this._update);
+    performRecordIdentifierUpdate<R, T>(identifier, data, this._update);
     newId = identifier.id;
 
     // add to our own secondary lookup table
@@ -390,15 +427,15 @@ export class IdentifierCache {
    * @method _mergeRecordIdentifiers
    * @private
    */
-  _mergeRecordIdentifiers(
-    keyOptions: KeyOptions,
-    identifier: StableRecordIdentifier,
-    existingIdentifier: StableRecordIdentifier,
-    data: ResourceIdentifierObject | ExistingResourceObject,
+  _mergeRecordIdentifiers<T extends RecordType<R>>(
+    keyOptions: KeyOptions<T>,
+    identifier: StableRecordIdentifier<T>,
+    existingIdentifier: StableRecordIdentifier<T>,
+    data: ResourceIdentifierObject<T> | ExistingResourceObject<T>,
     newId: string
-  ): StableRecordIdentifier {
+  ): StableRecordIdentifier<T> {
     // delegate determining which identifier to keep to the configured MergeMethod
-    let kept = this._merge(identifier, existingIdentifier, data);
+    let kept = this._merge<T>(identifier, existingIdentifier, data);
     let abandoned = kept === identifier ? existingIdentifier : identifier;
 
     // cleanup the identifier we no longer need
@@ -428,7 +465,7 @@ export class IdentifierCache {
    @param identifierObject
    @public
   */
-  forgetRecordIdentifier(identifierObject: RecordIdentifier): void {
+  forgetRecordIdentifier<T extends RecordType<R>>(identifierObject: RecordIdentifier<T>): void {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
     let keyOptions = getTypeIndex(this._cache.types, identifier.type);
     if (identifier.id !== null) {
@@ -449,8 +486,11 @@ export class IdentifierCache {
   }
 }
 
-function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
-  let typeIndex: KeyOptions = typeMap[type];
+function getTypeIndex<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  typeMap: TypeMap<R>,
+  type: T
+): KeyOptions<T> {
+  let typeIndex: KeyOptions<T> = typeMap[type];
 
   if (typeIndex === undefined) {
     typeIndex = {
@@ -464,13 +504,13 @@ function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
   return typeIndex;
 }
 
-function makeStableRecordIdentifier(
+function makeStableRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
   id: string | null,
-  type: string,
+  type: T,
   lid: string,
   bucket: IdentifierBucket,
   clientOriginated: boolean = false
-): Readonly<StableRecordIdentifier> {
+): Readonly<StableRecordIdentifier<T>> {
   let recordIdentifier = {
     lid,
     id,
@@ -507,7 +547,11 @@ function makeStableRecordIdentifier(
   return recordIdentifier;
 }
 
-function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data: ResourceData, updateFn: UpdateMethod) {
+function performRecordIdentifierUpdate<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  identifier: StableRecordIdentifier<T>,
+  data: ResourceData,
+  updateFn: UpdateMethod
+) {
   if (DEBUG) {
     let { lid } = data;
     let id = 'id' in data ? data.id : undefined;
@@ -561,29 +605,29 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
   }
 }
 
-function detectMerge(
-  typesCache: ConfidentDict<KeyOptions>,
-  identifier: StableRecordIdentifier,
-  data: ResourceIdentifierObject | ExistingResourceObject,
+function detectMerge<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  typesCache: TypeMap<R>,
+  identifier: StableRecordIdentifier<T>,
+  data: ResourceIdentifierObject<T> | ExistingResourceObject<T>,
   newId: string | null,
-  lids: IdentifierMap
-): StableRecordIdentifier | false {
+  lids: IdentifierMap<RecordType<R>>
+): StableRecordIdentifier<T> | false {
   const { id, type, lid } = identifier;
   if (id !== null && id !== newId && newId !== null) {
-    let keyOptions = getTypeIndex(typesCache, identifier.type);
+    let keyOptions = getTypeIndex<R, T>(typesCache, identifier.type);
     let existingIdentifier = keyOptions.id[newId];
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
-    let newType = 'type' in data && data.type && normalizeModelName(data.type);
+    let newType = 'type' in data && data.type && normalizeModelName<R, T>(data.type);
 
     // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
-      let existingIdentifier = lids[data.lid];
+      let existingIdentifier = fromMap<R, T>(lids, data.lid);
       return existingIdentifier !== undefined ? existingIdentifier : false;
       // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
     } else if (id !== null && id === newId && newType && newType !== type && data.lid && data.lid === lid) {
-      let keyOptions = getTypeIndex(typesCache, newType);
+      let keyOptions = getTypeIndex<R, T>(typesCache, newType);
       let existingIdentifier = keyOptions.id[id];
       return existingIdentifier !== undefined ? existingIdentifier : false;
     }

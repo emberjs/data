@@ -1,7 +1,10 @@
+import { assert } from '@ember/debug';
+
 import { importSync } from '@embroider/macros';
 
 import type { RelationshipDefinition } from '@ember-data/model/-private/system/relationships/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type { IdentifierCache } from '../../identifiers/cache';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -12,7 +15,6 @@ import type {
   RelationshipsSchema,
 } from '../../ts-interfaces/record-data-schemas';
 import type { RecordDataStoreWrapper as StoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
 import type Store from '../store';
 import { internalModelFactoryFor } from './internal-model-factory';
@@ -21,8 +23,12 @@ import { internalModelFactoryFor } from './internal-model-factory';
   @module @ember-data/store
 */
 
-function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
-  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
+function metaIsRelationshipDefinition<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>
+>(meta: RelationshipSchema<R, T, K>): meta is RelationshipDefinition<R, T, K> {
+  return typeof (meta as RelationshipDefinition<R, T, K>)._inverseKey === 'function';
 }
 
 let peekGraph;
@@ -36,22 +42,45 @@ if (HAS_RECORD_DATA_PACKAGE) {
   };
 }
 
-export default class RecordDataStoreWrapper implements StoreWrapper {
-  declare _willNotify: boolean;
-  declare _pendingNotifies: Map<StableRecordIdentifier, Map<string, string>>;
-  declare _store: Store;
+type RelKind = 'belongsTo' | 'hasMany';
 
-  constructor(_store: Store) {
+interface RecordMap<R extends ResolvedRegistry<RegistryMap>> {
+  clear(): void;
+  delete(key: StableRecordIdentifier<RecordType<R>>): boolean;
+  forEach(
+    callbackfn: <K extends RecordType<R>>(
+      value: Map<RecordField<R, K>, RelKind>,
+      key: StableRecordIdentifier<K>,
+      map: RecordMap<R>
+    ) => void,
+    thisArg?: unknown
+  ): void;
+  get<K extends RecordType<R>>(key: StableRecordIdentifier<K>): Map<RecordField<R, K>, RelKind> | undefined;
+  has<K extends RecordType<R>>(key: StableRecordIdentifier<K>): boolean;
+  set<K extends RecordType<R>>(key: StableRecordIdentifier<K>, value: Map<RecordField<R, K>, RelKind>): this;
+  readonly size: number;
+}
+
+export default class RecordDataStoreWrapper<R extends ResolvedRegistry<RegistryMap>> implements StoreWrapper {
+  declare _willNotify: boolean;
+  declare _pendingNotifies: RecordMap<R>;
+  declare _store: Store<R>;
+
+  constructor(_store: Store<R>) {
     this._store = _store;
     this._willNotify = false;
     this._pendingNotifies = new Map();
   }
 
-  get identifierCache(): IdentifierCache {
+  get identifierCache(): IdentifierCache<R> {
     return this._store.identifierCache;
   }
 
-  _scheduleNotification(identifier: StableRecordIdentifier, key: string, kind: 'belongsTo' | 'hasMany') {
+  _scheduleNotification<T extends RecordType<R>>(
+    identifier: StableRecordIdentifier<T>,
+    key: RecordField<R, T>,
+    kind: 'belongsTo' | 'hasMany'
+  ) {
     let pending = this._pendingNotifies.get(identifier);
 
     if (!pending) {
@@ -70,9 +99,9 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     backburner.schedule('notify', this, this._flushNotifications);
   }
 
-  notifyErrorsChange(type: string, id: string, lid: string | null): void;
-  notifyErrorsChange(type: string, id: string | null, lid: string): void;
-  notifyErrorsChange(type: string, id: string | null, lid: string | null): void {
+  notifyErrorsChange<T extends RecordType<R>>(type: T, id: string, lid: string | null): void;
+  notifyErrorsChange<T extends RecordType<R>>(type: T, id: string | null, lid: string): void;
+  notifyErrorsChange<T extends RecordType<R>>(type: T, id: string | null, lid: string | null): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
@@ -107,15 +136,15 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     });
   }
 
-  attributesDefinitionFor(type: string): AttributesSchema {
+  attributesDefinitionFor<T extends RecordType<R>>(type: T): AttributesSchema<R, T> {
     return this._store._attributesDefinitionFor({ type });
   }
 
-  relationshipsDefinitionFor(type: string): RelationshipsSchema {
+  relationshipsDefinitionFor<T extends RecordType<R>>(type: T): RelationshipsSchema<R, T> {
     return this._store._relationshipsDefinitionFor({ type });
   }
 
-  inverseForRelationship(type: string, key: string): string | null {
+  inverseForRelationship<T extends RecordType<R>>(type: T, key: RecordField<R, T>): string | null {
     const modelClass = this._store.modelFor(type);
     const definition = this.relationshipsDefinitionFor(type)[key];
     if (!definition) {
@@ -131,7 +160,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  inverseIsAsyncForRelationship(type: string, key: string): boolean {
+  inverseIsAsyncForRelationship<T extends RecordType<R>>(type: T, key: RecordField<R, T>): boolean {
     const modelClass = this._store.modelFor(type);
     const definition = this.relationshipsDefinitionFor(type)[key];
     if (!definition) {
@@ -152,9 +181,19 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  notifyPropertyChange(type: string, id: string | null, lid: string, key: string): void;
-  notifyPropertyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
-  notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+  notifyPropertyChange<T extends RecordType<R>>(type: T, id: string | null, lid: string, key: RecordField<R, T>): void;
+  notifyPropertyChange<T extends RecordType<R>>(
+    type: T,
+    id: string,
+    lid: string | null | undefined,
+    key: RecordField<R, T>
+  ): void;
+  notifyPropertyChange<T extends RecordType<R>>(
+    type: T,
+    id: string | null,
+    lid: string | null | undefined,
+    key: RecordField<R, T>
+  ): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
@@ -164,26 +203,52 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  notifyHasManyChange(type: string, id: string | null, lid: string, key: string): void;
-  notifyHasManyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
-  notifyHasManyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+  notifyHasManyChange<T extends RecordType<R>>(type: T, id: string | null, lid: string, key: RecordField<R, T>): void;
+  notifyHasManyChange<T extends RecordType<R>>(
+    type: T,
+    id: string,
+    lid: string | null | undefined,
+    key: RecordField<R, T>
+  ): void;
+  notifyHasManyChange<T extends RecordType<R>>(
+    type: T,
+    id: string | null,
+    lid: string | null | undefined,
+    key: RecordField<R, T>
+  ): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     this._scheduleNotification(identifier, key, 'hasMany');
   }
 
-  notifyBelongsToChange(type: string, id: string | null, lid: string, key: string): void;
-  notifyBelongsToChange(type: string, id: string, lid: string | null | undefined, key: string): void;
-  notifyBelongsToChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+  notifyBelongsToChange<T extends RecordType<R>>(type: T, id: string | null, lid: string, key: RecordField<R, T>): void;
+  notifyBelongsToChange<T extends RecordType<R>>(
+    type: T,
+    id: string,
+    lid: string | null | undefined,
+    key: RecordField<R, T>
+  ): void;
+  notifyBelongsToChange<T extends RecordType<R>>(
+    type: T,
+    id: string | null,
+    lid: string | null | undefined,
+    key: RecordField<R, T>
+  ): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     this._scheduleNotification(identifier, key, 'belongsTo');
   }
 
-  notifyStateChange(type: string, id: string, lid: string | null, key?: string): void;
-  notifyStateChange(type: string, id: string | null, lid: string, key?: string): void;
-  notifyStateChange(type: string, id: string | null, lid: string | null, key?: string): void {
+  // TODO RecordField might not be right here
+  notifyStateChange<T extends RecordType<R>>(type: T, id: string, lid: string | null, key?: RecordField<R, T>): void;
+  notifyStateChange<T extends RecordType<R>>(type: T, id: string | null, lid: string, key?: RecordField<R, T>): void;
+  notifyStateChange<T extends RecordType<R>>(
+    type: T,
+    id: string | null,
+    lid: string | null,
+    key?: RecordField<R, T>
+  ): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
@@ -193,11 +258,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  recordDataFor(type: string, id: string, lid?: string | null): RecordData;
-  recordDataFor(type: string, id: string | null, lid: string): RecordData;
-  recordDataFor(type: string): RecordData;
-  recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData {
-    let identifier: StableRecordIdentifier | { type: string };
+  recordDataFor<T extends RecordType<R>>(type: T, id: string, lid?: string | null): RecordData;
+  recordDataFor<T extends RecordType<R>>(type: T, id: string | null, lid: string): RecordData;
+  recordDataFor<T extends RecordType<R>>(type: T): RecordData;
+  recordDataFor<T extends RecordType<R>>(type: T, id?: string | null, lid?: string | null): RecordData {
+    let identifier: StableRecordIdentifier<T> | { type: T };
     let isCreate: boolean = false;
     if (!id && !lid) {
       isCreate = true;
@@ -214,9 +279,9 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     this._store.setRecordId(type, id, lid);
   }
 
-  isRecordInUse(type: string, id: string | null, lid: string): boolean;
-  isRecordInUse(type: string, id: string, lid?: string | null): boolean;
-  isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
+  isRecordInUse<T extends RecordType<R>>(type: T, id: string | null, lid: string): boolean;
+  isRecordInUse<T extends RecordType<R>>(type: T, id: string, lid?: string | null): boolean;
+  isRecordInUse<T extends RecordType<R>>(type: T, id: string | null, lid?: string | null): boolean {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     const internalModel = internalModelFactoryFor(this._store).peek(identifier);
@@ -225,13 +290,24 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
       return false;
     }
 
-    const record = internalModel._record as RecordInstance;
-    return record && !(record.isDestroyed || record.isDestroying);
+    const record = internalModel._record;
+    // TODO should we utilize the destroyables RFC here for records ?
+    assert(
+      `Record should implement destroyable behavior`,
+      !record || 'isDestroyed' in record || 'isDestroyng' in record
+    );
+    return (
+      !!record &&
+      !(
+        (record as unknown as { isDestroyed: boolean }).isDestroyed ||
+        (record as unknown as { isDestroying: boolean }).isDestroying
+      )
+    );
   }
 
-  disconnectRecord(type: string, id: string | null, lid: string): void;
-  disconnectRecord(type: string, id: string, lid?: string | null): void;
-  disconnectRecord(type: string, id: string | null, lid?: string | null): void {
+  disconnectRecord<T extends RecordType<R>>(type: T, id: string | null, lid: string): void;
+  disconnectRecord<T extends RecordType<R>>(type: T, id: string, lid?: string | null): void;
+  disconnectRecord<T extends RecordType<R>>(type: T, id: string | null, lid?: string | null): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     if (HAS_RECORD_DATA_PACKAGE) {

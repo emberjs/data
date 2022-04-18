@@ -5,7 +5,9 @@ import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 
 const IDENTIFIERS = new WeakSet();
 
-export default function isStableIdentifier(identifier: Object): identifier is StableRecordIdentifier {
+export default function isStableIdentifier<T extends string>(
+  identifier: Object
+): identifier is StableRecordIdentifier<T> {
   return IDENTIFIERS.has(identifier);
 }
 

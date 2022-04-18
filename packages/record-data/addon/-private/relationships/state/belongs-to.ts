@@ -1,6 +1,7 @@
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type { Links, Meta, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type { ManyRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -10,21 +11,26 @@ import { createState } from '../../graph/-state';
 import { isNew } from '../../graph/-utils';
 import type { DefaultSingleResourceRelationship } from '../../ts-interfaces/relationship-record-data';
 
-export default class BelongsToRelationship {
-  declare localState: StableRecordIdentifier | null;
-  declare remoteState: StableRecordIdentifier | null;
+export default class BelongsToRelationship<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R> = RecordType<R>
+> {
+  declare localState: StableRecordIdentifier<RT> | null;
+  declare remoteState: StableRecordIdentifier<RT> | null;
   declare transactionRef: number;
 
   declare graph: Graph;
-  declare store: RecordDataStoreWrapper;
+  declare store: RecordDataStoreWrapper<R>;
   declare definition: UpgradedMeta;
-  declare identifier: StableRecordIdentifier;
+  declare identifier: StableRecordIdentifier<T>;
   declare _state: RelationshipState | null;
 
   declare meta: Meta | null;
   declare links: Links | PaginationLinks | null;
 
-  constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier) {
+  constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier<T>) {
     this.graph = graph;
     this.store = graph.store;
     this.definition = definition;
@@ -105,7 +111,7 @@ export default class BelongsToRelationship {
     this.notifyBelongsToChange();
   }
 
-  getData(): DefaultSingleResourceRelationship {
+  getData(): DefaultSingleResourceRelationship<R, T, K> {
     let data;
     let payload: any = {};
     if (this.localState) {
@@ -130,7 +136,7 @@ export default class BelongsToRelationship {
 
   /*
       Removes the given RecordData from BOTH canonical AND current state.
-  
+
       This method is useful when either a deletion or a rollback on a new record
       needs to entirely purge itself from an inverse relationship.
      */

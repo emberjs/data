@@ -42,17 +42,17 @@ import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-interface EmberNativeArrayLike<T> {
+export interface EmberNativeArrayLike<T> {
   length: number | ComputedProperty<number>;
   objectAt(idx: number): T | undefined;
 }
-interface EmberArrayProxyLike<T> {
+export interface EmberArrayProxyLike<T> {
   length: number | ComputedProperty<number>;
   objectAtContent(idx: number): T | undefined;
 }
-type EmberArrayLike<T> = EmberNativeArrayLike<T> | EmberArrayProxyLike<T>;
+export type EmberArrayLike<T> = EmberNativeArrayLike<T> | EmberArrayProxyLike<T>;
 
-export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayProxy<I, T> {
+export class PromiseArray<I, T> extends PromiseArrayProxy<I, T> {
   @reads('content.meta')
   declare meta?: Dict<unknown>;
 }

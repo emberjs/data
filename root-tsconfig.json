@@ -21,7 +21,7 @@
     "experimentalDecorators": true,
     "pretty": true,
     "noEmit": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "inlineSourceMap": true,
     "inlineSources": true,
     "baseUrl": ".",
@@ -29,7 +29,8 @@
     "paths": {
       "ember-data": ["packages/-ember-data/addon"],
       "ember-data/*": ["packages/-ember-data/addon/*"],
-      "@ember-data/types": ["ember-data-types/*"],
+      "@ember-data/types": ["ember-data-types"],
+      "@ember-data/types/*": ["ember-data-types/*"],
       "@ember-data/store": ["packages/store/addon"],
       "@ember-data/store/*": ["packages/store/addon/*"],
       "@ember-data/debug": ["packages/debug/addon"],

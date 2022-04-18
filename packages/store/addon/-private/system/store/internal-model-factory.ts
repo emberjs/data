@@ -2,7 +2,8 @@ import { assert, warn } from '@ember/debug';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
-import type { IdentifierCache } from '../../identifiers/cache';
+import { RecordType, RegistryGenerics, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+
 import type {
   ExistingResourceObject,
   NewResourceIdentifierObject,
@@ -21,11 +22,14 @@ import WeakCache from '../weak-cache';
 /**
   @module @ember-data/store
 */
-const FactoryCache = new WeakCache<Store, InternalModelFactory>(DEBUG ? 'internal-model-factory' : '');
-FactoryCache._generator = (store: Store) => {
-  return new InternalModelFactory(store);
+const FactoryCache = new WeakCache<
+  Store<RegistryGenerics<RegistryMap>>,
+  InternalModelFactory<RegistryGenerics<RegistryMap>>
+>(DEBUG ? 'internal-model-factory' : '');
+FactoryCache._generator = <R extends RegistryGenerics<RegistryMap>>(store: Store<R>) => {
+  return new InternalModelFactory<R>(store);
 };
-type NewResourceInfo = { type: string; id: string | null };
+type NewResourceInfo<T extends string> = { type: T; id: string | null };
 
 const RecordCache = new WeakCache<RecordInstance | RecordData, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
 if (DEBUG) {
@@ -81,8 +85,10 @@ export function setRecordIdentifier(record: RecordInstance | RecordData, identif
   RecordCache.set(record, identifier);
 }
 
-export function internalModelFactoryFor(store: Store): InternalModelFactory {
-  return FactoryCache.lookup(store);
+export function internalModelFactoryFor<R extends ResolvedRegistry<RegistryMap>>(
+  store: Store<R>
+): InternalModelFactory<R> {
+  return FactoryCache.lookup<Store<R>, InternalModelFactory<R>>(store) as InternalModelFactory<R>;
 }
 
 /**
@@ -93,71 +99,84 @@ export function internalModelFactoryFor(store: Store): InternalModelFactory {
  * @class InternalModelFactory
  * @internal
  */
-export default class InternalModelFactory {
+export default class InternalModelFactory<R extends ResolvedRegistry<RegistryMap>> {
   declare _identityMap: IdentityMap;
-  declare identifierCache: IdentifierCache;
-  declare store: Store;
+  // declare identifierCache: IdentifierCache<R>; // Store<R>['identifierCache'];
+  declare store: Store<R>;
 
-  constructor(store: Store) {
+  get identifierCache() {
+    return this.store.identifierCache;
+  }
+
+  constructor(store: Store<R>) {
     this.store = store;
-    this.identifierCache = store.identifierCache;
-    this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
-      let intendedIdentifier = identifier;
-      if (identifier.id !== matchedIdentifier.id) {
-        intendedIdentifier = 'id' in resourceData && identifier.id === resourceData.id ? identifier : matchedIdentifier;
-      } else if (identifier.type !== matchedIdentifier.type) {
-        intendedIdentifier =
-          'type' in resourceData && identifier.type === resourceData.type ? identifier : matchedIdentifier;
-      }
-      let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
+    // TODO figure out why we need this case and the subtypes aren't mapping correctly
+    // R should be pulled from the passed in store here, so Store.identifierCache should be
+    // fine, and Store<R>['identifierCache'] should be as well.
+    // this.identifierCache = store.identifierCache as unknown as IdentifierCache<R>;
+    this.identifierCache.__configureMerge<RecordType<R>>(
+      <T extends RecordType<R>>(
+        identifier: StableRecordIdentifier<T>,
+        matchedIdentifier: StableRecordIdentifier<T>,
+        resourceData: ResourceIdentifierObject<T> | ExistingResourceObject<T>
+      ): StableRecordIdentifier<T> => {
+        let intendedIdentifier = identifier;
+        if (identifier.id !== matchedIdentifier.id) {
+          intendedIdentifier =
+            'id' in resourceData && identifier.id === resourceData.id ? identifier : matchedIdentifier;
+        } else if (identifier.type !== matchedIdentifier.type) {
+          intendedIdentifier =
+            'type' in resourceData && identifier.type === resourceData.type ? identifier : matchedIdentifier;
+        }
+        let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
 
-      // check for duplicate InternalModel's
-      const map = this.modelMapFor(identifier.type);
-      let im = map.get(intendedIdentifier.lid);
-      let otherIm = map.get(altIdentifier.lid);
+        // check for duplicate InternalModel's
+        const map = this.modelMapFor(identifier.type);
+        let im = map.get(intendedIdentifier.lid);
+        let otherIm = map.get(altIdentifier.lid);
 
-      // we cannot merge internalModels when both have records
-      // (this may not be strictly true, we could probably swap the internalModel the record points at)
-      if (im && otherIm && im.hasRecord && otherIm.hasRecord) {
-        if ('id' in resourceData) {
-          throw new Error(
-            `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to '${resourceData.id}', because that id is already in use by '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
+        // we cannot merge internalModels when both have records
+        // (this may not be strictly true, we could probably swap the internalModel the record points at)
+        if (im && otherIm && im.hasRecord && otherIm.hasRecord) {
+          if ('id' in resourceData) {
+            throw new Error(
+              `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to '${resourceData.id}', because that id is already in use by '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
+            );
+          }
+          // TODO @runspired determine when this is even possible
+          assert(
+            `Failed to update the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to merge with the detected duplicate identifier '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
           );
         }
-        // TODO @runspired determine when this is even possible
-        assert(
-          `Failed to update the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to merge with the detected duplicate identifier '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
-        );
-      }
 
-      // remove otherIm from cache
-      if (otherIm) {
-        map.remove(otherIm, altIdentifier.lid);
-      }
-
-      if (im === null && otherIm === null) {
-        // nothing more to do
-        return intendedIdentifier;
-
-        // only the other has an InternalModel
-        // OR only the other has a Record
-      } else if ((im === null && otherIm !== null) || (im && !im.hasRecord && otherIm && otherIm.hasRecord)) {
-        if (im) {
-          // TODO check if we are retained in any async relationships
-          map.remove(im, intendedIdentifier.lid);
-          // im.destroy();
+        // remove otherIm from cache
+        if (otherIm) {
+          map.remove(otherIm, altIdentifier.lid);
         }
-        im = otherIm;
-        // TODO do we need to notify the id change?
-        im._id = intendedIdentifier.id;
-        map.add(im, intendedIdentifier.lid);
 
-        // just use im
-      } else {
-        // otherIm.destroy();
-      }
+        if (im === null && otherIm === null) {
+          // nothing more to do
+          return intendedIdentifier;
 
-      /*
+          // only the other has an InternalModel
+          // OR only the other has a Record
+        } else if ((im === null && otherIm !== null) || (im && !im.hasRecord && otherIm && otherIm.hasRecord)) {
+          if (im) {
+            // TODO check if we are retained in any async relationships
+            map.remove(im, intendedIdentifier.lid);
+            // im.destroy();
+          }
+          im = otherIm;
+          // TODO do we need to notify the id change?
+          im._id = intendedIdentifier.id;
+          map.add(im, intendedIdentifier.lid);
+
+          // just use im
+        } else {
+          // otherIm.destroy();
+        }
+
+        /*
       TODO @runspired consider adding this to make polymorphism even nicer
       if (HAS_RECORD_DATA_PACKAGE) {
         if (identifier.type !== matchedIdentifier.type) {
@@ -167,8 +186,9 @@ export default class InternalModelFactory {
       }
       */
 
-      return intendedIdentifier;
-    });
+        return intendedIdentifier;
+      }
+    );
     this._identityMap = new IdentityMap();
   }
 
@@ -183,7 +203,10 @@ export default class InternalModelFactory {
    * @method lookup
    * @private
    */
-  lookup(resource: ResourceIdentifierObject, data?: ExistingResourceObject): InternalModel {
+  lookup<T extends RecordType<R>>(
+    resource: ResourceIdentifierObject<T>,
+    data?: ExistingResourceObject<T>
+  ): InternalModel<R, T> {
     if (data !== undefined) {
       // if we've been given data associated with this lookup
       // we must first give secondary-caches for LIDs the
@@ -219,17 +242,17 @@ export default class InternalModelFactory {
    * @method peek
    * @private
    */
-  peek(identifier: StableRecordIdentifier): InternalModel | null {
+  peek<T extends RecordType<R>>(identifier: StableRecordIdentifier<T>): InternalModel<R, T> | null {
     return this.modelMapFor(identifier.type).get(identifier.lid);
   }
 
-  getByResource(resource: ResourceIdentifierObject): InternalModel {
+  getByResource<T extends RecordType<R>>(resource: ResourceIdentifierObject<T>): InternalModel<R, T> {
     const normalizedResource = constructResource(resource);
 
     return this.lookup(normalizedResource);
   }
 
-  setRecordId(type: string, id: string, lid: string) {
+  setRecordId<T extends RecordType<R>>(type: T, id: string, lid: string) {
     const resource: NewResourceIdentifierObject = { type, id: null, lid };
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     const internalModel = this.peek(identifier);
@@ -278,7 +301,7 @@ export default class InternalModelFactory {
     internalModel.setId(id, true);
   }
 
-  peekById(type: string, id: string): InternalModel | null {
+  peekById<T extends RecordType<R>>(type: T, id: string): InternalModel<R, T> | null {
     const identifier = this.identifierCache.peekRecordIdentifier({ type, id });
     let internalModel = identifier ? this.modelMapFor(type).get(identifier.lid) : null;
 
@@ -295,13 +318,16 @@ export default class InternalModelFactory {
     return internalModel;
   }
 
-  build(newResourceInfo: NewResourceInfo): InternalModel {
+  build<T extends RecordType<R>>(newResourceInfo: NewResourceInfo<T>): InternalModel<R, T> {
     return this._build(newResourceInfo, true);
   }
 
-  _build(resource: StableRecordIdentifier, isCreate: false): InternalModel;
-  _build(resource: NewResourceInfo, isCreate: true): InternalModel;
-  _build(resource: StableRecordIdentifier | NewResourceInfo, isCreate: boolean = false): InternalModel {
+  _build<T extends RecordType<R>>(resource: StableRecordIdentifier<T>, isCreate: false): InternalModel<R, T>;
+  _build<T extends RecordType<R>>(resource: NewResourceInfo<T>, isCreate: true): InternalModel<R, T>;
+  _build<T extends RecordType<R>>(
+    resource: StableRecordIdentifier<T> | NewResourceInfo<T>,
+    isCreate: boolean = false
+  ): InternalModel<R, T> {
     if (isCreate === true && resource.id) {
       let existingInternalModel = this.peekById(resource.type, resource.id);
 
@@ -312,24 +338,24 @@ export default class InternalModelFactory {
     }
 
     const { identifierCache } = this;
-    let identifier: StableRecordIdentifier;
+    let identifier: StableRecordIdentifier<T>;
 
     if (isCreate === true) {
       identifier = identifierCache.createIdentifierForNewRecord(resource);
     } else {
-      identifier = resource as StableRecordIdentifier;
+      identifier = resource as StableRecordIdentifier<T>;
     }
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    let internalModel = new InternalModel(this.store, identifier);
+    let internalModel = new InternalModel<R, T>(this.store, identifier);
 
     this.modelMapFor(resource.type).add(internalModel, identifier.lid);
 
     return internalModel;
   }
 
-  remove(internalModel: InternalModel): void {
+  remove<T extends RecordType<R>>(internalModel: InternalModel<R, T>): void {
     let recordMap = this.modelMapFor(internalModel.modelName);
     let clientId = internalModel.identifier.lid;
 
@@ -339,11 +365,11 @@ export default class InternalModelFactory {
     this.identifierCache.forgetRecordIdentifier(identifier);
   }
 
-  modelMapFor(type: string): InternalModelMap {
+  modelMapFor<T extends RecordType<R>>(type: T): InternalModelMap<R, T> {
     return this._identityMap.retrieve(type);
   }
 
-  clear(type?: string) {
+  clear<T extends RecordType<R>>(type?: T) {
     if (type === undefined) {
       this._identityMap.clear();
     } else {

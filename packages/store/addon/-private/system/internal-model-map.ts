@@ -1,5 +1,7 @@
 import { assert } from '@ember/debug';
 
+import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { ConfidentDict } from '../ts-interfaces/utils';
 import InternalModel from './model/internal-model';
@@ -18,13 +20,18 @@ import InternalModel from './model/internal-model';
  @class InternalModelMap
  @internal
  */
-export default class InternalModelMap {
-  private _idToModel: ConfidentDict<InternalModel> = Object.create(null);
-  private _models: InternalModel[] = [];
+export default class InternalModelMap<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+  declare _idToModel: ConfidentDict<InternalModel<R, T>>;
+  declare _models: InternalModel<R, T>[];
+  declare modelName: T;
 
-  constructor(public modelName: string) {}
+  constructor(modelName: T) {
+    this.modelName = modelName;
+    this._idToModel = Object.create(null) as ConfidentDict<InternalModel<R, T>>;
+    this._models = [];
+  }
 
-  get(id: string): InternalModel | null {
+  get(id: string): InternalModel<R, T> | null {
     return this._idToModel[id] || null;
   }
 
@@ -36,11 +43,11 @@ export default class InternalModelMap {
     return this._models.length;
   }
 
-  get recordIdentifiers(): StableRecordIdentifier[] {
+  get recordIdentifiers(): StableRecordIdentifier<T>[] {
     return this._models.map((m) => m.identifier);
   }
 
-  set(id: string, internalModel: InternalModel): void {
+  set(id: string, internalModel: InternalModel<R, T>): void {
     assert(`You cannot index an internalModel by an empty id'`, typeof id === 'string' && id.length > 0);
     assert(
       `You cannot set an index for an internalModel to something other than an internalModel`,
@@ -58,7 +65,7 @@ export default class InternalModelMap {
     this._idToModel[id] = internalModel;
   }
 
-  add(internalModel: InternalModel, id: string | null): void {
+  add(internalModel: InternalModel<R, T>, id: string | null): void {
     assert(
       `You cannot re-add an already present InternalModel to the InternalModelMap.`,
       !this.contains(internalModel)
@@ -76,7 +83,7 @@ export default class InternalModelMap {
     this._models.push(internalModel);
   }
 
-  remove(internalModel: InternalModel, id: string): void {
+  remove(internalModel: InternalModel<R, T>, id: string): void {
     delete this._idToModel[id];
 
     let loc = this._models.indexOf(internalModel);
@@ -86,7 +93,7 @@ export default class InternalModelMap {
     }
   }
 
-  contains(internalModel: InternalModel): boolean {
+  contains(internalModel: InternalModel<R, T>): boolean {
     return this._models.indexOf(internalModel) !== -1;
   }
 
@@ -96,7 +103,7 @@ export default class InternalModelMap {
    @internal
    @type Array
    */
-  get models(): InternalModel[] {
+  get models(): InternalModel<R, T>[] {
     return this._models;
   }
 

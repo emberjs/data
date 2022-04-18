@@ -4,7 +4,7 @@ import ObjectProxy from '@ember/object/proxy';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface PromiseArrayProxy<I, T> extends Promise<T> {}
 export class PromiseArrayProxy<I, T> extends ArrayProxy<I, T> {
-  declare content: T;
+  declare content: I[];
 
   /*
    * If the proxied promise is rejected this will contain the reason
@@ -35,7 +35,7 @@ export class PromiseArrayProxy<I, T> extends ArrayProxy<I, T> {
 
 export interface PromiseObjectProxy<T> extends Promise<T> {}
 export class PromiseObjectProxy<T> extends ObjectProxy<T> {
-  declare content?: T | null;
+  declare content: T | null | undefined;
 
   /*
    * If the proxied promise is rejected this will contain the reason

@@ -9,7 +9,7 @@ import {
  * `Ember.ObjectProxy` forwards all properties not defined by the proxy itself
  * to a proxied `content` object.
  */
-export default class ObjectProxy<T extends object = object> extends EmberObject {
+export default class ObjectProxy<T> extends EmberObject {
   /**
    * The object whose properties will be forwarded.
    */

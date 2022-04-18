@@ -1,5 +1,7 @@
 import { dasherize } from '@ember/string';
 
+import { DefaultRegistry, Registry } from '@ember-data/types';
+
 /**
   @module @ember-data/store
 */
@@ -18,6 +20,19 @@ import { dasherize } from '@ember/string';
   @param {String} modelName
   @return {String} normalizedModelName
 */
-export default function normalizeModelName(modelName: string): string {
-  return dasherize(modelName);
+// we're lying a bit here with the type, because what comes in *wont* be a key typically
+// and what comes out *might not* be a key either.
+export default function normalizeModelName<
+  R extends Registry = DefaultRegistry['model'],
+  K extends keyof R & string = keyof R & string
+>(modelName: K): K;
+export default function normalizeModelName<
+  R extends Registry = DefaultRegistry['model'],
+  K extends keyof R & string = keyof R & string
+>(modelName: Exclude<string, K>): string;
+export default function normalizeModelName<
+  R extends Registry = DefaultRegistry['model'],
+  K extends keyof R & string = keyof R & string
+>(modelName: K | Exclude<string, K>): K | string {
+  return dasherize(modelName) as K;
 }

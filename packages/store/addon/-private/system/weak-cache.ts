@@ -75,12 +75,12 @@ class WeakCache<K extends object, V> extends WeakMap<K, V> {
    * @param obj
    * @internal
    */
-  lookup(obj: K): V {
-    let v = super.get(obj);
+  lookup<KI, VI>(obj: KI): VI {
+    let v = super.get(obj as unknown as K);
 
     if (v === undefined) {
-      v = this._generator!(obj);
-      super.set(obj, v);
+      v = this._generator!(obj as unknown as K);
+      super.set(obj as unknown as K, v);
 
       if (DEBUG) {
         if (obj[DEBUG_IDENTIFIER_BUCKET] && this._fieldName !== 'identifier-proxy-target') {
@@ -92,7 +92,7 @@ class WeakCache<K extends object, V> extends WeakMap<K, V> {
       }
     }
 
-    return v;
+    return v as unknown as VI;
   }
 }
 

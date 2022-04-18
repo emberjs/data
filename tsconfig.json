@@ -1,7 +1,7 @@
 {
     "extends": "./root-tsconfig.json",
     "compilerOptions": {
-      "noImplicitAny": false
+      "noImplicitAny": false,
     },
     "files": [
       "packages/unpublished-test-infra/addon-test-support/qunit-asserts/utils/is-thenable.ts",

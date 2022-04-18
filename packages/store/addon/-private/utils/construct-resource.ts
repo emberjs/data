@@ -5,20 +5,28 @@ import coerceId from '../system/coerce-id';
 import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 import isNonEmptyString from './is-non-empty-string';
 
-function constructResource(type: ResourceIdentifierObject): ResourceIdentifierObject;
-function constructResource(type: string, id: string, lid: string): ExistingResourceIdentifierObject;
-function constructResource(
-  type: string | undefined,
+function constructResource<T extends string>(type: ResourceIdentifierObject<T>): ResourceIdentifierObject<T>;
+function constructResource<T extends string>(type: T, id: string, lid: string): ExistingResourceIdentifierObject<T>;
+function constructResource<T extends string>(
+  type: T | undefined,
   id: null | undefined,
   lid: string
-): ExistingResourceIdentifierObject;
-function constructResource(type: string, id: string, lid?: string | null): ExistingResourceIdentifierObject;
-function constructResource(type: string, id?: string | number | null, lid?: string | null): ResourceIdentifierObject;
-function constructResource(
-  type: string | ResourceIdentifierObject | undefined,
+): ExistingResourceIdentifierObject<T>;
+function constructResource<T extends string>(
+  type: T,
+  id: string,
+  lid?: string | null
+): ExistingResourceIdentifierObject<T>;
+function constructResource<T extends string>(
+  type: T,
   id?: string | number | null,
   lid?: string | null
-): ResourceIdentifierObject | ExistingResourceIdentifierObject {
+): ResourceIdentifierObject<T>;
+function constructResource<T extends string>(
+  type: T | ResourceIdentifierObject<T> | undefined,
+  id?: string | number | null,
+  lid?: string | null
+): ResourceIdentifierObject<T> | ExistingResourceIdentifierObject<T> {
   if (typeof type === 'object' && type !== null) {
     let resource = type;
     if (isStableIdentifier(resource)) {

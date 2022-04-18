@@ -1,33 +1,44 @@
 import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
-import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
-import type ObjectProxy from '@ember/object/proxy';
 
 import type { InternalModel } from '@ember-data/store/-private';
 import { PromiseObject } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/store';
-import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { RecordField, RecordInstance, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
-export interface BelongsToProxyMeta {
-  key: string;
-  store: Store;
-  originatingInternalModel: InternalModel;
-  modelName: string;
+export interface BelongsToProxyMeta<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  J extends RecordType<R> = RecordType<R>
+> {
+  /**
+   * the key on the record
+   * @internal
+   */
+  key: K;
+  store: Store<R>;
+  /**
+   * the InternalModel that owns this relationship proxy
+   * @internal
+   */
+  originatingInternalModel: InternalModel<R, T>;
+  /**
+   * wat
+   * @internal
+   */
+  modelName: J;
 }
-export interface BelongsToProxyCreateArgs {
-  promise: Promise<RecordInstance | null>;
-  content?: RecordInstance | null;
-  _belongsToState: BelongsToProxyMeta;
+export interface BelongsToProxyCreateArgs<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>
+> {
+  promise: Promise<R['model'][T] | null>;
+  content: R['model'][T] | null;
+  _belongsToState: BelongsToProxyMeta<R, T, K>;
 }
-
-interface PromiseObjectType<T extends object> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
-  new <T extends object>(...args: unknown[]): PromiseObjectType<T>;
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare class PromiseObjectType<T extends object> {}
-
-const Extended: PromiseObjectType<RecordInstance> = PromiseObject as unknown as PromiseObjectType<RecordInstance>;
 
 /**
  @module @ember-data/model
@@ -42,8 +53,12 @@ const Extended: PromiseObjectType<RecordInstance> = PromiseObject as unknown as 
   @extends PromiseObject
   @private
 */
-class PromiseBelongsTo extends Extended<RecordInstance> {
-  declare _belongsToState: BelongsToProxyMeta;
+class PromiseBelongsTo<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>
+> extends PromiseObject<RecordInstance<R, T>> {
+  declare _belongsToState: BelongsToProxyMeta<R, T, K>;
   // we don't proxy meta because we would need to proxy it to the relationship state container
   //  however, meta on relationships does not trigger change notifications.
   //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`
@@ -53,7 +68,7 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
     if (1) {
       assert(
         'You attempted to access meta on the promise for the async belongsTo relationship ' +
-          `${this.get('_belongsToState').modelName}:${this.get('_belongsToState').key}'.` +
+          `${this._belongsToState.modelName}:${this._belongsToState.key}'.` +
           '\nUse `record.belongsTo(relationshipName).meta()` instead.',
         false
       );

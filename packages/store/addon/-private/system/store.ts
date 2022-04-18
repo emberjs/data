@@ -21,9 +21,17 @@ import type DSModelClass from '@ember-data/model';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { ManyRelationship, RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
+import type {
+  DefaultRegistry,
+  RecordField,
+  RecordInstance,
+  RecordType,
+  RegistryGenerics,
+  RegistryMap,
+  ResolvedRegistry,
+} from '@ember-data/types';
 
 import { IdentifierCache } from '../identifiers/cache';
-import { DSModel } from '../ts-interfaces/ds-model';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
@@ -42,8 +50,7 @@ import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serial
 import type { RecordData } from '../ts-interfaces/record-data';
 import type { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
 import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
-import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
-import type { RecordInstance } from '../ts-interfaces/record-instance';
+import type { AttributesSchema, RelationshipSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import type { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
@@ -176,7 +183,9 @@ export interface CreateRecordProperties {
   @extends Ember.Service
 */
 
-export default class Store extends Service {
+export default class Store<
+  R extends ResolvedRegistry<RegistryMap> = ResolvedRegistry<DefaultRegistry>
+> extends Service {
   /**
    * EmberData specific backburner instance
    * @property _backburner
@@ -186,7 +195,7 @@ export default class Store extends Service {
   declare recordArrayManager: RecordArrayManager;
 
   declare _notificationManager: NotificationManager;
-  declare identifierCache: IdentifierCache;
+  declare identifierCache: IdentifierCache<R>;
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
   declare _modelFactoryCache: Dict<DSModelClass>;
@@ -200,7 +209,7 @@ export default class Store extends Service {
     ember-data's custom backburner instance.
     */
   // used for coalescing internal model updates
-  declare _updatedInternalModels: InternalModel[];
+  declare _updatedInternalModels: InternalModel<R, RecordType<R>>[];
 
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
@@ -285,7 +294,7 @@ export default class Store extends Service {
      * @property {IdentifierCache} identifierCache
      * @public
      */
-    this.identifierCache = new IdentifierCache();
+    this.identifierCache = new IdentifierCache<R>();
 
     if (DEBUG) {
       if (this.shouldTrackAsyncRequests === undefined) {
@@ -344,13 +353,13 @@ export default class Store extends Service {
     return this._fetchManager.requestCache;
   }
 
-  _instantiateRecord(
-    internalModel: InternalModel,
-    modelName: string,
+  _instantiateRecord<T extends RecordType<R>>(
+    internalModel: InternalModel<R, T>,
+    modelName: T,
     recordData: RecordData,
-    identifier: StableRecordIdentifier,
+    identifier: StableRecordIdentifier<T>,
     properties?: { [key: string]: any }
-  ) {
+  ): R['model'][T] {
     // assert here
     if (properties !== undefined) {
       assert(
@@ -410,12 +419,12 @@ export default class Store extends Service {
    * @param notificationManager
    * @returns
    */
-  instantiateRecord(
-    identifier: StableRecordIdentifier,
+  instantiateRecord<T extends RecordType<R>>(
+    identifier: StableRecordIdentifier<T>,
     createRecordArgs: { [key: string]: unknown }, // args passed in to store.createRecord() and processed by recordData to be set on creation
-    recordDataFor: (identifier: StableRecordIdentifier) => RecordDataRecordWrapper,
+    recordDataFor: (identifier: StableRecordIdentifier<T>) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): RecordInstance {
+  ): RecordInstance<R, T> {
     let modelName = identifier.type;
 
     let internalModel = this._internalModelForResource(identifier);
@@ -443,8 +452,12 @@ export default class Store extends Service {
    * @param record
    * @method teardownRecord
    */
-  teardownRecord(record: RecordInstance): void {
-    (record as DSModel).destroy();
+  teardownRecord<T extends RecordType<R>>(record: RecordInstance<R, T>): void {
+    assert(
+      `You must implement \`<Store>.teardownRecord()\` to handle custom model classes that do not have a destroy method.`,
+      record && 'destroy' in record && typeof (record as unknown as { destroy(): void }).destroy === 'function'
+    );
+    (record as unknown as { destroy(): void }).destroy();
   }
 
   /**
@@ -452,27 +465,39 @@ export default class Store extends Service {
    * @public
    * @method getSchemaDefinitionService
    */
-  getSchemaDefinitionService(): SchemaDefinitionService {
+  getSchemaDefinitionService(): SchemaDefinitionService<R> {
     if (!this._schemaDefinitionService) {
       this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
     }
     return this._schemaDefinitionService;
   }
 
-  _attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+  _attributesDefinitionFor<T extends RecordType<R>>(
+    identifier: RecordIdentifier<T> | { type: T }
+  ): AttributesSchema<R, T> {
     return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
   }
 
-  _relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+  _relationshipsDefinitionFor<T extends RecordType<R>>(
+    identifier: RecordIdentifier<T> | { type: T }
+  ): RelationshipsSchema<R, T> {
     return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
   }
 
-  registerSchemaDefinitionService(schema: SchemaDefinitionService) {
+  registerSchemaDefinitionService(schema: SchemaDefinitionService<R>) {
     this._schemaDefinitionService = schema;
   }
 
-  _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    return this._relationshipsDefinitionFor({ type: modelName })[key];
+  _relationshipMetaFor<T extends RecordType<R>, K extends RecordField<R, T>>(
+    modelName: T,
+    id: string | null,
+    key: K
+  ): RelationshipSchema<R, T, K> {
+    const relationships = this._relationshipsDefinitionFor<T>({ type: modelName });
+    assert(`Expected to find a relationships definition for ${modelName}`, relationships);
+    const relationship = relationships[key];
+    assert(`Expected to find a relationships definition for ${modelName} field ${key}`, relationship);
+    return relationship;
   }
 
   /**
@@ -491,7 +516,7 @@ export default class Store extends Service {
     @param {String} modelName
     @return {subclass of Model | ShimModelClass}
     */
-  modelFor(modelName: string): ShimModelClass | DSModelClass {
+  modelFor<T extends RecordType<R>>(modelName: T): ShimModelClass | DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
@@ -515,7 +540,7 @@ export default class Store extends Service {
     }
   }
 
-  _modelFactoryFor(modelName: string): DSModelClass {
+  _modelFactoryFor<T extends RecordType<R>>(modelName: T): DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, '_modelFactoryFor');
     }
@@ -542,7 +567,7 @@ export default class Store extends Service {
     @method _hasModelFor
     @private
   */
-  _hasModelFor(modelName) {
+  _hasModelFor<T extends RecordType<R>>(modelName: T): boolean {
     if (DEBUG) {
       assertDestroyingStore(this, '_hasModelFor');
     }
@@ -588,7 +613,7 @@ export default class Store extends Service {
       newly created record.
     @return {Model} record
   */
-  createRecord(modelName: string, inputProperties: CreateRecordProperties): RecordInstance {
+  createRecord<T extends RecordType<R>>(modelName: T, inputProperties: CreateRecordProperties): RecordInstance<R, T> {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
@@ -605,7 +630,7 @@ export default class Store extends Service {
     //   to remove this, we would need to move to a new `async` API.
     return emberBackburner.join(() => {
       return this._backburner.join(() => {
-        let normalizedModelName = normalizeModelName(modelName);
+        let normalizedModelName = normalizeModelName<R['model'], T>(modelName);
         let properties = { ...inputProperties };
 
         // If the passed properties do not include a primary key,
@@ -620,7 +645,7 @@ export default class Store extends Service {
         // Coerce ID to a string
         properties.id = coerceId(properties.id);
 
-        const factory = internalModelFactoryFor(this);
+        const factory = internalModelFactoryFor<R, T>(this);
         const internalModel = factory.build({ type: normalizedModelName, id: properties.id });
 
         internalModel.send('loadedData');
@@ -1418,9 +1443,12 @@ export default class Store extends Service {
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
     @return {Model|null} record
   */
-  peekRecord(identifier: string, id: string | number): RecordInstance | null;
-  peekRecord(identifier: ResourceIdentifierObject): RecordInstance | null;
-  peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
+  peekRecord<K extends keyof R['model'] & string>(identifier: K, id: string | number): R['model'][K] | null;
+  peekRecord<K extends keyof R['model'] & string>(identifier: ResourceIdentifierObject<K>): R['model'][K] | null;
+  peekRecord<K extends keyof R['model'] & string>(
+    identifier: ResourceIdentifierObject<K> | K,
+    id?: string | number
+  ): R['model'][K] | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       let stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
       if (stableIdentifier) {

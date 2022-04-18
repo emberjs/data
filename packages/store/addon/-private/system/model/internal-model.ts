@@ -29,13 +29,13 @@ import type {
   DefaultSingleResourceRelationship,
   RelationshipRecordData,
 } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
+import { RecordField, RecordInstance, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type { DSModel } from '../../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { ChangedAttributesHash, RecordData } from '../../ts-interfaces/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import type { RelationshipSchema } from '../../ts-interfaces/record-data-schemas';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
 import type { Dict } from '../../ts-interfaces/utils';
 import { errorsHashToArray } from '../errors-utils';
@@ -49,7 +49,11 @@ import RootState from './states';
 
 type PrivateModelModule = {
   ManyArray: { create(args: ManyArrayCreateArgs): ManyArray };
-  PromiseBelongsTo: { create(args: BelongsToProxyCreateArgs): PromiseBelongsTo };
+  PromiseBelongsTo: {
+    create<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>, K extends RecordField<R, T>>(
+      args: BelongsToProxyCreateArgs<R, T, K>
+    ): PromiseBelongsTo<R, T, K>;
+  };
   PromiseManyArray: new (...args: unknown[]) => PromiseManyArray;
 };
 
@@ -108,7 +112,9 @@ function extractPivotName(name: string): string {
   return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
 }
 
-function isDSModel(record: RecordInstance | null): record is DSModel {
+function isDSModel<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  record: RecordInstance<R, T> | DSModel | null
+): record is DSModel {
   return (
     HAS_MODEL_PACKAGE &&
     !!record &&
@@ -117,10 +123,9 @@ function isDSModel(record: RecordInstance | null): record is DSModel {
     record.constructor.isModel === true
   );
 }
-
-export default class InternalModel {
+export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
   declare _id: string | null;
-  declare modelName: string;
+  declare modelName: T;
   declare clientId: string;
   declare __recordData: RecordData | null;
   declare _isDestroyed: boolean;
@@ -134,7 +139,7 @@ export default class InternalModel {
 
   // Not typed yet
   declare _promiseProxy: any;
-  declare _record: RecordInstance | null;
+  declare _record: RecordInstance<R, T> | null;
   declare _scheduledDestroy: any;
   declare _modelClass: any;
   declare _deferredTriggers: any;
@@ -143,15 +148,15 @@ export default class InternalModel {
   declare _recordReference: RecordReference;
   declare _manyArrayCache: Dict<ManyArray>;
 
-  declare _relationshipPromisesCache: Dict<Promise<ManyArray | RecordInstance>>;
-  declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo>;
+  declare _relationshipPromisesCache: Dict<Promise<ManyArray | RecordInstance<R, T>>>;
+  declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo<R, T, RecordField<R, T>>>;
   declare error: any;
   declare currentState: RecordState;
   declare _previousState: any;
-  declare store: Store;
-  declare identifier: StableRecordIdentifier;
+  declare store: Store<R>;
+  declare identifier: StableRecordIdentifier<T>;
 
-  constructor(store: Store, identifier: StableRecordIdentifier) {
+  constructor(store: Store<R>, identifier: StableRecordIdentifier<T>) {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
@@ -272,7 +277,7 @@ export default class InternalModel {
     }
   }
 
-  isDeleted() {
+  isDeleted(): boolean {
     if (this._recordData.isDeleted) {
       return this._recordData.isDeleted();
     } else {
@@ -280,7 +285,7 @@ export default class InternalModel {
     }
   }
 
-  isNew() {
+  isNew(): boolean {
     if (this._recordData.isNew) {
       return this._recordData.isNew();
     } else {
@@ -288,18 +293,18 @@ export default class InternalModel {
     }
   }
 
-  getRecord(properties?: CreateRecordProperties): RecordInstance {
+  getRecord(properties?: CreateRecordProperties): RecordInstance<R, T> {
     let record = this._record;
 
     if (this._isDematerializing) {
       // TODO we should assert here instead of this return.
-      return null as unknown as RecordInstance;
+      return null as unknown as RecordInstance<R, T>;
     }
 
     if (!record) {
       let { store } = this;
 
-      record = this._record = store._instantiateRecord(
+      this._record = record = store._instantiateRecord<T>(
         this,
         this.modelName,
         this._recordData,
@@ -382,7 +387,7 @@ export default class InternalModel {
     return this.store.scheduleSave(this, resolver, options) as Promise<void>;
   }
 
-  reload(options: Dict<unknown> = {}): Promise<InternalModel> {
+  reload(options: Dict<unknown> = {}): Promise<InternalModel<R, T>> {
     return this.store._reloadRecord(this, options);
   }
 
@@ -458,12 +463,12 @@ export default class InternalModel {
     }
   }
 
-  _findBelongsTo(
-    key: string,
-    resource: DefaultSingleResourceRelationship,
-    relationshipMeta: RelationshipSchema,
+  _findBelongsTo<K extends RecordField<R, T>>(
+    key: K,
+    resource: DefaultSingleResourceRelationship<R, T, K>,
+    relationshipMeta: RelationshipSchema<R, T, K>,
     options?: Dict<unknown>
-  ): Promise<RecordInstance | null> {
+  ): Promise<RecordInstance<R, T> | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
@@ -472,8 +477,11 @@ export default class InternalModel {
     );
   }
 
-  getBelongsTo(key: string, options?: Dict<unknown>): PromiseBelongsTo | RecordInstance | null {
-    let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
+  getBelongsTo<K extends RecordField<R, T>>(
+    key: K,
+    options?: Dict<unknown>
+  ): PromiseBelongsTo<R, T, K> | RecordInstance<R, T> | null {
+    let resource = (this._recordData as DefaultRecordData<R, T>).getBelongsTo(key);
     let identifier =
       resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
@@ -483,7 +491,7 @@ export default class InternalModel {
     let parentInternalModel = this;
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
-    let _belongsToState: BelongsToProxyMeta = {
+    let _belongsToState: BelongsToProxyMeta<R, T, K> = {
       key,
       store,
       originatingInternalModel: this,
@@ -494,7 +502,7 @@ export default class InternalModel {
       let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
 
       if (resource._relationship.state.hasFailedLoadAttempt) {
-        return this._relationshipProxyCache[key] as PromiseBelongsTo;
+        return this._relationshipProxyCache[key] as PromiseBelongsTo<R, T, K>;
       }
 
       let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
