@@ -2,7 +2,7 @@ import { assert, warn } from '@ember/debug';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
-import { RecordType, RegistryGenerics, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import { RecordInstance, RecordType, RegistryGenerics, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type {
   ExistingResourceObject,
@@ -11,7 +11,6 @@ import type {
 } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordData } from '../../ts-interfaces/record-data';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
 import IdentityMap from '../identity-map';
 import type InternalModelMap from '../internal-model-map';
@@ -31,14 +30,15 @@ FactoryCache._generator = <R extends RegistryGenerics<RegistryMap>>(store: Store
 };
 type NewResourceInfo<T extends string> = { type: T; id: string | null };
 
-const RecordCache = new WeakCache<RecordInstance | RecordData, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
+const RecordCache = new WeakCache<object, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
 if (DEBUG) {
-  RecordCache._expectMsg = (key: RecordInstance | RecordData) =>
-    `${String(key)} is not a record instantiated by @ember-data/store`;
+  RecordCache._expectMsg = (key: object) => `${String(key)} is not a record instantiated by @ember-data/store`;
 }
 
-export function peekRecordIdentifier(record: RecordInstance | RecordData): StableRecordIdentifier | undefined {
-  return RecordCache.get(record);
+export function peekRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  record: RecordInstance<R, T> | RecordData<R, T>
+): StableRecordIdentifier<T> | undefined {
+  return RecordCache.get(record as object) as StableRecordIdentifier<T> | undefined;
 }
 
 /**
@@ -65,11 +65,16 @@ export function peekRecordIdentifier(record: RecordInstance | RecordData): Stabl
   @param {Object} record a record instance previously obstained from the store.
   @returns {StableRecordIdentifier}
  */
-export function recordIdentifierFor(record: RecordInstance | RecordData): StableRecordIdentifier {
-  return RecordCache.getWithError(record);
+export function recordIdentifierFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  record: RecordInstance<R, T> | RecordData<R, T>
+): StableRecordIdentifier<T> {
+  return RecordCache.getWithError(record as object) as StableRecordIdentifier<T>;
 }
 
-export function setRecordIdentifier(record: RecordInstance | RecordData, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  record: RecordInstance<R, T> | RecordData<R, T>,
+  identifier: StableRecordIdentifier<T>
+): void {
   if (DEBUG && RecordCache.has(record)) {
     throw new Error(`${record} was already assigned an identifier`);
   }
@@ -82,7 +87,7 @@ export function setRecordIdentifier(record: RecordInstance | RecordData, identif
   instance.
   */
 
-  RecordCache.set(record, identifier);
+  RecordCache.set(record as object, identifier);
 }
 
 export function internalModelFactoryFor<R extends ResolvedRegistry<RegistryMap>>(

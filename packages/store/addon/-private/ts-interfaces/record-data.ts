@@ -14,15 +14,15 @@ import { Dict } from './utils';
  * @internal
  */
 export type ChangedAttributesHash<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> = {
-  [K in RecordField<R, T>]: [unknown, unknown];
+  [K in RecordField<R, T>]?: [unknown, unknown];
 };
 
 export interface RecordData<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
   getResourceIdentifier(): RecordIdentifier<T> | undefined;
 
-  pushData(data: JsonApiResource, calculateChange: true): string[];
+  pushData(data: JsonApiResource, calculateChange: true): RecordField<R, T>[];
   pushData(data: JsonApiResource, calculateChange?: false): void;
-  pushData(data: JsonApiResource, calculateChange?: boolean): string[] | void;
+  pushData(data: JsonApiResource, calculateChange?: boolean): RecordField<R, T>[] | void;
   clientDidCreate(): void;
   willCommit(): void;
 

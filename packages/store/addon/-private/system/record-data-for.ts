@@ -6,6 +6,7 @@ import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordData } from '../ts-interfaces/record-data';
 import type { RecordInstance } from '../ts-interfaces/record-instance';
+import type InternalModel from './model/internal-model';
 import WeakCache from './weak-cache';
 
 /*
@@ -21,23 +22,34 @@ import WeakCache from './weak-cache';
  * Overtime, this should shift to a "weakmap" based lookup in the
  *  "Ember.getOwner(obj)" style.
  */
-interface InternalModel {
-  _recordData: RecordData;
-}
 
-type DSModelOrSnapshot = { _internalModel: InternalModel };
-type Reference = { internalModel: InternalModel };
+type DSModelOrSnapshot<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> = {
+  _internalModel: InternalModel<R, T>;
+};
+type Reference<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> = {
+  internalModel: InternalModel<R, T>;
+};
 
-type Instance = StableRecordIdentifier | InternalModel | RecordData | DSModelOrSnapshot | Reference;
+type Instance<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> =
+  | StableRecordIdentifier<T>
+  | InternalModel<R, T>
+  | RecordData<R, T>
+  | DSModelOrSnapshot<R, T>
+  | Reference<R, T>;
 
-const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier, RecordData>(DEBUG ? 'recordData' : '');
+const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier, object>(DEBUG ? 'recordData' : '');
 
-export function setRecordDataFor(identifier: StableRecordIdentifier, recordData: RecordData): void {
+export function setRecordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  identifier: StableRecordIdentifier<T>,
+  recordData: RecordData<R, T>
+): void {
   assert(`Illegal set of identifier`, !RecordDataForIdentifierCache.has(identifier));
   RecordDataForIdentifierCache.set(identifier, recordData);
 }
 
-export function removeRecordDataFor(identifier: StableRecordIdentifier): void {
+export function removeRecordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  identifier: StableRecordIdentifier<T>
+): void {
   RecordDataForIdentifierCache.delete(identifier);
 }
 
@@ -45,7 +57,7 @@ export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T
   instance: StableRecordIdentifier<T>
 ): RecordData<R, T> | null;
 export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
-  instance: Instance
+  instance: Instance<R, T>
 ): RecordData<R, T>;
 export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
   instance: RecordInstance
@@ -54,13 +66,13 @@ export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T
   instance: object
 ): null;
 export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
-  instance: Instance | object
+  instance: Instance<R, T> | object
 ): RecordData<R, T> | null {
   if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier<T>)) {
     return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier<T>) as RecordData<R, T>;
   }
   let internalModel =
-    (instance as DSModelOrSnapshot)._internalModel || (instance as Reference).internalModel || instance;
+    (instance as DSModelOrSnapshot<R, T>)._internalModel || (instance as Reference<R, T>).internalModel || instance;
 
   return internalModel._recordData || null;
 }

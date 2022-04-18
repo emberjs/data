@@ -1,3 +1,5 @@
+import type { EmberRunTimer } from '@ember/runloop/types';
+
 export interface QueueItem {
   method: string;
   target: object;
@@ -29,9 +31,9 @@ export interface DebugInfo {
 export interface Backburner {
   join<T>(fn: () => T): T;
   on(...args: unknown[]): void;
-  scheduleOnce(...args: unknown[]): void;
+  scheduleOnce(...args: unknown[]): EmberRunTimer;
   run<T>(fn: () => T): T;
-  schedule(queueName: string, target: object | null, method: (() => void) | string): void;
+  schedule(queueName: string, target: object | null, method: (() => void) | string): EmberRunTimer;
   ensureInstance(): void;
   DEBUG: boolean;
   getDebugInfo(): DebugInfo;

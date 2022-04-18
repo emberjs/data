@@ -16,8 +16,8 @@ import type Store from '@ember-data/store/-private/system/store';
 import type { CreateRecordProperties } from '@ember-data/store/-private/system/store';
 import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { RecordField, RecordInstance, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import diffArray from './diff-array';
 
@@ -83,7 +83,12 @@ export interface ManyArrayCreateArgs {
   @extends Ember.EmberObject
   @uses Ember.MutableArray
 */
-export default class ManyArray extends MutableArrayWithObject<InternalModel, RecordInstance> {
+export default class ManyArray<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+> extends MutableArrayWithObject<InternalModel<R, RT>, RecordInstance<R, RT>> {
   declare isAsync: boolean;
   declare isLoaded: boolean;
   declare isPolymorphic: boolean;
@@ -95,11 +100,11 @@ export default class ManyArray extends MutableArrayWithObject<InternalModel, Rec
   declare _length: number;
   declare _meta: Dict<unknown> | null;
   declare _links: Links | PaginationLinks | null;
-  declare currentState: InternalModel[];
-  declare recordData: RelationshipRecordData;
-  declare internalModel: InternalModel;
+  declare currentState: InternalModel<R, RT>[];
+  declare recordData: RelationshipRecordData<R, T>;
+  declare internalModel: InternalModel<R, T>;
   declare store: Store;
-  declare key: string;
+  declare key: K;
   declare type: DSModelSchema;
 
   init() {

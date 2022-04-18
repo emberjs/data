@@ -18,6 +18,7 @@ import { importSync } from '@embroider/macros';
 import { all, default as RSVP, resolve } from 'rsvp';
 
 import type DSModelClass from '@ember-data/model';
+import { PromiseBelongsTo } from '@ember-data/model/-private';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { ManyRelationship, RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
@@ -39,6 +40,7 @@ import type {
   JsonApiDocument,
   ResourceIdentifierObject,
   SingleResourceDocument,
+  SingleResourceRelationship,
 } from '../ts-interfaces/ember-data-json-api';
 import type {
   RecordIdentifier,
@@ -488,14 +490,14 @@ export default class Store<
     this._schemaDefinitionService = schema;
   }
 
-  _relationshipMetaFor<T extends RecordType<R>, K extends RecordField<R, T>>(
+  _relationshipMetaFor<T extends RecordType<R>, K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
     modelName: T,
     id: string | null,
     key: K
-  ): RelationshipSchema<R, T, K> {
+  ): RelationshipSchema<R, T, K, RT> {
     const relationships = this._relationshipsDefinitionFor<T>({ type: modelName });
     assert(`Expected to find a relationships definition for ${modelName}`, relationships);
-    const relationship = relationships[key];
+    const relationship = relationships[key] as unknown as RelationshipSchema<R, T, K, RT>;
     assert(`Expected to find a relationships definition for ${modelName} field ${key}`, relationship);
     return relationship;
   }
@@ -1723,12 +1725,12 @@ export default class Store<
     return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options);
   }
 
-  _findBelongsToByJsonApiResource(
-    resource,
-    parentInternalModel: InternalModel,
-    relationshipMeta,
-    options
-  ): Promise<InternalModel | null> {
+  _findBelongsToByJsonApiResource<T extends RecordType<R>, K extends RecordField<R, T>, RT extends RecordType<R>>(
+    resource: SingleResourceRelationship<RT>,
+    parentInternalModel: InternalModel<R, T>,
+    relationshipMeta: RelationshipSchema<R, T, K, RT>,
+    options?: Dict<unknown>
+  ): Promise<InternalModel<R, RT> | null> {
     if (!resource) {
       return resolve(null);
     }
@@ -2953,11 +2955,16 @@ export default class Store<
     serializer.pushPayload(this, payload);
   }
 
-  reloadBelongsTo(belongsToProxy, internalModel, key, options) {
+  reloadBelongsTo<T extends RecordType<R>, K extends RecordField<R, T>>(
+    belongsToProxy: PromiseBelongsTo<R, T, K>,
+    internalModel: InternalModel<R, T>,
+    key: K,
+    options?: Dict<unknown>
+  ) {
     return internalModel.reloadBelongsTo(key, options);
   }
 
-  _internalModelForResource(resource: ResourceIdentifierObject): InternalModel {
+  _internalModelForResource<T extends RecordType<R>>(resource: ResourceIdentifierObject<T>): InternalModel<R, T> {
     return internalModelFactoryFor(this).getByResource(resource);
   }
 
@@ -2967,19 +2974,22 @@ export default class Store<
    * @method _internalModelForId
    * @internal
    */
-  _internalModelForId(type: string, id: string | null, lid: string | null): InternalModel {
+  _internalModelForId<T extends RecordType<R>>(type: T, id: string | null, lid: string | null): InternalModel<R, T> {
     const resource = constructResource(type, id, lid);
     return internalModelFactoryFor(this).lookup(resource);
   }
 
-  serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
+  serializeRecord<T extends RecordType<R>>(record: RecordInstance<R, T>, options?: Dict<unknown>): unknown {
     let identifier = recordIdentifierFor(record);
     let internalModel = internalModelFactoryFor(this).peek(identifier);
     // TODO we used to check if the record was destroyed here
     return internalModel!.createSnapshot(options).serialize(options);
   }
 
-  saveRecord(record: RecordInstance, options?: Dict<unknown>): Promise<RecordInstance> {
+  saveRecord<T extends RecordType<R>>(
+    record: RecordInstance<R, T>,
+    options?: Dict<unknown>
+  ): Promise<RecordInstance<R, T>> {
     let identifier = recordIdentifierFor(record);
     let internalModel = internalModelFactoryFor(this).peek(identifier);
     // TODO we used to check if the record was destroyed here
@@ -3001,7 +3011,7 @@ export default class Store<
    * @method _createRecordData
    * @internal
    */
-  _createRecordData(identifier: StableRecordIdentifier): RecordData {
+  _createRecordData<T extends RecordType<R>>(identifier: StableRecordIdentifier<T>): RecordData<R, T> {
     const recordData = this.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
     setRecordDataFor(identifier, recordData);
     // TODO this is invalid for v2 recordData but required
@@ -3022,12 +3032,12 @@ export default class Store<
    * @param clientId
    * @param storeWrapper
    */
-  createRecordDataFor(
-    modelName: string,
+  createRecordDataFor<T extends RecordType<R>>(
+    modelName: T,
     id: string | null,
     clientId: string,
-    storeWrapper: RecordDataStoreWrapper
-  ): RecordData {
+    storeWrapper: RecordDataStoreWrapper<R>
+  ): RecordData<R, T> {
     if (HAS_RECORD_DATA_PACKAGE) {
       // we can't greedily use require as this causes
       // a cycle we can't easily fix (or clearly pin point) at present.

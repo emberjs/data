@@ -258,10 +258,10 @@ export default class RecordDataStoreWrapper<R extends ResolvedRegistry<RegistryM
     }
   }
 
-  recordDataFor<T extends RecordType<R>>(type: T, id: string, lid?: string | null): RecordData;
-  recordDataFor<T extends RecordType<R>>(type: T, id: string | null, lid: string): RecordData;
-  recordDataFor<T extends RecordType<R>>(type: T): RecordData;
-  recordDataFor<T extends RecordType<R>>(type: T, id?: string | null, lid?: string | null): RecordData {
+  recordDataFor<T extends RecordType<R>>(type: T, id: string, lid?: string | null): RecordData<R, T>;
+  recordDataFor<T extends RecordType<R>>(type: T, id: string | null, lid: string): RecordData<R, T>;
+  recordDataFor<T extends RecordType<R>>(type: T): RecordData<R, T>;
+  recordDataFor<T extends RecordType<R>>(type: T, id?: string | null, lid?: string | null): RecordData<R, T> {
     let identifier: StableRecordIdentifier<T> | { type: T };
     let isCreate: boolean = false;
     if (!id && !lid) {

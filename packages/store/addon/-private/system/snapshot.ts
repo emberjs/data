@@ -48,7 +48,7 @@ export default class Snapshot<R extends ResolvedRegistry<RegistryMap>, T extends
   private _hasManyRelationships: Dict<Snapshot<R, RecordType<R>>[]> = Object.create(null);
   private _hasManyIds: Dict<RecordId[]> = Object.create(null);
   declare _internalModel: InternalModel<R, T>;
-  declare _changedAttributes: ChangedAttributesHash;
+  declare _changedAttributes: ChangedAttributesHash<R, T>;
 
   declare identifier: StableRecordIdentifier<T>;
   declare modelName: T;
@@ -159,8 +159,8 @@ export default class Snapshot<R extends ResolvedRegistry<RegistryMap>, T extends
     }
     let record = this.record;
     let attributes = (this.__attributes = Object.create(null));
-    let attrs = Object.keys(this._store._attributesDefinitionFor(this.identifier));
-    attrs.forEach((keyName) => {
+    let attrs = Object.keys(this._store._attributesDefinitionFor(this.identifier)) as RecordField<R, T>[];
+    attrs.forEach(<K extends RecordField<R, T>>(keyName: K) => {
       if (schemaIsDSModel(this.type)) {
         // if the schema is for a DSModel then the instance is too
         attributes[keyName] = record[keyName];
@@ -245,7 +245,7 @@ export default class Snapshot<R extends ResolvedRegistry<RegistryMap>, T extends
    @return {Object} All changed attributes of the current snapshot
    @public
    */
-  changedAttributes(): ChangedAttributesHash {
+  changedAttributes(): ChangedAttributesHash<R, T> {
     let changedAttributes = Object.create(null);
     if (!this._changedAttributes) {
       return changedAttributes;

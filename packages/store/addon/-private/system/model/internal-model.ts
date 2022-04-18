@@ -3,6 +3,7 @@ import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
+import type { EmberRunTimer } from '@ember/runloop/types';
 import { DEBUG } from '@glimmer/env';
 
 import { importSync } from '@embroider/macros';
@@ -39,6 +40,7 @@ import type { RelationshipSchema } from '../../ts-interfaces/record-data-schemas
 import type { FindOptions } from '../../ts-interfaces/store';
 import type { Dict } from '../../ts-interfaces/utils';
 import { errorsHashToArray } from '../errors-utils';
+import { PromiseObject } from '../promise-proxies';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
@@ -50,9 +52,14 @@ import RootState from './states';
 type PrivateModelModule = {
   ManyArray: { create(args: ManyArrayCreateArgs): ManyArray };
   PromiseBelongsTo: {
-    create<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>, K extends RecordField<R, T>>(
-      args: BelongsToProxyCreateArgs<R, T, K>
-    ): PromiseBelongsTo<R, T, K>;
+    create<
+      R extends ResolvedRegistry<RegistryMap>,
+      T extends RecordType<R>,
+      K extends RecordField<R, T>,
+      RT extends RecordType<R>
+    >(
+      args: BelongsToProxyCreateArgs<R, T, K, RT>
+    ): PromiseBelongsTo<R, T, K, RT>;
   };
   PromiseManyArray: new (...args: unknown[]) => PromiseManyArray;
 };
@@ -131,7 +138,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
   declare _id: string | null;
   declare modelName: T;
   declare clientId: string;
-  declare __recordData: RecordData | null;
+  declare __recordData: RecordData<R, T> | null;
   declare _isDestroyed: boolean;
   declare isError: boolean;
   declare _pendingRecordArrayManagerFlush: boolean;
@@ -142,21 +149,21 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
   declare _deletedRecordWasNew: boolean;
 
   // Not typed yet
-  declare _promiseProxy: any;
+  declare _promiseProxy: PromiseObject<RecordInstance<R, T>> | null;
   declare _record: RecordInstance<R, T> | null;
-  declare _scheduledDestroy: any;
-  declare _modelClass: any;
-  declare _deferredTriggers: any;
-  declare __recordArrays: any;
-  declare references: any;
+  declare _scheduledDestroy: EmberRunTimer | null;
+  declare _modelClass: unknown;
+  declare _deferredTriggers: unknown;
+  declare __recordArrays: unknown;
+  declare references: unknown;
   declare _recordReference: RecordReference;
   declare _manyArrayCache: Dict<ManyArray>;
 
   declare _relationshipPromisesCache: Dict<Promise<ManyArray | RecordInstance<R, T>>>;
-  declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo<R, T, RecordField<R, T>>>;
-  declare error: any;
+  declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo<R, T, RecordField<R, T>, RecordType<R>>>;
+  declare error: unknown;
   declare currentState: RecordState;
-  declare _previousState: any;
+  declare _previousState: unknown;
   declare store: Store<R>;
   declare identifier: StableRecordIdentifier<T>;
 
@@ -232,7 +239,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     return this._recordReference;
   }
 
-  get _recordData(): RecordData {
+  get _recordData(): RecordData<R, T> {
     if (this.__recordData === null) {
       let recordData = this.store._createRecordData(this.identifier);
       this.__recordData = recordData;
@@ -430,8 +437,10 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
 
     this._doNotDestroy = true;
     this._isDematerializing = false;
-    cancel(this._scheduledDestroy);
-    this._scheduledDestroy = null;
+    if (this._scheduledDestroy !== null) {
+      cancel(this._scheduledDestroy);
+      this._scheduledDestroy = null;
+    }
   }
 
   // typically, we prefer to async destroy this lets us batch cleanup work.
@@ -467,35 +476,42 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     }
   }
 
-  _findBelongsTo<K extends RecordField<R, T>>(
+  _findBelongsTo<K extends RecordField<R, T>, RT extends RecordType<R>>(
     key: K,
-    resource: DefaultSingleResourceRelationship<R, T, K>,
-    relationshipMeta: RelationshipSchema<R, T, K>,
+    resource: DefaultSingleResourceRelationship<R, T, K, RT>,
+    relationshipMeta: RelationshipSchema<R, T, K, RT>,
     options?: Dict<unknown>
-  ): Promise<RecordInstance<R, T> | null> {
+  ): Promise<RecordInstance<R, RT> | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
-    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
-      (internalModel) => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel),
-      (e) => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
+    const relationship = resource._relationship;
+    return this.store._findBelongsToByJsonApiResource<T, K, RT>(resource, this, relationshipMeta, options).then(
+      (internalModel: InternalModel<R, RT> | null) =>
+        handleCompletedRelationshipRequest<R, T, K, RT>(this, key, relationship, internalModel),
+      (e: Error) => handleCompletedRelationshipRequest<R, T, K, RT>(this, key, relationship, null, e)
     );
   }
 
-  getBelongsTo<K extends RecordField<R, T>>(
+  getBelongsTo<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
     key: K,
     options?: Dict<unknown>
-  ): PromiseBelongsTo<R, T, K> | RecordInstance<R, T> | null {
-    let resource = (this._recordData as DefaultRecordData<R, T>).getBelongsTo(key);
+  ): PromiseBelongsTo<R, T, K, RT> | RecordInstance<R, RT> | null {
+    assertIs<DefaultRecordData<R, T>>(
+      `Expected the RecordData instance for ${this.modelName} to be an intance of @ember-data/record-data when using @ember-data/model belongsTo relationship.`,
+      '_bfsId' in this._recordData, // TODO come up with a more sure check
+      this._recordData
+    );
+    let resource = this._recordData.getBelongsTo(key) as DefaultSingleResourceRelationship<R, T, K, RT>;
     let identifier =
-      resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
-    let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
+      resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier<RT>(resource.data) : null;
+    let relationshipMeta = this.store._relationshipMetaFor<T, K, RT>(this.modelName, null, key);
     assert(`Attempted to access a belongsTo relationship but no definition exists for it`, relationshipMeta);
 
     let store = this.store;
     let parentInternalModel = this;
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
-    let _belongsToState: BelongsToProxyMeta<R, T, K> = {
+    let _belongsToState: BelongsToProxyMeta<R, T, K, RT> = {
       key,
       store,
       originatingInternalModel: this,
@@ -506,10 +522,10 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
       let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
 
       if (resource._relationship.state.hasFailedLoadAttempt) {
-        return this._relationshipProxyCache[key] as PromiseBelongsTo<R, T, K>;
+        return this._relationshipProxyCache[key] as PromiseBelongsTo<R, T, K, RT>;
       }
 
-      let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
+      let promise = this._findBelongsTo<K, RT>(key, resource, relationshipMeta, options);
 
       return this._updatePromiseProxyFor('belongsTo', key, {
         promise,
@@ -618,26 +634,29 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  _updatePromiseProxyFor<K extends RecordField<R, T>>(
+  _updatePromiseProxyFor<K extends RecordField<R, T>, RT extends RecordType<R>>(
     kind: 'hasMany',
     key: K,
     args: HasManyProxyCreateArgs
   ): PromiseManyArray;
-  _updatePromiseProxyFor<K extends RecordField<R, T>>(
+  _updatePromiseProxyFor<K extends RecordField<R, T>, RT extends RecordType<R>>(
     kind: 'belongsTo',
     key: K,
-    args: BelongsToProxyCreateArgs<R, T, K>
-  ): PromiseBelongsTo<R, T, K>;
-  _updatePromiseProxyFor<K extends RecordField<R, T>>(
+    args: BelongsToProxyCreateArgs<R, T, K, RT>
+  ): PromiseBelongsTo<R, T, K, RT>;
+  _updatePromiseProxyFor<K extends RecordField<R, T>, RT extends RecordType<R>>(
     kind: 'belongsTo',
     key: K,
     args: { promise: Promise<RecordInstance<R, T> | null> }
-  ): PromiseBelongsTo<R, T, K>;
-  _updatePromiseProxyFor<K extends RecordField<R, T>>(
+  ): PromiseBelongsTo<R, T, K, RT>;
+  _updatePromiseProxyFor<K extends RecordField<R, T>, RT extends RecordType<R>>(
     kind: 'hasMany' | 'belongsTo',
     key: K,
-    args: BelongsToProxyCreateArgs<R, T, K> | HasManyProxyCreateArgs | { promise: Promise<RecordInstance<R, T> | null> }
-  ): PromiseBelongsTo<R, T, K> | PromiseManyArray {
+    args:
+      | BelongsToProxyCreateArgs<R, T, K, RT>
+      | HasManyProxyCreateArgs
+      | { promise: Promise<RecordInstance<R, RT> | null> }
+  ): PromiseBelongsTo<R, T, K, RT> | PromiseManyArray {
     let promiseProxy = this._relationshipProxyCache[key];
     if (kind === 'hasMany') {
       const { promise, content } = args as HasManyProxyCreateArgs;
@@ -651,12 +670,12 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     }
 
     if (promiseProxy) {
-      const { promise, content } = args as BelongsToProxyCreateArgs<R, T, K>;
+      const { promise, content } = args as BelongsToProxyCreateArgs<R, T, K, RT>;
       assert(
         `Expected a PromiseBelongsTo`,
         '_belongsToState' in promiseProxy && promiseProxy._belongsToState.key === key
       );
-      assertIs<PromiseBelongsTo<R, T, K>>(
+      assertIs<PromiseBelongsTo<R, T, K, RT>>(
         `Expected the PromiseBelongsTo for field ${key}`,
         promiseProxy._belongsToState.key === key,
         promiseProxy
@@ -670,7 +689,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     } else {
       // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
       this._relationshipProxyCache[key] = promiseProxy = _PromiseBelongsTo.create(args as any);
-      assertIs<PromiseBelongsTo<R, T, K>>(
+      assertIs<PromiseBelongsTo<R, T, K, RT>>(
         `Expected the PromiseBelongsTo for field ${key}`,
         promiseProxy._belongsToState.key === key,
         promiseProxy
@@ -830,7 +849,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     return !!this._record;
   }
 
-  createSnapshot(options: FindOptions = {}): Snapshot {
+  createSnapshot(options: FindOptions = {}): Snapshot<R, T> {
     return new Snapshot(options, this.identifier, this.store);
   }
 
@@ -842,7 +861,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     return this._recordData.hasChangedAttributes();
   }
 
-  changedAttributes(): ChangedAttributesHash {
+  changedAttributes(): ChangedAttributesHash<R, T> {
     if (!this.__recordData) {
       // no need to calculate changed attributes when calling `findRecord`
       return {};
@@ -1170,7 +1189,11 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
       if (!this._record) {
         return false;
       }
-      let errors = (this._record as DSModel).errors;
+      assert(
+        `Your RecordData instance does not implement getErrors but your model instance is also not an instance of @ember-data/model, either use @ember-data/model or update your RecordData implementation to handle errors`,
+        isDSModel(this._record)
+      );
+      let errors = this._record.errors;
       return errors.length > 0;
     }
   }
@@ -1184,7 +1207,11 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     if (error && parsedErrors) {
       // TODO add assertion forcing consuming RecordData's to implement getErrors
       if (!this._recordData.getErrors) {
-        let record = this.getRecord() as DSModel;
+        let record = this.getRecord();
+        assert(
+          `Your RecordData instance does not implement getErrors but your model instance is also not an instance of @ember-data/model, either use @ember-data/model or update your RecordData implementation to handle errors`,
+          isDSModel(record)
+        );
         let errors = record.errors;
         for (attribute in parsedErrors) {
           if (hasOwnProperty.call(parsedErrors, attribute)) {
@@ -1219,7 +1246,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     return `<${this.modelName}:${this.id}>`;
   }
 
-  referenceFor(kind: string | null, name: string) {
+  referenceFor<K extends RecordField<R, T>>(kind: 'belongsTo' | 'hasMany' | null, name: K) {
     let reference = this.references[name];
 
     if (!reference) {
@@ -1259,39 +1286,53 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
   }
 }
 
-function handleCompletedRelationshipRequest(
-  internalModel: InternalModel,
-  key: string,
-  relationship: BelongsToRelationship,
-  value: InternalModel | null
-): RecordInstance | null;
-function handleCompletedRelationshipRequest(
-  internalModel: InternalModel,
-  key: string,
-  relationship: ManyRelationship,
-  value: ManyArray
-): ManyArray;
-function handleCompletedRelationshipRequest(
-  internalModel: InternalModel,
-  key: string,
-  relationship: BelongsToRelationship,
+function handleCompletedRelationshipRequest<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+>(
+  internalModel: InternalModel<R, T>,
+  key: K,
+  relationship: BelongsToRelationship<R, T, K, RT>,
+  value: InternalModel<R, RT> | null
+): RecordInstance<R, RT> | null;
+function handleCompletedRelationshipRequest<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+>(internalModel: InternalModel<R, T>, key: K, relationship: ManyRelationship, value: ManyArray): ManyArray;
+function handleCompletedRelationshipRequest<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+>(
+  internalModel: InternalModel<R, T>,
+  key: K,
+  relationship: BelongsToRelationship<R, T, K, RT>,
   value: null,
   error: Error
 ): never;
-function handleCompletedRelationshipRequest(
-  internalModel: InternalModel,
-  key: string,
-  relationship: ManyRelationship,
-  value: ManyArray,
-  error: Error
-): never;
-function handleCompletedRelationshipRequest(
-  internalModel: InternalModel,
-  key: string,
-  relationship: BelongsToRelationship | ManyRelationship,
-  value: ManyArray | InternalModel | null,
+function handleCompletedRelationshipRequest<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+>(internalModel: InternalModel<R, T>, key: K, relationship: ManyRelationship, value: ManyArray, error: Error): never;
+function handleCompletedRelationshipRequest<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+>(
+  internalModel: InternalModel<R, T>,
+  key: K,
+  relationship: BelongsToRelationship<R, T, K, RT> | ManyRelationship,
+  value: ManyArray | InternalModel<R, RT> | null,
   error?: Error
-): ManyArray | RecordInstance | null {
+): ManyArray | RecordInstance<R, RT> | null {
   delete internalModel._relationshipPromisesCache[key];
   relationship.state.shouldForceReload = false;
   const isHasMany = relationship.definition.kind === 'hasMany';
@@ -1316,7 +1357,7 @@ function handleCompletedRelationshipRequest(
       if (proxy.content && proxy.content.isDestroying) {
         // TODO @types/ember__object incorrectly disallows `null`, we should either
         // override or fix upstream
-        (proxy as PromiseBelongsTo).set('content', null as unknown as undefined);
+        (proxy as PromiseBelongsTo<R, T, K, RT>).set('content', null as unknown as undefined);
       }
     }
 
@@ -1331,7 +1372,7 @@ function handleCompletedRelationshipRequest(
   // only set to not stale if no error is thrown
   relationship.state.isStale = false;
 
-  return isHasMany || !value ? (value as ManyArray | null) : (value as InternalModel).getRecord();
+  return isHasMany || !value ? (value as ManyArray | null) : (value as InternalModel<R, RT>).getRecord();
 }
 
 export function assertRecordsPassedToHasMany(records) {

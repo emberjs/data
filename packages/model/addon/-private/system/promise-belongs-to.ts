@@ -33,11 +33,12 @@ export interface BelongsToProxyMeta<
 export interface BelongsToProxyCreateArgs<
   R extends ResolvedRegistry<RegistryMap>,
   T extends RecordType<R>,
-  K extends RecordField<R, T>
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
 > {
-  promise: Promise<R['model'][T] | null>;
-  content: R['model'][T] | null;
-  _belongsToState: BelongsToProxyMeta<R, T, K>;
+  promise: Promise<R['model'][RT] | null>;
+  content: R['model'][RT] | null;
+  _belongsToState: BelongsToProxyMeta<R, T, K, RT>;
 }
 
 /**
@@ -56,9 +57,10 @@ export interface BelongsToProxyCreateArgs<
 class PromiseBelongsTo<
   R extends ResolvedRegistry<RegistryMap>,
   T extends RecordType<R>,
-  K extends RecordField<R, T>
-> extends PromiseObject<RecordInstance<R, T>> {
-  declare _belongsToState: BelongsToProxyMeta<R, T, K>;
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+> extends PromiseObject<RecordInstance<R, RT>> {
+  declare _belongsToState: BelongsToProxyMeta<R, T, K, RT>;
   // we don't proxy meta because we would need to proxy it to the relationship state container
   //  however, meta on relationships does not trigger change notifications.
   //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`
