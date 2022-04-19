@@ -27,15 +27,20 @@ const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as ne
   M = T
 >() => MutableArrayWithObject<T, M>;
 
-export interface ManyArrayCreateArgs {
-  store: Store;
+export interface ManyArrayCreateArgs<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+> {
+  store: Store<R>;
   type: ShimModelClass;
-  recordData: RelationshipRecordData;
-  key: string;
+  recordData: RelationshipRecordData<R, T>;
+  key: K;
   isPolymorphic: boolean;
   isAsync: boolean;
   _inverseIsAsync: boolean;
-  internalModel: InternalModel;
+  internalModel: InternalModel<R, T>;
   isLoaded: boolean;
 }
 /**
@@ -103,7 +108,7 @@ export default class ManyArray<
   declare currentState: InternalModel<R, RT>[];
   declare recordData: RelationshipRecordData<R, T>;
   declare internalModel: InternalModel<R, T>;
-  declare store: Store;
+  declare store: Store<R>;
   declare key: K;
   declare type: DSModelSchema;
 
@@ -261,7 +266,7 @@ export default class ManyArray<
     this._meta = v;
   }
 
-  objectAt(index: number): RecordInstance | undefined {
+  objectAt(index: number): RecordInstance<R, RT> | undefined {
     if (this._isDirty) {
       this.retrieveLatest();
     }
@@ -273,10 +278,10 @@ export default class ManyArray<
     return internalModel.getRecord();
   }
 
-  replace(idx: number, amt: number, objects?: RecordInstance[]) {
+  replace(idx: number, amt: number, objects?: RecordInstance<R, RT>[]) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
     this.store._backburner.join(() => {
-      let internalModels: InternalModel[];
+      let internalModels: InternalModel<R, T>[];
       if (amt > 0) {
         internalModels = this.currentState.slice(idx, idx + amt);
         this.recordData.removeFromHasMany(
@@ -291,7 +296,7 @@ export default class ManyArray<
         );
         this.recordData.addToHasMany(
           this.key,
-          objects.map((obj: RecordInstance) => recordDataFor(obj)),
+          objects.map((obj: RecordInstance<R, RT>) => recordDataFor(obj)),
           idx
         );
       }
@@ -308,7 +313,7 @@ export default class ManyArray<
     this._isUpdating = true;
     let jsonApi = this.recordData.getHasMany(this.key);
 
-    let internalModels: InternalModel[] = [];
+    let internalModels: InternalModel<R, RT>[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
         let im = this.store._internalModelForResource(jsonApi.data[i]);
@@ -370,7 +375,7 @@ export default class ManyArray<
     @method reload
     @public
   */
-  reload(options) {
+  reload(options?: Dict<unknown>) {
     // TODO this is odd, we don't ask the store for anything else like this?
     return this.internalModel.reloadHasMany(this.key, options);
   }
@@ -414,10 +419,10 @@ export default class ManyArray<
     @param {Object} hash
     @return {Model} record
   */
-  createRecord(hash: CreateRecordProperties): RecordInstance {
+  createRecord(hash: CreateRecordProperties): RecordInstance<R, RT> {
     const { store, type } = this;
 
-    const record = store.createRecord(type.modelName, hash);
+    const record = store.createRecord(type.modelName as RT, hash);
     this.pushObject(record);
 
     return record;

@@ -8,6 +8,7 @@ import type {
   PaginationLinks,
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type { BelongsToRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -16,25 +17,30 @@ import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
 import { isImplicit, isNew } from '../../graph/-utils';
 
-export default class ManyRelationship {
-  declare graph: Graph;
-  declare store: RecordDataStoreWrapper;
+export default class ManyRelationship<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R> = RecordType<R>
+> {
+  declare graph: Graph<R>;
+  declare store: RecordDataStoreWrapper<R>;
   declare definition: UpgradedMeta;
-  declare identifier: StableRecordIdentifier;
+  declare identifier: StableRecordIdentifier<T>;
   declare _state: RelationshipState | null;
   declare transactionRef: number;
 
-  declare members: Set<StableRecordIdentifier>;
-  declare canonicalMembers: Set<StableRecordIdentifier>;
+  declare members: Set<StableRecordIdentifier<RT>>;
+  declare canonicalMembers: Set<StableRecordIdentifier<RT>>;
   declare meta: Meta | null;
   declare links: Links | PaginationLinks | null;
 
-  declare canonicalState: StableRecordIdentifier[];
-  declare currentState: StableRecordIdentifier[];
+  declare canonicalState: StableRecordIdentifier<RT>[];
+  declare currentState: StableRecordIdentifier<RT>[];
   declare _willUpdateManyArray: boolean;
   declare _pendingManyArrayUpdates: any;
 
-  constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier) {
+  constructor(graph: Graph<R>, definition: UpgradedMeta, identifier: StableRecordIdentifier<T>) {
     this.graph = graph;
     this.store = graph.store;
     this.definition = definition;
@@ -42,8 +48,8 @@ export default class ManyRelationship {
     this._state = null;
     this.transactionRef = 0;
 
-    this.members = new Set<StableRecordIdentifier>();
-    this.canonicalMembers = new Set<StableRecordIdentifier>();
+    this.members = new Set();
+    this.canonicalMembers = new Set();
 
     this.meta = null;
     this.links = null;
@@ -90,7 +96,7 @@ export default class ManyRelationship {
     });
   }
 
-  forAllMembers(callback: (im: StableRecordIdentifier | null) => void) {
+  forAllMembers(callback: (im: StableRecordIdentifier<RT> | null) => void) {
     // ensure we don't walk anything twice if an entry is
     // in both members and canonicalMembers
     let seen = Object.create(null);
@@ -166,7 +172,7 @@ export default class ManyRelationship {
     store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
   }
 
-  getData(): CollectionResourceRelationship {
+  getData(): CollectionResourceRelationship<RT> {
     let payload: any = {};
     if (this.state.hasReceivedData) {
       payload.data = this.currentState.slice();

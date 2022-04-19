@@ -13,15 +13,15 @@ import type { DefaultSingleResourceRelationship } from '../../ts-interfaces/rela
 
 export default class BelongsToRelationship<
   R extends ResolvedRegistry<RegistryMap>,
-  T extends RecordType<R>,
-  K extends RecordField<R, T>,
+  T extends RecordType<R> = RecordType<R>,
+  K extends RecordField<R, T> = RecordField<R, T>,
   RT extends RecordType<R> = RecordType<R>
 > {
   declare localState: StableRecordIdentifier<RT> | null;
   declare remoteState: StableRecordIdentifier<RT> | null;
   declare transactionRef: number;
 
-  declare graph: Graph;
+  declare graph: Graph<R>;
   declare store: RecordDataStoreWrapper<R>;
   declare definition: UpgradedMeta;
   declare identifier: StableRecordIdentifier<T>;
@@ -30,7 +30,7 @@ export default class BelongsToRelationship<
   declare meta: Meta | null;
   declare links: Links | PaginationLinks | null;
 
-  constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier<T>) {
+  constructor(graph: Graph<R>, definition: UpgradedMeta, identifier: StableRecordIdentifier<T>) {
     this.graph = graph;
     this.store = graph.store;
     this.definition = definition;

@@ -48,7 +48,7 @@ const EMPTY_ITERATOR = {
   @public
  */
 export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>
-  implements RelationshipRecordData
+  implements RelationshipRecordData<R, T>
 {
   declare _errors?: JsonApiValidationError[];
   declare modelName: T;
@@ -87,9 +87,9 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     return this.identifier;
   }
 
-  pushData(data: JsonApiResource, calculateChange: true): string[];
+  pushData(data: JsonApiResource, calculateChange: true): RecordField<R, T>[];
   pushData(data: JsonApiResource, calculateChange?: false): void;
-  pushData(data: JsonApiResource, calculateChange?: boolean): string[] | void {
+  pushData(data: JsonApiResource, calculateChange?: boolean): RecordField<R, T>[] | void {
     let changedKeys;
 
     if (this._isNew) {
@@ -235,7 +235,7 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     @method changedAttributes
     @private
   */
-  changedAttributes(): ChangedAttributesHash {
+  changedAttributes(): ChangedAttributesHash<R, T> {
     let oldData = this._data;
     let currentData = this._attributes;
     let inFlightData = this._inFlightAttributes;
@@ -319,12 +319,17 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
   }
 
   // get ResourceIdentifiers for "current state"
-  getHasMany(key: string): CollectionResourceRelationship {
-    return (graphFor(this.storeWrapper).get(this.identifier, key) as ManyRelationship).getData();
+  getHasMany<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
+    key: K
+  ): CollectionResourceRelationship<RT> {
+    return (graphFor(this.storeWrapper).get(this.identifier, key) as ManyRelationship<R, T, K, RT>).getData();
   }
 
   // set a new "current state" via ResourceIdentifiers
-  setDirtyHasMany(key: string, recordDatas: RecordData[]) {
+  setDirtyHasMany<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
+    key: K,
+    recordDatas: RecordData<R, RT>[]
+  ) {
     graphFor(this.storeWrapper).update({
       op: 'replaceRelatedRecords',
       record: this.identifier,
@@ -334,7 +339,11 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
   }
 
   // append to "current state" via RecordDatas
-  addToHasMany(key: string, recordDatas: RecordData[], idx?: number) {
+  addToHasMany<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
+    key: K,
+    recordDatas: RecordData<R, RT>[],
+    idx?: number
+  ) {
     graphFor(this.storeWrapper).update({
       op: 'addToRelatedRecords',
       record: this.identifier,
@@ -345,7 +354,10 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
   }
 
   // remove from "current state" via RecordDatas
-  removeFromHasMany(key: string, recordDatas: RecordData[]) {
+  removeFromHasMany<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
+    key: K,
+    recordDatas: RecordData<R, RT>[]
+  ) {
     graphFor(this.storeWrapper).update({
       op: 'removeFromRelatedRecords',
       record: this.identifier,
@@ -354,7 +366,7 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     });
   }
 
-  commitWasRejected(identifier?, errors?: JsonApiValidationError[]) {
+  commitWasRejected(identifier: StableRecordIdentifier<T>, errors?: JsonApiValidationError[]) {
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
       let attrs = this._attributes;
@@ -375,7 +387,10 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     return (graphFor(this.storeWrapper).get(this.identifier, key) as BelongsToRelationship<R, T, K>).getData();
   }
 
-  setDirtyBelongsTo(key: string, recordData: RecordData) {
+  setDirtyBelongsTo<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
+    key: K,
+    recordData: RecordData<R, RT>
+  ) {
     graphFor(this.storeWrapper).update({
       op: 'replaceRelatedRecord',
       record: this.identifier,
@@ -384,7 +399,7 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     });
   }
 
-  setDirtyAttribute(key: string, value: any) {
+  setDirtyAttribute<K extends RecordField<R, T>>(key: K, value: unknown) {
     let originalValue;
     // Add the new value to the changed attributes hash
     this._attributes[key] = value;
@@ -407,7 +422,7 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     }
   }
 
-  getAttr(key: string): string {
+  getAttr<K extends RecordField<R, T>>(key: K): unknown {
     if (key in this._attributes) {
       return this._attributes[key];
     } else if (key in this._inFlightAttributes) {
@@ -417,11 +432,11 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     }
   }
 
-  hasAttr(key: string): boolean {
+  hasAttr<K extends RecordField<R, T>>(key: K | string): key is K {
     return key in this._attributes || key in this._inFlightAttributes || key in this._data;
   }
 
-  unloadRecord() {
+  unloadRecord(): void {
     if (this.isDestroyed) {
       return;
     }
@@ -432,7 +447,7 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     }
   }
 
-  _cleanupOrphanedRecordDatas() {
+  _cleanupOrphanedRecordDatas(): void {
     let relatedRecordDatas = this._allRelatedRecordDatas();
     if (areAllModelsUnloaded(relatedRecordDatas)) {
       // we don't have a backburner queue yet since
@@ -454,12 +469,12 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     this._scheduledDestroy = null;
   }
 
-  destroy() {
+  destroy(): void {
     this.isDestroyed = true;
     this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
   }
 
-  isRecordInUse() {
+  isRecordInUse(): boolean {
     return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.clientId);
   }
 
@@ -529,14 +544,14 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     Returns an array including `this` and all internal models reachable
     from `this`.
   */
-  _allRelatedRecordDatas(): RecordDataDefault[] {
-    let array: RecordDataDefault[] = [];
-    let queue: RecordDataDefault[] = [];
+  _allRelatedRecordDatas(): RecordDataDefault<R, RecordType<R>>[] {
+    let array: RecordDataDefault<R, RecordType<R>>[] = [];
+    let queue: RecordDataDefault<R, RecordType<R>>[] = [];
     let bfsId = nextBfsId++;
     queue.push(this);
     this._bfsId = bfsId;
     while (queue.length > 0) {
-      let node = queue.shift() as RecordDataDefault;
+      let node = queue.shift() as RecordDataDefault<R, RecordType<R>>;
       array.push(node);
 
       const iterator = this._directlyRelatedRecordDatasIterable().iterator();
@@ -555,7 +570,7 @@ export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, 
     return array;
   }
 
-  isAttrDirty(key: string): boolean {
+  isAttrDirty<K extends RecordField<R, T>>(key: K): boolean {
     if (this._attributes[key] === undefined) {
       return false;
     }

@@ -19,16 +19,16 @@ export interface DefaultSingleResourceRelationship<
 }
 
 export interface RelationshipRecordData<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>
-  extends RecordData {
+  extends RecordData<R, T> {
   //Required by the relationship layer
   isNew(): boolean;
   modelName: string;
   storeWrapper: RecordDataStoreWrapper<R>;
-  identifier: StableRecordIdentifier;
+  identifier: StableRecordIdentifier<T>;
   id: string | null;
   clientId: string | null;
   isEmpty(): boolean;
-  getResourceIdentifier(): RecordIdentifier;
+  getResourceIdentifier(): RecordIdentifier<T>;
   getBelongsTo<K extends RecordField<R, T>>(key: K): DefaultSingleResourceRelationship<R, T, K>;
-  getHasMany(key: string): CollectionResourceRelationship;
+  getHasMany<K extends RecordField<R, T>, RT extends RecordType<R>>(key: K): CollectionResourceRelationship<RT>;
 }

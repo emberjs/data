@@ -3,15 +3,21 @@ import { assert } from '@ember/debug';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type { Graph } from '.';
 import { expandingGet, expandingSet } from './-utils';
 
 export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
 
-export interface UpgradedMeta {
+export interface UpgradedMeta<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+> {
   kind: 'hasMany' | 'belongsTo' | 'implicit';
-  key: string;
+  key: K;
   type: string;
   isAsync: boolean;
   isImplicit: boolean;
@@ -27,7 +33,12 @@ export interface UpgradedMeta {
   inverseIsPolymorphic: boolean;
 }
 
-export interface EdgeDefinition {
+export interface EdgeDefinition<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+> {
   lhs_key: string;
   lhs_modelNames: string[];
   lhs_baseModelName: string;
@@ -117,18 +128,23 @@ export function isRHS(info: EdgeDefinition, type: string, key: string): boolean 
   return false;
 }
 
-export function upgradeDefinition(
-  graph: Graph,
-  identifier: StableRecordIdentifier,
-  propertyName: string,
+export function upgradeDefinition<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  propertyName: K,
   isImplicit: boolean = false
-): EdgeDefinition | null {
+): EdgeDefinition<R, T, K, RT> | null {
   const cache = graph._definitionCache;
   const storeWrapper = graph.store;
   const polymorphicLookup = graph._potentialPolymorphicTypes;
 
   const { type } = identifier;
-  let cached = expandingGet<EdgeDefinition | null>(cache, type, propertyName);
+  let cached = expandingGet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName);
 
   // CASE: We have a cached resolution (null if no relationship exists)
   if (cached !== undefined) {
@@ -148,9 +164,9 @@ export function upgradeDefinition(
     if (polymorphicLookup[type]) {
       const altTypes = Object.keys(polymorphicLookup[type] as {});
       for (let i = 0; i < altTypes.length; i++) {
-        let cached = expandingGet<EdgeDefinition | null>(cache, altTypes[i], propertyName);
+        let cached = expandingGet<EdgeDefinition<R, T, K, RT> | null>(cache, altTypes[i], propertyName);
         if (cached) {
-          expandingSet<EdgeDefinition | null>(cache, type, propertyName, cached);
+          expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName, cached);
           return cached;
         }
       }
@@ -226,8 +242,8 @@ export function upgradeDefinition(
       isReflexive: false, // we can't be reflexive if we don't define an inverse
     };
 
-    expandingSet<EdgeDefinition | null>(cache, inverseType, inverseKey, info);
-    expandingSet<EdgeDefinition | null>(cache, type, propertyName, info);
+    expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, inverseType, inverseKey, info);
+    expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName, info);
     return info;
   }
 
@@ -257,7 +273,7 @@ export function upgradeDefinition(
     let modelNames = isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
     // make this lookup easier in the future by caching the key
     modelNames.push(type);
-    expandingSet<EdgeDefinition | null>(cache, type, propertyName, cached);
+    expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName, cached);
 
     return cached;
   }
@@ -292,11 +308,11 @@ export function upgradeDefinition(
 
   // Create entries for the baseModelName as well as modelName to speed up
   //  inverse lookups
-  expandingSet<EdgeDefinition | null>(cache, baseType, propertyName, info);
-  expandingSet<EdgeDefinition | null>(cache, type, propertyName, info);
+  expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, baseType, propertyName, info);
+  expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName, info);
 
   // Greedily populate the inverse
-  expandingSet<EdgeDefinition | null>(cache, inverseType, inverseKey, info);
+  expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, inverseType, inverseKey, info);
 
   return info;
 }

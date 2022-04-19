@@ -4,7 +4,7 @@ import { importSync } from '@embroider/macros';
 
 import type { RelationshipDefinition } from '@ember-data/model/-private/system/relationships/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
-import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import { DefaultRegistry, RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type { IdentifierCache } from '../../identifiers/cache';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -61,7 +61,9 @@ interface RecordMap<R extends ResolvedRegistry<RegistryMap>> {
   readonly size: number;
 }
 
-export default class RecordDataStoreWrapper<R extends ResolvedRegistry<RegistryMap>> implements StoreWrapper {
+export default class RecordDataStoreWrapper<R extends ResolvedRegistry<RegistryMap> = ResolvedRegistry<DefaultRegistry>>
+  implements StoreWrapper
+{
   declare _willNotify: boolean;
   declare _pendingNotifies: RecordMap<R>;
   declare _store: Store<R>;

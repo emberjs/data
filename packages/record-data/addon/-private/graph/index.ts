@@ -6,6 +6,7 @@ import { WeakCache } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
@@ -25,35 +26,60 @@ import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
 
-type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
+type RelationshipEdge<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R> = RecordType<R>,
+  K extends RecordField<R, T> = RecordField<R, T>,
+  RT extends RecordType<R> = RecordType<R>
+> = ImplicitRelationship | ManyRelationship | BelongsToRelationship<R, T, K, RT>;
 
-const Graphs = new WeakCache<RecordDataStoreWrapper, Graph>(DEBUG ? 'graph' : '');
-Graphs._generator = (wrapper: RecordDataStoreWrapper) => {
+const Graphs = new WeakCache<
+  RecordDataStoreWrapper<ResolvedRegistry<RegistryMap>>,
+  Graph<ResolvedRegistry<RegistryMap>>
+>(DEBUG ? 'graph' : '');
+Graphs._generator = <R extends ResolvedRegistry<RegistryMap>>(wrapper: RecordDataStoreWrapper<R>) => {
   const graph = new Graph(wrapper);
 
   // in DEBUG we attach the graph to the main store for improved debuggability
   if (DEBUG) {
-    Graphs.set(wrapper._store as unknown as RecordDataStoreWrapper, graph);
+    Graphs.set(
+      wrapper._store as unknown as RecordDataStoreWrapper<RegistryMap>,
+      graph as unknown as Graph<RegistryMap>
+    );
   }
 
   return graph;
 };
 
-function isStore(maybeStore: unknown): maybeStore is Store {
+function isStore<R extends ResolvedRegistry<RegistryMap>>(maybeStore: Store<R> | unknown): maybeStore is Store<R> {
   return (maybeStore as Store)._storeWrapper !== undefined;
 }
 
-function getWrapper(store: RecordDataStoreWrapper | Store): RecordDataStoreWrapper {
+function getWrapper<R extends ResolvedRegistry<RegistryMap>>(
+  store: RecordDataStoreWrapper<R> | Store<R>
+): RecordDataStoreWrapper<R> {
   return isStore(store) ? store._storeWrapper : store;
 }
 
-export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefined {
-  return Graphs.get(getWrapper(store));
+export function peekGraph<R extends ResolvedRegistry<RegistryMap>>(
+  store: RecordDataStoreWrapper<R> | Store<R>
+): Graph<R> | undefined {
+  return Graphs.get(getWrapper(store as unknown as Store<RegistryMap>)) as Graph<R> | undefined;
 }
 
-export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
+export function graphFor<R extends ResolvedRegistry<RegistryMap>>(
+  store: RecordDataStoreWrapper<R> | Store<R>
+): Graph<R> {
   return Graphs.lookup(getWrapper(store));
 }
+
+type RelationshipEdgeMap<
+  R extends ResolvedRegistry<RegistryMap>,
+  T extends RecordType<R> = RecordType<R>,
+  K extends RecordField<R, T> = RecordField<R, T>
+> = {
+  [K1 in K]: RelationshipEdge<R, T, K>;
+};
 
 /*
  * Graph acts as the cache for relationship data. It allows for
@@ -74,11 +100,11 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
  * The value for each key, or `edge` is the identifier(s) the node relates
  * to in the graph from that key.
  */
-export class Graph {
+export class Graph<R extends ResolvedRegistry<RegistryMap>> {
   declare _definitionCache: EdgeCache;
   declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
-  declare identifiers: Map<StableRecordIdentifier, Dict<RelationshipEdge>>;
-  declare store: RecordDataStoreWrapper;
+  declare identifiers: Map<StableRecordIdentifier, RelationshipEdgeMap<R>>;
+  declare store: RecordDataStoreWrapper<R>;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
   declare _pushedUpdates: {
@@ -87,9 +113,9 @@ export class Graph {
     deletions: DeleteRecordOperation[];
   };
   declare _updatedRelationships: Set<ManyRelationship>;
-  declare _transaction: Set<ManyRelationship | BelongsToRelationship> | null;
+  declare _transaction: Set<ManyRelationship | BelongsToRelationship<R>> | null;
 
-  constructor(store: RecordDataStoreWrapper) {
+  constructor(store: RecordDataStoreWrapper<R>) {
     this._definitionCache = Object.create(null);
     this._potentialPolymorphicTypes = Object.create(null);
     this.identifiers = new Map();
@@ -101,19 +127,25 @@ export class Graph {
     this._transaction = null;
   }
 
-  has(identifier: StableRecordIdentifier, propertyName: string): boolean {
-    let relationships = this.identifiers.get(identifier);
+  has<T extends RecordType<R>, K extends RecordField<R, T>>(
+    identifier: StableRecordIdentifier<T>,
+    propertyName: K
+  ): boolean {
+    let relationships = this.identifiers.get(identifier) as RelationshipEdgeMap<R, T>;
     if (!relationships) {
       return false;
     }
     return relationships[propertyName] !== undefined;
   }
 
-  get(identifier: StableRecordIdentifier, propertyName: string): RelationshipEdge {
+  get<T extends RecordType<R>, K extends RecordField<R, T>>(
+    identifier: StableRecordIdentifier<T>,
+    propertyName: K
+  ): RelationshipEdge<R, T> {
     assert(`expected propertyName`, propertyName);
-    let relationships = this.identifiers.get(identifier);
+    let relationships = this.identifiers.get(identifier) as RelationshipEdgeMap<R, T>;
     if (!relationships) {
-      relationships = Object.create(null) as Dict<RelationshipEdge>;
+      relationships = Object.create(null) as RelationshipEdgeMap<R, T>;
       this.identifiers.set(identifier, relationships);
     }
 
@@ -190,14 +222,14 @@ export class Graph {
    to be do things like remove the comment from the post if the comment were to be deleted.
   */
 
-  isReleasable(identifier: StableRecordIdentifier): boolean {
-    const relationships = this.identifiers.get(identifier);
+  isReleasable<T extends RecordType<R>>(identifier: StableRecordIdentifier<T>): boolean {
+    const relationships = this.identifiers.get(identifier) as RelationshipEdgeMap<R, T>;
     if (!relationships) {
       return true;
     }
     const keys = Object.keys(relationships);
     for (let i = 0; i < keys.length; i++) {
-      const relationship = relationships[keys[i]] as RelationshipEdge;
+      const relationship = relationships[keys[i]];
       assert(`Expected a relationship`, relationship);
       if (relationship.definition.inverseIsAsync) {
         return false;
@@ -206,7 +238,7 @@ export class Graph {
     return true;
   }
 
-  unload(identifier: StableRecordIdentifier) {
+  unload<T extends RecordType<R>>(identifier: StableRecordIdentifier<T>) {
     const relationships = this.identifiers.get(identifier);
 
     if (relationships) {
@@ -222,7 +254,7 @@ export class Graph {
     }
   }
 
-  remove(identifier: StableRecordIdentifier) {
+  remove<T extends RecordType<R>>(identifier: StableRecordIdentifier<T>) {
     this.unload(identifier);
     this.identifiers.delete(identifier);
   }
@@ -363,11 +395,11 @@ export class Graph {
 
   willDestroy() {
     this.identifiers.clear();
-    this.store = null as unknown as RecordDataStoreWrapper;
+    this.store = null as unknown as RecordDataStoreWrapper<R>;
   }
 
   destroy() {
-    Graphs.delete(this.store);
+    Graphs.delete(this.store as unknown as RecordDataStoreWrapper);
 
     if (DEBUG) {
       Graphs.delete(this.store._store as unknown as RecordDataStoreWrapper);
