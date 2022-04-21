@@ -4,7 +4,8 @@ import { importSync } from '@embroider/macros';
 
 import type { RelationshipDefinition } from '@ember-data/model/-private/system/relationships/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
-import { DefaultRegistry, RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordType } from '@ember-data/types/utils';
 
 import type { IdentifierCache } from '../../identifiers/cache';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -23,11 +24,9 @@ import { internalModelFactoryFor } from './internal-model-factory';
   @module @ember-data/store
 */
 
-function metaIsRelationshipDefinition<
-  R extends ResolvedRegistry<RegistryMap>,
-  T extends RecordType<R>,
-  K extends RecordField<R, T>
->(meta: RelationshipSchema<R, T, K>): meta is RelationshipDefinition<R, T, K> {
+function metaIsRelationshipDefinition<R extends ResolvedRegistry, T extends RecordType<R>, K extends RecordField<R, T>>(
+  meta: RelationshipSchema<R, T, K>
+): meta is RelationshipDefinition<R, T, K> {
   return typeof (meta as RelationshipDefinition<R, T, K>)._inverseKey === 'function';
 }
 
@@ -44,7 +43,7 @@ if (HAS_RECORD_DATA_PACKAGE) {
 
 type RelKind = 'belongsTo' | 'hasMany';
 
-interface RecordMap<R extends ResolvedRegistry<RegistryMap>> {
+interface RecordMap<R extends ResolvedRegistry> {
   clear(): void;
   delete(key: StableRecordIdentifier<RecordType<R>>): boolean;
   forEach(
@@ -61,7 +60,7 @@ interface RecordMap<R extends ResolvedRegistry<RegistryMap>> {
   readonly size: number;
 }
 
-export default class RecordDataStoreWrapper<R extends ResolvedRegistry<RegistryMap> = ResolvedRegistry<DefaultRegistry>>
+export default class RecordDataStoreWrapper<R extends ResolvedRegistry = ResolvedRegistry<DefaultRegistry>>
   implements StoreWrapper
 {
   declare _willNotify: boolean;

@@ -1,4 +1,5 @@
-import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordType } from '@ember-data/types/utils';
 
 import type {
   FindRecordQuery,
@@ -13,7 +14,7 @@ import type { RecordIdentifier } from '../ts-interfaces/identifier';
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
 
-interface InternalRequest<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> extends RequestState {
+interface InternalRequest<R extends ResolvedRegistry, T extends RecordType<R>> extends RequestState {
   [Touching]: RecordIdentifier<T>[];
   [RequestPromise]?: Promise<unknown>;
 }
@@ -24,7 +25,7 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
   return 'recordIdentifier' in op;
 }
 
-export default class RequestCache<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+export default class RequestCache<R extends ResolvedRegistry, T extends RecordType<R>> {
   _pending: { [lid: string]: InternalRequest<R, T>[] } = Object.create(null);
   _done: { [lid: string]: InternalRequest<R, T>[] } = Object.create(null);
   _subscriptions: { [lid: string]: Function[] } = Object.create(null);

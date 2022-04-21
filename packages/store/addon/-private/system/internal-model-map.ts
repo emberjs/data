@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 
-import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordType } from '@ember-data/types/utils';
 
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { ConfidentDict } from '../ts-interfaces/utils';
@@ -20,7 +21,7 @@ import InternalModel from './model/internal-model';
  @class InternalModelMap
  @internal
  */
-export default class InternalModelMap<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+export default class InternalModelMap<R extends ResolvedRegistry, T extends RecordType<R>> {
   declare _idToModel: ConfidentDict<InternalModel<R, T>>;
   declare _models: InternalModel<R, T>[];
   declare modelName: T;

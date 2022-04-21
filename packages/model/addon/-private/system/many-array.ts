@@ -17,7 +17,8 @@ import type { CreateRecordProperties } from '@ember-data/store/-private/system/s
 import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
-import { RecordField, RecordInstance, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
 
 import diffArray from './diff-array';
 
@@ -28,7 +29,7 @@ const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as ne
 >() => MutableArrayWithObject<T, M>;
 
 export interface ManyArrayCreateArgs<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>
@@ -89,7 +90,7 @@ export interface ManyArrayCreateArgs<
   @uses Ember.MutableArray
 */
 export default class ManyArray<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>

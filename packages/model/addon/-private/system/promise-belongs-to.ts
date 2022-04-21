@@ -5,10 +5,11 @@ import type { InternalModel } from '@ember-data/store/-private';
 import { PromiseObject } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/store';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
-import { RecordField, RecordInstance, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
 
 export interface BelongsToProxyMeta<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   J extends RecordType<R> = RecordType<R>
@@ -31,7 +32,7 @@ export interface BelongsToProxyMeta<
   modelName: J;
 }
 export interface BelongsToProxyCreateArgs<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>
@@ -55,7 +56,7 @@ export interface BelongsToProxyCreateArgs<
   @private
 */
 class PromiseBelongsTo<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>

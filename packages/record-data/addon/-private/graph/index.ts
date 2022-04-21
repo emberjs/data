@@ -6,7 +6,8 @@ import { WeakCache } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
-import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordType } from '@ember-data/types/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
@@ -27,17 +28,14 @@ import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-r
 import updateRelationshipOperation from './operations/update-relationship';
 
 type RelationshipEdge<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordField<R, T> = RecordField<R, T>,
   RT extends RecordType<R> = RecordType<R>
-> = ImplicitRelationship | ManyRelationship | BelongsToRelationship<R, T, K, RT>;
+> = ImplicitRelationship<R, T, K, RT> | ManyRelationship<R, T, K, RT> | BelongsToRelationship<R, T, K, RT>;
 
-const Graphs = new WeakCache<
-  RecordDataStoreWrapper<ResolvedRegistry<RegistryMap>>,
-  Graph<ResolvedRegistry<RegistryMap>>
->(DEBUG ? 'graph' : '');
-Graphs._generator = <R extends ResolvedRegistry<RegistryMap>>(wrapper: RecordDataStoreWrapper<R>) => {
+const Graphs = new WeakCache<RecordDataStoreWrapper<ResolvedRegistry>, Graph<ResolvedRegistry>>(DEBUG ? 'graph' : '');
+Graphs._generator = <R extends ResolvedRegistry>(wrapper: RecordDataStoreWrapper<R>) => {
   const graph = new Graph(wrapper);
 
   // in DEBUG we attach the graph to the main store for improved debuggability
@@ -51,30 +49,28 @@ Graphs._generator = <R extends ResolvedRegistry<RegistryMap>>(wrapper: RecordDat
   return graph;
 };
 
-function isStore<R extends ResolvedRegistry<RegistryMap>>(maybeStore: Store<R> | unknown): maybeStore is Store<R> {
+function isStore<R extends ResolvedRegistry>(maybeStore: Store<R> | unknown): maybeStore is Store<R> {
   return (maybeStore as Store)._storeWrapper !== undefined;
 }
 
-function getWrapper<R extends ResolvedRegistry<RegistryMap>>(
+function getWrapper<R extends ResolvedRegistry>(
   store: RecordDataStoreWrapper<R> | Store<R>
 ): RecordDataStoreWrapper<R> {
   return isStore(store) ? store._storeWrapper : store;
 }
 
-export function peekGraph<R extends ResolvedRegistry<RegistryMap>>(
+export function peekGraph<R extends ResolvedRegistry>(
   store: RecordDataStoreWrapper<R> | Store<R>
 ): Graph<R> | undefined {
   return Graphs.get(getWrapper(store as unknown as Store<RegistryMap>)) as Graph<R> | undefined;
 }
 
-export function graphFor<R extends ResolvedRegistry<RegistryMap>>(
-  store: RecordDataStoreWrapper<R> | Store<R>
-): Graph<R> {
+export function graphFor<R extends ResolvedRegistry>(store: RecordDataStoreWrapper<R> | Store<R>): Graph<R> {
   return Graphs.lookup(getWrapper(store));
 }
 
 type RelationshipEdgeMap<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordField<R, T> = RecordField<R, T>
 > = {
@@ -100,7 +96,7 @@ type RelationshipEdgeMap<
  * The value for each key, or `edge` is the identifier(s) the node relates
  * to in the graph from that key.
  */
-export class Graph<R extends ResolvedRegistry<RegistryMap>> {
+export class Graph<R extends ResolvedRegistry> {
   declare _definitionCache: EdgeCache;
   declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
   declare identifiers: Map<StableRecordIdentifier, RelationshipEdgeMap<R>>;

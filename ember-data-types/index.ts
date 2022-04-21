@@ -3,6 +3,7 @@
  * Internal Types
  *
  * These types form the foundation of types we will eventually take public.
+ *
  */
 import {
   AdapterRegistry,
@@ -11,6 +12,8 @@ import {
   SerializerRegistry,
   TransformRegistry,
 } from '@ember-data/types/registeries';
+
+import { RecordInstance, RecordType } from './utils';
 
 export {
   AdapterRegistry,
@@ -35,34 +38,6 @@ export interface RegistryMap {
   serializer: Registry;
   transform: Registry;
 }
-
-export type DefaultRegistry = {
-  model: ModelRegistry;
-  adapter: AdapterRegistry;
-  serializer: SerializerRegistry;
-  transform: TransformRegistry;
-};
-
-// this is a lie because we have no idea
-// how the user will instantiate
-// we honestly should get to this being opaquw
-// but this will tied us over.
-export type ModelFactory<T> = new () => T;
-
-// utilities to help type things nicely
-export type RecordType<R extends RegistryMap> = keyof R['model'] & string;
-export type RecordInstance<R extends RegistryMap, T extends RecordType<R>> = R['model'][T];
-export type RecordField<R extends RegistryMap, T extends RecordType<R>> = keyof RecordInstance<R, T> & string;
-// some alt implementations to the above to avoid 'never' situations?
-/*
-export type RecordType<R extends RegistryMap> = keyof R['model'] extends never
-  ? '___NO_MODELS_REGISTERED___'
-  : keyof R['model'] & string;
-export type RecordInstance<R extends RegistryMap, T extends RecordType<R>> = (R['model'] & {
-  ___NO_MODELS_REGISTERED___: never;
-})[T];
-*/
-
 // lookup the thing registered to the ke application if needed.
 type AppFallback<R extends Registry> = R extends { application: unknown } ? R['application'] : null;
 
@@ -78,20 +53,19 @@ type ResolvedAdapterRegistry<R extends RegistryMap> = Omit<
 > &
   R['adapter'];
 
-export type ResolvedRegistry<R extends RegistryMap> = {
+export type ResolvedRegistry<R extends RegistryMap = RegistryMap> = {
   model: R['model'];
   adapter: ResolvedAdapterRegistry<R>;
   serializer: ResolvedSerializerRegistry<R>;
   transform: R['transform'];
 };
 
-export type RegistryGenerics<R extends RegistryMap> = {
-  types: RecordType<R>;
-  model: R['model'];
-  adapter: ResolvedAdapterRegistry<R>;
-  serializer: ResolvedSerializerRegistry<R>;
-  transform: R['transform'];
-};
+export type DefaultRegistry = ResolvedRegistry<{
+  model: ModelRegistry;
+  adapter: AdapterRegistry;
+  serializer: SerializerRegistry;
+  transform: TransformRegistry;
+}>;
 
 // ###########################
 // ###########################

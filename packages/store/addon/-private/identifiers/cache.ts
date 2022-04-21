@@ -4,7 +4,8 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordType } from '@ember-data/types/utils';
 
 import coerceId from '../system/coerce-id';
 import normalizeModelName from '../system/normalize-model-name';
@@ -40,7 +41,7 @@ interface KeyOptions<T extends string> {
 }
 
 type IdentifierMap<T extends string> = Record<string, StableRecordIdentifier<T>>;
-type TypeMap<R extends ResolvedRegistry<RegistryMap>> = {
+type TypeMap<R extends ResolvedRegistry> = {
   [K in RecordType<R>]: KeyOptions<K>;
 };
 
@@ -100,7 +101,7 @@ if (DEBUG) {
 // the resulting identifier satisfactorily.
 // this may be somewhat wrong in the polymorphic case
 // bit it'll satisfactorily pass :)
-function fromMap<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+function fromMap<R extends ResolvedRegistry, T extends RecordType<R>>(
   map: IdentifierMap<RecordType<R>>,
   key: string
 ): StableRecordIdentifier<T> | undefined {
@@ -119,7 +120,7 @@ function fromMap<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R
  * @class IdentifierCache
    @public
  */
-export class IdentifierCache<R extends ResolvedRegistry<RegistryMap>> {
+export class IdentifierCache<R extends ResolvedRegistry> {
   // Typescript still leaks private properties in the final
   // compiled class, so we may want to move these from _underscore
   // to a WeakMap to avoid leaking
@@ -486,7 +487,7 @@ export class IdentifierCache<R extends ResolvedRegistry<RegistryMap>> {
   }
 }
 
-function getTypeIndex<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+function getTypeIndex<R extends ResolvedRegistry, T extends RecordType<R>>(
   typeMap: TypeMap<R>,
   type: T
 ): KeyOptions<T> {
@@ -504,7 +505,7 @@ function getTypeIndex<R extends ResolvedRegistry<RegistryMap>, T extends RecordT
   return typeIndex;
 }
 
-function makeStableRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+function makeStableRecordIdentifier<R extends ResolvedRegistry, T extends RecordType<R>>(
   id: string | null,
   type: T,
   lid: string,
@@ -547,7 +548,7 @@ function makeStableRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T e
   return recordIdentifier;
 }
 
-function performRecordIdentifierUpdate<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+function performRecordIdentifierUpdate<R extends ResolvedRegistry, T extends RecordType<R>>(
   identifier: StableRecordIdentifier<T>,
   data: ResourceData,
   updateFn: UpdateMethod
@@ -605,7 +606,7 @@ function performRecordIdentifierUpdate<R extends ResolvedRegistry<RegistryMap>, 
   }
 }
 
-function detectMerge<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+function detectMerge<R extends ResolvedRegistry, T extends RecordType<R>>(
   typesCache: TypeMap<R>,
   identifier: StableRecordIdentifier<T>,
   data: ResourceIdentifierObject<T> | ExistingResourceObject<T>,

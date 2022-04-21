@@ -1,7 +1,8 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordType } from '@ember-data/types/utils';
 
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordData } from '../ts-interfaces/record-data';
@@ -23,14 +24,14 @@ import WeakCache from './weak-cache';
  *  "Ember.getOwner(obj)" style.
  */
 
-type DSModelOrSnapshot<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> = {
+type DSModelOrSnapshot<R extends ResolvedRegistry, T extends RecordType<R>> = {
   _internalModel: InternalModel<R, T>;
 };
-type Reference<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> = {
+type Reference<R extends ResolvedRegistry, T extends RecordType<R>> = {
   internalModel: InternalModel<R, T>;
 };
 
-type Instance<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> =
+type Instance<R extends ResolvedRegistry, T extends RecordType<R>> =
   | StableRecordIdentifier<T>
   | InternalModel<R, T>
   | RecordData<R, T>
@@ -39,7 +40,7 @@ type Instance<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> 
 
 const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier, object>(DEBUG ? 'recordData' : '');
 
-export function setRecordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+export function setRecordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(
   identifier: StableRecordIdentifier<T>,
   recordData: RecordData<R, T>
 ): void {
@@ -47,25 +48,24 @@ export function setRecordDataFor<R extends ResolvedRegistry<RegistryMap>, T exte
   RecordDataForIdentifierCache.set(identifier, recordData);
 }
 
-export function removeRecordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+export function removeRecordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(
   identifier: StableRecordIdentifier<T>
 ): void {
   RecordDataForIdentifierCache.delete(identifier);
 }
 
-export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+export default function recordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(
   instance: StableRecordIdentifier<T>
 ): RecordData<R, T> | null;
-export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+export default function recordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(
   instance: Instance<R, T>
 ): RecordData<R, T>;
-export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+export default function recordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(
   instance: RecordInstance
 ): RecordData<R, T>;
-export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
-  instance: object
-): null;
-export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function recordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(instance: object): null;
+export default function recordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(
   instance: Instance<R, T> | object
 ): RecordData<R, T> | null {
   if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier<T>)) {

@@ -9,7 +9,8 @@ import { DEBUG } from '@glimmer/env';
 import { default as RSVP, resolve } from 'rsvp';
 
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
-import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordType } from '@ember-data/types/utils';
 
 import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
@@ -44,7 +45,7 @@ export const SaveOp: unique symbol = Symbol('SaveOp');
 
 export type FetchMutationOptions = FindOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
-interface PendingFetchItem<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+interface PendingFetchItem<R extends ResolvedRegistry, T extends RecordType<R>> {
   identifier: ExistingRecordIdentifier<T>;
   queryRequest: Request<R, T>;
   resolver: RSVP.Deferred<SingleResourceDocument<T>>;
@@ -52,7 +53,7 @@ interface PendingFetchItem<R extends ResolvedRegistry<RegistryMap>, T extends Re
   trace?: any;
 }
 
-interface PendingSaveItem<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+interface PendingSaveItem<R extends ResolvedRegistry, T extends RecordType<R>> {
   resolver: RSVP.Deferred<null | SingleResourceDocument<T>>;
   snapshot: Snapshot<R, T>;
   identifier: RecordIdentifier<T>;
@@ -66,7 +67,7 @@ interface PendingSaveItem<R extends ResolvedRegistry<RegistryMap>, T extends Rec
  * @class FetchManager
  * @private
  */
-export default class FetchManager<R extends ResolvedRegistry<RegistryMap>> {
+export default class FetchManager<R extends ResolvedRegistry> {
   declare isDestroyed: boolean;
   declare requestCache: RequestCache<R, RecordType<R>>;
   // saves which are pending in the runloop

@@ -15,7 +15,8 @@ import type {
   JsonApiResource,
   JsonApiValidationError,
 } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
-import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordType } from '@ember-data/types/utils';
 
 import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
@@ -47,7 +48,7 @@ const EMPTY_ITERATOR = {
   @class RecordDataDefault
   @public
  */
-export default class RecordDataDefault<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>
+export default class RecordDataDefault<R extends ResolvedRegistry, T extends RecordType<R>>
   implements RelationshipRecordData<R, T>
 {
   declare _errors?: JsonApiValidationError[];

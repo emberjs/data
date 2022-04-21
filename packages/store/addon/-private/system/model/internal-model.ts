@@ -25,12 +25,13 @@ import type {
   ManyRelationship,
   RecordData as DefaultRecordData,
 } from '@ember-data/record-data/-private';
-import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
+import type { UpgradedRelationshipMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type {
   DefaultSingleResourceRelationship,
   RelationshipRecordData,
 } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
-import { RecordField, RecordInstance, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
 
 import type { DSModel } from '../../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -52,12 +53,7 @@ import RootState from './states';
 type PrivateModelModule = {
   ManyArray: { create(args: ManyArrayCreateArgs): ManyArray };
   PromiseBelongsTo: {
-    create<
-      R extends ResolvedRegistry<RegistryMap>,
-      T extends RecordType<R>,
-      K extends RecordField<R, T>,
-      RT extends RecordType<R>
-    >(
+    create<R extends ResolvedRegistry, T extends RecordType<R>, K extends RecordField<R, T>, RT extends RecordType<R>>(
       args: BelongsToProxyCreateArgs<R, T, K, RT>
     ): PromiseBelongsTo<R, T, K, RT>;
   };
@@ -123,7 +119,7 @@ function extractPivotName(name: string): string {
   return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
 }
 
-function isDSModel<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+function isDSModel<R extends ResolvedRegistry, T extends RecordType<R>>(
   record: RecordInstance<R, T> | DSModel | null
 ): record is DSModel {
   return (
@@ -134,7 +130,7 @@ function isDSModel<R extends ResolvedRegistry<RegistryMap>, T extends RecordType
     record.constructor.isModel === true
   );
 }
-export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+export default class InternalModel<R extends ResolvedRegistry, T extends RecordType<R>> {
   declare _id: string | null;
   declare modelName: T;
   declare clientId: string;
@@ -553,14 +549,14 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     }
   }
 
-  getManyArray<K extends RecordField<R, T>>(key: K, definition?: UpgradedMeta): ManyArray {
+  getManyArray<K extends RecordField<R, T>>(key: K, definition?: UpgradedRelationshipMeta): ManyArray {
     assert('hasMany only works with the @ember-data/record-data package', HAS_RECORD_DATA_PACKAGE);
     let manyArray: ManyArray | undefined = this._manyArrayCache[key];
     if (!definition) {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      definition = graphFor(this.store).get(this.identifier, key).definition as UpgradedMeta;
+      definition = graphFor(this.store).get(this.identifier, key).definition as UpgradedRelationshipMeta;
     }
 
     if (!manyArray) {
@@ -1287,7 +1283,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
 }
 
 function handleCompletedRelationshipRequest<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>
@@ -1298,13 +1294,13 @@ function handleCompletedRelationshipRequest<
   value: InternalModel<R, RT> | null
 ): RecordInstance<R, RT> | null;
 function handleCompletedRelationshipRequest<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>
 >(internalModel: InternalModel<R, T>, key: K, relationship: ManyRelationship, value: ManyArray): ManyArray;
 function handleCompletedRelationshipRequest<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>
@@ -1316,13 +1312,13 @@ function handleCompletedRelationshipRequest<
   error: Error
 ): never;
 function handleCompletedRelationshipRequest<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>
 >(internalModel: InternalModel<R, T>, key: K, relationship: ManyRelationship, value: ManyArray, error: Error): never;
 function handleCompletedRelationshipRequest<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>

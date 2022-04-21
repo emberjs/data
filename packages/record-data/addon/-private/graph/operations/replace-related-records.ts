@@ -285,9 +285,9 @@ export function addToInverse(
     }
   } else {
     if (isRemote) {
-      relationship.addCanonicalRecordData(value);
+      relationship.addCanonicalMember(value);
     } else {
-      relationship.addRecordData(value);
+      relationship.addMember(value);
     }
   }
 }
@@ -330,7 +330,7 @@ export function removeFromInverse(
     if (isRemote) {
       relationship.removeCompletelyFromOwn(value);
     } else {
-      relationship.removeRecordData(value);
+      relationship.removeMember(value);
     }
   }
 }

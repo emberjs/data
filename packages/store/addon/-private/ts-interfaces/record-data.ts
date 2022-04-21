@@ -1,4 +1,5 @@
-import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordType } from '@ember-data/types/utils';
 
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
@@ -13,11 +14,11 @@ import { Dict } from './utils';
  * A map of field name to old|new values for an attribute
  * @internal
  */
-export type ChangedAttributesHash<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> = {
+export type ChangedAttributesHash<R extends ResolvedRegistry, T extends RecordType<R>> = {
   [K in RecordField<R, T>]?: [unknown, unknown];
 };
 
-export interface RecordData<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+export interface RecordData<R extends ResolvedRegistry, T extends RecordType<R>> {
   getResourceIdentifier(): RecordIdentifier<T> | undefined;
 
   pushData(data: JsonApiResource, calculateChange: true): RecordField<R, T>[];

@@ -3,30 +3,32 @@ import { assert } from '@ember/debug';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
-import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordType } from '@ember-data/types/utils';
 
 import type { Graph } from '.';
 import { expandingGet, expandingSet } from './-utils';
 
 export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
 
-export interface UpgradedMeta<
-  R extends ResolvedRegistry<RegistryMap>,
+export interface UpgradedRelationshipMeta<
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
-  RT extends RecordType<R>
+  RT extends RecordType<R>,
+  RK extends RecordField<R, RT> | string = RecordField<R, RT> | string
 > {
   kind: 'hasMany' | 'belongsTo' | 'implicit';
   key: K;
-  type: string;
+  type: RT;
   isAsync: boolean;
   isImplicit: boolean;
   isCollection: boolean;
   isPolymorphic: boolean;
 
   inverseKind: 'hasMany' | 'belongsTo' | 'implicit';
-  inverseKey: string;
-  inverseType: string;
+  inverseKey: RK;
+  inverseType: T;
   inverseIsAsync: boolean;
   inverseIsImplicit: boolean;
   inverseIsCollection: boolean;
@@ -34,7 +36,7 @@ export interface UpgradedMeta<
 }
 
 export interface EdgeDefinition<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>
@@ -43,14 +45,14 @@ export interface EdgeDefinition<
   lhs_modelNames: string[];
   lhs_baseModelName: string;
   lhs_relationshipName: string;
-  lhs_definition: UpgradedMeta;
+  lhs_definition: UpgradedRelationshipMeta;
   lhs_isPolymorphic: boolean;
 
   rhs_key: string;
   rhs_modelNames: string[];
   rhs_baseModelName: string;
   rhs_relationshipName: string;
-  rhs_definition: UpgradedMeta | null;
+  rhs_definition: UpgradedRelationshipMeta | null;
   rhs_isPolymorphic: boolean;
 
   hasInverse: boolean;
@@ -66,7 +68,7 @@ function implicitKeyFor(type: string, key: string): string {
   return `implicit-${type}:${key}${IMPLICIT_KEY_RAND}`;
 }
 
-function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
+function syncMeta(definition: UpgradedRelationshipMeta, inverseDefinition: UpgradedRelationshipMeta) {
   definition.inverseKind = inverseDefinition.kind;
   definition.inverseKey = inverseDefinition.key;
   definition.inverseType = inverseDefinition.type;
@@ -76,8 +78,13 @@ function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
   definition.inverseIsImplicit = inverseDefinition.isImplicit;
 }
 
-function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
-  let niceMeta: UpgradedMeta = {} as UpgradedMeta;
+function upgradeMeta<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  K extends RecordField<R, T>,
+  RT extends RecordType<R>
+>(meta: RelationshipSchema<R, T, K, RT>): UpgradedRelationshipMeta<R, T, K, RT> {
+  let niceMeta: UpgradedRelationshipMeta<R, T, K, RT> = {} as UpgradedRelationshipMeta<R, T, K, RT>;
   let options = meta.options;
   niceMeta.kind = meta.kind;
   niceMeta.key = meta.name;
@@ -88,7 +95,7 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
   niceMeta.isPolymorphic = options && !!options.polymorphic;
 
   niceMeta.inverseKey = (options && options.inverse) || STR_LATER;
-  niceMeta.inverseType = STR_LATER;
+  niceMeta.inverseType = STR_LATER as RT;
   niceMeta.inverseIsAsync = BOOL_LATER;
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;
   niceMeta.inverseIsCollection = BOOL_LATER;
@@ -129,7 +136,7 @@ export function isRHS(info: EdgeDefinition, type: string, key: string): boolean 
 }
 
 export function upgradeDefinition<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R>

@@ -2,10 +2,11 @@
   @module @ember-data/store
 */
 
-import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordType } from '@ember-data/types/utils';
 
 export interface RelationshipSchema<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   OT extends RecordType<R>,
   K extends RecordField<R, OT>,
   RT extends RecordType<R> = RecordType<R>
@@ -47,18 +48,14 @@ export interface RelationshipSchema<
 }
 
 export type RelationshipsSchema<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T> = RecordField<R, T>
 > = {
   [L in K]: RelationshipSchema<R, T, L>;
 };
 
-export interface AttributeSchema<
-  R extends ResolvedRegistry<RegistryMap>,
-  T extends RecordType<R>,
-  K extends RecordField<R, T>
-> {
+export interface AttributeSchema<R extends ResolvedRegistry, T extends RecordType<R>, K extends RecordField<R, T>> {
   /**
    * @internal
    */
@@ -73,7 +70,7 @@ export interface AttributeSchema<
 }
 
 export type AttributesSchema<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T> = RecordField<R, T>
 > = Record<K, AttributeSchema<R, T, K>>;

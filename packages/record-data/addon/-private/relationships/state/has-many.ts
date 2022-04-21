@@ -8,24 +8,25 @@ import type {
   PaginationLinks,
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordType } from '@ember-data/types/utils';
 
 import type { BelongsToRelationship } from '../..';
 import type { Graph } from '../../graph';
-import type { UpgradedMeta } from '../../graph/-edge-definition';
+import type { UpgradedRelationshipMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
 import { isImplicit, isNew } from '../../graph/-utils';
 
 export default class ManyRelationship<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   T extends RecordType<R>,
   K extends RecordField<R, T>,
   RT extends RecordType<R> = RecordType<R>
 > {
   declare graph: Graph<R>;
   declare store: RecordDataStoreWrapper<R>;
-  declare definition: UpgradedMeta;
+  declare definition: UpgradedRelationshipMeta<R, T, K, RT>;
   declare identifier: StableRecordIdentifier<T>;
   declare _state: RelationshipState | null;
   declare transactionRef: number;
@@ -40,7 +41,11 @@ export default class ManyRelationship<
   declare _willUpdateManyArray: boolean;
   declare _pendingManyArrayUpdates: any;
 
-  constructor(graph: Graph<R>, definition: UpgradedMeta, identifier: StableRecordIdentifier<T>) {
+  constructor(
+    graph: Graph<R>,
+    definition: UpgradedRelationshipMeta<R, T, K, RT>,
+    identifier: StableRecordIdentifier<T>
+  ) {
     this.graph = graph;
     this.store = graph.store;
     this.definition = definition;
@@ -77,7 +82,6 @@ export default class ManyRelationship<
 
     const inverseKey = this.definition.inverseKey;
     this.forAllMembers((inverseIdentifier) => {
-      inverseIdentifier;
       if (!inverseIdentifier || !this.graph.has(inverseIdentifier, inverseKey)) {
         return;
       }

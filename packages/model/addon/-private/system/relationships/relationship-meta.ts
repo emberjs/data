@@ -5,7 +5,8 @@ import { singularize } from 'ember-inflector';
 import { normalizeModelName } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/store';
 import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
-import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordType } from '@ember-data/types/utils';
 
 /**
   @module @ember-data/store
@@ -27,7 +28,7 @@ function shouldFindInverse(relationshipMeta) {
 }
 
 export class RelationshipDefinition<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   OT extends RecordType<R>,
   K extends RecordField<R, OT>,
   RT extends RecordType<R> = RecordType<R>
@@ -116,7 +117,7 @@ export class RelationshipDefinition<
 }
 
 function isRelationshipAsync<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   OT extends RecordType<R>,
   K extends RecordField<R, OT>,
   RT extends RecordType<R>
@@ -126,7 +127,7 @@ function isRelationshipAsync<
 }
 
 export function relationshipFromMeta<
-  R extends ResolvedRegistry<RegistryMap>,
+  R extends ResolvedRegistry,
   OT extends RecordType<R>,
   K extends RecordField<R, OT>,
   RT extends RecordType<R> = RecordType<R>

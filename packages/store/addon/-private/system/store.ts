@@ -22,15 +22,8 @@ import { PromiseBelongsTo } from '@ember-data/model/-private';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { ManyRelationship, RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
-import type {
-  DefaultRegistry,
-  RecordField,
-  RecordInstance,
-  RecordType,
-  RegistryGenerics,
-  RegistryMap,
-  ResolvedRegistry,
-} from '@ember-data/types';
+import type { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
 
 import { IdentifierCache } from '../identifiers/cache';
 import type {
@@ -185,9 +178,7 @@ export interface CreateRecordProperties {
   @extends Ember.Service
 */
 
-export default class Store<
-  R extends ResolvedRegistry<RegistryMap> = ResolvedRegistry<DefaultRegistry>
-> extends Service {
+export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends Service {
   /**
    * EmberData specific backburner instance
    * @property _backburner

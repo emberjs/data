@@ -2,7 +2,8 @@ import { assert, warn } from '@ember/debug';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
-import { RecordInstance, RecordType, RegistryGenerics, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordInstance, RecordType } from '@ember-data/types/utils';
 
 import type {
   ExistingResourceObject,
@@ -21,11 +22,10 @@ import WeakCache from '../weak-cache';
 /**
   @module @ember-data/store
 */
-const FactoryCache = new WeakCache<
-  Store<RegistryGenerics<RegistryMap>>,
-  InternalModelFactory<RegistryGenerics<RegistryMap>>
->(DEBUG ? 'internal-model-factory' : '');
-FactoryCache._generator = <R extends RegistryGenerics<RegistryMap>>(store: Store<R>) => {
+const FactoryCache = new WeakCache<Store<ResolvedRegistry>, InternalModelFactory<ResolvedRegistry>>(
+  DEBUG ? 'internal-model-factory' : ''
+);
+FactoryCache._generator = <R extends ResolvedRegistry>(store: Store<R>) => {
   return new InternalModelFactory<R>(store);
 };
 type NewResourceInfo<T extends string> = { type: T; id: string | null };
@@ -35,7 +35,7 @@ if (DEBUG) {
   RecordCache._expectMsg = (key: object) => `${String(key)} is not a record instantiated by @ember-data/store`;
 }
 
-export function peekRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+export function peekRecordIdentifier<R extends ResolvedRegistry, T extends RecordType<R>>(
   record: RecordInstance<R, T> | RecordData<R, T>
 ): StableRecordIdentifier<T> | undefined {
   return RecordCache.get(record as object) as StableRecordIdentifier<T> | undefined;
@@ -65,13 +65,13 @@ export function peekRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T 
   @param {Object} record a record instance previously obstained from the store.
   @returns {StableRecordIdentifier}
  */
-export function recordIdentifierFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+export function recordIdentifierFor<R extends ResolvedRegistry, T extends RecordType<R>>(
   record: RecordInstance<R, T> | RecordData<R, T>
 ): StableRecordIdentifier<T> {
   return RecordCache.getWithError(record as object) as StableRecordIdentifier<T>;
 }
 
-export function setRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+export function setRecordIdentifier<R extends ResolvedRegistry, T extends RecordType<R>>(
   record: RecordInstance<R, T> | RecordData<R, T>,
   identifier: StableRecordIdentifier<T>
 ): void {
@@ -90,9 +90,7 @@ export function setRecordIdentifier<R extends ResolvedRegistry<RegistryMap>, T e
   RecordCache.set(record as object, identifier);
 }
 
-export function internalModelFactoryFor<R extends ResolvedRegistry<RegistryMap>>(
-  store: Store<R>
-): InternalModelFactory<R> {
+export function internalModelFactoryFor<R extends ResolvedRegistry>(store: Store<R>): InternalModelFactory<R> {
   return FactoryCache.lookup<Store<R>, InternalModelFactory<R>>(store) as InternalModelFactory<R>;
 }
 
@@ -104,7 +102,7 @@ export function internalModelFactoryFor<R extends ResolvedRegistry<RegistryMap>>
  * @class InternalModelFactory
  * @internal
  */
-export default class InternalModelFactory<R extends ResolvedRegistry<RegistryMap>> {
+export default class InternalModelFactory<R extends ResolvedRegistry> {
   declare _identityMap: IdentityMap;
   // declare identifierCache: IdentifierCache<R>; // Store<R>['identifierCache'];
   declare store: Store<R>;

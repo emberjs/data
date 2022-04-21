@@ -12,7 +12,8 @@ import type {
   ExistingResourceIdentifierObject,
   NewResourceIdentifierObject,
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import { RecordField, RecordInstance, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
 
 import type { DSModelSchema, ModelSchema } from '../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
@@ -39,9 +40,7 @@ function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModel
   @class Snapshot
   @public
 */
-export default class Snapshot<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>
-  implements Snapshot<R, T>
-{
+export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R>> implements Snapshot<R, T> {
   private __attributes: Dict<unknown> | null = null;
   private _belongsToRelationships: Dict<Snapshot<R, RecordType<R>>> = Object.create(null);
   private _belongsToIds: Dict<RecordId> = Object.create(null);
