@@ -1,3 +1,6 @@
+import { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import { RecordType, RelationshipFieldsFor } from '@ember-data/types/utils';
+
 import type AdapterPopulatedRecordArray from '../system/record-arrays/adapter-populated-record-array';
 import type Snapshot from '../system/snapshot';
 import type SnapshotRecordArray from '../system/snapshot-record-array';
@@ -6,7 +9,7 @@ import type { ModelSchema } from '../ts-interfaces/ds-model';
 import type { RelationshipSchema } from './record-data-schemas';
 import type { Dict } from './utils';
 
-type Group = Snapshot[];
+type Group<R extends ResolvedRegistry, T extends RecordType<R>> = Snapshot<R, T>[];
 // TODO this should probably just alias unknown
 // since in theory a user could pass a blob or a string
 // however those deserialization cases are handled
@@ -27,7 +30,7 @@ export type AdapterPayload = Dict<unknown> | unknown[];
   @class MinimumAdapterInterface
   @public
 */
-export interface MinimumAdapterInterface {
+export interface MinimumAdapterInterface<R extends ResolvedRegistry = DefaultRegistry> {
   /**
    * `adapter.findRecord` takes a request for a resource of a given `type` and `id` combination
    * and should return a `Promise` which fulfills with data for a single resource matching that
@@ -55,7 +58,12 @@ export interface MinimumAdapterInterface {
    * @param {Snapshot} snapshot
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot): Promise<AdapterPayload>;
+  findRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
+    id: string,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload>;
 
   /**
    * `adapter.findAll` takes a request for resources of a given `type` and should return
@@ -87,11 +95,11 @@ export interface MinimumAdapterInterface {
    *  adapterOptions, and the ability to access a snapshot for each existing record of the type.
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findAll(
-    store: Store,
-    schema: ModelSchema,
+  findAll<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
     sinceToken: null,
-    snapshotRecordArray: SnapshotRecordArray
+    snapshotRecordArray: SnapshotRecordArray<R, T>
   ): Promise<AdapterPayload>;
 
   /**
@@ -125,11 +133,11 @@ export interface MinimumAdapterInterface {
    * @param {object} options
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  query(
-    store: Store,
-    schema: ModelSchema,
+  query<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
     query: Dict<unknown>,
-    recordArray: AdapterPopulatedRecordArray,
+    recordArray: AdapterPopulatedRecordArray<R, T>,
     options: { adapterOptions?: unknown }
   ): Promise<AdapterPayload>;
 
@@ -156,9 +164,9 @@ export interface MinimumAdapterInterface {
    * @param options
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  queryRecord(
-    store: Store,
-    schema: ModelSchema,
+  queryRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
     query: Dict<unknown>,
     options: { adapterOptions?: unknown }
   ): Promise<AdapterPayload>;
@@ -214,7 +222,11 @@ export interface MinimumAdapterInterface {
    * @param {Snapshot} snapshot
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  createRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload>;
+  createRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload>;
 
   /**
    * `adapter.updateRecord` takes a request to update a resource of a given `type` and should
@@ -266,7 +278,11 @@ export interface MinimumAdapterInterface {
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {Snapshot} snapshot
    */
-  updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload>;
+  updateRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload>;
 
   /**
    * `adapter.deleteRecord` takes a request to delete a resource of a given `type` and
@@ -294,7 +310,11 @@ export interface MinimumAdapterInterface {
    * @param {Snapshot} snapshot A Snapshot containing the record's current data
    * @return
    */
-  deleteRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload>;
+  deleteRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload>;
 
   /**
    * `adapter.findBelongsTo` takes a request to fetch a related resource located at a
@@ -326,11 +346,11 @@ export interface MinimumAdapterInterface {
    * @param {RelationshipSchema} relationship
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findBelongsTo?(
-    store: Store,
-    snapshot: Snapshot,
+  findBelongsTo?<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+    store: Store<R>,
+    snapshot: Snapshot<R, T>,
     relatedLink: string,
-    relationship: RelationshipSchema
+    relationship: RelationshipSchema<R, T, F>
   ): Promise<AdapterPayload>;
 
   /**
@@ -364,11 +384,11 @@ export interface MinimumAdapterInterface {
    * @param {RelationshipSchema} relationship
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findHasMany?(
-    store: Store,
-    snapshot: Snapshot,
+  findHasMany?<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+    store: Store<R>,
+    snapshot: Snapshot<R, T>,
     relatedLink: string,
-    relationship: RelationshipSchema
+    relationship: RelationshipSchema<R, T, F>
   ): Promise<AdapterPayload>;
 
   /**
@@ -400,7 +420,12 @@ export interface MinimumAdapterInterface {
    * @param {Array<Snapshot>} snapshots An array of snapshots of the available data for the resources to fetch
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findMany?(store: Store, schema: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload>;
+  findMany?<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
+    ids: string[],
+    snapshots: Snapshot<R, T>[]
+  ): Promise<AdapterPayload>;
 
   /**
    * This method provides the ability to generate an ID to assign to a new record whenever `store.createRecord`
@@ -421,7 +446,7 @@ export interface MinimumAdapterInterface {
    * @param properties the properties passed as the second arg to `store.createRecord`
    * @return {String} a string ID that should be unique (no other models of `type` in the cache should have this `id`)
    */
-  generateIdForRecord?(store: Store, type: string, properties: unknown): string;
+  generateIdForRecord?<T extends RecordType<R>>(store: Store<R>, type: T, properties: unknown): string;
 
   /**
    * If your adapter implements `findMany`, setting this to `true` will cause `findRecord`
@@ -464,7 +489,7 @@ export interface MinimumAdapterInterface {
    * @param {Array<Snapshot>} snapshots An array of snapshots
    * @return {Array<Array<Snapshot>>} An array of Snapshot arrays
    */
-  groupRecordsForFindMany?(store: Store, snapshots: Snapshot[]): Group[];
+  groupRecordsForFindMany?<T extends RecordType<R>>(store: Store<R>, snapshots: Snapshot<R, T>[]): Group<R, T>[];
 
   /**
    * When a record is already available in the store and is requested again via `store.findRecord`,
@@ -490,7 +515,7 @@ export interface MinimumAdapterInterface {
    * @param {Snapshot} snapshot A Snapshot containing the record's current data
    * @return {boolean} true if the record should be reloaded immediately, false otherwise
    */
-  shouldReloadRecord?(store: Store, snapshot: Snapshot): boolean;
+  shouldReloadRecord?<T extends RecordType<R>>(store: Store<R>, snapshot: Snapshot<R, T>): boolean;
 
   /**
    * When `store.findAll(<type>)` is called without a `reload` option, the adapter
@@ -517,7 +542,7 @@ export interface MinimumAdapterInterface {
    * @param {SnapshotRecordArray} snapshotArray
    * @return {boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made immediately, false otherwise
    */
-  shouldReloadAll?(store: Store, snapshotArray: SnapshotRecordArray): boolean;
+  shouldReloadAll?<T extends RecordType<R>>(store: Store<R>, snapshotArray: SnapshotRecordArray<R, T>): boolean;
 
   /**
    * When a record is already available in the store and is requested again via `store.findRecord`,
@@ -544,7 +569,7 @@ export interface MinimumAdapterInterface {
    * @param {Snapshot} snapshot A Snapshot containing the record's current data
    * @return {boolean} true if the record should be reloaded in the background, false otherwise
    */
-  shouldBackgroundReloadRecord?(store: Store, snapshot: Snapshot): boolean;
+  shouldBackgroundReloadRecord?<T extends RecordType<R>>(store: Store<R>, snapshot: Snapshot<R, T>): boolean;
 
   /**
    * When `store.findAll(<type>)` is called and a `reload` is not initiated, the adapter
@@ -568,7 +593,10 @@ export interface MinimumAdapterInterface {
    * @param {SnapshotRecordArray} snapshotArray
    * @return {boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made in the background, false otherwise
    */
-  shouldBackgroundReloadAll?(store: Store, snapshotArray: SnapshotRecordArray): boolean;
+  shouldBackgroundReloadAll?<T extends RecordType<R>>(
+    store: Store<R>,
+    snapshotArray: SnapshotRecordArray<R, T>
+  ): boolean;
 
   /**
    * In some situations the adapter may need to perform cleanup when destroyed,

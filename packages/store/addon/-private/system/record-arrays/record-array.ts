@@ -11,8 +11,10 @@ import { Promise } from 'rsvp';
 
 import type { RecordArrayManager, Snapshot } from 'ember-data/-private';
 
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordInstance, RecordType } from '@ember-data/types/utils';
+
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
 import type { PromiseArray } from '../promise-proxies';
 import { promiseArray } from '../promise-proxies';
@@ -20,7 +22,10 @@ import SnapshotRecordArray from '../snapshot-record-array';
 import type Store from '../store';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
-function recordForIdentifier(store: Store, identifier: StableRecordIdentifier): RecordInstance {
+function recordForIdentifier<R extends ResolvedRegistry, T extends RecordType<R>>(
+  store: Store<R>,
+  identifier: StableRecordIdentifier<T>
+): RecordInstance<R, T> {
   return internalModelFactoryFor(store).lookup(identifier).getRecord();
 }
 
@@ -45,7 +50,10 @@ export interface RecordArrayCreateArgs {
   @public
   @extends Ember.ArrayProxy
 */
-export default class RecordArray extends ArrayProxy<StableRecordIdentifier, RecordInstance> {
+export default class RecordArray<R extends ResolvedRegistry, T extends RecordType<R>> extends ArrayProxy<
+  StableRecordIdentifier<T>,
+  RecordInstance<R, T>
+> {
   /**
     The array of client ids backing the record array. When a
     record is requested from the record array, the record
@@ -56,9 +64,9 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @private
     @type Ember.Array
   */
-  declare content: NativeArray<StableRecordIdentifier>;
+  declare content: NativeArray<StableRecordIdentifier<T>>;
   declare _getDeprecatedEventedInfo: () => string;
-  declare modelName: string;
+  declare modelName: T;
   /**
     The flag to signal a `RecordArray` is finished loading data.
 
@@ -81,8 +89,8 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @private
     @type Store
     */
-  declare store: Store;
-  declare _updatingPromise: PromiseArray<RecordInstance, RecordArray> | null;
+  declare store: Store<R>;
+  declare _updatingPromise: PromiseArray<RecordInstance<R, T>, RecordArray<R, T>> | null;
   declare manager: RecordArrayManager;
 
   /**
@@ -139,7 +147,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @param {Number} index
     @return {Model} record
   */
-  objectAtContent(index: number): RecordInstance | undefined {
+  objectAtContent(index: number): RecordInstance<R, T> | undefined {
     let identifier = get(this, 'content').objectAt(index);
     return identifier ? recordForIdentifier(this.store, identifier) : undefined;
   }
@@ -164,7 +172,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @method update
     @public
   */
-  update(): PromiseArray<RecordInstance, RecordArray> {
+  update(): PromiseArray<RecordInstance<R, T>, RecordArray<R, T>> {
     if (this.isUpdating) {
       return this._updatingPromise!;
     }
@@ -189,7 +197,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     Update this RecordArray and return a promise which resolves once the update
     is finished.
    */
-  _update(): PromiseArray<RecordInstance, RecordArray> {
+  _update(): PromiseArray<RecordInstance<R, T>, RecordArray<R, T>> {
     return this.store.findAll(this.modelName, { reload: true });
   }
 
@@ -210,7 +218,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @public
     @return {PromiseArray} promise
   */
-  save(): PromiseArray<RecordInstance, RecordArray> {
+  save(): PromiseArray<RecordInstance<R, T>, RecordArray<R, T>> {
     let promiseLabel = `DS: RecordArray#save ${this.modelName}`;
     let promise = Promise.all(this.invoke('save'), promiseLabel).then(
       () => this,
@@ -218,7 +226,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
       'DS: RecordArray#save return RecordArray'
     );
 
-    return promiseArray<RecordInstance, RecordArray>(promise);
+    return promiseArray<RecordInstance<R, T>, RecordArray<R, T>>(promise);
   }
 
   /**
@@ -239,7 +247,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     //   * the exception being: if an dominator has a reference to this object,
     //     and must be informed to release e.g. e.g. removing itself from th
     //     recordArrayMananger
-    set(this, 'content', null as unknown as NativeArray<StableRecordIdentifier>);
+    set(this, 'content', null as unknown as NativeArray<StableRecordIdentifier<T>>);
     set(this, 'length', 0);
     super.willDestroy();
   }
@@ -248,7 +256,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @method _createSnapshot
     @private
   */
-  _createSnapshot(options: FindOptions) {
+  _createSnapshot(options: FindOptions): SnapshotRecordArray<R, T> {
     // this is private for users, but public for ember-data internals
     // meta will only be present for an AdapterPopulatedRecordArray
     return new SnapshotRecordArray(this, null, options);
@@ -275,7 +283,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @internal
     @param {StableRecordIdentifier[]} identifiers
   */
-  _pushIdentifiers(identifiers: StableRecordIdentifier[]): void {
+  _pushIdentifiers(identifiers: StableRecordIdentifier<T>[]): void {
     this.content.pushObjects(identifiers);
   }
 
@@ -286,7 +294,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @internal
     @param {StableRecordIdentifier[]} identifiers
   */
-  _removeIdentifiers(identifiers: StableRecordIdentifier[]): void {
+  _removeIdentifiers(identifiers: StableRecordIdentifier<T>[]): void {
     this.content.removeObjects(identifiers);
   }
 
@@ -294,7 +302,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @method _takeSnapshot
     @internal
   */
-  _takeSnapshot(): Snapshot[] {
+  _takeSnapshot(): Snapshot<R, T>[] {
     return this.content.map((identifier) => internalModelFactoryFor(this.store).lookup(identifier).createSnapshot());
   }
 }

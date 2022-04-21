@@ -9,7 +9,7 @@ import type {
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordType } from '@ember-data/types/utils';
+import type { HasManyRelationshipFieldsFor, RecordField, RecordType, RelatedType } from '@ember-data/types/utils';
 
 import type { BelongsToRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -20,13 +20,13 @@ import { isImplicit, isNew } from '../../graph/-utils';
 
 export default class ManyRelationship<
   R extends ResolvedRegistry,
-  T extends RecordType<R>,
-  K extends RecordField<R, T>,
-  RT extends RecordType<R> = RecordType<R>
+  T extends RecordType<R> = RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, F>
 > {
   declare graph: Graph<R>;
   declare store: RecordDataStoreWrapper<R>;
-  declare definition: UpgradedRelationshipMeta<R, T, K, RT>;
+  declare definition: UpgradedRelationshipMeta<R, T, F, RT>;
   declare identifier: StableRecordIdentifier<T>;
   declare _state: RelationshipState | null;
   declare transactionRef: number;
@@ -43,7 +43,7 @@ export default class ManyRelationship<
 
   constructor(
     graph: Graph<R>,
-    definition: UpgradedRelationshipMeta<R, T, K, RT>,
+    definition: UpgradedRelationshipMeta<R, T, F, RT>,
     identifier: StableRecordIdentifier<T>
   ) {
     this.graph = graph;

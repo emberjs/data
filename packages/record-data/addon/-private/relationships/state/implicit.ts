@@ -1,6 +1,6 @@
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordType } from '@ember-data/types/utils';
+import type { RecordType, RelatedType, RelationshipFieldsFor } from '@ember-data/types/utils';
 
 import type { Graph } from '../../graph';
 import type { UpgradedRelationshipMeta } from '../../graph/-edge-definition';
@@ -11,11 +11,11 @@ import type { UpgradedRelationshipMeta } from '../../graph/-edge-definition';
 export default class ImplicitRelationship<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
-  RT extends RecordType<R>
+  F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F> = RelatedType<R, T, F>
 > {
   declare graph: Graph<R>;
-  declare definition: UpgradedRelationshipMeta<R, T, K, RT>;
+  declare definition: UpgradedRelationshipMeta<R, T, F, RT>;
   declare identifier: StableRecordIdentifier<T>;
 
   declare members: Set<StableRecordIdentifier<RT>>;
@@ -23,7 +23,7 @@ export default class ImplicitRelationship<
 
   constructor(
     graph: Graph<R>,
-    definition: UpgradedRelationshipMeta<R, T, K, RT>,
+    definition: UpgradedRelationshipMeta<R, T, F, RT>,
     identifier: StableRecordIdentifier<T>
   ) {
     this.graph = graph;

@@ -192,7 +192,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
   declare _modelFactoryCache: Dict<DSModelClass>;
-  declare _storeWrapper: RecordDataStoreWrapper;
+  declare _storeWrapper: RecordDataStoreWrapper<R>;
 
   /*
     Ember Data uses several specialized micro-queues for organizing
@@ -1837,7 +1837,11 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName: string, query, options): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
+  query<T extends RecordType<R>>(
+    modelName: T,
+    query,
+    options
+  ): PromiseArray<RecordInstance<R, T>, AdapterPopulatedRecordArray<R, T>> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1854,11 +1858,16 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
     }
 
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<R, T>(modelName);
     return promiseArray(this._query(normalizedModelName, query, null, adapterOptionsWrapper));
   }
 
-  _query(modelName: string, query, array, options): Promise<AdapterPopulatedRecordArray> {
+  _query<T extends RecordType<R>>(
+    modelName: T,
+    query,
+    array: AdapterPopulatedRecordArray<R, T> | null,
+    options
+  ): Promise<AdapterPopulatedRecordArray<R, T>> {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
@@ -1874,7 +1883,9 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
       typeof adapter.query === 'function'
     );
 
-    return _query(adapter, this, modelName, query, array, options) as unknown as Promise<AdapterPopulatedRecordArray>;
+    return _query(adapter, this, modelName, query, array, options) as unknown as Promise<
+      AdapterPopulatedRecordArray<R, T>
+    >;
   }
 
   /**
@@ -2203,10 +2214,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Object} options
     @return {Promise} promise
   */
-  findAll(
-    modelName: string,
+  findAll<T extends RecordType<R>>(
+    modelName: T,
     options: { reload?: boolean; backgroundReload?: boolean } = {}
-  ): PromiseArray<RecordInstance, RecordArray> {
+  ): PromiseArray<RecordInstance<R, T>, RecordArray<R, T>> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findAll');
     }
@@ -2216,7 +2227,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<R, T>(modelName);
     let fetch = this._fetchAll(normalizedModelName, this.peekAll(normalizedModelName), options);
 
     return promiseArray(fetch);
@@ -2229,11 +2240,11 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll(
-    modelName: string,
-    array: RecordArray,
+  _fetchAll<T extends RecordType<R>>(
+    modelName: T,
+    array: RecordArray<R, T>,
     options: { reload?: boolean; backgroundReload?: boolean }
-  ): Promise<RecordArray> {
+  ): Promise<RecordArray<R, T>> {
     let adapter = this.adapterFor(modelName);
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
@@ -3152,19 +3163,19 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
 
     @method adapterFor
     @public
-    @param {String} modelName
+    @param {String} type
     @return Adapter
   */
-  adapterFor(modelName) {
+  adapterFor<T extends keyof R['adapter']>(type: T): MinimumAdapterInterface<R, T> {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
-    assert(`You need to pass a model name to the store's adapterFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's adapterFor method`, isPresent(type));
     assert(
-      `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName(type);
 
     let { _adapterCache } = this;
     let adapter = _adapterCache[normalizedModelName];
@@ -3196,7 +3207,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     // TODO we should likely deprecate this?
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
     assert(
-      `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
+      `No adapter was found for '${type}' and no 'application' adapter was found as a fallback.`,
       adapter !== undefined
     );
     set(adapter, 'store', this);
@@ -3223,19 +3234,19 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
 
     @method serializerFor
     @public
-    @param {String} modelName the record to serialize
+    @param {String} type the record to serialize
     @return {Serializer}
   */
-  serializerFor(modelName: string): MinimumSerializerInterface | null {
+  serializerFor<T extends keyof R['serializer']>(type: T): MinimumSerializerInterface<R> | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'serializerFor');
     }
-    assert(`You need to pass a model name to the store's serializerFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's serializerFor method`, isPresent(type));
     assert(
-      `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<R, T>(type);
 
     let { _serializerCache } = this;
     let serializer = _serializerCache[normalizedModelName];

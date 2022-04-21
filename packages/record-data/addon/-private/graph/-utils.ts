@@ -4,6 +4,8 @@ import { coerceId, recordDataFor as peekRecordData } from '@ember-data/store/-pr
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
 
 import type BelongsToRelationship from '../relationships/state/belongs-to';
 import type ManyRelationship from '../relationships/state/has-many';
@@ -22,9 +24,15 @@ export function expandingSet<T>(cache: Dict<Dict<T>>, key1: string, key2: string
   mainCache[key2] = value;
 }
 
-export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelationshipOperation) {
+export function assertValidRelationshipPayload<R extends ResolvedRegistry>(
+  graph: Graph<R>,
+  op: UpdateRelationshipOperation<R>
+) {
+  type T = typeof op.record.type;
+  type Rel = ManyRelationship<R, T> | ImplicitRelationship<R, T> | BelongsToRelationship<R, T>;
   const relationship = graph.get(op.record, op.field);
-  assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
+  assert(`Cannot update an implicit relationship`, isHasMany(relationship as Rel) || isBelongsTo(relationship as Rel));
+
   const payload = op.value;
   const { definition, identifier, state } = relationship;
   const { type } = identifier;
@@ -64,7 +72,9 @@ export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelations
   }
 }
 
-export function isNew(identifier: StableRecordIdentifier): boolean {
+export function isNew<R extends ResolvedRegistry, T extends RecordType<R>>(
+  identifier: StableRecordIdentifier<T>
+): boolean {
   if (!identifier.id) {
     return true;
   }
@@ -72,27 +82,27 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
   return recordData ? isRelationshipRecordData(recordData) && recordData.isNew() : false;
 }
 
-function isRelationshipRecordData(
-  recordData: RecordData | RelationshipRecordData
-): recordData is RelationshipRecordData {
-  return typeof (recordData as RelationshipRecordData).isNew === 'function';
+function isRelationshipRecordData<R extends ResolvedRegistry, T extends RecordType<R>>(
+  recordData: RecordData<R, T> | RelationshipRecordData<R, T>
+): recordData is RelationshipRecordData<R, T> {
+  return typeof (recordData as RelationshipRecordData<R, T>).isNew === 'function';
 }
 
-export function isBelongsTo(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is BelongsToRelationship {
+export function isBelongsTo<R extends ResolvedRegistry, T extends RecordType<R>>(
+  relationship: ManyRelationship<R, T> | ImplicitRelationship<R, T> | BelongsToRelationship<R, T>
+): relationship is BelongsToRelationship<R, T> {
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ImplicitRelationship {
+export function isImplicit<R extends ResolvedRegistry, T extends RecordType<R>>(
+  relationship: ManyRelationship<R, T> | ImplicitRelationship<R, T> | BelongsToRelationship<R, T>
+): relationship is ImplicitRelationship<R, T> {
   return relationship.definition.isImplicit;
 }
 
-export function isHasMany(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ManyRelationship {
+export function isHasMany<R extends ResolvedRegistry, T extends RecordType<R>>(
+  relationship: ManyRelationship<R, T> | ImplicitRelationship<R, T> | BelongsToRelationship<R, T>
+): relationship is ManyRelationship<R, T> {
   return relationship.definition.kind === 'hasMany';
 }
 

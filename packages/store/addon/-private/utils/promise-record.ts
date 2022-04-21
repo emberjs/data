@@ -1,7 +1,9 @@
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordInstance, RecordType } from '@ember-data/types/utils';
+
 import type InternalModel from '../system/model/internal-model';
 import type { PromiseObject } from '../system/promise-proxies';
 import { promiseObject } from '../system/promise-proxies';
-import type { RecordInstance } from '../ts-interfaces/record-instance';
 
 /**
   @module @ember-data/store
@@ -15,10 +17,10 @@ import type { RecordInstance } from '../ts-interfaces/record-instance';
  *
  * @internal
  */
-export default function promiseRecord(
-  internalModelPromise: Promise<InternalModel>,
+export default function promiseRecord<R extends ResolvedRegistry, T extends RecordType<R>>(
+  internalModelPromise: Promise<InternalModel<R, T>>,
   label: string
-): PromiseObject<RecordInstance> {
+): PromiseObject<RecordInstance<R, T>> {
   let toReturn = internalModelPromise.then((internalModel) => internalModel.getRecord());
 
   return promiseObject(toReturn, label);

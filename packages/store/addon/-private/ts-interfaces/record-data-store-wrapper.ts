@@ -1,3 +1,13 @@
+import { ResolvedRegistry } from '@ember-data/types';
+import {
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordField,
+  RecordType,
+  RelatedType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
+
 import type { RecordData } from './record-data';
 import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
 
@@ -12,9 +22,9 @@ import type { AttributesSchema, RelationshipsSchema } from './record-data-schema
  * @class RecordDataStoreWrapper
  * @public
  */
-export interface RecordDataStoreWrapper {
-  relationshipsDefinitionFor(modelName: string): RelationshipsSchema;
-  attributesDefinitionFor(modelName: string): AttributesSchema;
+export interface RecordDataStoreWrapper<R extends ResolvedRegistry> {
+  relationshipsDefinitionFor<T extends RecordType<R>>(type: T): RelationshipsSchema<R, T>;
+  attributesDefinitionFor<T extends RecordType<R>>(type: T): AttributesSchema<R, T>;
 
   /**
    * update the `id` for the record of type `modelName` with the corresponding `clientId`
@@ -23,34 +33,93 @@ export interface RecordDataStoreWrapper {
    * @method setRecordId
    * @public
    */
-  setRecordId(modelName: string, id: string, clientId: string): void;
+  setRecordId<T extends RecordType<R>>(type: T, id: string, clientId: string): void;
 
-  disconnectRecord(modelName: string, id: string | null, clientId: string): void;
-  disconnectRecord(modelName: string, id: string, clientId?: string | null): void;
-  disconnectRecord(modelName: string, id: string | null, clientId?: string | null): void;
+  disconnectRecord<T extends RecordType<R>>(type: T, id: string | null, clientId: string): void;
+  disconnectRecord<T extends RecordType<R>>(type: T, id: string, clientId?: string | null): void;
+  disconnectRecord<T extends RecordType<R>>(type: T, id: string | null, clientId?: string | null): void;
 
-  isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
-  isRecordInUse(modelName: string, id: string, clientId?: string | null): boolean;
-  isRecordInUse(modelName: string, id: string | null, clientId?: string | null): boolean;
+  isRecordInUse<T extends RecordType<R>>(type: T, id: string | null, clientId: string): boolean;
+  isRecordInUse<T extends RecordType<R>>(type: T, id: string, clientId?: string | null): boolean;
+  isRecordInUse<T extends RecordType<R>>(type: T, id: string | null, clientId?: string | null): boolean;
 
-  notifyPropertyChange(modelName: string, id: string | null, clientId: string | null, key: string): void;
+  notifyPropertyChange<T extends RecordType<R>, F extends RecordField<R, T> = RecordField<R, T>>(
+    type: T,
+    id: string | null,
+    clientId: string | null,
+    key: F
+  ): void;
 
-  notifyHasManyChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  notifyHasManyChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  notifyHasManyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
+  notifyHasManyChange<
+    T extends RecordType<R>,
+    F extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>
+  >(
+    type: T,
+    id: string | null,
+    clientId: string,
+    key: F
+  ): void;
+  notifyHasManyChange<
+    T extends RecordType<R>,
+    F extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>
+  >(
+    type: T,
+    id: string,
+    clientId: string | null | undefined,
+    key: F
+  ): void;
+  notifyHasManyChange<
+    T extends RecordType<R>,
+    F extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>
+  >(
+    type: T,
+    id: string | null,
+    clientId: string | null | undefined,
+    key: F
+  ): void;
 
-  recordDataFor(type: string, id: string, lid?: string | null): RecordData;
-  recordDataFor(type: string, id: string | null, lid: string): RecordData;
-  recordDataFor(type: string): RecordData;
-  recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData;
+  recordDataFor<T extends RecordType<R>>(type: T, id: string, lid?: string | null): RecordData<R, T>;
+  recordDataFor<T extends RecordType<R>>(type: T, id: string | null, lid: string): RecordData<R, T>;
+  recordDataFor<T extends RecordType<R>>(type: T): RecordData<R, T>;
+  recordDataFor<T extends RecordType<R>>(type: T, id?: string | null, lid?: string | null): RecordData<R, T>;
 
-  notifyBelongsToChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  notifyBelongsToChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
+  notifyBelongsToChange<
+    T extends RecordType<R>,
+    F extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>
+  >(
+    type: T,
+    id: string | null,
+    clientId: string,
+    key: F
+  ): void;
+  notifyBelongsToChange<
+    T extends RecordType<R>,
+    F extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>
+  >(
+    type: T,
+    id: string,
+    clientId: string | null | undefined,
+    key: F
+  ): void;
+  notifyBelongsToChange<
+    T extends RecordType<R>,
+    F extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>
+  >(
+    type: T,
+    id: string | null,
+    clientId: string | null | undefined,
+    key: F
+  ): void;
 
-  inverseForRelationship(modelName: string, key: string): string | null;
+  inverseForRelationship<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+    type: T,
+    key: F
+  ): RelatedType<R, T, F> | null;
 
-  inverseIsAsyncForRelationship(modelName: string, key: string): boolean;
-  notifyErrorsChange(modelName: string, id: string | null, clientId: string | null): void;
-  notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void;
+  inverseIsAsyncForRelationship<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+    type: T,
+    key: F
+  ): boolean;
+  notifyErrorsChange<T extends RecordType<R>>(type: T, id: string | null, clientId: string | null): void;
+  notifyStateChange<T extends RecordType<R>>(type: T, id: string | null, clientId: string | null, key?: string): void;
 }

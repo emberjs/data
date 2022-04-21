@@ -34,6 +34,21 @@ interface WeakCache<K extends object, V> extends WeakMap<K, V> {
   _generator?: (key: K) => V;
 }
 
+// we override WeakMap because for WeakCache we
+// will be in module state and need calling instances
+// to be able to easily cast the type correctly
+interface WeakMap<K extends object, V> {
+  delete<KI extends object = K>(key: KI): boolean;
+  get<KI extends object = K, VI = V>(key: KI): VI | undefined;
+  has<KI extends object = K>(key: KI): boolean;
+  set<KI extends object = K, VI = V>(key: KI, value: VI): this;
+}
+interface WeakMapConstructor {
+  new <K extends object = object, V = unknown>(entries?: readonly [K, V][] | null): WeakMap<K, V>;
+  readonly prototype: WeakMap<object, unknown>;
+}
+declare const WeakMap: WeakMapConstructor;
+
 /**
  * @class WeakCache
  * @extends WeakMap
@@ -97,7 +112,7 @@ class WeakCache<K extends object, V> extends WeakMap<K, V> {
 }
 
 class DebugWeakCache<K extends object, V> extends WeakCache<K, V> {
-  set(obj: K, value: V): this {
+  set<KI extends object = K, VI = V>(obj: KI, value: VI): this {
     if (DEBUG && super.has(obj)) {
       throw new Error(`${Object.prototype.toString.call(obj)} was already assigned a value for ${this._fieldName}`);
     }

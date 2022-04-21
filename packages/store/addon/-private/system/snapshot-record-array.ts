@@ -2,6 +2,9 @@
   @module @ember-data/store
 */
 
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
+
 import type { ModelSchema } from '../ts-interfaces/ds-model';
 import { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
@@ -15,9 +18,9 @@ import type Snapshot from './snapshot';
   @class SnapshotRecordArray
   @public
 */
-export default class SnapshotRecordArray {
-  declare _snapshots: Snapshot[] | null;
-  declare _recordArray: RecordArray;
+export default class SnapshotRecordArray<R extends ResolvedRegistry, T extends RecordType<R>> {
+  declare _snapshots: Snapshot<R, T>[] | null;
+  declare _recordArray: RecordArray<R, T>;
   declare _type: ModelSchema | null;
 
   declare length: number;
@@ -37,7 +40,7 @@ export default class SnapshotRecordArray {
     @param {Object} meta
     @param options
    */
-  constructor(recordArray: RecordArray, meta: Dict<unknown> | null, options: FindOptions = {}) {
+  constructor(recordArray: RecordArray<R, T>, meta: Dict<unknown> | null, options: FindOptions = {}) {
     /**
       An array of snapshots
       @private
@@ -163,7 +166,7 @@ export default class SnapshotRecordArray {
     @public
     @type {Model}
   */
-  get modelName() {
+  get modelName(): T {
     return this._recordArray.modelName;
   }
 

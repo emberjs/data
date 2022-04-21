@@ -6,6 +6,8 @@ import { pluralize } from 'ember-inflector';
 import type Snapshot from '@ember-data/store/-private/system/snapshot';
 import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
 
 /**
   @module @ember-data/adapter
@@ -21,99 +23,138 @@ import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 // `interface BuildURLMixin { buildURL: typeof buildURL }`
 // then an extending class overwriting one of the methods will break because typescript
 // thinks it is a switch from an instance prop (that is a method) to an instance method.
-interface BuildURLMixin {
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+interface BuildURLMixin<R extends ResolvedRegistry = DefaultRegistry> {
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: string,
-    snapshot: Snapshot,
+    snapshot: Snapshot<R, T>,
     requestType: 'findRecord'
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: null,
-    snapshot: SnapshotRecordArray,
+    snapshot: SnapshotRecordArray<R, T>,
     requestType: 'findAll'
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: null,
     snapshot: null,
     requestType: 'query',
     query: Dict<unknown>
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: null,
     snapshot: null,
     requestType: 'queryRecord',
     query: Dict<unknown>
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: string[],
-    snapshot: Snapshot[],
+    snapshot: Snapshot<R, T>[],
     requestType: 'findMany'
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: string,
-    snapshot: Snapshot,
+    snapshot: Snapshot<R, T>,
     requestType: 'findHasMany'
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: string,
-    snapshot: Snapshot,
+    snapshot: Snapshot<R, T>,
     requestType: 'findBelongsTo'
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: string | null,
-    snapshot: Snapshot,
+    snapshot: Snapshot<R, T>,
     requestType: 'createRecord'
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: string,
-    snapshot: Snapshot,
+    snapshot: Snapshot<R, T>,
     requestType: 'updateRecord'
   ): string;
-  buildURL(
-    this: MixtBuildURLMixin,
-    modelName: string,
+  buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
     id: string,
-    snapshot: Snapshot,
+    snapshot: Snapshot<R, T>,
     requestType: 'deleteRecord'
   ): string;
-  buildURL(this: MixtBuildURLMixin, modelName: string, id: string, snapshot: Snapshot): string;
-  _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string;
-  urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: SnapshotRecordArray): string;
-  urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string;
-  urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string;
-  urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: string, snapshots: Snapshot[]): string;
-  urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot: Snapshot): string;
-  urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlForDeleteRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: string): string;
-  pathForType(this: MixtBuildURLMixin, modelName: string): string;
+  buildURL<T extends RecordType<R>>(this: MixtBuildURLMixin<R>, type: T, id: string, snapshot: Snapshot<R, T>): string;
+  _buildURL<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T | null | undefined,
+    id?: string | null
+  ): string;
+  urlForFindRecord<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    id: string,
+    type: T,
+    snapshot: Snapshot<R, T>
+  ): string;
+  urlForFindAll<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    type: T,
+    snapshots: SnapshotRecordArray<R, T>
+  ): string;
+  urlForQueryRecord<T extends RecordType<R>>(this: MixtBuildURLMixin<R>, query: Dict<unknown>, type: T): string;
+  urlForQuery<T extends RecordType<R>>(this: MixtBuildURLMixin<R>, query: Dict<unknown>, type: T): string;
+  urlForFindMany<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    ids: string[],
+    type: T,
+    snapshots: Snapshot<R, T>[]
+  ): string;
+  urlForFindHasMany<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    id: string,
+    type: T,
+    snapshot: Snapshot<R, T>
+  ): string;
+  urlForFindBelongsTo<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    id: string,
+    type: T,
+    snapshot: Snapshot<R, T>
+  ): string;
+  urlForCreateRecord<T extends RecordType<R>>(this: MixtBuildURLMixin<R>, type: T, snapshot: Snapshot<R, T>): string;
+  urlForUpdateRecord<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    id: string,
+    type: T,
+    snapshot: Snapshot<R, T>
+  ): string;
+  urlForDeleteRecord<T extends RecordType<R>>(
+    this: MixtBuildURLMixin<R>,
+    id: string,
+    type: T,
+    snapshot: Snapshot<R, T>
+  ): string;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  urlPrefix<T extends RecordType<R>>(this: MixtBuildURLMixin<R>, path?: string | null, parentURL?: string): string;
+  pathForType<T extends RecordType<R>>(this: MixtBuildURLMixin<R>, type: T): string;
 }
 
 // prevents the final constructed object from needing to add
 // host and namespace which are provided by the final consuming
 // class to the prototype which can result in overwrite errors
-interface MixtBuildURLMixin extends BuildURLMixin {
+interface MixtBuildURLMixin<R extends ResolvedRegistry> extends BuildURLMixin<R> {
   host: string | null;
   namespace: string | null;
 }
@@ -131,7 +172,7 @@ interface MixtBuildURLMixin extends BuildURLMixin {
 
   export default class ApplicationAdapter extends Adapter.extend(BuildURLMixin) {
     findRecord(store, type, id, snapshot) {
-      var url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
+      var url = this.buildURL(schema.modelName, id, snapshot, 'findRecord');
       return this.ajax(url, 'GET');
     }
   }
@@ -159,91 +200,96 @@ interface MixtBuildURLMixin extends BuildURLMixin {
 
     @method buildURL
     @public
-    @param {String} modelName
+    @param {String} type
     @param {(String|Array|Object)} id single id or array of ids or query
     @param {(Snapshot|SnapshotRecordArray)} snapshot single snapshot or array of snapshots
     @param {String} requestType
     @param {Object} query object of query parameters to send for query requests.
     @return {String} url
   */
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: string,
-  snapshot: Snapshot,
+  snapshot: Snapshot<R, T>,
   requestType: 'findRecord'
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: null,
-  snapshot: SnapshotRecordArray,
+  snapshot: SnapshotRecordArray<R, T>,
   requestType: 'findAll'
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: null,
   snapshot: null,
   requestType: 'query',
   query: Dict<unknown>
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: null,
   snapshot: null,
   requestType: 'queryRecord',
   query: Dict<unknown>
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: string[],
-  snapshot: Snapshot[],
+  snapshot: Snapshot<R, T>[],
   requestType: 'findMany'
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: string,
-  snapshot: Snapshot,
+  snapshot: Snapshot<R, T>,
   requestType: 'findHasMany'
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: string,
-  snapshot: Snapshot,
+  snapshot: Snapshot<R, T>,
   requestType: 'findBelongsTo'
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: string | null,
-  snapshot: Snapshot,
+  snapshot: Snapshot<R, T>,
   requestType: 'createRecord'
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: string,
-  snapshot: Snapshot,
+  snapshot: Snapshot<R, T>,
   requestType: 'updateRecord'
 ): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: string,
-  snapshot: Snapshot,
+  snapshot: Snapshot<R, T>,
   requestType: 'deleteRecord'
 ): string;
-function buildURL(this: MixtBuildURLMixin, modelName: string, id: string, snapshot: Snapshot): string;
-function buildURL(
-  this: MixtBuildURLMixin,
-  modelName: string,
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
+  id: string,
+  snapshot: Snapshot<R, T>
+): string;
+function buildURL<T extends RecordType<R>, R extends ResolvedRegistry>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
   id: string | string[] | Dict<unknown> | null,
-  snapshot: Snapshot | Snapshot[] | SnapshotRecordArray | null,
+  snapshot: Snapshot<R, T> | Snapshot<R, T>[] | SnapshotRecordArray<R, T> | null,
   requestType?:
     | 'findRecord'
     | 'findAll'
@@ -267,47 +313,51 @@ function buildURL(
   */
   switch (requestType) {
     case 'findRecord':
-      return this.urlForFindRecord(id as string, modelName, snapshot as Snapshot);
+      return this.urlForFindRecord(id as string, type, snapshot as Snapshot<R, T>);
     case 'findAll':
-      return this.urlForFindAll(modelName, snapshot as SnapshotRecordArray);
+      return this.urlForFindAll(type, snapshot as SnapshotRecordArray<R, T>);
     case 'query':
-      return this.urlForQuery(query || {}, modelName);
+      return this.urlForQuery(query || {}, type);
     case 'queryRecord':
-      return this.urlForQueryRecord(query || {}, modelName);
+      return this.urlForQueryRecord(query || {}, type);
     case 'findMany':
-      return this.urlForFindMany(id as string[], modelName, snapshot as Snapshot[]);
+      return this.urlForFindMany(id as string[], type, snapshot as Snapshot<R, T>[]);
     case 'findHasMany':
-      return this.urlForFindHasMany(id as string, modelName, snapshot as Snapshot);
+      return this.urlForFindHasMany(id as string, type, snapshot as Snapshot<R, T>);
     case 'findBelongsTo':
-      return this.urlForFindBelongsTo(id as string, modelName, snapshot as Snapshot);
+      return this.urlForFindBelongsTo(id as string, type, snapshot as Snapshot<R, T>);
     case 'createRecord':
-      return this.urlForCreateRecord(modelName, snapshot as Snapshot);
+      return this.urlForCreateRecord(type, snapshot as Snapshot<R, T>);
     case 'updateRecord':
-      return this.urlForUpdateRecord(id as string, modelName, snapshot as Snapshot);
+      return this.urlForUpdateRecord(id as string, type, snapshot as Snapshot<R, T>);
     case 'deleteRecord':
-      return this.urlForDeleteRecord(id as string, modelName, snapshot as Snapshot);
+      return this.urlForDeleteRecord(id as string, type, snapshot as Snapshot<R, T>);
     default:
       // this is the 'never' case but someone may call `buildURL` manually so
       // we try to do something for them.
-      return this._buildURL(modelName, id as string | null);
+      return this._buildURL(type, id as string | null);
   }
 }
 
 /**
     @method _buildURL
     @private
-    @param {String} modelName
+    @param {String} type
     @param {String} id
     @return {String} url
   */
-function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string {
+function _buildURL<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  type: T | null | undefined,
+  id?: string | null
+): string {
   let path;
   let url: string[] = [];
   let { host } = this;
   let prefix = this.urlPrefix();
 
-  if (modelName) {
-    path = this.pathForType(modelName);
+  if (type) {
+    path = this.pathForType(type);
     if (path) {
       url.push(path);
     }
@@ -337,8 +387,8 @@ function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
-     urlForFindRecord(id, modelName, snapshot) {
-       let baseUrl = this.buildURL(modelName, id, snapshot);
+     urlForFindRecord(id, type, snapshot) {
+       let baseUrl = this.buildURL(type, id, snapshot);
        return `${baseUrl}/users/${snapshot.adapterOptions.user_id}/playlists/${id}`;
      }
    }
@@ -347,13 +397,18 @@ function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined
    @method urlForFindRecord
    @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
 
    */
-function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForFindRecord<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  id: string,
+  type: T,
+  snapshot: Snapshot<R, T>
+): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -365,8 +420,8 @@ function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
-     urlForFindAll(modelName, snapshot) {
-       let baseUrl = this.buildURL(modelName);
+     urlForFindAll(type, snapshot) {
+       let baseUrl = this.buildURL(type);
        return `${baseUrl}/data/comments.json`;
      }
    }
@@ -374,12 +429,16 @@ function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string
 
    @method urlForFindAll
     @public
-   @param {String} modelName
+   @param {String} type
    @param {SnapshotRecordArray} snapshot
    @return {String} url
    */
-function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: SnapshotRecordArray): string {
-  return this._buildURL(modelName);
+function urlForFindAll<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
+  snapshots: SnapshotRecordArray<R, T>
+): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -392,8 +451,8 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
 
    export default class ApplicationAdapter extends RESTAdapter {
      host = 'https://api.github.com';
-     urlForQuery (query, modelName) {
-       switch(modelName) {
+     urlForQuery (query, type) {
+       switch(type) {
          case 'repo':
            return `https://api.github.com/orgs/${query.orgId}/repos`;
          default:
@@ -406,11 +465,15 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
    @method urlForQuery
     @public
    @param {Object} query
-   @param {String} modelName
+   @param {String} type
    @return {String} url
    */
-function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string {
-  return this._buildURL(modelName);
+function urlForQuery<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  query: Dict<unknown>,
+  type: T
+): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -422,7 +485,7 @@ function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: s
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
-     urlForQueryRecord({ slug }, modelName) {
+     urlForQueryRecord({ slug }, type) {
        let baseUrl = this.buildURL();
        return `${baseUrl}/${encodeURIComponent(slug)}`;
      }
@@ -432,11 +495,15 @@ function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: s
    @method urlForQueryRecord
     @public
    @param {Object} query
-   @param {String} modelName
+   @param {String} type
    @return {String} url
    */
-function urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string {
-  return this._buildURL(modelName);
+function urlForQueryRecord<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  query: Dict<unknown>,
+  type: T
+): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -450,7 +517,7 @@ function urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelN
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
-     urlForFindMany(ids, modelName) {
+     urlForFindMany(ids, type) {
        let baseUrl = this.buildURL();
        return `${baseUrl}/coalesce`;
      }
@@ -460,12 +527,17 @@ function urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelN
    @method urlForFindMany
     @public
    @param {Array} ids
-   @param {String} modelName
+   @param {String} type
    @param {Array} snapshots
    @return {String} url
    */
-function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: string, snapshots: Snapshot[]): string {
-  return this._buildURL(modelName);
+function urlForFindMany<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  ids: string[],
+  type: T,
+  snapshots: Snapshot<R, T>[]
+): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -478,8 +550,8 @@ function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: strin
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
-     urlForFindHasMany(id, modelName, snapshot) {
-       let baseUrl = this.buildURL(modelName, id);
+     urlForFindHasMany(id, type, snapshot) {
+       let baseUrl = this.buildURL(type, id);
        return `${baseUrl}/relationships`;
      }
    }
@@ -488,12 +560,17 @@ function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: strin
    @method urlForFindHasMany
     @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForFindHasMany<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  id: string,
+  type: T,
+  snapshot: Snapshot<R, T>
+): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -506,8 +583,8 @@ function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: strin
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
-     urlForFindBelongsTo(id, modelName, snapshot) {
-       let baseUrl = this.buildURL(modelName, id);
+     urlForFindBelongsTo(id, type, snapshot) {
+       let baseUrl = this.buildURL(type, id);
        return `${baseUrl}/relationships`;
      }
    }
@@ -516,12 +593,17 @@ function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: strin
    @method urlForFindBelongsTo
     @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForFindBelongsTo<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  id: string,
+  type: T,
+  snapshot: Snapshot<R, T>
+): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -534,7 +616,7 @@ function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: str
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
-     urlForCreateRecord(modelName, snapshot) {
+     urlForCreateRecord(type, snapshot) {
        return super.urlForCreateRecord(...arguments) + '/new';
      }
    }
@@ -542,12 +624,16 @@ function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: str
 
    @method urlForCreateRecord
     @public
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName);
+function urlForCreateRecord<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  type: T,
+  snapshot: Snapshot<R, T>
+): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -559,7 +645,7 @@ function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
-     urlForUpdateRecord(id, modelName, snapshot) {
+     urlForUpdateRecord(id, type, snapshot) {
        return `/${id}/feed?access_token=${snapshot.adapterOptions.token}`;
      }
    }
@@ -568,12 +654,17 @@ function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot
    @method urlForUpdateRecord
     @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForUpdateRecord<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  id: string,
+  type: T,
+  snapshot: Snapshot<R, T>
+): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -585,7 +676,7 @@ function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: stri
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
-     urlForDeleteRecord(id, modelName, snapshot) {
+     urlForDeleteRecord(id, type, snapshot) {
        return super.urlForDeleteRecord(...arguments) + '/destroy';
      }
    }
@@ -594,12 +685,17 @@ function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: stri
    @method urlForDeleteRecord
     @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForDeleteRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForDeleteRecord<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  id: string,
+  type: T,
+  snapshot: Snapshot<R, T>
+): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -609,7 +705,12 @@ function urlForDeleteRecord(this: MixtBuildURLMixin, id: string, modelName: stri
     @param {String} parentURL
     @return {String} urlPrefix
   */
-function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: string): string {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function urlPrefix<R extends ResolvedRegistry, T extends RecordType<R>>(
+  this: MixtBuildURLMixin<R>,
+  path?: string | null,
+  parentURL?: string
+): string {
   let { host, namespace } = this;
 
   if (!host || host === '/') {
@@ -659,8 +760,8 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
     import { pluralize } from 'ember-inflector';
 
     export default class ApplicationAdapter extends RESTAdapter {
-      pathForType(modelName) {
-        var decamelized = decamelize(modelName);
+      pathForType(type) {
+        var decamelized = decamelize(type);
         return pluralize(decamelized);
       }
     }
@@ -668,11 +769,11 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
 
     @method pathForType
     @public
-    @param {String} modelName
+    @param {String} type
     @return {String} path
   **/
-function pathForType(this: MixtBuildURLMixin, modelName: string): string {
-  let camelized = camelize(modelName);
+function pathForType<R extends ResolvedRegistry, T extends RecordType<R>>(this: MixtBuildURLMixin<R>, type: T): string {
+  let camelized = camelize(type);
   return pluralize(camelized);
 }
 

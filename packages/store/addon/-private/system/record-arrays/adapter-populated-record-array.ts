@@ -3,9 +3,11 @@ import { assert } from '@ember/debug';
 
 import type { PromiseArray, RecordArrayManager } from 'ember-data/-private';
 
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordInstance, RecordType } from '@ember-data/types/utils';
+
 import type { CollectionResourceDocument, Links, Meta, PaginationLinks } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
 import type { Dict } from '../../ts-interfaces/utils';
 import { promiseArray } from '../promise-proxies';
@@ -68,7 +70,10 @@ export interface AdapterPopulatedRecordArrayCreateArgs {
   @public
   @extends RecordArray
 */
-export default class AdapterPopulatedRecordArray extends RecordArray {
+export default class AdapterPopulatedRecordArray<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>
+> extends RecordArray<R, T> {
   declare links: Links | PaginationLinks | null;
   declare meta: Dict<unknown> | null;
   declare query: Dict<unknown> | null;
@@ -85,14 +90,14 @@ export default class AdapterPopulatedRecordArray extends RecordArray {
     throw new Error(`The result of a server query (on ${this.modelName}) is immutable.`);
   }
 
-  _update(): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
+  _update(): PromiseArray<RecordInstance<R, T>, AdapterPopulatedRecordArray<R, T>> {
     const { store, query } = this;
-
+    const promise = store._query(this.modelName, query, this, {});
     // TODO save options from initial request?
-    return promiseArray(store._query(this.modelName, query, this, {}));
+    return promiseArray(promise);
   }
 
-  _setObjects(identifiers: StableRecordIdentifier[], payload: CollectionResourceDocument) {
+  _setObjects(identifiers: StableRecordIdentifier<T>[], payload: CollectionResourceDocument<T>) {
     // TODO: initial load should not cause change events at all, only
     // subsequent. This requires changing the public api of adapter.query, but
     // hopefully we can do that soon.
@@ -123,7 +128,7 @@ export default class AdapterPopulatedRecordArray extends RecordArray {
     @param {Object} payload normalized payload
     @private
   */
-  _setIdentifiers(identifiers: StableRecordIdentifier[], payload: CollectionResourceDocument): void {
+  _setIdentifiers(identifiers: StableRecordIdentifier<T>[], payload: CollectionResourceDocument<T>): void {
     this._setObjects(identifiers, payload);
   }
 }

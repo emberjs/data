@@ -1,3 +1,12 @@
+import { ResolvedRegistry } from '@ember-data/types';
+import {
+  AttributeFieldsFor,
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordType,
+  RelatedType,
+} from '@ember-data/types/utils';
+
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier } from './identifier';
 import type { ChangedAttributesHash } from './record-data';
@@ -7,27 +16,47 @@ import type { JsonApiValidationError } from './record-data-json-api';
   @module @ember-data/store
 */
 
-export interface RecordDataRecordWrapper {
-  rollbackAttributes(): string[];
-  changedAttributes(): ChangedAttributesHash;
+export interface RecordDataRecordWrapper<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> {
+  rollbackAttributes(): AttributeFieldsFor<R, T>[];
+  changedAttributes(): ChangedAttributesHash<R, T>;
   hasChangedAttributes(): boolean;
-  setDirtyAttribute(key: string, value: any): void;
+  setDirtyAttribute<F extends AttributeFieldsFor<R, T>>(key: F, value: unknown): void;
 
-  getAttr(key: string): any;
-  getHasMany(key: string): CollectionResourceRelationship;
+  // we could return RecordInstance<R, T>[F] however this would
+  // restrict model implementations from transforming.
+  // We should potentially introduce a concept of cache types
+  getAttr<F extends AttributeFieldsFor<R, T>>(key: F): unknown;
+  getHasMany<F extends HasManyRelationshipFieldsFor<R, T>>(
+    key: F
+  ): CollectionResourceRelationship<RelatedType<R, T, F>>;
 
-  addToHasMany(key: string, recordDatas: RecordDataRecordWrapper[], idx?: number): void;
-  removeFromHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
-  setDirtyHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
+  addToHasMany<F extends HasManyRelationshipFieldsFor<R, T>>(
+    key: F,
+    recordDatas: RecordDataRecordWrapper<R, RelatedType<R, T, F>>[],
+    idx?: number
+  ): void;
+  removeFromHasMany<F extends HasManyRelationshipFieldsFor<R, T>>(
+    key: F,
+    recordDatas: RecordDataRecordWrapper<R, RelatedType<R, T, F>>[]
+  ): void;
+  setDirtyHasMany<F extends HasManyRelationshipFieldsFor<R, T>>(
+    key: F,
+    recordDatas: RecordDataRecordWrapper<R, RelatedType<R, T, F>>[]
+  ): void;
 
-  getBelongsTo(key: string): SingleResourceRelationship;
+  getBelongsTo<F extends BelongsToRelationshipFieldsFor<R, T>>(
+    key: F
+  ): SingleResourceRelationship<RelatedType<R, T, F>>;
 
-  setDirtyBelongsTo(name: string, recordData: RecordDataRecordWrapper | null): void;
+  setDirtyBelongsTo<F extends BelongsToRelationshipFieldsFor<R, T>>(
+    name: string,
+    recordData: RecordDataRecordWrapper<R, RelatedType<R, T, F>> | null
+  ): void;
 
   // ----- unspecced
-  isAttrDirty(key: string): boolean;
+  isAttrDirty<F extends AttributeFieldsFor<R, T>>(key: F): boolean;
   removeFromInverseRelationships(): void;
-  hasAttr(key: string): boolean;
+  hasAttr<F extends AttributeFieldsFor<R, T>>(key: F): boolean;
 
   // new
   getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];

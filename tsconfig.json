@@ -29,7 +29,6 @@
       "packages/store/addon/-private/utils/construct-resource.ts",
       "packages/store/addon/-private/ts-interfaces/utils.ts",
       "packages/store/addon/-private/ts-interfaces/schema-definition-service.ts",
-      "packages/store/addon/-private/ts-interfaces/record-instance.ts",
       "packages/store/addon/-private/ts-interfaces/record-data.ts",
       "packages/store/addon/-private/ts-interfaces/record-data-store-wrapper.ts",
       "packages/store/addon/-private/ts-interfaces/record-data-schemas.ts",

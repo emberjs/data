@@ -149,6 +149,8 @@ import type {
   MinimumAdapterInterface,
 } from '@ember-data/store/-private/ts-interfaces/minimum-adapter-interface';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
 
 /**
   An adapter is an object that receives requests from a store and
@@ -205,7 +207,10 @@ import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
   @public
   @extends Ember.EmberObject
 */
-export default class Adapter extends EmberObject implements MinimumAdapterInterface {
+export default class Adapter<R extends ResolvedRegistry = DefaultRegistry>
+  extends EmberObject
+  implements MinimumAdapterInterface<R>
+{
   declare _coalesceFindRequests: boolean;
 
   /**
@@ -223,9 +228,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import $ from 'jquery';
 
     export default class ApplicationAdapter extends Adapter {
-      findRecord(store, type, id, snapshot) {
+      findRecord(store, schema, id, snapshot) {
         return new RSVP.Promise(function(resolve, reject) {
-          $.getJSON(`/${type.modelName}/${id}`).then(function(data) {
+          $.getJSON(`/${schema.modelName}/${id}`).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -237,13 +242,18 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method findRecord
     @param {Store} store
-    @param {Model} type
+    @param {ModelSchema} schema
     @param {String} id
     @param {Snapshot} snapshot
     @return {Promise} promise
     @public
   */
-  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
+  findRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    id: string,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findRecord override');
     }
@@ -262,9 +272,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import $ from 'jquery';
 
     export default class ApplicationAdapter extends Adapter {
-      findAll(store, type) {
+      findAll(store, schema) {
         return new RSVP.Promise(function(resolve, reject) {
-          $.getJSON(`/${type.modelName}`).then(function(data) {
+          $.getJSON(`/${schema.modelName}`).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -276,17 +286,17 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method findAll
     @param {Store} store
-    @param {Model} type
-    @param {undefined} neverSet a value is never provided to this argument
+    @param {ModelSchema} schema
+    @param {null} neverSet a value is never provided to this argument
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
     @public
   */
-  findAll(
-    store: Store,
-    type: ShimModelClass,
-    neverSet,
-    snapshotRecordArray: SnapshotRecordArray
+  findAll<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    neverSet: null,
+    snapshotRecordArray: SnapshotRecordArray<R, T>
   ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findAll override');
@@ -306,9 +316,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import $ from 'jquery';
 
     export default class ApplicationAdapter extends Adapter {
-      query(store, type, query) {
+      query(store, schema, query) {
         return new RSVP.Promise(function(resolve, reject) {
-          $.getJSON(`/${type.modelName}`, query).then(function(data) {
+          $.getJSON(`/${schema.modelName}`, query).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -320,14 +330,18 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method query
     @param {Store} store
-    @param {Model} type
+    @param {ModelSchema} schema
     @param {Object} query
     @param {AdapterPopulatedRecordArray} recordArray
     @param {Object} adapterOptions
     @return {Promise} promise
     @public
   */
-  query(store: Store, type: ShimModelClass, query): Promise<AdapterPayload> {
+  query<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    query: Dict<unknown>
+  ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a query override');
     }
@@ -353,9 +367,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import $ from 'jquery';
 
     export default class ApplicationAdapter extends Adapter.extend(BuildURLMixin) {
-      queryRecord(store, type, query) {
+      queryRecord(store, schema, query) {
         return new RSVP.Promise(function(resolve, reject) {
-          $.getJSON(`/${type.modelName}`, query).then(function(data) {
+          $.getJSON(`/${schema.modelName}`, query).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -367,13 +381,18 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method queryRecord
     @param {Store} store
-    @param {subclass of Model} type
+    @param {ModelSchema} schema
     @param {Object} query
     @param {Object} adapterOptions
     @return {Promise} promise
     @public
   */
-  queryRecord(store: Store, type: ShimModelClass, query, adapterOptions): Promise<AdapterPayload> {
+  queryRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    query,
+    adapterOptions
+  ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a queryRecord override');
     }
@@ -400,7 +419,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import { v4 } from 'uuid';
 
     export default class ApplicationAdapter extends Adapter {
-      generateIdForRecord(store, type, inputProperties) {
+      generateIdForRecord(store, schema, inputProperties) {
         return v4();
       }
     }
@@ -408,7 +427,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method generateIdForRecord
     @param {Store} store
-    @param {Model} type   the Model class of the record
+    @param {ModelSchema} schema   the Model class of the record
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
     @return {(String|Number)} id
@@ -424,9 +443,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import Adapter from '@ember-data/adapter';
 
     export default class ApplicationAdapter extends Adapter {
-      createRecord(store, type, snapshot) {
+      createRecord(store, schema, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
-        let url = `/${type.modelName}`;
+        let url = `/${schema.modelName}`;
 
         // ...
       }
@@ -439,7 +458,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Object} serialized snapshot
     @public
   */
-  serialize(snapshot, options): Dict<unknown> {
+  serialize<T extends RecordType<R>>(snapshot: Snapshot<R, T>, options): unknown {
     return snapshot.serialize(options);
   }
 
@@ -458,13 +477,13 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import $ from 'jquery';
 
     export default class ApplicationAdapter extends Adapter {
-      createRecord(store, type, snapshot) {
+      createRecord(store, schema, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
 
         return new RSVP.Promise(function (resolve, reject) {
           $.ajax({
             type: 'POST',
-            url: `/${type.modelName}`,
+            url: `/${schema.modelName}`,
             dataType: 'json',
             data: data
           }).then(function (data) {
@@ -480,12 +499,16 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method createRecord
     @param {Store} store
-    @param {Model} type   the Model class of the record
+    @param {ModelSchema} schema   the Model class of the record
     @param {Snapshot} snapshot
     @return {Promise} promise
     @public
   */
-  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  createRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a createRecord override');
     }
@@ -516,14 +539,14 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import $ from 'jquery';
 
     export default class ApplicationAdapter extends Adapter {
-      updateRecord(store, type, snapshot) {
+      updateRecord(store, schema, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let id = snapshot.id;
 
         return new RSVP.Promise(function(resolve, reject) {
           $.ajax({
             type: 'PUT',
-            url: `/${type.modelName}/${id}`,
+            url: `/${schema.modelName}/${id}`,
             dataType: 'json',
             data: data
           }).then(function(data) {
@@ -539,12 +562,16 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method updateRecord
     @param {Store} store
-    @param {Model} type   the Model class of the record
+    @param {ModelSchema} schema   the Model class of the record
     @param {Snapshot} snapshot
     @return {Promise} promise
     @public
   */
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  updateRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a updateRecord override');
     }
@@ -567,14 +594,14 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import $ from 'jquery';
 
     export default class ApplicationAdapter extends Adapter {
-      deleteRecord(store, type, snapshot) {
+      deleteRecord(store, schema, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let id = snapshot.id;
 
         return new RSVP.Promise(function(resolve, reject) {
           $.ajax({
             type: 'DELETE',
-            url: `/${type.modelName}/${id}`,
+            url: `/${schema.modelName}/${id}`,
             dataType: 'json',
             data: data
           }).then(function(data) {
@@ -590,12 +617,16 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method deleteRecord
     @param {Store} store
-    @param {Model} type   the Model class of the record
+    @param {ModelSchema} schema   the Model class of the record
     @param {Snapshot} snapshot
     @return {Promise} promise
     @public
   */
-  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  deleteRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a deleteRecord override');
     }
@@ -637,11 +668,11 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     import $ from 'jquery';
 
     export default class ApplicationAdapter extends Adapter {
-      findMany(store, type, ids, snapshots) {
+      findMany(store, schema, ids, snapshots) {
         return new RSVP.Promise(function(resolve, reject) {
           $.ajax({
             type: 'GET',
-            url: `/${type.modelName}/`,
+            url: `/${schema.modelName}/`,
             dataType: 'json',
             data: { filter: { id: ids.join(',') } }
           }).then(function(data) {
@@ -657,7 +688,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @method findMany
     @param {Store} store
-    @param {Model} type   the Model class of the records
+    @param {ModelSchema} schema   the Model class of the records
     @param {Array}    ids
     @param {Array} snapshots
     @return {Promise} promise
@@ -680,7 +711,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany(store: Store, snapshots: Snapshot[]): Snapshot[][] {
+  groupRecordsForFindMany<T extends RecordType<R>>(store: Store<R>, snapshots: Snapshot<R, T>[]): Snapshot<R, T>[][] {
     return [snapshots];
   }
 
@@ -731,7 +762,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Boolean}
     @public
   */
-  shouldReloadRecord(store: Store, snapshot: Snapshot): boolean {
+  shouldReloadRecord<T extends RecordType<R>>(store: Store<R>, snapshot: Snapshot<R, T>): boolean {
     return false;
   }
 
@@ -787,7 +818,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Boolean}
     @public
   */
-  shouldReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray): boolean {
+  shouldReloadAll<T extends RecordType<R>>(store: Store<R>, snapshotRecordArray: SnapshotRecordArray<R, T>): boolean {
     return !snapshotRecordArray.length;
   }
 
@@ -824,7 +855,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Boolean}
     @public
   */
-  shouldBackgroundReloadRecord(store: Store, Snapshot): boolean {
+  shouldBackgroundReloadRecord<T extends RecordType<R>>(store: Store<R>, snapshot: Snapshot<R, T>): boolean {
     return true;
   }
 
@@ -861,7 +892,10 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Boolean}
     @public
   */
-  shouldBackgroundReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray): boolean {
+  shouldBackgroundReloadAll<T extends RecordType<R>>(
+    store: Store<R>,
+    snapshotRecordArray: SnapshotRecordArray<R, T>
+  ): boolean {
     return true;
   }
 }

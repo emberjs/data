@@ -1,5 +1,8 @@
 import type { Object as JSONObject } from 'json-typescript';
 
+import { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
+
 import type Snapshot from '../system/snapshot';
 import type Store from '../system/store';
 import type { ModelSchema } from './ds-model';
@@ -33,7 +36,7 @@ export type RequestType =
   @class MinimumSerializerInterface
   @public
 */
-export interface MinimumSerializerInterface {
+export interface MinimumSerializerInterface<R extends ResolvedRegistry = DefaultRegistry> {
   /**
    * This method is responsible for normalizing the value resolved from the promise returned
    * by an Adapter request into the format expected by the `Store`.
@@ -64,9 +67,9 @@ export interface MinimumSerializerInterface {
    *
    * @returns {JsonApiDocument} a document following the structure of a JSON:API Document.
    */
-  normalizeResponse(
-    store: Store,
-    schema: ModelSchema,
+  normalizeResponse<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ModelSchema<R, T>,
     rawPayload: AdapterPayload,
     id: string | null,
     requestType:
@@ -80,7 +83,7 @@ export interface MinimumSerializerInterface {
       | 'createRecord'
       | 'deleteRecord'
       | 'updateRecord'
-  ): JsonApiDocument;
+  ): JsonApiDocument<T>;
 
   /**
    * This method is responsible for serializing an individual record
@@ -99,7 +102,7 @@ export interface MinimumSerializerInterface {
    * @param {Snapshot} snapshot A Snapshot for the record to serialize
    * @param {object} [options]
    */
-  serialize(snapshot: Snapshot, options?: OptionsHash): JSONObject;
+  serialize<T extends RecordType<R>>(snapshot: Snapshot<R, T>, options?: OptionsHash): JSONObject;
 
   /**
    * This method is intended to normalize data into a [JSON:API Document](https://jsonapi.org/format/#document-structure)
@@ -155,7 +158,11 @@ export interface MinimumSerializerInterface {
    *  containing a single JSON:API Resource
    *  as its primary data.
    */
-  normalize?(schema: ModelSchema, rawPayload: JSONObject, prop?: string): SingleResourceDocument;
+  normalize?<T extends RecordType<R>>(
+    schema: ModelSchema<R, T>,
+    rawPayload: JSONObject,
+    prop?: string
+  ): SingleResourceDocument<T>;
 
   /**
    * When using `JSONAPIAdapter` or `RESTAdapter` this method is called
@@ -197,7 +204,12 @@ export interface MinimumSerializerInterface {
    * @param [options]
    * @returns {void}
    */
-  serializeIntoHash?(hash: object, schema: ModelSchema, snapshot: Snapshot, options?: OptionsHash): void;
+  serializeIntoHash?<T extends RecordType<R>>(
+    hash: object,
+    schema: ModelSchema<R, T>,
+    snapshot: Snapshot<R, T>,
+    options?: OptionsHash
+  ): void;
 
   /**
    * This method allows for normalization of data when `store.pushPayload` is called
@@ -241,7 +253,7 @@ export interface MinimumSerializerInterface {
    *  This JSON should be in the API format expected by the serializer.
    * @returns {void}
    */
-  pushPayload?(store: Store, rawPayload: JSONObject): void;
+  pushPayload?(store: Store<R>, rawPayload: JSONObject): void;
 
   /**
    * In some situations the serializer may need to perform cleanup when destroyed,

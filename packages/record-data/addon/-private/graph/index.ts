@@ -7,7 +7,14 @@ import type Store from '@ember-data/store/-private/system/store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordType } from '@ember-data/types/utils';
+import type {
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordField,
+  RecordType,
+  RelatedType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
@@ -18,6 +25,7 @@ import type {
   DeleteRecordOperation,
   LocalRelationshipOperation,
   RemoteRelationshipOperation,
+  ReplaceRelatedRecordOperation,
   UnknownOperation,
 } from './-operations';
 import { assertValidRelationshipPayload, isBelongsTo, isHasMany, isImplicit } from './-utils';
@@ -27,12 +35,15 @@ import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
 
-type RelationshipEdge<
-  R extends ResolvedRegistry,
-  T extends RecordType<R> = RecordType<R>,
-  K extends RecordField<R, T> = RecordField<R, T>,
-  RT extends RecordType<R> = RecordType<R>
-> = ImplicitRelationship<R, T, K, RT> | ManyRelationship<R, T, K, RT> | BelongsToRelationship<R, T, K, RT>;
+type RelationshipEdge<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> =
+  | ImplicitRelationship<R, T, RelationshipFieldsFor<R, T>, RelatedType<R, T, RelationshipFieldsFor<R, T>>>
+  | ManyRelationship<R, T, HasManyRelationshipFieldsFor<R, T>, RelatedType<R, T, HasManyRelationshipFieldsFor<R, T>>>
+  | BelongsToRelationship<
+      R,
+      T,
+      BelongsToRelationshipFieldsFor<R, T>,
+      RelatedType<R, T, BelongsToRelationshipFieldsFor<R, T>>
+    >;
 
 const Graphs = new WeakCache<RecordDataStoreWrapper<ResolvedRegistry>, Graph<ResolvedRegistry>>(DEBUG ? 'graph' : '');
 Graphs._generator = <R extends ResolvedRegistry>(wrapper: RecordDataStoreWrapper<R>) => {
@@ -40,17 +51,14 @@ Graphs._generator = <R extends ResolvedRegistry>(wrapper: RecordDataStoreWrapper
 
   // in DEBUG we attach the graph to the main store for improved debuggability
   if (DEBUG) {
-    Graphs.set(
-      wrapper._store as unknown as RecordDataStoreWrapper<RegistryMap>,
-      graph as unknown as Graph<RegistryMap>
-    );
+    Graphs.set(wrapper._store as unknown as RecordDataStoreWrapper<ResolvedRegistry>, graph);
   }
 
   return graph;
 };
 
-function isStore<R extends ResolvedRegistry>(maybeStore: Store<R> | unknown): maybeStore is Store<R> {
-  return (maybeStore as Store)._storeWrapper !== undefined;
+function isStore<R extends ResolvedRegistry>(maybeStore: Store<R> | RecordDataStoreWrapper<R>): maybeStore is Store<R> {
+  return (maybeStore as Store<R>)._storeWrapper !== undefined;
 }
 
 function getWrapper<R extends ResolvedRegistry>(
@@ -62,7 +70,8 @@ function getWrapper<R extends ResolvedRegistry>(
 export function peekGraph<R extends ResolvedRegistry>(
   store: RecordDataStoreWrapper<R> | Store<R>
 ): Graph<R> | undefined {
-  return Graphs.get(getWrapper(store as unknown as Store<RegistryMap>)) as Graph<R> | undefined;
+  const store1 = getWrapper(store);
+  return Graphs.get<RecordDataStoreWrapper<R>, Graph<R>>(store1);
 }
 
 export function graphFor<R extends ResolvedRegistry>(store: RecordDataStoreWrapper<R> | Store<R>): Graph<R> {
@@ -76,6 +85,24 @@ type RelationshipEdgeMap<
 > = {
   [K1 in K]: RelationshipEdge<R, T, K>;
 };
+
+interface MappedEdges<R extends ResolvedRegistry> {
+  clear(): void;
+  delete<T extends RecordType<R>>(key: StableRecordIdentifier<T>): boolean;
+  forEach<I>(
+    callbackfn: <T extends RecordType<R>>(
+      this: I,
+      value: RelationshipEdgeMap<R, T>,
+      key: StableRecordIdentifier<T>,
+      map: MappedEdges<R>
+    ) => void,
+    thisArg: I
+  ): void;
+  get<T extends RecordType<R>>(key: StableRecordIdentifier<T>): RelationshipEdgeMap<R, T> | undefined;
+  has<T extends RecordType<R>>(key: StableRecordIdentifier<T>): boolean;
+  set<T extends RecordType<R>>(key: StableRecordIdentifier<T>, value: RelationshipEdgeMap<R, T>): this;
+  readonly size: number;
+}
 
 /*
  * Graph acts as the cache for relationship data. It allows for
@@ -99,17 +126,17 @@ type RelationshipEdgeMap<
 export class Graph<R extends ResolvedRegistry> {
   declare _definitionCache: EdgeCache;
   declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
-  declare identifiers: Map<StableRecordIdentifier, RelationshipEdgeMap<R>>;
+  declare identifiers: MappedEdges<R>;
   declare store: RecordDataStoreWrapper<R>;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
   declare _pushedUpdates: {
-    belongsTo: RemoteRelationshipOperation[];
-    hasMany: RemoteRelationshipOperation[];
-    deletions: DeleteRecordOperation[];
+    belongsTo: RemoteRelationshipOperation<R>[];
+    hasMany: RemoteRelationshipOperation<R>[];
+    deletions: DeleteRecordOperation<R>[];
   };
-  declare _updatedRelationships: Set<ManyRelationship>;
-  declare _transaction: Set<ManyRelationship | BelongsToRelationship<R>> | null;
+  declare _updatedRelationships: Set<ManyRelationship<R>>;
+  declare _transaction: Set<ManyRelationship<R> | BelongsToRelationship<R>> | null;
 
   constructor(store: RecordDataStoreWrapper<R>) {
     this._definitionCache = Object.create(null);
@@ -123,11 +150,11 @@ export class Graph<R extends ResolvedRegistry> {
     this._transaction = null;
   }
 
-  has<T extends RecordType<R>, K extends RecordField<R, T>>(
+  has<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
     identifier: StableRecordIdentifier<T>,
-    propertyName: K
+    propertyName: F
   ): boolean {
-    let relationships = this.identifiers.get(identifier) as RelationshipEdgeMap<R, T>;
+    let relationships = this.identifiers.get(identifier);
     if (!relationships) {
       return false;
     }
@@ -139,7 +166,7 @@ export class Graph<R extends ResolvedRegistry> {
     propertyName: K
   ): RelationshipEdge<R, T> {
     assert(`expected propertyName`, propertyName);
-    let relationships = this.identifiers.get(identifier) as RelationshipEdgeMap<R, T>;
+    let relationships = this.identifiers.get(identifier);
     if (!relationships) {
       relationships = Object.create(null) as RelationshipEdgeMap<R, T>;
       this.identifiers.set(identifier, relationships);
@@ -258,7 +285,7 @@ export class Graph<R extends ResolvedRegistry> {
   /*
    * Remote state changes
    */
-  push(op: RemoteRelationshipOperation) {
+  push(op: RemoteRelationshipOperation<R>) {
     if (op.op === 'deleteRecord') {
       this._pushedUpdates.deletions.push(op);
     } else if (op.op === 'replaceRelatedRecord') {
@@ -278,10 +305,10 @@ export class Graph<R extends ResolvedRegistry> {
   /*
    * Local state changes
    */
-  update(op: RemoteRelationshipOperation, isRemote: true): void;
-  update(op: LocalRelationshipOperation, isRemote?: false): void;
+  update(op: RemoteRelationshipOperation<R>, isRemote: true): void;
+  update(op: LocalRelationshipOperation<R>, isRemote?: false): void;
   update(
-    op: LocalRelationshipOperation | RemoteRelationshipOperation | UnknownOperation,
+    op: LocalRelationshipOperation<R> | RemoteRelationshipOperation<R> | UnknownOperation<R>,
     isRemote: boolean = false
   ): void {
     assert(

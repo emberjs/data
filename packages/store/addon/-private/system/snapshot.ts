@@ -7,13 +7,22 @@ import { importSync } from '@embroider/macros';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
 import type {
   ExistingResourceIdentifierObject,
   NewResourceIdentifierObject,
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
+import type { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import type {
+  AttributeFieldsFor,
+  AttributesFor,
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordField,
+  RecordInstance,
+  RecordType,
+  RelatedType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 import type { DSModelSchema, ModelSchema } from '../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
@@ -28,9 +37,40 @@ import type Store from './store';
 
 type RecordId = string | null;
 
-function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModelSchema {
-  return (schema as DSModelSchema).isModel === true;
+function schemaIsDSModel<R extends ResolvedRegistry, T extends RecordType<R>>(
+  schema: ModelSchema<R, T> | DSModelSchema<R, T>
+): schema is DSModelSchema<R, T> {
+  return (schema as DSModelSchema<R, T>).isModel === true;
 }
+
+type MappedBelongsToRecord<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RecordField<R, T> = BelongsToRelationshipFieldsFor<R, T>
+> = {
+  [L in F]: Snapshot<R, RelatedType<R, T, L>>;
+};
+type MappedHasManyRecord<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RecordField<R, T> = HasManyRelationshipFieldsFor<R, T>
+> = {
+  [L in F]: Snapshot<R, RelatedType<R, T, L>>[];
+};
+type MappedBelongsToIds<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RecordField<R, T> = BelongsToRelationshipFieldsFor<R, T>
+> = {
+  [L in F]: RecordId;
+};
+type MappedHasManyIds<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RecordField<R, T> = HasManyRelationshipFieldsFor<R, T>
+> = {
+  [L in F]: RecordId[];
+};
 
 /**
   Snapshot is not directly instantiable.
@@ -40,12 +80,14 @@ function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModel
   @class Snapshot
   @public
 */
-export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R>> implements Snapshot<R, T> {
-  private __attributes: Dict<unknown> | null = null;
-  private _belongsToRelationships: Dict<Snapshot<R, RecordType<R>>> = Object.create(null);
-  private _belongsToIds: Dict<RecordId> = Object.create(null);
-  private _hasManyRelationships: Dict<Snapshot<R, RecordType<R>>[]> = Object.create(null);
-  private _hasManyIds: Dict<RecordId[]> = Object.create(null);
+export default class Snapshot<R extends ResolvedRegistry = DefaultRegistry, T extends RecordType<R> = RecordType<R>>
+  implements Snapshot<R, T>
+{
+  private __attributes: AttributesFor<R, T> | null = null;
+  private _belongsToRelationships: MappedBelongsToRecord<R, T> = Object.create(null);
+  private _belongsToIds: MappedBelongsToIds<R, T> = Object.create(null);
+  private _hasManyRelationships: MappedHasManyRecord<R, T> = Object.create(null);
+  private _hasManyIds: MappedHasManyIds<R, T> = Object.create(null);
   declare _internalModel: InternalModel<R, T>;
   declare _changedAttributes: ChangedAttributesHash<R, T>;
 
@@ -152,7 +194,7 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
     return this._internalModel.getRecord();
   }
 
-  get _attributes(): Dict<unknown> {
+  get _attributes(): AttributesFor<R, T> {
     if (this.__attributes !== null) {
       return this.__attributes;
     }
@@ -178,7 +220,7 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
     @public
    @type {Model}
    */
-  get type(): ModelSchema {
+  get type(): ModelSchema<R, T> {
     return this._internalModel.modelClass;
   }
 
@@ -204,7 +246,7 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
    @return {Object} The attribute value or undefined
    @public
    */
-  attr<K extends RecordField<R, T>>(keyName: K): unknown {
+  attr<F extends AttributeFieldsFor<R, T>>(keyName: F): RecordInstance<R, T>[F] {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
@@ -225,7 +267,7 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
    @return {Object} All attributes of the current snapshot
    @public
    */
-  attributes(): Dict<unknown> {
+  attributes(): AttributesFor<R, T> {
     return { ...this._attributes };
   }
 
@@ -296,10 +338,12 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
    relationship or null if the relationship is known but unset. undefined
    will be returned if the contents of the relationship is unknown.
    */
-  belongsTo<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
-    keyName: K,
+  belongsTo<F extends BelongsToRelationshipFieldsFor<R, T>>(
+    keyName: F,
     options?: { id?: boolean }
-  ): Snapshot<R, RT> | RecordId | undefined {
+  ): Snapshot<R, RelatedType<R, T, F>> | RecordId | undefined {
+    // this approach (vs a generic) avoids a sub-type issue
+    type RT = RelatedType<R, T, F>;
     let returnModeIsId = !!(options && options.id);
     let inverseInternalModel: InternalModel<R, RT> | null;
     let result: Snapshot<R, RT> | RecordId | undefined;
@@ -310,6 +354,10 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
     }
 
     if (returnModeIsId === false && keyName in this._belongsToRelationships) {
+      assert(
+        `Expected the snapshot cache entry to not be undefined`,
+        this._belongsToRelationships[keyName] instanceof Snapshot
+      );
       return this._belongsToRelationships[keyName];
     }
 
@@ -332,7 +380,7 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
       importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
     ).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as BelongsToRelationship<R, T, K>;
+    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as BelongsToRelationship<R, T, F>;
 
     assert(
       `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
@@ -346,7 +394,7 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
     let value = relationship.getData();
     let data = value && value.data;
 
-    inverseInternalModel = data ? store._internalModelForResource(data) : null;
+    inverseInternalModel = data ? store._internalModelForResource<RT>(data) : null;
 
     if (value && value.data !== undefined) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
@@ -363,7 +411,8 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
     if (returnModeIsId) {
       this._belongsToIds[keyName] = result as RecordId;
     } else {
-      this._belongsToRelationships[keyName] = result as Snapshot<R, RT>;
+      assert(`exected snapshot to be a snapshot`, result instanceof Snapshot);
+      this._belongsToRelationships[keyName] = result;
     }
 
     return result;
@@ -399,10 +448,11 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
    relationship or an empty array if the relationship is known but unset.
    undefined will be returned if the contents of the relationship is unknown.
    */
-  hasMany<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
-    keyName: K,
+  hasMany<F extends HasManyRelationshipFieldsFor<R, T>>(
+    keyName: F,
     options?: { ids?: boolean }
-  ): RecordId[] | Snapshot<R, RT>[] | undefined {
+  ): RecordId[] | Snapshot<R, RelatedType<R, T, F>>[] | undefined {
+    type RT = RelatedType<R, T, F>;
     let returnModeIsIds = !!(options && options.ids);
     let results: RecordId[] | Snapshot<R, RT>[] | undefined;
     let cachedIds: RecordId[] | undefined = this._hasManyIds[keyName];
@@ -436,7 +486,7 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
       importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
     ).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as ManyRelationship;
+    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName);
     assert(
       `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
       relationship
@@ -451,7 +501,7 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
     if (value.data) {
       results = [];
       value.data.forEach((member) => {
-        let internalModel = store._internalModelForResource(member);
+        let internalModel = store._internalModelForResource<RT>(member);
         if (!internalModel.isDeleted()) {
           if (returnModeIsIds) {
             (results as RecordId[]).push(
@@ -492,14 +542,14 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
   */
-  eachAttribute(
-    callback: <K extends RecordField<R, T>>(key: K, meta: AttributeSchema<R, T, K>) => void,
-    binding?: unknown
+  eachAttribute<I>(
+    callback: <F extends AttributeFieldsFor<R, T>>(this: I, key: F, meta: AttributeSchema<R, T, F>) => void,
+    binding: I
   ): void {
-    let attrDefs = this._store._attributesDefinitionFor(this.identifier);
-    const keys = Object.keys(attrDefs) as RecordField<R, T>[];
-    keys.forEach(<K extends RecordField<R, T>>(key: K) => {
-      callback.call(binding, key, attrDefs[key] as AttributeSchema<R, T, K>);
+    let attrDefs = this._store._attributesDefinitionFor({ type: this.modelName });
+    const attrKeys = Object.keys(attrDefs) as AttributeFieldsFor<R, T>[];
+    attrKeys.forEach(<F extends AttributeFieldsFor<R, T>>(key: F) => {
+      callback.call(binding, key, attrDefs[key]);
     });
   }
 
@@ -520,13 +570,14 @@ export default class Snapshot<R extends ResolvedRegistry, T extends RecordType<R
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
   */
-  eachRelationship(
-    callback: <K extends RecordField<R, T>>(key: K, meta: RelationshipSchema<R, T, K>) => void,
-    binding?: unknown
+  eachRelationship<I>(
+    callback: <F extends RelationshipFieldsFor<R, T>>(this: I, key: F, meta: RelationshipSchema<R, T, F>) => void,
+    binding: I
   ): void {
-    let relationshipDefs = this._store._relationshipsDefinitionFor(this.identifier);
-    (Object.keys(relationshipDefs) as RecordField<R, T>[]).forEach(<K extends RecordField<R, T>>(key: K) => {
-      callback.call(binding, key, relationshipDefs[key] as RelationshipSchema<R, T, K>);
+    let relationshipDefs = this._store._relationshipsDefinitionFor({ type: this.modelName });
+    const relKeys = Object.keys(relationshipDefs) as RelationshipFieldsFor<R, T>[];
+    relKeys.forEach(<F extends RelationshipFieldsFor<R, T>>(key: F) => {
+      callback.call(binding, key, relationshipDefs[key]);
     });
   }
 
