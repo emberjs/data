@@ -1,5 +1,8 @@
 import type { Value as JSONValue } from 'json-typescript';
 
+import { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
+
 import type { Dict } from './utils';
 
 /**
@@ -130,20 +133,26 @@ interface Document<K extends string> {
   errors?: JSONValue[];
 }
 
-export interface EmptyResourceDocument<K extends string = string> extends Document<K> {
+export interface EmptyResourceDocument<R extends ResolvedRegistry = DefaultRegistry> extends Document<RecordType<R>> {
   data: null;
 }
 
 // TODO pass in the Registry here for included purposes
-export interface SingleResourceDocument<P extends string = string, K extends string = string> extends Document<K> {
-  data: ExistingResourceObject<P>;
+export interface SingleResourceDocument<
+  R extends ResolvedRegistry = DefaultRegistry,
+  T extends RecordType<R> = RecordType<R>
+> extends Document<RecordType<R>> {
+  data: ExistingResourceObject<T>;
 }
 
-export interface CollectionResourceDocument<P extends string = string, K extends string = string> extends Document<K> {
-  data: ExistingResourceObject<P>[];
+export interface CollectionResourceDocument<
+  R extends ResolvedRegistry = DefaultRegistry,
+  T extends RecordType<R> = RecordType<R>
+> extends Document<RecordType<R>> {
+  data: ExistingResourceObject<T>[];
 }
 
-export type JsonApiDocument<P extends string = string, K extends string = string> =
-  | EmptyResourceDocument<K>
-  | SingleResourceDocument<P, K>
-  | CollectionResourceDocument<P, K>;
+export type JsonApiDocument<R extends ResolvedRegistry = DefaultRegistry, T extends RecordType<R> = RecordType<R>> =
+  | EmptyResourceDocument<R>
+  | SingleResourceDocument<R, T>
+  | CollectionResourceDocument<R, T>;

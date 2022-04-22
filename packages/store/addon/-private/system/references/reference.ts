@@ -1,7 +1,11 @@
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
+
 import type { LinkObject, PaginationLinks } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { RecordData } from '../../ts-interfaces/record-data';
 import type { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
 import type { Dict } from '../../ts-interfaces/utils';
 import type Store from '../store';
@@ -29,21 +33,22 @@ function isResourceIdentiferWithRelatedLinks(
  @class Reference
  @public
  */
-interface Reference {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface Reference<R extends ResolvedRegistry, T extends RecordType<R>> {
   links(): PaginationLinks | null;
 }
-abstract class Reference {
-  #identifier: StableRecordIdentifier;
+abstract class Reference<R extends ResolvedRegistry, T extends RecordType<R>> {
+  #identifier: StableRecordIdentifier<T>;
 
-  constructor(public store: Store, identifier: StableRecordIdentifier) {
+  constructor(public store: Store<R>, identifier: StableRecordIdentifier<T>) {
     this.#identifier = identifier;
   }
 
-  get recordData() {
+  get recordData(): RecordData<R, T> {
     return this.store.recordDataFor(this.#identifier, false);
   }
 
-  public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
+  public _resource(): JsonApiRelationship<RecordType<R>> | void {}
 
   /**
    This returns a string that represents how the reference will be

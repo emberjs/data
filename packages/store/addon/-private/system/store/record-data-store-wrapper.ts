@@ -5,7 +5,13 @@ import { importSync } from '@embroider/macros';
 import type { RelationshipDefinition } from '@ember-data/model/-private/system/relationships/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordType } from '@ember-data/types/utils';
+import type {
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordField,
+  RecordType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 import type { IdentifierCache } from '../../identifiers/cache';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -145,7 +151,7 @@ export default class RecordDataStoreWrapper<R extends ResolvedRegistry = Resolve
     return this._store._relationshipsDefinitionFor({ type });
   }
 
-  inverseForRelationship<T extends RecordType<R>>(type: T, key: RecordField<R, T>): string | null {
+  inverseForRelationship<T extends RecordType<R>>(type: T, key: RelationshipFieldsFor<R, T>): RecordType<R> | null {
     const modelClass = this._store.modelFor(type);
     const definition = this.relationshipsDefinitionFor(type)[key];
     if (!definition) {
@@ -161,7 +167,7 @@ export default class RecordDataStoreWrapper<R extends ResolvedRegistry = Resolve
     }
   }
 
-  inverseIsAsyncForRelationship<T extends RecordType<R>>(type: T, key: RecordField<R, T>): boolean {
+  inverseIsAsyncForRelationship<T extends RecordType<R>>(type: T, key: RelationshipFieldsFor<R, T>): boolean {
     const modelClass = this._store.modelFor(type);
     const definition = this.relationshipsDefinitionFor(type)[key];
     if (!definition) {
@@ -204,36 +210,46 @@ export default class RecordDataStoreWrapper<R extends ResolvedRegistry = Resolve
     }
   }
 
-  notifyHasManyChange<T extends RecordType<R>>(type: T, id: string | null, lid: string, key: RecordField<R, T>): void;
+  notifyHasManyChange<T extends RecordType<R>>(
+    type: T,
+    id: string | null,
+    lid: string,
+    key: HasManyRelationshipFieldsFor<R, T>
+  ): void;
   notifyHasManyChange<T extends RecordType<R>>(
     type: T,
     id: string,
     lid: string | null | undefined,
-    key: RecordField<R, T>
+    key: HasManyRelationshipFieldsFor<R, T>
   ): void;
   notifyHasManyChange<T extends RecordType<R>>(
     type: T,
     id: string | null,
     lid: string | null | undefined,
-    key: RecordField<R, T>
+    key: HasManyRelationshipFieldsFor<R, T>
   ): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     this._scheduleNotification(identifier, key, 'hasMany');
   }
 
-  notifyBelongsToChange<T extends RecordType<R>>(type: T, id: string | null, lid: string, key: RecordField<R, T>): void;
+  notifyBelongsToChange<T extends RecordType<R>>(
+    type: T,
+    id: string | null,
+    lid: string,
+    key: BelongsToRelationshipFieldsFor<R, T>
+  ): void;
   notifyBelongsToChange<T extends RecordType<R>>(
     type: T,
     id: string,
     lid: string | null | undefined,
-    key: RecordField<R, T>
+    key: BelongsToRelationshipFieldsFor<R, T>
   ): void;
   notifyBelongsToChange<T extends RecordType<R>>(
     type: T,
     id: string | null,
     lid: string | null | undefined,
-    key: RecordField<R, T>
+    key: BelongsToRelationshipFieldsFor<R, T>
   ): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);

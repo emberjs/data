@@ -4,7 +4,12 @@ import type {
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
-import { RecordType, RelatedType, RelationshipFieldsFor } from '@ember-data/types/utils';
+import {
+  BelongsToRelationshipFieldsFor,
+  RecordType,
+  RelatedType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 export interface Operation {
   op: string;
@@ -59,14 +64,14 @@ export interface RemoveFromRelatedRecordsOperation<
 > {
   op: 'removeFromRelatedRecords';
   record: StableRecordIdentifier<T>;
-  field: string; // "relationship" propertyName
+  field: F; // "relationship" propertyName
   value: StableRecordIdentifier<RelatedType<R, T, F>> | StableRecordIdentifier<RelatedType<R, T, F>>[]; // related record
 }
 
 export interface ReplaceRelatedRecordOperation<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
-  F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
+  F extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>
 > {
   op: 'replaceRelatedRecord';
   record: StableRecordIdentifier<T>;
@@ -91,7 +96,7 @@ export type RemoteRelationshipOperation<
   F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
 > =
   | UpdateRelationshipOperation<R, T, F>
-  | ReplaceRelatedRecordOperation<R, T, F>
+  | ReplaceRelatedRecordOperation<R, T, BelongsToRelationshipFieldsFor<R, T>>
   | ReplaceRelatedRecordsOperation<R, T, F>
   | DeleteRecordOperation<R, T>;
 
@@ -101,6 +106,6 @@ export type LocalRelationshipOperation<
   F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
 > =
   | ReplaceRelatedRecordsOperation<R, T, F>
-  | ReplaceRelatedRecordOperation<R, T, F>
+  | ReplaceRelatedRecordOperation<R, T, BelongsToRelationshipFieldsFor<R, T>>
   | RemoveFromRelatedRecordsOperation<R, T, F>
   | AddToRelatedRecordsOperation<R, T, F>;

@@ -2,14 +2,20 @@ import { assert } from '@ember/debug';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordType, RelatedType, RelationshipFieldsFor } from '@ember-data/types/utils';
 
 import type ManyRelationship from '../../relationships/state/has-many';
 import type { AddToRelatedRecordsOperation } from '../-operations';
-import { isHasMany } from '../-utils';
+import { assertNarrows, isHasMany } from '../-utils';
 import type { Graph } from '../index';
 import { addToInverse } from './replace-related-records';
 
-export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecordsOperation, isRemote: boolean) {
+export default function addToRelatedRecords<R extends ResolvedRegistry>(
+  graph: Graph<R>,
+  op: AddToRelatedRecordsOperation<R>,
+  isRemote: boolean
+) {
   const { record, value, index } = op;
   const relationship = graph.get(record, op.field);
   assert(
@@ -27,14 +33,20 @@ export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecord
   relationship.notifyHasManyChange();
 }
 
-function addRelatedRecord(
-  graph: Graph,
-  relationship: ManyRelationship,
-  record: StableRecordIdentifier,
-  value: StableRecordIdentifier,
+function addRelatedRecord<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  relationship: ManyRelationship<R, T, F>,
+  record: StableRecordIdentifier<T>,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
   index: number | undefined,
   isRemote: boolean
 ) {
+  assertNarrows<StableRecordIdentifier<RT>>(`expected identifier to be of the correct type`, true, value);
   assert(`expected an identifier to add to the relationship`, value);
   const { members, currentState } = relationship;
 
@@ -56,5 +68,7 @@ function addRelatedRecord(
     currentState.splice(index, 0, value);
   }
 
-  addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
+  // we lie on this type because the inverse could be an implicit relationship field, but "string" would lose value
+  // for the graph the rest of the time.
+  addToInverse(graph, value, relationship.definition.inverseKey as RelationshipFieldsFor<R, RT>, record, isRemote);
 }

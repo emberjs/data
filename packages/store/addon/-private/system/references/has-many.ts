@@ -8,10 +8,14 @@ import { ManyArray } from 'ember-data/-private';
 
 import type { ManyRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+import { ResolvedRegistry } from '@ember-data/types';
+import { HasManyRelationshipFieldsFor, RecordType, RelatedType } from '@ember-data/types/utils';
 
 import {
   CollectionResourceDocument,
+  CollectionResourceRelationship,
   ExistingResourceObject,
+  ResourceIdentifierObject,
   SingleResourceDocument,
 } from '../../ts-interfaces/ember-data-json-api';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -32,24 +36,29 @@ import Reference from './reference';
  @public
  @extends Reference
  */
-export default class HasManyReference extends Reference {
-  declare key: string;
-  declare hasManyRelationship: ManyRelationship;
-  declare type: string;
-  declare parent: RecordReference;
+export default class HasManyReference<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F> = RelatedType<R, T, F>
+> extends Reference<R, T> {
+  declare key: F;
+  declare hasManyRelationship: ManyRelationship<R, T, F, RT>;
+  declare type: RT;
+  declare parent: RecordReference<R, T>;
 
   // unsubscribe tokens given to us by the notification manager
-  #token!: Object;
-  #identifier: StableRecordIdentifier;
-  #relatedTokenMap!: Map<StableRecordIdentifier, Object>;
+  #token!: object;
+  #identifier: StableRecordIdentifier<T>;
+  #relatedTokenMap!: Map<StableRecordIdentifier<string>, object>;
 
   @tracked _ref = 0;
 
   constructor(
-    store: Store,
-    parentIdentifier: StableRecordIdentifier,
-    hasManyRelationship: ManyRelationship,
-    key: string
+    store: Store<R>,
+    parentIdentifier: StableRecordIdentifier<T>,
+    hasManyRelationship: ManyRelationship<R, T, F, RT>,
+    key: F
   ) {
     super(store, parentIdentifier);
     this.key = key;
@@ -80,7 +89,7 @@ export default class HasManyReference extends Reference {
 
   @cached
   @dependentKeyCompat
-  get _relatedIdentifiers(): StableRecordIdentifier[] {
+  get _relatedIdentifiers(): StableRecordIdentifier<RT>[] {
     this._ref; // consume the tracked prop
 
     let resource = this._resource();
@@ -91,11 +100,11 @@ export default class HasManyReference extends Reference {
     this.#relatedTokenMap.clear();
 
     if (resource && resource.data) {
-      return resource.data.map((resourceIdentifier) => {
+      return resource.data.map((resourceIdentifier: ResourceIdentifierObject<RT>) => {
         const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
         const token = this.store._notificationManager.subscribe(
           identifier,
-          (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+          (_: StableRecordIdentifier<RT>, bucket: NotificationType, notifiedKey?: string) => {
             if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
               this._ref++;
             }
@@ -111,8 +120,8 @@ export default class HasManyReference extends Reference {
     return [];
   }
 
-  _resource() {
-    return this.recordData.getHasMany(this.key);
+  _resource(): CollectionResourceRelationship<RT> {
+    return this.recordData.getHasMany<F, RT>(this.key);
   }
 
   /**
@@ -251,8 +260,11 @@ export default class HasManyReference extends Reference {
    @return {ManyArray}
    */
   async push(
-    objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
-  ): Promise<ManyArray> {
+    objectOrPromise:
+      | ExistingResourceObject<RT>[]
+      | CollectionResourceDocument<RT>
+      | { data: SingleResourceDocument<RT>[] }
+  ): Promise<ManyArray<R, T, F, RT>> {
     const payload = await resolve(objectOrPromise);
     let array: Array<ExistingResourceObject | SingleResourceDocument>;
 
@@ -293,7 +305,7 @@ export default class HasManyReference extends Reference {
     });
 
     // TODO IGOR it seems wrong that we were returning the many array here
-    return internalModel.getHasMany(this.key) as Promise<ManyArray> | ManyArray; // this cast is necessary because typescript does not work properly with custom thenables
+    return internalModel.getHasMany(this.key) as Promise<ManyArray<R, T, F, RT>> | ManyArray<R, T, F, RT>; // this cast is necessary because typescript does not work properly with custom thenables
   }
 
   _isLoaded() {

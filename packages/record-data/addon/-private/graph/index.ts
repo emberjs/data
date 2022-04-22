@@ -1,16 +1,13 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
-import { WeakCache } from '@ember-data/store/-private';
+import { RecordDataStoreWrapper, WeakCache } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 import type { ResolvedRegistry } from '@ember-data/types';
 import type {
   BelongsToRelationshipFieldsFor,
   HasManyRelationshipFieldsFor,
-  RecordField,
   RecordType,
   RelatedType,
   RelationshipFieldsFor,
@@ -25,7 +22,6 @@ import type {
   DeleteRecordOperation,
   LocalRelationshipOperation,
   RemoteRelationshipOperation,
-  ReplaceRelatedRecordOperation,
   UnknownOperation,
 } from './-operations';
 import { assertValidRelationshipPayload, isBelongsTo, isHasMany, isImplicit } from './-utils';
@@ -35,15 +31,14 @@ import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
 
-type RelationshipEdge<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> =
-  | ImplicitRelationship<R, T, RelationshipFieldsFor<R, T>, RelatedType<R, T, RelationshipFieldsFor<R, T>>>
-  | ManyRelationship<R, T, HasManyRelationshipFieldsFor<R, T>, RelatedType<R, T, HasManyRelationshipFieldsFor<R, T>>>
-  | BelongsToRelationship<
-      R,
-      T,
-      BelongsToRelationshipFieldsFor<R, T>,
-      RelatedType<R, T, BelongsToRelationshipFieldsFor<R, T>>
-    >;
+export type RelationshipEdge<
+  R extends ResolvedRegistry,
+  T extends RecordType<R> = RecordType<R>,
+  F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
+> =
+  | ImplicitRelationship<R, T, F, RelatedType<R, T, F>>
+  | ManyRelationship<R, T, F, RelatedType<R, T, F>>
+  | BelongsToRelationship<R, T, F, RelatedType<R, T, F>>;
 
 const Graphs = new WeakCache<RecordDataStoreWrapper<ResolvedRegistry>, Graph<ResolvedRegistry>>(DEBUG ? 'graph' : '');
 Graphs._generator = <R extends ResolvedRegistry>(wrapper: RecordDataStoreWrapper<R>) => {
@@ -81,9 +76,9 @@ export function graphFor<R extends ResolvedRegistry>(store: RecordDataStoreWrapp
 type RelationshipEdgeMap<
   R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
-  K extends RecordField<R, T> = RecordField<R, T>
+  F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
 > = {
-  [K1 in K]: RelationshipEdge<R, T, K>;
+  [F1 in F]: RelationshipEdge<R, T, F1>;
 };
 
 interface MappedEdges<R extends ResolvedRegistry> {
@@ -103,6 +98,12 @@ interface MappedEdges<R extends ResolvedRegistry> {
   set<T extends RecordType<R>>(key: StableRecordIdentifier<T>, value: RelationshipEdgeMap<R, T>): this;
   readonly size: number;
 }
+
+export type PolymorphicLookupCache<R extends ResolvedRegistry> = {
+  [T in RecordType<R>]: {
+    [PT in RecordType<R>]: boolean;
+  };
+};
 
 /*
  * Graph acts as the cache for relationship data. It allows for
@@ -124,8 +125,8 @@ interface MappedEdges<R extends ResolvedRegistry> {
  * to in the graph from that key.
  */
 export class Graph<R extends ResolvedRegistry> {
-  declare _definitionCache: EdgeCache;
-  declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
+  declare _definitionCache: EdgeCache<R>;
+  declare _potentialPolymorphicTypes: PolymorphicLookupCache<R>;
   declare identifiers: MappedEdges<R>;
   declare store: RecordDataStoreWrapper<R>;
   declare _willSyncRemote: boolean;
@@ -161,10 +162,10 @@ export class Graph<R extends ResolvedRegistry> {
     return relationships[propertyName] !== undefined;
   }
 
-  get<T extends RecordType<R>, K extends RecordField<R, T>>(
+  get<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
     identifier: StableRecordIdentifier<T>,
-    propertyName: K
-  ): RelationshipEdge<R, T> {
+    propertyName: F
+  ): RelationshipEdge<R, T, F> {
     assert(`expected propertyName`, propertyName);
     let relationships = this.identifiers.get(identifier);
     if (!relationships) {
@@ -183,6 +184,7 @@ export class Graph<R extends ResolvedRegistry> {
           : meta.kind === 'belongsTo'
           ? BelongsToRelationship
           : ImplicitRelationship;
+      // @ts-expect-error the construct signatures do "match" in JS land, TS unhappy about sub-types
       relationship = relationships[propertyName] = new Klass(this, meta, identifier);
     }
 
@@ -285,11 +287,13 @@ export class Graph<R extends ResolvedRegistry> {
   /*
    * Remote state changes
    */
-  push(op: RemoteRelationshipOperation<R>) {
+  push<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T> | BelongsToRelationshipFieldsFor<R, T>>(
+    op: RemoteRelationshipOperation<R, T, F>
+  ) {
     if (op.op === 'deleteRecord') {
       this._pushedUpdates.deletions.push(op);
     } else if (op.op === 'replaceRelatedRecord') {
-      this._pushedUpdates.belongsTo.push(op);
+      this._pushedUpdates.belongsTo.push(op as unknown as RemoteRelationshipOperation<R, RecordType<R>>);
     } else {
       const relationship = this.get(op.record, op.field);
       assert(`Cannot push a remote update for an implicit relationship`, !relationship.definition.isImplicit);
@@ -359,8 +363,10 @@ export class Graph<R extends ResolvedRegistry> {
     }
   }
 
-  _scheduleLocalSync(relationship) {
-    this._updatedRelationships.add(relationship);
+  _scheduleLocalSync<T extends RecordType<R>, F extends HasManyRelationshipFieldsFor<R, T>>(
+    relationship: ManyRelationship<R, T, F>
+  ): void {
+    this._updatedRelationships.add(relationship as unknown as ManyRelationship<R>);
     if (!this._willSyncLocal) {
       this._willSyncLocal = true;
       const backburner = this.store._store._backburner;
@@ -368,7 +374,7 @@ export class Graph<R extends ResolvedRegistry> {
     }
   }
 
-  _flushRemoteQueue() {
+  _flushRemoteQueue(): void {
     if (!this._willSyncRemote) {
       return;
     }
@@ -393,20 +399,22 @@ export class Graph<R extends ResolvedRegistry> {
     this._finalize();
   }
 
-  _addToTransaction(relationship: ManyRelationship | BelongsToRelationship) {
+  _addToTransaction<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+    relationship: ManyRelationship<R, T, F> | BelongsToRelationship<R, T, F>
+  ): void {
     assert(`expected a transaction`, this._transaction !== null);
     relationship.transactionRef++;
-    this._transaction.add(relationship);
+    this._transaction.add(relationship as unknown as ManyRelationship<R>);
   }
 
-  _finalize() {
+  _finalize(): void {
     if (this._transaction) {
       this._transaction.forEach((v) => (v.transactionRef = 0));
       this._transaction = null;
     }
   }
 
-  _flushLocalQueue() {
+  _flushLocalQueue(): void {
     if (!this._willSyncLocal) {
       return;
     }
@@ -416,16 +424,16 @@ export class Graph<R extends ResolvedRegistry> {
     updated.forEach(syncRemoteToLocal);
   }
 
-  willDestroy() {
+  willDestroy(): void {
     this.identifiers.clear();
     this.store = null as unknown as RecordDataStoreWrapper<R>;
   }
 
-  destroy() {
-    Graphs.delete(this.store as unknown as RecordDataStoreWrapper);
+  destroy(): void {
+    Graphs.delete(this.store);
 
     if (DEBUG) {
-      Graphs.delete(this.store._store as unknown as RecordDataStoreWrapper);
+      Graphs.delete(this.store._store);
     }
   }
 }
@@ -440,7 +448,7 @@ export class Graph<R extends ResolvedRegistry> {
 // the internalModel as an id-wrapper for references and because the graph is
 // disconnected we can actually destroy the internalModel when checking for
 // orphaned models.
-function destroyRelationship(rel) {
+function destroyRelationship<R extends ResolvedRegistry, T extends RecordType<R>>(rel: RelationshipEdge<R, T>) {
   if (isImplicit(rel)) {
     if (rel.graph.isReleasable(rel.identifier)) {
       removeCompletelyFromInverse(rel);
@@ -472,19 +480,24 @@ function destroyRelationship(rel) {
   }
 }
 
-function removeCompletelyFromInverse(relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship) {
+function removeCompletelyFromInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>
+>(relationship: RelationshipEdge<R, T, F>) {
   // we actually want a union of members and canonicalMembers
   // they should be disjoint but currently are not due to a bug
   const seen = Object.create(null);
   const { identifier } = relationship;
   const { inverseKey } = relationship.definition;
 
-  const unload = (inverseIdentifier: StableRecordIdentifier) => {
+  const unload = <T1 extends RelatedType<R, T, F>>(inverseIdentifier: StableRecordIdentifier<T1>) => {
     const id = inverseIdentifier.lid;
 
     if (seen[id] === undefined) {
-      if (relationship.graph.has(inverseIdentifier, inverseKey)) {
-        relationship.graph.get(inverseIdentifier, inverseKey).removeCompletelyFromOwn(identifier);
+      if (relationship.graph.has(inverseIdentifier, inverseKey as RelationshipFieldsFor<R, T1>)) {
+        const rel = relationship.graph.get(inverseIdentifier, inverseKey as RelationshipFieldsFor<R, T1>);
+        rel.removeCompletelyFromOwn(identifier as StableRecordIdentifier<typeof rel.definition.type>);
       }
       seen[id] = true;
     }

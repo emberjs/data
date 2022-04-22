@@ -4,11 +4,13 @@ import { cached, tracked } from '@glimmer/tracking';
 import { resolve } from 'rsvp';
 
 import type { BelongsToRelationship } from '@ember-data/record-data/-private';
+import { ReplaceRelatedRecordOperation } from '@ember-data/record-data/-private/graph/-operations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+import { ResolvedRegistry } from '@ember-data/types';
+import { BelongsToRelationshipFieldsFor, RecordInstance, RecordType, RelatedType } from '@ember-data/types/utils';
 
-import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
+import { SingleResourceDocument, SingleResourceRelationship } from '../../ts-interfaces/ember-data-json-api';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import { RecordInstance } from '../../ts-interfaces/record-instance';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
 import Store from '../store';
 import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
@@ -28,12 +30,17 @@ import Reference from './reference';
  @public
  @extends Reference
  */
-export default class BelongsToReference extends Reference {
-  declare key: string;
-  declare belongsToRelationship: BelongsToRelationship;
-  declare type: string;
-  declare parent: RecordReference;
-  declare parentIdentifier: StableRecordIdentifier;
+export default class BelongsToReference<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends BelongsToRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F> = RelatedType<R, T, F>
+> extends Reference<R, T> {
+  declare key: F;
+  declare belongsToRelationship: BelongsToRelationship<R, T, F>;
+  declare type: RT;
+  declare parent: RecordReference<R, T>;
+  declare parentIdentifier: StableRecordIdentifier<T>;
 
   // unsubscribe tokens given to us by the notification manager
   #token!: Object;
@@ -42,10 +49,10 @@ export default class BelongsToReference extends Reference {
   @tracked _ref = 0;
 
   constructor(
-    store: Store,
-    parentIdentifier: StableRecordIdentifier,
-    belongsToRelationship: BelongsToRelationship,
-    key: string
+    store: Store<R>,
+    parentIdentifier: StableRecordIdentifier<T>,
+    belongsToRelationship: BelongsToRelationship<R, T, F>,
+    key: F
   ) {
     super(store, parentIdentifier);
     this.key = key;
@@ -76,7 +83,7 @@ export default class BelongsToReference extends Reference {
 
   @cached
   @dependentKeyCompat
-  get _relatedIdentifier(): StableRecordIdentifier | null {
+  get _relatedIdentifier(): StableRecordIdentifier<RT> | null {
     this._ref; // consume the tracked prop
     if (this.#relatedToken) {
       unsubscribe(this.#relatedToken);
@@ -144,7 +151,7 @@ export default class BelongsToReference extends Reference {
     return this._relatedIdentifier?.id || null;
   }
 
-  _resource() {
+  _resource(): SingleResourceRelationship<RT> {
     return this.recordData.getBelongsTo(this.key);
   }
 
@@ -194,7 +201,7 @@ export default class BelongsToReference extends Reference {
    @param {Object|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
-  async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
+  async push(data: SingleResourceDocument<RT> | Promise<SingleResourceDocument<RT>>): Promise<RecordInstance<R, RT>> {
     const jsonApiDoc = await resolve(data);
     let record = this.store.push(jsonApiDoc);
 
@@ -207,12 +214,13 @@ export default class BelongsToReference extends Reference {
 
     const { graph, identifier } = this.belongsToRelationship;
     this.store._backburner.join(() => {
-      graph.push({
+      const op: ReplaceRelatedRecordOperation<R, T> = {
         op: 'replaceRelatedRecord',
         record: identifier,
         field: this.key,
         value: recordIdentifierFor(record),
-      });
+      };
+      graph.push(op);
     });
 
     return record;
@@ -268,7 +276,7 @@ export default class BelongsToReference extends Reference {
     @public
    @return {Model} the record in this relationship
    */
-  value(): RecordInstance | null {
+  value(): RecordInstance<R, RT> | null {
     let resource = this._resource();
     if (resource && resource.data) {
       let inverseInternalModel = this.store._internalModelForResource(resource.data);

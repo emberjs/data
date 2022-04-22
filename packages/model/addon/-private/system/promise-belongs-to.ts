@@ -6,19 +6,19 @@ import { PromiseObject } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/store';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
+import type { BelongsToRelationshipFieldsFor, RecordInstance, RecordType } from '@ember-data/types/utils';
 
 export interface BelongsToProxyMeta<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
+  F extends BelongsToRelationshipFieldsFor<R, T>,
   J extends RecordType<R> = RecordType<R>
 > {
   /**
    * the key on the record
    * @internal
    */
-  key: K;
+  key: F;
   store: Store<R>;
   /**
    * the InternalModel that owns this relationship proxy
@@ -34,12 +34,12 @@ export interface BelongsToProxyMeta<
 export interface BelongsToProxyCreateArgs<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
+  F extends BelongsToRelationshipFieldsFor<R, T>,
   RT extends RecordType<R>
 > {
   promise: Promise<R['model'][RT] | null>;
   content: R['model'][RT] | null;
-  _belongsToState: BelongsToProxyMeta<R, T, K, RT>;
+  _belongsToState: BelongsToProxyMeta<R, T, F, RT>;
 }
 
 /**
@@ -58,10 +58,10 @@ export interface BelongsToProxyCreateArgs<
 class PromiseBelongsTo<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
+  F extends BelongsToRelationshipFieldsFor<R, T>,
   RT extends RecordType<R>
 > extends PromiseObject<RecordInstance<R, RT>> {
-  declare _belongsToState: BelongsToProxyMeta<R, T, K, RT>;
+  declare _belongsToState: BelongsToProxyMeta<R, T, F, RT>;
   // we don't proxy meta because we would need to proxy it to the relationship state container
   //  however, meta on relationships does not trigger change notifications.
   //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`

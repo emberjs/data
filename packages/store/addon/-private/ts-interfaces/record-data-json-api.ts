@@ -12,7 +12,7 @@ export interface JsonApiResource {
   type?: string;
   attributes?: AttributesHash;
   relationships?: {
-    [key: string]: SingleResourceRelationship | CollectionResourceRelationship;
+    [key: string]: JsonApiRelationship;
   };
   meta?: any;
   lid?: string;
@@ -26,4 +26,6 @@ export interface JsonApiValidationError {
   };
 }
 
-export type JsonApiRelationship = SingleResourceRelationship | CollectionResourceRelationship;
+export type JsonApiRelationship<T extends string = string> =
+  | SingleResourceRelationship<T>
+  | CollectionResourceRelationship<T>;

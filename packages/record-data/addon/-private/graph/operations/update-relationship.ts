@@ -1,9 +1,11 @@
 import { assert, warn } from '@ember/debug';
 
 import type { ExistingResourceIdentifierObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import { ResolvedRegistry } from '@ember-data/types';
+import { BelongsToRelationshipFieldsFor, RelatedType } from '@ember-data/types/utils';
 
 import _normalizeLink from '../../normalize-link';
-import type { UpdateRelationshipOperation } from '../-operations';
+import type { ReplaceRelatedRecordOperation, UpdateRelationshipOperation } from '../-operations';
 import { isBelongsTo, isHasMany } from '../-utils';
 import type { Graph } from '../index';
 
@@ -11,7 +13,10 @@ import type { Graph } from '../index';
     Updates the "canonical" or "remote" state of a relationship, replacing any existing
     state and blowing away any local changes (excepting new records).
 */
-export default function updateRelationshipOperation(graph: Graph, op: UpdateRelationshipOperation) {
+export default function updateRelationshipOperation<R extends ResolvedRegistry>(
+  graph: Graph<R>,
+  op: UpdateRelationshipOperation<R>
+) {
   const relationship = graph.get(op.record, op.field);
   assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
   const { definition, state, identifier } = relationship;
@@ -45,17 +50,20 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
         true
       );
     } else {
-      graph.update(
-        {
-          op: 'replaceRelatedRecord',
-          record: identifier,
-          field: op.field,
-          value: payload.data
-            ? graph.store.identifierCache.getOrCreateRecordIdentifier(payload.data as ExistingResourceIdentifierObject)
-            : null,
-        },
-        true
-      );
+      type T = typeof identifier.type;
+      type F = BelongsToRelationshipFieldsFor<R, T>;
+      type RT = RelatedType<R, T, F>;
+      const newOp: ReplaceRelatedRecordOperation<R, T, F> = {
+        op: 'replaceRelatedRecord',
+        record: identifier,
+        field: op.field as F,
+        value: payload.data
+          ? graph.store.identifierCache.getOrCreateRecordIdentifier(
+              payload.data as ExistingResourceIdentifierObject<RT>
+            )
+          : null,
+      };
+      graph.update(newOp, true);
     }
   } else if (definition.isAsync === false && !state.hasReceivedData) {
     hasRelationshipDataProperty = true;
@@ -71,11 +79,13 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
         true
       );
     } else {
+      type T = typeof identifier.type;
+      type F = BelongsToRelationshipFieldsFor<R, T>;
       graph.update(
         {
           op: 'replaceRelatedRecord',
           record: identifier,
-          field: op.field,
+          field: op.field as F,
           value: null,
         },
         true
@@ -111,7 +121,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
   /*
        Data being pushed into the relationship might contain only data or links,
        or a combination of both.
-  
+
        IF contains only data
        IF contains both links and data
         state.isEmpty -> true if is empty array (has-many) or is null (belongs-to)
@@ -119,7 +129,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
         hasDematerializedInverse -> false
         state.isStale -> false
         allInverseRecordsAreLoaded -> run-check-to-determine
-  
+
        IF contains only links
         state.isStale -> true
        */

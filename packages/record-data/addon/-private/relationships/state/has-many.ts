@@ -9,7 +9,12 @@ import type {
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { HasManyRelationshipFieldsFor, RecordField, RecordType, RelatedType } from '@ember-data/types/utils';
+import type {
+  HasManyRelationshipFieldsFor,
+  RecordType,
+  RelatedType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 import type { BelongsToRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -21,7 +26,7 @@ import { isImplicit, isNew } from '../../graph/-utils';
 export default class ManyRelationship<
   R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
-  F extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
+  F extends RelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
   RT extends RecordType<R> = RelatedType<R, T, F>
 > {
   declare graph: Graph<R>;

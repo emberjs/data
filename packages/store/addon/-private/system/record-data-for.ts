@@ -2,11 +2,10 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordType } from '@ember-data/types/utils';
+import type { RecordInstance, RecordType } from '@ember-data/types/utils';
 
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordData } from '../ts-interfaces/record-data';
-import type { RecordInstance } from '../ts-interfaces/record-instance';
 import type InternalModel from './model/internal-model';
 import WeakCache from './weak-cache';
 
@@ -61,7 +60,7 @@ export default function recordDataFor<R extends ResolvedRegistry, T extends Reco
   instance: Instance<R, T>
 ): RecordData<R, T>;
 export default function recordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(
-  instance: RecordInstance
+  instance: RecordInstance<R, T>
 ): RecordData<R, T>;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function recordDataFor<R extends ResolvedRegistry, T extends RecordType<R>>(instance: object): null;

@@ -16,8 +16,8 @@ import type {
   AttributesSchema,
   RelationshipsSchema,
 } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
-import { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/store/-private/ts-interfaces/schema-definition-service';
+import { RecordInstance } from '@ember-data/types/utils';
 
 module('unit/model - Custom Class Model', function (hooks) {
   let store: Store;

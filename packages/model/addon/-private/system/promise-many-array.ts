@@ -10,11 +10,17 @@ import { resolve } from 'rsvp';
 import type { ManyArray } from 'ember-data/-private';
 
 import type { InternalModel } from '@ember-data/store/-private';
-import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
+import { ResolvedRegistry } from '@ember-data/types';
+import { HasManyRelationshipFieldsFor, RecordInstance, RecordType, RelatedType } from '@ember-data/types/utils';
 
-export interface HasManyProxyCreateArgs {
-  promise: Promise<ManyArray>;
-  content?: ManyArray;
+export interface HasManyProxyCreateArgs<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+> {
+  promise: Promise<ManyArray<R, T, F, RT>>;
+  content?: ManyArray<R, T, F, RT>;
 }
 
 /**
@@ -42,13 +48,23 @@ export interface HasManyProxyCreateArgs {
   @class PromiseManyArray
   @public
 */
-export default interface PromiseManyArray extends Omit<ArrayProxy<InternalModel, RecordInstance>, 'destroy'> {}
-export default class PromiseManyArray {
-  declare promise: Promise<ManyArray> | null;
+export default interface PromiseManyArray<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+> extends Omit<ArrayProxy<InternalModel<R, RT>, RecordInstance<R, RT>>, 'destroy'> {}
+export default class PromiseManyArray<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+> {
+  declare promise: Promise<ManyArray<R, T, F, RT>> | null;
   declare isDestroyed: boolean;
   declare isDestroying: boolean;
 
-  constructor(promise: Promise<ManyArray>, content?: ManyArray) {
+  constructor(promise: Promise<ManyArray<R, T, F, RT>>, content?: ManyArray<R, T, F, RT>) {
     this._update(promise, content);
     this.isDestroyed = false;
     this.isDestroying = false;
@@ -216,7 +232,7 @@ export default class PromiseManyArray {
 
   //---- Our own stuff
 
-  _update(promise: Promise<ManyArray>, content?: ManyArray) {
+  _update(promise: Promise<ManyArray<R, T, F, RT>>, content?: ManyArray<R, T, F, RT>) {
     if (content !== undefined) {
       this.content = content;
     }
@@ -224,7 +240,12 @@ export default class PromiseManyArray {
     this.promise = tapPromise(this, promise);
   }
 
-  static create({ promise, content }: HasManyProxyCreateArgs): PromiseManyArray {
+  static create<
+    R extends ResolvedRegistry,
+    T extends RecordType<R>,
+    F extends HasManyRelationshipFieldsFor<R, T>,
+    RT extends RelatedType<R, T, F>
+  >({ promise, content }: HasManyProxyCreateArgs<R, T, F, RT>): PromiseManyArray<R, T, F, RT> {
     return new this(promise, content);
   }
 
@@ -245,7 +266,12 @@ export default class PromiseManyArray {
   }
 }
 
-function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
+function tapPromise<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(proxy: PromiseManyArray<R, T, F, RT>, promise: Promise<ManyArray<R, T, F, RT>>) {
   proxy.isPending = true;
   proxy.isSettled = false;
   proxy.isFulfilled = false;

@@ -31,7 +31,15 @@ import type {
   RelationshipRecordData,
 } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
+import type {
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordField,
+  RecordInstance,
+  RecordType,
+  RelatedType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 import type { DSModel } from '../../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -51,11 +59,15 @@ import { internalModelFactoryFor } from '../store/internal-model-factory';
 import RootState from './states';
 
 type PrivateModelModule = {
-  ManyArray: { create(args: ManyArrayCreateArgs): ManyArray };
+  ManyArray: {
+    create<R extends ResolvedRegistry, T extends RecordType<R>, F extends RecordField<R, T>, RT extends RecordType<R>>(
+      args: ManyArrayCreateArgs<R, T, F, RT>
+    ): ManyArray<R, T, F, RT>;
+  };
   PromiseBelongsTo: {
-    create<R extends ResolvedRegistry, T extends RecordType<R>, K extends RecordField<R, T>, RT extends RecordType<R>>(
-      args: BelongsToProxyCreateArgs<R, T, K, RT>
-    ): PromiseBelongsTo<R, T, K, RT>;
+    create<R extends ResolvedRegistry, T extends RecordType<R>, F extends RecordField<R, T>, RT extends RecordType<R>>(
+      args: BelongsToProxyCreateArgs<R, T, F, RT>
+    ): PromiseBelongsTo<R, T, F, RT>;
   };
   PromiseManyArray: new (...args: unknown[]) => PromiseManyArray;
 };
@@ -120,8 +132,8 @@ function extractPivotName(name: string): string {
 }
 
 function isDSModel<R extends ResolvedRegistry, T extends RecordType<R>>(
-  record: RecordInstance<R, T> | DSModel | null
-): record is DSModel {
+  record: RecordInstance<R, T> | DSModel<R, T> | null
+): record is DSModel<R, T> {
   return (
     HAS_MODEL_PACKAGE &&
     !!record &&
@@ -153,9 +165,9 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
   declare __recordArrays: unknown;
   declare references: unknown;
   declare _recordReference: RecordReference;
-  declare _manyArrayCache: Dict<ManyArray>;
+  declare _manyArrayCache: Dict<ManyArray<R, T>>;
 
-  declare _relationshipPromisesCache: Dict<Promise<ManyArray | RecordInstance<R, T>>>;
+  declare _relationshipPromisesCache: Dict<Promise<ManyArray<R, T> | RecordInstance<R, T>>>;
   declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo<R, T, RecordField<R, T>, RecordType<R>>>;
   declare error: unknown;
   declare currentState: RecordState;
@@ -472,7 +484,7 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     }
   }
 
-  _findBelongsTo<K extends RecordField<R, T>, RT extends RecordType<R>>(
+  _findBelongsTo<K extends BelongsToRelationshipFieldsFor<R, T>, RT extends RecordType<R>>(
     key: K,
     resource: DefaultSingleResourceRelationship<R, T, K, RT>,
     relationshipMeta: RelationshipSchema<R, T, K, RT>,
@@ -488,7 +500,7 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     );
   }
 
-  getBelongsTo<K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
+  getBelongsTo<K extends BelongsToRelationshipFieldsFor<R, T>, RT extends RecordType<R> = RecordType<R>>(
     key: K,
     options?: Dict<unknown>
   ): PromiseBelongsTo<R, T, K, RT> | RecordInstance<R, RT> | null {
@@ -549,14 +561,22 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     }
   }
 
-  getManyArray<K extends RecordField<R, T>>(key: K, definition?: UpgradedRelationshipMeta): ManyArray {
+  getManyArray<F extends HasManyRelationshipFieldsFor<R, T>>(
+    key: F,
+    definition?: UpgradedRelationshipMeta<R, T, F, RelatedType<R, T, F>>
+  ): ManyArray<R, T, F, RelatedType<R, T, F>> {
     assert('hasMany only works with the @ember-data/record-data package', HAS_RECORD_DATA_PACKAGE);
-    let manyArray: ManyArray | undefined = this._manyArrayCache[key];
+    let manyArray: ManyArray<R, T, F, RelatedType<R, T, F>> | undefined = this._manyArrayCache[key];
     if (!definition) {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      definition = graphFor(this.store).get(this.identifier, key).definition as UpgradedRelationshipMeta;
+      definition = graphFor(this.store).get(this.identifier, key).definition as UpgradedRelationshipMeta<
+        R,
+        T,
+        F,
+        RelatedType<R, T, F>
+      >;
     }
 
     if (!manyArray) {
@@ -577,14 +597,16 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     return manyArray;
   }
 
-  fetchAsyncHasMany<K extends RecordField<R, T>>(
-    key: K,
-    relationship: ManyRelationship,
-    manyArray: ManyArray,
+  fetchAsyncHasMany<F extends HasManyRelationshipFieldsFor<R, T>>(
+    key: F,
+    relationship: ManyRelationship<R, T, F, RelatedType<R, T, F>>,
+    manyArray: ManyArray<R, T, F, RelatedType<R, T, F>>,
     options?: Dict<unknown>
-  ): Promise<ManyArray> {
+  ): Promise<ManyArray<R, T, F, RelatedType<R, T, F>>> {
     if (HAS_RECORD_DATA_PACKAGE) {
-      let loadingPromise = this._relationshipPromisesCache[key] as Promise<ManyArray> | undefined;
+      let loadingPromise = this._relationshipPromisesCache[key] as
+        | Promise<ManyArray<R, T, F, RelatedType<R, T, F>>>
+        | undefined;
       if (loadingPromise) {
         return loadingPromise;
       }
@@ -601,18 +623,21 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     assert('hasMany only works with the @ember-data/record-data package');
   }
 
-  getHasMany<K extends RecordField<R, T>>(key: K, options?: Dict<unknown>): PromiseManyArray | ManyArray {
+  getHasMany<F extends HasManyRelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F> = RelatedType<R, T, F>>(
+    key: F,
+    options?: Dict<unknown>
+  ): PromiseManyArray<R, T, F, RT> | ManyArray<R, T, F, RT> {
     if (HAS_RECORD_DATA_PACKAGE) {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
+      const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship<R, T, F, RT>;
       const { definition, state } = relationship;
       let manyArray = this.getManyArray(key, definition);
 
       if (definition.isAsync) {
         if (state.hasFailedLoadAttempt) {
-          return this._relationshipProxyCache[key] as PromiseManyArray;
+          return this._relationshipProxyCache[key] as PromiseManyArray<R, T, F, RT>;
         }
 
         let promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
@@ -630,32 +655,32 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  _updatePromiseProxyFor<K extends RecordField<R, T>, RT extends RecordType<R>>(
+  _updatePromiseProxyFor<F extends HasManyRelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F>>(
     kind: 'hasMany',
-    key: K,
-    args: HasManyProxyCreateArgs
-  ): PromiseManyArray;
-  _updatePromiseProxyFor<K extends RecordField<R, T>, RT extends RecordType<R>>(
+    key: F,
+    args: HasManyProxyCreateArgs<R, T, F, RT>
+  ): PromiseManyArray<R, T, F, RT>;
+  _updatePromiseProxyFor<F extends BelongsToRelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F>>(
     kind: 'belongsTo',
-    key: K,
-    args: BelongsToProxyCreateArgs<R, T, K, RT>
-  ): PromiseBelongsTo<R, T, K, RT>;
-  _updatePromiseProxyFor<K extends RecordField<R, T>, RT extends RecordType<R>>(
+    key: F,
+    args: BelongsToProxyCreateArgs<R, T, F, RT>
+  ): PromiseBelongsTo<R, T, F, RT>;
+  _updatePromiseProxyFor<F extends BelongsToRelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F>>(
     kind: 'belongsTo',
-    key: K,
+    key: F,
     args: { promise: Promise<RecordInstance<R, T> | null> }
-  ): PromiseBelongsTo<R, T, K, RT>;
-  _updatePromiseProxyFor<K extends RecordField<R, T>, RT extends RecordType<R>>(
+  ): PromiseBelongsTo<R, T, F, RT>;
+  _updatePromiseProxyFor<F extends RelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F>>(
     kind: 'hasMany' | 'belongsTo',
-    key: K,
+    key: F,
     args:
-      | BelongsToProxyCreateArgs<R, T, K, RT>
-      | HasManyProxyCreateArgs
+      | BelongsToProxyCreateArgs<R, T, F, RT>
+      | HasManyProxyCreateArgs<R, T, F, RT>
       | { promise: Promise<RecordInstance<R, RT> | null> }
-  ): PromiseBelongsTo<R, T, K, RT> | PromiseManyArray {
+  ): PromiseBelongsTo<R, T, F, RT> | PromiseManyArray<R, T, F, RT> {
     let promiseProxy = this._relationshipProxyCache[key];
     if (kind === 'hasMany') {
-      const { promise, content } = args as HasManyProxyCreateArgs;
+      const { promise, content } = args as HasManyProxyCreateArgs<R, T, F, RT>;
       if (promiseProxy) {
         assert(`Expected a PromiseManyArray`, '_update' in promiseProxy);
         promiseProxy._update(promise, content);
@@ -666,12 +691,12 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     }
 
     if (promiseProxy) {
-      const { promise, content } = args as BelongsToProxyCreateArgs<R, T, K, RT>;
+      const { promise, content } = args as BelongsToProxyCreateArgs<R, T, F, RT>;
       assert(
         `Expected a PromiseBelongsTo`,
         '_belongsToState' in promiseProxy && promiseProxy._belongsToState.key === key
       );
-      assertIs<PromiseBelongsTo<R, T, K, RT>>(
+      assertIs<PromiseBelongsTo<R, T, F, RT>>(
         `Expected the PromiseBelongsTo for field ${key}`,
         promiseProxy._belongsToState.key === key,
         promiseProxy
@@ -685,7 +710,7 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     } else {
       // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
       this._relationshipProxyCache[key] = promiseProxy = _PromiseBelongsTo.create(args as any);
-      assertIs<PromiseBelongsTo<R, T, K, RT>>(
+      assertIs<PromiseBelongsTo<R, T, F, RT>>(
         `Expected the PromiseBelongsTo for field ${key}`,
         promiseProxy._belongsToState.key === key,
         promiseProxy

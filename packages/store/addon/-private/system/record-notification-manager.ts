@@ -1,5 +1,8 @@
 import { DEBUG } from '@glimmer/env';
 
+import { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
+
 import type { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type Store from './store';
 import WeakCache from './weak-cache';
@@ -22,10 +25,21 @@ export type NotificationType =
   | 'state'
   | 'property'; // 'property' is an internal EmberData only transition period concept.
 
-export interface NotificationCallback {
-  (identifier: RecordIdentifier, notificationType: 'attributes' | 'relationships' | 'property', key?: string): void;
-  (identifier: RecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
-  (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+export interface NotificationCallback<R extends ResolvedRegistry = DefaultRegistry> {
+  <T extends RecordType<R>>(
+    identifier: StableRecordIdentifier<T>,
+    notificationType: 'attributes' | 'relationships' | 'property',
+    key?: string
+  ): void;
+  <T extends RecordType<R>>(
+    identifier: StableRecordIdentifier<T>,
+    notificationType: 'errors' | 'meta' | 'identity' | 'unload' | 'state'
+  ): void;
+  <T extends RecordType<R>>(
+    identifier: StableRecordIdentifier<T>,
+    notificationType: NotificationType,
+    key?: string
+  ): void;
 }
 
 export function unsubscribe(token: UnsubscribeToken) {

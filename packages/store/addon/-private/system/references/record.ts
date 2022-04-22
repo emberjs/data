@@ -1,11 +1,14 @@
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
-import RSVP, { resolve } from 'rsvp';
+import { resolve } from 'rsvp';
+
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordInstance, RecordType } from '@ember-data/types/utils';
 
 import type { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
+import type { PromiseObject } from '../promise-proxies';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
 import type Store from '../store';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
@@ -22,14 +25,14 @@ import Reference from './reference';
    @public
    @extends Reference
 */
-export default class RecordReference extends Reference {
+export default class RecordReference<R extends ResolvedRegistry, T extends RecordType<R>> extends Reference<R, T> {
   // unsubscribe token given to us by the notification manager
   #token!: Object;
-  #identifier;
+  #identifier: StableRecordIdentifier<T>;
 
   @tracked _ref = 0;
 
-  constructor(public store: Store, identifier: StableRecordIdentifier) {
+  constructor(public store: Store<R>, identifier: StableRecordIdentifier<T>) {
     super(store, identifier);
     this.#identifier = identifier;
     this.#token = store._notificationManager.subscribe(
@@ -80,7 +83,7 @@ export default class RecordReference extends Reference {
     @public
      @return {String} The id of the record.
   */
-  id() {
+  id(): string | null {
     return this._id;
   }
 
@@ -102,7 +105,7 @@ export default class RecordReference extends Reference {
     @public
      @return {String} The identifier of the record.
   */
-  identifier(): StableRecordIdentifier {
+  identifier(): StableRecordIdentifier<T> {
     return this.#identifier;
   }
 
@@ -166,7 +169,7 @@ export default class RecordReference extends Reference {
     @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
   */
-  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<RecordInstance> {
+  push(objectOrPromise: SingleResourceDocument<T> | Promise<SingleResourceDocument<T>>): Promise<RecordInstance<R, T>> {
     return resolve(objectOrPromise).then((data) => {
       return this.store.push(data);
     });
@@ -189,7 +192,7 @@ export default class RecordReference extends Reference {
     @public
      @return {Model} the record for this RecordReference
   */
-  value(): RecordInstance | null {
+  value(): RecordInstance<R, T> | null {
     if (this.id() !== null) {
       let internalModel = internalModelFactoryFor(this.store).peek(this.#identifier);
       if (internalModel && internalModel.currentState.isLoaded) {
@@ -216,7 +219,7 @@ export default class RecordReference extends Reference {
     @public
      @return {Promise<record>} the record for this RecordReference
   */
-  load() {
+  load(): PromiseObject<RecordInstance<R, T>> {
     const id = this.id();
     if (id !== null) {
       return this.store.findRecord(this.type, id);
@@ -241,7 +244,7 @@ export default class RecordReference extends Reference {
     @public
      @return {Promise<record>} the record for this RecordReference
   */
-  reload() {
+  reload(): PromiseObject<RecordInstance<R, T>> {
     const id = this.id();
     if (id !== null) {
       return this.store.findRecord(this.type, id, { reload: true });

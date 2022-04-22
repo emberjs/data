@@ -16,13 +16,7 @@ export type RelationshipFieldsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
-> = GetMappedKey<
-  K,
-  | AsyncHasMany<RecordInstance<R>, R>
-  | AsyncBelongsTo<RecordInstance<R>, R>
-  | BelongsTo<RecordInstance<R>, R>
-  | HasMany<RecordInstance<R>, R>
->;
+> = HasManyRelationshipFieldsFor<R, T, K> | BelongsToRelationshipFieldsFor<R, T, K>;
 export type RelationshipsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,

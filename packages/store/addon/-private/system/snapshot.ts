@@ -380,7 +380,12 @@ export default class Snapshot<R extends ResolvedRegistry = DefaultRegistry, T ex
       importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
     ).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as BelongsToRelationship<R, T, F>;
+    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as BelongsToRelationship<
+      R,
+      T,
+      F,
+      RT
+    >;
 
     assert(
       `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,

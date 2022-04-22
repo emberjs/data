@@ -2,13 +2,20 @@ import { assert } from '@ember/debug';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { ResolvedRegistry } from '@ember-data/types';
+import { RelatedType } from '@ember-data/types/utils';
 
 import type { ReplaceRelatedRecordOperation } from '../-operations';
 import { isBelongsTo, isNew } from '../-utils';
 import type { Graph } from '../index';
 import { addToInverse, removeFromInverse } from './replace-related-records';
 
-export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRecordOperation, isRemote = false) {
+export default function replaceRelatedRecord<R extends ResolvedRegistry>(
+  graph: Graph<R>,
+  op: ReplaceRelatedRecordOperation<R>,
+  isRemote = false
+) {
+  type RT = RelatedType<R, typeof op.record.type, typeof op.field>;
   const relationship = graph.get(op.record, op.field);
   assert(
     `You can only '${op.op}' on a belongsTo relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
@@ -19,7 +26,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
   }
   const { definition, state } = relationship;
   const prop = isRemote ? 'remoteState' : 'localState';
-  const existingState: StableRecordIdentifier | null = relationship[prop];
+  const existingState: StableRecordIdentifier<RT> | null = relationship[prop];
 
   /*
     case 1:1
@@ -75,7 +82,10 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
     if (isRemote) {
       const { localState } = relationship;
       // don't sync if localState is a new record and our canonicalState is null
-      if ((localState && isNew(localState) && !existingState) || localState === existingState) {
+      if (
+        (localState && isNew<R, typeof localState.type>(localState) && !existingState) ||
+        localState === existingState
+      ) {
         return;
       }
       relationship.localState = existingState;
@@ -106,7 +116,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
 
   if (isRemote) {
     const { localState, remoteState } = relationship;
-    if (localState && isNew(localState) && !remoteState) {
+    if (localState && isNew<R, typeof localState.type>(localState) && !remoteState) {
       return;
     }
     if (localState !== remoteState) {

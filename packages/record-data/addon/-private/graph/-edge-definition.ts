@@ -2,24 +2,46 @@ import { assert } from '@ember/debug';
 
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordType } from '@ember-data/types/utils';
+import type { RecordType, RelatedType, RelationshipFieldsFor } from '@ember-data/types/utils';
 
 import type { Graph } from '.';
-import { expandingGet, expandingSet } from './-utils';
 
-export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
+export type EdgeCache<R extends ResolvedRegistry> = {
+  [T in RecordType<R>]: {
+    [F in RelationshipFieldsFor<R, T>]: EdgeDefinition<R, T, F> | null;
+  };
+};
+
+function expandingGet<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(cache: EdgeCache<R>, key1: T, key2: F): EdgeDefinition<R, T, F, RT> | null | undefined {
+  let mainCache = (cache[key1] = cache[key1] || Object.create(null));
+  return mainCache[key2] as EdgeDefinition<R, T, F, RT> | null | undefined;
+}
+
+function expandingSet<R extends ResolvedRegistry, T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+  cache: EdgeCache<R>,
+  key1: T,
+  key2: F,
+  value: EdgeDefinition<R, T, F> | null
+): void {
+  let mainCache = (cache[key1] = cache[key1] || Object.create(null));
+  mainCache[key2] = value;
+}
 
 export interface UpgradedRelationshipMeta<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
+  F extends RelationshipFieldsFor<R, T>,
   RT extends RecordType<R>,
-  RK extends RecordField<R, RT> | string = RecordField<R, RT> | string
+  RF extends RelationshipFieldsFor<R, RT> = RelationshipFieldsFor<R, RT>
 > {
   kind: 'hasMany' | 'belongsTo' | 'implicit';
-  key: K;
+  key: F;
   type: RT;
   isAsync: boolean;
   isImplicit: boolean;
@@ -27,7 +49,7 @@ export interface UpgradedRelationshipMeta<
   isPolymorphic: boolean;
 
   inverseKind: 'hasMany' | 'belongsTo' | 'implicit';
-  inverseKey: RK;
+  inverseKey: RF;
   inverseType: T;
   inverseIsAsync: boolean;
   inverseIsImplicit: boolean;
@@ -38,21 +60,22 @@ export interface UpgradedRelationshipMeta<
 export interface EdgeDefinition<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
-  RT extends RecordType<R>
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, F>,
+  RF extends RelationshipFieldsFor<R, RT> = RelationshipFieldsFor<R, RT>
 > {
   lhs_key: string;
   lhs_modelNames: string[];
   lhs_baseModelName: string;
   lhs_relationshipName: string;
-  lhs_definition: UpgradedRelationshipMeta;
+  lhs_definition: UpgradedRelationshipMeta<R, T, F, RT>;
   lhs_isPolymorphic: boolean;
 
   rhs_key: string;
   rhs_modelNames: string[];
   rhs_baseModelName: string;
   rhs_relationshipName: string;
-  rhs_definition: UpgradedRelationshipMeta | null;
+  rhs_definition: UpgradedRelationshipMeta<R, RT, RF, T> | null;
   rhs_isPolymorphic: boolean;
 
   hasInverse: boolean;
@@ -64,11 +87,31 @@ const BOOL_LATER = null as unknown as boolean;
 const STR_LATER = '';
 const IMPLICIT_KEY_RAND = Date.now();
 
-function implicitKeyFor(type: string, key: string): string {
-  return `implicit-${type}:${key}${IMPLICIT_KEY_RAND}`;
+// we pretend implicit keys are real relationship keys
+// this helps more type info flow through everything vs falling back to strings
+function implicitKeyFor<RT extends string>(type: string, key: string): RT {
+  return `implicit-${type}:${key}${IMPLICIT_KEY_RAND}` as RT;
 }
 
-function syncMeta(definition: UpgradedRelationshipMeta, inverseDefinition: UpgradedRelationshipMeta) {
+interface InProgressMeta {
+  kind: 'hasMany' | 'belongsTo' | 'implicit';
+  key: string;
+  type: string;
+  isAsync: boolean;
+  isImplicit: boolean;
+  isCollection: boolean;
+  isPolymorphic: boolean;
+
+  inverseKind: 'hasMany' | 'belongsTo' | 'implicit';
+  inverseKey: string;
+  inverseType: string;
+  inverseIsAsync: boolean;
+  inverseIsImplicit: boolean;
+  inverseIsCollection: boolean;
+  inverseIsPolymorphic: boolean;
+}
+
+function _sync(definition: InProgressMeta, inverseDefinition: InProgressMeta) {
   definition.inverseKind = inverseDefinition.kind;
   definition.inverseKey = inverseDefinition.key;
   definition.inverseType = inverseDefinition.type;
@@ -78,13 +121,17 @@ function syncMeta(definition: UpgradedRelationshipMeta, inverseDefinition: Upgra
   definition.inverseIsImplicit = inverseDefinition.isImplicit;
 }
 
-function upgradeMeta<
-  R extends ResolvedRegistry,
-  T extends RecordType<R>,
-  K extends RecordField<R, T>,
-  RT extends RecordType<R>
->(meta: RelationshipSchema<R, T, K, RT>): UpgradedRelationshipMeta<R, T, K, RT> {
-  let niceMeta: UpgradedRelationshipMeta<R, T, K, RT> = {} as UpgradedRelationshipMeta<R, T, K, RT>;
+function syncMeta(definition: InProgressMeta, inverseDefinition: InProgressMeta) {
+  _sync(definition, inverseDefinition);
+  _sync(inverseDefinition, definition);
+}
+
+function upgradeMeta<R extends ResolvedRegistry, T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+  meta: RelationshipSchema<R, T, F>
+): UpgradedRelationshipMeta<R, T, F, RelatedType<R, T, F>> {
+  type RT = RelatedType<R, T, F>;
+  type RF = RelationshipFieldsFor<R, RT>;
+  let niceMeta: UpgradedRelationshipMeta<R, T, F, RT> = {} as UpgradedRelationshipMeta<R, T, F, RT>;
   let options = meta.options;
   niceMeta.kind = meta.kind;
   niceMeta.key = meta.name;
@@ -94,8 +141,8 @@ function upgradeMeta<
   niceMeta.isCollection = meta.kind === 'hasMany';
   niceMeta.isPolymorphic = options && !!options.polymorphic;
 
-  niceMeta.inverseKey = (options && options.inverse) || STR_LATER;
-  niceMeta.inverseType = STR_LATER as RT;
+  niceMeta.inverseKey = ((options && options.inverse) || STR_LATER) as RF;
+  niceMeta.inverseType = STR_LATER as T;
   niceMeta.inverseIsAsync = BOOL_LATER;
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;
   niceMeta.inverseIsCollection = BOOL_LATER;
@@ -103,7 +150,12 @@ function upgradeMeta<
   return niceMeta;
 }
 
-export function isLHS(info: EdgeDefinition, type: string, key: string): boolean {
+export function isLHS<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, F>
+>(info: EdgeDefinition<R, T, F, RT>, type: RecordType<R>, key: RelationshipFieldsFor<R, T>): type is T {
   let isSelfReferential = info.isSelfReferential;
   let isRelationship = key === info.lhs_relationshipName;
 
@@ -119,7 +171,12 @@ export function isLHS(info: EdgeDefinition, type: string, key: string): boolean 
   return false;
 }
 
-export function isRHS(info: EdgeDefinition, type: string, key: string): boolean {
+export function isRHS<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, F>
+>(info: EdgeDefinition<R, T, F, RT>, type: RecordType<R>, key: RelationshipFieldsFor<R, T>): type is T {
   let isSelfReferential = info.isSelfReferential;
   let isRelationship = key === info.rhs_relationshipName;
 
@@ -138,20 +195,20 @@ export function isRHS(info: EdgeDefinition, type: string, key: string): boolean 
 export function upgradeDefinition<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
-  RT extends RecordType<R>
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
 >(
   graph: Graph<R>,
   identifier: StableRecordIdentifier<T>,
-  propertyName: K,
+  propertyName: F,
   isImplicit: boolean = false
-): EdgeDefinition<R, T, K, RT> | null {
+): EdgeDefinition<R, T, F, RT> | null {
   const cache = graph._definitionCache;
   const storeWrapper = graph.store;
   const polymorphicLookup = graph._potentialPolymorphicTypes;
 
   const { type } = identifier;
-  let cached = expandingGet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName);
+  let cached = expandingGet<R, T, F, RT>(cache, type, propertyName);
 
   // CASE: We have a cached resolution (null if no relationship exists)
   if (cached !== undefined) {
@@ -169,11 +226,11 @@ export function upgradeDefinition<
 
   if (!meta) {
     if (polymorphicLookup[type]) {
-      const altTypes = Object.keys(polymorphicLookup[type] as {});
+      const altTypes = Object.keys(polymorphicLookup[type]) as RecordType<R>[];
       for (let i = 0; i < altTypes.length; i++) {
-        let cached = expandingGet<EdgeDefinition<R, T, K, RT> | null>(cache, altTypes[i], propertyName);
+        let cached = expandingGet<R, T, F, RT>(cache, altTypes[i] as T, propertyName);
         if (cached) {
-          expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName, cached);
+          expandingSet(cache, type, propertyName, cached);
           return cached;
         }
       }
@@ -188,9 +245,9 @@ export function upgradeDefinition<
   }
   const definition = upgradeMeta(meta);
 
-  let inverseDefinition;
-  let inverseKey;
-  const inverseType = definition.type;
+  let inverseDefinition: UpgradedRelationshipMeta<R, RT, RelationshipFieldsFor<R, RT>, T, F> | null | undefined;
+  let inverseKey: RelationshipFieldsFor<R, RT> | null | undefined;
+  const inverseType = definition.type as RecordType<R>;
 
   // CASE: Inverse is explicitly null
   if (definition.inverseKey === null) {
@@ -215,7 +272,7 @@ export function upgradeDefinition<
   // CASE: We have no inverse
   if (!inverseDefinition) {
     // polish off meta
-    inverseKey = implicitKeyFor(type, propertyName);
+    inverseKey = implicitKeyFor<RelationshipFieldsFor<R, RT>>(type, propertyName);
     inverseDefinition = {
       kind: 'implicit',
       key: inverseKey,
@@ -224,10 +281,9 @@ export function upgradeDefinition<
       isImplicit: true,
       isCollection: true, // with implicits any number of records could point at us
       isPolymorphic: false,
-    };
+    } as UpgradedRelationshipMeta<R, RT, RelationshipFieldsFor<R, RT>, T, F>;
 
     syncMeta(definition, inverseDefinition);
-    syncMeta(inverseDefinition, definition);
 
     const info = {
       lhs_key: `${type}:${propertyName}`,
@@ -249,13 +305,13 @@ export function upgradeDefinition<
       isReflexive: false, // we can't be reflexive if we don't define an inverse
     };
 
-    expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, inverseType, inverseKey, info);
-    expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName, info);
+    expandingSet(cache, inverseType, inverseKey, info);
+    expandingSet(cache, type, propertyName, info);
     return info;
   }
 
   // CASE: We do have an inverse
-  const baseType = inverseDefinition.type;
+  const baseType = inverseDefinition.type as RecordType<R>;
 
   // TODO we want to assert this but this breaks all of our shoddily written tests
   /*
@@ -280,14 +336,13 @@ export function upgradeDefinition<
     let modelNames = isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
     // make this lookup easier in the future by caching the key
     modelNames.push(type);
-    expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName, cached);
+    expandingSet(cache, type, propertyName, cached);
 
     return cached;
   }
 
   // this is our first time so polish off the metas
   syncMeta(definition, inverseDefinition);
-  syncMeta(inverseDefinition, definition);
 
   const lhs_modelNames = [type];
   if (type !== baseType) {
@@ -315,11 +370,11 @@ export function upgradeDefinition<
 
   // Create entries for the baseModelName as well as modelName to speed up
   //  inverse lookups
-  expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, baseType, propertyName, info);
-  expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, type, propertyName, info);
+  expandingSet(cache, baseType, propertyName, info);
+  expandingSet(cache, type, propertyName, info);
 
   // Greedily populate the inverse
-  expandingSet<EdgeDefinition<R, T, K, RT> | null>(cache, inverseType, inverseKey, info);
+  expandingSet(cache, inverseType, inverseKey, info);
 
   return info;
 }

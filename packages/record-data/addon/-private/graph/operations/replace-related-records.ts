@@ -2,11 +2,19 @@ import { assert } from '@ember/debug';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { ResolvedRegistry } from '@ember-data/types';
+import {
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordType,
+  RelatedType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 import type { ManyRelationship } from '../..';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
-import { isBelongsTo, isHasMany, isNew } from '../-utils';
-import type { Graph } from '../index';
+import { assertNarrows, isBelongsTo, isHasMany, isImplicit, isNew } from '../-utils';
+import type { Graph, RelationshipEdge } from '../index';
 
 /*
     case many:1
@@ -63,7 +71,11 @@ import type { Graph } from '../index';
     artificial (implicit) inverses, replacing a value results in 2 discrete value transitions.
     This is because a Many:? relationship is effectively Many:Many.
   */
-export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
+export default function replaceRelatedRecords<R extends ResolvedRegistry>(
+  graph: Graph<R>,
+  op: ReplaceRelatedRecordsOperation<R>,
+  isRemote: boolean
+) {
   if (isRemote) {
     replaceRelatedRecordsRemote(graph, op, isRemote);
   } else {
@@ -71,18 +83,26 @@ export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRe
   }
 }
 
-function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
-  const identifiers = op.value;
-  const relationship = graph.get(op.record, op.field);
+function replaceRelatedRecordsLocal<R extends ResolvedRegistry>(
+  graph: Graph<R>,
+  op: ReplaceRelatedRecordsOperation<R>,
+  isRemote: boolean
+) {
+  type T = typeof op.record.type;
+  type F = typeof op.field;
+
+  const relationship = graph.get(op.record, op.field) as RelationshipEdge<R, T, F>;
   assert(`expected hasMany relationship`, isHasMany(relationship));
   relationship.state.hasReceivedData = true;
+  type RT = typeof relationship.definition.type;
+  const identifiers = op.value as StableRecordIdentifier<RT>[];
 
   // cache existing state
   const { currentState, members, definition } = relationship;
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
   const newState = new Array(newValues.size);
-  const newMembership = new Set<StableRecordIdentifier>();
+  const newMembership = new Set<StableRecordIdentifier<RT>>();
 
   // wipe existing state
   relationship.members = newMembership;
@@ -112,7 +132,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
 
         if (!members.has(identifier)) {
           changed = true;
-          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+          addToInverse<R, T, F, RT>(graph, identifier, definition.inverseKey, op.record, isRemote);
         }
       }
     }
@@ -141,9 +161,17 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   }
 }
 
-function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
-  const identifiers = op.value;
-  const relationship = graph.get(op.record, op.field);
+function replaceRelatedRecordsRemote<R extends ResolvedRegistry>(
+  graph: Graph<R>,
+  op: ReplaceRelatedRecordsOperation<R>,
+  isRemote: boolean
+) {
+  type T = typeof op.record.type;
+  type F = typeof op.field;
+
+  const relationship = graph.get(op.record, op.field) as RelationshipEdge<R, T, F>;
+  type RT = typeof relationship.definition.type;
+  const identifiers = op.value as StableRecordIdentifier<RT>[];
 
   assert(
     `You can only '${op.op}' on a hasMany relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
@@ -159,7 +187,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
   const newState = new Array(newValues.size);
-  const newMembership = new Set<StableRecordIdentifier>();
+  const newMembership = new Set<StableRecordIdentifier<RT>>();
 
   // wipe existing state
   relationship.canonicalMembers = newMembership;
@@ -188,7 +216,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
 
         if (!canonicalMembers.has(identifier)) {
           changed = true;
-          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+          addToInverse<R, T, F, RT>(graph, identifier, definition.inverseKey, op.record, isRemote);
         }
       }
     }
@@ -232,13 +260,54 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   }
 }
 
-export function addToInverse(
-  graph: Graph,
-  identifier: StableRecordIdentifier,
-  key: string,
-  value: StableRecordIdentifier,
+export function addToInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  key: F,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
   isRemote: boolean
-) {
+): void;
+export function addToInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends BelongsToRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  key: F,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
+  isRemote: boolean
+): void;
+export function addToInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  key: F,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
+  isRemote: boolean
+): void;
+export function addToInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  key: F,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
+  isRemote: boolean
+): void {
   const relationship = graph.get(identifier, key);
   const { type } = relationship.definition;
 
@@ -248,6 +317,7 @@ export function addToInverse(
   }
 
   if (isBelongsTo(relationship)) {
+    assertNarrows<StableRecordIdentifier<RT>>(`expected identifier to be of the correct type`, true, value);
     relationship.state.hasReceivedData = true;
     relationship.state.isEmpty = false;
 
@@ -267,6 +337,11 @@ export function addToInverse(
       relationship.notifyBelongsToChange();
     }
   } else if (isHasMany(relationship)) {
+    assertNarrows<StableRecordIdentifier<RelatedType<R, T, HasManyRelationshipFieldsFor<R, T>>>>(
+      `expected identifier to be of the correct type`,
+      true,
+      value
+    );
     if (isRemote) {
       if (!relationship.canonicalMembers.has(value)) {
         graph._addToTransaction(relationship);
@@ -283,22 +358,66 @@ export function addToInverse(
         relationship.notifyHasManyChange();
       }
     }
-  } else {
+  } else if (isImplicit(relationship)) {
+    assertNarrows<StableRecordIdentifier<RT>>(`expected identifier to be of the correct type`, true, value);
     if (isRemote) {
       relationship.addCanonicalMember(value);
     } else {
       relationship.addMember(value);
     }
+  } else {
+    assert(`The provided relationship was not a Many, BelongsTo or Implicit`);
   }
 }
 
-export function removeFromInverse(
-  graph: Graph,
-  identifier: StableRecordIdentifier,
-  key: string,
-  value: StableRecordIdentifier,
+export function removeFromInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  key: F,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
   isRemote: boolean
-) {
+): void;
+export function removeFromInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends BelongsToRelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  key: F,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
+  isRemote: boolean
+): void;
+export function removeFromInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  key: F,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
+  isRemote: boolean
+): void;
+export function removeFromInverse<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RelatedType<R, T, F>
+>(
+  graph: Graph<R>,
+  identifier: StableRecordIdentifier<T>,
+  key: F,
+  value: StableRecordIdentifier<RT> | StableRecordIdentifier<RecordType<R>>,
+  isRemote: boolean
+): void {
   const relationship = graph.get(identifier, key);
 
   if (isBelongsTo(relationship)) {
@@ -312,6 +431,11 @@ export function removeFromInverse(
       relationship.notifyBelongsToChange();
     }
   } else if (isHasMany(relationship)) {
+    assertNarrows<StableRecordIdentifier<RelatedType<R, T, HasManyRelationshipFieldsFor<R, T>>>>(
+      `expected identifier to be of the correct type`,
+      true,
+      value
+    );
     if (isRemote) {
       graph._addToTransaction(relationship);
       let index = relationship.canonicalState.indexOf(value);
@@ -326,25 +450,32 @@ export function removeFromInverse(
       relationship.currentState.splice(index, 1);
     }
     relationship.notifyHasManyChange();
-  } else {
+  } else if (isImplicit(relationship)) {
+    assertNarrows<StableRecordIdentifier<RT>>(`expected identifier to be of the correct type`, true, value);
     if (isRemote) {
       relationship.removeCompletelyFromOwn(value);
     } else {
       relationship.removeMember(value);
     }
+  } else {
+    assert(`The provided relationship was not a Many, BelongsTo or Implicit`);
   }
 }
 
-export function syncRemoteToLocal(rel: ManyRelationship) {
-  let toSet = rel.canonicalState;
-  let newRecordDatas = rel.currentState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
+export function syncRemoteToLocal<R extends ResolvedRegistry>(rel: ManyRelationship<R>) {
+  type RT = typeof rel.definition.type;
+  let toAdd = rel.canonicalState;
+  let newIdentifiers = rel.currentState.filter(
+    (relatedIdentifier: StableRecordIdentifier<RT>) =>
+      isNew<R, RT>(relatedIdentifier) && toAdd.indexOf(relatedIdentifier) === -1
+  );
   let existingState = rel.currentState;
-  rel.currentState = toSet.concat(newRecordDatas);
+  rel.currentState = toAdd.concat(newIdentifiers);
 
-  let members = (rel.members = new Set<StableRecordIdentifier>());
+  let members = (rel.members = new Set<StableRecordIdentifier<RT>>());
   rel.canonicalMembers.forEach((v) => members.add(v));
-  for (let i = 0; i < newRecordDatas.length; i++) {
-    members.add(newRecordDatas[i]);
+  for (let i = 0; i < newIdentifiers.length; i++) {
+    members.add(newIdentifiers[i]);
   }
 
   // TODO always notifying fails only one test and we should probably do away with it
@@ -360,6 +491,10 @@ export function syncRemoteToLocal(rel: ManyRelationship) {
   }
 }
 
-function flushCanonical(graph: Graph, rel: ManyRelationship) {
+function flushCanonical<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>
+>(graph: Graph<R>, rel: ManyRelationship<R, T, F>) {
   graph._scheduleLocalSync(rel);
 }

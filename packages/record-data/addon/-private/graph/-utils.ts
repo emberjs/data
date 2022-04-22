@@ -1,11 +1,18 @@
 import { assert, inspect, warn } from '@ember/debug';
 
+import { expectTypeOf } from 'expect-type';
+
 import { coerceId, recordDataFor as peekRecordData } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
-import { ResolvedRegistry } from '@ember-data/types';
-import { RecordType } from '@ember-data/types/utils';
+import type { ResolvedRegistry } from '@ember-data/types';
+import type { AsyncBelongsTo, AsyncHasMany, BelongsTo, HasMany } from '@ember-data/types/legacy-model';
+import type {
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 import type BelongsToRelationship from '../relationships/state/belongs-to';
 import type ManyRelationship from '../relationships/state/has-many';
@@ -14,24 +21,15 @@ import type { RelationshipRecordData } from '../ts-interfaces/relationship-recor
 import type { UpdateRelationshipOperation } from './-operations';
 import type { Graph } from './index';
 
-export function expandingGet<T>(cache: Dict<Dict<T>>, key1: string, key2: string): T | undefined {
-  let mainCache = (cache[key1] = cache[key1] || Object.create(null));
-  return mainCache[key2];
-}
-
-export function expandingSet<T>(cache: Dict<Dict<T>>, key1: string, key2: string, value: T): void {
-  let mainCache = (cache[key1] = cache[key1] || Object.create(null));
-  mainCache[key2] = value;
-}
-
 export function assertValidRelationshipPayload<R extends ResolvedRegistry>(
   graph: Graph<R>,
   op: UpdateRelationshipOperation<R>
 ) {
   type T = typeof op.record.type;
-  type Rel = ManyRelationship<R, T> | ImplicitRelationship<R, T> | BelongsToRelationship<R, T>;
-  const relationship = graph.get(op.record, op.field);
-  assert(`Cannot update an implicit relationship`, isHasMany(relationship as Rel) || isBelongsTo(relationship as Rel));
+  type F = typeof op.field;
+  type Rel = ManyRelationship<R, T, F> | ImplicitRelationship<R, T, F> | BelongsToRelationship<R, T, F>;
+  const relationship = graph.get(op.record, op.field) as Rel;
+  assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
 
   const payload = op.value;
   const { definition, identifier, state } = relationship;
@@ -78,7 +76,7 @@ export function isNew<R extends ResolvedRegistry, T extends RecordType<R>>(
   if (!identifier.id) {
     return true;
   }
-  const recordData = peekRecordData(identifier);
+  const recordData = peekRecordData<R, T>(identifier);
   return recordData ? isRelationshipRecordData(recordData) && recordData.isNew() : false;
 }
 
@@ -88,21 +86,54 @@ function isRelationshipRecordData<R extends ResolvedRegistry, T extends RecordTy
   return typeof (recordData as RelationshipRecordData<R, T>).isNew === 'function';
 }
 
-export function isBelongsTo<R extends ResolvedRegistry, T extends RecordType<R>>(
-  relationship: ManyRelationship<R, T> | ImplicitRelationship<R, T> | BelongsToRelationship<R, T>
-): relationship is BelongsToRelationship<R, T> {
+export function isBelongsTo<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  MF extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
+  BF extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
+  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
+>(
+  relationship:
+    | ManyRelationship<R, T, IF>
+    | ManyRelationship<R, T, MF>
+    | ImplicitRelationship<R, T, IF>
+    | BelongsToRelationship<R, T, BF>
+    | BelongsToRelationship<R, T, IF>
+): relationship is BelongsToRelationship<R, T, BF> {
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit<R extends ResolvedRegistry, T extends RecordType<R>>(
-  relationship: ManyRelationship<R, T> | ImplicitRelationship<R, T> | BelongsToRelationship<R, T>
-): relationship is ImplicitRelationship<R, T> {
+export function isImplicit<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  MF extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
+  BF extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
+  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
+>(
+  relationship:
+    | ManyRelationship<R, T, IF>
+    | ManyRelationship<R, T, MF>
+    | ImplicitRelationship<R, T, IF>
+    | BelongsToRelationship<R, T, IF>
+    | BelongsToRelationship<R, T, BF>
+): relationship is ImplicitRelationship<R, T, IF> {
   return relationship.definition.isImplicit;
 }
 
-export function isHasMany<R extends ResolvedRegistry, T extends RecordType<R>>(
-  relationship: ManyRelationship<R, T> | ImplicitRelationship<R, T> | BelongsToRelationship<R, T>
-): relationship is ManyRelationship<R, T> {
+export function isHasMany<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  MF extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
+  BF extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
+  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
+>(
+  relationship:
+    | ManyRelationship<R, T, IF>
+    | ManyRelationship<R, T, MF>
+    | ImplicitRelationship<R, T, IF>
+    | BelongsToRelationship<R, T, IF>
+    | BelongsToRelationship<R, T, BF>
+): relationship is ManyRelationship<R, T, MF> {
   return relationship.definition.kind === 'hasMany';
 }
 
@@ -135,4 +166,78 @@ export function assertRelationshipData(store, identifier, data, meta) {
     `Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on <${identifier.type}:${identifier.id}>, Expected a json-api identifier with type '${meta.type}'. No model was found for '${data.type}'.`,
     data === null || !data.type || store._hasModelFor(data.type)
   );
+}
+
+export function assertNarrows<T>(msg: string, cond: unknown, value: T | unknown): asserts value is T {
+  assert(msg, cond);
+}
+
+// ###########################
+// ###########################
+// ###########################
+// -------[[ TESTS ]]---------
+// ###########################
+// ###########################
+// ###########################
+
+declare class User {
+  declare name: string;
+  declare friends: AsyncHasMany<Person, _R>;
+  declare spouse: AsyncBelongsTo<Person, _R>;
+  declare bestFriend: BelongsTo<Person, _R>;
+  declare enemies: HasMany<Person, _R>;
+}
+declare class Person {
+  declare name: string;
+  declare parent: BelongsTo<User, _R>;
+}
+declare class Post {
+  declare title: string;
+}
+
+type TestRegistry1 = {
+  model: {
+    person: Person;
+    user: User;
+    post: Post;
+  };
+  serializer: {};
+  adapter: {};
+  transform: {};
+};
+type _R = ResolvedRegistry<TestRegistry1>;
+type _T = 'user';
+type _AllRF = RelationshipFieldsFor<_R, _T>;
+type _MF = HasManyRelationshipFieldsFor<_R, _T>;
+type _BF = BelongsToRelationshipFieldsFor<_R, _T>;
+
+declare function getType<T>(): T;
+
+let unknownRelationship = getType<
+  ManyRelationship<_R, _T, _AllRF> | BelongsToRelationship<_R, _T, _AllRF> | ImplicitRelationship<_R, _T, _AllRF>
+>();
+let knownManyRelationship = getType<ManyRelationship<_R, _T, _MF>>();
+let knownImplicitRelationship = getType<ImplicitRelationship<_R, _T, _AllRF>>();
+let knownBelongsToRelationship = getType<BelongsToRelationship<_R, _T, _BF>>();
+
+expectTypeOf(unknownRelationship).not.toEqualTypeOf(knownManyRelationship);
+expectTypeOf(unknownRelationship).not.toEqualTypeOf(knownBelongsToRelationship);
+expectTypeOf(unknownRelationship).not.toEqualTypeOf(knownImplicitRelationship);
+
+if (isHasMany(unknownRelationship)) {
+  // @ts-expect-error
+  expectTypeOf(unknownRelationship).not.toEqualTypeOf(knownManyRelationship);
+  expectTypeOf(unknownRelationship).toEqualTypeOf(knownManyRelationship);
+}
+
+if (isBelongsTo(unknownRelationship)) {
+  // @ts-expect-error
+  expectTypeOf(unknownRelationship).not.toEqualTypeOf(knownBelongsToRelationship);
+  expectTypeOf(unknownRelationship).toEqualTypeOf(knownBelongsToRelationship);
+}
+
+if (isImplicit(unknownRelationship)) {
+  // @ts-expect-error
+  expectTypeOf(unknownRelationship).not.toEqualTypeOf(knownImplicitRelationship);
+  expectTypeOf(unknownRelationship).toEqualTypeOf(knownImplicitRelationship);
 }

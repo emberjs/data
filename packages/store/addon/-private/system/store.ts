@@ -23,7 +23,14 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { ManyRelationship, RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 import type { DefaultRegistry, ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordInstance, RecordType } from '@ember-data/types/utils';
+import type {
+  BelongsToRelationshipFieldsFor,
+  RecordField,
+  RecordInstance,
+  RecordType,
+  RelatedType,
+  RelationshipFieldsFor,
+} from '@ember-data/types/utils';
 
 import { IdentifierCache } from '../identifiers/cache';
 import type {
@@ -43,7 +50,7 @@ import type {
 import { MinimumAdapterInterface } from '../ts-interfaces/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serializer-interface';
 import type { RecordData } from '../ts-interfaces/record-data';
-import type { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
+import type { JsonApiRelationship, JsonApiResource } from '../ts-interfaces/record-data-json-api';
 import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
 import type { AttributesSchema, RelationshipSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
@@ -623,7 +630,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     //   to remove this, we would need to move to a new `async` API.
     return emberBackburner.join(() => {
       return this._backburner.join(() => {
-        let normalizedModelName = normalizeModelName<R['model'], T>(modelName);
+        let normalizedModelName = normalizeModelName<R, T>(modelName);
         let properties = { ...inputProperties };
 
         // If the passed properties do not include a primary key,
@@ -660,7 +667,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Object} properties from the new record
     @return {String} if the adapter can generate one, an ID
   */
-  _generateId(modelName: string, properties: CreateRecordProperties): string | null {
+  _generateId<T extends RecordType<R>>(modelName: T, properties: CreateRecordProperties): string | null {
     let adapter = this.adapterFor(modelName);
 
     if (adapter && adapter.generateIdForRecord) {
@@ -747,7 +754,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @return {Promise} promise
     @private
   */
-  find(modelName: string, id: string | number, options?): PromiseObject<RecordInstance> {
+  find<T extends RecordType<R>>(modelName: T, id: string | number, options?): PromiseObject<RecordInstance<R, T>> {
     if (DEBUG) {
       assertDestroyingStore(this, 'find');
     }
@@ -1146,13 +1153,20 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord(resource: string, id: string | number, options?: FindOptions): PromiseObject<RecordInstance>;
-  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): PromiseObject<RecordInstance>;
-  findRecord(
-    resource: string | ResourceIdentifierObject,
+  findRecord<T extends RecordType<R>>(
+    resource: T,
+    id: string | number,
+    options?: FindOptions
+  ): PromiseObject<RecordInstance<R, T>>;
+  findRecord<T extends RecordType<R>>(
+    resource: ResourceIdentifierObject<T>,
+    id?: FindOptions
+  ): PromiseObject<RecordInstance<R, T>>;
+  findRecord<T extends RecordType<R>>(
+    resource: T | ResourceIdentifierObject<T>,
     id?: string | number | FindOptions,
     options?: FindOptions
-  ): PromiseObject<RecordInstance> {
+  ): PromiseObject<RecordInstance<R, T>> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
     }
@@ -1168,7 +1182,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
         `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${resource}`,
         typeof resource === 'string'
       );
-      const type = normalizeModelName(resource);
+      const type = normalizeModelName<R, T>(resource);
       const normalizedId = ensureStringId(id as string | number);
       resource = constructResource(type, normalizedId);
     }
@@ -1188,7 +1202,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${internalModel.identifier}`);
   }
 
-  _findRecord(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
+  _findRecord<T extends RecordType<R>>(
+    internalModel: InternalModel<R, T>,
+    options: FindOptions
+  ): Promise<InternalModel<R, T>> {
     // Refetch if the reload option is passed
     if (options.reload) {
       return this._scheduleFetch(internalModel, options);
@@ -1223,7 +1240,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return resolve(internalModel);
   }
 
-  _findByInternalModel(internalModel: InternalModel, options: FindOptions = {}): Promise<InternalModel> {
+  _findByInternalModel<T extends RecordType<R>>(
+    internalModel: InternalModel<R, T>,
+    options: FindOptions = {}
+  ): Promise<InternalModel<R, T>> {
     if (options.preload) {
       this._backburner.join(() => {
         internalModel.preloadData(options.preload);
@@ -1233,7 +1253,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return this._findEmptyInternalModel(internalModel, options);
   }
 
-  _findEmptyInternalModel(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
+  _findEmptyInternalModel<T extends RecordType<R>>(
+    internalModel: InternalModel<R, T>,
+    options: FindOptions
+  ): Promise<InternalModel<R, T>> {
     if (internalModel.currentState.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
@@ -1259,7 +1282,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Array} ids
     @return {Promise} promise
   */
-  findByIds(modelName, ids) {
+  findByIds<T extends RecordType<R>>(modelName: T, ids: string[]) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findByIds');
     }
@@ -1271,7 +1294,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
 
     let promises = new Array(ids.length);
 
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<R, T>(modelName);
 
     for (let i = 0; i < ids.length; i++) {
       promises[i] = this.findRecord(normalizedModelName, ids[i]);
@@ -1280,7 +1303,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return promiseArray(all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
   }
 
-  _scheduleFetchMany(internalModels, options) {
+  _scheduleFetchMany<T extends RecordType<R>>(
+    internalModels: InternalModel<R, T>[],
+    options
+  ): Promise<InternalModel<R, T>[]> {
     let fetches = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
@@ -1290,7 +1316,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return all(fetches);
   }
 
-  _scheduleFetch(internalModel: InternalModel, options = {}): Promise<InternalModel> {
+  _scheduleFetch<T extends RecordType<R>>(
+    internalModel: InternalModel<R, T>,
+    options = {}
+  ): Promise<InternalModel<R, T>> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
     // TODO  remove this once we don't rely on state machine
     internalModel.send('loadingData');
@@ -1363,7 +1392,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @since 2.5.0
     @return {RecordReference}
   */
-  getReference(resource: string | ResourceIdentifierObject, id: string | number): RecordReference {
+  getReference<T extends RecordType<R>>(
+    resource: T | ResourceIdentifierObject<T>,
+    id: string | number
+  ): RecordReference<R, T> {
     if (DEBUG) {
       assertDestroyingStore(this, 'getReference');
     }
@@ -1436,12 +1468,12 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
     @return {Model|null} record
   */
-  peekRecord<K extends keyof R['model'] & string>(identifier: K, id: string | number): R['model'][K] | null;
-  peekRecord<K extends keyof R['model'] & string>(identifier: ResourceIdentifierObject<K>): R['model'][K] | null;
-  peekRecord<K extends keyof R['model'] & string>(
-    identifier: ResourceIdentifierObject<K> | K,
+  peekRecord<T extends RecordType<R>>(identifier: T, id: string | number): RecordInstance<R, T> | null;
+  peekRecord<T extends RecordType<R>>(identifier: ResourceIdentifierObject<T>): RecordInstance<R, T> | null;
+  peekRecord<T extends RecordType<R>>(
+    identifier: ResourceIdentifierObject<T> | T,
     id?: string | number
-  ): R['model'][K] | null {
+  ): RecordInstance<R, T> | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       let stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
       if (stableIdentifier) {
@@ -1460,7 +1492,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
       typeof identifier === 'string'
     );
 
-    const type = normalizeModelName(identifier);
+    const type = normalizeModelName<R, T>(identifier);
     const normalizedId = ensureStringId(id);
 
     if (this.hasRecordForId(type, normalizedId)) {
@@ -1519,7 +1551,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {(String|Integer)} id
     @return {Boolean}
   */
-  hasRecordForId(modelName: string, id: string | number): boolean {
+  hasRecordForId<T extends RecordType<R>>(modelName: T, id: string | number): boolean {
     if (DEBUG) {
       assertDestroyingStore(this, 'hasRecordForId');
     }
@@ -1529,7 +1561,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
       typeof modelName === 'string'
     );
 
-    const type = normalizeModelName(modelName);
+    const type = normalizeModelName<R, T>(modelName);
     const trueId = ensureStringId(id);
     const resource = { type, id: trueId };
 
@@ -1549,7 +1581,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {(String|Integer)} id
     @return {Model} record
   */
-  recordForId(modelName: string, id: string | number): RecordInstance {
+  recordForId<T extends RecordType<R>>(modelName: T, id: string | number): RecordInstance<R, T> {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordForId');
     }
@@ -1570,7 +1602,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Array} internalModels
     @return {Promise} promise
   */
-  findMany(internalModels, options) {
+  findMany<T extends RecordType<R>>(internalModels: InternalModel<R, T>[], options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findMany');
     }
@@ -1986,7 +2018,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName: string, query, options): PromiseObject<RecordInstance | null> {
+  queryRecord<T extends RecordType<R>>(modelName: T, query, options): PromiseObject<RecordInstance<R, T> | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
@@ -1997,7 +2029,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<R, T>(modelName);
     let adapter = this.adapterFor(normalizedModelName);
     let adapterOptionsWrapper: { adapterOptions?: any } = {};
 
@@ -2011,16 +2043,16 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
       typeof adapter.queryRecord === 'function'
     );
 
-    const promise: Promise<InternalModel | null> = _queryRecord(
+    const promise: Promise<InternalModel<R, T> | null> = _queryRecord(
       adapter,
       this,
       normalizedModelName,
       query,
       adapterOptionsWrapper
-    ) as Promise<InternalModel | null>;
+    ) as Promise<InternalModel<R, T> | null>;
 
     return promiseObject(
-      promise.then((internalModel: InternalModel | null) => {
+      promise.then((internalModel: InternalModel<R, T> | null) => {
         return internalModel ? internalModel.getRecord() : null;
       })
     );
@@ -2291,7 +2323,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {String} modelName
     @private
   */
-  _didUpdateAll(modelName: string): void {
+  _didUpdateAll<T extends RecordType<R>>(modelName: T): void {
     this.recordArrayManager._didUpdateAll(modelName);
   }
 
@@ -2546,7 +2578,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {string} newId
     @param {string} clientId
    */
-  setRecordId(modelName: string, newId: string, clientId: string) {
+  setRecordId<T extends RecordType<R>>(modelName: T, newId: string, clientId: string) {
     if (DEBUG) {
       assertDestroyingStore(this, 'setRecordId');
     }
@@ -2564,8 +2596,12 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @private
     @param {Object} data
   */
-  _load(data: ExistingResourceObject) {
-    const resource = constructResource(normalizeModelName(data.type), ensureStringId(data.id), coerceId(data.lid));
+  _load<T extends RecordType<R>>(data: ExistingResourceObject<T>) {
+    const resource = constructResource(
+      normalizeModelName<R, T>(data.type),
+      ensureStringId(data.id),
+      coerceId(data.lid)
+    );
 
     let internalModel = internalModelFactoryFor(this).lookup(resource, data);
 
@@ -2751,10 +2787,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @return the record(s) that was created or
       updated.
   */
-  push(data: EmptyResourceDocument): null;
-  push(data: SingleResourceDocument): RecordInstance;
-  push(data: CollectionResourceDocument): RecordInstance[];
-  push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null {
+  push(data: EmptyResourceDocument<R>): null;
+  push<T extends RecordType<R>>(data: SingleResourceDocument<R, T>): RecordInstance<R, T>;
+  push<T extends RecordType<R>>(data: CollectionResourceDocument<R, T>): RecordInstance<R, T>[];
+  push<T extends RecordType<R>>(data: JsonApiDocument<R, T>): RecordInstance<R, T> | RecordInstance<R, T>[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
@@ -2779,15 +2815,19 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
 
     @method _push
     @private
-    @param {Object} jsonApiDoc
+    @param {Object} doc
     @return {InternalModel|Array<InternalModel>} pushed InternalModel(s)
   */
-  _push(jsonApiDoc): InternalModel | InternalModel[] | null {
+  _push(doc: EmptyResourceDocument<R>): null;
+  _push<T extends RecordType<R>>(doc: SingleResourceDocument<R, T>): InternalModel<R, T>;
+  _push<T extends RecordType<R>>(doc: CollectionResourceDocument<R, T>): InternalModel<R, T>[];
+  _push<T extends RecordType<R>>(doc: JsonApiDocument<R, T>): InternalModel<R, T> | InternalModel<R, T>[] | null;
+  _push<T extends RecordType<R>>(doc: JsonApiDocument<R, T>): InternalModel<R, T> | InternalModel<R, T>[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
-    let internalModelOrModels = this._backburner.join(() => {
-      let included = jsonApiDoc.included;
+    let internalModelOrModels: InternalModel<R, T> | InternalModel<R, T>[] | null = this._backburner.join(() => {
+      let included = doc.included;
       let i, length;
 
       if (included) {
@@ -2796,35 +2836,33 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
         }
       }
 
-      if (Array.isArray(jsonApiDoc.data)) {
-        length = jsonApiDoc.data.length;
-        let internalModels = new Array(length);
+      if (Array.isArray(doc.data)) {
+        length = doc.data.length;
+        let internalModels: InternalModel<R, T>[] = new Array(length);
 
         for (i = 0; i < length; i++) {
-          internalModels[i] = this._pushInternalModel(jsonApiDoc.data[i]);
+          internalModels[i] = this._pushInternalModel(doc.data[i]);
         }
         return internalModels;
       }
 
-      if (jsonApiDoc.data === null) {
+      if (doc.data === null) {
         return null;
       }
 
       assert(
-        `Expected an object in the 'data' property in a call to 'push' for ${jsonApiDoc.type}, but was ${typeOf(
-          jsonApiDoc.data
-        )}`,
-        typeOf(jsonApiDoc.data) === 'object'
+        `Expected an object in the 'data' property in a call to 'push' for ${doc.type}, but was ${typeOf(doc.data)}`,
+        typeOf(doc.data) === 'object'
       );
 
-      return this._pushInternalModel(jsonApiDoc.data);
+      return this._pushInternalModel(doc.data);
     });
 
     // this typecast is necessary because `backburner.join` is mistyped to return void
-    return internalModelOrModels as unknown as InternalModel | InternalModel[];
+    return internalModelOrModels;
   }
 
-  _pushInternalModel(data) {
+  _pushInternalModel<T extends RecordType<R>>(data: ExistingResourceObject<T>): InternalModel<R, T> {
     let modelName = data.type;
     assert(
       `You must include an 'id' for ${modelName} in an object passed to 'push'`,
@@ -2928,7 +2966,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
     @param {Object} inputPayload
   */
-  pushPayload(modelName, inputPayload) {
+  pushPayload<T extends RecordType<R>>(modelName: T, inputPayload) {
     if (DEBUG) {
       assertDestroyingStore(this, 'pushPayload');
     }
@@ -2947,7 +2985,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
         `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
         typeof modelName === 'string'
       );
-      let normalizedModelName = normalizeModelName(modelName);
+      let normalizedModelName = normalizeModelName<R, T>(modelName);
       serializer = this.serializerFor(normalizedModelName);
     }
     assert(
@@ -2957,10 +2995,14 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     serializer.pushPayload(this, payload);
   }
 
-  reloadBelongsTo<T extends RecordType<R>, K extends RecordField<R, T>>(
-    belongsToProxy: PromiseBelongsTo<R, T, K>,
+  reloadBelongsTo<
+    T extends RecordType<R>,
+    F extends BelongsToRelationshipFieldsFor<R, T>,
+    RT extends RelatedType<R, T, F>
+  >(
+    belongsToProxy: PromiseBelongsTo<R, T, F, RT>,
     internalModel: InternalModel<R, T>,
-    key: K,
+    key: F,
     options?: Dict<unknown>
   ) {
     return internalModel.reloadBelongsTo(key, options);
@@ -3000,7 +3042,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return internalModel!.save(options).then(() => record);
   }
 
-  relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
+  relationshipReferenceFor<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+    identifier: RecordIdentifier<T>,
+    key: F
+  ): BelongsToReference | HasManyReference {
     let stableIdentifier = this.identifierCache.getOrCreateRecordIdentifier(identifier);
     let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
     // TODO we used to check if the record was destroyed here
@@ -3074,14 +3119,17 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
   /**
    * @internal
    */
-  recordDataFor(identifier: StableRecordIdentifier | { type: string }, isCreate: boolean): RecordData {
-    let internalModel: InternalModel;
+  recordDataFor<T extends RecordType<R>>(
+    identifier: StableRecordIdentifier<T> | { type: T },
+    isCreate: boolean
+  ): RecordData<R, T> {
+    let internalModel: InternalModel<R, T>;
     if (isCreate === true) {
       internalModel = internalModelFactoryFor(this).build({ type: identifier.type, id: null });
       internalModel.send('loadedData');
       internalModel.didCreateRecord();
     } else {
-      internalModel = internalModelFactoryFor(this).lookup(identifier as StableRecordIdentifier);
+      internalModel = internalModelFactoryFor(this).lookup(identifier as StableRecordIdentifier<T>);
     }
 
     return internalModel._recordData;
@@ -3107,7 +3155,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Object} payload
     @return {Object} The normalized payload
   */
-  normalize(modelName: string, payload) {
+  normalize<T extends RecordType<R>>(modelName: T, payload) {
     if (DEBUG) {
       assertDestroyingStore(this, 'normalize');
     }
@@ -3118,7 +3166,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
       )}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<R, T>(modelName);
     let serializer = this.serializerFor(normalizedModelName);
     let model = this.modelFor(normalizedModelName);
     assert(
@@ -3128,7 +3176,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return serializer.normalize(model, payload);
   }
 
-  newClientId() {
+  newClientId(): never {
     assert(`Private API Removed`, false);
   }
 
@@ -3141,7 +3189,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
    *
    * @internal
    */
-  _internalModelsFor(modelName: string) {
+  _internalModelsFor<T extends RecordType<R>>(modelName: T) {
     return internalModelFactoryFor(this).modelMapFor(modelName);
   }
 

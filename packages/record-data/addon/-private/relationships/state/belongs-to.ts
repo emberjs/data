@@ -2,7 +2,7 @@ import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type { Links, Meta, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordType } from '@ember-data/types/utils';
+import type { BelongsToRelationshipFieldsFor, RecordType, RelationshipFieldsFor } from '@ember-data/types/utils';
 
 import type { ManyRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -15,7 +15,7 @@ import type { DefaultSingleResourceRelationship } from '../../ts-interfaces/rela
 export default class BelongsToRelationship<
   R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
-  K extends RecordField<R, T> = RecordField<R, T>,
+  F extends RelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
   RT extends RecordType<R> = RecordType<R>
 > {
   declare localState: StableRecordIdentifier<RT> | null;
@@ -24,14 +24,18 @@ export default class BelongsToRelationship<
 
   declare graph: Graph<R>;
   declare store: RecordDataStoreWrapper<R>;
-  declare definition: UpgradedRelationshipMeta;
+  declare definition: UpgradedRelationshipMeta<R, T, F, RT>;
   declare identifier: StableRecordIdentifier<T>;
   declare _state: RelationshipState | null;
 
   declare meta: Meta | null;
   declare links: Links | PaginationLinks | null;
 
-  constructor(graph: Graph<R>, definition: UpgradedRelationshipMeta, identifier: StableRecordIdentifier<T>) {
+  constructor(
+    graph: Graph<R>,
+    definition: UpgradedRelationshipMeta<R, T, F, RT>,
+    identifier: StableRecordIdentifier<T>
+  ) {
     this.graph = graph;
     this.store = graph.store;
     this.definition = definition;
@@ -60,7 +64,8 @@ export default class BelongsToRelationship<
     }
 
     const inverseKey = this.definition.inverseKey;
-    const callback = (inverseIdentifier) => {
+    type RF = typeof inverseKey;
+    const callback = (inverseIdentifier: StableRecordIdentifier<RT>) => {
       if (!inverseIdentifier || !this.graph.has(inverseIdentifier, inverseKey)) {
         return;
       }
@@ -71,10 +76,12 @@ export default class BelongsToRelationship<
       // to another record. For such cases, do not dematerialize the inverseRecordData
       if (
         relationship.definition.kind !== 'belongsTo' ||
-        !(relationship as BelongsToRelationship).localState ||
-        this.identifier === (relationship as BelongsToRelationship).localState
+        !(relationship as unknown as BelongsToRelationship<R, RT, RF, T>).localState ||
+        this.identifier === (relationship as unknown as BelongsToRelationship<R, RT, RF, T>).localState
       ) {
-        (relationship as BelongsToRelationship | ManyRelationship).inverseDidDematerialize(this.identifier);
+        (
+          relationship as unknown as BelongsToRelationship<R, RT, RF, T> | ManyRelationship<R, RT, RF, T>
+        ).inverseDidDematerialize(this.identifier);
       }
     };
 
@@ -88,7 +95,7 @@ export default class BelongsToRelationship<
 
   inverseDidDematerialize() {
     const inverseRecordData = this.localState;
-    if (!this.definition.isAsync || (inverseRecordData && isNew(inverseRecordData))) {
+    if (!this.definition.isAsync || (inverseRecordData && isNew<R, RT>(inverseRecordData))) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
@@ -102,7 +109,7 @@ export default class BelongsToRelationship<
         this.remoteState = null;
         this.state.hasReceivedData = true;
         this.state.isEmpty = true;
-        if (this.localState && !isNew(this.localState)) {
+        if (this.localState && !isNew<R, RT>(this.localState)) {
           this.localState = null;
         }
       }
@@ -112,7 +119,7 @@ export default class BelongsToRelationship<
     this.notifyBelongsToChange();
   }
 
-  getData(): DefaultSingleResourceRelationship<R, T, K> {
+  getData(): DefaultSingleResourceRelationship<R, T, F> {
     let data;
     let payload: any = {};
     if (this.localState) {
@@ -157,7 +164,12 @@ export default class BelongsToRelationship<
 
   notifyBelongsToChange() {
     let recordData = this.identifier;
-    this.store.notifyBelongsToChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
+    this.store.notifyBelongsToChange(
+      recordData.type,
+      recordData.id,
+      recordData.lid,
+      this.definition.key as BelongsToRelationshipFieldsFor<R, T>
+    );
   }
 
   clear() {

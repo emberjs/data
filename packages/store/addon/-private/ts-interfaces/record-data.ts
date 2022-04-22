@@ -1,5 +1,12 @@
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordType } from '@ember-data/types/utils';
+import type {
+  AttributeFieldsFor,
+  BelongsToRelationshipFieldsFor,
+  HasManyRelationshipFieldsFor,
+  RecordField,
+  RecordType,
+  RelatedType,
+} from '@ember-data/types/utils';
 
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
@@ -33,30 +40,50 @@ export interface RecordData<R extends ResolvedRegistry, T extends RecordType<R>>
   rollbackAttributes(): string[];
   changedAttributes(): ChangedAttributesHash<R, T>;
   hasChangedAttributes(): boolean;
-  setDirtyAttribute<K extends RecordField<R, T>>(key: K, value: unknown): void;
+  setDirtyAttribute<F extends AttributeFieldsFor<R, T>>(key: F, value: unknown): void;
 
-  getAttr<K extends RecordField<R, T>>(key: K): unknown;
-  getHasMany<K extends RecordField<R, T>>(key: K): CollectionResourceRelationship;
+  getAttr<F extends AttributeFieldsFor<R, T>>(key: F): unknown;
+  getHasMany<F extends HasManyRelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F> = RelatedType<R, T, F>>(
+    key: F
+  ): CollectionResourceRelationship<RT>;
 
-  addToHasMany<K extends RecordField<R, T>>(key: K, recordDatas: RecordData<R, RecordType<R>>[], idx?: number): void;
-  removeFromHasMany<K extends RecordField<R, T>>(key: K, recordDatas: RecordData<R, RecordType<R>>[]): void;
-  setDirtyHasMany<K extends RecordField<R, T>>(key: K, recordDatas: RecordData<R, RecordType<R>>[]): void;
+  addToHasMany<F extends HasManyRelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F> = RelatedType<R, T, F>>(
+    key: F,
+    recordDatas: RecordData<R, RT>[],
+    idx?: number
+  ): void;
+  removeFromHasMany<
+    F extends HasManyRelationshipFieldsFor<R, T>,
+    RT extends RelatedType<R, T, F> = RelatedType<R, T, F>
+  >(
+    key: F,
+    recordDatas: RecordData<R, RT>[]
+  ): void;
+  setDirtyHasMany<F extends HasManyRelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F> = RelatedType<R, T, F>>(
+    key: F,
+    recordDatas: RecordData<R, RT>[]
+  ): void;
 
-  getBelongsTo<K extends RecordField<R, T>>(key: K): SingleResourceRelationship;
+  getBelongsTo<F extends BelongsToRelationshipFieldsFor<R, T>, RT extends RelatedType<R, T, F> = RelatedType<R, T, F>>(
+    key: F
+  ): SingleResourceRelationship<RT>;
 
-  setDirtyBelongsTo<K extends RecordField<R, T>>(name: K, recordData: RecordData<R, RecordType<R>> | null): void;
+  setDirtyBelongsTo<F extends BelongsToRelationshipFieldsFor<R, T>>(
+    name: F,
+    recordData: RecordData<R, RelatedType<R, T, F>> | null
+  ): void;
   didCommit(data: JsonApiResource | null): void;
 
   // ----- unspecced
-  isAttrDirty<K extends RecordField<R, T>>(key: K): boolean;
+  isAttrDirty<F extends AttributeFieldsFor<R, T>>(key: F): boolean;
   removeFromInverseRelationships(): void;
-  hasAttr<K extends RecordField<R, T>>(key: K): boolean;
+  hasAttr<F extends AttributeFieldsFor<R, T>>(key: F): boolean;
 
   isRecordInUse(): boolean;
   _initRecordCreateOptions(options: Dict<unknown>): Dict<unknown>;
 
   // new
-  getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
+  getErrors?<T extends RecordType<R>>(recordIdentifier: RecordIdentifier<T>): JsonApiValidationError[];
   /**
    * @deprecated
    * @internal
