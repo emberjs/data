@@ -174,6 +174,12 @@ export interface CreateRecordProperties {
 
 abstract class CoreStore extends Service {
   /**
+   * Ember Data uses several specialized micro-queues for organizing
+    and coalescing similar async work.
+
+    These queues are currently controlled by a flush scheduled into
+    ember-data's custom backburner instance.
+   *
    * EmberData specific backburner instance
    * @property _backburner
    * @private
@@ -186,17 +192,6 @@ abstract class CoreStore extends Service {
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: CoreStore }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: CoreStore }>;
   declare _storeWrapper: RecordDataStoreWrapper;
-
-  /*
-    Ember Data uses several specialized micro-queues for organizing
-    and coalescing similar async work.
-
-    These queues are currently controlled by a flush scheduled into
-    ember-data's custom backburner instance.
-    */
-  // used for coalescing internal model updates
-  declare _updatedInternalModels: InternalModel[];
-
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
 
@@ -259,7 +254,6 @@ abstract class CoreStore extends Service {
     this._storeWrapper = new RecordDataStoreWrapper(this);
     this._backburner = edBackburner;
     this.recordArrayManager = new RecordArrayManager({ store: this });
-    this._updatedInternalModels = [];
 
     RECORD_REFERENCES._generator = (identifier) => {
       return new RecordReference(this, identifier);
@@ -3219,24 +3213,6 @@ abstract class CoreStore extends Service {
         }
       }
     }
-  }
-
-  _updateInternalModel(internalModel: InternalModel) {
-    if (this._updatedInternalModels.push(internalModel) !== 1) {
-      return;
-    }
-
-    emberBackburner.schedule('actions', this, this._flushUpdatedInternalModels);
-  }
-
-  _flushUpdatedInternalModels() {
-    let updated = this._updatedInternalModels;
-
-    for (let i = 0, l = updated.length; i < l; i++) {
-      updated[i]._triggerDeferredTriggers();
-    }
-
-    updated.length = 0;
   }
 }
 

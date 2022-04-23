@@ -137,7 +137,6 @@ export default class InternalModel {
   declare _record: RecordInstance | null;
   declare _scheduledDestroy: any;
   declare _modelClass: any;
-  declare _deferredTriggers: any;
   declare __recordArrays: any;
   declare references: any;
   declare _recordReference: RecordReference;
@@ -195,7 +194,6 @@ export default class InternalModel {
     this._relationshipPromisesCache = Object.create(null);
     this._relationshipProxyCache = Object.create(null);
     this.references = Object.create(null);
-    this._deferredTriggers = [];
     this.currentState = RootState.empty;
   }
 
@@ -306,7 +304,6 @@ export default class InternalModel {
         this.identifier,
         properties
       );
-      this._triggerDeferredTriggers();
     }
 
     return record;
@@ -362,7 +359,6 @@ export default class InternalModel {
           // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
           this._deletedRecordWasNew = true;
           this.send('deleteRecord');
-          this._triggerDeferredTriggers();
           this.unloadRecord();
         } else {
           this.send('deleteRecord');
@@ -957,35 +953,6 @@ export default class InternalModel {
     }
 
     throw new EmberError(errorMessage);
-  }
-
-  triggerLater(...args) {
-    if (this._deferredTriggers.push(args) !== 1) {
-      return;
-    }
-
-    this.store._updateInternalModel(this);
-  }
-
-  _triggerDeferredTriggers() {
-    //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
-    //but for now, we queue up all the events triggered before the record was materialized, and flush
-    //them once we have the record
-    if (!this.hasRecord) {
-      return;
-    }
-    let triggers = this._deferredTriggers;
-    let record = this._record as DSModel;
-    let trigger = record.trigger;
-    // TODO Igor make nicer check
-    if (trigger && typeof trigger === 'function') {
-      for (let i = 0, l = triggers.length; i < l; i++) {
-        let eventName = triggers[i];
-        trigger.apply(record, eventName);
-      }
-    }
-
-    triggers.length = 0;
   }
 
   removeFromInverseRelationships() {
