@@ -188,6 +188,10 @@ export interface CreateRecordProperties {
 export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends Service {
   /**
    * EmberData specific backburner instance
+   *
+   * Ember Data uses several specialized micro-queues for organizing
+   * and coalescing similar async work.
+   *
    * @property _backburner
    * @private
    */
@@ -200,17 +204,6 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
   declare _modelFactoryCache: Dict<DSModelClass>;
   declare _storeWrapper: RecordDataStoreWrapper<R>;
-
-  /*
-    Ember Data uses several specialized micro-queues for organizing
-    and coalescing similar async work.
-
-    These queues are currently controlled by a flush scheduled into
-    ember-data's custom backburner instance.
-    */
-  // used for coalescing internal model updates
-  declare _updatedInternalModels: InternalModel<R, RecordType<R>>[];
-
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
 
@@ -274,7 +267,6 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     this._storeWrapper = new RecordDataStoreWrapper(this);
     this._backburner = edBackburner;
     this.recordArrayManager = new RecordArrayManager({ store: this });
-    this._updatedInternalModels = [];
 
     RECORD_REFERENCES._generator = (identifier) => {
       return new RecordReference(this, identifier);
@@ -1516,7 +1508,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param options optional to include adapterOptions
     @return {Promise} promise
   */
-  _reloadRecord(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
+  _reloadRecord<T extends RecordType<R>>(
+    internalModel: InternalModel<R, T>,
+    options: FindOptions
+  ): Promise<InternalModel<R, T>> {
     options.isReloading = true;
     let { id, modelName } = internalModel;
     let adapter = this.adapterFor(modelName);
@@ -1633,7 +1628,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {(Relationship)} relationship
     @return {Promise} promise
   */
-  findHasMany(internalModel, link, relationship, options) {
+  findHasMany<T extends RecordType<R>>(internalModel: InternalModel<R, T>, link, relationship, options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findHasMany');
     }
@@ -1651,10 +1646,10 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return _findHasMany(adapter, this, internalModel, link, relationship, options);
   }
 
-  _findHasManyByJsonApiResource(
+  _findHasManyByJsonApiResource<T extends RecordType<R>>(
     resource,
-    parentInternalModel: InternalModel,
-    relationship: ManyRelationship,
+    parentInternalModel: InternalModel<R, T>,
+    relationship: ManyRelationship<R, T>,
     options?: Dict<unknown>
   ): Promise<void | unknown[]> {
     if (HAS_RECORD_DATA_PACKAGE) {
@@ -1717,7 +1712,12 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(internalModel, link, relationship, options): Promise<InternalModel> {
+  findBelongsTo<T extends RecordType<R>>(
+    internalModel: InternalModel<R, T>,
+    link,
+    relationship,
+    options
+  ): Promise<InternalModel<R, RT>> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
     }
@@ -1735,9 +1735,9 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
   }
 
-  _fetchBelongsToLinkFromResource(
+  _fetchBelongsToLinkFromResource<T extends RecordType<R>>(
     resource,
-    parentInternalModel: InternalModel,
+    parentInternalModel: InternalModel<R, T>,
     relationshipMeta,
     options
   ): Promise<InternalModel | null> {
@@ -2380,7 +2380,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @public
     @param {String} modelName
   */
-  unloadAll(modelName?: string) {
+  unloadAll<T extends RecordType<R>>(modelName?: T) {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'unloadAll');
     }
@@ -2394,7 +2394,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     if (modelName === undefined) {
       factory.clear();
     } else {
-      let normalizedModelName = normalizeModelName(modelName);
+      let normalizedModelName = normalizeModelName<R, T>(modelName);
       factory.clear(normalizedModelName);
     }
   }
@@ -2422,8 +2422,8 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave(
-    internalModel: InternalModel,
+  scheduleSave<T extends RecordType<R>>(
+    internalModel: InternalModel<R, T>,
     resolver: RSVP.Deferred<void>,
     options: FindOptions
   ): void | Promise<void> {
@@ -3214,7 +3214,7 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     @param {String} type
     @return Adapter
   */
-  adapterFor<T extends keyof R['adapter']>(type: T): MinimumAdapterInterface<R, T> {
+  adapterFor<T extends keyof R['adapter']>(type: T): MinimumAdapterInterface<R> {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
@@ -3398,24 +3398,6 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
         }
       }
     }
-  }
-
-  _updateInternalModel(internalModel: InternalModel) {
-    if (this._updatedInternalModels.push(internalModel) !== 1) {
-      return;
-    }
-
-    emberBackburner.schedule('actions', this, this._flushUpdatedInternalModels);
-  }
-
-  _flushUpdatedInternalModels() {
-    let updated = this._updatedInternalModels;
-
-    for (let i = 0, l = updated.length; i < l; i++) {
-      updated[i]._triggerDeferredTriggers();
-    }
-
-    updated.length = 0;
   }
 }
 

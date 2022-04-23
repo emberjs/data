@@ -12,7 +12,7 @@ export default class ImplicitRelationship<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
   F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>,
-  RT extends RelatedType<R, T, F> = RelatedType<R, T, F>
+  RT extends RecordType<R> = RelatedType<R, T, F>
 > {
   declare graph: Graph<R>;
   declare definition: UpgradedRelationshipMeta<R, T, F, RT>;

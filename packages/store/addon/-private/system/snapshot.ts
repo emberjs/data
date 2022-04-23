@@ -200,8 +200,8 @@ export default class Snapshot<R extends ResolvedRegistry = DefaultRegistry, T ex
     }
     let record = this.record;
     let attributes = (this.__attributes = Object.create(null));
-    let attrs = Object.keys(this._store._attributesDefinitionFor(this.identifier)) as RecordField<R, T>[];
-    attrs.forEach(<K extends RecordField<R, T>>(keyName: K) => {
+    let attrs = Object.keys(this._store._attributesDefinitionFor(this.identifier)) as AttributeFieldsFor<R, T>[];
+    attrs.forEach(<F extends AttributeFieldsFor<R, T>>(keyName: F) => {
       if (schemaIsDSModel(this.type)) {
         // if the schema is for a DSModel then the instance is too
         attributes[keyName] = record[keyName];

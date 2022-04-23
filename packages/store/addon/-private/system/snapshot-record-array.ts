@@ -21,7 +21,7 @@ import type Snapshot from './snapshot';
 export default class SnapshotRecordArray<R extends ResolvedRegistry, T extends RecordType<R>> {
   declare _snapshots: Snapshot<R, T>[] | null;
   declare _recordArray: RecordArray<R, T>;
-  declare _type: ModelSchema | null;
+  declare _type: ModelSchema<R, T> | null;
 
   declare length: number;
   declare meta: Dict<unknown> | null;
@@ -198,7 +198,7 @@ export default class SnapshotRecordArray<R extends ResolvedRegistry, T extends R
     @public
     @return {Array} Array of snapshots
   */
-  snapshots() {
+  snapshots(): Snapshot<R, T>[] {
     if (this._snapshots !== null) {
       return this._snapshots;
     }

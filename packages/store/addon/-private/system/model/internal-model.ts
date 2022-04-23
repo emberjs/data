@@ -161,9 +161,14 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
   declare _record: RecordInstance<R, T> | null;
   declare _scheduledDestroy: EmberRunTimer | null;
   declare _modelClass: unknown;
-  declare _deferredTriggers: unknown;
   declare __recordArrays: unknown;
-  declare references: unknown;
+  declare references: {
+    [F in RelationshipFieldsFor<R, T>]: F extends BelongsToRelationshipFieldsFor<R, T>
+      ? BelongsToRelationship<R, T, F>
+      : F extends HasManyRelationshipFieldsFor<R, T>
+      ? HasManyReference<R, T, F>
+      : never;
+  };
   declare _recordReference: RecordReference;
   declare _manyArrayCache: Dict<ManyArray<R, T>>;
 
@@ -219,7 +224,6 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     this._relationshipPromisesCache = Object.create(null);
     this._relationshipProxyCache = Object.create(null);
     this.references = Object.create(null);
-    this._deferredTriggers = [];
     this.currentState = RootState.empty;
   }
 
@@ -330,7 +334,6 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
         this.identifier,
         properties
       );
-      this._triggerDeferredTriggers();
     }
 
     return record;
@@ -386,7 +389,6 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
           // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
           this._deletedRecordWasNew = true;
           this.send('deleteRecord');
-          this._triggerDeferredTriggers();
           this.unloadRecord();
         } else {
           this.send('deleteRecord');
@@ -1043,35 +1045,6 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     throw new EmberError(errorMessage);
   }
 
-  triggerLater(...args) {
-    if (this._deferredTriggers.push(args) !== 1) {
-      return;
-    }
-
-    this.store._updateInternalModel(this);
-  }
-
-  _triggerDeferredTriggers() {
-    //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
-    //but for now, we queue up all the events triggered before the record was materialized, and flush
-    //them once we have the record
-    if (!this.hasRecord) {
-      return;
-    }
-    let triggers = this._deferredTriggers;
-    let record = this._record as DSModel;
-    let trigger = record.trigger;
-    // TODO Igor make nicer check
-    if (trigger && typeof trigger === 'function') {
-      for (let i = 0, l = triggers.length; i < l; i++) {
-        let eventName = triggers[i];
-        trigger.apply(record, eventName);
-      }
-    }
-
-    triggers.length = 0;
-  }
-
   removeFromInverseRelationships() {
     if (this.__recordData) {
       this.store._backburner.join(() => {
@@ -1267,7 +1240,7 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
     return `<${this.modelName}:${this.id}>`;
   }
 
-  referenceFor<K extends RecordField<R, T>>(kind: 'belongsTo' | 'hasMany' | null, name: K) {
+  referenceFor<K extends RelationshipFieldsFor<R, T>>(kind: 'belongsTo' | 'hasMany', name: K) {
     let reference = this.references[name];
 
     if (!reference) {
@@ -1310,50 +1283,63 @@ export default class InternalModel<R extends ResolvedRegistry, T extends RecordT
 function handleCompletedRelationshipRequest<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
+  F extends BelongsToRelationshipFieldsFor<R, T>,
   RT extends RecordType<R>
 >(
   internalModel: InternalModel<R, T>,
-  key: K,
-  relationship: BelongsToRelationship<R, T, K, RT>,
+  key: F,
+  relationship: BelongsToRelationship<R, T, F, RT>,
   value: InternalModel<R, RT> | null
 ): RecordInstance<R, RT> | null;
 function handleCompletedRelationshipRequest<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
-  RT extends RecordType<R>
->(internalModel: InternalModel<R, T>, key: K, relationship: ManyRelationship, value: ManyArray): ManyArray;
-function handleCompletedRelationshipRequest<
-  R extends ResolvedRegistry,
-  T extends RecordType<R>,
-  K extends RecordField<R, T>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
   RT extends RecordType<R>
 >(
   internalModel: InternalModel<R, T>,
-  key: K,
-  relationship: BelongsToRelationship<R, T, K, RT>,
+  key: F,
+  relationship: ManyRelationship<R, T, F, RT>,
+  value: ManyArray<R, T, F, RT>
+): ManyArray<R, T, F, RT>;
+function handleCompletedRelationshipRequest<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends BelongsToRelationshipFieldsFor<R, T>,
+  RT extends RecordType<R>
+>(
+  internalModel: InternalModel<R, T>,
+  key: F,
+  relationship: BelongsToRelationship<R, T, F, RT>,
   value: null,
   error: Error
 ): never;
 function handleCompletedRelationshipRequest<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  K extends RecordField<R, T>,
-  RT extends RecordType<R>
->(internalModel: InternalModel<R, T>, key: K, relationship: ManyRelationship, value: ManyArray, error: Error): never;
-function handleCompletedRelationshipRequest<
-  R extends ResolvedRegistry,
-  T extends RecordType<R>,
-  K extends RecordField<R, T>,
+  F extends HasManyRelationshipFieldsFor<R, T>,
   RT extends RecordType<R>
 >(
   internalModel: InternalModel<R, T>,
-  key: K,
-  relationship: BelongsToRelationship<R, T, K, RT> | ManyRelationship,
-  value: ManyArray | InternalModel<R, RT> | null,
+  key: F,
+  relationship: ManyRelationship<R, T, F, RT>,
+  value: ManyArray<R, T, F, RT>,
+  error: Error
+): never;
+function handleCompletedRelationshipRequest<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R>,
+  BF extends BelongsToRelationshipFieldsFor<R, T>,
+  MF extends HasManyRelationshipFieldsFor<R, T>
+>(
+  internalModel: InternalModel<R, T>,
+  key: F,
+  relationship: BelongsToRelationship<R, T, BF, RT> | ManyRelationship<R, T, MF, RT>,
+  value: ManyArray<R, T, F, RT> | InternalModel<R, RT> | null,
   error?: Error
-): ManyArray | RecordInstance<R, RT> | null {
+): ManyArray<R, T, F, RT> | RecordInstance<R, RT> | null {
   delete internalModel._relationshipPromisesCache[key];
   relationship.state.shouldForceReload = false;
   const isHasMany = relationship.definition.kind === 'hasMany';
@@ -1361,7 +1347,7 @@ function handleCompletedRelationshipRequest<
   if (isHasMany) {
     // we don't notify the record property here to avoid refetch
     // only the many array
-    (value as ManyArray).notify();
+    (value as ManyArray<R, T, F, RT>).notify();
   }
 
   if (error) {
@@ -1378,7 +1364,7 @@ function handleCompletedRelationshipRequest<
       if (proxy.content && proxy.content.isDestroying) {
         // TODO @types/ember__object incorrectly disallows `null`, we should either
         // override or fix upstream
-        (proxy as PromiseBelongsTo<R, T, K, RT>).set('content', null as unknown as undefined);
+        (proxy as PromiseBelongsTo<R, T, BF, RT>).set('content', null as unknown as undefined);
       }
     }
 
@@ -1386,14 +1372,14 @@ function handleCompletedRelationshipRequest<
   }
 
   if (isHasMany) {
-    (value as ManyArray).set('isLoaded', true);
+    (value as ManyArray<R, T, F, RT>).set('isLoaded', true);
   }
 
   relationship.state.hasFailedLoadAttempt = false;
   // only set to not stale if no error is thrown
   relationship.state.isStale = false;
 
-  return isHasMany || !value ? (value as ManyArray | null) : (value as InternalModel<R, RT>).getRecord();
+  return isHasMany || !value ? (value as ManyArray<R, T, F, RT> | null) : (value as InternalModel<R, RT>).getRecord();
 }
 
 export function assertRecordsPassedToHasMany(records) {
@@ -1431,7 +1417,7 @@ export function extractRecordDataFromRecord(recordOrPromiseRecord) {
   return recordDataFor(recordOrPromiseRecord);
 }
 
-function anyUnloaded(store: Store, relationship: ManyRelationship) {
+function anyUnloaded<R extends ResolvedRegistry>(store: Store<R>, relationship: ManyRelationship<R>) {
   let state = relationship.currentState;
   const unloaded = state.find((s) => {
     let im = store._internalModelForResource(s);

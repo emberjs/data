@@ -2,7 +2,7 @@ import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type { Links, Meta, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { BelongsToRelationshipFieldsFor, RecordType, RelationshipFieldsFor } from '@ember-data/types/utils';
+import type { BelongsToRelationshipFieldsFor, HasManyRelationshipFieldsFor, RecordType } from '@ember-data/types/utils';
 
 import type { ManyRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -15,7 +15,7 @@ import type { DefaultSingleResourceRelationship } from '../../ts-interfaces/rela
 export default class BelongsToRelationship<
   R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
-  F extends RelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
+  F extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
   RT extends RecordType<R> = RecordType<R>
 > {
   declare localState: StableRecordIdentifier<RT> | null;
@@ -64,7 +64,8 @@ export default class BelongsToRelationship<
     }
 
     const inverseKey = this.definition.inverseKey;
-    type RF = typeof inverseKey;
+    type RFM = HasManyRelationshipFieldsFor<R, RT>;
+    type RFB = BelongsToRelationshipFieldsFor<R, RT>;
     const callback = (inverseIdentifier: StableRecordIdentifier<RT>) => {
       if (!inverseIdentifier || !this.graph.has(inverseIdentifier, inverseKey)) {
         return;
@@ -76,11 +77,11 @@ export default class BelongsToRelationship<
       // to another record. For such cases, do not dematerialize the inverseRecordData
       if (
         relationship.definition.kind !== 'belongsTo' ||
-        !(relationship as unknown as BelongsToRelationship<R, RT, RF, T>).localState ||
-        this.identifier === (relationship as unknown as BelongsToRelationship<R, RT, RF, T>).localState
+        !(relationship as unknown as BelongsToRelationship<R, RT, RFB, T>).localState ||
+        this.identifier === (relationship as unknown as BelongsToRelationship<R, RT, RFB, T>).localState
       ) {
         (
-          relationship as unknown as BelongsToRelationship<R, RT, RF, T> | ManyRelationship<R, RT, RF, T>
+          relationship as unknown as BelongsToRelationship<R, RT, RFB, T> | ManyRelationship<R, RT, RFM, T>
         ).inverseDidDematerialize(this.identifier);
       }
     };
@@ -119,7 +120,7 @@ export default class BelongsToRelationship<
     this.notifyBelongsToChange();
   }
 
-  getData(): DefaultSingleResourceRelationship<R, T, F> {
+  getData(): DefaultSingleResourceRelationship<R, T, F, RT> {
     let data;
     let payload: any = {};
     if (this.localState) {

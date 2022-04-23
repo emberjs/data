@@ -11,6 +11,7 @@ import type {
   BelongsToRelationshipFieldsFor,
   HasManyRelationshipFieldsFor,
   RecordType,
+  RelatedType,
   RelationshipFieldsFor,
 } from '@ember-data/types/utils';
 
@@ -21,13 +22,25 @@ import type { RelationshipRecordData } from '../ts-interfaces/relationship-recor
 import type { UpdateRelationshipOperation } from './-operations';
 import type { Graph } from './index';
 
-export function assertValidRelationshipPayload<R extends ResolvedRegistry>(
-  graph: Graph<R>,
-  op: UpdateRelationshipOperation<R>
-) {
-  type T = typeof op.record.type;
-  type F = typeof op.field;
-  type Rel = ManyRelationship<R, T, F> | ImplicitRelationship<R, T, F> | BelongsToRelationship<R, T, F>;
+export function assertValidRelationshipPayload<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends HasManyRelationshipFieldsFor<R, T>
+>(graph: Graph<R>, op: UpdateRelationshipOperation<R, T, F>): void;
+export function assertValidRelationshipPayload<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends BelongsToRelationshipFieldsFor<R, T>
+>(graph: Graph<R>, op: UpdateRelationshipOperation<R, T, F>): void;
+export function assertValidRelationshipPayload<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>
+>(graph: Graph<R>, op: UpdateRelationshipOperation<R, T, F>): void {
+  type MF = HasManyRelationshipFieldsFor<R, T>;
+  type BF = BelongsToRelationshipFieldsFor<R, T>;
+  type RT = RelatedType<R, T, F>;
+  type Rel = ManyRelationship<R, T, MF, RT> | ImplicitRelationship<R, T, F, RT> | BelongsToRelationship<R, T, BF, RT>;
   const relationship = graph.get(op.record, op.field) as Rel;
   assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
 
@@ -91,15 +104,14 @@ export function isBelongsTo<
   T extends RecordType<R>,
   MF extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
   BF extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
-  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
+  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, MF>
 >(
   relationship:
-    | ManyRelationship<R, T, IF>
-    | ManyRelationship<R, T, MF>
-    | ImplicitRelationship<R, T, IF>
-    | BelongsToRelationship<R, T, BF>
-    | BelongsToRelationship<R, T, IF>
-): relationship is BelongsToRelationship<R, T, BF> {
+    | ManyRelationship<R, T, MF, RT>
+    | ImplicitRelationship<R, T, IF, RT>
+    | BelongsToRelationship<R, T, BF, RT>
+): relationship is BelongsToRelationship<R, T, BF, RT> {
   return relationship.definition.kind === 'belongsTo';
 }
 
@@ -108,15 +120,14 @@ export function isImplicit<
   T extends RecordType<R>,
   MF extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
   BF extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
-  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
+  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, MF>
 >(
   relationship:
-    | ManyRelationship<R, T, IF>
-    | ManyRelationship<R, T, MF>
-    | ImplicitRelationship<R, T, IF>
-    | BelongsToRelationship<R, T, IF>
-    | BelongsToRelationship<R, T, BF>
-): relationship is ImplicitRelationship<R, T, IF> {
+    | ManyRelationship<R, T, MF, RT>
+    | ImplicitRelationship<R, T, IF, RT>
+    | BelongsToRelationship<R, T, BF, RT>
+): relationship is ImplicitRelationship<R, T, IF, RT> {
   return relationship.definition.isImplicit;
 }
 
@@ -125,15 +136,14 @@ export function isHasMany<
   T extends RecordType<R>,
   MF extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
   BF extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>,
-  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
+  IF extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, MF>
 >(
   relationship:
-    | ManyRelationship<R, T, IF>
-    | ManyRelationship<R, T, MF>
-    | ImplicitRelationship<R, T, IF>
-    | BelongsToRelationship<R, T, IF>
-    | BelongsToRelationship<R, T, BF>
-): relationship is ManyRelationship<R, T, MF> {
+    | ManyRelationship<R, T, MF, RT>
+    | ImplicitRelationship<R, T, IF, RT>
+    | BelongsToRelationship<R, T, BF, RT>
+): relationship is ManyRelationship<R, T, MF, RT> {
   return relationship.definition.kind === 'hasMany';
 }
 
@@ -214,11 +224,13 @@ type _BF = BelongsToRelationshipFieldsFor<_R, _T>;
 declare function getType<T>(): T;
 
 let unknownRelationship = getType<
-  ManyRelationship<_R, _T, _AllRF> | BelongsToRelationship<_R, _T, _AllRF> | ImplicitRelationship<_R, _T, _AllRF>
+  | ManyRelationship<_R, _T, _MF, RelatedType<_R, _T, _AllRF>>
+  | BelongsToRelationship<_R, _T, _BF, RelatedType<_R, _T, _AllRF>>
+  | ImplicitRelationship<_R, _T, _AllRF, RelatedType<_R, _T, _AllRF>>
 >();
-let knownManyRelationship = getType<ManyRelationship<_R, _T, _MF>>();
-let knownImplicitRelationship = getType<ImplicitRelationship<_R, _T, _AllRF>>();
-let knownBelongsToRelationship = getType<BelongsToRelationship<_R, _T, _BF>>();
+let knownManyRelationship = getType<ManyRelationship<_R, _T, _MF, RelatedType<_R, _T, _AllRF>>>();
+let knownImplicitRelationship = getType<ImplicitRelationship<_R, _T, _AllRF, RelatedType<_R, _T, _AllRF>>>();
+let knownBelongsToRelationship = getType<BelongsToRelationship<_R, _T, _BF, RelatedType<_R, _T, _AllRF>>>();
 
 expectTypeOf(unknownRelationship).not.toEqualTypeOf(knownManyRelationship);
 expectTypeOf(unknownRelationship).not.toEqualTypeOf(knownBelongsToRelationship);

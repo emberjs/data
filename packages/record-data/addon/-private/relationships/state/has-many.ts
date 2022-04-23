@@ -10,10 +10,10 @@ import type {
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { ResolvedRegistry } from '@ember-data/types';
 import type {
+  BelongsToRelationshipFieldsFor,
   HasManyRelationshipFieldsFor,
   RecordType,
   RelatedType,
-  RelationshipFieldsFor,
 } from '@ember-data/types/utils';
 
 import type { BelongsToRelationship } from '../..';
@@ -26,7 +26,7 @@ import { isImplicit, isNew } from '../../graph/-utils';
 export default class ManyRelationship<
   R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
-  F extends RelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
+  F extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
   RT extends RecordType<R> = RelatedType<R, T, F>
 > {
   declare graph: Graph<R>;
@@ -90,17 +90,21 @@ export default class ManyRelationship<
       if (!inverseIdentifier || !this.graph.has(inverseIdentifier, inverseKey)) {
         return;
       }
-      let relationship = this.graph.get(inverseIdentifier, inverseKey);
+      type Rel =
+        | ManyRelationship<R, RT, HasManyRelationshipFieldsFor<R, RT>, T>
+        | BelongsToRelationship<R, RT, BelongsToRelationshipFieldsFor<R, RT>, T>;
+      let relationship = this.graph.get(inverseIdentifier, inverseKey) as unknown as Rel;
       assert(`expected no implicit`, !isImplicit(relationship));
 
       // For canonical members, it is possible that inverseRecordData has already been associated to
       // to another record. For such cases, do not dematerialize the inverseRecordData
       if (
         relationship.definition.kind !== 'belongsTo' ||
-        !(relationship as BelongsToRelationship).localState ||
-        this.identifier === (relationship as BelongsToRelationship).localState
+        !(relationship as BelongsToRelationship<R, RT, BelongsToRelationshipFieldsFor<R, RT>, T>).localState ||
+        this.identifier ===
+          (relationship as BelongsToRelationship<R, RT, BelongsToRelationshipFieldsFor<R, RT>, T>).localState
       ) {
-        (relationship as ManyRelationship | BelongsToRelationship).inverseDidDematerialize(this.identifier);
+        relationship.inverseDidDematerialize(this.identifier);
       }
     });
   }
@@ -136,14 +140,14 @@ export default class ManyRelationship<
     this.canonicalState = [];
   }
 
-  inverseDidDematerialize(inverseRecordData: StableRecordIdentifier) {
-    if (!this.definition.isAsync || (inverseRecordData && isNew(inverseRecordData))) {
+  inverseDidDematerialize(inverseIdentifier: StableRecordIdentifier<RT>) {
+    if (!this.definition.isAsync || (inverseIdentifier && isNew<R, RT>(inverseIdentifier))) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
       // if the record being unloaded only exists on the client, we similarly
       // treat it as a client side delete
-      this.removeCompletelyFromOwn(inverseRecordData);
+      this.removeCompletelyFromOwn(inverseIdentifier);
     } else {
       this.state.hasDematerializedInverse = true;
     }
@@ -157,16 +161,16 @@ export default class ManyRelationship<
     This method is useful when either a deletion or a rollback on a new record
     needs to entirely purge itself from an inverse relationship.
   */
-  removeCompletelyFromOwn(recordData: StableRecordIdentifier) {
-    this.canonicalMembers.delete(recordData);
-    this.members.delete(recordData);
+  removeCompletelyFromOwn(inverseIdentifier: StableRecordIdentifier<RT>) {
+    this.canonicalMembers.delete(inverseIdentifier);
+    this.members.delete(inverseIdentifier);
 
-    const canonicalIndex = this.canonicalState.indexOf(recordData);
+    const canonicalIndex = this.canonicalState.indexOf(inverseIdentifier);
     if (canonicalIndex !== -1) {
       this.canonicalState.splice(canonicalIndex, 1);
     }
 
-    const currentIndex = this.currentState.indexOf(recordData);
+    const currentIndex = this.currentState.indexOf(inverseIdentifier);
     if (currentIndex !== -1) {
       this.currentState.splice(currentIndex, 1);
       // This allows dematerialized inverses to be rematerialized

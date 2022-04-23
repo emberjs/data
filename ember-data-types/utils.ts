@@ -16,7 +16,7 @@ export type RelationshipFieldsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
-> = HasManyRelationshipFieldsFor<R, T, K> | BelongsToRelationshipFieldsFor<R, T, K>;
+> extends RecordField<R, T> = HasManyRelationshipFieldsFor<R, T, K> | BelongsToRelationshipFieldsFor<R, T, K>;
 export type RelationshipsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,

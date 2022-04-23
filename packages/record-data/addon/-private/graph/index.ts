@@ -34,11 +34,9 @@ import updateRelationshipOperation from './operations/update-relationship';
 export type RelationshipEdge<
   R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
-  F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>
-> =
-  | ImplicitRelationship<R, T, F, RelatedType<R, T, F>>
-  | ManyRelationship<R, T, F, RelatedType<R, T, F>>
-  | BelongsToRelationship<R, T, F, RelatedType<R, T, F>>;
+  F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, F>
+> = ImplicitRelationship<R, T, F, RT> | ManyRelationship<R, T, F, RT> | BelongsToRelationship<R, T, F, RT>;
 
 const Graphs = new WeakCache<RecordDataStoreWrapper<ResolvedRegistry>, Graph<ResolvedRegistry>>(DEBUG ? 'graph' : '');
 Graphs._generator = <R extends ResolvedRegistry>(wrapper: RecordDataStoreWrapper<R>) => {
@@ -483,8 +481,9 @@ function destroyRelationship<R extends ResolvedRegistry, T extends RecordType<R>
 function removeCompletelyFromInverse<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
-  F extends RelationshipFieldsFor<R, T>
->(relationship: RelationshipEdge<R, T, F>) {
+  F extends RelationshipFieldsFor<R, T>,
+  RT extends RecordType<R> = RelatedType<R, T, F>
+>(relationship: RelationshipEdge<R, T, F, RT>) {
   // we actually want a union of members and canonicalMembers
   // they should be disjoint but currently are not due to a bug
   const seen = Object.create(null);
@@ -495,9 +494,9 @@ function removeCompletelyFromInverse<
     const id = inverseIdentifier.lid;
 
     if (seen[id] === undefined) {
-      if (relationship.graph.has(inverseIdentifier, inverseKey as RelationshipFieldsFor<R, T1>)) {
-        const rel = relationship.graph.get(inverseIdentifier, inverseKey as RelationshipFieldsFor<R, T1>);
-        rel.removeCompletelyFromOwn(identifier as StableRecordIdentifier<typeof rel.definition.type>);
+      if (relationship.graph.has(inverseIdentifier, inverseKey as unknown as RelationshipFieldsFor<R, T1>)) {
+        const rel = relationship.graph.get(inverseIdentifier, inverseKey as unknown as RelationshipFieldsFor<R, T1>);
+        rel.removeCompletelyFromOwn(identifier as unknown as StableRecordIdentifier<typeof rel.definition.type>);
       }
       seen[id] = true;
     }
