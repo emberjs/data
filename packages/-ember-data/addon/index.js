@@ -38,7 +38,6 @@ import {
   RecordArray,
   RecordArrayManager,
   Relationship,
-  RootState,
   Snapshot,
 } from './-private';
 import setupContainer from './setup-container';
@@ -50,7 +49,6 @@ DS.PromiseObject = PromiseObject;
 DS.PromiseManyArray = PromiseManyArray;
 
 DS.Model = Model;
-DS.RootState = RootState;
 DS.attr = attr;
 DS.Errors = Errors;
 
