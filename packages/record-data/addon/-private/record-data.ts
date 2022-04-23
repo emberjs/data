@@ -145,11 +145,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return this.__attributes === null && this.__inFlightAttributes === null && this.__data === null;
   }
 
-  deleteRecord() {
-    this._isDeleted = true;
-    this.notifyStateChange();
-  }
-
   isDeleted() {
     return this._isDeleted;
   }

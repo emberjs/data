@@ -133,7 +133,6 @@ export default class InternalModel {
   declare _deletedRecordWasNew: boolean;
 
   // Not typed yet
-  declare _promiseProxy: any;
   declare _record: RecordInstance | null;
   declare _scheduledDestroy: any;
   declare _modelClass: any;
@@ -163,7 +162,6 @@ export default class InternalModel {
 
     this.__recordData = null;
 
-    this._promiseProxy = null;
     this._isDestroyed = false;
     this._doNotDestroy = false;
     this.isError = false;
@@ -434,7 +432,16 @@ export default class InternalModel {
     if (this.isDestroyed) {
       return;
     }
-    this.send('unloadRecord');
+    if (DEBUG) {
+      const requests = this.store.getRequestStateService().getPendingRequestsForRecord(this.identifier);
+      if (
+        requests.some((req) => {
+          return req.type === 'mutation';
+        })
+      ) {
+        assert('You can only unload a record which is not inFlight. `' + this + '`');
+      }
+    }
     this.dematerializeRecord();
     if (this._scheduledDestroy === null) {
       this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
@@ -760,6 +767,9 @@ export default class InternalModel {
   }
 
   setupData(data) {
+    if (this.isNew()) {
+      this.store._notificationManager.notify(this.identifier, 'identity');
+    }
     const hasRecord = this.hasRecord;
     if (hasRecord) {
       let changedKeys = this._recordData.pushData(data, true);
@@ -840,11 +850,10 @@ export default class InternalModel {
 
   adapterWillCommit(): void {
     this._recordData.willCommit();
+    if (this.hasRecord && isDSModel(this._record)) {
+      this._record.errors._clear();
+    }
     this.send('willCommit');
-  }
-
-  adapterDidDirty(): void {
-    this.send('becomeDirty');
   }
 
   send(name: string, context?) {
@@ -897,17 +906,12 @@ export default class InternalModel {
     }
   }
 
-  didCreateRecord() {
-    this._recordData.clientDidCreate();
-  }
-
   rollbackAttributes() {
     this.store._backburner.join(() => {
       let dirtyKeys = this._recordData.rollbackAttributes();
-      if (this.isError) {
-        this.didCleanError();
+      if (this.hasRecord && isDSModel(this._record)) {
+        this._record.errors._clear();
       }
-
       this.send('rolledBack');
 
       if (this.hasRecord && dirtyKeys && dirtyKeys.length > 0) {
@@ -1100,16 +1104,12 @@ export default class InternalModel {
 
   didError() {}
 
-  didCleanError() {}
-
   /*
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
     saved data.
   */
   adapterDidCommit(data) {
-    this.didCleanError();
-
     this._recordData.didCommit(data);
     this.send('didCommit');
     this.store.recordArrayManager.recordDidChange(this.identifier);

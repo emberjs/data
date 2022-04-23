@@ -1,7 +1,6 @@
 /**
   @module @ember-data/store
 */
-import { assert } from '@ember/debug';
 
 /*
   This file encapsulates the various states that a record can transition
@@ -175,8 +174,6 @@ import { assert } from '@ember/debug';
 function didSetProperty(internalModel, context) {
   if (context.isDirty) {
     internalModel.send('becomeDirty');
-  } else {
-    internalModel.send('propertyWasReset');
   }
 }
 
@@ -232,17 +229,15 @@ const DirtyState = {
   // have not yet begun to be saved, and are not invalid.
   uncommitted: {
     // EVENTS
-    didSetProperty,
-
-    //TODO(Igor) reloading now triggers a
-    //loadingData event, though it seems fine?
-    loadingData() {},
-
-    propertyWasReset(internalModel, name) {
-      if (!internalModel.hasChangedAttributes()) {
+    didSetProperty(internalModel, context) {
+      if (context.isDirty) {
+        internalModel.send('becomeDirty');
+      } else if (!internalModel.hasChangedAttributes()) {
         internalModel.send('rolledBack');
       }
     },
+
+    loadingData() {},
 
     pushedData(internalModel) {
       if (!internalModel.hasChangedAttributes()) {
@@ -254,10 +249,6 @@ const DirtyState = {
 
     willCommit(internalModel) {
       internalModel.transitionTo('inFlight');
-    },
-
-    reloadRecord(internalModel, { resolve, options }) {
-      resolve(internalModel.store._reloadRecord(internalModel, options));
     },
 
     rolledBack(internalModel) {
@@ -281,21 +272,16 @@ const DirtyState = {
     becomeDirty() {},
     pushedData() {},
 
-    unloadRecord: assertAgainstUnloadRecord,
-
-    // TODO: More robust semantics around save-while-in-flight
     willCommit() {},
 
     didCommit(internalModel) {
       internalModel.transitionTo('saved');
-      internalModel.send('invokeLifecycleCallbacks', this.dirtyType);
     },
 
     rolledBack() {},
 
     becameInvalid(internalModel) {
       internalModel.transitionTo('invalid');
-      internalModel.send('invokeLifecycleCallbacks');
     },
 
     becameError(internalModel) {
@@ -329,20 +315,16 @@ const DirtyState = {
     pushedData() {},
 
     willCommit(internalModel) {
-      clearErrorMessages(internalModel);
       internalModel.transitionTo('inFlight');
     },
 
     rolledBack(internalModel) {
-      clearErrorMessages(internalModel);
       internalModel.transitionTo('loaded.saved');
     },
 
     becameValid(internalModel) {
       internalModel.transitionTo('uncommitted');
     },
-
-    invokeLifecycleCallbacks() {},
   },
 };
 
@@ -383,10 +365,6 @@ const createdState = dirtyState({
   dirtyType: 'created',
   // FLAGS
   isNew: true,
-
-  setup(internalModel) {
-    internalModel.store.recordArrayManager.recordDidChange(internalModel.identifier);
-  },
 });
 
 createdState.invalid.rolledBack = function (internalModel) {
@@ -403,7 +381,6 @@ const updatedState = dirtyState({
 
 function createdStateDeleteRecord(internalModel) {
   internalModel.transitionTo('deleted.saved');
-  internalModel.send('invokeLifecycleCallbacks');
 }
 
 createdState.uncommitted.deleteRecord = createdStateDeleteRecord;
@@ -411,16 +388,8 @@ createdState.uncommitted.deleteRecord = createdStateDeleteRecord;
 createdState.invalid.deleteRecord = createdStateDeleteRecord;
 
 createdState.uncommitted.pushedData = function (internalModel) {
-  // TODO @runspired consider where to do this once we kill off state machine
-  internalModel.store._notificationManager.notify(internalModel.identifier, 'identity');
   internalModel.transitionTo('loaded.updated.uncommitted');
 };
-
-createdState.uncommitted.propertyWasReset = function () {};
-
-function assertAgainstUnloadRecord(internalModel) {
-  assert('You can only unload a record which is not inFlight. `' + internalModel + '`', false);
-}
 
 updatedState.invalid.becameValid = function (internalModel) {
   // we're eagerly transition into the loaded.saved state, even though we could
@@ -429,14 +398,11 @@ updatedState.invalid.becameValid = function (internalModel) {
   internalModel.transitionTo('loaded.saved');
 };
 
-updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
-
 updatedState.uncommitted.deleteRecord = function (internalModel) {
   internalModel.transitionTo('deleted.uncommitted');
 };
 
 updatedState.invalid.rolledBack = function (internalModel) {
-  clearErrorMessages(internalModel);
   internalModel.transitionTo('loaded.saved');
 };
 
@@ -458,9 +424,6 @@ const RootState = {
   // in-flight state, rolling back the record doesn't move
   // you out of the in-flight state.
   rolledBack() {},
-  unloadRecord(internalModel) {},
-
-  propertyWasReset() {},
 
   // SUBSTATES
 
@@ -475,10 +438,6 @@ const RootState = {
     // EVENTS
     loadingData(internalModel, promise) {
       internalModel.transitionTo('loading');
-    },
-
-    loadedData(internalModel) {
-      internalModel.transitionTo('loaded.created.uncommitted');
     },
 
     pushedData(internalModel) {
@@ -500,17 +459,11 @@ const RootState = {
     // FLAGS
     isLoading: true,
 
-    exit(internalModel) {
-      internalModel._promiseProxy = null;
-    },
-
     loadingData() {},
 
     // EVENTS
     pushedData(internalModel) {
       internalModel.transitionTo('loaded.saved');
-      //TODO this seems out of place here
-      internalModel.didCleanError();
     },
 
     becameError() {},
@@ -529,8 +482,6 @@ const RootState = {
     // FLAGS
     isLoaded: true,
 
-    //TODO(Igor) Reloading now triggers a loadingData event,
-    //but it should be ok?
     loadingData() {},
 
     // SUBSTATES
@@ -540,7 +491,7 @@ const RootState = {
     saved: {
       setup(internalModel) {
         if (internalModel.hasChangedAttributes()) {
-          internalModel.adapterDidDirty();
+          internalModel.transitionTo('updated.uncommitted');
         }
       },
 
@@ -557,13 +508,9 @@ const RootState = {
         internalModel.transitionTo('updated.inFlight');
       },
 
-      reloadRecord() {},
-
       deleteRecord(internalModel) {
         internalModel.transitionTo('deleted.uncommitted');
       },
-
-      unloadRecord(internalModel) {},
 
       didCommit() {},
 
@@ -592,11 +539,6 @@ const RootState = {
     isDeleted: true,
     isLoaded: true,
     isDirty: true,
-
-    // TRANSITIONS
-    setup(internalModel) {
-      internalModel.store.recordArrayManager.recordDidChange(internalModel.identifier);
-    },
 
     // SUBSTATES
 
@@ -629,14 +571,9 @@ const RootState = {
 
       // EVENTS
 
-      unloadRecord: assertAgainstUnloadRecord,
-
-      // TODO: More robust semantics around save-while-in-flight
       willCommit() {},
       didCommit(internalModel) {
         internalModel.transitionTo('saved');
-
-        internalModel.send('invokeLifecycleCallbacks');
       },
 
       becameError(internalModel) {
@@ -655,12 +592,6 @@ const RootState = {
       // FLAGS
       isDirty: false,
 
-      setup(internalModel) {
-        internalModel.removeFromInverseRelationships();
-      },
-
-      invokeLifecycleCallbacks() {},
-
       willCommit() {},
       didCommit() {},
       pushedData() {},
@@ -670,8 +601,6 @@ const RootState = {
       isValid: false,
 
       didSetProperty(internalModel, context) {
-        internalModel.getRecord().errors._remove(context.name);
-
         didSetProperty(internalModel, context);
 
         if (!internalModel.hasErrors()) {
@@ -685,7 +614,6 @@ const RootState = {
       willCommit() {},
 
       rolledBack(internalModel) {
-        clearErrorMessages(internalModel);
         internalModel.transitionTo('loaded.saved');
       },
 
@@ -694,12 +622,9 @@ const RootState = {
       },
     },
   },
-
-  invokeLifecycleCallbacks() {},
 };
 
 function wireState(object, parent, name) {
-  // TODO: Use Object.create and copy instead
   object = mixin(parent ? Object.create(parent) : {}, object);
   object.parentState = parent;
   object.stateName = name;
@@ -714,10 +639,6 @@ function wireState(object, parent, name) {
   }
 
   return object;
-}
-
-function clearErrorMessages(internalModel) {
-  internalModel.getRecord().errors._clear();
 }
 
 export default wireState(RootState, null, 'root');
