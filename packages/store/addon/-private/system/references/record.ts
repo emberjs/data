@@ -192,7 +192,7 @@ export default class RecordReference extends Reference {
   value(): RecordInstance | null {
     if (this.id() !== null) {
       let internalModel = internalModelFactoryFor(this.store).peek(this.#identifier);
-      if (internalModel && internalModel.currentState.isLoaded) {
+      if (internalModel && internalModel.isLoaded) {
         return internalModel.getRecord();
       }
     }

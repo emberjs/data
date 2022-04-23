@@ -522,17 +522,6 @@ class Model extends EmberObject {
   @computeOnce
   get errors() {
     let errors = Errors.create();
-
-    errors._registerHandlers(
-      () => {
-        this._internalModel.send('becameInvalid');
-        this.___recordState.notify('isValid');
-      },
-      () => {
-        this._internalModel.send('becameValid');
-        this.___recordState.notify('isValid');
-      }
-    );
     // TODO we should unify how errors gets populated
     // with the code managing the update. Probably a
     // lazy flush similar to retrieveLatest in ManyArray
@@ -545,7 +534,7 @@ class Model extends EmberObject {
         let errorKeys = Object.keys(errorsHash);
 
         for (let i = 0; i < errorKeys.length; i++) {
-          errors._add(errorKeys[i], errorsHash[errorKeys[i]]);
+          errors.add(errorKeys[i], errorsHash[errorKeys[i]]);
         }
       }
     }

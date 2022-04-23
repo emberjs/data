@@ -9,7 +9,6 @@ import { importSync } from '@embroider/macros';
 import RSVP, { resolve } from 'rsvp';
 
 import type { ManyArray } from '@ember-data/model/-private';
-import RecordState from '@ember-data/model/-private/record-state';
 import type { ManyArrayCreateArgs } from '@ember-data/model/-private/system/many-array';
 import type {
   BelongsToProxyCreateArgs,
@@ -45,7 +44,6 @@ import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
-import RootState from './states';
 
 type PrivateModelModule = {
   ManyArray: { create(args: ManyArrayCreateArgs): ManyArray };
@@ -144,8 +142,6 @@ export default class InternalModel {
   declare _relationshipPromisesCache: Dict<Promise<ManyArray | RecordInstance>>;
   declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo>;
   declare error: any;
-  declare currentState: RecordState;
-  declare _previousState: any;
   declare store: CoreStore;
   declare identifier: StableRecordIdentifier;
 
@@ -192,7 +188,6 @@ export default class InternalModel {
     this._relationshipPromisesCache = Object.create(null);
     this._relationshipProxyCache = Object.create(null);
     this.references = Object.create(null);
-    this.currentState = RootState.empty;
   }
 
   get id(): string | null {
@@ -241,11 +236,11 @@ export default class InternalModel {
     // models to rematerialize their records.
 
     // eager checks to avoid instantiating record data if we are empty or loading
-    if (this.currentState.isEmpty) {
+    if (!this.__recordData || !this.hasRecord) {
       return true;
     }
 
-    if (this.currentState.isLoading) {
+    if (this.isLoading) {
       return false;
     }
 
@@ -264,7 +259,7 @@ export default class InternalModel {
     ) {
       return true;
     } else {
-      return this.currentState.stateName === 'root.deleted.saved';
+      return false;
     }
   }
 
@@ -272,7 +267,7 @@ export default class InternalModel {
     if (this._recordData.isDeleted) {
       return this._recordData.isDeleted();
     } else {
-      return this.currentState.isDeleted;
+      return false;
     }
   }
 
@@ -280,7 +275,7 @@ export default class InternalModel {
     if (this._recordData.isNew) {
       return this._recordData.isNew();
     } else {
-      return this.currentState.isNew;
+      return false;
     }
   }
 
@@ -376,8 +371,6 @@ export default class InternalModel {
 
     this._record = null;
     this.error = null;
-    this._previousState = this.currentState;
-    this.currentState = RootState.empty;
     this.store.recordArrayManager.recordDidChange(this.identifier);
   }
 
@@ -392,10 +385,7 @@ export default class InternalModel {
         if (this.isNew()) {
           // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
           this._deletedRecordWasNew = true;
-          this.send('deleteRecord');
           this.unloadRecord();
-        } else {
-          this.send('deleteRecord');
         }
       });
     });
@@ -511,6 +501,29 @@ export default class InternalModel {
     );
   }
 
+  get isEmpty(): boolean {
+    return !this.__recordData || (!this.isNew() && this._recordData.isEmpty?.()) || false;
+  }
+  get isLoading() {
+    const req = this.store.getRequestStateService();
+    const { identifier } = this;
+    const fulfilled = req.getLastRequestForRecord(identifier);
+    return (
+      !this.isLoaded &&
+      fulfilled === null &&
+      req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+    );
+  }
+  get isLoaded() {
+    if (this.isNew()) {
+      return true;
+    }
+    const req = this.store.getRequestStateService();
+    const { identifier } = this;
+    const fulfilled = req.getLastRequestForRecord(identifier);
+    return fulfilled !== null || !this.isEmpty;
+  }
+
   getBelongsTo(key: string, options?: Dict<unknown>): PromiseBelongsTo | RecordInstance | null {
     let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     let identifier =
@@ -557,7 +570,7 @@ export default class InternalModel {
             "' with id " +
             parentInternalModel.id +
             ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`belongsTo({ async: true })`)',
-          toReturn === null || !internalModel.currentState.isEmpty
+          toReturn === null || !internalModel.isEmpty
         );
         return toReturn;
       }
@@ -777,7 +790,6 @@ export default class InternalModel {
     } else {
       this._recordData.pushData(data);
     }
-    this.send('pushedData');
   }
 
   notifyAttributes(keys: string[]): void {
@@ -810,11 +822,9 @@ export default class InternalModel {
     let currentValue = this._recordData.getAttr(key);
     if (currentValue !== value) {
       this._recordData.setDirtyAttribute(key, value);
-      let isDirty = this._recordData.isAttrDirty(key);
-      this.send('didSetProperty', {
-        name: key,
-        isDirty: isDirty,
-      });
+      if (this.hasRecord && isDSModel(this._record)) {
+        this._record.errors.remove(key);
+      }
     }
 
     return value;
@@ -851,19 +861,8 @@ export default class InternalModel {
   adapterWillCommit(): void {
     this._recordData.willCommit();
     if (this.hasRecord && isDSModel(this._record)) {
-      this._record.errors._clear();
+      this._record.errors.clear();
     }
-    this.send('willCommit');
-  }
-
-  send(name: string, context?) {
-    let currentState = this.currentState;
-
-    if (!currentState[name]) {
-      this._unhandledEvent(currentState, name, context);
-    }
-
-    return currentState[name](this, context);
   }
 
   notifyHasManyChange(key: string) {
@@ -910,77 +909,13 @@ export default class InternalModel {
     this.store._backburner.join(() => {
       let dirtyKeys = this._recordData.rollbackAttributes();
       if (this.hasRecord && isDSModel(this._record)) {
-        this._record.errors._clear();
+        this._record.errors.clear();
       }
-      this.send('rolledBack');
 
       if (this.hasRecord && dirtyKeys && dirtyKeys.length > 0) {
         this.notifyAttributes(dirtyKeys);
       }
     });
-  }
-
-  transitionTo(name: string) {
-    // POSSIBLE TODO: Remove this code and replace with
-    // always having direct reference to state objects
-
-    let pivotName = extractPivotName(name);
-    let state: any = this.currentState;
-    let transitionMapId = `${state.stateName}->${name}`;
-
-    do {
-      if (state.exit) {
-        state.exit(this);
-      }
-      state = state.parentState;
-    } while (!state[pivotName]);
-
-    let setups;
-    let enters;
-    let i;
-    let l;
-    let map = TransitionChainMap[transitionMapId];
-
-    if (map) {
-      setups = map.setups;
-      enters = map.enters;
-      state = map.state;
-    } else {
-      setups = [];
-      enters = [];
-
-      let path = splitOnDot(name);
-
-      for (i = 0, l = path.length; i < l; i++) {
-        state = state[path[i]];
-
-        if (state.enter) {
-          enters.push(state);
-        }
-        if (state.setup) {
-          setups.push(state);
-        }
-      }
-
-      TransitionChainMap[transitionMapId] = { setups, enters, state };
-    }
-
-    for (i = 0, l = enters.length; i < l; i++) {
-      enters[i].enter(this);
-    }
-
-    this.currentState = state;
-
-    // isDSModel is the guard we want, but may be too restrictive if
-    // ember-m3 / ember-data-model-fragments were relying on this still.
-    if (this.hasRecord && isDSModel(this._record)) {
-      // TODO eliminate this.
-      this.notifyStateChange('currentState');
-    }
-
-    for (i = 0, l = setups.length; i < l; i++) {
-      setups[i].setup(this);
-    }
   }
 
   _unhandledEvent(state, name: string, context) {
@@ -1111,7 +1046,6 @@ export default class InternalModel {
   */
   adapterDidCommit(data) {
     this._recordData.didCommit(data);
-    this.send('didCommit');
     this.store.recordArrayManager.recordDidChange(this.identifier);
 
     if (!data) {
@@ -1147,19 +1081,17 @@ export default class InternalModel {
         let errors = record.errors;
         for (attribute in parsedErrors) {
           if (hasOwnProperty.call(parsedErrors, attribute)) {
-            errors._add(attribute, parsedErrors[attribute]);
+            errors.add(attribute, parsedErrors[attribute]);
           }
         }
       }
 
       let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
-      this.send('becameInvalid');
       if (jsonApiErrors.length === 0) {
         jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
       }
       this._recordData.commitWasRejected(this.identifier, jsonApiErrors);
     } else {
-      this.send('becameError');
       this._recordData.commitWasRejected(this.identifier);
     }
   }
@@ -1169,8 +1101,6 @@ export default class InternalModel {
   }
 
   adapterDidError() {
-    this.send('becameError');
-
     this._recordData.commitWasRejected();
   }
 
@@ -1332,7 +1262,7 @@ function anyUnloaded(store: CoreStore, relationship: ManyRelationship) {
   let state = relationship.currentState;
   const unloaded = state.find((s) => {
     let im = store._internalModelForResource(s);
-    return im._isDematerializing || !im.currentState.isLoaded;
+    return im._isDematerializing || !im.isLoaded;
   });
 
   return unloaded || false;

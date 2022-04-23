@@ -101,24 +101,6 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T, M = T>() 
   @extends Ember.ArrayProxy
  */
 export default class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
-  declare _registeredHandlers?: {
-    becameInvalid: () => void;
-    becameValid: () => void;
-  };
-
-  /**
-    Register with target handler
-
-    @method _registerHandlers
-    @private
-  */
-  _registerHandlers(becameInvalid: () => void, becameValid: () => void): void {
-    this._registeredHandlers = {
-      becameInvalid,
-      becameValid,
-    };
-  }
-
   /**
     @property errorsByAttributeName
     @type {MapWithDefault}
@@ -266,22 +248,6 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     @param {string[]|string} messages - an error message or array of error messages for the attribute
    */
   add(attribute: string, messages: string[] | string): void {
-    let wasEmpty: boolean = this.isEmpty;
-
-    this._add(attribute, messages);
-
-    if (wasEmpty && !this.isEmpty) {
-      this._registeredHandlers && this._registeredHandlers.becameInvalid();
-    }
-  }
-
-  /**
-    Adds error messages to a given attribute without sending event.
-
-    @method _add
-    @private
-  */
-  _add(attribute: string, messages: string[] | string) {
     const errors = this._findOrCreateMessages(attribute, messages);
     this.addObjects(errors);
 
@@ -343,24 +309,6 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
    @param {string} member - the property name of an attribute or relationship
    */
   remove(attribute: string) {
-    if (this.isEmpty) {
-      return;
-    }
-
-    this._remove(attribute);
-
-    if (this.isEmpty) {
-      this._registeredHandlers && this._registeredHandlers.becameValid();
-    }
-  }
-
-  /**
-    Removes all error messages from the given attribute without sending event.
-
-    @method _remove
-    @private
-  */
-  _remove(attribute: string) {
     if (this.isEmpty) {
       return;
     }
@@ -427,22 +375,6 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
       return;
     }
 
-    this._clear();
-    this._registeredHandlers && this._registeredHandlers.becameValid();
-  }
-
-  /**
-    Removes all error messages.
-    to the record.
-
-    @method _clear
-    @private
-  */
-  _clear(): void {
-    if (this.isEmpty) {
-      return;
-    }
-
     let errorsByAttributeName = this.errorsByAttributeName;
     let attributes: string[] = [];
 
@@ -455,7 +387,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
       this.notifyPropertyChange(attribute);
     });
 
-    ArrayProxy.prototype.clear.call(this);
+    super.clear();
   }
 
   /**

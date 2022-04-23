@@ -526,7 +526,6 @@ abstract class CoreStore extends Service {
         const factory = internalModelFactoryFor(this);
         const internalModel = factory.build({ type: normalizedModelName, id: properties.id });
 
-        internalModel.transitionTo('loaded.created.uncommitted');
         internalModel._recordData.clientDidCreate();
         this.recordArrayManager.recordDidChange(internalModel.identifier);
 
@@ -1061,7 +1060,7 @@ abstract class CoreStore extends Service {
     const internalModel = internalModelFactoryFor(this).lookup(resource);
     options = options || {};
 
-    if (!internalModel.currentState.isLoaded) {
+    if (!internalModel.isLoaded) {
       return promiseRecord(
         this._findByInternalModel(internalModel, options),
         `DS: Store#findRecord ${internalModel.identifier}`
@@ -1119,11 +1118,11 @@ abstract class CoreStore extends Service {
   }
 
   _findEmptyInternalModel(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
-    if (internalModel.currentState.isEmpty) {
+    if (internalModel.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
 
-    if (internalModel.currentState.isLoading) {
+    if (internalModel.isLoading) {
       let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
       if (pendingRequest) {
         return pendingRequest.then(() => resolve(internalModel));
@@ -1177,8 +1176,6 @@ abstract class CoreStore extends Service {
 
   _scheduleFetch(internalModel: InternalModel, options = {}): Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
-    // TODO  remove this once we don't rely on state machine
-    internalModel.send('loadingData');
     let identifier = internalModel.identifier;
 
     assertIdentifierHasId(identifier);
@@ -1200,9 +1197,7 @@ abstract class CoreStore extends Service {
         }
       },
       (error) => {
-        // TODO  remove this once we don't rely on state machine
-        internalModel.send('notFound');
-        if (internalModel.currentState.isEmpty) {
+        if (internalModel.isEmpty) {
           internalModel.unloadRecord();
         }
         throw error;
@@ -1418,7 +1413,7 @@ abstract class CoreStore extends Service {
     const identifier = this.identifierCache.peekRecordIdentifier(resource);
     const internalModel = identifier && internalModelFactoryFor(this).peek(identifier);
 
-    return !!internalModel && internalModel.currentState.isLoaded;
+    return !!internalModel && internalModel.isLoaded;
   }
 
   /**
@@ -2444,8 +2439,8 @@ abstract class CoreStore extends Service {
     // store.push will be from empty
     // findRecord will be from root.loading
     // all else will be updates
-    const isLoading = internalModel.currentState.stateName === 'root.loading';
-    const isUpdate = internalModel.currentState.isEmpty === false && !isLoading;
+    const isLoading = internalModel.isLoading;
+    const isUpdate = internalModel.isEmpty === false && !isLoading;
 
     // exclude store.push (root.empty) case
     let identifier = internalModel.identifier;
@@ -2943,7 +2938,6 @@ abstract class CoreStore extends Service {
     let internalModel: InternalModel;
     if (isCreate === true) {
       internalModel = internalModelFactoryFor(this).build({ type: identifier.type, id: null });
-      internalModel.transitionTo('loaded.created.uncommitted');
       internalModel._recordData.clientDidCreate();
       this.recordArrayManager.recordDidChange(internalModel.identifier);
     } else {
@@ -3256,7 +3250,7 @@ function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelations
     // treat as collection
     // check for unloaded records
     let hasEmptyRecords = resource.data.reduce((hasEmptyModel, resourceIdentifier) => {
-      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).currentState.isEmpty;
+      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).isEmpty;
     }, false);
 
     return !hasEmptyRecords;
@@ -3266,7 +3260,7 @@ function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelations
       return true;
     } else {
       const internalModel = internalModelForRelatedResource(store, cache, resource.data);
-      return !internalModel.currentState.isEmpty;
+      return !internalModel.isEmpty;
     }
   }
 }
