@@ -267,10 +267,6 @@ const DirtyState = {
     becameInvalid(internalModel) {
       internalModel.transitionTo('invalid');
     },
-
-    rollback(internalModel) {
-      internalModel.rollbackAttributes();
-    },
   },
 
   // Once a record has been handed off to the adapter to be
@@ -413,11 +409,6 @@ function createdStateDeleteRecord(internalModel) {
 createdState.uncommitted.deleteRecord = createdStateDeleteRecord;
 
 createdState.invalid.deleteRecord = createdStateDeleteRecord;
-
-createdState.uncommitted.rollback = function (internalModel) {
-  DirtyState.uncommitted.rollback.apply(this, arguments);
-  internalModel.transitionTo('deleted.saved');
-};
 
 createdState.uncommitted.pushedData = function (internalModel) {
   // TODO @runspired consider where to do this once we kill off state machine
@@ -617,10 +608,6 @@ const RootState = {
 
       willCommit(internalModel) {
         internalModel.transitionTo('inFlight');
-      },
-
-      rollback(internalModel) {
-        internalModel.rollbackAttributes();
       },
 
       pushedData() {},
