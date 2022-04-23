@@ -78,7 +78,7 @@
     "ember-cli-app-version": "^5.0.0",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-blueprint-test-helpers": "^0.19.1",
-    "ember-cli-dependency-checker": "^3.2.0",
+    "ember-cli-dependency-checker": "^3.3.1",
     "ember-cli-htmlbars": "^6.0.1",
     "ember-cli-inject-live-reload": "^2.0.2",
     "ember-cli-path-utils": "^1.0.0",
