@@ -19,8 +19,7 @@ export { default as coerceId } from './system/coerce-id';
 
 export { errorsHashToArray, errorsArrayToHash } from './system/errors-utils';
 
-// `ember-data-model-fragments` relies on `RootState` and `InternalModel`
-export { default as RootState } from './system/model/states';
+// `ember-data-model-fragments` relies on `InternalModel`
 export { default as InternalModel } from './system/model/internal-model';
 
 export { PromiseArray, PromiseObject, deprecatedPromiseObject } from './system/promise-proxies';

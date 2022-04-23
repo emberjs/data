@@ -80,32 +80,6 @@ if (HAS_MODEL_PACKAGE) {
   };
 }
 
-/*
-  The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
-  when transitioning from one state to another, so that future transitions can replay the
-  transition without needing to walk the state tree, collect these hook calls and determine
-   the state to transition into.
-
-   A future optimization would be to build a single chained method out of the collected enters
-   and setups. It may also be faster to do a two level cache (from: { to }) instead of caching based
-   on a key that adds the two together.
- */
-// TODO before deleting the state machine we should
-// ensure all things in this map were properly accounted for.
-// in the RecordState class.
-const TransitionChainMap = Object.create(null);
-
-const _extractPivotNameCache = Object.create(null);
-const _splitOnDotCache = Object.create(null);
-
-function splitOnDot(name: string): string[] {
-  return _splitOnDotCache[name] || (_splitOnDotCache[name] = name.split('.'));
-}
-
-function extractPivotName(name: string): string {
-  return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
-}
-
 function isDSModel(record: RecordInstance | null): record is DSModel {
   return (
     HAS_MODEL_PACKAGE &&
