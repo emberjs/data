@@ -25,7 +25,7 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
   return 'recordIdentifier' in op;
 }
 
-export default class RequestCache<R extends ResolvedRegistry, T extends RecordType<R>> {
+export default class RequestCache<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> {
   _pending: { [lid: string]: InternalRequest<R, T>[] } = Object.create(null);
   _done: { [lid: string]: InternalRequest<R, T>[] } = Object.create(null);
   _subscriptions: { [lid: string]: Function[] } = Object.create(null);

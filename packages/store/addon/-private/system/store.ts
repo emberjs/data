@@ -480,14 +480,14 @@ export default class Store<R extends ResolvedRegistry = DefaultRegistry> extends
     this._schemaDefinitionService = schema;
   }
 
-  _relationshipMetaFor<T extends RecordType<R>, K extends RecordField<R, T>, RT extends RecordType<R> = RecordType<R>>(
-    modelName: T,
-    id: string | null,
-    key: K
-  ): RelationshipSchema<R, T, K, RT> {
+  _relationshipMetaFor<
+    T extends RecordType<R>,
+    F extends RelationshipFieldsFor<R, T>,
+    RT extends RecordType<R> = RelatedType<R, T, F>
+  >(modelName: T, id: string | null, key: F): RelationshipSchema<R, T, F, RT> {
     const relationships = this._relationshipsDefinitionFor<T>({ type: modelName });
     assert(`Expected to find a relationships definition for ${modelName}`, relationships);
-    const relationship = relationships[key] as unknown as RelationshipSchema<R, T, K, RT>;
+    const relationship = relationships[key] as unknown as RelationshipSchema<R, T, F, RT>;
     assert(`Expected to find a relationships definition for ${modelName} field ${key}`, relationship);
     return relationship;
   }

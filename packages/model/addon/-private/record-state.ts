@@ -7,7 +7,10 @@ import { errorsArrayToHash } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
 import type RequestCache from '@ember-data/store/-private/system/request-cache';
 import type Store from '@ember-data/store/-private/system/store';
+import { RequestState } from '@ember-data/store/-private/ts-interfaces/fetch-manager';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
 
 import notifyChanges from './notify-changes';
 
@@ -138,18 +141,18 @@ root
 
   @internal
 */
-export default class RecordState {
-  declare store: Store;
-  declare identifier: StableRecordIdentifier;
+export default class RecordState<R extends ResolvedRegistry, T extends RecordType<R>> {
+  declare store: Store<R>;
+  declare identifier: StableRecordIdentifier<T>;
   declare record: Model;
-  declare rs: RequestCache;
+  declare rs: RequestCache<R>;
 
   declare pendingCount: number;
   declare fulfilledCount: number;
   declare rejectedCount: number;
-  declare recordData: RecordData;
-  declare _errorRequests: any[];
-  declare _lastError: any;
+  declare recordData: RecordData<R, T>;
+  declare _errorRequests: RequestState<R>[];
+  declare _lastError: RequestState<R> | null;
 
   constructor(record: Model) {
     const { store } = record;
@@ -435,7 +438,7 @@ export default class RecordState {
   }
 }
 
-function notifyErrorsStateChanged(state: RecordState) {
+function notifyErrorsStateChanged<R extends ResolvedRegistry, T extends RecordType<R>>(state: RecordState<R, T>) {
   state.notify('isValid');
   state.notify('isError');
   state.notify('adapterError');

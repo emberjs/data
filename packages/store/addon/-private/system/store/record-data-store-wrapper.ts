@@ -10,6 +10,7 @@ import type {
   HasManyRelationshipFieldsFor,
   RecordField,
   RecordType,
+  RelatedField,
   RelationshipFieldsFor,
 } from '@ember-data/types/utils';
 
@@ -30,10 +31,12 @@ import { internalModelFactoryFor } from './internal-model-factory';
   @module @ember-data/store
 */
 
-function metaIsRelationshipDefinition<R extends ResolvedRegistry, T extends RecordType<R>, K extends RecordField<R, T>>(
-  meta: RelationshipSchema<R, T, K>
-): meta is RelationshipDefinition<R, T, K> {
-  return typeof (meta as RelationshipDefinition<R, T, K>)._inverseKey === 'function';
+function metaIsRelationshipDefinition<
+  R extends ResolvedRegistry,
+  T extends RecordType<R>,
+  F extends RelationshipFieldsFor<R, T>
+>(meta: RelationshipSchema<R, T, F> | RelationshipDefinition<R, T, F>): meta is RelationshipDefinition<R, T, F> {
+  return typeof (meta as unknown as RelationshipDefinition<R, T, F>)._inverseKey === 'function';
 }
 
 let peekGraph;
@@ -67,7 +70,7 @@ interface RecordMap<R extends ResolvedRegistry> {
 }
 
 export default class RecordDataStoreWrapper<R extends ResolvedRegistry = ResolvedRegistry<DefaultRegistry>>
-  implements StoreWrapper
+  implements StoreWrapper<R>
 {
   declare _willNotify: boolean;
   declare _pendingNotifies: RecordMap<R>;
@@ -151,9 +154,12 @@ export default class RecordDataStoreWrapper<R extends ResolvedRegistry = Resolve
     return this._store._relationshipsDefinitionFor({ type });
   }
 
-  inverseForRelationship<T extends RecordType<R>>(type: T, key: RelationshipFieldsFor<R, T>): RecordType<R> | null {
+  inverseForRelationship<T extends RecordType<R>, F extends RelationshipFieldsFor<R, T>>(
+    type: T,
+    key: F
+  ): RelatedField<R, T, F> | null {
     const modelClass = this._store.modelFor(type);
-    const definition = this.relationshipsDefinitionFor(type)[key];
+    const definition = this.relationshipsDefinitionFor(type)[key] as unknown as RelationshipSchema<R, T, F>;
     if (!definition) {
       return null;
     }
@@ -161,7 +167,7 @@ export default class RecordDataStoreWrapper<R extends ResolvedRegistry = Resolve
     if (metaIsRelationshipDefinition(definition)) {
       return definition._inverseKey(this._store, modelClass);
     } else if (definition.options && definition.options.inverse !== undefined) {
-      return definition.options.inverse;
+      return definition.options.inverse as RelatedField<R, T, F> | null;
     } else {
       return null;
     }
@@ -292,7 +298,7 @@ export default class RecordDataStoreWrapper<R extends ResolvedRegistry = Resolve
     return this._store.recordDataFor(identifier, isCreate);
   }
 
-  setRecordId(type: string, id: string, lid: string) {
+  setRecordId<T extends RecordType<R>>(type: T, id: string, lid: string) {
     this._store.setRecordId(type, id, lid);
   }
 

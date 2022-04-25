@@ -1,1 +1,1 @@
-export const VERSION: string = '';
+export const VERSION: string;

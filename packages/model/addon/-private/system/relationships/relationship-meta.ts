@@ -6,7 +6,7 @@ import { normalizeModelName } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/store';
 import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import type { ResolvedRegistry } from '@ember-data/types';
-import type { RecordField, RecordType } from '@ember-data/types/utils';
+import type { RecordType, RelatedField, RelationshipFieldsFor } from '@ember-data/types/utils';
 
 /**
   @module @ember-data/store
@@ -30,19 +30,19 @@ function shouldFindInverse(relationshipMeta) {
 export class RelationshipDefinition<
   R extends ResolvedRegistry,
   OT extends RecordType<R>,
-  K extends RecordField<R, OT>,
+  OF extends RelationshipFieldsFor<R, OT>,
   RT extends RecordType<R> = RecordType<R>
-> implements RelationshipSchema<R, OT, K, RT>
+> implements RelationshipSchema<R, OT, OF, RT>
 {
   declare _type: RT | '';
-  declare __inverseKey: string;
+  declare __inverseKey: string | null;
   declare __inverseIsAsync: boolean;
   declare __hasCalculatedInverse: boolean;
   declare parentModelName: OT;
   declare inverseIsAsync: string | null;
-  declare meta: RelationshipSchema<R, OT, K, RT>;
+  declare meta: RelationshipSchema<R, OT, OF, RT>;
 
-  constructor(meta: RelationshipSchema<R, OT, K, RT>) {
+  constructor(meta: RelationshipSchema<R, OT, OF, RT>) {
     this._type = '';
     this.__inverseKey = '';
     this.__inverseIsAsync = true;
@@ -55,7 +55,7 @@ export class RelationshipDefinition<
    * @internal
    * @deprecated use name
    */
-  get key(): K {
+  get key(): OF {
     return this.meta.key;
   }
   get kind(): 'belongsTo' | 'hasMany' {
@@ -75,15 +75,15 @@ export class RelationshipDefinition<
   get options(): { [key: string]: any } {
     return this.meta.options;
   }
-  get name(): K {
+  get name(): OF {
     return this.meta.name;
   }
 
-  _inverseKey(store: Store<R>, modelClass): string {
+  _inverseKey(store: Store<R>, modelClass): RelatedField<R, OT, OF> | null {
     if (this.__hasCalculatedInverse === false) {
       this._calculateInverse(store, modelClass);
     }
-    return this.__inverseKey;
+    return this.__inverseKey as RelatedField<R, OT, OF> | null;
   }
 
   _inverseIsAsync(store: Store<R>, modelClass): boolean {
@@ -119,9 +119,9 @@ export class RelationshipDefinition<
 function isRelationshipAsync<
   R extends ResolvedRegistry,
   OT extends RecordType<R>,
-  K extends RecordField<R, OT>,
+  OF extends RelationshipFieldsFor<R, OT>,
   RT extends RecordType<R>
->(meta: RelationshipSchema<R, OT, K, RT>): boolean {
+>(meta: RelationshipSchema<R, OT, OF, RT>): boolean {
   let inverseAsync = meta.options && meta.options.async;
   return typeof inverseAsync === 'undefined' ? true : inverseAsync;
 }
@@ -129,8 +129,8 @@ function isRelationshipAsync<
 export function relationshipFromMeta<
   R extends ResolvedRegistry,
   OT extends RecordType<R>,
-  K extends RecordField<R, OT>,
+  OF extends RelationshipFieldsFor<R, OT>,
   RT extends RecordType<R> = RecordType<R>
->(meta: RelationshipSchema<R, OT, K, RT>): RelationshipDefinition<R, OT, K, RT> {
+>(meta: RelationshipSchema<R, OT, OF, RT>): RelationshipDefinition<R, OT, OF, RT> {
   return new RelationshipDefinition(meta);
 }

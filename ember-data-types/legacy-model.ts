@@ -1,5 +1,7 @@
 import { DefaultRegistry, RegistryMap } from '.';
 
+export type Attr<PT> = PT & { '___----ATTR_TYPE': PT };
+
 export type AsyncHasMany<RK extends R['model'][keyof R['model']], R extends RegistryMap = DefaultRegistry> = Promise<
   HasMany<RK, R>
 > & { '___----RELATED_TYPE_KEY': RK };

@@ -35,8 +35,10 @@ export type RelationshipEdge<
   R extends ResolvedRegistry,
   T extends RecordType<R> = RecordType<R>,
   F extends RelationshipFieldsFor<R, T> = RelationshipFieldsFor<R, T>,
-  RT extends RecordType<R> = RelatedType<R, T, F>
-> = ImplicitRelationship<R, T, F, RT> | ManyRelationship<R, T, F, RT> | BelongsToRelationship<R, T, F, RT>;
+  RT extends RecordType<R> = RelatedType<R, T, F>,
+  MF extends HasManyRelationshipFieldsFor<R, T> = HasManyRelationshipFieldsFor<R, T>,
+  BF extends BelongsToRelationshipFieldsFor<R, T> = BelongsToRelationshipFieldsFor<R, T>
+> = ImplicitRelationship<R, T, F, RT> | ManyRelationship<R, T, MF, RT> | BelongsToRelationship<R, T, BF, RT>;
 
 const Graphs = new WeakCache<RecordDataStoreWrapper<ResolvedRegistry>, Graph<ResolvedRegistry>>(DEBUG ? 'graph' : '');
 Graphs._generator = <R extends ResolvedRegistry>(wrapper: RecordDataStoreWrapper<R>) => {

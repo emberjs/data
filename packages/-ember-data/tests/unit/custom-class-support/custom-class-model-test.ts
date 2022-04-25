@@ -17,34 +17,54 @@ import type {
   RelationshipsSchema,
 } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import type { SchemaDefinitionService } from '@ember-data/store/-private/ts-interfaces/schema-definition-service';
-import { RecordInstance } from '@ember-data/types/utils';
+import { ResolvedRegistry } from '@ember-data/types';
+import { Attr } from '@ember-data/types/legacy-model';
+import { AttributeFieldsFor, RecordInstance, RecordType } from '@ember-data/types/utils';
 
 module('unit/model - Custom Class Model', function (hooks) {
-  let store: Store;
+  interface TMR {}
+  interface TestRegistry {
+    model: TMR;
+    adapter: {};
+    serializer: {};
+    transform: {};
+  }
+  type R = ResolvedRegistry<TestRegistry>;
+  let store: Store<ResolvedRegistry<TestRegistry>>;
   class Person {
-    constructor(public store: Store) {
+    declare name: Attr<string>;
+    constructor(public store: Store<R>) {
       this.store = store;
     }
     // these types aren't correct but we don't have a registry to help
     // make them correct yet
-    save(): Promise<RecordInstance> {
-      return this.store.saveRecord(this as unknown as RecordInstance);
+    save(): Promise<RecordInstance<R, 'person'>> {
+      return this.store.saveRecord(this);
     }
   }
 
-  class CustomStore extends Store {
+  interface TMR {
+    person: Person;
+  }
+
+  class CustomStore extends Store<R> {
     init() {
       super.init();
       this.registerSchemaDefinitionService({
-        attributesDefinitionFor() {
-          let schema: AttributesSchema = {};
-          schema.name = {
-            kind: 'attribute',
-            options: {},
-            type: 'string',
-            name: 'name',
-          };
-          return schema;
+        attributesDefinitionFor<T extends RecordType<R>, F extends AttributeFieldsFor<R, T>>(
+          identifier: RecordIdentifier<T> | { type: T }
+        ): AttributesSchema<R, T, F> {
+          if (identifier.type === 'person') {
+            const schema: AttributesSchema<R, T, F> = {} as AttributesSchema<R, T, F>;
+            schema['name'] = {
+              kind: 'attribute',
+              options: {},
+              type: 'string',
+              name: 'name',
+            };
+            return schema;
+          }
+          throw new Error(`unknown type`);
         },
         relationshipsDefinitionFor() {
           return {};

@@ -12,12 +12,6 @@ import type NativeArray from '@ember/array/-private/native-array';
 import type ComputedProperty from '@ember/object/computed';
 import type Mixin from '@ember/object/mixin';
 
-namespace Array {
-  // detect is an intimate Mixin API, likely should not be typed upstream
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function detect(arr: unknown): boolean;
-}
-
 /**
  * This module implements Observer-friendly Array-like behavior. This mixin is picked up by the
  * Array class as well as other controllers, etc. that want to appear to be arrays.
@@ -97,7 +91,11 @@ interface Array<T> extends Enumerable<T> {
 }
 // Ember.Array rather than Array because the `array-type` lint rule doesn't realize the global is shadowed
 // tslint:disable-next-line:array-type
-declare const Array: Mixin<Array<unknown>>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+declare class Array<T> extends Mixin<Array<unknown>> {
+  static detect(arr: unknown): boolean;
+}
+
 export default Array;
 
 /**

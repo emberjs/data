@@ -14,6 +14,6 @@ export interface SchemaDefinitionService<R extends ResolvedRegistry> {
     identifier: RecordIdentifier<T> | { type: T }
   ): AttributesSchema<R, T>;
   relationshipsDefinitionFor<T extends RecordType<R>>(
-    identifier: RecordIdentifier | { type: string }
+    identifier: RecordIdentifier<T> | { type: T }
   ): RelationshipsSchema<R, T>;
 }

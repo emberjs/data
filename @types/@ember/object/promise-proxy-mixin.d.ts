@@ -28,5 +28,5 @@ interface PromiseProxyMixin<T> extends Promise<T> {
    */
   promise: Promise<T>;
 }
-declare class PromiseProxyMixin extends Promise<T> {}
+declare class PromiseProxyMixin<T> extends Promise<T> {}
 export default PromiseProxyMixin;

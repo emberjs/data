@@ -35,12 +35,29 @@ export enum RequestStateEnum {
   rejected = 'rejected',
 }
 
-export interface RequestState<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> {
-  state: RequestStateEnum;
+interface RejectedRequestState<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> {
+  state: 'rejected';
   type: 'query' | 'mutation';
   request: Request<R, T>;
-  response?: Response;
+  response: Response;
 }
+interface FulfilledRequestState<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> {
+  state: 'fulfilled';
+  type: 'query' | 'mutation';
+  request: Request<R, T>;
+  response: Response;
+}
+interface PendingRequestState<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> {
+  state: 'pending';
+  type: 'query' | 'mutation';
+  request: Request<R, T>;
+  response: undefined;
+}
+
+export type RequestState<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> =
+  | PendingRequestState<R, T>
+  | FulfilledRequestState<R, T>
+  | RejectedRequestState<R, T>;
 
 export interface Response {
   // rawData: unknown;

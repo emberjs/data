@@ -1,4 +1,13 @@
-interface FastBoot {
-  require(moduleName: string): unknown;
+interface Request {
+  protocol: string;
+  host: string;
 }
-const FastBoot: undefined | FastBoot;
+export interface FastBoot {
+  require(moduleName: string): unknown;
+  isFastBoot: boolean;
+  request: Request;
+}
+
+declare global {
+  const FastBoot: undefined | FastBoot;
+}

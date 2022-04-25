@@ -7,6 +7,7 @@ import { computed } from '@ember/object';
 import { join } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
+import type { FastBoot } from 'fastboot';
 import { Promise as RSVPPromise } from 'rsvp';
 
 import type Store from '@ember-data/store';
@@ -15,9 +16,11 @@ import type Snapshot from '@ember-data/store/-private/system/snapshot';
 import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
 import { AdapterPayload } from '@ember-data/store/-private/ts-interfaces/minimum-adapter-interface';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { ResolvedRegistry } from '@ember-data/types';
+import { RecordType } from '@ember-data/types/utils';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
-import type { FastBoot } from './-private/fastboot-interface';
+import AdapterWithBuildUrl from './-private/adapter-with-build-url';
 import AdapterError, {
   AbortError,
   ConflictError,
@@ -29,6 +32,14 @@ import AdapterError, {
   UnauthorizedError,
 } from './error';
 import Adapter, { BuildURLMixin } from './index';
+
+interface MixtAdapter<R extends ResolvedRegistry> extends AdapterWithBuildUrl<R> {
+  new (): MixtAdapter<R>;
+}
+
+// @ts-expect-error
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class MixtAdapter<R extends ResolvedRegistry> extends Adapter.extend(BuildURLMixin) {}
 
 type Payload = Error | Dict<unknown> | unknown[] | string | undefined;
 
@@ -331,8 +342,9 @@ declare const jQuery: JQueryStatic | undefined;
   @extends Adapter
   @uses BuildURLMixin
 */
-class RESTAdapter extends Adapter.extend(BuildURLMixin) {
+class RESTAdapter<R extends ResolvedRegistry> extends MixtAdapter<R> {
   declare _fastboot: FastBoot;
+  declare _coalesceFindRequests: boolean;
   declare host: string | null;
   declare namespace: string | null;
 
@@ -563,7 +575,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
+  findRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    type: ShimModelClass<R, T>,
+    id: string,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
     let query: QueryState = this.buildQuery(snapshot);
 
@@ -585,11 +602,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  findAll(
-    store: Store,
-    type: ShimModelClass,
+  findAll<T extends RecordType<R>>(
+    store: Store<R>,
+    type: ShimModelClass<R, T>,
     sinceToken,
-    snapshotRecordArray: SnapshotRecordArray
+    snapshotRecordArray: SnapshotRecordArray<R, T>
   ): Promise<AdapterPayload> {
     let query: QueryState = this.buildQuery(snapshotRecordArray);
     let url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
@@ -700,7 +717,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
+  findMany<T extends RecordType<R>>(
+    store: Store<R>,
+    type: ShimModelClass<R, T>,
+    ids: string[],
+    snapshots: Snapshot<R, T>[]
+  ): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
   }
@@ -742,7 +764,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findHasMany(store: Store, snapshot: Snapshot, url: string, relationship: Dict<unknown>): Promise<AdapterPayload> {
+  findHasMany<T extends RecordType<R>>(
+    store: Store<R>,
+    snapshot: Snapshot<R, T>,
+    url: string,
+    relationship: Dict<unknown>
+  ): Promise<AdapterPayload> {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -792,7 +819,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findBelongsTo(store: Store, snapshot: Snapshot, url: string, relationship): Promise<AdapterPayload> {
+  findBelongsTo<T extends RecordType<R>>(
+    store: Store<R>,
+    snapshot: Snapshot<R, T>,
+    url: string,
+    relationship
+  ): Promise<AdapterPayload> {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -821,10 +853,14 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  createRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    type: ShimModelClass<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
-    const data = serializeIntoHash(store, type, snapshot);
+    const data = serializeIntoHash<R, T>(store, type, snapshot);
 
     return this.ajax(url, 'POST', { data });
   }
@@ -846,7 +882,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  updateRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload> {
     const data = serializeIntoHash(store, schema, snapshot, {});
     const type = snapshot.modelName;
     const id = snapshot.id;
@@ -868,7 +908,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  deleteRecord<T extends RecordType<R>>(
+    store: Store<R>,
+    schema: ShimModelClass<R, T>,
+    snapshot: Snapshot<R, T>
+  ): Promise<AdapterPayload> {
     const type = snapshot.modelName;
     const id = snapshot.id;
     assert(`Attempted to delete the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
@@ -876,7 +920,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     return this.ajax(this.buildURL(type, id, snapshot, 'deleteRecord'), 'DELETE');
   }
 
-  _stripIDFromURL(store: Store, snapshot: Snapshot): string {
+  _stripIDFromURL<T extends RecordType<R>>(store: Store<R>, snapshot: Snapshot<R, T>): string {
     const type = snapshot.modelName;
     const id = snapshot.id;
     assert(
@@ -929,45 +973,25 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany(store: Store, snapshots: Snapshot[]): Snapshot[][] {
-    let groups = new Map();
-    let adapter = this;
+  groupRecordsForFindMany<T extends RecordType<R>>(store: Store<R>, snapshots: Snapshot<R, T>[]): Snapshot<R, T>[][] {
+    let groups: Map<string, Snapshot<R, T>[]> = new Map();
     let maxURLLength = this.maxURLLength;
 
     snapshots.forEach((snapshot) => {
-      let baseUrl = adapter._stripIDFromURL(store, snapshot);
-      if (!groups.has(baseUrl)) {
-        groups.set(baseUrl, []);
+      let baseUrl = this._stripIDFromURL(store, snapshot);
+      let group = groups.get(baseUrl);
+      if (!group) {
+        group = [];
+        groups.set(baseUrl, group);
       }
 
-      groups.get(baseUrl).push(snapshot);
+      group.push(snapshot);
     });
 
-    function splitGroupToFitInUrl(group, maxURLLength, paramNameLength) {
-      let idsSize = 0;
-      let baseUrl = adapter._stripIDFromURL(store, group[0]);
-      let splitGroups: Snapshot[][] = [[]];
-
-      group.forEach((snapshot) => {
-        let additionalLength = encodeURIComponent(snapshot.id).length + paramNameLength;
-        if (baseUrl.length + idsSize + additionalLength >= maxURLLength) {
-          idsSize = 0;
-          splitGroups.push([]);
-        }
-
-        idsSize += additionalLength;
-
-        let lastGroupIndex = splitGroups.length - 1;
-        splitGroups[lastGroupIndex].push(snapshot);
-      });
-
-      return splitGroups;
-    }
-
-    let groupsArray: Snapshot[][] = [];
-    groups.forEach((group, key) => {
+    let groupsArray: Snapshot<R, T>[][] = [];
+    groups.forEach((group: Snapshot<R, T>[], key) => {
       let paramNameLength = '&ids%5B%5D='.length;
-      let splitGroups = splitGroupToFitInUrl(group, maxURLLength, paramNameLength);
+      let splitGroups = splitGroupToFitInUrl(store, this, group, maxURLLength, paramNameLength);
 
       splitGroups.forEach((splitGroup) => groupsArray.push(splitGroup));
     });
@@ -1318,7 +1342,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Snapshot} snapshot
     @return {Object}
   */
-  buildQuery(snapshot: Snapshot | SnapshotRecordArray): QueryState {
+  buildQuery<T extends RecordType<R>>(snapshot: Snapshot<R, T> | SnapshotRecordArray<R, T>): QueryState {
     let query: QueryState = {};
 
     if (snapshot) {
@@ -1333,8 +1357,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 }
 
-function ajaxSuccess(
-  adapter: RESTAdapter,
+function ajaxSuccess<R extends ResolvedRegistry>(
+  adapter: RESTAdapter<R>,
   payload: Payload,
   requestData: RequestData,
   responseData: ResponseData
@@ -1353,8 +1377,8 @@ function ajaxSuccess(
   }
 }
 
-function ajaxError(
-  adapter: RESTAdapter,
+function ajaxError<R extends ResolvedRegistry>(
+  adapter: RESTAdapter<R>,
   payload: Payload,
   requestData: RequestData,
   responseData: ResponseData
@@ -1401,8 +1425,8 @@ function endsWith(string: string, suffix: string): boolean {
   }
 }
 
-function fetchSuccessHandler(
-  adapter: RESTAdapter,
+function fetchSuccessHandler<R extends ResolvedRegistry>(
+  adapter: RESTAdapter<R>,
   payload: Payload,
   response: Response,
   requestData: RequestData
@@ -1411,8 +1435,8 @@ function fetchSuccessHandler(
   return ajaxSuccess(adapter, payload, requestData, responseData);
 }
 
-function fetchErrorHandler(
-  adapter: RESTAdapter,
+function fetchErrorHandler<R extends ResolvedRegistry>(
+  adapter: RESTAdapter<R>,
   payload: Payload,
   response: Response,
   errorThrown,
@@ -1432,8 +1456,8 @@ function fetchErrorHandler(
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
-function ajaxSuccessHandler(
-  adapter: RESTAdapter,
+function ajaxSuccessHandler<R extends ResolvedRegistry>(
+  adapter: RESTAdapter<R>,
   payload: Payload,
   jqXHR: JQuery.jqXHR,
   requestData: RequestData
@@ -1442,7 +1466,12 @@ function ajaxSuccessHandler(
   return ajaxSuccess(adapter, payload, requestData, responseData);
 }
 
-function ajaxErrorHandler(adapter: RESTAdapter, jqXHR: JQuery.jqXHR, errorThrown: string, requestData: RequestData) {
+function ajaxErrorHandler<R extends ResolvedRegistry>(
+  adapter: RESTAdapter<R>,
+  jqXHR: JQuery.jqXHR,
+  errorThrown: string,
+  requestData: RequestData
+) {
   let responseData = ajaxResponseData(jqXHR);
   responseData.errorThrown = errorThrown;
   let payload = adapter.parseErrorResponse(jqXHR.responseText);
@@ -1464,6 +1493,33 @@ function fetchResponseData(response: Response): ResponseData {
     textStatus: response.statusText,
     headers: headersToObject(response.headers),
   };
+}
+
+function splitGroupToFitInUrl<R extends ResolvedRegistry, T extends RecordType<R>>(
+  store: Store<R>,
+  adapter: RESTAdapter<R>,
+  group: Snapshot<R, T>[],
+  maxURLLength: number,
+  paramNameLength: number
+): Snapshot<R, T>[][] {
+  let idsSize = 0;
+  let baseUrl = adapter._stripIDFromURL(store, group[0]);
+  let splitGroups: Snapshot<R, T>[][] = [[]];
+
+  group.forEach((snapshot) => {
+    let additionalLength = encodeURIComponent(snapshot.id!).length + paramNameLength;
+    if (baseUrl.length + idsSize + additionalLength >= maxURLLength) {
+      idsSize = 0;
+      splitGroups.push([]);
+    }
+
+    idsSize += additionalLength;
+
+    let lastGroupIndex = splitGroups.length - 1;
+    splitGroups[lastGroupIndex].push(snapshot);
+  });
+
+  return splitGroups;
 }
 
 function ajaxResponseData(jqXHR: JQuery.jqXHR): ResponseData {
@@ -1494,9 +1550,9 @@ function headersToObject(headers: Headers): Dict<unknown> {
  * @private
  * @returns {Object}
  */
-export function fetchOptions(
+export function fetchOptions<R extends ResolvedRegistry>(
   options: JQueryRequestInit & Partial<FetchRequestInit>,
-  adapter: RESTAdapter
+  adapter: RESTAdapter<R>
 ): FetchRequestInit {
   options.credentials = options.credentials || 'same-origin';
 
@@ -1531,7 +1587,10 @@ export function fetchOptions(
   return options;
 }
 
-function ajaxOptions(options: JQueryRequestInit, adapter: RESTAdapter): JQueryRequestInit {
+function ajaxOptions<R extends ResolvedRegistry>(
+  options: JQueryRequestInit,
+  adapter: RESTAdapter<R>
+): JQueryRequestInit {
   options.dataType = 'json';
   options.context = adapter;
 

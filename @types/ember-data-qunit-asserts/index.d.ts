@@ -23,7 +23,7 @@ declare global {
     expectNoAssertion(callback: () => unknown): Promise<void>;
   }
 
-  declare namespace QUnit {
+  namespace QUnit {
     export interface Assert {
       expectDeprecation(callback: () => unknown, options: DeprecationConfig | string | RegExp): Promise<void>;
       expectNoDeprecation(callback: () => unknown): Promise<void>;
@@ -34,7 +34,7 @@ declare global {
     }
   }
 
-  declare interface QUnit {
+  interface QUnit {
     assert: Assert;
   }
 }

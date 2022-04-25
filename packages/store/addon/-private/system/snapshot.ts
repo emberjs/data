@@ -6,6 +6,7 @@ import { assert } from '@ember/debug';
 import { importSync } from '@embroider/macros';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { isHasMany } from '@ember-data/record-data/-private/graph/-utils';
 import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
 import type {
   ExistingResourceIdentifierObject,
@@ -498,7 +499,7 @@ export default class Snapshot<R extends ResolvedRegistry = DefaultRegistry, T ex
     );
     assert(
       `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but that relationship is a belongsTo.`,
-      relationship.definition.kind === 'hasMany'
+      isHasMany(relationship)
     );
 
     let value = relationship.getData();
@@ -548,8 +549,8 @@ export default class Snapshot<R extends ResolvedRegistry = DefaultRegistry, T ex
     @public
   */
   eachAttribute<I>(
-    callback: <F extends AttributeFieldsFor<R, T>>(this: I, key: F, meta: AttributeSchema<R, T, F>) => void,
-    binding: I
+    callback: <F extends AttributeFieldsFor<R, T>>(this: I | undefined, key: F, meta: AttributeSchema<R, T, F>) => void,
+    binding?: I
   ): void {
     let attrDefs = this._store._attributesDefinitionFor({ type: this.modelName });
     const attrKeys = Object.keys(attrDefs) as AttributeFieldsFor<R, T>[];
@@ -575,9 +576,13 @@ export default class Snapshot<R extends ResolvedRegistry = DefaultRegistry, T ex
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
   */
-  eachRelationship<I>(
-    callback: <F extends RelationshipFieldsFor<R, T>>(this: I, key: F, meta: RelationshipSchema<R, T, F>) => void,
-    binding: I
+  eachRelationship<I extends object>(
+    callback: <F extends RelationshipFieldsFor<R, T>>(
+      this: I | undefined,
+      key: F,
+      meta: RelationshipSchema<R, T, F>
+    ) => void,
+    binding?: I
   ): void {
     let relationshipDefs = this._store._relationshipsDefinitionFor({ type: this.modelName });
     const relKeys = Object.keys(relationshipDefs) as RelationshipFieldsFor<R, T>[];

@@ -207,7 +207,7 @@ import { RecordType } from '@ember-data/types/utils';
   @public
   @extends Ember.EmberObject
 */
-export default class Adapter<R extends ResolvedRegistry = DefaultRegistry>
+export default abstract class Adapter<R extends ResolvedRegistry = DefaultRegistry>
   extends EmberObject
   implements MinimumAdapterInterface<R>
 {

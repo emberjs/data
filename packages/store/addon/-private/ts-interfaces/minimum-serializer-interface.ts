@@ -83,7 +83,7 @@ export interface MinimumSerializerInterface<R extends ResolvedRegistry = Default
       | 'createRecord'
       | 'deleteRecord'
       | 'updateRecord'
-  ): JsonApiDocument<T>;
+  ): JsonApiDocument<R, T>;
 
   /**
    * This method is responsible for serializing an individual record
@@ -162,7 +162,7 @@ export interface MinimumSerializerInterface<R extends ResolvedRegistry = Default
     schema: ModelSchema<R, T>,
     rawPayload: JSONObject,
     prop?: string
-  ): SingleResourceDocument<T>;
+  ): SingleResourceDocument<R, T>;
 
   /**
    * When using `JSONAPIAdapter` or `RESTAdapter` this method is called

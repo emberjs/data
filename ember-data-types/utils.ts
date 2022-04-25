@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 
 import { DefaultRegistry, ResolvedRegistry } from '.';
-import { AsyncBelongsTo, AsyncHasMany, BelongsTo, HasMany } from './legacy-model';
+import { AsyncBelongsTo, AsyncHasMany, Attr, BelongsTo, HasMany } from './legacy-model';
 
 type GetMappedKey<M, V> = { [K in keyof M]-?: M[K] extends V ? K : never }[keyof M] & string;
 type GetConstrainedKey<K, F extends keyof K, V> = K[F] extends V ? K[F] : never;
@@ -16,42 +16,46 @@ export type RelationshipFieldsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
-> extends RecordField<R, T> = HasManyRelationshipFieldsFor<R, T, K> | BelongsToRelationshipFieldsFor<R, T, K>;
+> = HasManyRelationshipFieldsFor<R, T, K> | BelongsToRelationshipFieldsFor<R, T, K>;
 export type RelationshipsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
 > = KindMap<Pick<K, RelationshipFieldsFor<R, T, K>>>;
+
 export type AttributesFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
-> = Omit<K, RelationshipFieldsFor<R, T, K>>;
+> = KindMap<Pick<K, AttributeFieldsFor<R, T, K>>>;
 export type AttributeFieldsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
-> = keyof AttributesFor<R, T, K>;
+> = GetMappedKey<K, Attr<unknown>>;
+
 export type HasManyRelationshipFieldsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
 > = GetMappedKey<K, AsyncHasMany<RecordInstance<R>, R> | HasMany<RecordInstance<R>, R>>;
-export type BelongsToRelationshipFieldsFor<
-  R extends ResolvedRegistry = DefaultRegistry,
-  T extends RecordType<R> = RecordType<R>,
-  K extends RecordInstance<R, T> = RecordInstance<R, T>
-> = GetMappedKey<K, AsyncBelongsTo<RecordInstance<R>, R> | RecordInstance<R>>;
 export type HasManyRelationshipsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
 > = KindMap<Pick<K, Awaited<HasManyRelationshipFieldsFor<R, T, K>>>>;
+
+export type BelongsToRelationshipFieldsFor<
+  R extends ResolvedRegistry = DefaultRegistry,
+  T extends RecordType<R> = RecordType<R>,
+  K extends RecordInstance<R, T> = RecordInstance<R, T>
+> = GetMappedKey<K, AsyncBelongsTo<RecordInstance<R>, R> | RecordInstance<R>>;
 export type BelongsToRelationshipsFor<
   R extends ResolvedRegistry = DefaultRegistry,
   T extends RecordType<R> = RecordType<R>,
   K extends RecordInstance<R, T> = RecordInstance<R, T>
 > = KindMap<Pick<K, BelongsToRelationshipFieldsFor<R, T, K>>>;
+
 export type RelatedFieldDef<
   R extends ResolvedRegistry,
   T extends RecordType<R>,
@@ -70,7 +74,9 @@ export type RelatedFieldDef<
 // utilities to help type things nicely
 export type RecordType<R extends ResolvedRegistry> = keyof R['model'] & string;
 export type RecordInstance<R extends ResolvedRegistry, T extends RecordType<R> = RecordType<R>> = R['model'][T];
-export type RecordField<R extends ResolvedRegistry, T extends RecordType<R>> = keyof RecordInstance<R, T> & string;
+export type RecordField<R extends ResolvedRegistry, T extends RecordType<R>> =
+  | RelationshipFieldsFor<R, T>
+  | AttributeFieldsFor<R, T>;
 /*
 export type RelatedInstance<
   R extends ResolvedRegistry,
@@ -140,7 +146,8 @@ export type RecordInstance<R extends RegistryMap, T extends RecordType<R>> = (R[
 
 // TYPE Tests
 declare class User {
-  declare name: string;
+  declare name: Attr<string>;
+  declare aProp: string;
   declare friends: AsyncHasMany<Person, TestResolved>;
   declare spouse: AsyncBelongsTo<Person, TestResolved>;
   declare bestFriend: BelongsTo<Person, TestResolved>;
@@ -173,7 +180,7 @@ expectType<'friends' | 'enemies' | 'spouse' | 'bestFriend', RelationshipFieldsFo
 expectType<'name', AttributeFieldsFor<TestResolved, 'user'>>();
 expectType<'friends' | 'enemies', HasManyRelationshipFieldsFor<TestResolved, 'user'>>();
 expectType<'spouse' | 'bestFriend', BelongsToRelationshipFieldsFor<TestResolved, 'user'>>();
-
+expectTypeOf(getType<'name'>()).toEqualTypeOf(getType<AttributeFieldsFor<TestResolved, 'user'>>());
 expectType<{ bestFriend: Person; spouse: Person }, BelongsToRelationshipsFor<TestResolved, 'user'>>();
 expectTypeOf(getType<RelatedFieldDef<TestResolved, 'user', 'bestFriend'>>()).toMatchTypeOf(getType<Person>());
 
