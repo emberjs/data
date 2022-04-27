@@ -6852,9 +6852,9 @@ ember-cli-typescript@^2.0.2:
     walk-sync "^1.0.0"
 
 ember-cli-typescript@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.npmjs.org/ember-cli-typescript/-/ember-cli-typescript-5.0.0.tgz#52f53843082d0a0128f318809dadabf83a76bbff"
-  integrity sha512-UDKZlG7bInRo7eDsF3jvPz1Dxh1YvRhMw9wyj5rj2K3brw0xEh1IMTqPgWRbPESqjcWuwa8s0FCNuYWDc4PTfg==
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/ember-cli-typescript/-/ember-cli-typescript-5.1.0.tgz#460eb848564e29d64f2b36b2a75bbe98172b72a4"
+  integrity sha512-wEZfJPkjqFEZAxOYkiXsDrJ1HY75e/6FoGhQFg8oNFJeGYpIS/3W0tgyl1aRkSEEN1NRlWocDubJ4aZikT+RTA==
   dependencies:
     ansi-to-html "^0.6.15"
     broccoli-stew "^3.0.0"
@@ -7420,8 +7420,7 @@ eslint-module-utils@^2.7.2:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.4.0-alpha.9"
 
 eslint-plugin-ember@^10.5.8:
   version "10.6.0"
