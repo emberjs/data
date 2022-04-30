@@ -141,8 +141,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
   // this is a hack bc we don't have access to the state machine
   //   and relationships need this info and @runspired didn't see
   //   how to get it just yet from storeWrapper.
-  // should always be false to the end user
-  // e.g. create record without second arg and add to async relationship many and it will fetch it b/c isEmpty is true
   isEmpty() {
     return this.__attributes === null && this.__inFlightAttributes === null && this.__data === null;
   }
