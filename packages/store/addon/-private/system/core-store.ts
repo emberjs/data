@@ -2436,6 +2436,7 @@ abstract class CoreStore extends Service {
     @param {Object} data
   */
   _load(data: ExistingResourceObject) {
+    // TODO this should determine identifier via the cache before making assumptions
     const resource = constructResource(normalizeModelName(data.type), ensureStringId(data.id), coerceId(data.lid));
 
     let internalModel = internalModelFactoryFor(this).lookup(resource, data);
@@ -2696,6 +2697,7 @@ abstract class CoreStore extends Service {
   }
 
   _pushInternalModel(data) {
+    // TODO type should be pulled from the identifier for debug
     let modelName = data.type;
     assert(
       `You must include an 'id' for ${modelName} in an object passed to 'push'`,
