@@ -157,7 +157,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    `previous-version` will be whatever version we previously published as a `release`
 
     ```
-    PRIOR_VERSION=<previous-version> HEAD=release ./bin/changelog
+    yarn lerna-changelog --from=PREVIOUS_VERSION_TAG
     ```
 
   - prepend a new section title for this version with Today's date to `CHANGELOG.md`
@@ -222,7 +222,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    IT IS IMPORTANT THAT ALL CHANGES ARE ON THE REMOTE BRANCH SPECIFIED BY HEAD
 
     ```
-    PRIOR_VERSION=<previous-beta-version> HEAD=beta ./bin/changelog
+    yarn lerna-changelog --from=PREVIOUS_VERSION_TAG
     ```
 
   - prepend a new section title for this version with Today's date to `CHANGELOG.md`
