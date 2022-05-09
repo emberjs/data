@@ -1,5 +1,16 @@
 # Ember Data Changelog
 
+## Release 3.28.10 (LTS) (May 9, 2022)
+
+#### :bug: Bug Fix
+* `-ember-data`, `model`
+  * [#7947](https://github.com/emberjs/data/pull/7947) fix for #7904 computed chains not updated for async hasMany loading ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `record-data`, `store`
+  * [#7805](https://github.com/emberjs/data/pull/7805) Backport Train for LTS ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## Release 3.28.9 (LTS) (Jan 1, 2022)
 - Release
 
