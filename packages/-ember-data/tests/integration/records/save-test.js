@@ -230,4 +230,44 @@ module('integration/records/save - Save Record', function (hooks) {
       }, 'Attempting to save the unloaded record threw an error');
     });
   });
+
+  test('Will save with extra promise data attached', async function (assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
+
+    const deferred = defer();
+    adapter.createRecord = function (store, type, snapshot) {
+      return { data: { id: 123, type: 'post' } };
+    };
+
+    let saved = post.save();
+    saved.__ec__cancel = true;
+    deferred.resolve();
+    assert.ok(saved.__ec__cancel);
+    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 1 });
+    }
+  });
+
+  test('Will save with extra promise method attached', async function (assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
+
+    const deferred = defer();
+    adapter.createRecord = function (store, type, snapshot) {
+      return { data: { id: 123, type: 'post' } };
+    };
+
+    let saved = post.save();
+    saved.__ec__cancel = function () {
+      assert.ok(true);
+    };
+    deferred.resolve();
+    assert.ok(saved.__ec__cancel);
+    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 1 });
+    }
+  });
 });
