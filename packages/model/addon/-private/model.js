@@ -445,6 +445,14 @@ class Model extends EmberObject {
     }
   }
 
+  get links() {
+    return this._internalModel._recordData._links;
+  }
+
+  get meta() {
+    return this._internalModel._recordData._meta;
+  }
+
   /**
     @property currentState
     @private

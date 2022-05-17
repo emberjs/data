@@ -86,4 +86,26 @@ module('acceptance/record-links-meta', function (hooks) {
 
     assert.deepEqual(result.data.attributes.meta, 996, 'attribute members named "meta" are preserved');
   });
+
+  test('can access links and meta when there are no collisions with attributes', async function (assert) {
+    let store = this.owner.lookup('service:store');
+
+    let result = await store.findRecord('without-collision', 'id-1');
+
+    assert.deepEqual(
+      result.links,
+      {
+        self: 'http://example.com/api/with-collisions/1',
+      },
+      'links are accessible'
+    );
+
+    assert.deepEqual(
+      result.meta,
+      {
+        count: 8,
+      },
+      'meta is accessible'
+    );
+  });
 });

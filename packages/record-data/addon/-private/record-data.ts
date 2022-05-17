@@ -97,6 +97,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
 
     Object.assign(this._data, data.attributes);
+    // TODO this might be a silly way to do it
+    this._links = data.links;
+    this._meta = data.meta;
+
     if (this.__attributes) {
       // only do if we have attribute changes
       this._updateChangedAttributes();
