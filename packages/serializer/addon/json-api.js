@@ -205,7 +205,9 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     let modelClass = this.store.modelFor(modelName);
     let serializer = this.store.serializerFor(modelName);
+    console.log(resourceHash);
     let { data } = serializer.normalize(modelClass, resourceHash);
+    console.log(data);
     return data;
   },
 

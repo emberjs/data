@@ -2747,7 +2747,12 @@ abstract class CoreStore extends Service {
       }
     }
 
+    console.log('store:core-store _load() before internalModel.setupData', data);
+
     internalModel.setupData(data);
+
+
+    console.log('store:core-store _load() after internalModel.setupData', internalModel);
 
     if (!isUpdate) {
       this.recordArrayManager.recordDidChange(identifier);
@@ -3122,6 +3127,7 @@ abstract class CoreStore extends Service {
   }
 
   _internalModelForResource(resource: ResourceIdentifierObject): InternalModel {
+    console.log('_internalModelForResource', resource);
     return internalModelFactoryFor(this).getByResource(resource);
   }
 

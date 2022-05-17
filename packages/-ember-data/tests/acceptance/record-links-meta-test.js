@@ -108,4 +108,11 @@ module('acceptance/record-links-meta', function (hooks) {
       'meta is accessible'
     );
   });
+
+  test('links and meta are overwridden by attributes', async function (assert) {
+    //TODO
+  });
+
+  // todo test meta and links included in `included` :)
+  // meta and links in a relationship resource gets ignored
 });
