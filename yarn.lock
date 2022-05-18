@@ -1236,11 +1236,12 @@
     ember-cli-babel "^7.26.6"
 
 "@ember/test-helpers@^2.6.0":
-  version "2.6.0"
-  resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-2.6.0.tgz#d687515c6ab49ba72717fc62046970ef4a72ea9c"
-  integrity sha512-N5sr3layWk60wB3maCy+/5hFHQRcTh8aqxcZTSs3Od9QkuHdWBtRgMGLP/35mXpJlgWuu3xqLpt6u3dGHc8gCg==
+  version "2.8.0"
+  resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-2.8.0.tgz#2b28de27fa2063e872aea6e59ebcda5f7b5e13b5"
+  integrity sha512-UF2FF/sPPSuqUePPbWT4o2z90ZT20DEz8KMyez6+BlaAnGyFCPbj0cPmE6se0wEZTpIZ0o/w9blG6wfgqe8Iyw==
   dependencies:
     "@ember/test-waiters" "^3.0.0"
+    "@embroider/macros" "^1.6.0"
     broccoli-debug "^0.6.5"
     broccoli-funnel "^3.0.8"
     ember-cli-babel "^7.26.6"
@@ -1311,7 +1312,7 @@
     resolve "^1.8.1"
     semver "^7.3.2"
 
-"@embroider/macros@^0.50.0 || ^1.0.0", "@embroider/macros@^1.0.0", "@embroider/macros@^1.2.0":
+"@embroider/macros@^0.50.0 || ^1.0.0", "@embroider/macros@^1.0.0", "@embroider/macros@^1.2.0", "@embroider/macros@^1.6.0":
   version "1.6.0"
   resolved "https://registry.npmjs.org/@embroider/macros/-/macros-1.6.0.tgz#2b764f965c645fdcfbf05897c88195368b046ba1"
   integrity sha512-yUEXJGJGP3rjtxorxrbkdxriBFEwnmzOrNk4zK64IXKBfyRjiDZFUHV9DSTrbaYLS29Mw5yK73ZIwi8L13C4Zw==
@@ -7420,7 +7421,7 @@ eslint-module-utils@^2.7.2:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "4.4.0-alpha.9"
+  version "4.4.0-alpha.12"
 
 eslint-plugin-ember@^10.5.8:
   version "10.6.0"
