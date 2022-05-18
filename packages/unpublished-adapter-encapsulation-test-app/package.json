@@ -1,6 +1,6 @@
 {
   "name": "adapter-encapsulation-test-app",
-  "version": "4.4.0-alpha.11",
+  "version": "4.4.0-alpha.12",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": {
@@ -22,16 +22,16 @@
     "test": "ember test  --test-port=0"
   },
   "dependencies": {
-    "@ember-data/debug": "4.4.0-alpha.11",
-    "@ember-data/model": "4.4.0-alpha.11",
-    "@ember-data/record-data": "4.4.0-alpha.11",
-    "@ember-data/serializer": "4.4.0-alpha.11",
-    "@ember-data/store": "4.4.0-alpha.11",
+    "@ember-data/debug": "4.4.0-alpha.12",
+    "@ember-data/model": "4.4.0-alpha.12",
+    "@ember-data/record-data": "4.4.0-alpha.12",
+    "@ember-data/serializer": "4.4.0-alpha.12",
+    "@ember-data/store": "4.4.0-alpha.12",
     "ember-auto-import": "^2.2.4",
     "ember-inflector": "^4.0.1"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "4.4.0-alpha.11",
+    "@ember-data/unpublished-test-infra": "4.4.0-alpha.12",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.6.0",
     "@glimmer/component": "^1.0.0",
