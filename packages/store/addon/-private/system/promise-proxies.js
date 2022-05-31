@@ -113,7 +113,8 @@ export function deprecatedPromiseObject(promise) {
       }
 
       /* global Reflect */
-      return Reflect.get(...arguments).bind(target);
+      let value = Reflect.get(...arguments);
+      return value && value.bind ? value.bind(target) : value;
     },
   };
 
