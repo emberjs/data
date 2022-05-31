@@ -856,7 +856,7 @@ class Model extends EmberObject {
   save(options) {
     const promise = this._internalModel.save(options).then(() => this);
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
-      return deprecatedPromiseObject(PromiseObject.create({ promise }));
+      return deprecatedPromiseObject(promise);
     }
 
     return promise;

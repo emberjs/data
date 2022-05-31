@@ -105,7 +105,8 @@ export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>
 // constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
 
-export function deprecatedPromiseObject<T>(promise: PromiseObjectProxy<T>): PromiseObjectProxy<T> {
+export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
+  const promiseObjectProxy: PromiseObjectProxy<T> = promiseObject(promise);
   const handler = {
     get(target: object, prop: string, receiver?: object): unknown {
       if (!ALLOWABLE_METHODS.includes(prop)) {
@@ -124,9 +125,14 @@ export function deprecatedPromiseObject<T>(promise: PromiseObjectProxy<T>): Prom
         );
       }
 
-      return (Reflect.get(target, prop, receiver) as Function).bind(target);
+      const value: unknown = Reflect.get(target, prop, receiver);
+      if (value && typeof value === 'function' && typeof value.bind === 'function') {
+        return value.bind(target);
+      }
+
+      return value;
     },
   };
 
-  return new Proxy(promise, handler) as PromiseObjectProxy<T>;
+  return new Proxy(promiseObjectProxy, handler) as PromiseObjectProxy<T>;
 }
