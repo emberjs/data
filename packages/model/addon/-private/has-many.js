@@ -95,8 +95,7 @@ import { computedMacroWithOptionalParams } from './util';
   ```
 
   ```app/models/post.js
-  import Model from '@ember-data/model';
-  import { hasMany } from '@ember-decorators/data';
+  import Model, { hasMany } from '@ember-data/model';
 
   export default class PostModel extends Model {
     @hasMany('comment', {
