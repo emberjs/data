@@ -12,17 +12,14 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+import { set } from '@ember/object';
 
 class Tag extends Model {
   @attr('string', {})
   name;
-}
 
-class ErrorList extends Component<{ model: Model; field: string }> {
-  get errors() {
-    const { model, field } = this.args;
-    return model.errors.errorsFor(field).map((error) => error.message);
-  }
+  @attr('string', {})
+  slug;
 }
 
 const template = hbs`
@@ -44,6 +41,13 @@ module('integration/model.errors', function (hooks) {
   hooks.beforeEach(function () {
     let { owner } = this;
 
+    class ErrorList extends Component<{ model: Model; field: string }> {
+      get errors() {
+        const { model, field } = this.args;
+        return model.errors.errorsFor(field).map((error) => error.message);
+      }
+    }
+
     owner.register('model:tag', Tag);
     owner.register('component:error-list', setComponentTemplate(template, ErrorList));
   });
@@ -63,6 +67,27 @@ module('integration/model.errors', function (hooks) {
     assert.dom('.error-list__error').hasText('the-error');
 
     errors.remove('name');
+    await settled();
+
+    assert.dom('.error-list__error').doesNotExist();
+  });
+
+  test('Uncommitted model can become valid after changing 2 erred fields', async function (this: CurrentTestContext, assert) {
+    this.tag = this.owner.lookup('service:store').createRecord('tag');
+    // @ts-ignore
+    const errors = get(this.tag, 'errors');
+    errors.add('name', 'the-error');
+    errors.add('slug', 'the-error');
+
+    await render(hbs`<ErrorList @model={{this.tag}} @field="name"/>`);
+
+    assert.dom('.error-list__error').hasText('the-error');
+
+    // @ts-ignore
+    set(this.tag, 'name', 'something');
+    await settled();
+    // @ts-ignore
+    set(this.tag, 'slug', 'else');
     await settled();
 
     assert.dom('.error-list__error').doesNotExist();
