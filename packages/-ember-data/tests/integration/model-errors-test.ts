@@ -82,10 +82,9 @@ module('integration/model.errors', function (hooks) {
 
     assert.dom('.error-list__error').hasText('the-error');
 
-    // @ts-ignore
     set(this.tag, 'name', 'something');
     await settled();
-    // @ts-ignore
+
     set(this.tag, 'slug', 'else');
     await settled();
 
