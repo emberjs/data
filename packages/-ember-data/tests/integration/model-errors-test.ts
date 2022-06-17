@@ -2,7 +2,7 @@ import 'qunit-dom'; // tell TS consider *.dom extension for assert
 
 // @ts-ignore
 import { setComponentTemplate } from '@ember/component';
-import { get } from '@ember/object';
+import { get, set } from '@ember/object';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
@@ -12,7 +12,6 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { set } from '@ember/object';
 
 class Tag extends Model {
   @attr('string', {})
