@@ -237,6 +237,7 @@ const DirtyState = {
     //TODO(Igor) reloading now triggers a
     //loadingData event, though it seems fine?
     loadingData() {},
+    becameValid() {},
 
     propertyWasReset(internalModel, name) {
       if (!internalModel.hasChangedAttributes()) {
