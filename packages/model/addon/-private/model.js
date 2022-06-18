@@ -1227,8 +1227,7 @@ class Model extends EmberObject {
    ```
 
    ```app/models/message.js
-   import Model from '@ember-data/model';
-   import { belongsTo } from '@ember-decorators/data';
+   import Model, { belongsTo } from '@ember-data/model';
 
    export default class MessageModel extends Model {
       @belongsTo('post') owner;
