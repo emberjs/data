@@ -39,7 +39,7 @@ if (has('@ember-data/debug')) {
     });
 
     test('Watching Model Types', async function (assert) {
-      assert.expect(5);
+      assert.expect(4);
       let { owner } = this;
       let debugAdapter = owner.lookup('data-adapter:main');
 
