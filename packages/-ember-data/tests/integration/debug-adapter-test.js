@@ -56,14 +56,8 @@ if (has('@ember-data/debug')) {
 
       debugAdapter.watchModelTypes(added, updated);
 
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            title: 'Post Title',
-          },
-        },
+      store.createRecord('post', {
+        title: 'Post Title',
       });
     });
 
