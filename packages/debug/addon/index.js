@@ -92,7 +92,9 @@ export default DataAdapter.extend({
 
     // Overwrite _createRecordData so newly added models will get added to the list
     store._createRecordData = (identifier) => {
-      next(() => this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods));
+      // next(() => this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods));
+      next(() => null);
+      this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods);
       return __createRecordData.call(store, identifier);
     };
 
