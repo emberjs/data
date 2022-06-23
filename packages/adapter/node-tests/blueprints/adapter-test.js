@@ -266,4 +266,36 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
       });
     });
   });
+
+  describe('in addon', function () {
+    beforeEach(function () {
+      return emberNew({ target: 'addon' });
+    });
+
+    describe('with ember-qunit (default)', function () {
+      it('adapter-test foo', function () {
+        return emberGenerateDestroy(['adapter-test', 'foo'], (_file) => {
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232-addon.js'));
+        });
+      });
+    });
+
+    describe('with ember-mocha', function () {
+      beforeEach(function () {
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-mocha', dev: true },
+        ]);
+        generateFakePackageManifest('ember-mocha', '0.16.2');
+      });
+
+      it('adapter-test foo', function () {
+        return emberGenerateDestroy(['adapter-test', 'foo'], (_file) => {
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
+            fixture(__dirname, 'adapter-test/mocha-rfc232-addon.js')
+          );
+        });
+      });
+    });
+  });
 });

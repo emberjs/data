@@ -2,6 +2,7 @@ const path = require('path');
 
 const testInfo = require('ember-cli-test-info');
 const useTestFrameworkDetector = require('@ember-data/private-build-infra/src/utilities/test-framework-detector');
+const modulePrefixForProject = require('@ember-data/private-build-infra/src/utilities/module-prefix-for-project');
 
 const ModelBlueprint = require('../model');
 
@@ -25,6 +26,7 @@ module.exports = useTestFrameworkDetector({
     const result = ModelBlueprint.locals.apply(this, arguments);
 
     result.friendlyTestDescription = testInfo.description(options.entity.name, 'Unit', 'Model');
+    result.modulePrefix = modulePrefixForProject(options.project);
 
     return result;
   },

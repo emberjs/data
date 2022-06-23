@@ -281,4 +281,38 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
       });
     });
   });
+
+  describe('in addon', function () {
+    beforeEach(function () {
+      return emberNew({ target: 'addon' });
+    });
+
+    describe('with ember-qunit (default)', function () {
+      it('serializer-test foo', function () {
+        return emberGenerateDestroy(['serializer-test', 'foo'], (_file) => {
+          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
+            fixture(__dirname, 'serializer-test/rfc232-addon.js')
+          );
+        });
+      });
+    });
+
+    describe('with ember-mocha', function () {
+      beforeEach(function () {
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-mocha', dev: true },
+        ]);
+        generateFakePackageManifest('ember-mocha', '0.16.2');
+      });
+
+      it('serializer-test foo', function () {
+        return emberGenerateDestroy(['serializer-test', 'foo'], (_file) => {
+          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
+            fixture(__dirname, 'serializer-test/mocha-rfc232-addon.js')
+          );
+        });
+      });
+    });
+  });
 });

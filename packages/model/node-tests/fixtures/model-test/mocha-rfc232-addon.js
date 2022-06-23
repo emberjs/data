@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupTest } from '<%= modulePrefix %>/tests/helpers';
+import { setupTest } from 'dummy/tests/helpers';
 
-describe('<%= friendlyTestDescription %>', function() {
+describe('Unit | Model | foo', function() {
   setupTest();
 
   // Replace this with your real tests.
   it('exists', function() {
     let store = this.owner.lookup('service:store');
-    let model = store.createRecord('<%= dasherizedModuleName %>', {});
+    let model = store.createRecord('foo', {});
     expect(model).to.be.ok;
   });
 });

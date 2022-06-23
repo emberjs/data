@@ -1,21 +1,21 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupTest } from '<%= modulePrefix %>/tests/helpers';
+import { setupTest } from 'dummy/tests/helpers';
 
-describe('<%= friendlyTestDescription %>', function() {
+describe('Unit | Serializer | foo', function() {
   setupTest();
 
   // Replace this with your real tests.
   it('exists', function() {
     let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('<%= dasherizedModuleName %>');
+    let serializer = store.serializerFor('foo');
 
     expect(serializer).to.be.ok;
   });
 
   it('serializes records', function() {
     let store = this.owner.lookup('service:store');
-    let record = store.createRecord('<%= dasherizedModuleName %>', {});
+    let record = store.createRecord('foo', {});
 
     let serializedRecord = record.serialize();
 
