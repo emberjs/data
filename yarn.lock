@@ -2723,7 +2723,7 @@
     "@types/htmlbars-inline-precompile" "*"
     "@types/rsvp" "*"
 
-"@types/ember__application@*":
+"@types/ember__application@*", "@types/ember__application@3.16.3":
   version "3.16.3"
   resolved "https://registry.npmjs.org/@types/ember__application/-/ember__application-3.16.3.tgz#f16e852b3200d5601b6f073be5a030cfadebb778"
   integrity sha512-kx7euIQ+zy7EjyBMoWTOMPxkbGmLitwKp7Cxga2xeKnpMPrZCIaLcFM50XnbnbjzmlSMmJEn5EDIEYwlqnfzvg==

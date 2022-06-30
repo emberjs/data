@@ -135,6 +135,9 @@
     "webpack": "^5.37.1",
     "zlib": "1.0.5"
   },
+  "resolutions": {
+    "@types/ember__application": "3.16.3"
+  },
   "dependencies": {},
   "engines": {
     "node": "12.* || >= 14.*"
