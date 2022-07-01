@@ -87,7 +87,7 @@
     "webpack": "^5.37.1"
   },
   "resolutions": {
-    "@types/ember": "3.16.5"
+    "@types/ember__*": "~3.16.0"
   },
   "engines": {
     "node": "12.* || >= 14.*"

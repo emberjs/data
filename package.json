@@ -136,7 +136,7 @@
     "zlib": "1.0.5"
   },
   "resolutions": {
-    "@types/ember": "3.16.5"
+    "@types/ember__*": "~3.16.0"
   },
   "dependencies": {},
   "engines": {
