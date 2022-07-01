@@ -33,7 +33,7 @@
     "@ember/test-helpers": "^2.6.0",
     "@glimmer/component": "^1.0.0",
     "@glimmer/tracking": "^1.0.0",
-    "@types/ember": "^4.0.0",
+    "@types/ember": "3.16.5",
     "@types/ember-qunit": "^5.0.0",
     "@types/ember-testing-helpers": "^0.0.4",
     "@types/ember__test-helpers": "^2.6.1",

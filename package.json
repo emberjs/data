@@ -49,7 +49,7 @@
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.6.0",
     "@glimmer/component": "^1.0.0",
-    "@types/ember": "^4.0.0",
+    "@types/ember": "3.16.5",
     "@types/ember-qunit": "^5.0.0",
     "@types/ember-testing-helpers": "^0.0.4",
     "@types/ember__debug": "^4.0.0",
@@ -136,7 +136,7 @@
     "zlib": "1.0.5"
   },
   "resolutions": {
-    "@types/ember__application": "3.16.3"
+    "@types/ember": "3.16.5"
   },
   "dependencies": {},
   "engines": {

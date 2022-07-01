@@ -32,7 +32,7 @@
     "@ember-data/unpublished-test-infra": "4.5.0-beta.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.6.0",
-    "@types/ember": "^4.0.0",
+    "@types/ember": "3.16.5",
     "@types/rsvp": "^4.0.4",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~4.4.0",
