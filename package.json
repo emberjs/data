@@ -52,9 +52,9 @@
     "@types/ember": "3.16.5",
     "@types/ember-qunit": "^5.0.0",
     "@types/ember-testing-helpers": "^0.0.4",
-    "@types/ember__debug": "^4.0.0",
+    "@types/ember__debug": "3.16.7",
     "@types/ember__test-helpers": "^2.6.1",
-    "@types/ember__utils": "^4.0.0",
+    "@types/ember__utils": "3.16.3",
     "@types/rsvp": "^4.0.4",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
@@ -136,7 +136,12 @@
     "zlib": "1.0.5"
   },
   "resolutions": {
-    "@types/ember__*": "~3.16.0"
+    "@types/ember__application": "3.16.4",
+    "@types/ember__array": "3.16.5",
+    "@types/ember__component": "3.16.7",
+    "@types/ember__object": "3.12.8",
+    "@types/ember__runloop": "3.16.4",
+    "@types/ember__routing": "3.16.7"
   },
   "dependencies": {},
   "engines": {

@@ -51,7 +51,7 @@ module('integration/model.errors', function (hooks) {
   test('Model errors are autotracked', async function (this: CurrentTestContext, assert) {
     this.tag = this.owner.lookup('service:store').createRecord('tag');
     // @ts-ignore
-    const errors = get(this.tag, 'errors');
+    const errors: Map<string> = get(this.tag, 'errors');
 
     await render(hbs`<ErrorList @model={{this.tag}} @field="name"/>`);
 
