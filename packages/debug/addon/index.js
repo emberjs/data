@@ -92,6 +92,7 @@ export default DataAdapter.extend({
 
     // Overwrite _createRecordData so newly added models will get added to the list
     store._createRecordData = (identifier) => {
+      // defer to ensure first-create does not result in an infinite loop, see https://github.com/emberjs/data/issues/8006
       next(() => this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods));
       return __createRecordData.call(store, identifier);
     };
