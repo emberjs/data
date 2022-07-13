@@ -68,15 +68,6 @@
     eslint-visitor-keys "^2.1.0"
     semver "^6.3.0"
 
-"@babel/generator@^7.17.3":
-  version "7.17.3"
-  resolved "https://registry.npmjs.org/@babel/generator/-/generator-7.17.3.tgz#a2c30b0c4f89858cb87050c3ffdfd36bdf443200"
-  integrity sha512-+R6Dctil/MgUsZsZAkYgK+ADNSZzJRRy0TvY65T71z/CR854xHQ1EweBYXdfT+HNeN7w0cSJJEzgxZMv40pxsg==
-  dependencies:
-    "@babel/types" "^7.17.0"
-    jsesc "^2.5.1"
-    source-map "^0.5.0"
-
 "@babel/generator@^7.17.9":
   version "7.17.9"
   resolved "https://registry.npmjs.org/@babel/generator/-/generator-7.17.9.tgz#f4af9fd38fa8de143c29fce3f71852406fc1e2fc"
@@ -415,11 +406,6 @@
   version "7.16.12"
   resolved "https://registry.npmjs.org/@babel/parser/-/parser-7.16.12.tgz#9474794f9a650cf5e2f892444227f98e28cdf8b6"
   integrity sha512-VfaV15po8RiZssrkPweyvbGVSe4x2y+aciFCgn0n0/SJMR22cwofRV1mtnJQYcSB1wUTaA/X1LnA3es66MCO5A==
-
-"@babel/parser@^7.17.3":
-  version "7.17.3"
-  resolved "https://registry.npmjs.org/@babel/parser/-/parser-7.17.3.tgz#b07702b982990bf6fdc1da5049a23fece4c5c3d0"
-  integrity sha512-7yJPvPV+ESz2IUTPbOL+YkIGyCqOyNIzdguKQuJGnH7bg1WTIifuM21YqokFt/THWh1AkCRn9IgoykTRCBVpzA==
 
 "@babel/parser@^7.17.9":
   version "7.17.9"
@@ -1145,23 +1131,7 @@
     "@babel/parser" "^7.16.7"
     "@babel/types" "^7.16.7"
 
-"@babel/traverse@^7.1.6", "@babel/traverse@^7.12.1", "@babel/traverse@^7.13.0", "@babel/traverse@^7.16.7", "@babel/traverse@^7.16.8", "@babel/traverse@^7.17.3", "@babel/traverse@^7.4.5":
-  version "7.17.3"
-  resolved "https://registry.npmjs.org/@babel/traverse/-/traverse-7.17.3.tgz#0ae0f15b27d9a92ba1f2263358ea7c4e7db47b57"
-  integrity sha512-5irClVky7TxRWIRtxlh2WPUUOLhcPN06AGgaQSB8AEwuyEBgJVuJ5imdHm5zxk8w0QS5T+tDfnDxAlhWjpb7cw==
-  dependencies:
-    "@babel/code-frame" "^7.16.7"
-    "@babel/generator" "^7.17.3"
-    "@babel/helper-environment-visitor" "^7.16.7"
-    "@babel/helper-function-name" "^7.16.7"
-    "@babel/helper-hoist-variables" "^7.16.7"
-    "@babel/helper-split-export-declaration" "^7.16.7"
-    "@babel/parser" "^7.17.3"
-    "@babel/types" "^7.17.0"
-    debug "^4.1.0"
-    globals "^11.1.0"
-
-"@babel/traverse@^7.17.9":
+"@babel/traverse@^7.1.6", "@babel/traverse@^7.12.1", "@babel/traverse@^7.13.0", "@babel/traverse@^7.16.7", "@babel/traverse@^7.16.8", "@babel/traverse@^7.17.3", "@babel/traverse@^7.17.9", "@babel/traverse@^7.4.5":
   version "7.17.9"
   resolved "https://registry.npmjs.org/@babel/traverse/-/traverse-7.17.9.tgz#1f9b207435d9ae4a8ed6998b2b82300d83c37a0d"
   integrity sha512-PQO8sDIJ8SIwipTPiR71kJQCKQYB5NGImbOviK8K+kg5xkNSYXLBupuX9QhatFowrsvo9Hj8WgArg3W7ijNAQw==
@@ -1327,24 +1297,10 @@
     resolve "^1.20.0"
     semver "^7.3.2"
 
-"@embroider/shared-internals@1.7.1":
+"@embroider/shared-internals@1.7.1", "@embroider/shared-internals@^1.0.0":
   version "1.7.1"
   resolved "https://registry.npmjs.org/@embroider/shared-internals/-/shared-internals-1.7.1.tgz#68afe26aa84e7431b858fcc1f1e0e8a5aaa7c90b"
   integrity sha512-qT7i3EnOogwvi6xRl7wjJmx27rLlUZG6B6HJXAKXvZOyGFVs0GnQKIJX+7zX2PZAcqlpqhmdWm9MPdrof0dj5g==
-  dependencies:
-    babel-import-util "^1.1.0"
-    ember-rfc176-data "^0.3.17"
-    fs-extra "^9.1.0"
-    js-string-escape "^1.0.1"
-    lodash "^4.17.21"
-    resolve-package-path "^4.0.1"
-    semver "^7.3.5"
-    typescript-memoize "^1.0.1"
-
-"@embroider/shared-internals@^1.0.0":
-  version "1.6.0"
-  resolved "https://registry.npmjs.org/@embroider/shared-internals/-/shared-internals-1.6.0.tgz#35ade2ce1202e529107bf6d1fae4ca753f6ebe5a"
-  integrity sha512-es7+pV2S9+tgX5T4losppheXfa+xWtKD6x0gq7mxqA4DIdE14mORNeSWM8/Fu9f/t0tJnPqttddbgnDYw+SvrA==
   dependencies:
     babel-import-util "^1.1.0"
     ember-rfc176-data "^0.3.17"
@@ -6513,9 +6469,9 @@ ember-auto-import@^1.11.3:
     webpack "^4.43.0"
 
 ember-auto-import@^2.2.0, ember-auto-import@^2.2.3, ember-auto-import@^2.2.4:
-  version "2.4.1"
-  resolved "https://registry.npmjs.org/ember-auto-import/-/ember-auto-import-2.4.1.tgz#25e1c21d403eed116b21972ccc5336b49a7ca46b"
-  integrity sha512-lyCl2hzIb6Dlcmfm3gI3lAtaOk/nzR2kM4GDJRRu19YJhhSkpiIMSDVjw8ShxmnYiI005R1eOcP3C/GgRRW5mA==
+  version "2.4.2"
+  resolved "https://registry.npmjs.org/ember-auto-import/-/ember-auto-import-2.4.2.tgz#d4d3bc6885a11cf124f606f5c37169bdf76e37ae"
+  integrity sha512-REh+1aJWpTkvN42a/ga41OuRpUsSW7UQfPr2wPtYx56o/xoSNhVBXejy7yV9ObrkN7gogz6fs2xZwih5cOwpYg==
   dependencies:
     "@babel/core" "^7.16.7"
     "@babel/plugin-proposal-class-properties" "^7.16.7"
@@ -7445,7 +7401,7 @@ eslint-module-utils@^2.7.2:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "4.4.0-alpha.15"
+  version "4.5.0-alpha.4"
 
 eslint-plugin-ember@^10.5.8:
   version "10.6.0"
