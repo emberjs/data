@@ -26,7 +26,7 @@
     "@ember-data/model": "4.5.0-alpha.4",
     "@ember-data/record-data": "4.5.0-alpha.4",
     "@ember-data/store": "4.5.0-alpha.4",
-    "ember-auto-import": "^2.2.4",
+    "ember-auto-import": "^2.4.2",
     "ember-inflector": "^4.0.1"
   },
   "devDependencies": {
@@ -54,7 +54,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.17.0",
     "qunit-dom": "^2.0.0",
-    "webpack": "^5.37.1"
+    "webpack": "^5.73.0"
   },
   "engines": {
     "node": "12.* || >= 14.*",

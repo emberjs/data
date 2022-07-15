@@ -22,7 +22,7 @@
     "test": "ember test --test-port=0"
   },
   "dependencies": {
-    "ember-auto-import": "^2.2.4",
+    "ember-auto-import": "^2.4.2",
     "ember-data": "4.5.0-alpha.4"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.17.0",
     "qunit-dom": "^2.0.0",
-    "webpack": "^5.37.1"
+    "webpack": "^5.73.0"
   },
   "ember": {
     "edition": "octane"
