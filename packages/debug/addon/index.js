@@ -30,6 +30,7 @@ import { get } from '@ember/object';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';
 import { capitalize, underscore } from '@ember/string';
+import { next } from '@ember/runloop';
 
 import { typesMapFor } from './setup';
 
@@ -91,7 +92,8 @@ export default DataAdapter.extend({
 
     // Overwrite _createRecordData so newly added models will get added to the list
     store._createRecordData = (identifier) => {
-      this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods);
+      // defer to ensure first-create does not result in an infinite loop, see https://github.com/emberjs/data/issues/8006
+      next(() => this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods));
       return __createRecordData.call(store, identifier);
     };
 
