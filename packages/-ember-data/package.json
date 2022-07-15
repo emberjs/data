@@ -43,7 +43,7 @@
     "@babel/plugin-transform-typescript": "^7.18.8",
     "@ember-data/unpublished-test-infra": "4.5.0-alpha.4",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "^2.8.1",
+    "@ember/test-helpers": "~2.7.0",
     "@glimmer/component": "^1.1.2",
     "@types/ember": "^4.0.0",
     "@types/ember-qunit": "^5.0.0",
