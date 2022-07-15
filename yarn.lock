@@ -6672,9 +6672,9 @@ ember-export-application-global@^2.0.1:
   integrity sha512-B7wiurPgsxsSGzJuPFkpBWnaeuCu2PGpG2BjyrfA1VcL7//o+5RSnZqiCEY326y7qmxb2GoCgo0ft03KBU0rRw==
 
 ember-get-config@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/ember-get-config/-/ember-get-config-2.0.0.tgz#3d191a8ac42830f4fd6769597c6179c0cdef6d5b"
-  integrity sha512-FdT1iuldJZ8TRweh+wO9wcT86uVbW117aME6WCM+S0lPp282XH+3/aWVDD0hmcbBQC3aEV/Rs/vOv1mjBfeR0w==
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/ember-get-config/-/ember-get-config-2.1.1.tgz#bede76c25d95dbefab8d30064abf7aa00bc19235"
+  integrity sha512-uNmv1cPG/4qsac8oIf5txJ2FZ8p88LEpG4P3dNcjsJS98Y8hd0GPMFwVqpnzI78Lz7VYRGQWY4jnE4qm5R3j4g==
   dependencies:
     "@embroider/macros" "^0.50.0 || ^1.0.0"
     ember-cli-babel "^7.26.6"
