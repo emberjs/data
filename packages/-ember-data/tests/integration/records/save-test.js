@@ -46,10 +46,17 @@ module('integration/records/save - Save Record', function (hooks) {
     assert.ok(true, 'save operation was resolved');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       assert.strictEqual(saved.get('id'), '123');
+      assert.strictEqual(saved.id, undefined);
+    } else {
+      assert.strictEqual(saved.id, undefined);
     }
     assert.strictEqual(model, post, 'resolves with the model');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
-      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 2 });
+      // We don't care about the exact value of the property, but accessing it
+      // should not throw an error and only show a deprecation.
+      assert.strictEqual(saved.__ec_cancel__, undefined);
+
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 4 });
     }
   });
 
