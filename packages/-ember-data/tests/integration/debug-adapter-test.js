@@ -39,22 +39,18 @@ if (has('@ember-data/debug')) {
     });
 
     test('Watching Model Types', async function (assert) {
-      assert.expect(5);
+      assert.expect(4);
       let { owner } = this;
       let debugAdapter = owner.lookup('data-adapter:main');
 
       function added(types) {
         assert.strictEqual(types.length, 1, 'added one type');
         assert.strictEqual(types[0].name, 'post', 'the type is post');
-        assert.strictEqual(types[0].count, 0, 'we added zero posts');
+        assert.strictEqual(types[0].count, 1, 'we added one post');
         assert.strictEqual(types[0].object, store.modelFor('post'), 'we received the ModelClass for post');
       }
 
-      function updated(types) {
-        assert.strictEqual(types[0].count, 1, 'We updated one record');
-      }
-
-      debugAdapter.watchModelTypes(added, updated);
+      debugAdapter.watchModelTypes(added, () => null);
 
       store.push({
         data: {
