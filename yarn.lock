@@ -7101,13 +7101,13 @@ eslint-plugin-import@^2.26.0:
     resolve "^1.22.0"
     tsconfig-paths "^3.14.1"
 
-eslint-plugin-mocha@^10.0.5:
-  version "10.0.5"
-  resolved "https://registry.npmjs.org/eslint-plugin-mocha/-/eslint-plugin-mocha-10.0.5.tgz#c3b1e9f59c01063566d8e64b64226533376ffccd"
-  integrity sha512-H5xuD5NStlpaKLqUWYC5BsMx8fHgrIYsdloFbONUTc2vgVNiJcWdKoX29Tt0BO75QgAltplPLIziByMozGGixA==
+eslint-plugin-mocha@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.npmjs.org/eslint-plugin-mocha/-/eslint-plugin-mocha-9.0.0.tgz#b4457d066941eecb070dc06ed301c527d9c61b60"
+  integrity sha512-d7knAcQj1jPCzZf3caeBIn3BnW6ikcvfz0kSqQpwPYcVGLoJV5sz0l0OJB2LR8I7dvTDbqq1oV6ylhSgzA10zg==
   dependencies:
     eslint-utils "^3.0.0"
-    rambda "^7.1.0"
+    ramda "^0.27.1"
 
 eslint-plugin-node@^11.1.0:
   version "11.1.0"
@@ -12317,10 +12317,10 @@ qunit@^2.17.0, qunit@^2.19.1:
     node-watch "0.7.3"
     tiny-glob "0.2.9"
 
-rambda@^7.1.0:
-  version "7.1.4"
-  resolved "https://registry.npmjs.org/rambda/-/rambda-7.1.4.tgz#7faa9665a54c5d81773975532a942b3113bb4a56"
-  integrity sha512-bPK8sSiVHIC7CqdWga8R+hRi5hfc4hK6S01lZW4KrLwSNryQoKaCOJA9GNiF20J7Nbe1vejRfR37/ASQXFL5EA==
+ramda@^0.27.1:
+  version "0.27.2"
+  resolved "https://registry.npmjs.org/ramda/-/ramda-0.27.2.tgz#84463226f7f36dc33592f6f4ed6374c48306c3f1"
+  integrity sha512-SbiLPU40JuJniHexQSAgad32hfwd+DRUdwF2PlVuI5RZD0/vahUco7R8vD86J/tcEKKF9vZrUVwgtmGCqlCKyA==
 
 randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5, randombytes@^2.1.0:
   version "2.1.0"
