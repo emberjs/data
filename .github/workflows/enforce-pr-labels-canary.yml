@@ -14,21 +14,21 @@ jobs:
   enforce-changelog-label:
     runs-on: ubuntu-latest
     steps:
-      - uses: yogevbd/enforce-label-action@2.1.0
+      - uses: yogevbd/enforce-label-action@2.2.2
         with:
           REQUIRED_LABELS_ANY: 'changelog:breaking,changelog:feat,changelog:bugfix,changelog:perf,changelog:cleanup,changelog:deprecation,changelog:doc,changelog:test,changelog:chore,skip-changelog'
           REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. Use the label `skip-changelog` and none of the others in the list to avoid this being included. ['changelog:breaking', 'changelog:feat', 'changelog:bugfix', 'changelog:perf', 'changelog:cleanup', 'changelog:deprecation', 'changelog:doc', 'changelog:test', 'changelog:chore', 'skip-changelog']"
   enforce-target-label:
     runs-on: ubuntu-latest
     steps:
-      - uses: yogevbd/enforce-label-action@2.1.0
+      - uses: yogevbd/enforce-label-action@2.2.2
         with:
           REQUIRED_LABELS_ANY: 'target:canary,target:beta,target:release,target:lts,target:lts-prev'
           REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for what release channels to target. Use the label `target:canary` and none of the others in the list if this PR should not be backported. ['target:canary', 'target:beta', 'target:release', 'target:lts', 'target:lts-prev']"
   ban-release-branch-labels:
     runs-on: ubuntu-latest
     steps:
-      - uses: yogevbd/enforce-label-action@2.1.0
+      - uses: yogevbd/enforce-label-action@2.2.2
         with:
           BANNED_LABELS: 'backport-beta,backport-release,backport-lts,backport-lts-prev,backport-old-release'
           BANNED_LABELS_DESCRIPTION: "The following labels should only be applied to PRs targeting release channel branches that backport a change already on the master branch, remove them.['backport-beta', 'backport-release', 'backport-lts', 'backport-lts-prev', 'backport-old-release']"
