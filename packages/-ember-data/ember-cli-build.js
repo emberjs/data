@@ -9,7 +9,7 @@ module.exports = function (defaults) {
 
   const terserSettings = {
     exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
-    /*
+
     terser: {
       compress: {
         ecma: 2016, // probably can be higher
@@ -31,7 +31,6 @@ module.exports = function (defaults) {
       sourceMap: false,
       ecma: 2016,
     },
-    */
   };
 
   if (isTest && isProd) {
