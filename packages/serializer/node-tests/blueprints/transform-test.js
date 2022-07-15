@@ -195,4 +195,38 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
     });
   });
+
+  describe('in addon', function () {
+    beforeEach(function () {
+      return emberNew({ target: 'addon' });
+    });
+
+    describe('with ember-qunit (default)', function () {
+      it('transform-test foo', function () {
+        return emberGenerateDestroy(['transform-test', 'foo'], (_file) => {
+          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
+            fixture(__dirname, 'transform-test/rfc232-addon.js')
+          );
+        });
+      });
+    });
+
+    describe('with ember-mocha', function () {
+      beforeEach(function () {
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-mocha', dev: true },
+        ]);
+        generateFakePackageManifest('ember-mocha', '0.16.2');
+      });
+
+      it('transform-test foo', function () {
+        return emberGenerateDestroy(['transform-test', 'foo'], (_file) => {
+          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
+            fixture(__dirname, 'transform-test/mocha-rfc232-addon.js')
+          );
+        });
+      });
+    });
+  });
 });
