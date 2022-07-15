@@ -356,7 +356,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     if (fastboot) {
       return fastboot;
     }
-    return (this._fastboot = getOwner(this).lookup('service:fastboot'));
+    return (this._fastboot = (getOwner(this) as any).lookup('service:fastboot'));
   }
 
   set fastboot(value: FastBoot) {

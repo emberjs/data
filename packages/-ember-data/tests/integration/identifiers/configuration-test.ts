@@ -18,6 +18,7 @@ import Store, {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
+import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type {
   IdentifierBucket,
   ResourceData,
@@ -73,7 +74,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
   });
 
   test(`The configured generation method is used for pushed records`, async function (assert) {
-    const store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store') as Store;
     const record = store.push({
       data: {
         type: 'user',
@@ -109,7 +110,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierGenerationMethod(generationMethod);
 
-    const store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store') as Store;
     const newRecord = store.createRecord('user', {
       firstName: 'James',
       username: '@cthoburn',
@@ -166,8 +167,8 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const store = this.owner.lookup('service:store');
-    const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 });
+    const store = this.owner.lookup('service:store') as Store;
+    const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 }) as DSModel;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,
@@ -230,8 +231,13 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const store = this.owner.lookup('service:store');
-    const record = store.createRecord('user', { id: '1', firstName: 'Chris', username: '@runspired', age: 31 });
+    const store = this.owner.lookup('service:store') as Store;
+    const record = store.createRecord('user', {
+      id: '1',
+      firstName: 'Chris',
+      username: '@runspired',
+      age: 31,
+    }) as DSModel;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,
@@ -294,8 +300,8 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const store = this.owner.lookup('service:store');
-    const record: any = store.push({
+    const store = this.owner.lookup('service:store') as Store;
+    const record = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -305,7 +311,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           age: 22,
         },
       },
-    });
+    }) as DSModel;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,
@@ -333,7 +339,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       resetMethodCalled = true;
     });
 
-    const store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store') as Store;
     run(() => store.destroy());
     assert.ok(resetMethodCalled, 'We called the reset method when the application was torn down');
   });
@@ -382,7 +388,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       testMethod(identifier);
     });
 
-    const store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store') as Store;
     const userByUsernamePromise = store.findRecord('user', '@runspired');
     const userByIdPromise = store.findRecord('user', '1');
 
@@ -439,7 +445,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       forgetMethodCalls++;
       assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
     });
-    const store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store') as Store;
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = () => {
@@ -447,7 +453,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
         data: null,
       });
     };
-    const user: any = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -456,7 +462,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           firstName: 'Chris',
         },
       },
-    });
+    }) as DSModel;
     const userIdentifier = recordIdentifierFor(user);
 
     user.deleteRecord();
@@ -516,8 +522,8 @@ module('Integration | Identifiers - configuration', function (hooks) {
     });
 
     // no retainers
-    const store = this.owner.lookup('service:store');
-    const freeWillie: any = store.push({
+    const store = this.owner.lookup('service:store') as Store;
+    const freeWillie = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -526,7 +532,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           firstName: 'Chris',
         },
       },
-    });
+    }) as DSModel;
     const freeWillieIdentifier = recordIdentifierFor(freeWillie);
     expectedIdentifiers.push(freeWillieIdentifier);
 
@@ -537,7 +543,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     forgetMethodCalls = 0;
 
     // an async relationship retains
-    const jailBird: any = store.push({
+    const jailBird = store.push({
       data: {
         type: 'retained-record',
         id: '1',
@@ -550,10 +556,10 @@ module('Integration | Identifiers - configuration', function (hooks) {
           },
         },
       },
-    });
+    }) as DSModel;
 
     // the aforementioned async retainer
-    const gatekeeper: any = store.push({
+    const gatekeeper = store.push({
       data: {
         type: 'retainer',
         id: '1',
@@ -569,10 +575,10 @@ module('Integration | Identifiers - configuration', function (hooks) {
           },
         },
       },
-    });
+    }) as DSModel;
 
     // a sync reference to a record we will unload
-    const jailhouse: any = store.push({
+    const jailhouse = store.push({
       data: {
         type: 'container',
         id: '1',
@@ -583,7 +589,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           retainer: { data: { type: 'retainer', id: '1' } },
         },
       },
-    });
+    }) as DSModel;
 
     const jailBirdIdentifier = recordIdentifierFor(jailBird);
     const gatekeeperIdentifier = recordIdentifierFor(gatekeeper);
