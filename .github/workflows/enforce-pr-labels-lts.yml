@@ -35,6 +35,6 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions-ecosystem/action-add-labels@v1.1.2
+      - uses: actions-ecosystem/action-add-labels@v1.1.3
         with:
           labels: backport-lts
