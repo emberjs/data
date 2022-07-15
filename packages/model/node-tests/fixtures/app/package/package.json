@@ -4,7 +4,8 @@
   "description": "App fixture package for ember-cli-blueprint-test-helpers",
   "private": true,
   "engines": {
-    "node": "12.* || >= 14.*"
+    "node": "12.* || >= 14.*",
+    "yarn": "1.22.19"
   },
   "devDependencies": {
     "ember-cli": "*",

@@ -1857,7 +1857,7 @@ abstract class CoreStore extends Service {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName: string, query, options): PromiseObject<RecordInstance | null> {
+  queryRecord(modelName: string, query, options?): PromiseObject<RecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
@@ -3031,7 +3031,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return Adapter
   */
-  adapterFor(modelName) {
+  adapterFor(modelName: string) {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
@@ -3048,7 +3048,7 @@ abstract class CoreStore extends Service {
       return adapter;
     }
 
-    let owner = getOwner(this);
+    let owner: any = getOwner(this);
 
     // name specific adapter
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
@@ -3119,7 +3119,7 @@ abstract class CoreStore extends Service {
       return serializer;
     }
 
-    let owner = getOwner(this);
+    let owner: any = getOwner(this);
 
     // by name
     serializer = owner.lookup(`serializer:${normalizedModelName}`);

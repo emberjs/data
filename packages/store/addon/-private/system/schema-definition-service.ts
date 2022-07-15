@@ -114,7 +114,7 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
 }
 
 export function _lookupModelFactory(store: Store, normalizedModelName: string): Model | null {
-  let owner = getOwner(store);
+  let owner: any = getOwner(store);
 
   return owner.factoryFor(`model:${normalizedModelName}`);
 }

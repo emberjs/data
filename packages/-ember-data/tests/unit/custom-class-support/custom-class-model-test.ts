@@ -109,7 +109,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       },
     });
     this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
     recordData.storeWrapper.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, 'key');
     recordData.storeWrapper.notifyBelongsToChange(identifier.type, identifier.id, identifier.lid, 'key');
@@ -135,7 +135,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       },
     });
     this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
     assert.strictEqual(returnValue, person, 'createRecord returns the instantiated record');
     assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
@@ -152,7 +152,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       },
     });
     this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {
       attributesDefinitionFor({ type: string }): AttributesSchema {
         return {
@@ -234,7 +234,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         if (typeof identifier === 'string') {
@@ -296,7 +296,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('hasModelFor with custom schema definition', async function (assert) {
     assert.expect(4);
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let count = 0;
     let schema = {
       attributesDefinitionFor() {
@@ -332,7 +332,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let person = store.createRecord('person', { name: 'chris' });
     let promisePerson = await store.saveRecord(person);
     assert.strictEqual(person, promisePerson, 'save promise resolves with the same record');
@@ -366,7 +366,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       },
     });
     this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
     assert.true(rd!.isDeleted!(), 'record has been marked as deleted');
@@ -386,7 +386,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;
@@ -470,7 +470,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('relationshipReferenceFor belongsTo', async function (assert) {
     assert.expect(3);
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {
       attributesDefinitionFor({ type: modelName }: { type: string }): AttributesSchema {
         if (modelName === 'person') {
@@ -542,7 +542,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('relationshipReferenceFor hasMany', async function (assert) {
     assert.expect(3);
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {
       attributesDefinitionFor({ type: modelName }: { type: string }): AttributesSchema {
         if (modelName === 'person') {

@@ -31,7 +31,7 @@ module('Integration | Graph | Implicit Keys', function (hooks) {
     owner.register('model:product', Product);
     owner.register('model:organization', Organization);
 
-    const store = owner.lookup('service:store');
+    const store = owner.lookup('service:store') as Store;
     const graph = graphFor(store);
     let user, product, organization;
 

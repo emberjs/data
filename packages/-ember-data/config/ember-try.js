@@ -50,10 +50,10 @@ module.exports = function () {
           },
         },
         {
-          name: 'ember-lts-3.24',
+          name: 'ember-lts-4.4',
           npm: {
             devDependencies: {
-              'ember-source': '~3.24.0',
+              'ember-source': '~4.4.0',
             },
           },
         },

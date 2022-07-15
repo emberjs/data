@@ -4,7 +4,7 @@ import type Store from '@ember-data/store';
 
 import Model from '../model';
 
-/* 
+/*
     In case someone defined a relationship to a mixin, for example:
     ```
       import Model, { belongsTo, hasMany } from '@ember-data/model';
@@ -24,7 +24,7 @@ import Model from '../model';
     in this case
   */
 export default function modelForMixin(store: Store, normalizedModelName: string): Model | null {
-  let owner = getOwner(store);
+  let owner: any = getOwner(store);
   let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
   let mixin = MaybeMixin && MaybeMixin.class;
   if (mixin) {

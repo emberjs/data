@@ -19,10 +19,13 @@ import InternalModel from './model/internal-model';
  @internal
  */
 export default class InternalModelMap {
-  private _idToModel: ConfidentDict<InternalModel> = Object.create(null);
-  private _models: InternalModel[] = [];
+  _idToModel: ConfidentDict<InternalModel> = Object.create(null);
+  _models: InternalModel[] = [];
+  modelName: string;
 
-  constructor(public modelName: string) {}
+  constructor(modelName: string) {
+    this.modelName = modelName;
+  }
 
   get(id: string): InternalModel | null {
     return this._idToModel[id] || null;
