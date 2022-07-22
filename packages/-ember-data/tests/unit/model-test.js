@@ -89,7 +89,7 @@ module('unit/model - Model', function (hooks) {
       record.deleteRecord();
       await record.save();
 
-      let currentState = record._internalModel.currentState;
+      let currentState = record.currentState;
 
       assert.strictEqual(currentState.stateName, 'root.deleted.saved', 'record is in a persisted deleted state');
       assert.true(get(record, 'isDeleted'));
@@ -109,7 +109,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      currentState = record._internalModel.currentState;
+      currentState = record.currentState;
 
       assert.strictEqual(currentState.stateName, 'root.deleted.saved', 'record is still in a persisted deleted state');
       assert.true(get(record, 'isDeleted'), 'The record is still deleted');
@@ -134,7 +134,7 @@ module('unit/model - Model', function (hooks) {
       record.deleteRecord();
       await record.save();
 
-      let currentState = record._internalModel.currentState;
+      let currentState = record.currentState;
 
       assert.strictEqual(currentState.stateName, 'root.deleted.saved', 'record is in a persisted deleted state');
       assert.true(get(record, 'isDeleted'));
@@ -162,7 +162,7 @@ module('unit/model - Model', function (hooks) {
         );
       }
 
-      currentState = record._internalModel.currentState;
+      currentState = record.currentState;
 
       assert.strictEqual(currentState.stateName, 'root.deleted.saved', 'record is still in a persisted deleted state');
       assert.true(get(record, 'isDeleted'), 'The record is still deleted');

@@ -62,6 +62,8 @@ export interface RecordData {
 
   isNew?(): boolean;
   isDeleted?(): boolean;
+  // needs rfc
+  isEmpty?(): boolean;
 
   isDeletionCommitted?(): boolean;
 

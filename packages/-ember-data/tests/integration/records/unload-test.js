@@ -632,7 +632,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       'one boat record is known'
     );
     assert.strictEqual(knownBoats.models[0], initialBoatInternalModel, 'We still have our boat');
-    assert.true(initialBoatInternalModel.currentState.isEmpty, 'Model is in the empty state');
+    assert.true(initialBoatInternalModel.isEmpty, 'Model is in the empty state');
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should still be 1');
     assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should still be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
@@ -826,7 +826,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     const internalModel = record._internalModel;
-    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     run(function () {
       store.unloadRecord(record);
@@ -834,12 +834,12 @@ module('integration/unload - Unloading Records', function (hooks) {
       assert.false(internalModel.isDestroyed, 'the internal model is not destroyed');
       assert.true(internalModel._isDematerializing, 'the internal model is dematerializing');
       internalModel.cancelDestroy();
-      assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+      assert.true(internalModel.isEmpty, 'We are unloaded after unloadRecord');
     });
 
     assert.false(internalModel.isDestroyed, 'the internal model was not destroyed');
     assert.false(internalModel._isDematerializing, 'the internal model is no longer dematerializing');
-    assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are still unloaded after unloadRecord');
+    assert.true(internalModel.isEmpty, 'We are still unloaded after unloadRecord');
   });
 
   test('after unloading a record, the record can be fetched again immediately', function (assert) {
@@ -890,20 +890,16 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     const internalModel = record._internalModel;
-    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     // we test that we can sync call unloadRecord followed by findRecord
     return run(() => {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+      assert.true(internalModel.isEmpty, 'We are unloaded after unloadRecord');
       return store.findRecord('person', '1').then((newRecord) => {
         assert.strictEqual(internalModel, newRecord._internalModel, 'the old internalModel is reused');
-        assert.strictEqual(
-          newRecord._internalModel.currentState.stateName,
-          'root.loaded.saved',
-          'We are loaded after findRecord'
-        );
+        assert.strictEqual(newRecord.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
       });
     });
   });
@@ -961,24 +957,20 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     const internalModel = record._internalModel;
-    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     // we test that we can sync call unloadRecord followed by findRecord
     return run(() => {
       assert.strictEqual(record.get('cars.firstObject.make'), 'jeep');
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.strictEqual(
-        internalModel.currentState.stateName,
-        'root.empty',
-        'Expected the previous internal model tobe unloaded'
-      );
+      assert.true(internalModel.isEmpty, 'Expected the previous internal model tobe unloaded');
 
       return store.findRecord('person', '1').then((record) => {
         assert.strictEqual(record.get('cars.length'), 0, 'Expected relationship to be cleared by the new push');
         assert.strictEqual(internalModel, record._internalModel, 'the old internalModel is reused');
         assert.strictEqual(
-          record._internalModel.currentState.stateName,
+          record.currentState.stateName,
           'root.loaded.saved',
           'Expected the NEW internal model to be loaded'
         );
@@ -1027,7 +1019,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     const internalModel = record._internalModel;
     const bike = store.peekRecord('bike', '1');
-    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     assert.strictEqual(record.get('bike.name'), 'mr bike');
 
@@ -1036,7 +1028,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
       assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
-      assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+      assert.true(internalModel.isEmpty, 'We are unloaded after unloadRecord');
 
       let wait = store.findRecord('person', '1').then((newRecord) => {
         assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
@@ -1081,12 +1073,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     let internalModel = record._internalModel;
-    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     run(function () {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+      assert.true(internalModel.isEmpty, 'We are unloaded after unloadRecord');
     });
 
     run(function () {
@@ -1096,7 +1088,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     record = store.peekRecord('person', '1');
     internalModel = record._internalModel;
 
-    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
   });
 
   test('after unloading a record, the record can be saved again immediately', function (assert) {
