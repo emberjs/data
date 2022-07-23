@@ -210,7 +210,7 @@ export default class InternalModel {
     // models to rematerialize their records.
 
     // eager checks to avoid instantiating record data if we are empty or loading
-    if (!this.__recordData || !this.hasRecord) {
+    if (this.isEmpty) {
       return true;
     }
 
@@ -246,7 +246,7 @@ export default class InternalModel {
   }
 
   isNew(): boolean {
-    if (this._recordData.isNew) {
+    if (this.__recordData && this._recordData.isNew) {
       return this._recordData.isNew();
     } else {
       return false;
@@ -276,17 +276,12 @@ export default class InternalModel {
     }
     // even if we have a past request, if we are now empty we are not loaded
     // typically this is true after an unloadRecord call
-    if (this.isEmpty) {
-      return false;
-    }
-    const req = this.store.getRequestStateService();
-    const { identifier } = this;
-    const fulfilled = req.getLastRequestForRecord(identifier);
+
     // if we are not empty, not new && we have a fulfilled request then we are loaded
     // we should consider allowing for something to be loaded that is simply "not empty".
     // which is how RecordState currently handles this case; however, RecordState is buggy
     // in that it does not account for unloading.
-    return fulfilled !== null;
+    return !this.isEmpty;
   }
 
   getRecord(properties?: CreateRecordProperties): RecordInstance {
@@ -473,29 +468,6 @@ export default class InternalModel {
       (internalModel) => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel),
       (e) => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
     );
-  }
-
-  get isEmpty(): boolean {
-    return !this.__recordData || (!this.isNew() && this._recordData.isEmpty?.()) || false;
-  }
-  get isLoading() {
-    const req = this.store.getRequestStateService();
-    const { identifier } = this;
-    const fulfilled = req.getLastRequestForRecord(identifier);
-    return (
-      !this.isLoaded &&
-      fulfilled === null &&
-      req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
-    );
-  }
-  get isLoaded() {
-    if (this.isNew()) {
-      return true;
-    }
-    const req = this.store.getRequestStateService();
-    const { identifier } = this;
-    const fulfilled = req.getLastRequestForRecord(identifier);
-    return fulfilled !== null || !this.isEmpty;
   }
 
   getBelongsTo(key: string, options?: Dict<unknown>): PromiseBelongsTo | RecordInstance | null {
@@ -757,21 +729,21 @@ export default class InternalModel {
     if (this.isNew()) {
       this.store._notificationManager.notify(this.identifier, 'identity');
     }
-    const hasRecord = this.hasRecord;
-    if (hasRecord) {
-      let changedKeys = this._recordData.pushData(data, true);
-      this.notifyAttributes(changedKeys);
-    } else {
-      this._recordData.pushData(data);
-    }
+    this._recordData.pushData(data, this.hasRecord);
   }
 
   notifyAttributes(keys: string[]): void {
-    let manager = this.store._notificationManager;
-    let { identifier } = this;
+    if (this.hasRecord) {
+      let manager = this.store._notificationManager;
+      let { identifier } = this;
 
-    for (let i = 0; i < keys.length; i++) {
-      manager.notify(identifier, 'attributes', keys[i]);
+      if (!keys || !keys.length) {
+        manager.notify(identifier, 'attributes');
+      } else {
+        for (let i = 0; i < keys.length; i++) {
+          manager.notify(identifier, 'attributes', keys[i]);
+        }
+      }
     }
   }
 
@@ -892,18 +864,6 @@ export default class InternalModel {
     });
   }
 
-  _unhandledEvent(state, name: string, context) {
-    let errorMessage = 'Attempted to handle event `' + name + '` ';
-    errorMessage += 'on ' + String(this) + ' while in state ';
-    errorMessage += state.stateName + '. ';
-
-    if (context !== undefined) {
-      errorMessage += 'Called with ' + inspect(context) + '.';
-    }
-
-    throw new EmberError(errorMessage);
-  }
-
   removeFromInverseRelationships() {
     if (this.__recordData) {
       this.store._backburner.join(() => {
@@ -1021,11 +981,6 @@ export default class InternalModel {
   adapterDidCommit(data) {
     this._recordData.didCommit(data);
     this.store.recordArrayManager.recordDidChange(this.identifier);
-
-    if (!data) {
-      return;
-    }
-    this.store._notificationManager.notify(this.identifier, 'attributes');
   }
 
   hasErrors(): boolean {

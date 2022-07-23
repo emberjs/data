@@ -7,6 +7,7 @@ import { Promise, resolve } from 'rsvp';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -455,6 +456,9 @@ module('integration/store - findRecord', function (hooks) {
 
     let calls = 0;
     let resolveHandler;
+    let deferred = new Promise((resolve) => {
+      resolveHandler = resolve;
+    });
     let result = {
       data: {
         type: 'car',
@@ -466,37 +470,29 @@ module('integration/store - findRecord', function (hooks) {
       },
     };
 
-    const testAdapter = DS.JSONAPIAdapter.extend({
+    class TestAdapter extends JSONAPIAdapter {
       shouldReloadRecord(store, type, id, snapshot) {
         assert.ok(false, 'shouldReloadRecord should not be called when { reload: true }');
-      },
+      }
       async findRecord() {
         calls++;
 
-        return new Promise((resolve) => {
-          resolveHandler = resolve;
-        });
-      },
-    });
+        return deferred;
+      }
+    }
 
-    this.owner.register('adapter:application', testAdapter);
+    this.owner.register('adapter:application', TestAdapter);
     this.owner.register('serializer:application', JSONAPISerializer.extend());
     let firstPromise, secondPromise;
 
-    run(() => {
-      firstPromise = store.findRecord('car', '1');
-    });
-
-    run(() => {
-      secondPromise = store.findRecord('car', '1');
-    });
-
-    assert.strictEqual(calls, 1, 'We made one call to findRecord');
+    firstPromise = store.findRecord('car', '1', { reload: true });
+    secondPromise = store.findRecord('car', '1', { reload: true });
 
     resolveHandler(result);
     let car1 = await firstPromise;
     let car2 = await secondPromise;
 
+    assert.strictEqual(calls, 1, 'We made one call to findRecord');
     assert.strictEqual(car1, car2, 'we receive the same car back');
   });
 
@@ -1213,7 +1209,7 @@ module('integration/store - deleteRecord', function (hooks) {
       // This is here to transition the model out of the inFlight state to avoid
       // throwing another error when the test context is torn down, which tries
       // to unload the record, which is not allowed when record is inFlight.
-      car._internalModel.transitionTo('loaded.saved');
+      // car._internalModel.transitionTo('loaded.saved');
     }
   );
 });

@@ -4,6 +4,8 @@ import ArrayProxy from '@ember/array/proxy';
 import { computed, get } from '@ember/object';
 import { mapBy, not } from '@ember/object/computed';
 
+import type RecordState from './record-state';
+
 type ValidationError = {
   attribute: string;
   message: string;
@@ -101,6 +103,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T, M = T>() 
   @extends Ember.ArrayProxy
  */
 export default class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
+  declare __record: { currentState: RecordState };
   /**
     @property errorsByAttributeName
     @type {MapWithDefault}
@@ -252,6 +255,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     this.addObjects(errors);
 
     this.errorsFor(attribute).addObjects(errors);
+    this.__record.currentState.notify('isValid');
 
     this.notifyPropertyChange(attribute);
   }
@@ -327,6 +331,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     }
     this.errorsByAttributeName.delete(attribute);
 
+    this.__record.currentState.notify('isValid');
     this.notifyPropertyChange(attribute);
     this.notifyPropertyChange('length');
   }
@@ -387,6 +392,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
       this.notifyPropertyChange(attribute);
     });
 
+    this.__record.currentState.notify('isValid');
     super.clear();
   }
 

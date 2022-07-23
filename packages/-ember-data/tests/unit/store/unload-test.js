@@ -46,40 +46,43 @@ module('unit/store/unload - Store unloading records', function (hooks) {
     store = this.owner.lookup('service:store');
   });
 
-  testInDebug('unload a dirty record asserts', function (assert) {
+  testInDebug('unload an in-flight record asserts', async function (assert) {
     assert.expect(2);
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'record',
-          id: '1',
-          attributes: {
-            title: 'toto',
-          },
+    let record = store.push({
+      data: {
+        type: 'record',
+        id: '1',
+        attributes: {
+          title: 'toto',
         },
-      });
-
-      let record = store.peekRecord('record', 1);
-
-      record.set('title', 'toto2');
-      record._internalModel.send('willCommit');
-
-      assert.strictEqual(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
-
-      assert.expectAssertion(
-        function () {
-          record.unloadRecord();
-        },
-        'You can only unload a record which is not inFlight. `' + record._internalModel.toString() + '`',
-        'can not unload dirty record'
-      );
-
-      // force back into safe to unload mode.
-      run(() => {
-        record._internalModel.transitionTo('deleted.saved');
-      });
+      },
     });
+    const adapter = store.adapterFor('application');
+
+    let resolveLater;
+    const retPromise = new Promise((resolve) => {
+      resolveLater = resolve;
+    });
+    adapter.updateRecord = () => {
+      return retPromise;
+    };
+
+    record.set('title', 'toto2');
+    assert.strictEqual(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
+    let promise = record.save();
+
+    assert.expectAssertion(
+      function () {
+        record.unloadRecord();
+      },
+      'You can only unload a record which is not inFlight. `' + record._internalModel.toString() + '`',
+      'can not unload dirty record'
+    );
+
+    // force back into safe to unload mode.
+    resolveLater({ data: { type: 'record', id: '1' } });
+    await promise;
   });
 
   test('unload a record', function (assert) {

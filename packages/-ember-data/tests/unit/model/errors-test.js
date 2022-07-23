@@ -10,7 +10,13 @@ let errors;
 
 module('unit/model/errors', function (hooks) {
   hooks.beforeEach(function () {
-    errors = DS.Errors.create();
+    errors = DS.Errors.create({
+      __record: {
+        currentState: {
+          notify() {},
+        },
+      },
+    });
   });
 
   AssertPrototype.becameInvalid = function becameInvalid(eventName) {

@@ -1108,17 +1108,16 @@ abstract class CoreStore extends Service {
   }
 
   _findByInternalModel(internalModel: InternalModel, options: FindOptions = {}): Promise<InternalModel> {
+    // pre-loading will change this value
+    const { isEmpty } = internalModel;
+
     if (options.preload) {
       this._backburner.join(() => {
         internalModel.preloadData(options.preload);
       });
     }
 
-    return this._findEmptyInternalModel(internalModel, options);
-  }
-
-  _findEmptyInternalModel(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
-    if (internalModel.isEmpty) {
+    if (isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
 
@@ -1181,6 +1180,7 @@ abstract class CoreStore extends Service {
     assertIdentifierHasId(identifier);
 
     let promise = this._fetchManager.scheduleFetch(identifier, options, generateStackTrace);
+    const isLoading = internalModel.isLoading;
     return promise.then(
       (payload) => {
         // ensure that regardless of id returned we assign to the correct record
@@ -1197,7 +1197,7 @@ abstract class CoreStore extends Service {
         }
       },
       (error) => {
-        if (internalModel.isEmpty) {
+        if (internalModel.isEmpty || isLoading) {
           internalModel.unloadRecord();
         }
         throw error;
@@ -1454,7 +1454,7 @@ abstract class CoreStore extends Service {
     let finds = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
-      finds[i] = this._findEmptyInternalModel(internalModels[i], options);
+      finds[i] = this._findByInternalModel(internalModels[i], options);
     }
 
     return all(finds);
@@ -2153,15 +2153,6 @@ abstract class CoreStore extends Service {
   }
 
   /**
-    @method _didUpdateAll
-    @param {String} modelName
-    @private
-  */
-  _didUpdateAll(modelName: string): void {
-    this.recordArrayManager._didUpdateAll(modelName);
-  }
-
-  /**
     This method returns a filtered array that contains all of the
     known records for a given type in the store.
 
@@ -2261,6 +2252,10 @@ abstract class CoreStore extends Service {
     resolver: RSVP.Deferred<void>,
     options: FindOptions
   ): void | Promise<void> {
+    assert(
+      `Cannot initiate a save request for an unloaded record: ${internalModel.identifier}`,
+      !internalModel.isEmpty && !internalModel.isDestroyed
+    );
     if (internalModel._isRecordFullyDeleted()) {
       resolver.resolve();
       return resolver.promise;
@@ -2433,13 +2428,15 @@ abstract class CoreStore extends Service {
   _load(data: ExistingResourceObject) {
     // TODO this should determine identifier via the cache before making assumptions
     const resource = constructResource(normalizeModelName(data.type), ensureStringId(data.id), coerceId(data.lid));
+    const maybeIdentifier = this.identifierCache.peekRecordIdentifier(resource);
 
     let internalModel = internalModelFactoryFor(this).lookup(resource, data);
 
     // store.push will be from empty
     // findRecord will be from root.loading
+    // this cannot be loading state if we do not already have an identifier
     // all else will be updates
-    const isLoading = internalModel.isLoading;
+    const isLoading = internalModel.isLoading || (!internalModel.isLoaded && maybeIdentifier);
     const isUpdate = internalModel.isEmpty === false && !isLoading;
 
     // exclude store.push (root.empty) case

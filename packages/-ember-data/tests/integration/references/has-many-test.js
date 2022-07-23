@@ -739,65 +739,55 @@ module('integration/references/has-many', function (hooks) {
     });
   });
 
-  test('load() - only a single find is triggered', function (assert) {
-    var done = assert.async();
-
+  test('load() - only a single find is triggered', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
-
-    var deferred = defer();
-    var count = 0;
+    let resolveRequest;
+    let defered = new Promise((resolve) => {
+      resolveRequest = resolve;
+    });
+    let count = 0;
 
     adapter.findMany = function (store, type, id) {
       count++;
       assert.strictEqual(count, 1);
 
-      return deferred.promise;
+      return defered;
     };
 
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: 1,
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
-              ],
-            },
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            data: [
+              { type: 'person', id: 1 },
+              { type: 'person', id: 2 },
+            ],
           },
         },
-      });
+      },
     });
 
-    var personsReference = family.hasMany('persons');
+    const personsReference = family.hasMany('persons');
 
-    run(function () {
-      personsReference.load();
-      personsReference.load().then(function (records) {
-        assert.strictEqual(get(records, 'length'), 2);
-      });
+    personsReference.load(); // first trigger
+    const recordsPromise = personsReference.load(); // second trigger
+
+    resolveRequest({
+      data: [
+        { id: 1, type: 'person', attributes: { name: 'Vito' } },
+        { id: 2, type: 'person', attributes: { name: 'Michael' } },
+      ],
     });
 
-    run(function () {
-      deferred.resolve({
-        data: [
-          { id: 1, type: 'person', attributes: { name: 'Vito' } },
-          { id: 2, type: 'person', attributes: { name: 'Michael' } },
-        ],
-      });
-    });
+    const records = await recordsPromise;
+    assert.strictEqual(records.length, 2, 'we loaded the right number of records');
 
-    run(function () {
-      personsReference.load().then(function (records) {
-        assert.strictEqual(get(records, 'length'), 2);
-
-        done();
-      });
-    });
+    const recordsAgain = await personsReference.load(); // third trigger
+    assert.strictEqual(recordsAgain.length, 2, 'we still have the right number of records');
+    assert.strictEqual(count, 1, 'we only requested records once');
   });
 
   test('reload()', function (assert) {

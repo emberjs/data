@@ -164,6 +164,9 @@ class RecordArrayManager {
     let recordArray = this._liveRecordArrays[modelName];
     if (recordArray) {
       set(recordArray, 'isUpdating', false);
+      // TODO potentially we should sync here, currently
+      // this occurs as a side-effect of individual records updating
+      // this._syncLiveRecordArray(recordArray, modelName);
     }
   }
 

@@ -160,6 +160,7 @@ function attr(type, options) {
           }
         }
       }
+      // TODO update state here?
       return this._internalModel.setDirtyAttribute(key, value);
     },
   }).meta(meta);

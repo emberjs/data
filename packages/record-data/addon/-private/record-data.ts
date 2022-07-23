@@ -114,6 +114,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
       }
     }
 
+    if (changedKeys && changedKeys.length) {
+      this._notifyAttributes(changedKeys);
+    }
+
     return changedKeys;
   }
 
@@ -218,6 +222,22 @@ export default class RecordDataDefault implements RelationshipRecordData {
         delete attrs[attribute];
       }
     }
+
+    this._notifyAttributes(changedAttributeNames);
+  }
+
+  _notifyAttributes(keys?: string[]) {
+    const { type, id, lid } = this.identifier;
+    const manager = this.storeWrapper;
+
+    if (!keys) {
+      manager.notifyPropertyChange(type, id, lid);
+      return;
+    }
+
+    for (let i = 0; i < keys.length; i++) {
+      manager.notifyPropertyChange(type, id, lid, keys[i]);
+    }
   }
 
   /**
@@ -300,6 +320,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._inFlightAttributes = null;
 
     this._updateChangedAttributes();
+    this._notifyAttributes(changedKeys);
     this._clearErrors();
 
     this.notifyStateChange();
@@ -377,6 +398,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   setDirtyAttribute(key: string, value: any) {
+    const { type, id, lid } = this.identifier;
+
+    this.storeWrapper.notifyPropertyChange(type, id, lid, key);
     let originalValue;
     // Add the new value to the changed attributes hash
     this._attributes[key] = value;

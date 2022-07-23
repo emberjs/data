@@ -19,6 +19,9 @@ function moveRecordOutOfInFlight(record) {
   // move record out of the inflight state so the tests can clean up
   // correctly
   let { store, _internalModel } = record;
+  // TODO this would be made nicer by a cancellation API
+  let pending = store.getRequestStateService().getPendingRequestsForRecord(_internalModel.identifier);
+  pending.splice(0, pending.length); // release the requests
   store.recordWasError(_internalModel, new Error());
 }
 

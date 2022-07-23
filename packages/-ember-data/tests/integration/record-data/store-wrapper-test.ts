@@ -299,6 +299,10 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       clientDidCreate() {
         this._isNew = true;
       }
+
+      isNew() {
+        return this._isNew;
+      }
     }
 
     const TestStore = Store.extend({

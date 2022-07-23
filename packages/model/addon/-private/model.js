@@ -521,7 +521,7 @@ class Model extends EmberObject {
   */
   @computeOnce
   get errors() {
-    let errors = Errors.create();
+    let errors = Errors.create({ __record: this });
     // TODO we should unify how errors gets populated
     // with the code managing the update. Probably a
     // lazy flush similar to retrieveLatest in ManyArray
