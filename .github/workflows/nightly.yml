@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: 'yarn'
       - name: Install dependencies for master
         run: yarn install
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: 'yarn'
       - name: Install dependencies for ${{ matrix.scenario }}
         run: yarn install
@@ -45,4 +45,3 @@ jobs:
           CI: true
           ASSERT_ALL_DEPRECATIONS: true
         run: yarn test:try-one ${{ matrix.scenario }}
-
