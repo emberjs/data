@@ -340,7 +340,7 @@ export function _findAll(adapter, store, modelName, options) {
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findAll');
 
       store._push(payload);
-      store._didUpdateAll(modelName);
+      store.recordArrayManager._didUpdateAll(modelName);
 
       return recordArray;
     },

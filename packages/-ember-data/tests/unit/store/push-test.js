@@ -44,42 +44,47 @@ module('unit/store/push - DS.Store#push', function (hooks) {
   });
 
   test('Changed attributes are reset when matching data is pushed', function (assert) {
-    let person = run(() => {
-      return store.push({
-        data: {
-          type: 'person',
-          id: 1,
-          attributes: {
-            firstName: 'original first name',
-          },
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          firstName: 'original first name',
         },
-      });
+      },
     });
 
-    assert.strictEqual(person.get('firstName'), 'original first name');
-    assert.strictEqual(person.get('currentState.stateName'), 'root.loaded.saved');
+    assert.strictEqual(person.get('firstName'), 'original first name', 'initial first name is correct');
+    assert.strictEqual(person.get('currentState.stateName'), 'root.loaded.saved', 'initial state name is correct');
 
-    run(() => person.set('firstName', 'updated first name'));
+    person.set('firstName', 'updated first name');
 
-    assert.strictEqual(person.get('firstName'), 'updated first name');
-    assert.strictEqual(person.get('lastName'), undefined);
-    assert.strictEqual(person.get('currentState.stateName'), 'root.loaded.updated.uncommitted');
-    assert.deepEqual(person.changedAttributes().firstName, ['original first name', 'updated first name']);
+    assert.strictEqual(person.get('firstName'), 'updated first name', 'mutated first name is correct');
+    assert.strictEqual(
+      person.currentState.stateName,
+      'root.loaded.updated.uncommitted',
+      'stateName after mutation is correct'
+    );
+    assert.true(person.currentState.isDirty, 'currentState isDirty after mutation');
+    assert.deepEqual(
+      person.changedAttributes().firstName,
+      ['original first name', 'updated first name'],
+      'changed attributes are correct'
+    );
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 1,
-          attributes: {
-            firstName: 'updated first name',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          firstName: 'updated first name',
         },
-      });
+      },
     });
 
     assert.strictEqual(person.get('firstName'), 'updated first name');
     assert.strictEqual(person.get('currentState.stateName'), 'root.loaded.saved');
+    assert.false(person.currentState.isDirty, 'currentState is not Dirty after push');
     assert.notOk(person.changedAttributes().firstName);
   });
 

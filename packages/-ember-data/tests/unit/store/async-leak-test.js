@@ -51,7 +51,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
 
             setTimeout(() => {
               resolve({ data: { type: 'person', id: '1' } });
-            }, 50); // intentionally longer than the 10ms polling interval of `wait()`
+            }, 20); // intentionally longer than the 10ms polling interval of `wait()`
           });
         },
       })
@@ -85,7 +85,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
 
             setTimeout(() => {
               resolve({ data: { type: 'person', id: '1' } });
-            }, 50); // intentionally longer than the 10ms polling interval of `wait()`
+            }, 20); // intentionally longer than the 10ms polling interval of `wait()`
           });
         },
       })
@@ -124,7 +124,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
 
             setTimeout(() => {
               reject({ errors: [] });
-            }, 50); // intentionally longer than the 10ms polling interval of `wait()`
+            }, 20); // intentionally longer than the 10ms polling interval of `wait()`
           });
         },
       })
@@ -277,7 +277,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
 
             setTimeout(() => {
               resolve({ data: { type: 'person', id: `${fakeId++}` } });
-            }, 50); // intentionally longer than the 10ms polling interval of `wait()`
+            }, 20); // intentionally longer than the 10ms polling interval of `wait()`
           });
         },
       })

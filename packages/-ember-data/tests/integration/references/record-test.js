@@ -175,7 +175,11 @@ module('integration/references/record', function (hooks) {
   });
 
   test('load() only a single find is triggered', async function (assert) {
-    let deferred = defer();
+    assert.expect(3);
+    let resolveRequest;
+    let deferred = new Promise((resolve) => {
+      resolveRequest = resolve;
+    });
     let count = 0;
 
     let store = this.owner.lookup('service:store');
@@ -189,18 +193,16 @@ module('integration/references/record', function (hooks) {
     };
     adapter.findRecord = function (store, type, id) {
       count++;
-      assert.strictEqual(count, 1);
+      assert.strictEqual(count, 1, 'we requested findRecord once');
 
-      return deferred.promise;
+      return deferred;
     };
 
     let recordReference = store.getReference('person', 1);
 
-    recordReference.load();
-    let record = await recordReference.load();
-    assert.strictEqual(get(record, 'name'), 'Vito');
-
-    deferred.resolve({
+    recordReference.load(); // first trigger
+    let recordPromise = recordReference.load(); // second trigger
+    resolveRequest({
       data: {
         id: 1,
         type: 'person',
@@ -209,8 +211,10 @@ module('integration/references/record', function (hooks) {
         },
       },
     });
+    let record = await recordPromise;
+    assert.strictEqual(get(record, 'name'), 'Vito');
 
-    record = await recordReference.load();
+    record = await recordReference.load(); // third trigger
     assert.strictEqual(get(record, 'name'), 'Vito');
   });
 

@@ -371,7 +371,7 @@ module('async belongs-to rendering tests', function (hooks) {
       `);
       await settled();
 
-      assert.strictEqual(this.element.textContent.trim(), '');
+      assert.strictEqual(this.element.textContent.trim(), '', 'initially there is no name for bestDog');
       assert.strictEqual(shen.get('bestHuman'), null, 'precond - Shen has no best human');
       assert.strictEqual(pirate.get('bestHuman'), null, 'precond - pirate has no best human');
       assert.strictEqual(bestDog, null, 'precond - Chris has no best dog');

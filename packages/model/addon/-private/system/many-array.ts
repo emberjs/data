@@ -307,7 +307,7 @@ export default class ManyArray extends MutableArrayWithObject<InternalModel, Rec
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
         let im = this.store._internalModelForResource(jsonApi.data[i]);
-        let shouldRemove = im._isDematerializing || im.currentState.isEmpty || !im.currentState.isLoaded;
+        let shouldRemove = im._isDematerializing || im.isEmpty || !im.isLoaded;
 
         if (!shouldRemove) {
           internalModels.push(im);

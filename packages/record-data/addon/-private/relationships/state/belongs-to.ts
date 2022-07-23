@@ -130,7 +130,7 @@ export default class BelongsToRelationship {
 
   /*
       Removes the given RecordData from BOTH canonical AND current state.
-  
+
       This method is useful when either a deletion or a rollback on a new record
       needs to entirely purge itself from an inverse relationship.
      */

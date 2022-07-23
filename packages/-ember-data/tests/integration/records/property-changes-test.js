@@ -154,22 +154,18 @@ module('integration/records/property-changes - Property changes', function (hook
 
     let store = this.owner.lookup('service:store');
 
-    var person;
-
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
         },
-      });
-      person = store.peekRecord('person', 'wat');
-      person.set('lastName', 'Katz!');
+      },
     });
+
+    person.set('lastName', 'Katz!');
 
     person.addObserver('firstName', function () {
       assert.ok(true, 'firstName observer should be triggered');
@@ -179,17 +175,15 @@ module('integration/records/property-changes - Property changes', function (hook
       assert.ok(false, 'lastName observer should not be triggered');
     });
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Tom',
-            lastName: 'Dale',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Tom',
+          lastName: 'Dale',
         },
-      });
+      },
     });
   });
 });

@@ -9,7 +9,6 @@ import { importSync } from '@embroider/macros';
 import RSVP, { resolve } from 'rsvp';
 
 import type { ManyArray } from '@ember-data/model/-private';
-import RecordState from '@ember-data/model/-private/record-state';
 import type { ManyArrayCreateArgs } from '@ember-data/model/-private/system/many-array';
 import type {
   BelongsToProxyCreateArgs,
@@ -45,7 +44,6 @@ import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
-import RootState from './states';
 
 type PrivateModelModule = {
   ManyArray: { create(args: ManyArrayCreateArgs): ManyArray };
@@ -82,32 +80,6 @@ if (HAS_MODEL_PACKAGE) {
   };
 }
 
-/*
-  The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
-  when transitioning from one state to another, so that future transitions can replay the
-  transition without needing to walk the state tree, collect these hook calls and determine
-   the state to transition into.
-
-   A future optimization would be to build a single chained method out of the collected enters
-   and setups. It may also be faster to do a two level cache (from: { to }) instead of caching based
-   on a key that adds the two together.
- */
-// TODO before deleting the state machine we should
-// ensure all things in this map were properly accounted for.
-// in the RecordState class.
-const TransitionChainMap = Object.create(null);
-
-const _extractPivotNameCache = Object.create(null);
-const _splitOnDotCache = Object.create(null);
-
-function splitOnDot(name: string): string[] {
-  return _splitOnDotCache[name] || (_splitOnDotCache[name] = name.split('.'));
-}
-
-function extractPivotName(name: string): string {
-  return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
-}
-
 function isDSModel(record: RecordInstance | null): record is DSModel {
   return (
     HAS_MODEL_PACKAGE &&
@@ -133,7 +105,6 @@ export default class InternalModel {
   declare _deletedRecordWasNew: boolean;
 
   // Not typed yet
-  declare _promiseProxy: any;
   declare _record: RecordInstance | null;
   declare _scheduledDestroy: any;
   declare _modelClass: any;
@@ -145,8 +116,6 @@ export default class InternalModel {
   declare _relationshipPromisesCache: Dict<Promise<ManyArray | RecordInstance>>;
   declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo>;
   declare error: any;
-  declare currentState: RecordState;
-  declare _previousState: any;
   declare store: CoreStore;
   declare identifier: StableRecordIdentifier;
 
@@ -163,7 +132,6 @@ export default class InternalModel {
 
     this.__recordData = null;
 
-    this._promiseProxy = null;
     this._isDestroyed = false;
     this._doNotDestroy = false;
     this.isError = false;
@@ -194,7 +162,6 @@ export default class InternalModel {
     this._relationshipPromisesCache = Object.create(null);
     this._relationshipProxyCache = Object.create(null);
     this.references = Object.create(null);
-    this.currentState = RootState.empty;
   }
 
   get id(): string | null {
@@ -243,11 +210,11 @@ export default class InternalModel {
     // models to rematerialize their records.
 
     // eager checks to avoid instantiating record data if we are empty or loading
-    if (this.currentState.isEmpty) {
+    if (this.isEmpty) {
       return true;
     }
 
-    if (this.currentState.isLoading) {
+    if (this.isLoading) {
       return false;
     }
 
@@ -266,7 +233,7 @@ export default class InternalModel {
     ) {
       return true;
     } else {
-      return this.currentState.stateName === 'root.deleted.saved';
+      return false;
     }
   }
 
@@ -274,15 +241,15 @@ export default class InternalModel {
     if (this._recordData.isDeleted) {
       return this._recordData.isDeleted();
     } else {
-      return this.currentState.isDeleted;
+      return false;
     }
   }
 
   isNew(): boolean {
-    if (this._recordData.isNew) {
+    if (this.__recordData && this._recordData.isNew) {
       return this._recordData.isNew();
     } else {
-      return this.currentState.isNew;
+      return false;
     }
   }
 
@@ -309,17 +276,12 @@ export default class InternalModel {
     }
     // even if we have a past request, if we are now empty we are not loaded
     // typically this is true after an unloadRecord call
-    if (this.isEmpty) {
-      return false;
-    }
-    const req = this.store.getRequestStateService();
-    const { identifier } = this;
-    const fulfilled = req.getLastRequestForRecord(identifier);
+
     // if we are not empty, not new && we have a fulfilled request then we are loaded
     // we should consider allowing for something to be loaded that is simply "not empty".
     // which is how RecordState currently handles this case; however, RecordState is buggy
     // in that it does not account for unloading.
-    return fulfilled !== null;
+    return !this.isEmpty;
   }
 
   getRecord(properties?: CreateRecordProperties): RecordInstance {
@@ -378,8 +340,6 @@ export default class InternalModel {
 
     this._record = null;
     this.error = null;
-    this._previousState = this.currentState;
-    this.currentState = RootState.empty;
     this.store.recordArrayManager.recordDidChange(this.identifier);
   }
 
@@ -394,10 +354,7 @@ export default class InternalModel {
         if (this.isNew()) {
           // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
           this._deletedRecordWasNew = true;
-          this.send('deleteRecord');
           this.unloadRecord();
-        } else {
-          this.send('deleteRecord');
         }
       });
     });
@@ -434,7 +391,16 @@ export default class InternalModel {
     if (this.isDestroyed) {
       return;
     }
-    this.send('unloadRecord');
+    if (DEBUG) {
+      const requests = this.store.getRequestStateService().getPendingRequestsForRecord(this.identifier);
+      if (
+        requests.some((req) => {
+          return req.type === 'mutation';
+        })
+      ) {
+        assert('You can only unload a record which is not inFlight. `' + this + '`');
+      }
+    }
     this.dematerializeRecord();
     if (this._scheduledDestroy === null) {
       this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
@@ -550,7 +516,7 @@ export default class InternalModel {
             "' with id " +
             parentInternalModel.id +
             ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`belongsTo({ async: true })`)',
-          toReturn === null || !internalModel.currentState.isEmpty
+          toReturn === null || !internalModel.isEmpty
         );
         return toReturn;
       }
@@ -760,22 +726,24 @@ export default class InternalModel {
   }
 
   setupData(data) {
-    const hasRecord = this.hasRecord;
-    if (hasRecord) {
-      let changedKeys = this._recordData.pushData(data, true);
-      this.notifyAttributes(changedKeys);
-    } else {
-      this._recordData.pushData(data);
+    if (this.isNew()) {
+      this.store._notificationManager.notify(this.identifier, 'identity');
     }
-    this.send('pushedData');
+    this._recordData.pushData(data, this.hasRecord);
   }
 
   notifyAttributes(keys: string[]): void {
-    let manager = this.store._notificationManager;
-    let { identifier } = this;
+    if (this.hasRecord) {
+      let manager = this.store._notificationManager;
+      let { identifier } = this;
 
-    for (let i = 0; i < keys.length; i++) {
-      manager.notify(identifier, 'attributes', keys[i]);
+      if (!keys || !keys.length) {
+        manager.notify(identifier, 'attributes');
+      } else {
+        for (let i = 0; i < keys.length; i++) {
+          manager.notify(identifier, 'attributes', keys[i]);
+        }
+      }
     }
   }
 
@@ -800,11 +768,9 @@ export default class InternalModel {
     let currentValue = this._recordData.getAttr(key);
     if (currentValue !== value) {
       this._recordData.setDirtyAttribute(key, value);
-      let isDirty = this._recordData.isAttrDirty(key);
-      this.send('didSetProperty', {
-        name: key,
-        isDirty: isDirty,
-      });
+      if (this.hasRecord && isDSModel(this._record)) {
+        this._record.errors.remove(key);
+      }
     }
 
     return value;
@@ -840,21 +806,9 @@ export default class InternalModel {
 
   adapterWillCommit(): void {
     this._recordData.willCommit();
-    this.send('willCommit');
-  }
-
-  adapterDidDirty(): void {
-    this.send('becomeDirty');
-  }
-
-  send(name: string, context?) {
-    let currentState = this.currentState;
-
-    if (!currentState[name]) {
-      this._unhandledEvent(currentState, name, context);
+    if (this.hasRecord && isDSModel(this._record)) {
+      this._record.errors.clear();
     }
-
-    return currentState[name](this, context);
   }
 
   notifyHasManyChange(key: string) {
@@ -897,98 +851,17 @@ export default class InternalModel {
     }
   }
 
-  didCreateRecord() {
-    this._recordData.clientDidCreate();
-  }
-
   rollbackAttributes() {
     this.store._backburner.join(() => {
       let dirtyKeys = this._recordData.rollbackAttributes();
-      if (this.isError) {
-        this.didCleanError();
+      if (this.hasRecord && isDSModel(this._record)) {
+        this._record.errors.clear();
       }
-
-      this.send('rolledBack');
 
       if (this.hasRecord && dirtyKeys && dirtyKeys.length > 0) {
         this.notifyAttributes(dirtyKeys);
       }
     });
-  }
-
-  transitionTo(name: string) {
-    // POSSIBLE TODO: Remove this code and replace with
-    // always having direct reference to state objects
-
-    let pivotName = extractPivotName(name);
-    let state: any = this.currentState;
-    let transitionMapId = `${state.stateName}->${name}`;
-
-    do {
-      if (state.exit) {
-        state.exit(this);
-      }
-      state = state.parentState;
-    } while (!state[pivotName]);
-
-    let setups;
-    let enters;
-    let i;
-    let l;
-    let map = TransitionChainMap[transitionMapId];
-
-    if (map) {
-      setups = map.setups;
-      enters = map.enters;
-      state = map.state;
-    } else {
-      setups = [];
-      enters = [];
-
-      let path = splitOnDot(name);
-
-      for (i = 0, l = path.length; i < l; i++) {
-        state = state[path[i]];
-
-        if (state.enter) {
-          enters.push(state);
-        }
-        if (state.setup) {
-          setups.push(state);
-        }
-      }
-
-      TransitionChainMap[transitionMapId] = { setups, enters, state };
-    }
-
-    for (i = 0, l = enters.length; i < l; i++) {
-      enters[i].enter(this);
-    }
-
-    this.currentState = state;
-
-    // isDSModel is the guard we want, but may be too restrictive if
-    // ember-m3 / ember-data-model-fragments were relying on this still.
-    if (this.hasRecord && isDSModel(this._record)) {
-      // TODO eliminate this.
-      this.notifyStateChange('currentState');
-    }
-
-    for (i = 0, l = setups.length; i < l; i++) {
-      setups[i].setup(this);
-    }
-  }
-
-  _unhandledEvent(state, name: string, context) {
-    let errorMessage = 'Attempted to handle event `' + name + '` ';
-    errorMessage += 'on ' + String(this) + ' while in state ';
-    errorMessage += state.stateName + '. ';
-
-    if (context !== undefined) {
-      errorMessage += 'Called with ' + inspect(context) + '.';
-    }
-
-    throw new EmberError(errorMessage);
   }
 
   removeFromInverseRelationships() {
@@ -1100,24 +973,14 @@ export default class InternalModel {
 
   didError() {}
 
-  didCleanError() {}
-
   /*
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
     saved data.
   */
   adapterDidCommit(data) {
-    this.didCleanError();
-
     this._recordData.didCommit(data);
-    this.send('didCommit');
     this.store.recordArrayManager.recordDidChange(this.identifier);
-
-    if (!data) {
-      return;
-    }
-    this.store._notificationManager.notify(this.identifier, 'attributes');
   }
 
   hasErrors(): boolean {
@@ -1147,19 +1010,17 @@ export default class InternalModel {
         let errors = record.errors;
         for (attribute in parsedErrors) {
           if (hasOwnProperty.call(parsedErrors, attribute)) {
-            errors._add(attribute, parsedErrors[attribute]);
+            errors.add(attribute, parsedErrors[attribute]);
           }
         }
       }
 
       let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
-      this.send('becameInvalid');
       if (jsonApiErrors.length === 0) {
         jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
       }
       this._recordData.commitWasRejected(this.identifier, jsonApiErrors);
     } else {
-      this.send('becameError');
       this._recordData.commitWasRejected(this.identifier);
     }
   }
@@ -1169,8 +1030,6 @@ export default class InternalModel {
   }
 
   adapterDidError() {
-    this.send('becameError');
-
     this._recordData.commitWasRejected();
   }
 
@@ -1332,7 +1191,7 @@ function anyUnloaded(store: CoreStore, relationship: ManyRelationship) {
   let state = relationship.currentState;
   const unloaded = state.find((s) => {
     let im = store._internalModelForResource(s);
-    return im._isDematerializing || !im.currentState.isLoaded;
+    return im._isDematerializing || !im.isLoaded;
   });
 
   return unloaded || false;

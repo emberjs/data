@@ -256,12 +256,12 @@ export default class RecordState {
     let jsonApiErrors = this.recordData.getErrors!();
 
     const { errors } = this.record;
-    errors._clear();
+    errors.clear();
     let newErrors = errorsArrayToHash(jsonApiErrors);
     let errorKeys = Object.keys(newErrors);
 
     for (let i = 0; i < errorKeys.length; i++) {
-      errors._add(errorKeys[i], newErrors[errorKeys[i]]);
+      errors.add(errorKeys[i], newErrors[errorKeys[i]]);
     }
   }
 

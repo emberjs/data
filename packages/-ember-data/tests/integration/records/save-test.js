@@ -210,31 +210,49 @@ module('integration/records/save - Save Record', function (hooks) {
     });
   });
 
-  test('Will error when saving after unloading record via the store', function (assert) {
+  test('Will error when saving after unloading record via the store', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
     let post = store.createRecord('post', { title: 'toto' });
 
-    run(function () {
+    adapter.createRecord = function (store, type, snapshot) {
+      return {
+        data: {
+          id: '1',
+          type: 'post',
+        },
+      };
+    };
+
+    run(() => {
       store.unloadAll('post');
-      assert.throws(function () {
-        post.save();
-      }, 'Attempting to save the unloaded record threw an error');
     });
+
+    await assert.expectAssertion(() => post.save(), 'Cannot initiate a save request for an unloaded record');
   });
 
-  test('Will error when saving after unloading record', function (assert) {
+  test('Will error when saving after unloading record', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
     let post = store.createRecord('post', { title: 'toto' });
 
-    run(function () {
+    adapter.createRecord = function (store, type, snapshot) {
+      return {
+        data: {
+          id: '1',
+          type: 'post',
+        },
+      };
+    };
+
+    run(() => {
       post.unloadRecord();
-      assert.throws(function () {
-        post.save();
-      }, 'Attempting to save the unloaded record threw an error');
     });
+
+    await assert.expectAssertion(() => post.save(), 'Cannot initiate a save request for an unloaded record');
   });
 });

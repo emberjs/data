@@ -152,15 +152,15 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  notifyPropertyChange(type: string, id: string | null, lid: string, key: string): void;
-  notifyPropertyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
-  notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+  notifyPropertyChange(type: string, id: string | null, lid: string, key?: string): void;
+  notifyPropertyChange(type: string, id: string, lid: string | null | undefined, key?: string): void;
+  notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key?: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
-      internalModel.notifyPropertyChange(key);
+      internalModel.notifyAttributes(key ? [key] : []);
     }
   }
 

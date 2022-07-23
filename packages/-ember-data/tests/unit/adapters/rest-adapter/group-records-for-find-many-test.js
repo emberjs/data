@@ -38,7 +38,7 @@ module(
 
           let queryString = options.data.ids
             .map((i) => {
-              return encodeURIComponent('ids[]') + '=' + encodeURIComponent(i);
+              return 'ids%5B%5D=' + i;
             })
             .join('&');
           let fullUrl = url + '?' + queryString;
@@ -58,19 +58,17 @@ module(
       store = this.owner.lookup('service:store');
     });
 
-    test('groupRecordsForFindMany - findMany', function (assert) {
+    test('groupRecordsForFindMany - findMany', async function (assert) {
       let wait = [];
-      run(() => {
-        for (var i = 1; i <= 1024; i++) {
-          wait.push(store.findRecord('testRecord', i));
-        }
-      });
+      for (let i = 1; i <= 1024; i++) {
+        wait.push(store.findRecord('testRecord', i));
+      }
 
       assert.ok(
         lengths.every((len) => len <= maxLength),
         `Some URLs are longer than ${maxLength} chars`
       );
-      return EmberPromise.all(wait);
+      await Promise.all(wait);
     });
 
     test('groupRecordsForFindMany works for encodeURIComponent-ified ids', function (assert) {
