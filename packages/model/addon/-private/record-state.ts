@@ -280,6 +280,7 @@ export default class RecordState {
     return !this.isLoaded && this.pendingCount > 0 && this.fulfilledCount === 0;
   }
 
+  // TODO @runspired handle "unloadRecord" see note in InternalModel
   @tagged
   get isLoaded() {
     if (this.isNew) {

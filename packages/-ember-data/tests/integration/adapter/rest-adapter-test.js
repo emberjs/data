@@ -578,7 +578,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.strictEqual(passedVerb, null, 'There is no ajax call to delete a record that has never been saved.');
     assert.strictEqual(passedHash, null, 'There is no ajax call to delete a record that has never been saved.');
 
-    assert.true(internalModel.currentState.isEmpty, 'the post is now deleted');
+    assert.true(internalModel.isEmpty, 'the post is now deleted');
   });
 
   test('findAll - returning an array populates the array', async function (assert) {

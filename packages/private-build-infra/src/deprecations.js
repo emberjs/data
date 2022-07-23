@@ -1,14 +1,17 @@
 'use strict';
 
-const requireEsm = require('esm')(module, { cache: false });
 const semver = require('semver');
+
+const requireModule = require('./utilities/require-module');
 
 function deprecationIsResolved(deprecatedSince, compatVersion) {
   return semver.lte(semver.minVersion(deprecatedSince), semver.minVersion(compatVersion));
 }
 
 function getDeprecations(compatVersion, isProd) {
-  const { default: CURRENT_DEPRECATIONS } = requireEsm('@ember-data/private-build-infra/addon/current-deprecations.ts');
+  const { default: CURRENT_DEPRECATIONS } = requireModule(
+    '@ember-data/private-build-infra/addon/current-deprecations.ts'
+  );
   const flags = {};
 
   Object.keys(CURRENT_DEPRECATIONS).forEach((flag) => {

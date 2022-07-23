@@ -526,9 +526,11 @@ class Model extends EmberObject {
     errors._registerHandlers(
       () => {
         this._internalModel.send('becameInvalid');
+        this.___recordState.notify('isValid');
       },
       () => {
         this._internalModel.send('becameValid');
+        this.___recordState.notify('isValid');
       }
     );
     // TODO we should unify how errors gets populated

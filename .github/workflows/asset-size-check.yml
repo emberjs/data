@@ -19,7 +19,7 @@ jobs:
       - run: git fetch origin master --depth=1
       - uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: 'yarn'
       - name: Check SHA
         run: |
@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies for master
         run: yarn install
       - name: Build Production master
-        run: EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/control
+        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/control
       - name: Build Production master (no rollup)
         run: EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/control-no-rollup
       - name: Checkout ${{github.ref}}
@@ -46,7 +46,7 @@ jobs:
       - name: Install dependencies for ${{github.ref}}
         run: yarn install
       - name: Build Production ${{github.ref}}
-        run: EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/experiment
+        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/experiment
       - name: Build Production ${{github.ref}} (no rollup)
         run: EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/experiment-no-rollup
       - name: Analyze Master Assets

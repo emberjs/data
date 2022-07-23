@@ -36,7 +36,6 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-typescript": "^5.1.0",
     "ember-cli-version-checker": "^5.1.2",
-    "esm": "^3.2.25",
     "git-repo-info": "^2.1.1",
     "glob": "^8.0.3",
     "npm-git-info": "^1.0.3",
@@ -46,7 +45,7 @@
     "silent-error": "^1.1.1"
   },
   "engines": {
-    "node": "12.* || >= 14.*",
+    "node": "^14.8.0 || 16.* || >= 18.*",
     "yarn": "1.22.19"
   },
   "volta": {

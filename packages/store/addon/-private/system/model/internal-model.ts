@@ -270,7 +270,7 @@ export default class InternalModel {
     }
   }
 
-  isDeleted() {
+  isDeleted(): boolean {
     if (this._recordData.isDeleted) {
       return this._recordData.isDeleted();
     } else {
@@ -278,12 +278,48 @@ export default class InternalModel {
     }
   }
 
-  isNew() {
+  isNew(): boolean {
     if (this._recordData.isNew) {
       return this._recordData.isNew();
     } else {
       return this.currentState.isNew;
     }
+  }
+
+  get isEmpty(): boolean {
+    return !this.__recordData || ((!this.isNew() || this.isDeleted()) && this._recordData.isEmpty?.()) || false;
+  }
+
+  get isLoading() {
+    const req = this.store.getRequestStateService();
+    const { identifier } = this;
+    // const fulfilled = req.getLastRequestForRecord(identifier);
+
+    return (
+      !this.isLoaded &&
+      // fulfilled === null &&
+      req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+    );
+  }
+
+  get isLoaded() {
+    // if we are new we must consider ourselves loaded
+    if (this.isNew()) {
+      return true;
+    }
+    // even if we have a past request, if we are now empty we are not loaded
+    // typically this is true after an unloadRecord call
+    if (this.isEmpty) {
+      return false;
+    }
+    const req = this.store.getRequestStateService();
+    const { identifier } = this;
+    const fulfilled = req.getLastRequestForRecord(identifier);
+    // if we are not empty, not new && we have a fulfilled request then we are loaded
+    // we should consider allowing for something to be loaded that is simply "not empty".
+    // which is how RecordState currently handles this case; however, RecordState is buggy
+    // in that it does not account for unloading.
+    return fulfilled !== null;
   }
 
   getRecord(properties?: CreateRecordProperties): RecordInstance {

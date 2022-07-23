@@ -1,13 +1,13 @@
 'use strict';
 
-const requireEsm = require('esm')(module, { cache: false });
-
 const version = require('../package.json').version;
 
 const isCanary = version.includes('alpha');
 
+const requireModule = require('./utilities/require-module');
+
 function getFeatures(isProd) {
-  const { default: features } = requireEsm('@ember-data/canary-features/addon/default-features.ts');
+  const { default: features } = requireModule('@ember-data/canary-features/addon/default-features.ts');
 
   if (!isCanary) {
     // disable all features with a current value of `null`

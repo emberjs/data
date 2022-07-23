@@ -64,7 +64,7 @@
     "edition": "octane"
   },
   "engines": {
-    "node": "12.* || >= 14.*",
+    "node": "^14.8.0 || 16.* || >= 18.*",
     "yarn": "1.22.19"
   },
   "ember-addon": {
