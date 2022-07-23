@@ -1,7 +1,7 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { defer, Promise as EmberPromise, resolve } from 'rsvp';
+import { Promise as EmberPromise, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
