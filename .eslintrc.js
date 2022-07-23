@@ -353,7 +353,7 @@ module.exports = {
       ],
       parserOptions: {
         sourceType: 'script',
-        ecmaVersion: 2015,
+        ecmaVersion: 2018,
       },
       env: {
         browser: false,
@@ -385,7 +385,7 @@ module.exports = {
       },
       parserOptions: {
         sourceType: 'script',
-        ecmaVersion: 2015,
+        ecmaVersion: 2018,
       },
     },
 

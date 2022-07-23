@@ -1,5 +1,7 @@
 'use strict';
 
+const requireModule = require('./utilities/require-module');
+
 function detectPackage(dep, packageName, seen) {
   let isFirst = !seen;
   seen = seen || new Map();
@@ -32,8 +34,7 @@ function detectPackage(dep, packageName, seen) {
 }
 
 function getPackages(app) {
-  // eslint-disable-next-line node/no-extraneous-require
-  const { default: POSSIBLE_PACKAGES } = require('@ember-data/private-build-infra/addon/available-packages.ts');
+  const { default: POSSIBLE_PACKAGES } = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
   const flags = {};
   const excludeDebugInProduction =
     app && app.options && app.options.emberData && app.options.emberData.includeDataAdapterInProduction === false;
