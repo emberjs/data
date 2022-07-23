@@ -105,25 +105,25 @@ module('integration/adapter/queries - Queries', function (hooks) {
     assert.false(personsQuery.isUpdating, 'RecordArray is not updating');
 
     let resolveQueryPromise;
+    const deferred = new Promise((resolve) => {
+      resolveQueryPromise = resolve;
+    });
 
     adapter.query = function () {
       assert.ok(true, 'query is called a second time');
 
-      return new EmberPromise((resolve) => {
-        resolveQueryPromise = resolve;
-      });
+      return deferred;
     };
 
     personsQuery.update();
 
     assert.true(personsQuery.isUpdating, 'RecordArray is updating');
 
-    // Resolve internal promises to allow the RecordArray to build.
-    await settled();
-
     resolveQueryPromise({ data: [{ id: 'second', type: 'person' }] });
 
     // Wait for all promises to resolve after the query promise resolves.
+    // this just ensures that our waiter is waiting, we could also
+    // wait the return of update.
     await settled();
 
     assert.false(personsQuery.isUpdating, 'RecordArray is not updating anymore');
