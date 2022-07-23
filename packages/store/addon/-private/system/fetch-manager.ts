@@ -224,7 +224,7 @@ export default class FetchManager {
 
     // We already have a pending fetch for this
     if (pendingFetches) {
-      let matchingPendingFetch = pendingFetches.filter((fetch) => fetch.identifier.id === identifier.id)[0];
+      let matchingPendingFetch = pendingFetches.find((fetch) => fetch.identifier === identifier);
       if (matchingPendingFetch) {
         return matchingPendingFetch.resolver.promise;
       }
@@ -530,12 +530,12 @@ export default class FetchManager {
   }
 
   getPendingFetch(identifier: StableRecordIdentifier, options) {
-    let pendingRequests = this.requestCache.getPendingRequestsForRecord(identifier).filter((req) => {
+    let pendingRequest = this.requestCache.getPendingRequestsForRecord(identifier).find((req) => {
       return req.type === 'query' && isSameRequest(options, req.request.data[0].options);
     });
 
-    if (pendingRequests.length > 0) {
-      return pendingRequests[0][RequestPromise];
+    if (pendingRequest) {
+      return pendingRequest[RequestPromise];
     }
   }
 
