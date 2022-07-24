@@ -8,7 +8,7 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
-import type { Snapshot } from '@ember-data/store/-private';
+import type { RecordDataStoreWrapper, Snapshot } from '@ember-data/store/-private';
 import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
@@ -82,8 +82,13 @@ module('unit/model - Custom Class Model', function (hooks) {
     let identifier;
     let recordData;
     class CreationStore extends CustomStore {
-      createRecordDataFor() {
-        let rd = this._super(...arguments);
+      createRecordDataFor(
+        modelName: string,
+        id: string | null,
+        clientId: string,
+        storeWrapper: RecordDataStoreWrapper
+      ) {
+        let rd = super.createRecordDataFor(modelName, id, clientId, storeWrapper);
         recordData = rd;
         return rd;
       }
