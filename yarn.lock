@@ -6417,7 +6417,7 @@ ember-cli-htmlbars@^6.0.1, ember-cli-htmlbars@^6.1.0:
     silent-error "^1.1.1"
     walk-sync "^2.2.0"
 
-ember-cli-inject-live-reload@^2.0.2, ember-cli-inject-live-reload@^2.1.0:
+ember-cli-inject-live-reload@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/ember-cli-inject-live-reload/-/ember-cli-inject-live-reload-2.1.0.tgz#ef63c733c133024d5726405a3c247fa12e88a385"
   integrity sha512-YV5wYRD5PJHmxaxaJt18u6LE6Y+wo455BnmcpN+hGNlChy2piM9/GMvYgTAz/8Vin8RJ5KekqP/w/NEaRndc/A==
@@ -7155,8 +7155,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.5.0-alpha.5"
 
 eslint-plugin-ember@^11.0.1:
   version "11.0.1"
