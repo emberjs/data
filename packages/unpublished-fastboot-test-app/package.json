@@ -36,7 +36,7 @@
     "@types/ember": "^4.0.0",
     "@types/ember-qunit": "^5.0.0",
     "@types/ember-testing-helpers": "^0.0.4",
-    "@types/ember__test-helpers": "^2.6.1",
+    "@types/ember__test-helpers": "^2.8.0",
     "@types/rsvp": "^4.0.4",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~4.5.0",

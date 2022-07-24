@@ -2461,7 +2461,7 @@
   resolved "https://registry.npmjs.org/@types/ember__template/-/ember__template-4.0.0.tgz#3423b6ddc3a6cf0b13a1e0fd5f1a84eec664a095"
   integrity sha512-51bAEQecMKpDYRXMmVVfU7excrtxDJixRU7huUsAm4acBCqL2+TmMgTqZEkOQSNy6qnKUc2ktSzX28a9//C6pA==
 
-"@types/ember__test-helpers@*", "@types/ember__test-helpers@^2.6.1", "@types/ember__test-helpers@^2.8.0":
+"@types/ember__test-helpers@*", "@types/ember__test-helpers@^2.8.0":
   version "2.8.0"
   resolved "https://registry.npmjs.org/@types/ember__test-helpers/-/ember__test-helpers-2.8.0.tgz#9e8fb470935b1f94ba60b2c673b720addaf36940"
   integrity sha512-lAnpTPmGNuocrJiIxFP6pkMWhEeTmrqsa4yBKjaBBxDXWF1qh3CCWEr/Tj7oe7HVUyL7w53mxyPIjskvCyiEBw==
@@ -7155,8 +7155,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.5.0-alpha.5"
 
 eslint-plugin-ember@^11.0.1:
   version "11.0.1"
