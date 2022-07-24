@@ -21,7 +21,7 @@
     "@ember-data/private-build-infra": "4.5.0-alpha.5",
     "@ember/string": "^3.0.0",
     "@embroider/macros": "^1.2.0",
-    "@glimmer/tracking": "^1.0.4",
+    "@glimmer/tracking": "^1.1.2",
     "ember-auto-import": "^2.4.2",
     "ember-cached-decorator-polyfill": "^0.1.4",
     "ember-cli-babel": "^7.26.11",
