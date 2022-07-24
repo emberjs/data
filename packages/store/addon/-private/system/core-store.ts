@@ -4,13 +4,10 @@
 import { getOwner, setOwner } from '@ember/application';
 import { A } from '@ember/array';
 import { assert, inspect, warn } from '@ember/debug';
-import EmberError from '@ember/error';
-import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import type { Backburner } from '@ember/runloop/-private/backburner';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
-import { isNone, isPresent, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
@@ -463,7 +460,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
-    assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's modelFor method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -474,9 +471,11 @@ class CoreStore extends Service {
     // for factorFor factory/class split
     let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
     if (!klass || !klass.isModel) {
-      if (!this.getSchemaDefinitionService().doesTypeExist(modelName)) {
-        throw new EmberError(`No model was found for '${modelName}' and no schema handles the type`);
-      }
+      assert(
+        `No model was found for '${modelName}' and no schema handles the type`,
+        this.getSchemaDefinitionService().doesTypeExist(modelName)
+      );
+
       return getShimClass(this, modelName);
     } else {
       return klass;
@@ -487,7 +486,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, '_modelFactoryFor');
     }
-    assert(`You need to pass a model name to the store's _modelFactoryFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's _modelFactoryFor method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -515,7 +514,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, '_hasModelFor');
     }
-    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's hasModelFor method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -561,7 +560,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
-    assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's createRecord method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -582,8 +581,14 @@ class CoreStore extends Service {
         // client-side ID generators will use something like uuid.js
         // to avoid conflicts.
 
-        if (isNone(properties.id)) {
-          properties.id = this._generateId(normalizedModelName, properties);
+        if (properties.id === null || properties.id === undefined) {
+          let adapter = this.adapterFor(modelName);
+
+          if (adapter && adapter.generateIdForRecord) {
+            properties.id = adapter.generateIdForRecord(this, modelName, properties);
+          } else {
+            properties.id = null;
+          }
         }
 
         // Coerce ID to a string
@@ -598,26 +603,6 @@ class CoreStore extends Service {
         return internalModel.getRecord(properties);
       });
     });
-  }
-
-  /**
-    If possible, this method asks the adapter to generate an ID for
-    a newly created record.
-
-    @method _generateId
-    @private
-    @param {String} modelName
-    @param {Object} properties from the new record
-    @return {String} if the adapter can generate one, an ID
-  */
-  _generateId(modelName: string, properties: CreateRecordProperties): string | null {
-    let adapter = this.adapterFor(modelName);
-
-    if (adapter && adapter.generateIdForRecord) {
-      return adapter.generateIdForRecord(this, modelName, properties);
-    }
-
-    return null;
   }
 
   // .................
@@ -697,6 +682,7 @@ class CoreStore extends Service {
     @return {Promise} promise
     @private
   */
+  // TODO @runspired @deprecate
   find(modelName: string, id: string | number, options?): PromiseObject<RecordInstance> {
     if (DEBUG) {
       assertDestroyingStore(this, 'find');
@@ -1109,7 +1095,7 @@ class CoreStore extends Service {
 
     assert(
       `You need to pass a modelName or resource identifier as the first argument to the store's findRecord method`,
-      isPresent(resource)
+      resource
     );
     if (isMaybeIdentifier(resource)) {
       options = id as FindOptions | undefined;
@@ -1208,11 +1194,12 @@ class CoreStore extends Service {
     @param {Array} ids
     @return {Promise} promise
   */
+  // TODO @runspired @deprecate
   findByIds(modelName, ids) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findByIds');
     }
-    assert(`You need to pass a model name to the store's findByIds method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's findByIds method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -1397,7 +1384,7 @@ class CoreStore extends Service {
       assertDestroyingStore(this, 'peekRecord');
     }
 
-    assert(`You need to pass a model name to the store's peekRecord method`, isPresent(identifier));
+    assert(`You need to pass a model name to the store's peekRecord method`, identifier);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${identifier}`,
       typeof identifier === 'string'
@@ -1462,11 +1449,12 @@ class CoreStore extends Service {
     @param {(String|Integer)} id
     @return {Boolean}
   */
+  // TODO @runspired @deprecate
   hasRecordForId(modelName: string, id: string | number): boolean {
     if (DEBUG) {
       assertDestroyingStore(this, 'hasRecordForId');
     }
-    assert(`You need to pass a model name to the store's hasRecordForId method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's hasRecordForId method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -1492,11 +1480,12 @@ class CoreStore extends Service {
     @param {(String|Integer)} id
     @return {Model} record
   */
+  // TODO @runspired @deprecate
   recordForId(modelName: string, id: string | number): RecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordForId');
     }
-    assert(`You need to pass a model name to the store's recordForId method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's recordForId method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -1513,6 +1502,7 @@ class CoreStore extends Service {
     @param {Array} internalModels
     @return {Promise} promise
   */
+  // TODO @runspired @deprecate
   findMany(internalModels, options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findMany');
@@ -1784,7 +1774,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
-    assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's query method`, modelName);
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -1802,7 +1792,7 @@ class CoreStore extends Service {
   }
 
   _query(modelName: string, query, array, options): Promise<AdapterPopulatedRecordArray> {
-    assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's query method`, modelName);
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -1922,7 +1912,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
-    assert(`You need to pass a model name to the store's queryRecord method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's queryRecord method`, modelName);
     assert(`You need to pass a query hash to the store's queryRecord method`, query);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -2153,7 +2143,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'findAll');
     }
-    assert(`You need to pass a model name to the store's findAll method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's findAll method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -2186,7 +2176,7 @@ class CoreStore extends Service {
     );
 
     if (options.reload) {
-      set(array, 'isUpdating', true);
+      array.isUpdating = true;
       return _findAll(adapter, this, modelName, options);
     }
 
@@ -2197,7 +2187,7 @@ class CoreStore extends Service {
         (adapter.shouldReloadAll && adapter.shouldReloadAll(this, snapshotArray)) ||
         (!adapter.shouldReloadAll && snapshotArray.length === 0)
       ) {
-        set(array, 'isUpdating', true);
+        array.isUpdating = true;
         return _findAll(adapter, this, modelName, options);
       }
     }
@@ -2211,7 +2201,7 @@ class CoreStore extends Service {
       !adapter.shouldBackgroundReloadAll ||
       adapter.shouldBackgroundReloadAll(this, snapshotArray)
     ) {
-      set(array, 'isUpdating', true);
+      array.isUpdating = true;
       _findAll(adapter, this, modelName, options);
     }
 
@@ -2247,7 +2237,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekAll');
     }
-    assert(`You need to pass a model name to the store's peekAll method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's peekAll method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -2741,10 +2731,10 @@ class CoreStore extends Service {
       }
 
       assert(
-        `Expected an object in the 'data' property in a call to 'push' for ${jsonApiDoc.type}, but was ${typeOf(
-          jsonApiDoc.data
-        )}`,
-        typeOf(jsonApiDoc.data) === 'object'
+        `Expected an object in the 'data' property in a call to 'push' for ${
+          jsonApiDoc.type
+        }, but was ${typeof jsonApiDoc.data}`,
+        typeof jsonApiDoc.data === 'object'
       );
 
       return this._pushInternalModel(jsonApiDoc.data);
@@ -2770,6 +2760,7 @@ class CoreStore extends Service {
       // If ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
       // contains unknown attributes or relationships, log a warning.
 
+      // TODO @runspired @deprecate in favor of a build-time config not in ENV
       if (ENV.DS_WARN_ON_UNKNOWN_KEYS) {
         let unknownAttributes, unknownRelationships;
         let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
@@ -3019,7 +3010,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'normalize');
     }
-    assert(`You need to pass a model name to the store's normalize method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's normalize method`, modelName);
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(
         modelName
@@ -3078,7 +3069,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
-    assert(`You need to pass a model name to the store's adapterFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's adapterFor method`, modelName);
     assert(
       `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -3096,7 +3087,8 @@ class CoreStore extends Service {
     // name specific adapter
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
     if (adapter !== undefined) {
-      set(adapter, 'store', this);
+      // TODO @runspired @deprecate store auto-inject
+      adapter.store = this;
       _adapterCache[normalizedModelName] = adapter;
       return adapter;
     }
@@ -3104,7 +3096,7 @@ class CoreStore extends Service {
     // no adapter found for the specific name, fallback and check for application adapter
     adapter = _adapterCache.application || owner.lookup('adapter:application');
     if (adapter !== undefined) {
-      set(adapter, 'store', this);
+      adapter.store = this;
       _adapterCache[normalizedModelName] = adapter;
       _adapterCache.application = adapter;
       return adapter;
@@ -3118,7 +3110,7 @@ class CoreStore extends Service {
       `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
       adapter !== undefined
     );
-    set(adapter, 'store', this);
+    adapter.store = this;
     _adapterCache[normalizedModelName] = adapter;
     _adapterCache['-json-api'] = adapter;
     return adapter;
@@ -3149,7 +3141,7 @@ class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'serializerFor');
     }
-    assert(`You need to pass a model name to the store's serializerFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's serializerFor method`, modelName);
     assert(
       `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -3167,7 +3159,8 @@ class CoreStore extends Service {
     // by name
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
     if (serializer !== undefined) {
-      set(serializer, 'store', this);
+      // TODO @runspired @deprecate store auto-inject
+      serializer.store = this;
       _serializerCache[normalizedModelName] = serializer;
       return serializer;
     }
@@ -3175,7 +3168,7 @@ class CoreStore extends Service {
     // no serializer found for the specific model, fallback and check for application serializer
     serializer = _serializerCache.application || owner.lookup('serializer:application');
     if (serializer !== undefined) {
-      set(serializer, 'store', this);
+      serializer.store = this;
       _serializerCache[normalizedModelName] = serializer;
       _serializerCache.application = serializer;
       return serializer;

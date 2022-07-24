@@ -2136,7 +2136,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     );
   });
 
-  test('1 async : many sync unload async side', function (assert) {
+  test('1 async : many sync unload async side', async function (assert) {
     let findRecordCalls = 0;
 
     adapter.coalesceFindRequests = true;
@@ -2190,29 +2190,27 @@ module('integration/unload - Unloading Records', function (hooks) {
     let spoon3 = store.peekRecord('spoon', 3);
     let spoons = person.get('favoriteSpoons');
 
-    return run(() => {
-      assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['2', '3'], 'initially relationship established lhs');
-      assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'initially relationship established rhs');
-      assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'initially relationship established rhs');
+    assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['2', '3'], 'initially relationship established lhs');
+    assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'initially relationship established rhs');
+    assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
-      assert.false(spoons.isDestroyed, 'ManyArray is not destroyed');
+    assert.false(spoons.isDestroyed, 'ManyArray is not destroyed');
 
-      run(() => person.unloadRecord());
+    run(() => person.unloadRecord());
 
-      assert.false(spoons.isDestroyed, 'ManyArray is not destroyed when 1 side is unloaded');
-      assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
-      assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+    assert.false(spoons.isDestroyed, 'ManyArray is not destroyed when 1 side is unloaded');
+    assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+    assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
-      return spoon2.get('person');
-    }).then((refetchedPerson) => {
-      assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
+    const refetchedPerson = await spoon2.get('person');
 
-      assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['2', '3'], 'unload async is not treated as delete');
-      assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
-      assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+    assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
 
-      assert.strictEqual(findRecordCalls, 1, 'findRecord called as expected');
-    });
+    assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['2', '3'], 'unload async is not treated as delete');
+    assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+    assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+
+    assert.strictEqual(findRecordCalls, 1, 'findRecord called as expected');
   });
 
   test('1 sync : many async unload async side', async function (assert) {

@@ -383,8 +383,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         super();
         if (!id) {
           assert.true(storeWrapper.isRecordInUse('house', '1'), 'house 1 is in use');
-          // TODO isRecordInUse should coorce to false rather than null
-          assert.strictEqual(storeWrapper.isRecordInUse('house', '2'), null, 'house 2 is not in use');
+          assert.false(storeWrapper.isRecordInUse('house', '2'), 'house 2 is not in use');
         }
       }
     }

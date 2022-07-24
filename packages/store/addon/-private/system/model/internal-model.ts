@@ -105,7 +105,6 @@ export default class InternalModel {
   declare _deletedRecordWasNew: boolean;
 
   // Not typed yet
-  declare _record: RecordInstance | null;
   declare _scheduledDestroy: any;
   declare _modelClass: any;
   declare __recordArrays: any;
@@ -118,6 +117,7 @@ export default class InternalModel {
   declare error: any;
   declare store: CoreStore;
   declare identifier: StableRecordIdentifier;
+  declare hasRecord: boolean;
 
   constructor(store: CoreStore, identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
@@ -129,6 +129,7 @@ export default class InternalModel {
     this._isUpdatingId = false;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
+    this.hasRecord = false;
 
     this.__recordData = null;
 
@@ -145,7 +146,6 @@ export default class InternalModel {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
 
-    this._record = null;
     this.error = null;
 
     // caches for lazy getters
@@ -290,6 +290,7 @@ export default class InternalModel {
       return null as unknown as RecordInstance;
     }
 
+    this.hasRecord = true;
     return this.store._instanceCache.getRecord(this.identifier, properties);
   }
 
@@ -301,9 +302,8 @@ export default class InternalModel {
     this._doNotDestroy = false;
     // this has to occur before the internal model is removed
     // for legacy compat.
-    if (this._record) {
-      this.store.teardownRecord(this._record);
-    }
+    const { identifier } = this;
+    let hadRecord = this.store._instanceCache.removeRecord(identifier);
 
     // move to an empty never-loaded state
     // ensure any record notifications happen prior to us
@@ -313,7 +313,7 @@ export default class InternalModel {
       this._recordData.unloadRecord();
     });
 
-    if (this._record) {
+    if (hadRecord) {
       let keys = Object.keys(this._relationshipProxyCache);
       keys.forEach((key) => {
         let proxy = this._relationshipProxyCache[key]!;
@@ -324,7 +324,7 @@ export default class InternalModel {
       });
     }
 
-    this._record = null;
+    this.hasRecord = false; // this must occur after reltionship removal
     this.error = null;
     this.store.recordArrayManager.recordDidChange(this.identifier);
   }
@@ -685,9 +685,10 @@ export default class InternalModel {
   }
 
   destroy() {
+    let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
     assert(
       'Cannot destroy an internalModel while its record is materialized',
-      !this._record || this._record.isDestroyed || this._record.isDestroying
+      !record || record.isDestroyed || record.isDestroying
     );
     this.isDestroying = true;
     if (this._recordReference) {
@@ -754,8 +755,9 @@ export default class InternalModel {
     let currentValue = this._recordData.getAttr(key);
     if (currentValue !== value) {
       this._recordData.setDirtyAttribute(key, value);
-      if (this.hasRecord && isDSModel(this._record)) {
-        this._record.errors.remove(key);
+      let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
+      if (record && isDSModel(record)) {
+        record.errors.remove(key);
       }
     }
 
@@ -764,10 +766,6 @@ export default class InternalModel {
 
   get isDestroyed(): boolean {
     return this._isDestroyed;
-  }
-
-  get hasRecord(): boolean {
-    return !!this._record;
   }
 
   createSnapshot(options: FindOptions = {}): Snapshot {
@@ -792,8 +790,9 @@ export default class InternalModel {
 
   adapterWillCommit(): void {
     this._recordData.willCommit();
-    if (this.hasRecord && isDSModel(this._record)) {
-      this._record.errors.clear();
+    let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
+    if (record && isDSModel(record)) {
+      record.errors.clear();
     }
   }
 
@@ -840,8 +839,10 @@ export default class InternalModel {
   rollbackAttributes() {
     this.store._backburner.join(() => {
       let dirtyKeys = this._recordData.rollbackAttributes();
-      if (this.hasRecord && isDSModel(this._record)) {
-        this._record.errors.clear();
+
+      let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
+      if (record && isDSModel(record)) {
+        record.errors.clear();
       }
 
       if (this.hasRecord && dirtyKeys && dirtyKeys.length > 0) {
@@ -932,7 +933,7 @@ export default class InternalModel {
    * case in that the the cache can originate the call to setId,
    * so on first entry we will still need to do our own update.
    */
-  setId(id: string, fromCache: boolean = false) {
+  setId(id: string | null, fromCache: boolean = false) {
     if (this._isUpdatingId === true) {
       return;
     }
@@ -974,11 +975,12 @@ export default class InternalModel {
     if (this._recordData.getErrors) {
       return this._recordData.getErrors(this.identifier).length > 0;
     } else {
+      let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
       // we can't have errors if we never tried loading
-      if (!this._record) {
+      if (!record) {
         return false;
       }
-      let errors = (this._record as DSModel).errors;
+      let errors = (record as DSModel).errors;
       return errors.length > 0;
     }
   }
