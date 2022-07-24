@@ -2815,23 +2815,8 @@ abstract class CoreStore extends Service {
     serializer.pushPayload(this, payload);
   }
 
-  reloadBelongsTo(belongsToProxy, internalModel, key, options) {
-    return internalModel.reloadBelongsTo(key, options);
-  }
-
   _internalModelForResource(resource: ResourceIdentifierObject): InternalModel {
     return internalModelFactoryFor(this).getByResource(resource);
-  }
-
-  /**
-   * TODO Only needed temporarily for test support
-   *
-   * @method _internalModelForId
-   * @internal
-   */
-  _internalModelForId(type: string, id: string | null, lid: string | null): InternalModel {
-    const resource = constructResource(type, id, lid);
-    return internalModelFactoryFor(this).lookup(resource);
   }
 
   serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {

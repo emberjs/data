@@ -143,7 +143,7 @@ module('integration/load - Loading Records', function (hooks) {
       })
     );
 
-    let internalModel = store._internalModelForId('person', '1');
+    let internalModel = store._internalModelForResource({ type: 'person', id: '1' });
 
     // test that our initial state is correct
     assert.true(internalModel.isEmpty, 'We begin in the empty state');

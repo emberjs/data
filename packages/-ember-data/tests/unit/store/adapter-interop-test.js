@@ -747,9 +747,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     store.createRecord('test');
 
     let internalModels = [
-      store._internalModelForId('test', 10),
-      store._internalModelForId('phone', 20),
-      store._internalModelForId('phone', 21),
+      store._internalModelForResource({ type: 'test', id: '10' }),
+      store._internalModelForResource({ type: 'phone', id: '20' }),
+      store._internalModelForResource({ type: 'phone', id: '21' }),
     ];
 
     return run(() => {
@@ -790,9 +790,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     let store = this.owner.lookup('service:store');
 
     let internalModels = [
-      store._internalModelForId('test', 10),
-      store._internalModelForId('test', 20),
-      store._internalModelForId('test', 21),
+      store._internalModelForResource({ type: 'test', id: '10' }),
+      store._internalModelForResource({ type: 'test', id: '20' }),
+      store._internalModelForResource({ type: 'test', id: '21' }),
     ];
 
     return run(() => {
