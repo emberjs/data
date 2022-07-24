@@ -1,5 +1,3 @@
-import { settled } from '@ember/test-helpers';
-
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 

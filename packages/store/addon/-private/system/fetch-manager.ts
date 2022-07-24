@@ -23,7 +23,7 @@ import coerceId from './coerce-id';
 import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
 import ShimModelClass from './model/shim-model-class';
-import RequestCache, { RequestPromise } from './request-cache';
+import RequestCache from './request-cache';
 import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
@@ -565,7 +565,7 @@ export default class FetchManager {
     // We already have a pending fetch for this
     if (pendingFetches) {
       let matchingPendingFetch = pendingFetches.find((fetch) => fetch.identifier === identifier);
-      if (matchingPendingFetch) {
+      if (matchingPendingFetch && isSameRequest(options, matchingPendingFetch.options)) {
         return matchingPendingFetch.promise;
       }
     }
@@ -594,6 +594,7 @@ function assertIsString(id: string | null): asserts id is string {
 }
 
 // this function helps resolve whether we have a pending request that we should use instead
+// TODO @runspired @needsTest removing this did not cause any test failures
 function isSameRequest(options: Dict<unknown> = {}, reqOptions: Dict<unknown> = {}) {
   return options.include === reqOptions.include;
 }
