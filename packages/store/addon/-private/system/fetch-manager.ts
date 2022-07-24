@@ -559,7 +559,7 @@ export default class FetchManager {
     }
   }
 
-  getPendingFetch(identifier: StableRecordIdentifier, options) {
+  getPendingFetch(identifier: StableRecordIdentifier, options: FindOptions) {
     let pendingFetches = this._pendingFetch.get(identifier.type);
 
     // We already have a pending fetch for this
@@ -595,6 +595,6 @@ function assertIsString(id: string | null): asserts id is string {
 
 // this function helps resolve whether we have a pending request that we should use instead
 // TODO @runspired @needsTest removing this did not cause any test failures
-function isSameRequest(options: Dict<unknown> = {}, reqOptions: Dict<unknown> = {}) {
+function isSameRequest(options: FindOptions = {}, reqOptions: FindOptions = {}) {
   return options.include === reqOptions.include;
 }
