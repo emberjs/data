@@ -81,12 +81,12 @@ module('unit/model - Custom Class Model', function (hooks) {
     let notificationCount = 0;
     let identifier;
     let recordData;
-    let CreationStore = CustomStore.extend({
+    class CreationStore extends CustomStore {
       createRecordDataFor() {
         let rd = this._super(...arguments);
         recordData = rd;
         return rd;
-      },
+      }
       instantiateRecord(
         id: StableRecordIdentifier,
         createRecordArgs,
@@ -106,8 +106,8 @@ module('unit/model - Custom Class Model', function (hooks) {
           }
         });
         return { hi: 'igor' };
-      },
-    });
+      }
+    }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
@@ -123,17 +123,17 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('record creation and teardown', function (assert) {
     assert.expect(5);
     let returnValue;
-    let CreationStore = CustomStore.extend({
+    class CreationStore extends CustomStore {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
         return returnValue;
-      },
+      }
       teardownRecord(record) {
         assert.strictEqual(record, person, 'Passed in person to teardown');
-      },
-    });
+      }
+    }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
@@ -144,13 +144,13 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('recordData lookup', function (assert) {
     assert.expect(1);
     let rd;
-    let CreationStore = CustomStore.extend({
+    class CreationStore extends CustomStore {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         rd = recordDataFor(identifier);
         assert.strictEqual(rd.getAttr('name'), 'chris', 'Can look up record data from recordDataFor');
         return {};
-      },
-    });
+      }
+    }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {

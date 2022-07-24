@@ -15,7 +15,7 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   import DS from 'ember-data';
 
    const { errorsHashToArray } = DS;
-   
+
    let errors = {
     base: 'Invalid attributes on saving this record',
     name: 'Must be present',

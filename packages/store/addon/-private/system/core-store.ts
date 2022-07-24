@@ -1,9 +1,10 @@
 /**
   @module @ember-data/store
  */
-import { getOwner } from '@ember/application';
+import { getOwner, setOwner } from '@ember/application';
 import { A } from '@ember/array';
 import { assert, inspect, warn } from '@ember/debug';
+import EmberError from '@ember/error';
 import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import type { Backburner } from '@ember/runloop/-private/backburner';
@@ -16,11 +17,13 @@ import Ember from 'ember';
 import { importSync } from '@embroider/macros';
 import { all, default as RSVP, resolve } from 'rsvp';
 
+import type DSModelClass from '@ember-data/model';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { ManyRelationship, RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 
 import { IdentifierCache } from '../identifiers/cache';
+import type { DSModel } from '../ts-interfaces/ds-model';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
@@ -67,6 +70,7 @@ import NotificationManager from './record-notification-manager';
 import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
 import type RequestCache from './request-cache';
+import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
 import { _findAll, _findBelongsTo, _findHasMany, _query, _queryRecord } from './store/finders';
 import {
   internalModelFactoryFor,
@@ -172,7 +176,7 @@ export interface CreateRecordProperties {
   @extends Ember.Service
 */
 
-abstract class CoreStore extends Service {
+class CoreStore extends Service {
   /**
    * Ember Data uses several specialized micro-queues for organizing
     and coalescing similar async work.
@@ -194,6 +198,10 @@ abstract class CoreStore extends Service {
   declare _storeWrapper: RecordDataStoreWrapper;
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
+
+  declare _modelFactoryCache;
+  declare _relationshipsDefCache;
+  declare _attributesDefCache;
 
   // DEBUG-only properties
   declare _trackedAsyncRequests: AsyncTrackingToken[];
@@ -253,6 +261,10 @@ abstract class CoreStore extends Service {
     this._storeWrapper = new RecordDataStoreWrapper(this);
     this._backburner = edBackburner;
     this.recordArrayManager = new RecordArrayManager({ store: this });
+
+    this._modelFactoryCache = Object.create(null);
+    this._relationshipsDefCache = Object.create(null);
+    this._attributesDefCache = Object.create(null);
 
     RECORD_REFERENCES._generator = (identifier) => {
       return new RecordReference(this, identifier);
@@ -379,14 +391,43 @@ abstract class CoreStore extends Service {
     return record;
   }
 
-  abstract instantiateRecord(
+  instantiateRecord(
     identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown }, // args passed in to store.createRecord() and processed by recordData to be set on creation
-    recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
+    createRecordArgs: { [key: string]: unknown },
+    recordDataFor: (identifier: StableRecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): RecordInstance;
-  abstract teardownRecord(record: RecordInstance): void;
-  abstract getSchemaDefinitionService(): SchemaDefinitionService;
+  ): DSModel | RecordInstance {
+    let modelName = identifier.type;
+
+    let internalModel = this._internalModelForResource(identifier);
+    let createOptions: any = {
+      store: this,
+      _internalModel: internalModel,
+      // TODO deprecate allowing unknown args setting
+      _createProps: createRecordArgs,
+      container: null,
+    };
+
+    // ensure that `getOwner(this)` works inside a model instance
+    setOwner(createOptions, getOwner(this));
+
+    delete createOptions.container;
+    let record = this._modelFactoryFor(modelName).create(createOptions);
+    return record;
+  }
+  teardownRecord(record: DSModel | RecordInstance): void {
+    assert(
+      `expected to receive an instance of DSModel. If using a custom model make sure you implement teardownRecord`,
+      'destroy' in record
+    );
+    (record as DSModel).destroy();
+  }
+  getSchemaDefinitionService(): SchemaDefinitionService {
+    if (!this._schemaDefinitionService) {
+      this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
+    }
+    return this._schemaDefinitionService;
+  }
 
   _attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
     return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
@@ -420,12 +461,43 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return {subclass of Model | ShimModelClass}
     */
-  modelFor(modelName: string): ShimModelClass {
+  modelFor(modelName: string): ShimModelClass | DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
+    assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
+    assert(
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+      typeof modelName === 'string'
+    );
 
-    return getShimClass(this, modelName);
+    let maybeFactory = this._modelFactoryFor(modelName);
+
+    // for factorFor factory/class split
+    let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
+    if (!klass || !klass.isModel) {
+      if (!this.getSchemaDefinitionService().doesTypeExist(modelName)) {
+        throw new EmberError(`No model was found for '${modelName}' and no schema handles the type`);
+      }
+      return getShimClass(this, modelName);
+    } else {
+      return klass;
+    }
+  }
+
+  _modelFactoryFor(modelName: string): DSModelClass {
+    if (DEBUG) {
+      assertDestroyedStoreOnly(this, '_modelFactoryFor');
+    }
+    assert(`You need to pass a model name to the store's _modelFactoryFor method`, isPresent(modelName));
+    assert(
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+      typeof modelName === 'string'
+    );
+    let normalizedModelName = normalizeModelName(modelName);
+    let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
+
+    return factory;
   }
 
   // Feature Flagged in DSModelStore
@@ -441,7 +513,10 @@ abstract class CoreStore extends Service {
     @method _hasModelFor
     @private
   */
-  _hasModelFor(modelName: string): boolean {
+  _hasModelFor(modelName) {
+    if (DEBUG) {
+      assertDestroyingStore(this, '_hasModelFor');
+    }
     assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
