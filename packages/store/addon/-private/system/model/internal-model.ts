@@ -285,26 +285,12 @@ export default class InternalModel {
   }
 
   getRecord(properties?: CreateRecordProperties): RecordInstance {
-    let record = this._record;
-
     if (this._isDematerializing) {
       // TODO we should assert here instead of this return.
       return null as unknown as RecordInstance;
     }
 
-    if (!record) {
-      let { store } = this;
-
-      record = this._record = store._instantiateRecord(
-        this,
-        this.modelName,
-        this._recordData,
-        this.identifier,
-        properties
-      );
-    }
-
-    return record;
+    return this.store._instanceCache.getRecord(this.identifier, properties);
   }
 
   dematerializeRecord() {

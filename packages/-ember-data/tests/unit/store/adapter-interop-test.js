@@ -714,7 +714,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
   });
 
-  test('store._scheduleFetchMany should not resolve until all the records are resolved', function (assert) {
+  test('store._scheduleFetchMany should not resolve until all the records are resolved', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -752,13 +752,13 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       store._internalModelForResource({ type: 'phone', id: '21' }),
     ];
 
-    return run(() => {
-      return store._scheduleFetchMany(internalModels).then(() => {
-        let unloadedRecords = A(internalModels.map((r) => r.getRecord())).filterBy('isEmpty');
+    await store._scheduleFetchMany(internalModels);
 
-        assert.strictEqual(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
-      });
-    });
+    const records = [store.peekRecord('test', '10'), store.peekRecord('phone', '20'), store.peekRecord('phone', '21')];
+
+    let unloadedRecords = records.filter((record) => record === null || record.isEmpty);
+
+    assert.strictEqual(unloadedRecords.length, 0, 'All unloaded records should be loaded');
   });
 
   test('the store calls adapter.findMany according to groupings returned by adapter.groupRecordsForFindMany', function (assert) {

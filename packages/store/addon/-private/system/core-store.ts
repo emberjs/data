@@ -23,6 +23,7 @@ import type { ManyRelationship, RecordData as RecordDataClass } from '@ember-dat
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 
 import { IdentifierCache } from '../identifiers/cache';
+import { InstanceCache } from '../instance-cache';
 import type { DSModel } from '../ts-interfaces/ds-model';
 import type {
   CollectionResourceDocument,
@@ -198,6 +199,7 @@ class CoreStore extends Service {
   declare _storeWrapper: RecordDataStoreWrapper;
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
+  declare _instanceCache: InstanceCache;
 
   declare _modelFactoryCache;
   declare _relationshipsDefCache;
@@ -261,6 +263,7 @@ class CoreStore extends Service {
     this._storeWrapper = new RecordDataStoreWrapper(this);
     this._backburner = edBackburner;
     this.recordArrayManager = new RecordArrayManager({ store: this });
+    this._instanceCache = new InstanceCache(this);
 
     this._modelFactoryCache = Object.create(null);
     this._relationshipsDefCache = Object.create(null);
@@ -338,11 +341,9 @@ class CoreStore extends Service {
   }
 
   _instantiateRecord(
-    internalModel: InternalModel,
-    modelName: string,
     recordData: RecordData,
     identifier: StableRecordIdentifier,
-    properties?: { [key: string]: any }
+    properties?: { [key: string]: unknown }
   ) {
     // assert here
     if (properties !== undefined) {
@@ -351,12 +352,10 @@ class CoreStore extends Service {
         typeof properties === 'object' && properties !== null
       );
 
-      if ('id' in properties) {
-        internalModel.setId(properties.id);
-      }
+      const { type } = identifier;
 
       // convert relationship Records to RecordDatas before passing to RecordData
-      let defs = this._relationshipsDefinitionFor({ type: modelName });
+      let defs = this._relationshipsDefinitionFor({ type });
 
       if (defs !== null) {
         let keys = Object.keys(properties);
@@ -387,7 +386,6 @@ class CoreStore extends Service {
     //TODO Igor pass a wrapper instead of RD
     let record = this.instantiateRecord(identifier, createOptions, this.__recordDataFor, this._notificationManager);
     setRecordIdentifier(record, identifier);
-    //recordToInternalModelMap.set(record, internalModel);
     return record;
   }
 
