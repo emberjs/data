@@ -3,10 +3,11 @@
   "extends": [
     "config:base"
   ],
-  "labels": ["target:canary", "skip-changelog"],
+  "labels": ["target:canary", "skip-changelog", "dependencies"],
   "npm": {
     "stabilityDays": 3
   },
   "rangeStrategy": "bump",
-  "ignoreDeps": ["execa"]
+  "ignoreDeps": ["execa"],
+  "prHourlyLimit": 10
 }
