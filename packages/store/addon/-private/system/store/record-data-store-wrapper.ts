@@ -12,7 +12,6 @@ import type {
   RelationshipsSchema,
 } from '../../ts-interfaces/record-data-schemas';
 import type { RecordDataStoreWrapper as StoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
 import type CoreStore from '../core-store';
 import { internalModelFactoryFor } from './internal-model-factory';

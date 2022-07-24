@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { get, set } from '@ember/object';
 import { later, run } from '@ember/runloop';
 
