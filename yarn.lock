@@ -6843,7 +6843,7 @@ ember-router-generator@^2.0.0:
     "@babel/traverse" "^7.4.5"
     recast "^0.18.1"
 
-ember-simple-tree@^0.8.0:
+ember-simple-tree@^0.8.3:
   version "0.8.3"
   resolved "https://registry.npmjs.org/ember-simple-tree/-/ember-simple-tree-0.8.3.tgz#91b68ee8cfd830ec2e000e7c6ae4554cbb7257f3"
   integrity sha512-JEQ4ccXUzThaZiyVT+b3fG76JndG7d4BCRp/Zg5nEhc+u+/ZHHRhSIWVXxPXY8K6pyFcLVSmEscd27hUNDqbww==
@@ -7155,8 +7155,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.5.0-alpha.5"
 
 eslint-plugin-ember@^11.0.1:
   version "11.0.1"
