@@ -1,0 +1,11 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "labels": ["target:canary", "skip-changelog"],
+  "npm": {
+    "stabilityDays": 3
+  },
+  "rangeStrategy": "bump"
+}
