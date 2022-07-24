@@ -6784,7 +6784,7 @@ ember-inflector@^4.0.1, ember-inflector@^4.0.2:
   dependencies:
     ember-cli-babel "^7.26.5"
 
-ember-load-initializers@^2.1.1, ember-load-initializers@^2.1.2:
+ember-load-initializers@^2.1.2:
   version "2.1.2"
   resolved "https://registry.npmjs.org/ember-load-initializers/-/ember-load-initializers-2.1.2.tgz#8a47a656c1f64f9b10cecdb4e22a9d52ad9c7efa"
   integrity sha512-CYR+U/wRxLbrfYN3dh+0Tb6mFaxJKfdyz+wNql6cqTrA0BBi9k6J3AaKXj273TqvEpyyXegQFFkZEiuZdYtgJw==
@@ -7155,8 +7155,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.5.0-alpha.5"
 
 eslint-plugin-ember@^11.0.1:
   version "11.0.1"
