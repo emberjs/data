@@ -6346,7 +6346,7 @@ ember-cli-fastboot-testing@^0.6.0:
     resolve "^1.10.0"
     whatwg-fetch "^3.0.0"
 
-ember-cli-fastboot@^3.2.0-beta.5:
+ember-cli-fastboot@^3.3.2:
   version "3.3.2"
   resolved "https://registry.npmjs.org/ember-cli-fastboot/-/ember-cli-fastboot-3.3.2.tgz#979bb051114a3362e400efb65c29516e749b3231"
   integrity sha512-3nPyXapAv9SwCV6KVdSg9CdjMtONkb5V8VZJiWTNMowu1HiODO5HUykaAd0niH94qnJivdpbH544S3g0TZ+Jfw==
