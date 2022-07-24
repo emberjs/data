@@ -57,7 +57,7 @@ export class InstanceCache {
 
     if (record) {
       this.#instances.record.delete(identifier);
-      this.store.teardownRecord(record);
+      this.store._teardownRecord(record);
     }
 
     return !!record;

@@ -487,7 +487,9 @@ module('async belongs-to rendering tests', function (hooks) {
         data: people.dict['5:has-parent-no-children'],
       });
 
-      adapter.setupPayloads(assert, [new ServerError([], 'hard error while finding <person>5:has-parent-no-children')]);
+      adapter.setupPayloads(assert, [
+        new ServerError([], 'hard error while finding <person>5:has-parent-no-children.parent'),
+      ]);
 
       // render
       this.set('sedona', sedona);
@@ -500,7 +502,7 @@ module('async belongs-to rendering tests', function (hooks) {
           assert.ok(true, 'Children promise did reject');
           assert.strictEqual(
             e.message,
-            'hard error while finding <person>5:has-parent-no-children',
+            'hard error while finding <person>5:has-parent-no-children.parent',
             'Rejection has the correct message'
           );
         } else {

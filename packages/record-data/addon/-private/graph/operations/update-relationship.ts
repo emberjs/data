@@ -111,7 +111,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
   /*
        Data being pushed into the relationship might contain only data or links,
        or a combination of both.
-  
+
        IF contains only data
        IF contains both links and data
         state.isEmpty -> true if is empty array (has-many) or is null (belongs-to)
@@ -119,7 +119,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
         hasDematerializedInverse -> false
         state.isStale -> false
         allInverseRecordsAreLoaded -> run-check-to-determine
-  
+
        IF contains only links
         state.isStale -> true
        */

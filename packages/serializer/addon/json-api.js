@@ -187,16 +187,14 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
-    assert(this.warnMessageForUndefinedType(), !isNone(resourceHash.type), {
-      id: 'ds.serializer.type-is-undefined',
-    });
+    assert(this.warnMessageForUndefinedType(), !isNone(resourceHash.type));
 
     let modelName, usedLookup;
 
     modelName = this.modelNameFromPayloadKey(resourceHash.type);
     usedLookup = 'modelNameFromPayloadKey';
 
-    if (!this.store._hasModelFor(modelName)) {
+    if (!this.store.getSchemaDefinitionService().doesTypeExist(modelName)) {
       warn(this.warnMessageNoModelForType(modelName, resourceHash.type, usedLookup), false, {
         id: 'ds.serializer.model-for-type-missing',
       });
@@ -243,10 +241,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     assert(
       'Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.',
-      !Array.isArray(normalized.data),
-      {
-        id: 'ds.serializer.json-api.queryRecord-array-response',
-      }
+      !Array.isArray(normalized.data)
     );
 
     return normalized;
@@ -536,7 +531,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     return data formatted to match your API's expectations, or override
     the invoked adapter method and do the serialization in the adapter directly
     by using the provided snapshot.
-    
+
     If your API's format differs greatly from the JSON:API spec, you should
     consider authoring your own adapter and serializer instead of extending
     this class.
@@ -659,7 +654,8 @@ const JSONAPISerializer = JSONSerializer.extend({
         value = transform.serialize(value, attribute.options);
       }
 
-      let payloadKey = this._getMappedKey(key, snapshot.type);
+      let schema = this.store.modelFor(snapshot.modelName);
+      let payloadKey = this._getMappedKey(key, schema);
 
       if (payloadKey === key) {
         payloadKey = this.keyForAttribute(key, 'serialize');
@@ -679,7 +675,8 @@ const JSONAPISerializer = JSONSerializer.extend({
       if (belongsTo === null || belongsToIsNotNew) {
         json.relationships = json.relationships || {};
 
-        let payloadKey = this._getMappedKey(key, snapshot.type);
+        let schema = this.store.modelFor(snapshot.modelName);
+        let payloadKey = this._getMappedKey(key, schema);
         if (payloadKey === key) {
           payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
         }
@@ -707,7 +704,8 @@ const JSONAPISerializer = JSONSerializer.extend({
       if (hasMany !== undefined) {
         json.relationships = json.relationships || {};
 
-        let payloadKey = this._getMappedKey(key, snapshot.type);
+        let schema = this.store.modelFor(snapshot.modelName);
+        let payloadKey = this._getMappedKey(key, schema);
         if (payloadKey === key && this.keyForRelationship) {
           payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
         }
@@ -739,10 +737,7 @@ if (DEBUG) {
 
       assert(
         `You've used the EmbeddedRecordsMixin in ${this.toString()} which is not fully compatible with the JSON:API specification. Please confirm that this works for your specific API and add \`this.isEmbeddedRecordsMixinCompatible = true\` to your serializer.`,
-        !this.isEmbeddedRecordsMixin || this.isEmbeddedRecordsMixinCompatible === true,
-        {
-          id: 'ds.serializer.embedded-records-mixin-not-supported',
-        }
+        !this.isEmbeddedRecordsMixin || this.isEmbeddedRecordsMixinCompatible === true
       );
 
       let constructor = this.constructor;

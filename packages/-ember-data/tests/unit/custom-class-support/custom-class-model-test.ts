@@ -298,33 +298,6 @@ module('unit/model - Custom Class Model', function (hooks) {
     await (person as unknown as Person).save();
   });
 
-  test('hasModelFor with custom schema definition', async function (assert) {
-    assert.expect(4);
-    this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as Store;
-    let count = 0;
-    let schema = {
-      attributesDefinitionFor() {
-        return {};
-      },
-      relationshipsDefinitionFor() {
-        return {};
-      },
-      doesTypeExist(modelName: string) {
-        if (count === 0) {
-          assert.strictEqual(modelName, 'person', 'type passed in to the schema hooks');
-        } else if (count === 1) {
-          assert.strictEqual(modelName, 'boat', 'type passed in to the schema hooks');
-        }
-        count++;
-        return modelName === 'person';
-      },
-    };
-    store.registerSchemaDefinitionService(schema);
-    assert.true(store._hasModelFor('person'), 'hasModelFor matches schema hook when true');
-    assert.false(store._hasModelFor('boat'), 'hasModelFor matches schema hook when false');
-  });
-
   test('store.saveRecord', async function (assert) {
     assert.expect(1);
     this.owner.register(

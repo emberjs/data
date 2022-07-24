@@ -2,7 +2,7 @@
   @module @ember-data/store
 */
 
-export { default as Store } from './system/core-store';
+export { default as Store, storeFor } from './system/core-store';
 
 export { recordIdentifierFor } from './system/store/internal-model-factory';
 

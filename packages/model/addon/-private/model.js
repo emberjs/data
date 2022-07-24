@@ -7,19 +7,22 @@ import EmberError from '@ember/error';
 import EmberObject, { get } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
+import { inject as service } from '@ember/service';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
+import { resolve } from 'rsvp';
+
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import {
   coerceId,
   deprecatedPromiseObject,
   errorsArrayToHash,
   InternalModel,
-  PromiseObject,
   recordDataFor,
 } from '@ember-data/store/-private';
 
@@ -104,6 +107,8 @@ function computeOnce(target, key, desc) {
   @extends Ember.EmberObject
 */
 class Model extends EmberObject {
+  @service store;
+
   init(options = {}) {
     const createProps = options._createProps;
     delete options._createProps;
@@ -389,9 +394,9 @@ class Model extends EmberObject {
     Example
 
     ```javascript
-    record.get('isReloading'); // false
+    record.isReloading; // false
     record.reload();
-    record.get('isReloading'); // true
+    record.isReloading; // true
     ```
 
     @property isReloading
@@ -626,7 +631,7 @@ class Model extends EmberObject {
     @public
   */
   deleteRecord() {
-    this.store.deleteRecord(this);
+    storeFor(this).deleteRecord(this);
   }
 
   /**
@@ -675,7 +680,11 @@ class Model extends EmberObject {
     successfully or rejected if the adapter returns with an error.
   */
   destroyRecord(options) {
+    const { isNew } = this.currentState;
     this.deleteRecord();
+    if (isNew) {
+      return resolve(this);
+    }
     return this.save(options).then((_) => {
       run(() => {
         this.unloadRecord();
@@ -692,10 +701,10 @@ class Model extends EmberObject {
     @public
   */
   unloadRecord() {
-    if (this.isDestroyed) {
+    if (this.isNew && (this.isDestroyed || this.isDestroying)) {
       return;
     }
-    this.store.unloadRecord(this);
+    storeFor(this).unloadRecord(this);
   }
 
   /**
@@ -845,7 +854,14 @@ class Model extends EmberObject {
     successfully or rejected if the adapter returns with an error.
   */
   save(options) {
-    const promise = this._internalModel.save(options).then(() => this);
+    let promise;
+
+    if (this.currentState.isNew && this.currentState.isDeleted) {
+      promise = resolve(this);
+    } else {
+      promise = storeFor(this).saveRecord(this, options);
+    }
+
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       return deprecatedPromiseObject(promise);
     }
@@ -882,24 +898,28 @@ class Model extends EmberObject {
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
-  reload(options) {
-    let wrappedAdapterOptions;
+  reload(_options) {
+    let options = {};
 
-    if (typeof options === 'object' && options !== null && options.adapterOptions) {
-      wrappedAdapterOptions = {
-        adapterOptions: options.adapterOptions,
-      };
+    if (typeof _options === 'object' && _options !== null && _options.adapterOptions) {
+      options.adapterOptions = _options.adapterOptions;
     }
 
+    options.isReloading = true;
+    let identifier = recordIdentifierFor(this);
+    assert(`You cannot reload a record without an ID`, identifier.id);
     this.isReloading = true;
-    return PromiseObject.create({
-      promise: this._internalModel
-        .reload(wrappedAdapterOptions)
-        .then(() => this)
-        .finally(() => {
-          this.isReloading = false;
-        }),
-    });
+    const promise = storeFor(this)
+      ._fetchManager.scheduleFetch(identifier, options)
+      .then(() => this)
+      .finally(() => {
+        this.isReloading = false;
+      });
+
+    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
+      return deprecatedPromiseObject(promise);
+    }
+    return promise;
   }
 
   attr() {
@@ -1102,7 +1122,7 @@ class Model extends EmberObject {
   }
 
   inverseFor(key) {
-    return this.constructor.inverseFor(key, this._internalModel.store);
+    return this.constructor.inverseFor(key, storeFor(this));
   }
 
   eachAttribute(callback, binding) {
@@ -1929,7 +1949,6 @@ class Model extends EmberObject {
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
 Model.prototype._internalModel = null;
-Model.prototype.store = null;
 Model.prototype._createProps = null;
 
 if (HAS_DEBUG_PACKAGE) {

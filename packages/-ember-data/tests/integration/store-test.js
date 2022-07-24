@@ -307,7 +307,7 @@ module('integration/store - findRecord', function (hooks) {
       ],
     });
 
-    let cachedRecordIsPresent = store.hasRecordForId('car', '20');
+    let cachedRecordIsPresent = store.peekRecord('car', '20') !== null;
 
     assert.notOk(cachedRecordIsPresent, 'Car with id=20 should not exist');
 
@@ -1074,11 +1074,9 @@ module('integration/store - findAll', function (hooks) {
       },
     });
 
-    let car = store.recordForId('car', '20');
+    assert.strictEqual(store.peekRecord('car', '20'), null, 'the car is not loaded');
 
-    assert.true(car.isEmpty, 'Car with id=20 should be empty');
-
-    car = await store.findRecord('car', '20', { reload: true });
+    let car = await store.findRecord('car', '20');
 
     assert.strictEqual(car.make, 'BMCW', 'Car with id=20 is now loaded');
   });
@@ -1145,7 +1143,7 @@ module('integration/store - deleteRecord', function (hooks) {
 
     person = store.peekRecord('person', '1');
 
-    assert.ok(store.hasRecordForId('person', '1'), 'expected the record to be in the store');
+    assert.notStrictEqual(store.peekRecord('person', '1'), null, 'expected the record to be in the store');
 
     store.deleteRecord(person);
     assert.ok(person.isDeleted, 'expect person to be isDeleted');

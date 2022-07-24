@@ -305,10 +305,6 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let model2 = {
       id: '2',
       type: 'tag',
-      save() {
-        model2Saved++;
-        return this;
-      },
     };
 
     let [record1, record2] = store.push({
@@ -319,11 +315,11 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       content: identifiers,
       store,
     });
-    record1._internalModel.save = () => {
+    record1.save = () => {
       model1Saved++;
       return resolve(this);
     };
-    record2._internalModel.save = () => {
+    record2.save = () => {
       model2Saved++;
       return resolve(this);
     };

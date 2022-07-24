@@ -152,9 +152,7 @@ export default class RecordState {
   declare _lastError: any;
 
   constructor(record: Model) {
-    const { store } = record;
-
-    let id = record._internalModel.identifier;
+    const { store, identifier: identity } = record._internalModel;
 
     this.record = record;
     this.recordData = record._internalModel._recordData;
@@ -169,7 +167,7 @@ export default class RecordState {
     let requests = store.getRequestStateService();
     let notifications = store._notificationManager;
 
-    requests.subscribeForRecord(id, (req) => {
+    requests.subscribeForRecord(identity, (req) => {
       if (req.type === 'mutation') {
         switch (req.state) {
           case 'pending':
@@ -220,7 +218,7 @@ export default class RecordState {
       }
     });
 
-    notifications.subscribe(id, (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
+    notifications.subscribe(identity, (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
       notifyChanges(identifier, type, key, record, store);
       switch (type) {
         case 'state':

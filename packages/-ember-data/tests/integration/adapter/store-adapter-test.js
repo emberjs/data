@@ -22,7 +22,7 @@ function moveRecordOutOfInFlight(record) {
   // TODO this would be made nicer by a cancellation API
   let pending = store.getRequestStateService().getPendingRequestsForRecord(_internalModel.identifier);
   pending.splice(0, pending.length); // release the requests
-  store.recordWasError(_internalModel, new Error());
+  _internalModel.adapterDidError(new Error());
 }
 
 module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration test', function (hooks) {

@@ -39,7 +39,7 @@ module('integration/request-state-service - Request State Service', function (ho
       data: {
         type: 'person',
         id: '1',
-        lid: '',
+        lid: '@ember-data:lid-person-1',
         attributes: {
           name: 'Scumbag Dale',
         },
@@ -142,6 +142,7 @@ module('integration/request-state-service - Request State Service', function (ho
       data: {
         type: 'person',
         id: '1',
+        lid: '@ember-data:lid-person-1',
         attributes: {
           name: 'Scumbag Dale',
         },

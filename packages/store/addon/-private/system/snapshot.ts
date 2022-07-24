@@ -1,12 +1,13 @@
 /**
   @module @ember-data/store
 */
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import { get } from '@ember/object';
 
 import { importSync } from '@embroider/macros';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
 import type {
@@ -166,7 +167,7 @@ export default class Snapshot implements Snapshot {
     let attributes = (this.__attributes = Object.create(null));
     let attrs = Object.keys(this._store._attributesDefinitionFor(this.identifier));
     attrs.forEach((keyName) => {
-      if (schemaIsDSModel(this.type)) {
+      if (schemaIsDSModel(this._internalModel.modelClass)) {
         // if the schema is for a DSModel then the instance is too
         attributes[keyName] = get(record as DSModel, keyName);
       } else {
@@ -182,11 +183,9 @@ export default class Snapshot implements Snapshot {
 
    @property type
     @public
+    @deprecated
    @type {Model}
    */
-  get type(): ModelSchema {
-    return this._internalModel.modelClass;
-  }
 
   get isNew(): boolean {
     return this._internalModel.isNew();
@@ -554,4 +553,22 @@ export default class Snapshot implements Snapshot {
     assert(`Cannot serialize record, no serializer found`, serializer);
     return serializer.serialize(this, options);
   }
+}
+
+if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
+  Object.defineProperty(Snapshot.prototype, 'type', {
+    get() {
+      deprecate(
+        `Using Snapshot.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-snapshot-model-class-access',
+          until: '5.0',
+          for: 'ember-data',
+          since: { available: '4.5.0', enabled: '4.5.0' },
+        }
+      );
+      return this._internalModel.modelClass;
+    },
+  });
 }

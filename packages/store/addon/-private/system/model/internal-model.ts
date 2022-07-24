@@ -1,12 +1,8 @@
-import { A, default as EmberArray } from '@ember/array';
-import { assert, inspect } from '@ember/debug';
-import EmberError from '@ember/error';
-import { get } from '@ember/object';
+import { assert } from '@ember/debug';
 import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { importSync } from '@embroider/macros';
-import RSVP, { resolve } from 'rsvp';
 
 import type { ManyArray } from '@ember-data/model/-private';
 import type { ManyArrayCreateArgs } from '@ember-data/model/-private/system/many-array';
@@ -54,8 +50,6 @@ type PrivateModelModule = {
 /**
   @module @ember-data/store
 */
-
-const { hasOwnProperty } = Object.prototype;
 
 let _ManyArray: PrivateModelModule['ManyArray'];
 let _PromiseBelongsTo: PrivateModelModule['PromiseBelongsTo'];
@@ -346,21 +340,6 @@ export default class InternalModel {
     });
   }
 
-  save(options: FindOptions = {}): Promise<void> {
-    if (this._deletedRecordWasNew) {
-      return resolve();
-    }
-    let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer<void>(promiseLabel);
-
-    // Casting to promise to narrow due to the feature flag paths inside scheduleSave
-    return this.store.scheduleSave(this, resolver, options) as Promise<void>;
-  }
-
-  reload(options: Dict<unknown> = {}): Promise<InternalModel> {
-    return this.store._reloadRecord(this, options);
-  }
-
   /*
     Unload the record for this internal model. This will cause the record to be
     destroyed and freed up for garbage collection. It will also do a check
@@ -451,7 +430,8 @@ export default class InternalModel {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
-      (internalModel) => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel),
+      (identifier: StableRecordIdentifier | null) =>
+        handleCompletedRelationshipRequest(this, key, resource._relationship, identifier),
       (e) => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
     );
   }
@@ -744,13 +724,7 @@ export default class InternalModel {
   }
 
   setDirtyAttribute<T>(key: string, value: T): T {
-    if (this.isDeleted()) {
-      if (DEBUG) {
-        throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
-      } else {
-        throw new EmberError(`Attempted to set '${key}' on the deleted record ${this}`);
-      }
-    }
+    assert(`Attempted to set '${key}' on the deleted record ${this}`, !this.isDeleted());
 
     let currentValue = this._recordData.getAttr(key);
     if (currentValue !== value) {
@@ -874,7 +848,7 @@ export default class InternalModel {
     let jsonPayload: JsonApiResource = {};
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
-      let preloadValue = get(preload, key);
+      let preloadValue = preload[key];
       let relationshipMeta = this.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
         if (!jsonPayload.relationships) {
@@ -997,7 +971,7 @@ export default class InternalModel {
         let record = this.getRecord() as DSModel;
         let errors = record.errors;
         for (attribute in parsedErrors) {
-          if (hasOwnProperty.call(parsedErrors, attribute)) {
+          if (Object.prototype.hasOwnProperty.call(parsedErrors, attribute)) {
             errors.add(attribute, parsedErrors[attribute]);
           }
         }
@@ -1069,7 +1043,7 @@ function handleCompletedRelationshipRequest(
   internalModel: InternalModel,
   key: string,
   relationship: BelongsToRelationship,
-  value: InternalModel | null
+  value: StableRecordIdentifier | null
 ): RecordInstance | null;
 function handleCompletedRelationshipRequest(
   internalModel: InternalModel,
@@ -1095,7 +1069,7 @@ function handleCompletedRelationshipRequest(
   internalModel: InternalModel,
   key: string,
   relationship: BelongsToRelationship | ManyRelationship,
-  value: ManyArray | InternalModel | null,
+  value: ManyArray | StableRecordIdentifier | null,
   error?: Error
 ): ManyArray | RecordInstance | null {
   delete internalModel._relationshipPromisesCache[key];
@@ -1137,19 +1111,19 @@ function handleCompletedRelationshipRequest(
   // only set to not stale if no error is thrown
   relationship.state.isStale = false;
 
-  return isHasMany || !value ? (value as ManyArray | null) : (value as InternalModel).getRecord();
+  return isHasMany || !value
+    ? (value as ManyArray | null)
+    : internalModel.store.peekRecord(value as StableRecordIdentifier);
 }
 
 export function assertRecordsPassedToHasMany(records) {
-  // TODO only allow native arrays
+  assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
   assert(
-    `You must pass an array of records to set a hasMany relationship`,
-    Array.isArray(records) || EmberArray.detect(records)
-  );
-  assert(
-    `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(records)}`,
+    `All elements of a hasMany relationship must be instances of Model, you passed ${records
+      .map((r) => `${typeof r}`)
+      .join(', ')}`,
     (function () {
-      return A(records).every((record) => hasOwnProperty.call(record, '_internalModel') === true);
+      return records.every((record) => Object.prototype.hasOwnProperty.call(record, '_internalModel') === true);
     })()
   );
 }

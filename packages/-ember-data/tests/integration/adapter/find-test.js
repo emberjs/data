@@ -169,7 +169,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
       assert.ok(false, 'We expected to throw but did not');
     } catch (e) {
       assert.ok(true, 'The rejection handler was called');
-      assert.notOk(store.hasRecordForId('person', '1'), 'The record has been unloaded');
+      assert.strictEqual(store.peekRecord('person', '1'), null, 'The record has been unloaded');
     }
   });
 

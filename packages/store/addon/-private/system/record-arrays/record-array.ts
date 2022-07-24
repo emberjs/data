@@ -3,13 +3,15 @@
 */
 import type NativeArray from '@ember/array/-private/native-array';
 import ArrayProxy from '@ember/array/proxy';
-import { assert } from '@ember/debug';
-import { computed, get, set } from '@ember/object';
+import { assert, deprecate } from '@ember/debug';
+import { get, set } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 
 import { Promise } from 'rsvp';
 
 import type { RecordArrayManager, Snapshot } from 'ember-data/-private';
+
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
@@ -121,15 +123,9 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
 
    @property type
     @public
+    @deprecated
    @type {subclass of Model}
    */
-  @computed('modelName')
-  get type() {
-    if (!this.modelName) {
-      return null;
-    }
-    return this.store.modelFor(this.modelName);
-  }
 
   /**
     Retrieves an object from the content by index.
@@ -297,4 +293,27 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
   _takeSnapshot(): Snapshot[] {
     return this.content.map((identifier) => internalModelFactoryFor(this.store).lookup(identifier).createSnapshot());
   }
+}
+
+if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
+  Object.defineProperty(RecordArray.prototype, 'type', {
+    get() {
+      deprecate(
+        `Using RecordArray.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-snapshot-model-class-access',
+          until: '5.0',
+          for: 'ember-data',
+          since: { available: '4.5.0', enabled: '4.5.0' },
+        }
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (!this.modelName) {
+        return null;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      return this.store.modelFor(this.modelName);
+    },
+  });
 }

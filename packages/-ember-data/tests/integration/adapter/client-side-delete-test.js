@@ -77,11 +77,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
 
     await book2.destroyRecord({ adapterOptions: { clientSideDelete: true } });
 
-    book2.unloadRecord();
-
-    await settled();
-
-    assert.false(store.hasRecordForId('book', '2'), 'book 2 unloaded');
+    assert.strictEqual(store.peekRecord('book', '2'), null, 'book 2 unloaded');
     assert.deepEqual(bookstore.books.mapBy('id'), ['1'], 'one book client-side deleted');
 
     store.push({

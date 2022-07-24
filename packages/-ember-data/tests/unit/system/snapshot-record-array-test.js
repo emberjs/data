@@ -3,11 +3,11 @@ import { A } from '@ember/array';
 import { module, test } from 'qunit';
 
 import { SnapshotRecordArray } from '@ember-data/store/-private';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('Unit - snapshot-record-array', function () {
   test('constructor', function (assert) {
     let array = A([1, 2]);
-    array.type = 'some type';
     let meta = {};
     let options = {
       adapterOptions: 'some options',
@@ -18,7 +18,6 @@ module('Unit - snapshot-record-array', function () {
 
     assert.strictEqual(snapshot.length, 2);
     assert.strictEqual(snapshot.meta, meta);
-    assert.strictEqual(snapshot.type, 'some type');
     assert.strictEqual(snapshot.adapterOptions, 'some options');
     assert.strictEqual(snapshot.include, 'include me');
   });
@@ -49,27 +48,35 @@ module('Unit - snapshot-record-array', function () {
     assert.strictEqual(didTakeSnapshot, 1, 'still only one snapshot should have been taken');
   });
 
-  test('SnapshotRecordArray.type loads the class lazily', function (assert) {
-    let array = A([1, 2]);
-    let typeLoaded = false;
+  deprecatedTest(
+    'SnapshotRecordArray.type loads the class lazily',
+    {
+      id: 'ember-data:deprecate-snapshot-model-class-access',
+      count: 1,
+      until: '5.0',
+    },
+    function (assert) {
+      let array = A([1, 2]);
+      let typeLoaded = false;
 
-    Object.defineProperty(array, 'type', {
-      get() {
-        typeLoaded = true;
-        return 'some type';
-      },
-    });
+      Object.defineProperty(array, 'type', {
+        get() {
+          typeLoaded = true;
+          return 'some type';
+        },
+      });
 
-    let meta = {};
-    let options = {
-      adapterOptions: 'some options',
-      include: 'include me',
-    };
+      let meta = {};
+      let options = {
+        adapterOptions: 'some options',
+        include: 'include me',
+      };
 
-    let snapshot = new SnapshotRecordArray(array, meta, options);
+      let snapshot = new SnapshotRecordArray(array, meta, options);
 
-    assert.false(typeLoaded, 'model class is not eager loaded');
-    assert.strictEqual(snapshot.type, 'some type');
-    assert.true(typeLoaded, 'model class is loaded');
-  });
+      assert.false(typeLoaded, 'model class is not eager loaded');
+      assert.strictEqual(snapshot.type, 'some type');
+      assert.true(typeLoaded, 'model class is loaded');
+    }
+  );
 });

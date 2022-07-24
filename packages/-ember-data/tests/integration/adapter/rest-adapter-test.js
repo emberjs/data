@@ -1940,7 +1940,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 401);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.UnauthorizedError, 'reason should be an instance of DS.UnauthorizedError');
@@ -1949,7 +1949,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 403);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ForbiddenError, 'reason should be an instance of DS.ForbiddenError');
@@ -1958,7 +1958,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 404);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.NotFoundError, 'reason should be an instance of DS.NotFoundError');
@@ -1967,7 +1967,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 409);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
@@ -1976,7 +1976,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 500);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');

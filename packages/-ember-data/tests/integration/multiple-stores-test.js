@@ -135,7 +135,11 @@ module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
     );
 
     andromedaStore.push(normalizedAndromedaPayload);
-    assert.true(andromedaStore.hasRecordForId('super-villain', '1'), 'superVillain should exist in service:store');
+    assert.notStrictEqual(
+      andromedaStore.peekRecord('super-villain', '1'),
+      null,
+      'superVillain should exist in service:store'
+    );
 
     const normalizedCartWheelPayload = cartwheelSerializer.normalizeResponse(
       cartwheelStore,
@@ -146,7 +150,11 @@ module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
     );
 
     cartwheelStore.push(normalizedCartWheelPayload);
-    assert.true(cartwheelStore.hasRecordForId('super-villain', '1'), 'superVillain should exist in store:store-a');
+    assert.notStrictEqual(
+      cartwheelStore.peekRecord('super-villain', '1'),
+      null,
+      'superVillain should exist in store:store-a'
+    );
 
     const normalizedCigarPayload = cigarSerializer.normalizeResponse(
       cigarStore,
@@ -157,7 +165,11 @@ module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
     );
     cigarStore.push(normalizedCigarPayload);
 
-    assert.true(cigarStore.hasRecordForId('super-villain', '1'), 'superVillain should exist in store:store-b');
+    assert.notStrictEqual(
+      cigarStore.peekRecord('super-villain', '1'),
+      null,
+      'superVillain should exist in store:store-b'
+    );
   });
 
   test('each store should have a unique instance of the serializers', function (assert) {
@@ -169,13 +181,11 @@ module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
     const andromedaSerializer = andromedaStore.serializerFor('home-planet');
     const cigarSerializer = cigarStore.serializerFor('home-planet');
 
-    assert.strictEqual(
-      andromedaSerializer.store,
-      andromedaStore,
-      "andromedaSerializer's store prop should be andromedaStore"
+    assert.notStrictEqual(
+      andromedaSerializer,
+      cigarSerializer,
+      'andromedaStore and cigarStore should be unique instances'
     );
-    assert.strictEqual(cigarSerializer.store, cigarStore, "cigarSerializer's store prop should be cigarStore");
-    assert.notEqual(andromedaSerializer, cigarSerializer, 'andromedaStore and cigarStore should be unique instances');
   });
 
   test('each store should have a unique instance of the adapters', function (assert) {
@@ -187,8 +197,6 @@ module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
     const andromedaAdapter = andromedaStore.adapterFor('home-planet');
     const cigarAdapter = cigarStore.adapterFor('home-planet');
 
-    assert.strictEqual(andromedaAdapter.store, andromedaStore);
-    assert.strictEqual(cigarAdapter.store, cigarStore);
-    assert.notEqual(andromedaAdapter, cigarAdapter);
+    assert.notStrictEqual(andromedaAdapter, cigarAdapter, 'the adapters are unique');
   });
 });

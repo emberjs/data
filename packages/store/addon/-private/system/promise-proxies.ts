@@ -111,7 +111,7 @@ export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObjectPr
     get(target: object, prop: string, receiver?: object): unknown {
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
-          `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
+          `Accessing ${prop} is deprecated. The return type is being changed fomr PromiseObjectProxy to a Promise. The only available methods to access on this promise are .then, .catch and .finally`,
           false,
           {
             id: 'ember-data:model-save-promise',

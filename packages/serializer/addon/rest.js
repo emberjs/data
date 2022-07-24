@@ -202,7 +202,7 @@ const RESTSerializer = JSONSerializer.extend({
       // Support polymorphic records in async relationships
       let modelName = this.modelNameFromPayloadKey(hash.type);
 
-      if (store._hasModelFor(modelName)) {
+      if (store.getSchemaDefinitionService().doesTypeExist(modelName)) {
         serializer = store.serializerFor(modelName);
         modelClass = store.modelFor(modelName);
       }
@@ -270,7 +270,7 @@ const RESTSerializer = JSONSerializer.extend({
       }
 
       var typeName = this.modelNameFromPayloadKey(modelName);
-      if (!store._hasModelFor(typeName)) {
+      if (!store.getSchemaDefinitionService().doesTypeExist(typeName)) {
         warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
           id: 'ds.serializer.model-for-key-missing',
         });
@@ -393,7 +393,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
-      if (!store._hasModelFor(modelName)) {
+      if (!store.getSchemaDefinitionService().doesTypeExist(modelName)) {
         warn(this.warnMessageNoModelForKey(prop, modelName), false, {
           id: 'ds.serializer.model-for-key-missing',
         });

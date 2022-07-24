@@ -84,7 +84,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     let person = store.peekRecord('person', 1);
     assert.strictEqual(person.get('cars.length'), 1, 'The inital length of cars is correct');
 
-    assert.true(store.hasRecordForId('person', 1), 'The person is in the store');
+    assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
     assert.true(
       store._internalModelsFor('person').has('@ember-data:lid-person-1'),
       'The person internalModel is loaded'
@@ -92,7 +92,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     run(() => person.unloadRecord());
 
-    assert.false(store.hasRecordForId('person', 1), 'The person is unloaded');
+    assert.strictEqual(store.peekRecord('person', '1'), null, 'The person is unloaded');
     assert.false(
       store._internalModelsFor('person').has('@ember-data:lid-person-1'),
       'The person internalModel is freed'
@@ -213,12 +213,12 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     });
 
     // assert our initial cache state
-    assert.true(store.hasRecordForId('person', '1'), 'The person is in the store');
+    assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
     assert.true(
       store._internalModelsFor('person').has('@ember-data:lid-person-1'),
       'The person internalModel is loaded'
     );
-    assert.true(store.hasRecordForId('boat', '1'), 'The boat is in the store');
+    assert.notStrictEqual(store.peekRecord('boat', '1'), null, 'The boat is in the store');
     assert.true(store._internalModelsFor('boat').has('@ember-data:lid-boat-1'), 'The boat internalModel is loaded');
 
     let boats = await adam.get('boats');
@@ -228,7 +228,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.strictEqual(boats.get('length'), 1, 'after unloading boats.length is correct');
 
     // assert our new cache state
-    assert.false(store.hasRecordForId('boat', '1'), 'The boat is unloaded');
+    assert.strictEqual(store.peekRecord('boat', '1'), null, 'The boat is unloaded');
     assert.true(store._internalModelsFor('boat').has('@ember-data:lid-boat-1'), 'The boat internalModel is retained');
 
     // cause a rematerialization, this should also cause us to fetch boat '1' again
@@ -241,7 +241,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.strictEqual(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
     assert.notStrictEqual(rematerializedBoaty, boaty, 'the boat is rematerialized, not recycled');
 
-    assert.true(store.hasRecordForId('boat', '1'), 'The boat is loaded');
+    assert.notStrictEqual(store.peekRecord('boat', '1'), null, 'The boat is loaded');
     assert.true(store._internalModelsFor('boat').has('@ember-data:lid-boat-1'), 'The boat internalModel is retained');
   });
 });

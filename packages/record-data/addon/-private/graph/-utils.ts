@@ -123,6 +123,6 @@ export function assertRelationshipData(store, identifier, data, meta) {
   );
   assert(
     `Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on <${identifier.type}:${identifier.id}>, Expected a json-api identifier with type '${meta.type}'. No model was found for '${data.type}'.`,
-    data === null || !data.type || store._hasModelFor(data.type)
+    data === null || !data.type || store.getSchemaDefinitionService().doesTypeExist(data.type)
   );
 }

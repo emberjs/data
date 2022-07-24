@@ -230,7 +230,10 @@ module('integration/records/save - Save Record', function (hooks) {
       store.unloadAll('post');
     });
 
-    await assert.expectAssertion(() => post.save(), 'Cannot initiate a save request for an unloaded record');
+    await assert.expectAssertion(
+      () => post.save(),
+      'A record in a disconnected state cannot utilize the store. This typically means the record has been destroyed, most commonly by unloading it.'
+    );
   });
 
   test('Will error when saving after unloading record', async function (assert) {
@@ -253,6 +256,9 @@ module('integration/records/save - Save Record', function (hooks) {
       post.unloadRecord();
     });
 
-    await assert.expectAssertion(() => post.save(), 'Cannot initiate a save request for an unloaded record');
+    await assert.expectAssertion(
+      () => post.save(),
+      'A record in a disconnected state cannot utilize the store. This typically means the record has been destroyed, most commonly by unloading it.'
+    );
   });
 });

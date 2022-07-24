@@ -1,5 +1,4 @@
 import { assert, warn } from '@ember/debug';
-import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
 import type { IdentifierCache } from '../../identifiers/cache';
@@ -268,7 +267,7 @@ export default class InternalModelFactory {
 
     assert(
       `'${modelName}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
-      isNone(existingInternalModel) || existingInternalModel === internalModel
+      !existingInternalModel || existingInternalModel === internalModel
     );
 
     if (identifier.id === null) {
