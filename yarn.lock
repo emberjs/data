@@ -6777,7 +6777,7 @@ ember-get-config@^2.0.0:
     "@embroider/macros" "^0.50.0 || ^1.0.0"
     ember-cli-babel "^7.26.6"
 
-ember-inflector@^4.0.1, ember-inflector@^4.0.2:
+ember-inflector@^4.0.2:
   version "4.0.2"
   resolved "https://registry.npmjs.org/ember-inflector/-/ember-inflector-4.0.2.tgz#4494f1a5f61c1aca7702d59d54024cc92211d8ec"
   integrity sha512-+oRstEa52mm0jAFzhr51/xtEWpCEykB3SEBr7vUg8YnXUZJ5hKNBppP938q8Zzr9XfJEbzrtDSGjhKwJCJv6FQ==
