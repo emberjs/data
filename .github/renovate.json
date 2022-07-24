@@ -7,5 +7,6 @@
   "npm": {
     "stabilityDays": 3
   },
-  "rangeStrategy": "bump"
+  "rangeStrategy": "bump",
+  "ignoreDeps": ["execa"]
 }
