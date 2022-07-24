@@ -6306,7 +6306,7 @@ ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.13.0, ember-c
     rimraf "^3.0.1"
     semver "^5.5.0"
 
-ember-cli-blueprint-test-helpers@^0.19.1, ember-cli-blueprint-test-helpers@^0.19.2:
+ember-cli-blueprint-test-helpers@^0.19.2:
   version "0.19.2"
   resolved "https://registry.npmjs.org/ember-cli-blueprint-test-helpers/-/ember-cli-blueprint-test-helpers-0.19.2.tgz#9e563cd81ab39931253ced0982c5d02475895401"
   integrity sha512-otCKdGcNFK0+MkQo+LLjYbRD9EerApH6Z/odvvlL1hxrN+owHMV5E+jI2rbtdvNEH0/6w5ZqjH4kS232fvtCxQ==

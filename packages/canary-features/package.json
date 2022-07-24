@@ -30,7 +30,7 @@
     "calculate-cache-key-for-tree": "^2.0.0",
     "co": "^4.6.0",
     "common-tags": "^1.8.2",
-    "ember-cli-blueprint-test-helpers": "^0.19.1",
+    "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-version-checker": "^5.1.1",
