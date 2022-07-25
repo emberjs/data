@@ -17,6 +17,7 @@ import type DSModelClass from '@ember-data/model';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_HAS_RECORD,
+  DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_RECORD_WAS_INVALID,
   DEPRECATE_STORE_FIND,
 } from '@ember-data/private-build-infra/deprecations';
@@ -93,6 +94,7 @@ const StoreMap = new WeakCache<RecordInstance, CoreStore>(DEBUG ? 'store' : '');
 
 export function storeFor(record: RecordInstance): CoreStore | undefined {
   const store = StoreMap.get(record);
+
   assert(
     `A record in a disconnected state cannot utilize the store. This typically means the record has been destroyed, most commonly by unloading it.`,
     store
@@ -357,6 +359,7 @@ class CoreStore extends Service {
     //TODO Igor pass a wrapper instead of RD
     let record = this.instantiateRecord(identifier, createOptions, this.__recordDataFor, this._notificationManager);
     setRecordIdentifier(record, identifier);
+    setRecordDataFor(record, recordData);
     StoreMap.set(record, this);
     return record;
   }
@@ -368,12 +371,19 @@ class CoreStore extends Service {
     notificationManager: NotificationManager
   ): DSModel | RecordInstance {
     let modelName = identifier.type;
+    let store = this;
 
     let internalModel = this._internalModelForResource(identifier);
     let createOptions: any = {
       _internalModel: internalModel,
       // TODO deprecate allowing unknown args setting
       _createProps: createRecordArgs,
+      // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
+      _secretInit: (record: RecordInstance): void => {
+        setRecordIdentifier(record, identifier);
+        StoreMap.set(record, store);
+        setRecordDataFor(record, internalModel._recordData);
+      },
       container: null, // necessary hack for setOwner?
     };
 
@@ -382,6 +392,7 @@ class CoreStore extends Service {
     delete createOptions.container;
 
     let record = this._modelFactoryFor(modelName).create(createOptions);
+
     return record;
   }
 
@@ -1460,6 +1471,7 @@ class CoreStore extends Service {
     }
 
     const internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
+
     let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
       .state as RelationshipState;
     const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
@@ -2208,7 +2220,7 @@ class CoreStore extends Service {
       this.recordArrayManager.recordDidChange(identifier);
     }
 
-    return internalModel.identifier as StableExistingRecordIdentifier;
+    return identifier as StableExistingRecordIdentifier;
   }
 
   /**
@@ -2527,10 +2539,8 @@ class CoreStore extends Service {
 
   // TODO @runspired @deprecate records should implement their own serialization if desired
   serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
-    let identifier = recordIdentifierFor(record);
-    let internalModel = internalModelFactoryFor(this).peek(identifier);
     // TODO we used to check if the record was destroyed here
-    return internalModel!.createSnapshot(options).serialize(options);
+    return this._instanceCache.createSnapshot(recordIdentifierFor(record)).serialize(options);
   }
 
   // todo @runspired this should likely be publicly documented for custom records
@@ -2549,7 +2559,7 @@ class CoreStore extends Service {
     // because a `Record` is provided there will always be a matching internalModel
 
     assert(
-      `Cannot initiate a save request for an unloaded record: ${internalModel.identifier}`,
+      `Cannot initiate a save request for an unloaded record: ${identifier}`,
       !internalModel.isEmpty && !internalModel.isDestroyed
     );
     if (internalModel._isRecordFullyDeleted()) {
@@ -2561,7 +2571,7 @@ class CoreStore extends Service {
     if (!options) {
       options = {};
     }
-    let recordData = internalModel._recordData;
+    let recordData = this._instanceCache.getRecordData(identifier);
     let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
 
     // TODO handle missing isNew
@@ -2572,7 +2582,7 @@ class CoreStore extends Service {
     }
 
     const saveOptions = Object.assign({ [SaveOp]: operation }, options);
-    let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, saveOptions);
+    let fetchManagerPromise = this._fetchManager.scheduleSave(identifier, saveOptions);
     return fetchManagerPromise.then(
       (payload) => {
         /*
@@ -2601,8 +2611,6 @@ class CoreStore extends Service {
           }
 
           const cache = this.identifierCache;
-          const identifier = internalModel.identifier;
-
           if (operation !== 'deleteRecord' && data) {
             cache.updateRecordIdentifier(identifier, data);
           }
@@ -2629,6 +2637,7 @@ class CoreStore extends Service {
   }
 
   // TODO move this to InstanceCache
+  // TODO this is probably a public API from custom model classes? If not move to InstanceCache
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
     let stableIdentifier = this.identifierCache.getOrCreateRecordIdentifier(identifier);
     let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
@@ -2708,16 +2717,22 @@ class CoreStore extends Service {
    */
   // TODO move this to InstanceCache
   recordDataFor(identifier: StableRecordIdentifier | { type: string }, isCreate: boolean): RecordData {
-    let internalModel: InternalModel;
+    let recordData: RecordData;
     if (isCreate === true) {
-      internalModel = internalModelFactoryFor(this).build({ type: identifier.type, id: null });
-      internalModel._recordData.clientDidCreate();
-      this.recordArrayManager.recordDidChange(internalModel.identifier);
+      // TODO remove once InternalModel is no longer essential to internal state
+      // and just build a new identifier directly
+      let internalModel = internalModelFactoryFor(this).build({ type: identifier.type, id: null });
+      let stableIdentifier = internalModel.identifier;
+      recordData = this._instanceCache.getRecordData(stableIdentifier);
+      recordData.clientDidCreate();
+      this.recordArrayManager.recordDidChange(stableIdentifier);
     } else {
-      internalModel = internalModelFactoryFor(this).lookup(identifier as StableRecordIdentifier);
+      // TODO remove once InternalModel is no longer essential to internal state
+      internalModelFactoryFor(this).lookup(identifier as StableRecordIdentifier);
+      recordData = this._instanceCache.getRecordData(identifier as StableRecordIdentifier);
     }
 
-    return internalModel._recordData;
+    return recordData;
   }
 
   /**
@@ -2827,17 +2842,29 @@ class CoreStore extends Service {
       return adapter;
     }
 
-    // final fallback, no model specific adapter, no application adapter, no
-    // `adapter` property on store: use json-api adapter
-    // TODO we should likely deprecate this?
-    adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
-    assert(
-      `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
-      adapter !== undefined
-    );
-    _adapterCache[normalizedModelName] = adapter;
-    _adapterCache['-json-api'] = adapter;
-    return adapter;
+    if (DEPRECATE_JSON_API_FALLBACK) {
+      // final fallback, no model specific adapter, no application adapter, no
+      // `adapter` property on store: use json-api adapter
+      adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
+      if (adapter !== undefined) {
+        deprecate(
+          `Your application is utilizing a deprecated hidden fallback adapter (-json-api). Please implement an application adapter to function as your fallback.`,
+          false,
+          {
+            id: 'ember-data:deprecate-secret-adapter-fallback',
+            for: 'ember-data',
+            until: '5.0',
+            since: { available: '4.5', enabled: '4.5' },
+          }
+        );
+        _adapterCache[normalizedModelName] = adapter;
+        _adapterCache['-json-api'] = adapter;
+
+        return adapter;
+      }
+    }
+
+    assert(`No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`);
   }
 
   // ..............................

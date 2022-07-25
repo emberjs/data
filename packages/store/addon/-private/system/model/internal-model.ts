@@ -31,13 +31,11 @@ import type { ChangedAttributesHash, RecordData } from '../../ts-interfaces/reco
 import type { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import type { RelationshipSchema } from '../../ts-interfaces/record-data-schemas';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
-import type { FindOptions } from '../../ts-interfaces/store';
 import type { Dict } from '../../ts-interfaces/utils';
 import type CoreStore from '../core-store';
 import { errorsHashToArray } from '../errors-utils';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
-import Snapshot from '../snapshot';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
 type PrivateModelModule = {
@@ -87,7 +85,7 @@ export default class InternalModel {
   declare _id: string | null;
   declare modelName: string;
   declare clientId: string;
-  declare __recordData: RecordData | null;
+  declare hasRecordData: boolean;
   declare _isDestroyed: boolean;
   declare isError: boolean;
   declare _pendingRecordArrayManagerFlush: boolean;
@@ -124,7 +122,7 @@ export default class InternalModel {
     this.clientId = identifier.lid;
     this.hasRecord = false;
 
-    this.__recordData = null;
+    this.hasRecordData = false;
 
     this._isDestroyed = false;
     this._doNotDestroy = false;
@@ -145,7 +143,6 @@ export default class InternalModel {
     this._modelClass = null;
     this.__recordArrays = null;
     this._recordReference = null;
-    this.__recordData = null;
 
     this.error = null;
 
@@ -163,6 +160,7 @@ export default class InternalModel {
   set id(value: string | null) {
     if (value !== this._id) {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
+      // TODO potentially this needs to handle merged result
       this.store.identifierCache.updateRecordIdentifier(this.identifier, newIdentifier);
       this.notifyPropertyChange('id');
     }
@@ -182,16 +180,7 @@ export default class InternalModel {
   }
 
   get _recordData(): RecordData {
-    if (this.__recordData === null) {
-      let recordData = this.store._createRecordData(this.identifier);
-      this.__recordData = recordData;
-      return recordData;
-    }
-    return this.__recordData;
-  }
-
-  set _recordData(newValue) {
-    this.__recordData = newValue;
+    return this.store._instanceCache.getRecordData(this.identifier);
   }
 
   isHiddenFromRecordArrays() {
@@ -239,7 +228,7 @@ export default class InternalModel {
   }
 
   isNew(): boolean {
-    if (this.__recordData && this._recordData.isNew) {
+    if (this.hasRecordData && this._recordData.isNew) {
       return this._recordData.isNew();
     } else {
       return false;
@@ -247,7 +236,7 @@ export default class InternalModel {
   }
 
   get isEmpty(): boolean {
-    return !this.__recordData || ((!this.isNew() || this.isDeleted()) && this._recordData.isEmpty?.()) || false;
+    return !this.hasRecordData || ((!this.isNew() || this.isDeleted()) && this._recordData.isEmpty?.()) || false;
   }
 
   get isLoading() {
@@ -307,7 +296,7 @@ export default class InternalModel {
       });
     }
 
-    this.hasRecord = false; // this must occur after reltionship removal
+    this.hasRecord = false; // this must occur after relationship removal
     this.error = null;
     this.store.recordArrayManager.recordDidChange(this.identifier);
   }
@@ -709,31 +698,12 @@ export default class InternalModel {
     return this._recordData.setDirtyBelongsTo(key, extractRecordDataFromRecord(value));
   }
 
-  setDirtyAttribute<T>(key: string, value: T): T {
-    assert(`Attempted to set '${key}' on the deleted record ${this}`, !this.isDeleted());
-
-    let currentValue = this._recordData.getAttr(key);
-    if (currentValue !== value) {
-      this._recordData.setDirtyAttribute(key, value);
-      let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
-      if (record && isDSModel(record)) {
-        record.errors.remove(key);
-      }
-    }
-
-    return value;
-  }
-
   get isDestroyed(): boolean {
     return this._isDestroyed;
   }
 
-  createSnapshot(options: FindOptions = {}): Snapshot {
-    return new Snapshot(options, this.identifier, this.store);
-  }
-
   hasChangedAttributes(): boolean {
-    if (!this.__recordData) {
+    if (!this.hasRecordData) {
       // no need to calculate changed attributes when calling `findRecord`
       return false;
     }
@@ -741,7 +711,7 @@ export default class InternalModel {
   }
 
   changedAttributes(): ChangedAttributesHash {
-    if (!this.__recordData) {
+    if (!this.hasRecordData) {
       // no need to calculate changed attributes when calling `findRecord`
       return {};
     }
@@ -812,7 +782,7 @@ export default class InternalModel {
   }
 
   removeFromInverseRelationships() {
-    if (this.__recordData) {
+    if (this.hasRecordData) {
       this.store._backburner.join(() => {
         this._recordData.removeFromInverseRelationships();
       });
@@ -907,7 +877,7 @@ export default class InternalModel {
       }
       // internal set of ID to get it to RecordData from DS.Model
       // if we are within create we may not have a recordData yet.
-      if (this.__recordData && this._recordData.__setId) {
+      if (this.hasRecordData && this._recordData.__setId) {
         this._recordData.__setId(id);
       }
     }

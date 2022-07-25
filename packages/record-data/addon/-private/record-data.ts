@@ -509,8 +509,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
           while (k < members.length) {
             let member = members[k++];
             if (member !== null) {
-              // TODO this can cause materialization
-              // do something to avoid that
               return recordDataFor(member);
             }
           }

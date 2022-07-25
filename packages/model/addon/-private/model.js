@@ -27,6 +27,7 @@ import {
 } from '@ember-data/store/-private';
 
 import Errors from './errors';
+import notifyChanges from './notify-changes';
 import RecordState, { peekTag, tagged } from './record-state';
 import { relationshipFromMeta } from './system/relationships/relationship-meta';
 
@@ -110,20 +111,31 @@ class Model extends EmberObject {
   @service store;
 
   init(options = {}) {
+    if (DEBUG && !options._secretInit && !options._internalModel && !options._createProps) {
+      throw new EmberError(
+        'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
+      );
+    }
     const createProps = options._createProps;
+    const _secretInit = options._secretInit;
     delete options._createProps;
+    delete options._secretInit;
     super.init(options);
 
-    if (DEBUG) {
-      if (!this._internalModel) {
-        throw new EmberError(
-          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
-        );
-      }
-    }
+    _secretInit(this);
+    this.___recordState = DEBUG ? new RecordState(this) : null;
 
-    this.___recordState = new RecordState(this);
     this.setProperties(createProps);
+
+    // TODO  pass something in such that we don't need internalModel
+    // to get this info
+    let store = storeFor(this);
+    let notifications = store._notificationManager;
+    let identity = recordIdentifierFor(this);
+
+    notifications.subscribe(identity, (identifier, type, key) => {
+      notifyChanges(identifier, type, key, this, store);
+    });
   }
 
   /**
@@ -451,8 +463,17 @@ class Model extends EmberObject {
     @private
     @type {Object}
   */
+  // TODO we can probably make this a computeOnce
+  // we likely do not need to notify the currentState root anymore
   @tagged
   get currentState() {
+    // descriptors are called with the wrong `this` context during mergeMixins
+    // when using legacy/classic ember classes. Basically: lazy in prod and eager in dev.
+    // so we do this to try to steer folks to the nicer "dont user currentState"
+    // error.
+    if (!DEBUG && !this.___recordState) {
+      this.___recordState = new RecordState(this);
+    }
     return this.___recordState;
   }
   set currentState(_v) {
@@ -578,7 +599,7 @@ class Model extends EmberObject {
     @return {Object} an object whose values are primitive JSON values only
   */
   serialize(options) {
-    return this._internalModel.createSnapshot().serialize(options);
+    return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this)).serialize(options);
   }
 
   /*
@@ -631,7 +652,10 @@ class Model extends EmberObject {
     @public
   */
   deleteRecord() {
-    storeFor(this).deleteRecord(this);
+    // ensure we've populated currentState prior to deleting a new record
+    if (this.currentState) {
+      storeFor(this).deleteRecord(this);
+    }
   }
 
   /**
@@ -701,7 +725,7 @@ class Model extends EmberObject {
     @public
   */
   unloadRecord() {
-    if (this.isNew && (this.isDestroyed || this.isDestroying)) {
+    if (this.currentState.isNew && (this.isDestroyed || this.isDestroying)) {
       return;
     }
     storeFor(this).unloadRecord(this);
@@ -793,16 +817,18 @@ class Model extends EmberObject {
     @public
   */
   rollbackAttributes() {
+    const { currentState } = this;
     this._internalModel.rollbackAttributes();
-    this.currentState.cleanErrorRequests();
+    currentState.cleanErrorRequests();
   }
 
   /**
     @method _createSnapshot
     @private
   */
+  // TODO @deprecate in favor of a public API or examples of how to test successfully
   _createSnapshot() {
-    return this._internalModel.createSnapshot();
+    return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this));
   }
 
   toStringExtension() {
@@ -1950,6 +1976,7 @@ class Model extends EmberObject {
 // the values initialized during create to `setUnknownProperty`
 Model.prototype._internalModel = null;
 Model.prototype._createProps = null;
+Model.prototype._secretInit = null;
 
 if (HAS_DEBUG_PACKAGE) {
   /**
@@ -2050,7 +2077,7 @@ if (DEBUG) {
 
       let ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
       let theirDescriptor = lookupDescriptor(this, 'currentState');
-      let realState = this.___recordState || this._internalModel.currentState;
+      let realState = this.___recordState;
       if (ourDescriptor.get !== theirDescriptor.get || realState !== this.currentState) {
         throw new Error(
           `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`

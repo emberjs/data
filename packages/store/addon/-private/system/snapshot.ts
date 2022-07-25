@@ -25,7 +25,6 @@ import type { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
 import type Store from './core-store';
 import type InternalModel from './model/internal-model';
-import recordDataFor from './record-data-for';
 
 type RecordId = string | null;
 
@@ -137,7 +136,7 @@ export default class Snapshot implements Snapshot {
      */
     this.modelName = identifier.type;
     if (internalModel.hasRecord) {
-      this._changedAttributes = recordDataFor(internalModel).changedAttributes();
+      this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttributes();
     }
   }
 
@@ -166,12 +165,13 @@ export default class Snapshot implements Snapshot {
     let record = this.record;
     let attributes = (this.__attributes = Object.create(null));
     let attrs = Object.keys(this._store._attributesDefinitionFor(this.identifier));
+    let recordData = this._store._instanceCache.getRecordData(this.identifier);
     attrs.forEach((keyName) => {
       if (schemaIsDSModel(this._internalModel.modelClass)) {
         // if the schema is for a DSModel then the instance is too
         attributes[keyName] = get(record as DSModel, keyName);
       } else {
-        attributes[keyName] = recordDataFor(this._internalModel).getAttr(keyName);
+        attributes[keyName] = recordData.getAttr(keyName);
       }
     });
 
@@ -355,7 +355,7 @@ export default class Snapshot implements Snapshot {
         if (returnModeIsId) {
           result = inverseInternalModel.id;
         } else {
-          result = inverseInternalModel.createSnapshot();
+          result = store._instanceCache.createSnapshot(inverseInternalModel.identifier);
         }
       } else {
         result = null;
@@ -457,7 +457,7 @@ export default class Snapshot implements Snapshot {
               (member as ExistingResourceIdentifierObject | NewResourceIdentifierObject).id || null
             );
           } else {
-            (results as Snapshot[]).push(internalModel.createSnapshot());
+            (results as Snapshot[]).push(store._instanceCache.createSnapshot(internalModel.identifier));
           }
         }
       });

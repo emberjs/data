@@ -2,6 +2,7 @@ import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
+import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { recordDataFor } from '@ember-data/store/-private';
 
 import { computedMacroWithOptionalParams } from './util';
@@ -150,18 +151,25 @@ function attr(type, options) {
           );
         }
       }
-      if (!this.isValid) {
-        let oldValue = this._internalModel._recordData.getAttr(key);
-        if (oldValue !== value) {
+      assert(
+        `Attempted to set '${key}' on the deleted record ${recordIdentifierFor(this)}`,
+        !this.currentState.isDeleted
+      );
+      const recordData = storeFor(this)._instanceCache.getRecordData(recordIdentifierFor(this));
+      let currentValue = recordData.getAttr(key);
+      if (currentValue !== value) {
+        recordData.setDirtyAttribute(key, value);
+
+        if (!this.isValid) {
           const { errors } = this;
           if (errors.get(key)) {
             errors.remove(key);
-            this.___recordState.cleanErrorRequests();
+            this.currentState.cleanErrorRequests();
           }
         }
       }
-      // TODO update state here?
-      return this._internalModel.setDirtyAttribute(key, value);
+
+      return value;
     },
   }).meta(meta);
 }

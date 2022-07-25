@@ -8,6 +8,7 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
+import { recordIdentifierFor } from '@ember-data/store';
 
 let store, requests;
 let maxLength;
@@ -88,7 +89,7 @@ module(
     test('_stripIDFromURL works with id being encoded - #4190', function (assert) {
       let record = store.createRecord('testRecord', { id: 'id:123' });
       let adapter = store.adapterFor('testRecord');
-      let snapshot = record._internalModel.createSnapshot();
+      let snapshot = store._instanceCache.createSnapshot(recordIdentifierFor(record));
       let strippedUrl = adapter._stripIDFromURL(store, snapshot);
 
       assert.strictEqual(strippedUrl, '/testRecords/');

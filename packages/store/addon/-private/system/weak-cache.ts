@@ -98,7 +98,7 @@ class WeakCache<K extends object, V> extends WeakMap<K, V> {
 
 class DebugWeakCache<K extends object, V> extends WeakCache<K, V> {
   set(obj: K, value: V): this {
-    if (DEBUG && super.has(obj)) {
+    if (DEBUG && super.has(obj) && this.get(obj) !== value) {
       throw new Error(`${Object.prototype.toString.call(obj)} was already assigned a value for ${this._fieldName}`);
     }
     if (DEBUG) {

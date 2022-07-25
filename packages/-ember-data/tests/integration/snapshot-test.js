@@ -135,7 +135,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       });
       let postInternalModel = store._internalModelForResource({ type: 'post', id: '1' });
-      let snapshot = await postInternalModel.createSnapshot();
+      let snapshot = await store._instanceCache.createSnapshot(postInternalModel.identifier);
 
       assert.false(postClassLoaded, 'model class is not eagerly loaded');
       assert.strictEqual(snapshot.type, _Post, 'type is correct');
@@ -176,7 +176,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     });
 
     let postInternalModel = store._internalModelForResource({ type: 'post', id: '1' });
-    let snapshot = postInternalModel.createSnapshot();
+    let snapshot = store._instanceCache.createSnapshot(postInternalModel.identifier);
     let expected = {
       author: undefined,
       title: 'Hello World',
@@ -201,7 +201,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     });
 
     let postInternalModel = store._internalModelForResource({ type: 'post', id: '1' });
-    let snapshot = postInternalModel.createSnapshot();
+    let snapshot = store._instanceCache.createSnapshot(postInternalModel.identifier);
     let expected = {
       author: undefined,
       title: 'Hello World',

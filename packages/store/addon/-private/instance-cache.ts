@@ -2,25 +2,36 @@ import { assert } from '@ember/debug';
 
 import type { CreateRecordProperties } from './system/core-store';
 import CoreStore from './system/core-store';
+import Snapshot from './system/snapshot';
 import type { StableRecordIdentifier } from './ts-interfaces/identifier';
+import { RecordData } from './ts-interfaces/record-data';
 import type { RecordInstance } from './ts-interfaces/record-instance';
 import { FindOptions } from './ts-interfaces/store';
 
 type Caches = {
   record: WeakMap<StableRecordIdentifier, RecordInstance>;
+  recordData: WeakMap<StableRecordIdentifier, RecordData>;
 };
 export class InstanceCache {
   declare store: CoreStore;
 
   #instances: Caches = {
     record: new WeakMap<StableRecordIdentifier, RecordInstance>(),
+    recordData: new WeakMap<StableRecordIdentifier, RecordData>(),
   };
 
   constructor(store: CoreStore) {
     this.store = store;
   }
-
-  peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'record' }): RecordInstance | undefined {
+  peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'record' }): RecordInstance | undefined;
+  peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'recordData' }): RecordData | undefined;
+  peek({
+    identifier,
+    bucket,
+  }: {
+    identifier: StableRecordIdentifier;
+    bucket: 'record' | 'recordData';
+  }): RecordData | RecordInstance | undefined {
     return this.#instances[bucket]?.get(identifier);
   }
   set({
@@ -56,7 +67,7 @@ export class InstanceCache {
 
       if (properties && 'id' in properties) {
         assert(`expected id to be a string or null`, properties.id !== undefined);
-        this.getInternalModel(identifier).setId(properties.id);
+        internalModel.setId(properties.id);
       }
 
       record = this.store._instantiateRecord(this.getRecordData(identifier), identifier, properties);
@@ -79,7 +90,15 @@ export class InstanceCache {
 
   // TODO move RecordData Cache into InstanceCache
   getRecordData(identifier: StableRecordIdentifier) {
-    return this.getInternalModel(identifier)._recordData;
+    let recordData = this.peek({ identifier, bucket: 'recordData' });
+
+    if (!recordData) {
+      recordData = this.store._createRecordData(identifier);
+      this.#instances.recordData.set(identifier, recordData);
+      this.getInternalModel(identifier).hasRecordData = true;
+    }
+
+    return recordData;
   }
 
   // TODO move InternalModel cache into InstanceCache
@@ -87,8 +106,7 @@ export class InstanceCache {
     return this.store._internalModelForResource(identifier);
   }
 
-  // TODO move InternalModel cache into InstanceCache
-  createSnapshot(identifier: StableRecordIdentifier, options?: FindOptions) {
-    return this.getInternalModel(identifier).createSnapshot(options);
+  createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
+    return new Snapshot(options, identifier, this.store);
   }
 }

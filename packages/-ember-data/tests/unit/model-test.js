@@ -147,7 +147,7 @@ module('unit/model - Model', function (hooks) {
         () => {
           record.isArchived = true;
         },
-        /Attempted to set 'isArchived' on the deleted record <person:1>/,
+        /Attempted to set 'isArchived' on the deleted record /,
         "Assertion does not leak the 'value'"
       );
 

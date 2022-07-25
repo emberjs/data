@@ -65,7 +65,7 @@ export function recordIdentifierFor(record: RecordInstance | RecordData): Stable
 }
 
 export function setRecordIdentifier(record: RecordInstance | RecordData, identifier: StableRecordIdentifier): void {
-  if (DEBUG && RecordCache.has(record)) {
+  if (DEBUG && RecordCache.has(record) && RecordCache.get(record) !== identifier) {
     throw new Error(`${record} was already assigned an identifier`);
   }
 
@@ -118,6 +118,10 @@ export default class InternalModelFactory {
       // we cannot merge internalModels when both have records
       // (this may not be strictly true, we could probably swap the internalModel the record points at)
       if (im && otherIm && im.hasRecord && otherIm.hasRecord) {
+        // TODO we probably don't need to throw these errors anymore
+        // once InternalModel is fully removed, as we can just "swap"
+        // what data source the abandoned record points at so long as
+        // it itself is not retained by the store in any way.
         if ('id' in resourceData) {
           throw new Error(
             `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to '${resourceData.id}', because that id is already in use by '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
@@ -149,6 +153,7 @@ export default class InternalModelFactory {
         im = otherIm;
         // TODO do we need to notify the id change?
         im._id = intendedIdentifier.id;
+        im.identifier = intendedIdentifier;
         map.add(im, intendedIdentifier.lid);
 
         // just use im
@@ -271,6 +276,7 @@ export default class InternalModelFactory {
     );
 
     if (identifier.id === null) {
+      // TODO potentially this needs to handle merged result
       this.identifierCache.updateRecordIdentifier(identifier, { type, id });
     }
 
@@ -335,6 +341,7 @@ export default class InternalModelFactory {
     recordMap.remove(internalModel, clientId);
 
     const { identifier } = internalModel;
+    debugger;
     this.identifierCache.forgetRecordIdentifier(identifier);
   }
 

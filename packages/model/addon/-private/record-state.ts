@@ -1,15 +1,15 @@
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
+import { DEBUG } from '@glimmer/env';
 import { cached, tracked } from '@glimmer/tracking';
 
-import type { RecordData } from '@ember-data/record-data/-private';
-import { errorsArrayToHash } from '@ember-data/store/-private';
+import { storeFor } from '@ember-data/store';
+import { errorsArrayToHash, recordIdentifierFor } from '@ember-data/store/-private';
 import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
 import type RequestCache from '@ember-data/store/-private/system/request-cache';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-
-import notifyChanges from './notify-changes';
+import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 
 type Model = InstanceType<typeof import('./model')>;
 
@@ -152,22 +152,23 @@ export default class RecordState {
   declare _lastError: any;
 
   constructor(record: Model) {
-    const { store, identifier: identity } = record._internalModel;
+    const store = storeFor(record)!;
+    const identity = recordIdentifierFor(record);
 
+    this.identifier = identity;
     this.record = record;
-    this.recordData = record._internalModel._recordData;
+    this.recordData = store._instanceCache.getRecordData(identity);
 
     this.pendingCount = 0;
     this.fulfilledCount = 0;
     this.rejectedCount = 0;
-
     this._errorRequests = [];
     this._lastError = null;
 
     let requests = store.getRequestStateService();
     let notifications = store._notificationManager;
 
-    requests.subscribeForRecord(identity, (req) => {
+    const handleRequest = (req) => {
       if (req.type === 'mutation') {
         switch (req.state) {
           case 'pending':
@@ -216,10 +217,20 @@ export default class RecordState {
             break;
         }
       }
-    });
+    };
+
+    requests.subscribeForRecord(identity, handleRequest);
+
+    // we instantiate lazily
+    // so we grab anything we don't have yet
+    if (!DEBUG) {
+      const lastRequest = requests.getLastRequestForRecord(identity);
+      if (lastRequest) {
+        handleRequest(lastRequest);
+      }
+    }
 
     notifications.subscribe(identity, (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
-      notifyChanges(identifier, type, key, record, store);
       switch (type) {
         case 'state':
           this.notify('isNew');
@@ -251,7 +262,7 @@ export default class RecordState {
   }
 
   updateInvalidErrors() {
-    let jsonApiErrors = this.recordData.getErrors!();
+    let jsonApiErrors = this.recordData.getErrors!(this.identifier);
 
     const { errors } = this.record;
     errors.clear();
