@@ -43,7 +43,7 @@
     "ember-resolver": "^8.0.3",
     "ember-source": "~4.5.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.17.0",
+    "qunit": "^2.19.1",
     "qunit-dom": "^2.0.0",
     "webpack": "^5.73.0"
   },
