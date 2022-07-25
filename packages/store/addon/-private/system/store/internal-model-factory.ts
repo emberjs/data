@@ -341,7 +341,6 @@ export default class InternalModelFactory {
     recordMap.remove(internalModel, clientId);
 
     const { identifier } = internalModel;
-    debugger;
     this.identifierCache.forgetRecordIdentifier(identifier);
   }
 
