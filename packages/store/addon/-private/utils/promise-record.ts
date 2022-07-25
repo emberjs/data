@@ -1,6 +1,7 @@
-import type InternalModel from '../system/model/internal-model';
+import CoreStore from '../system/core-store';
 import type { PromiseObject } from '../system/promise-proxies';
 import { promiseObject } from '../system/promise-proxies';
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordInstance } from '../ts-interfaces/record-instance';
 
 /**
@@ -16,10 +17,11 @@ import type { RecordInstance } from '../ts-interfaces/record-instance';
  * @internal
  */
 export default function promiseRecord(
-  internalModelPromise: Promise<InternalModel>,
-  label: string
+  store: CoreStore,
+  promise: Promise<StableRecordIdentifier>,
+  label?: string
 ): PromiseObject<RecordInstance> {
-  let toReturn = internalModelPromise.then((internalModel) => internalModel.getRecord());
+  let toReturn = promise.then((identifier: StableRecordIdentifier) => store.peekRecord(identifier)!);
 
   return promiseObject(toReturn, label);
 }

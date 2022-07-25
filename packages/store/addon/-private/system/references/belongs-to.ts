@@ -270,14 +270,7 @@ export default class BelongsToReference extends Reference {
    */
   value(): RecordInstance | null {
     let resource = this._resource();
-    if (resource && resource.data) {
-      let inverseInternalModel = this.store._internalModelForResource(resource.data);
-      if (inverseInternalModel && inverseInternalModel.isLoaded) {
-        return inverseInternalModel.getRecord();
-      }
-    }
-
-    return null;
+    return resource && resource.data ? this.store.peekRecord(resource.data) : null;
   }
 
   /**

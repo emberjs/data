@@ -1,4 +1,4 @@
-import ArrayMixin from '@ember/array';
+import ArrayMixin, { NativeArray } from '@ember/array';
 import type ArrayProxy from '@ember/array/proxy';
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
@@ -55,7 +55,7 @@ export default class PromiseManyArray {
 
     const meta = Ember.meta(this);
     meta.hasMixin = (mixin: Object) => {
-      if (mixin === ArrayMixin) {
+      if (mixin === NativeArray || mixin === ArrayMixin) {
         return true;
       }
       return false;

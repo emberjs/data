@@ -1967,7 +1967,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           },
         ],
       });
-      post.set('comments', store.peekAll('comment'));
+      post.set('comments', store.peekAll('comment').toArray());
     });
 
     assert.strictEqual(get(post, 'comments.length'), 2, 'we can set HM relationship');
@@ -2003,7 +2003,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           },
         ],
       });
-      post.set('comments', store.peekAll('comment'));
+      post.set('comments', store.peekAll('comment').toArray());
     });
 
     return post.get('comments').then((comments) => {
@@ -3773,24 +3773,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       ['post-1', 'post-2', 'post-3', 'post-4', 'post-5']
     );
 
-    await store
-      .peekRecord('post', 'post-2')
-      .destroyRecord()
-      .then((record) => {
-        return store.unloadRecord(record);
-      });
+    await store.peekRecord('post', 'post-2').destroyRecord();
 
     assert.deepEqual(
       posts.map((x) => x.get('id')),
       ['post-1', 'post-3', 'post-4', 'post-5']
     );
 
-    await store
-      .peekRecord('post', 'post-3')
-      .destroyRecord()
-      .then((record) => {
-        return store.unloadRecord(record);
-      });
+    await store.peekRecord('post', 'post-3').destroyRecord();
 
     assert.deepEqual(
       posts.map((x) => x.get('id')),

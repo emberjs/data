@@ -7,23 +7,27 @@ import EmberError from '@ember/error';
 import EmberObject, { get } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
+import { inject as service } from '@ember/service';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
+import { resolve } from 'rsvp';
+
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import {
   coerceId,
   deprecatedPromiseObject,
   errorsArrayToHash,
   InternalModel,
-  PromiseObject,
   recordDataFor,
 } from '@ember-data/store/-private';
 
 import Errors from './errors';
+import notifyChanges from './notify-changes';
 import RecordState, { peekTag, tagged } from './record-state';
 import { relationshipFromMeta } from './system/relationships/relationship-meta';
 
@@ -104,21 +108,34 @@ function computeOnce(target, key, desc) {
   @extends Ember.EmberObject
 */
 class Model extends EmberObject {
+  @service store;
+
   init(options = {}) {
+    if (DEBUG && !options._secretInit && !options._internalModel && !options._createProps) {
+      throw new EmberError(
+        'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
+      );
+    }
     const createProps = options._createProps;
+    const _secretInit = options._secretInit;
     delete options._createProps;
+    delete options._secretInit;
     super.init(options);
 
-    if (DEBUG) {
-      if (!this._internalModel) {
-        throw new EmberError(
-          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
-        );
-      }
-    }
+    _secretInit(this);
+    this.___recordState = DEBUG ? new RecordState(this) : null;
 
-    this.___recordState = new RecordState(this);
     this.setProperties(createProps);
+
+    // TODO  pass something in such that we don't need internalModel
+    // to get this info
+    let store = storeFor(this);
+    let notifications = store._notificationManager;
+    let identity = recordIdentifierFor(this);
+
+    notifications.subscribe(identity, (identifier, type, key) => {
+      notifyChanges(identifier, type, key, this, store);
+    });
   }
 
   /**
@@ -389,9 +406,9 @@ class Model extends EmberObject {
     Example
 
     ```javascript
-    record.get('isReloading'); // false
+    record.isReloading; // false
     record.reload();
-    record.get('isReloading'); // true
+    record.isReloading; // true
     ```
 
     @property isReloading
@@ -446,8 +463,17 @@ class Model extends EmberObject {
     @private
     @type {Object}
   */
+  // TODO we can probably make this a computeOnce
+  // we likely do not need to notify the currentState root anymore
   @tagged
   get currentState() {
+    // descriptors are called with the wrong `this` context during mergeMixins
+    // when using legacy/classic ember classes. Basically: lazy in prod and eager in dev.
+    // so we do this to try to steer folks to the nicer "dont user currentState"
+    // error.
+    if (!DEBUG && !this.___recordState) {
+      this.___recordState = new RecordState(this);
+    }
     return this.___recordState;
   }
   set currentState(_v) {
@@ -573,7 +599,7 @@ class Model extends EmberObject {
     @return {Object} an object whose values are primitive JSON values only
   */
   serialize(options) {
-    return this._internalModel.createSnapshot().serialize(options);
+    return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this)).serialize(options);
   }
 
   /*
@@ -626,7 +652,10 @@ class Model extends EmberObject {
     @public
   */
   deleteRecord() {
-    this.store.deleteRecord(this);
+    // ensure we've populated currentState prior to deleting a new record
+    if (this.currentState) {
+      storeFor(this).deleteRecord(this);
+    }
   }
 
   /**
@@ -675,7 +704,11 @@ class Model extends EmberObject {
     successfully or rejected if the adapter returns with an error.
   */
   destroyRecord(options) {
+    const { isNew } = this.currentState;
     this.deleteRecord();
+    if (isNew) {
+      return resolve(this);
+    }
     return this.save(options).then((_) => {
       run(() => {
         this.unloadRecord();
@@ -692,10 +725,10 @@ class Model extends EmberObject {
     @public
   */
   unloadRecord() {
-    if (this.isDestroyed) {
+    if (this.currentState.isNew && (this.isDestroyed || this.isDestroying)) {
       return;
     }
-    this.store.unloadRecord(this);
+    storeFor(this).unloadRecord(this);
   }
 
   /**
@@ -784,16 +817,18 @@ class Model extends EmberObject {
     @public
   */
   rollbackAttributes() {
+    const { currentState } = this;
     this._internalModel.rollbackAttributes();
-    this.currentState.cleanErrorRequests();
+    currentState.cleanErrorRequests();
   }
 
   /**
     @method _createSnapshot
     @private
   */
+  // TODO @deprecate in favor of a public API or examples of how to test successfully
   _createSnapshot() {
-    return this._internalModel.createSnapshot();
+    return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this));
   }
 
   toStringExtension() {
@@ -845,7 +880,14 @@ class Model extends EmberObject {
     successfully or rejected if the adapter returns with an error.
   */
   save(options) {
-    const promise = this._internalModel.save(options).then(() => this);
+    let promise;
+
+    if (this.currentState.isNew && this.currentState.isDeleted) {
+      promise = resolve(this);
+    } else {
+      promise = storeFor(this).saveRecord(this, options);
+    }
+
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       return deprecatedPromiseObject(promise);
     }
@@ -882,24 +924,28 @@ class Model extends EmberObject {
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
-  reload(options) {
-    let wrappedAdapterOptions;
+  reload(_options) {
+    let options = {};
 
-    if (typeof options === 'object' && options !== null && options.adapterOptions) {
-      wrappedAdapterOptions = {
-        adapterOptions: options.adapterOptions,
-      };
+    if (typeof _options === 'object' && _options !== null && _options.adapterOptions) {
+      options.adapterOptions = _options.adapterOptions;
     }
 
+    options.isReloading = true;
+    let identifier = recordIdentifierFor(this);
+    assert(`You cannot reload a record without an ID`, identifier.id);
     this.isReloading = true;
-    return PromiseObject.create({
-      promise: this._internalModel
-        .reload(wrappedAdapterOptions)
-        .then(() => this)
-        .finally(() => {
-          this.isReloading = false;
-        }),
-    });
+    const promise = storeFor(this)
+      ._fetchManager.scheduleFetch(identifier, options)
+      .then(() => this)
+      .finally(() => {
+        this.isReloading = false;
+      });
+
+    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
+      return deprecatedPromiseObject(promise);
+    }
+    return promise;
   }
 
   attr() {
@@ -1102,7 +1148,7 @@ class Model extends EmberObject {
   }
 
   inverseFor(key) {
-    return this.constructor.inverseFor(key, this._internalModel.store);
+    return this.constructor.inverseFor(key, storeFor(this));
   }
 
   eachAttribute(callback, binding) {
@@ -1929,8 +1975,8 @@ class Model extends EmberObject {
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
 Model.prototype._internalModel = null;
-Model.prototype.store = null;
 Model.prototype._createProps = null;
+Model.prototype._secretInit = null;
 
 if (HAS_DEBUG_PACKAGE) {
   /**
@@ -2031,7 +2077,7 @@ if (DEBUG) {
 
       let ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
       let theirDescriptor = lookupDescriptor(this, 'currentState');
-      let realState = this.___recordState || this._internalModel.currentState;
+      let realState = this.___recordState;
       if (ourDescriptor.get !== theirDescriptor.get || realState !== this.currentState) {
         throw new Error(
           `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`

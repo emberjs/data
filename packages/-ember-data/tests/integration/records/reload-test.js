@@ -110,7 +110,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord() {
-          return true;
+          return false;
         },
 
         findRecord() {

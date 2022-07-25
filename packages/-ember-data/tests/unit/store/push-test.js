@@ -895,20 +895,16 @@ module('unit/store/push - DS.Store#push', function (hooks) {
     }, /The payload for 'person' contains these unknown .*: .* Make sure they've been defined in your model./);
   });
 
-  test('_push returns an instance of InternalModel if an object is pushed', function (assert) {
-    let pushResult;
-
-    run(() => {
-      pushResult = store._push({
-        data: {
-          id: 1,
-          type: 'person',
-        },
-      });
+  test('_push returns an identifier if an object is pushed', function (assert) {
+    let pushResult = store._push({
+      data: {
+        id: 1,
+        type: 'person',
+      },
     });
 
-    assert.ok(pushResult instanceof DS.InternalModel);
-    assert.notOk(pushResult.record, 'InternalModel is not materialized');
+    assert.strictEqual(pushResult, store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' }));
+    assert.notOk(store._instanceCache.peek(pushResult, { bucket: 'record' }), 'record is not materialized');
   });
 
   test('_push does not require a modelName to resolve to a modelClass', function (assert) {
@@ -930,7 +926,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
     assert.ok('We made it');
   });
 
-  test('_push returns an array of InternalModels if an array is pushed', function (assert) {
+  test('_push returns an array of identifiers if an array is pushed', function (assert) {
     let pushResult;
 
     run(() => {
@@ -945,8 +941,8 @@ module('unit/store/push - DS.Store#push', function (hooks) {
     });
 
     assert.ok(pushResult instanceof Array);
-    assert.ok(pushResult[0] instanceof DS.InternalModel);
-    assert.notOk(pushResult[0].record, 'InternalModel is not materialized');
+    assert.strictEqual(pushResult[0], store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' }));
+    assert.notOk(store._instanceCache.peek(pushResult[0], { bucket: 'record' }), 'record is not materialized');
   });
 
   test('_push returns null if no data is pushed', function (assert) {

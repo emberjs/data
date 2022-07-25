@@ -1,6 +1,5 @@
 import { computed, get, observer, set } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
-import { DEBUG } from '@glimmer/env';
 
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
@@ -116,7 +115,7 @@ module('unit/model - Model', function (hooks) {
       assert.true(get(record, 'isArchived'), 'The record reflects the update to canonical state');
     });
 
-    test('Does not support dirtying in root.deleted.saved', async function (assert) {
+    testInDebug('Does not support dirtying in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
         return resolve({ data: null });
       };
@@ -144,23 +143,13 @@ module('unit/model - Model', function (hooks) {
         'the deleted person is not removed from store (no unload called)'
       );
 
-      if (DEBUG) {
-        assert.throws(
-          () => {
-            set(record, 'isArchived', true);
-          },
-          /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/,
-          'Assertion includes more context when in DEBUG'
-        );
-      } else {
-        assert.throws(
-          () => {
-            set(record, 'isArchived', true);
-          },
-          /Attempted to set 'isArchived' on the deleted record <person:1>/,
-          "Assertion does not leak the 'value'"
-        );
-      }
+      assert.expectAssertion(
+        () => {
+          record.isArchived = true;
+        },
+        /Attempted to set 'isArchived' on the deleted record /,
+        "Assertion does not leak the 'value'"
+      );
 
       currentState = record.currentState;
 
@@ -300,10 +289,10 @@ module('unit/model - Model', function (hooks) {
         ],
       });
 
-      assert.true(store.hasRecordForId('person', 1), 'should have person with id 1');
-      assert.true(store.hasRecordForId('person', 1), 'should have person with id 1');
-      assert.false(store.hasRecordForId('person', 4), 'should not have person with id 4');
-      assert.false(store.hasRecordForId('person', 4), 'should not have person with id 4');
+      assert.notStrictEqual(store.peekRecord('person', '1'), null, 'should have person with id 1');
+      assert.notStrictEqual(store.peekRecord('person', '1'), null, 'should have person with id 1');
+      assert.strictEqual(store.peekRecord('person', '4'), null, 'should not have person with id 4');
+      assert.strictEqual(store.peekRecord('person', '4'), null, 'should not have person with id 4');
     });
 
     test('setting the id during createRecord should correctly update the id', async function (assert) {

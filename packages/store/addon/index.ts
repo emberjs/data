@@ -10,4 +10,5 @@ export {
   setIdentifierForgetMethod,
   setIdentifierResetMethod,
   recordIdentifierFor,
+  storeFor,
 } from './-private';

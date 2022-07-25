@@ -1,12 +1,8 @@
-import { A, default as EmberArray } from '@ember/array';
-import { assert, inspect } from '@ember/debug';
-import EmberError from '@ember/error';
-import { get } from '@ember/object';
+import { assert } from '@ember/debug';
 import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { importSync } from '@embroider/macros';
-import RSVP, { resolve } from 'rsvp';
 
 import type { ManyArray } from '@ember-data/model/-private';
 import type { ManyArrayCreateArgs } from '@ember-data/model/-private/system/many-array';
@@ -35,14 +31,11 @@ import type { ChangedAttributesHash, RecordData } from '../../ts-interfaces/reco
 import type { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import type { RelationshipSchema } from '../../ts-interfaces/record-data-schemas';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
-import type { FindOptions } from '../../ts-interfaces/store';
 import type { Dict } from '../../ts-interfaces/utils';
 import type CoreStore from '../core-store';
-import type { CreateRecordProperties } from '../core-store';
 import { errorsHashToArray } from '../errors-utils';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
-import Snapshot from '../snapshot';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
 type PrivateModelModule = {
@@ -54,8 +47,6 @@ type PrivateModelModule = {
 /**
   @module @ember-data/store
 */
-
-const { hasOwnProperty } = Object.prototype;
 
 let _ManyArray: PrivateModelModule['ManyArray'];
 let _PromiseBelongsTo: PrivateModelModule['PromiseBelongsTo'];
@@ -94,7 +85,7 @@ export default class InternalModel {
   declare _id: string | null;
   declare modelName: string;
   declare clientId: string;
-  declare __recordData: RecordData | null;
+  declare hasRecordData: boolean;
   declare _isDestroyed: boolean;
   declare isError: boolean;
   declare _pendingRecordArrayManagerFlush: boolean;
@@ -105,7 +96,6 @@ export default class InternalModel {
   declare _deletedRecordWasNew: boolean;
 
   // Not typed yet
-  declare _record: RecordInstance | null;
   declare _scheduledDestroy: any;
   declare _modelClass: any;
   declare __recordArrays: any;
@@ -118,6 +108,7 @@ export default class InternalModel {
   declare error: any;
   declare store: CoreStore;
   declare identifier: StableRecordIdentifier;
+  declare hasRecord: boolean;
 
   constructor(store: CoreStore, identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
@@ -129,8 +120,9 @@ export default class InternalModel {
     this._isUpdatingId = false;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
+    this.hasRecord = false;
 
-    this.__recordData = null;
+    this.hasRecordData = false;
 
     this._isDestroyed = false;
     this._doNotDestroy = false;
@@ -145,14 +137,12 @@ export default class InternalModel {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
 
-    this._record = null;
     this.error = null;
 
     // caches for lazy getters
     this._modelClass = null;
     this.__recordArrays = null;
     this._recordReference = null;
-    this.__recordData = null;
 
     this.error = null;
 
@@ -170,6 +160,7 @@ export default class InternalModel {
   set id(value: string | null) {
     if (value !== this._id) {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
+      // TODO potentially this needs to handle merged result
       this.store.identifierCache.updateRecordIdentifier(this.identifier, newIdentifier);
       this.notifyPropertyChange('id');
     }
@@ -189,16 +180,7 @@ export default class InternalModel {
   }
 
   get _recordData(): RecordData {
-    if (this.__recordData === null) {
-      let recordData = this.store._createRecordData(this.identifier);
-      this.__recordData = recordData;
-      return recordData;
-    }
-    return this.__recordData;
-  }
-
-  set _recordData(newValue) {
-    this.__recordData = newValue;
+    return this.store._instanceCache.getRecordData(this.identifier);
   }
 
   isHiddenFromRecordArrays() {
@@ -246,7 +228,7 @@ export default class InternalModel {
   }
 
   isNew(): boolean {
-    if (this.__recordData && this._recordData.isNew) {
+    if (this.hasRecordData && this._recordData.isNew) {
       return this._recordData.isNew();
     } else {
       return false;
@@ -254,7 +236,7 @@ export default class InternalModel {
   }
 
   get isEmpty(): boolean {
-    return !this.__recordData || ((!this.isNew() || this.isDeleted()) && this._recordData.isEmpty?.()) || false;
+    return !this.hasRecordData || ((!this.isNew() || this.isDeleted()) && this._recordData.isEmpty?.()) || false;
   }
 
   get isLoading() {
@@ -284,29 +266,6 @@ export default class InternalModel {
     return !this.isEmpty;
   }
 
-  getRecord(properties?: CreateRecordProperties): RecordInstance {
-    let record = this._record;
-
-    if (this._isDematerializing) {
-      // TODO we should assert here instead of this return.
-      return null as unknown as RecordInstance;
-    }
-
-    if (!record) {
-      let { store } = this;
-
-      record = this._record = store._instantiateRecord(
-        this,
-        this.modelName,
-        this._recordData,
-        this.identifier,
-        properties
-      );
-    }
-
-    return record;
-  }
-
   dematerializeRecord() {
     this._isDematerializing = true;
 
@@ -315,9 +274,8 @@ export default class InternalModel {
     this._doNotDestroy = false;
     // this has to occur before the internal model is removed
     // for legacy compat.
-    if (this._record) {
-      this.store.teardownRecord(this._record);
-    }
+    const { identifier } = this;
+    let hadRecord = this.store._instanceCache.removeRecord(identifier);
 
     // move to an empty never-loaded state
     // ensure any record notifications happen prior to us
@@ -327,7 +285,7 @@ export default class InternalModel {
       this._recordData.unloadRecord();
     });
 
-    if (this._record) {
+    if (hadRecord) {
       let keys = Object.keys(this._relationshipProxyCache);
       keys.forEach((key) => {
         let proxy = this._relationshipProxyCache[key]!;
@@ -338,7 +296,7 @@ export default class InternalModel {
       });
     }
 
-    this._record = null;
+    this.hasRecord = false; // this must occur after relationship removal
     this.error = null;
     this.store.recordArrayManager.recordDidChange(this.identifier);
   }
@@ -358,21 +316,6 @@ export default class InternalModel {
         }
       });
     });
-  }
-
-  save(options: FindOptions = {}): Promise<void> {
-    if (this._deletedRecordWasNew) {
-      return resolve();
-    }
-    let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer<void>(promiseLabel);
-
-    // Casting to promise to narrow due to the feature flag paths inside scheduleSave
-    return this.store.scheduleSave(this, resolver, options) as Promise<void>;
-  }
-
-  reload(options: Dict<unknown> = {}): Promise<InternalModel> {
-    return this.store._reloadRecord(this, options);
   }
 
   /*
@@ -464,8 +407,9 @@ export default class InternalModel {
   ): Promise<RecordInstance | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
-    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
-      (internalModel) => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel),
+    return this.store._findBelongsToByJsonApiResource(resource, this.identifier, relationshipMeta, options).then(
+      (identifier: StableRecordIdentifier | null) =>
+        handleCompletedRelationshipRequest(this, key, resource._relationship, identifier),
       (e) => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
     );
   }
@@ -489,8 +433,6 @@ export default class InternalModel {
     };
 
     if (isAsync) {
-      let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
-
       if (resource._relationship.state.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key] as PromiseBelongsTo;
       }
@@ -499,15 +441,14 @@ export default class InternalModel {
 
       return this._updatePromiseProxyFor('belongsTo', key, {
         promise,
-        content: internalModel ? internalModel.getRecord() : null,
+        content: identifier ? store._instanceCache.getRecord(identifier) : null,
         _belongsToState,
       });
     } else {
       if (identifier === null) {
         return null;
       } else {
-        let internalModel = store._internalModelForResource(identifier);
-        let toReturn = internalModel.getRecord();
+        let toReturn = store._instanceCache.getRecord(identifier);
         assert(
           "You looked up the '" +
             key +
@@ -516,7 +457,7 @@ export default class InternalModel {
             "' with id " +
             parentInternalModel.id +
             ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`belongsTo({ async: true })`)',
-          toReturn === null || !internalModel.isEmpty
+          toReturn === null || !store._instanceCache.getInternalModel(identifier).isEmpty
         );
         return toReturn;
       }
@@ -565,7 +506,7 @@ export default class InternalModel {
 
       const jsonApi = this._recordData.getHasMany(key);
 
-      loadingPromise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationship, options).then(
+      loadingPromise = this.store._findHasManyByJsonApiResource(jsonApi, this.identifier, relationship, options).then(
         () => handleCompletedRelationshipRequest(this, key, relationship, manyArray),
         (e) => handleCompletedRelationshipRequest(this, key, relationship, manyArray, e)
       );
@@ -699,9 +640,10 @@ export default class InternalModel {
   }
 
   destroy() {
+    let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
     assert(
       'Cannot destroy an internalModel while its record is materialized',
-      !this._record || this._record.isDestroyed || this._record.isDestroying
+      !record || record.isDestroyed || record.isDestroying
     );
     this.isDestroying = true;
     if (this._recordReference) {
@@ -756,40 +698,12 @@ export default class InternalModel {
     return this._recordData.setDirtyBelongsTo(key, extractRecordDataFromRecord(value));
   }
 
-  setDirtyAttribute<T>(key: string, value: T): T {
-    if (this.isDeleted()) {
-      if (DEBUG) {
-        throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
-      } else {
-        throw new EmberError(`Attempted to set '${key}' on the deleted record ${this}`);
-      }
-    }
-
-    let currentValue = this._recordData.getAttr(key);
-    if (currentValue !== value) {
-      this._recordData.setDirtyAttribute(key, value);
-      if (this.hasRecord && isDSModel(this._record)) {
-        this._record.errors.remove(key);
-      }
-    }
-
-    return value;
-  }
-
   get isDestroyed(): boolean {
     return this._isDestroyed;
   }
 
-  get hasRecord(): boolean {
-    return !!this._record;
-  }
-
-  createSnapshot(options: FindOptions = {}): Snapshot {
-    return new Snapshot(options, this.identifier, this.store);
-  }
-
   hasChangedAttributes(): boolean {
-    if (!this.__recordData) {
+    if (!this.hasRecordData) {
       // no need to calculate changed attributes when calling `findRecord`
       return false;
     }
@@ -797,7 +711,7 @@ export default class InternalModel {
   }
 
   changedAttributes(): ChangedAttributesHash {
-    if (!this.__recordData) {
+    if (!this.hasRecordData) {
       // no need to calculate changed attributes when calling `findRecord`
       return {};
     }
@@ -806,8 +720,9 @@ export default class InternalModel {
 
   adapterWillCommit(): void {
     this._recordData.willCommit();
-    if (this.hasRecord && isDSModel(this._record)) {
-      this._record.errors.clear();
+    let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
+    if (record && isDSModel(record)) {
+      record.errors.clear();
     }
   }
 
@@ -854,8 +769,10 @@ export default class InternalModel {
   rollbackAttributes() {
     this.store._backburner.join(() => {
       let dirtyKeys = this._recordData.rollbackAttributes();
-      if (this.hasRecord && isDSModel(this._record)) {
-        this._record.errors.clear();
+
+      let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
+      if (record && isDSModel(record)) {
+        record.errors.clear();
       }
 
       if (this.hasRecord && dirtyKeys && dirtyKeys.length > 0) {
@@ -865,7 +782,7 @@ export default class InternalModel {
   }
 
   removeFromInverseRelationships() {
-    if (this.__recordData) {
+    if (this.hasRecordData) {
       this.store._backburner.join(() => {
         this._recordData.removeFromInverseRelationships();
       });
@@ -887,7 +804,7 @@ export default class InternalModel {
     let jsonPayload: JsonApiResource = {};
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
-      let preloadValue = get(preload, key);
+      let preloadValue = preload[key];
       let relationshipMeta = this.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
         if (!jsonPayload.relationships) {
@@ -946,7 +863,7 @@ export default class InternalModel {
    * case in that the the cache can originate the call to setId,
    * so on first entry we will still need to do our own update.
    */
-  setId(id: string, fromCache: boolean = false) {
+  setId(id: string | null, fromCache: boolean = false) {
     if (this._isUpdatingId === true) {
       return;
     }
@@ -960,7 +877,7 @@ export default class InternalModel {
       }
       // internal set of ID to get it to RecordData from DS.Model
       // if we are within create we may not have a recordData yet.
-      if (this.__recordData && this._recordData.__setId) {
+      if (this.hasRecordData && this._recordData.__setId) {
         this._recordData.__setId(id);
       }
     }
@@ -988,11 +905,12 @@ export default class InternalModel {
     if (this._recordData.getErrors) {
       return this._recordData.getErrors(this.identifier).length > 0;
     } else {
+      let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
       // we can't have errors if we never tried loading
-      if (!this._record) {
+      if (!record) {
         return false;
       }
-      let errors = (this._record as DSModel).errors;
+      let errors = (record as DSModel).errors;
       return errors.length > 0;
     }
   }
@@ -1006,10 +924,10 @@ export default class InternalModel {
     if (error && parsedErrors) {
       // TODO add assertion forcing consuming RecordData's to implement getErrors
       if (!this._recordData.getErrors) {
-        let record = this.getRecord() as DSModel;
+        let record = this.store._instanceCache.getRecord(this.identifier) as DSModel;
         let errors = record.errors;
         for (attribute in parsedErrors) {
-          if (hasOwnProperty.call(parsedErrors, attribute)) {
+          if (Object.prototype.hasOwnProperty.call(parsedErrors, attribute)) {
             errors.add(attribute, parsedErrors[attribute]);
           }
         }
@@ -1081,7 +999,7 @@ function handleCompletedRelationshipRequest(
   internalModel: InternalModel,
   key: string,
   relationship: BelongsToRelationship,
-  value: InternalModel | null
+  value: StableRecordIdentifier | null
 ): RecordInstance | null;
 function handleCompletedRelationshipRequest(
   internalModel: InternalModel,
@@ -1107,7 +1025,7 @@ function handleCompletedRelationshipRequest(
   internalModel: InternalModel,
   key: string,
   relationship: BelongsToRelationship | ManyRelationship,
-  value: ManyArray | InternalModel | null,
+  value: ManyArray | StableRecordIdentifier | null,
   error?: Error
 ): ManyArray | RecordInstance | null {
   delete internalModel._relationshipPromisesCache[key];
@@ -1149,19 +1067,19 @@ function handleCompletedRelationshipRequest(
   // only set to not stale if no error is thrown
   relationship.state.isStale = false;
 
-  return isHasMany || !value ? (value as ManyArray | null) : (value as InternalModel).getRecord();
+  return isHasMany || !value
+    ? (value as ManyArray | null)
+    : internalModel.store.peekRecord(value as StableRecordIdentifier);
 }
 
 export function assertRecordsPassedToHasMany(records) {
-  // TODO only allow native arrays
+  assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
   assert(
-    `You must pass an array of records to set a hasMany relationship`,
-    Array.isArray(records) || EmberArray.detect(records)
-  );
-  assert(
-    `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(records)}`,
+    `All elements of a hasMany relationship must be instances of Model, you passed ${records
+      .map((r) => `${typeof r}`)
+      .join(', ')}`,
     (function () {
-      return A(records).every((record) => hasOwnProperty.call(record, '_internalModel') === true);
+      return records.every((record) => Object.prototype.hasOwnProperty.call(record, '_internalModel') === true);
     })()
   );
 }

@@ -212,7 +212,8 @@ export default Mixin.create({
     let includeRecords = this.hasSerializeRecordsOption(attr);
     let embeddedSnapshot = snapshot.belongsTo(attr);
     if (includeIds) {
-      let serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+      let schema = this.store.modelFor(snapshot.modelName);
+      let serializedKey = this._getMappedKey(relationship.key, schema);
       if (serializedKey === relationship.key && this.keyForRelationship) {
         serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
       }
@@ -233,7 +234,8 @@ export default Mixin.create({
 
   _serializeEmbeddedBelongsTo(snapshot, json, relationship) {
     let embeddedSnapshot = snapshot.belongsTo(relationship.key);
-    let serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+    let schema = this.store.modelFor(snapshot.modelName);
+    let serializedKey = this._getMappedKey(relationship.key, schema);
     if (serializedKey === relationship.key && this.keyForRelationship) {
       serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
     }
@@ -396,7 +398,8 @@ export default Mixin.create({
     }
 
     if (this.hasSerializeIdsOption(attr)) {
-      let serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+      let schema = this.store.modelFor(snapshot.modelName);
+      let serializedKey = this._getMappedKey(relationship.key, schema);
       if (serializedKey === relationship.key && this.keyForRelationship) {
         serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
       }
@@ -433,7 +436,8 @@ export default Mixin.create({
   },
 
   _serializeEmbeddedHasMany(snapshot, json, relationship) {
-    let serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+    let schema = this.store.modelFor(snapshot.modelName);
+    let serializedKey = this._getMappedKey(relationship.key, schema);
     if (serializedKey === relationship.key && this.keyForRelationship) {
       serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
     }
@@ -484,7 +488,8 @@ export default Mixin.create({
   */
   removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json) {
     if (relationship.kind === 'belongsTo') {
-      let parentRecord = snapshot.type.inverseFor(relationship.key, this.store);
+      let schema = this.store.modelFor(snapshot.modelName);
+      let parentRecord = schema.inverseFor(relationship.key, this.store);
       if (parentRecord) {
         let name = parentRecord.name;
         let embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);

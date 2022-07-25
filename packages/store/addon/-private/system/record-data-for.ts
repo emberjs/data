@@ -28,10 +28,15 @@ type Reference = { internalModel: InternalModel };
 
 type Instance = StableRecordIdentifier | InternalModel | RecordData | DSModelOrSnapshot | Reference;
 
-const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier, RecordData>(DEBUG ? 'recordData' : '');
+const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier | RecordInstance, RecordData>(
+  DEBUG ? 'recordData' : ''
+);
 
-export function setRecordDataFor(identifier: StableRecordIdentifier, recordData: RecordData): void {
-  assert(`Illegal set of identifier`, !RecordDataForIdentifierCache.has(identifier));
+export function setRecordDataFor(identifier: StableRecordIdentifier | RecordInstance, recordData: RecordData): void {
+  assert(
+    `Illegal set of identifier`,
+    !RecordDataForIdentifierCache.has(identifier) || RecordDataForIdentifierCache.get(identifier) === recordData
+  );
   RecordDataForIdentifierCache.set(identifier, recordData);
 }
 
@@ -47,8 +52,11 @@ export default function recordDataFor(instance: Instance | object): RecordData |
   if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier)) {
     return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier) as RecordData;
   }
+
   let internalModel =
     (instance as DSModelOrSnapshot)._internalModel || (instance as Reference).internalModel || instance;
 
-  return internalModel._recordData || null;
+  assert(`Expected to no longer need this`, !internalModel._recordData);
+
+  return null;
 }

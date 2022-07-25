@@ -8,7 +8,7 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
-import type { Snapshot } from '@ember-data/store/-private';
+import type { RecordDataStoreWrapper, Snapshot } from '@ember-data/store/-private';
 import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
@@ -81,12 +81,17 @@ module('unit/model - Custom Class Model', function (hooks) {
     let notificationCount = 0;
     let identifier;
     let recordData;
-    let CreationStore = CustomStore.extend({
-      createRecordDataFor() {
-        let rd = this._super(...arguments);
+    class CreationStore extends CustomStore {
+      createRecordDataFor(
+        modelName: string,
+        id: string | null,
+        clientId: string,
+        storeWrapper: RecordDataStoreWrapper
+      ) {
+        let rd = super.createRecordDataFor(modelName, id, clientId, storeWrapper);
         recordData = rd;
         return rd;
-      },
+      }
       instantiateRecord(
         id: StableRecordIdentifier,
         createRecordArgs,
@@ -106,8 +111,8 @@ module('unit/model - Custom Class Model', function (hooks) {
           }
         });
         return { hi: 'igor' };
-      },
-    });
+      }
+    }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
@@ -123,17 +128,17 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('record creation and teardown', function (assert) {
     assert.expect(5);
     let returnValue;
-    let CreationStore = CustomStore.extend({
+    class CreationStore extends CustomStore {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
         return returnValue;
-      },
+      }
       teardownRecord(record) {
         assert.strictEqual(record, person, 'Passed in person to teardown');
-      },
-    });
+      }
+    }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
@@ -144,13 +149,13 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('recordData lookup', function (assert) {
     assert.expect(1);
     let rd;
-    let CreationStore = CustomStore.extend({
+    class CreationStore extends CustomStore {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         rd = recordDataFor(identifier);
         assert.strictEqual(rd.getAttr('name'), 'chris', 'Can look up record data from recordDataFor');
         return {};
-      },
-    });
+      }
+    }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {
@@ -291,33 +296,6 @@ module('unit/model - Custom Class Model', function (hooks) {
     store.registerSchemaDefinitionService(schema);
     let person = store.createRecord('person', { name: 'chris' });
     await (person as unknown as Person).save();
-  });
-
-  test('hasModelFor with custom schema definition', async function (assert) {
-    assert.expect(4);
-    this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as Store;
-    let count = 0;
-    let schema = {
-      attributesDefinitionFor() {
-        return {};
-      },
-      relationshipsDefinitionFor() {
-        return {};
-      },
-      doesTypeExist(modelName: string) {
-        if (count === 0) {
-          assert.strictEqual(modelName, 'person', 'type passed in to the schema hooks');
-        } else if (count === 1) {
-          assert.strictEqual(modelName, 'boat', 'type passed in to the schema hooks');
-        }
-        count++;
-        return modelName === 'person';
-      },
-    };
-    store.registerSchemaDefinitionService(schema);
-    assert.true(store._hasModelFor('person'), 'hasModelFor matches schema hook when true');
-    assert.false(store._hasModelFor('boat'), 'hasModelFor matches schema hook when false');
   });
 
   test('store.saveRecord', async function (assert) {

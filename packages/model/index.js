@@ -29,6 +29,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/polyfills',
       '@ember/runloop',
       '@ember/utils',
+      '@ember/service',
 
       '@glimmer/tracking/primitives/cache',
       '@glimmer/tracking',

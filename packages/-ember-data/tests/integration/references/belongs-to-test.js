@@ -374,36 +374,32 @@ module('integration/references/belongs-to', function (hooks) {
 
   test('value() returns the referenced record when loaded even if links are present', function (assert) {
     let store = this.owner.lookup('service:store');
-
-    var person, family;
-    run(function () {
-      person = store.push({
-        data: {
-          type: 'person',
-          id: 1,
-          relationships: {
-            family: {
-              data: { type: 'family', id: 1 },
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        relationships: {
+          family: {
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
+    });
+    let family = store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            links: {
+              related: '/this/should/not/matter',
             },
           },
         },
-      });
-      family = store.push({
-        data: {
-          type: 'family',
-          id: 1,
-          relationships: {
-            persons: {
-              links: {
-                related: '/this/should/not/matter',
-              },
-            },
-          },
-        },
-      });
+      },
     });
 
-    var familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
     assert.strictEqual(familyReference.value(), family);
   });
 

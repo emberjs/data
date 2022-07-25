@@ -171,7 +171,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     assert.true(tom.isDeleted, 'record is marked as deleted');
   });
 
-  test('An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.', async function (assert) {
+  test('An adapter can notify the store that a record was updated and provide new data.', async function (assert) {
     class Person extends Model {
       @attr('string') updatedAt;
       @attr('string') name;
@@ -250,25 +250,25 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     assert.strictEqual(savedYehuda, yehuda, 'The record is correct');
     assert.false(tom.hasDirtyAttributes, 'Tom is not dirty after saving record');
     assert.false(yehuda.hasDirtyAttributes, 'Yehuda is not dirty after dsaving record');
-    assert.strictEqual(tom.name, 'Tom Dale', 'name attribute should reflect value of hash passed to didSaveRecords');
+    assert.strictEqual(tom.name, 'Tom Dale', 'name attribute should reflect value of hash returned from the request');
     assert.strictEqual(
       tom.updatedAt,
       'now',
-      'updatedAt attribute should reflect value of hash passed to didSaveRecords'
+      'updatedAt attribute should reflect value of hash returned from the request'
     );
     assert.strictEqual(
       yehuda.name,
       'Yehuda Katz',
-      'name attribute should reflect value of hash passed to didSaveRecords'
+      'name attribute should reflect value of hash returned from the request'
     );
     assert.strictEqual(
       yehuda.updatedAt,
       'now!',
-      'updatedAt attribute should reflect value of hash passed to didSaveRecords'
+      'updatedAt attribute should reflect value of hash returned from the request'
     );
   });
 
-  test('An adapter can notify the store that records were deleted by calling `didSaveRecords`.', async function (assert) {
+  test('An adapter can notify the store that records were deleted', async function (assert) {
     class Person extends Model {
       @attr('string') updatedAt;
       @attr('string') name;

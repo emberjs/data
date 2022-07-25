@@ -44,66 +44,6 @@ module('unit/record-array - RecordArray', function (hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('a record array is backed by records', async function (assert) {
-    assert.expect(3);
-    this.owner.register(
-      'adapter:application',
-      Adapter.extend({
-        shouldBackgroundReloadRecord() {
-          return false;
-        },
-      })
-    );
-
-    store.push({
-      data: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Scumbag Dale',
-          },
-        },
-        {
-          type: 'person',
-          id: '2',
-          attributes: {
-            name: 'Scumbag Katz',
-          },
-        },
-        {
-          type: 'person',
-          id: '3',
-          attributes: {
-            name: 'Scumbag Bryn',
-          },
-        },
-      ],
-    });
-
-    let records = await store.findByIds('person', [1, 2, 3]);
-    let expectedResults = {
-      data: [
-        { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
-        { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } },
-        { id: '3', type: 'person', attributes: { name: 'Scumbag Bryn' } },
-      ],
-    };
-
-    for (let i = 0, l = expectedResults.data.length; i < l; i++) {
-      let {
-        id,
-        attributes: { name },
-      } = expectedResults.data[i];
-
-      assert.deepEqual(
-        records[i].getProperties('id', 'name'),
-        { id, name },
-        'a record array materializes objects on demand'
-      );
-    }
-  });
-
   test('acts as a live query', async function (assert) {
     let recordArray = store.peekAll('person');
 

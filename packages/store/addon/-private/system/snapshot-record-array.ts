@@ -2,6 +2,10 @@
   @module @ember-data/store
 */
 
+import { deprecate } from '@ember/debug';
+
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
+
 import type { ModelSchema } from '../ts-interfaces/ds-model';
 import { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
@@ -74,8 +78,6 @@ export default class SnapshotRecordArray {
       @type {Number}
     */
     this.length = recordArray.get('length');
-
-    this._type = null;
 
     /**
       Meta objects for the record array.
@@ -151,12 +153,11 @@ export default class SnapshotRecordArray {
   /**
     The type of the underlying records for the snapshots in the array, as a Model
     @property type
+    @deprecated
     @public
     @type {Model}
   */
-  get type() {
-    return this._type || (this._type = this._recordArray.get('type'));
-  }
+
   /**
     The modelName of the underlying records for the snapshots in the array, as a Model
     @property modelName
@@ -204,4 +205,22 @@ export default class SnapshotRecordArray {
 
     return this._snapshots;
   }
+}
+
+if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
+  Object.defineProperty(SnapshotRecordArray.prototype, 'type', {
+    get() {
+      deprecate(
+        `Using SnapshotRecordArray.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-snapshot-model-class-access',
+          until: '5.0',
+          for: 'ember-data',
+          since: { available: '4.5.0', enabled: '4.5.0' },
+        }
+      );
+      return this._recordArray.get('type');
+    },
+  });
 }

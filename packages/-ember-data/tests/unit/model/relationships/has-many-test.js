@@ -1298,9 +1298,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     );
 
     run(() => {
-      return shen.destroyRecord({}).then(() => {
-        shen.unloadRecord();
-      });
+      return shen.destroyRecord({});
     });
 
     assert.deepEqual(
@@ -1637,8 +1635,6 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
         assert.strictEqual(get(petsProxy, 'length'), 3, 'precond2 - proxy now reflects three pets');
 
         return shen.destroyRecord({}).then(() => {
-          shen.unloadRecord();
-
           assert.deepEqual(
             pets.map((p) => get(p, 'id')),
             ['2', '3'],
@@ -1723,8 +1719,6 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
 
     return run(() => {
       return shen.destroyRecord({}).then(() => {
-        shen.unloadRecord();
-
         dog = person.get('dog');
         assert.strictEqual(dog, rambo, 'The currentState of the belongsTo was preserved after the delete');
       });
@@ -1803,8 +1797,6 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
         assert.strictEqual(dog, rambo, 'precond2 - relationship was updated');
 
         return shen.destroyRecord({}).then(() => {
-          shen.unloadRecord();
-
           dog = person.get('dog.content');
           assert.strictEqual(dog, rambo, 'The currentState of the belongsTo was preserved after the delete');
         });
@@ -1885,8 +1877,6 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
 
     return run(() => {
       return rambo.destroyRecord({}).then(() => {
-        rambo.unloadRecord();
-
         dog = person.get('dog');
         assert.strictEqual(dog, null, 'The current state of the belongsTo was clearer');
       });
@@ -2076,8 +2066,6 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
 
     return run(() => {
       return shen.destroyRecord({}).then(() => {
-        shen.unloadRecord();
-
         // were ember-data to now preserve local edits during a relationship push, this would be '2'
         assert.deepEqual(
           pets.map((p) => get(p, 'id')),

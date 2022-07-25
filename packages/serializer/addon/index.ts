@@ -100,6 +100,9 @@
 */
 
 import EmberObject from '@ember/object';
+import { inject as service } from '@ember/service';
+
+import type Store from '@ember-data/store';
 
 /**
   `Serializer` is an abstract base class that you should override in your
@@ -121,7 +124,8 @@ import EmberObject from '@ember/object';
   @extends Ember.EmberObject
 */
 
-export default EmberObject.extend({
+export default class extends EmberObject {
+  @service declare store: Store;
   /**
     The `store` property is the application's `store` that contains
     all records. It can be used to look up serializers for other model
@@ -179,7 +183,6 @@ export default EmberObject.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeResponse: null,
 
   /**
     The `serialize` method is used when a record is saved in order to convert
@@ -222,7 +225,6 @@ export default EmberObject.extend({
     @param {Object} [options]
     @return {Object}
   */
-  serialize: null,
 
   /**
     The `normalize` method is used to convert a payload received from your
@@ -253,5 +255,5 @@ export default EmberObject.extend({
   */
   normalize(typeClass, hash) {
     return hash;
-  },
-});
+  }
+}

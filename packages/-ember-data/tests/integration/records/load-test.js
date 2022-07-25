@@ -41,7 +41,7 @@ module('integration/load - Loading Records', function (hooks) {
     );
 
     await store.findRecord('person', '1').catch(() => {
-      assert.false(store.hasRecordForId('person', '1'));
+      assert.strictEqual(store.peekRecord('person', '1'), null);
     });
   });
 
@@ -143,7 +143,7 @@ module('integration/load - Loading Records', function (hooks) {
       })
     );
 
-    let internalModel = store._internalModelForId('person', '1');
+    let internalModel = store._internalModelForResource({ type: 'person', id: '1' });
 
     // test that our initial state is correct
     assert.true(internalModel.isEmpty, 'We begin in the empty state');

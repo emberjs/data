@@ -1,7 +1,6 @@
 /**
  * @module @ember-data/store
  */
-import { A } from '@ember/array';
 import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
@@ -12,7 +11,11 @@ import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecat
 
 import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
-import type { ExistingRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type {
+  RecordIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '../ts-interfaces/identifier';
 import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serializer-interface';
 import { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
@@ -20,7 +23,7 @@ import coerceId from './coerce-id';
 import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
 import ShimModelClass from './model/shim-model-class';
-import RequestCache, { RequestPromise } from './request-cache';
+import RequestCache from './request-cache';
 import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
@@ -45,11 +48,12 @@ export const SaveOp: unique symbol = Symbol('SaveOp');
 export type FetchMutationOptions = FindOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
 interface PendingFetchItem {
-  identifier: ExistingRecordIdentifier;
+  identifier: StableExistingRecordIdentifier;
   queryRequest: Request;
   resolver: RSVP.Deferred<any>;
-  options: { [k: string]: unknown };
+  options: FindOptions;
   trace?: any;
+  promise: Promise<StableRecordIdentifier>;
 }
 
 interface PendingSaveItem {
@@ -207,8 +211,9 @@ export default class FetchManager {
     }
   }
 
-  scheduleFetch(identifier: ExistingRecordIdentifier, options: any, shouldTrace: boolean): Promise<any> {
+  scheduleFetch(identifier: StableExistingRecordIdentifier, options: FindOptions): Promise<StableRecordIdentifier> {
     // TODO Probably the store should pass in the query object
+    let shouldTrace = DEBUG && this._store.generateStackTracesForTrackedRequests;
 
     let query: FindRecordQuery = {
       op: 'findRecord',
@@ -220,26 +225,21 @@ export default class FetchManager {
       data: [query],
     };
 
-    let pendingFetches = this._pendingFetch.get(identifier.type);
-
-    // We already have a pending fetch for this
-    if (pendingFetches) {
-      let matchingPendingFetch = pendingFetches.find((fetch) => fetch.identifier === identifier);
-      if (matchingPendingFetch) {
-        return matchingPendingFetch.resolver.promise;
-      }
+    let pendingFetch = this.getPendingFetch(identifier, options);
+    if (pendingFetch) {
+      return pendingFetch;
     }
 
     let id = identifier.id;
     let modelName = identifier.type;
 
-    let resolver = RSVP.defer(`Fetching ${modelName}' with id: ${id}`);
+    let resolver = RSVP.defer<SingleResourceDocument>(`Fetching ${modelName}' with id: ${id}`);
     let pendingFetchItem: PendingFetchItem = {
       identifier,
       resolver,
       options,
       queryRequest,
-    };
+    } as PendingFetchItem;
 
     if (DEBUG) {
       if (shouldTrace) {
@@ -259,7 +259,36 @@ export default class FetchManager {
       }
     }
 
-    let promise = resolver.promise;
+    let resolverPromise = resolver.promise;
+
+    // TODO replace with some form of record state cache
+    const store = this._store;
+    const internalModel = store._instanceCache.getInternalModel(identifier);
+    const isLoading = !internalModel.isLoaded; // we don't use isLoading directly because we are the request
+
+    const promise = resolverPromise.then(
+      (payload) => {
+        // ensure that regardless of id returned we assign to the correct record
+        if (payload.data && !Array.isArray(payload.data)) {
+          payload.data.lid = identifier.lid;
+        }
+
+        // additional data received in the payload
+        // may result in the merging of identifiers (and thus records)
+        let potentiallyNewIm = store._push(payload);
+        if (potentiallyNewIm && !Array.isArray(potentiallyNewIm)) {
+          return potentiallyNewIm;
+        }
+
+        return identifier;
+      },
+      (error) => {
+        if (internalModel.isEmpty || isLoading) {
+          internalModel.unloadRecord();
+        }
+        throw error;
+      }
+    );
 
     if (this._pendingFetch.size === 0) {
       emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
@@ -273,7 +302,8 @@ export default class FetchManager {
 
     (fetches.get(modelName) as PendingFetchItem[]).push(pendingFetchItem);
 
-    this.requestCache.enqueue(promise, pendingFetchItem.queryRequest);
+    pendingFetchItem.promise = promise;
+    this.requestCache.enqueue(resolverPromise, pendingFetchItem.queryRequest);
     return promise;
   }
 
@@ -418,7 +448,7 @@ export default class FetchManager {
   ) {
     let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
     let ids = snapshots.map((s) => s.id);
-    let promise = adapter.findMany(store, modelClass, ids, A(snapshots));
+    let promise = adapter.findMany(store, modelClass, ids, snapshots);
     let label = `DS: Handle Adapter#findMany of '${modelName}'`;
 
     if (promise === undefined) {
@@ -483,7 +513,7 @@ export default class FetchManager {
     let identifiers = new Array(totalItems);
     let seeking: { [id: string]: PendingFetchItem } = Object.create(null);
 
-    let optionsMap = new WeakCache<RecordIdentifier, Dict<unknown>>(DEBUG ? 'fetch-options' : '');
+    let optionsMap = new WeakCache<RecordIdentifier, FindOptions>(DEBUG ? 'fetch-options' : '');
 
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];
@@ -529,13 +559,15 @@ export default class FetchManager {
     }
   }
 
-  getPendingFetch(identifier: StableRecordIdentifier, options) {
-    let pendingRequest = this.requestCache.getPendingRequestsForRecord(identifier).find((req) => {
-      return req.type === 'query' && isSameRequest(options, req.request.data[0].options);
-    });
+  getPendingFetch(identifier: StableRecordIdentifier, options: FindOptions) {
+    let pendingFetches = this._pendingFetch.get(identifier.type);
 
-    if (pendingRequest) {
-      return pendingRequest[RequestPromise];
+    // We already have a pending fetch for this
+    if (pendingFetches) {
+      let matchingPendingFetch = pendingFetches.find((fetch) => fetch.identifier === identifier);
+      if (matchingPendingFetch && isSameRequest(options, matchingPendingFetch.options)) {
+        return matchingPendingFetch.promise;
+      }
     }
   }
 
@@ -562,6 +594,7 @@ function assertIsString(id: string | null): asserts id is string {
 }
 
 // this function helps resolve whether we have a pending request that we should use instead
-function isSameRequest(options: Dict<unknown> = {}, reqOptions: Dict<unknown> = {}) {
+// TODO @runspired @needsTest removing this did not cause any test failures
+function isSameRequest(options: FindOptions = {}, reqOptions: FindOptions = {}) {
   return options.include === reqOptions.include;
 }

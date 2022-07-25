@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { get, set } from '@ember/object';
 import { later, run } from '@ember/runloop';
 
@@ -714,7 +713,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
   });
 
-  test('store._scheduleFetchMany should not resolve until all the records are resolved', function (assert) {
+  test('store._scheduleFetchMany should not resolve until all the records are resolved', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -746,22 +745,22 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     store.createRecord('test');
 
-    let internalModels = [
-      store._internalModelForId('test', 10),
-      store._internalModelForId('phone', 20),
-      store._internalModelForId('phone', 21),
+    let identifiers = [
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '10' }),
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'phone', id: '20' }),
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'phone', id: '21' }),
     ];
 
-    return run(() => {
-      return store._scheduleFetchMany(internalModels).then(() => {
-        let unloadedRecords = A(internalModels.map((r) => r.getRecord())).filterBy('isEmpty');
+    await store._scheduleFetchMany(identifiers);
 
-        assert.strictEqual(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
-      });
-    });
+    const records = [store.peekRecord('test', '10'), store.peekRecord('phone', '20'), store.peekRecord('phone', '21')];
+
+    let unloadedRecords = records.filter((record) => record === null || record.isEmpty);
+
+    assert.strictEqual(unloadedRecords.length, 0, 'All unloaded records should be loaded');
   });
 
-  test('the store calls adapter.findMany according to groupings returned by adapter.groupRecordsForFindMany', function (assert) {
+  test('the store calls adapter.findMany according to groupings returned by adapter.groupRecordsForFindMany', async function (assert) {
     assert.expect(3);
 
     const ApplicationAdapter = Adapter.extend({
@@ -789,18 +788,16 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    let internalModels = [
-      store._internalModelForId('test', 10),
-      store._internalModelForId('test', 20),
-      store._internalModelForId('test', 21),
+    let identifiers = [
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '10' }),
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '20' }),
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '21' }),
     ];
 
-    return run(() => {
-      return store._scheduleFetchMany(internalModels).then(() => {
-        let ids = internalModels.map((x) => x.id);
-        assert.deepEqual(ids, ['10', '20', '21'], 'The promise fulfills with the records');
-      });
-    });
+    const result = await store._scheduleFetchMany(identifiers);
+
+    let ids = result.map((x) => x.id);
+    assert.deepEqual(ids, ['10', '20', '21'], 'The promise fulfills with the identifiers');
   });
 
   test('the promise returned by `_scheduleFetch`, when it resolves, does not depend on the promises returned to other calls to `_scheduleFetch` that are in the same run loop, but different groups', function (assert) {
@@ -1343,18 +1340,6 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.strictEqual(store.peekRecord('person', 1).get('name'), 'Tom');
 
     return done;
-  });
-
-  testInDebug('store should assert of the user tries to call store.filter', function (assert) {
-    assert.expect(1);
-
-    this.owner.register('model:person', Model.extend());
-
-    let store = this.owner.lookup('service:store');
-
-    assert.expectAssertion(() => {
-      run(() => store.filter('person', {}));
-    }, /The filter API has been moved to a plugin/);
   });
 
   testInDebug('Calling adapterFor with a model class should assert', function (assert) {

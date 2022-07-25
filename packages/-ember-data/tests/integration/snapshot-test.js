@@ -7,6 +7,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { Snapshot } from '@ember-data/store/-private';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 let owner, store, _Post;
 
@@ -86,8 +87,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
   });
 
-  test('snapshot.id, snapshot.type and snapshot.modelName returns correctly', function (assert) {
-    assert.expect(3);
+  test('snapshot.id, and snapshot.modelName returns correctly', function (assert) {
+    assert.expect(2);
 
     store.push({
       data: {
@@ -102,38 +103,45 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = post._createSnapshot();
 
     assert.strictEqual(snapshot.id, '1', 'id is correct');
-    assert.ok(Model.detect(snapshot.type), 'type is correct');
     assert.strictEqual(snapshot.modelName, 'post', 'modelName is correct');
   });
 
-  test('snapshot.type loads the class lazily', async function (assert) {
-    assert.expect(3);
+  deprecatedTest(
+    'snapshot.type loads the class lazily',
+    {
+      id: 'ember-data:deprecate-snapshot-model-class-access',
+      count: 1,
+      until: '5.0',
+    },
+    async function (assert) {
+      assert.expect(3);
 
-    let postClassLoaded = false;
-    let modelFactoryFor = store._modelFactoryFor;
-    store._modelFactoryFor = (name) => {
-      if (name === 'post') {
-        postClassLoaded = true;
-      }
-      return modelFactoryFor.call(store, name);
-    };
+      let postClassLoaded = false;
+      let modelFactoryFor = store._modelFactoryFor;
+      store._modelFactoryFor = (name) => {
+        if (name === 'post') {
+          postClassLoaded = true;
+        }
+        return modelFactoryFor.call(store, name);
+      };
 
-    await store._push({
-      data: {
-        type: 'post',
-        id: '1',
-        attributes: {
-          title: 'Hello World',
+      await store._push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Hello World',
+          },
         },
-      },
-    });
-    let postInternalModel = store._internalModelForId('post', 1);
-    let snapshot = await postInternalModel.createSnapshot();
+      });
+      let postInternalModel = store._internalModelForResource({ type: 'post', id: '1' });
+      let snapshot = await store._instanceCache.createSnapshot(postInternalModel.identifier);
 
-    assert.false(postClassLoaded, 'model class is not eagerly loaded');
-    assert.strictEqual(snapshot.type, _Post, 'type is correct');
-    assert.true(postClassLoaded, 'model class is loaded');
-  });
+      assert.false(postClassLoaded, 'model class is not eagerly loaded');
+      assert.strictEqual(snapshot.type, _Post, 'type is correct');
+      assert.true(postClassLoaded, 'model class is loaded');
+    }
+  );
 
   test('an initial findRecord call has no record for internal-model when a snapshot is generated', function (assert) {
     assert.expect(2);
@@ -167,8 +175,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    let postInternalModel = store._internalModelForId('post', 1);
-    let snapshot = postInternalModel.createSnapshot();
+    let postInternalModel = store._internalModelForResource({ type: 'post', id: '1' });
+    let snapshot = store._instanceCache.createSnapshot(postInternalModel.identifier);
     let expected = {
       author: undefined,
       title: 'Hello World',
@@ -192,8 +200,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    let postInternalModel = store._internalModelForId('post', 1);
-    let snapshot = postInternalModel.createSnapshot();
+    let postInternalModel = store._internalModelForResource({ type: 'post', id: '1' });
+    let snapshot = store._instanceCache.createSnapshot(postInternalModel.identifier);
     let expected = {
       author: undefined,
       title: 'Hello World',

@@ -12,7 +12,6 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
-import { recordIdentifierFor } from '@ember-data/store';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -1940,7 +1939,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 401);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.UnauthorizedError, 'reason should be an instance of DS.UnauthorizedError');
@@ -1949,7 +1948,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 403);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ForbiddenError, 'reason should be an instance of DS.ForbiddenError');
@@ -1958,7 +1957,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 404);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.NotFoundError, 'reason should be an instance of DS.NotFoundError');
@@ -1967,7 +1966,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 409);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
@@ -1976,7 +1975,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxError('error', 500);
 
     try {
-      await store.find('post', '1');
+      await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');
@@ -2091,10 +2090,6 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         },
         (reason) => {
           assert.ok(/saved to the server/.test(reason.message));
-          // Workaround for #7371 to get the record a correct state before teardown
-          let identifier = recordIdentifierFor(post);
-          let im = store._internalModelForResource(identifier);
-          store.didSaveRecord(im, { data: { id: '1', type: 'post' } }, 'createRecord');
         }
       );
     }

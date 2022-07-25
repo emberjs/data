@@ -1,6 +1,3 @@
-import { A } from '@ember/array';
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -32,28 +29,23 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
     this.owner.register('model:author', Author);
 
     let store = this.owner.lookup('service:store');
-
-    let comment, author;
-
-    run(() => {
-      comment = store.push({
-        data: {
-          type: 'comment',
-          id: '1',
-          attributes: {
-            text: 'Hello darkness my old friend',
-          },
+    let comment = store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: {
+          text: 'Hello darkness my old friend',
         },
-      });
-      author = store.push({
-        data: {
-          type: 'author',
-          id: '1',
-          attributes: {
-            name: '@runspired',
-          },
+      },
+    });
+    let author = store.push({
+      data: {
+        type: 'author',
+        id: '1',
+        attributes: {
+          name: '@runspired',
         },
-      });
+      },
     });
 
     let properties = {
@@ -88,41 +80,38 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
     this.owner.register('model:storage', Storage);
 
     let store = this.owner.lookup('service:store');
-    let records, storage;
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'record',
-            id: '1',
-            attributes: {
-              title: "it's a beautiful day",
-            },
+    store.push({
+      data: [
+        {
+          type: 'record',
+          id: '1',
+          attributes: {
+            title: "it's a beautiful day",
           },
-          {
-            type: 'record',
-            id: '2',
-            attributes: {
-              title: "it's a beautiful day",
-            },
+        },
+        {
+          type: 'record',
+          id: '2',
+          attributes: {
+            title: "it's a beautiful day",
           },
-        ],
-      });
-
-      records = store.peekAll('record');
-      storage = store.createRecord('storage', { name: 'Great store', records: records });
+        },
+      ],
     });
+
+    let records = store.peekAll('record').toArray();
+    let storage = store.createRecord('storage', { name: 'Great store', records: records });
 
     assert.strictEqual(storage.get('name'), 'Great store', 'The attribute is well defined');
     assert.strictEqual(
       storage.get('records').findBy('id', '1'),
-      A(records).findBy('id', '1'),
+      records.find((r) => r.id === '1'),
       'Defined relationships are allowed in createRecord'
     );
     assert.strictEqual(
       storage.get('records').findBy('id', '2'),
-      A(records).findBy('id', '2'),
+      records.find((r) => r.id === '2'),
       'Defined relationships are allowed in createRecord'
     );
   });

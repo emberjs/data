@@ -12,7 +12,6 @@ import type {
   RelationshipsSchema,
 } from '../../ts-interfaces/record-data-schemas';
 import type { RecordDataStoreWrapper as StoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
 import type CoreStore from '../core-store';
 import { internalModelFactoryFor } from './internal-model-factory';
@@ -219,14 +218,10 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    const internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
-    if (!internalModel) {
-      return false;
-    }
+    const record = this._store._instanceCache.peek({ identifier, bucket: 'record' });
 
-    const record = internalModel._record as RecordInstance;
-    return record && !(record.isDestroyed || record.isDestroying);
+    return record ? !(record.isDestroyed || record.isDestroying) : false;
   }
 
   disconnectRecord(type: string, id: string | null, lid: string): void;

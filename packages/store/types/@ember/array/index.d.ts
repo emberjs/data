@@ -100,6 +100,8 @@ interface Array<T> extends Enumerable<T> {
 declare const Array: Mixin<Array<unknown>>;
 export default Array;
 
+export const NativeArray;
+
 /**
  * Creates an `Ember.NativeArray` from an Array like object.
  * Does not modify the original object's contents. Ember.A is not needed if

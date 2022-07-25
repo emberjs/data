@@ -22,7 +22,7 @@ function moveRecordOutOfInFlight(record) {
   // TODO this would be made nicer by a cancellation API
   let pending = store.getRequestStateService().getPendingRequestsForRecord(_internalModel.identifier);
   pending.splice(0, pending.length); // release the requests
-  store.recordWasError(_internalModel, new Error());
+  _internalModel.adapterDidError(new Error());
 }
 
 module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration test', function (hooks) {
@@ -210,7 +210,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       });
   });
 
-  test('calling store.didSaveRecord can provide an optional hash', async function (assert) {
+  test('additional new values can be returned on store save', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     let Person = store.modelFor('person');

@@ -1,6 +1,3 @@
-import { makeArray } from '@ember/array';
-import { isPresent } from '@ember/utils';
-
 /**
   @module @ember-data/adapter/error
 */
@@ -9,13 +6,17 @@ const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
 const PRIMARY_ATTRIBUTE_KEY = 'base';
 
+function makeArray(value) {
+  return Array.isArray(value) ? value : [value];
+}
+
 /**
   Convert an hash of errors into an array with errors in JSON-API format.
    ```javascript
   import DS from 'ember-data';
 
    const { errorsHashToArray } = DS;
-   
+
    let errors = {
     base: 'Invalid attributes on saving this record',
     name: 'Must be present',
@@ -55,7 +56,7 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
 export function errorsHashToArray(errors) {
   let out = [];
 
-  if (isPresent(errors)) {
+  if (errors) {
     Object.keys(errors).forEach((key) => {
       let messages = makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
@@ -122,7 +123,7 @@ export function errorsHashToArray(errors) {
 export function errorsArrayToHash(errors) {
   let out = {};
 
-  if (isPresent(errors)) {
+  if (errors) {
     errors.forEach((error) => {
       if (error.source && error.source.pointer) {
         let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);

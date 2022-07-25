@@ -57,8 +57,8 @@ function notifyRelationship(store: CoreStore, identifier: StableRecordIdentifier
 
 function notifyAttribute(store: CoreStore, identifier: StableRecordIdentifier, key: string, record: Model) {
   let currentValue = cacheFor(record, key);
-  let internalModel = store._internalModelForResource(identifier);
-  if (currentValue !== internalModel._recordData.getAttr(key)) {
+
+  if (currentValue !== store._instanceCache.getRecordData(identifier).getAttr(key)) {
     record.notifyPropertyChange(key);
   }
 }

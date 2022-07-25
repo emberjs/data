@@ -509,8 +509,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
           while (k < members.length) {
             let member = members[k++];
             if (member !== null) {
-              // TODO this can cause materialization
-              // do something to avoid that
               return recordDataFor(member);
             }
           }
@@ -632,9 +630,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
     let createOptions = {};
 
     if (options !== undefined) {
-      const { modelName, storeWrapper, identifier } = this;
-      let attributeDefs = storeWrapper.attributesDefinitionFor(modelName);
-      let relationshipDefs = storeWrapper.relationshipsDefinitionFor(modelName);
+      const { storeWrapper, identifier } = this;
+      let attributeDefs = storeWrapper.attributesDefinitionFor(identifier.type);
+      let relationshipDefs = storeWrapper.relationshipsDefinitionFor(identifier.type);
       const graph = graphFor(storeWrapper);
       let propertyNames = Object.keys(options);
 

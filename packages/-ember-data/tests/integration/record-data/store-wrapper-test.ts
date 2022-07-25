@@ -36,8 +36,11 @@ class House extends Model {
 // TODO: this should work
 // class TestRecordData implements RecordData
 class TestRecordData {
+  _isNew = false;
   pushData(data, calculateChange?: boolean) {}
-  clientDidCreate() {}
+  clientDidCreate() {
+    this._isNew = true;
+  }
 
   willCommit() {}
 
@@ -77,6 +80,9 @@ class TestRecordData {
 
   isAttrDirty(key: string) {
     return false;
+  }
+  isNew() {
+    return this._isNew;
   }
   removeFromInverseRelationships() {}
 
@@ -383,8 +389,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         super();
         if (!id) {
           assert.true(storeWrapper.isRecordInUse('house', '1'), 'house 1 is in use');
-          // TODO isRecordInUse should coorce to false rather than null
-          assert.strictEqual(storeWrapper.isRecordInUse('house', '2'), null, 'house 2 is not in use');
+          assert.false(storeWrapper.isRecordInUse('house', '2'), 'house 2 is not in use');
         }
       }
     }
@@ -444,6 +449,6 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       included: [houseHash],
     });
     wrapper.disconnectRecord('house', '1');
-    assert.false(store.hasRecordForId('house', '1'), 'record was removed from id map');
+    assert.strictEqual(store.peekRecord('house', '1'), null, 'record was removed from id map');
   });
 });

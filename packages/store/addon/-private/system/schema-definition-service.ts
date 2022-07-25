@@ -1,14 +1,16 @@
 import { getOwner } from '@ember/application';
+import { deprecate } from '@ember/debug';
 import { get } from '@ember/object';
 
 import { importSync } from '@embroider/macros';
 
 import type Model from '@ember-data/model';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+import { DEPRECATE_STRING_ARG_SCHEMAS } from '@ember-data/private-build-infra/deprecations';
 
 import type { RecordIdentifier } from '../ts-interfaces/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
-import type Store from './ds-model-store';
+import type Store from './core-store';
 import normalizeModelName from './normalize-model-name';
 
 type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
@@ -34,7 +36,17 @@ export class DSModelSchemaDefinitionService {
   // Following the existing RD implementation
   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
     let modelName, attributes;
-    if (typeof identifier === 'string') {
+    if (DEPRECATE_STRING_ARG_SCHEMAS && typeof identifier === 'string') {
+      deprecate(
+        `attributesDefinitionFor expects either a record identifier or an argument of shape { type: string }, received a string.`,
+        false,
+        {
+          id: 'ember-data:deprecate-string-arg-schemas',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.5', available: '4.5' },
+        }
+      );
       modelName = identifier;
     } else {
       modelName = identifier.type;
@@ -57,7 +69,17 @@ export class DSModelSchemaDefinitionService {
   // Following the existing RD implementation
   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
     let modelName, relationships;
-    if (typeof identifier === 'string') {
+    if (DEPRECATE_STRING_ARG_SCHEMAS && typeof identifier === 'string') {
+      deprecate(
+        `relationshipsDefinitionFor expects either a record identifier or an argument of shape { type: string }, received a string.`,
+        false,
+        {
+          id: 'ember-data:deprecate-string-arg-schemas',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.5', available: '4.5' },
+        }
+      );
       modelName = identifier;
     } else {
       modelName = identifier.type;
