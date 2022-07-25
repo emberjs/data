@@ -89,16 +89,23 @@ export default class RecordDataDefault implements RelationshipRecordData {
   pushData(data: JsonApiResource, calculateChange?: boolean): string[] | void {
     let changedKeys;
 
+    console.log('record-data pushData()', data);
+
     if (this._isNew) {
       this._isNew = false;
       this.notifyStateChange();
     }
 
+    // TODO do we need to say that links or meta have changed here?
     if (calculateChange) {
       changedKeys = this._changedKeys(data.attributes);
     }
 
     Object.assign(this._data, data.attributes);
+    // TODO this might be a silly way to do it
+    this._links = data.links;
+    this._meta = data.meta;
+
     if (this.__attributes) {
       // only do if we have attribute changes
       this._updateChangedAttributes();

@@ -205,7 +205,9 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     let modelClass = this.store.modelFor(modelName);
     let serializer = this.store.serializerFor(modelName);
+    console.log(resourceHash);
     let { data } = serializer.normalize(modelClass, resourceHash);
+    console.log(data);
     return data;
   },
 
@@ -399,6 +401,8 @@ const JSONAPISerializer = JSONSerializer.extend({
       type: this._extractType(modelClass, resourceHash),
       attributes: this.extractAttributes(modelClass, resourceHash),
       relationships: this.extractRelationships(modelClass, resourceHash),
+      links: resourceHash.links,
+      meta: resourceHash.meta,
     };
 
     this.applyTransforms(modelClass, data.attributes);

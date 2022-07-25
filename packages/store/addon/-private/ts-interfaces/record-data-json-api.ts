@@ -14,6 +14,7 @@ export interface JsonApiResource {
   relationships?: {
     [key: string]: SingleResourceRelationship | CollectionResourceRelationship;
   };
+  links?: any;
   meta?: any;
   lid?: string;
 }

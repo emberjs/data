@@ -105,6 +105,7 @@ function computeOnce(target, key, desc) {
 */
 class Model extends EmberObject {
   init(options = {}) {
+    console.log('creating a model');
     const createProps = options._createProps;
     delete options._createProps;
     super.init(options);
@@ -423,6 +424,7 @@ class Model extends EmberObject {
   */
   @tagged
   get id() {
+    console.log('from the id');
     // the _internalModel guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
@@ -434,11 +436,20 @@ class Model extends EmberObject {
     return this._internalModel.id;
   }
   set id(id) {
+    console.log('set the id')
     const normalizedId = coerceId(id);
 
     if (normalizedId !== null) {
       this._internalModel.setId(normalizedId);
     }
+  }
+
+  get links() {
+    return this._internalModel._recordData._links;
+  }
+
+  get meta() {
+    return this._internalModel._recordData._meta;
   }
 
   /**
