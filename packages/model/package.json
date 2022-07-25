@@ -30,7 +30,7 @@
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-typescript": "^5.1.0",
     "ember-compatibility-helpers": "^1.2.6",
-    "inflection": "~1.13.1"
+    "inflection": "~1.13.2"
   },
   "devDependencies": {
     "@ember-data/unpublished-test-infra": "4.5.0-alpha.5",
