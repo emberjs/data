@@ -53,7 +53,7 @@ module('modelFor without @ember-data/model', function (hooks) {
     } catch (e) {
       assert.strictEqual(
         e.message,
-        "No model was found for 'person' and no schema handles the type",
+        "Assertion Failed: No model was found for 'person' and no schema handles the type",
         'We throw an error when no schema is available'
       );
     }
