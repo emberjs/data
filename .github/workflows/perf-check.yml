@@ -35,6 +35,7 @@ jobs:
           control-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-control
           control-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-control
           sample-timeout: 60
+          use-yarn: true
           scenarios: |
             {
               "materialization": {
