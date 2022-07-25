@@ -29,20 +29,6 @@ module('integration/store - adapterFor', function (hooks) {
   });
 
   test('when no adapter is available we throw an error', async function (assert) {
-    let { owner } = this;
-    /*
-      adapter:-json-api is the "last chance" fallback and is
-      the json-api adapter which is re-exported as app/adapters/-json-api.
-      here we override to ensure adapterFor will return `undefined`.
-     */
-    const lookup = owner.lookup;
-    owner.lookup = (registrationName) => {
-      if (registrationName === 'adapter:-json-api') {
-        return undefined;
-      }
-      return lookup.call(owner, registrationName);
-    };
-
     assert.expectAssertion(() => {
       store.adapterFor('person');
     }, /Assertion Failed: No adapter was found for 'person' and no 'application' adapter was found as a fallback/);

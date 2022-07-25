@@ -5,6 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model from '@ember-data/model';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/store/model_for - DS.Store#modelFor', function (hooks) {
   setupTest(hooks);
@@ -34,7 +35,7 @@ module('unit/store/model_for - DS.Store#modelFor', function (hooks) {
     assert.strictEqual(store.modelFor('blog.post').modelName, 'blog.post', 'modelName is normalized to dasherized');
   });
 
-  test(`when fetching something that doesn't exist, throws error`, function (assert) {
+  testInDebug(`when fetching something that doesn't exist, throws error`, function (assert) {
     let store = this.owner.lookup('service:store');
 
     assert.throws(() => {
