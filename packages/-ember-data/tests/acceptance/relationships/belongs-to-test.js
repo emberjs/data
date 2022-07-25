@@ -444,7 +444,6 @@ module('async belongs-to rendering tests', function (hooks) {
 
       let parent = await sedona.parent;
       await parent.destroyRecord();
-      // TODO for some reason parent isn't notified via the destroy above :thinking_face:
       let newParent = await sedona.parent;
 
       assert.strictEqual(newParent, null, 'We no longer have a parent');
