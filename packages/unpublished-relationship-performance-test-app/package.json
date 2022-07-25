@@ -45,7 +45,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.19.1",
     "qunit-dom": "^2.0.0",
-    "webpack": "^5.73.0"
+    "webpack": "^5.74.0"
   },
   "ember": {
     "edition": "octane"
