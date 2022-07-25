@@ -28,12 +28,13 @@ jobs:
           originSha=$(git rev-parse HEAD^2)
           echo $originSha > tmp/sha-for-commit.txt
           git show --format=short --no-patch $originSha
-      - uses: tracerbench/tracerbench-compare-action@master
+      - uses: tracerbench/tracerbench-compare-action@runspired/add-config-option
         with:
           experiment-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
           experiment-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-experiment --port 4201
           control-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-control
           control-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-control
+          sample-timeout: 60
           scenarios: |
             {
               "materialization": {
