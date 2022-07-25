@@ -4,6 +4,7 @@ import type { CreateRecordProperties } from './system/core-store';
 import CoreStore from './system/core-store';
 import type { StableRecordIdentifier } from './ts-interfaces/identifier';
 import type { RecordInstance } from './ts-interfaces/record-instance';
+import { FindOptions } from './ts-interfaces/store';
 
 type Caches = {
   record: WeakMap<StableRecordIdentifier, RecordInstance>;
@@ -20,7 +21,7 @@ export class InstanceCache {
   }
 
   peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'record' }): RecordInstance | undefined {
-    return this.#instances[bucket].get(identifier);
+    return this.#instances[bucket]?.get(identifier);
   }
   set({
     identifier,
@@ -37,9 +38,22 @@ export class InstanceCache {
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
     let record = this.peek({ identifier, bucket: 'record' });
 
-    // TODO how to handle dematerializing
-
     if (!record) {
+      // TODO store this state somewhere better
+      const internalModel = this.getInternalModel(identifier);
+
+      if (internalModel._isDematerializing) {
+        // TODO this should be an assertion, this likely means
+        // we have a bug to find wherein our own store is calling this
+        // with an identifier that should have already been disconnected.
+        // the destroy + fetch again case is likely either preserving the
+        // identifier for re-use or failing to unload it.
+        return null as unknown as RecordInstance;
+      }
+
+      // TODO store this state somewhere better
+      internalModel.hasRecord = true;
+
       if (properties && 'id' in properties) {
         assert(`expected id to be a string or null`, properties.id !== undefined);
         this.getInternalModel(identifier).setId(properties.id);
@@ -71,5 +85,10 @@ export class InstanceCache {
   // TODO move InternalModel cache into InstanceCache
   getInternalModel(identifier: StableRecordIdentifier) {
     return this.store._internalModelForResource(identifier);
+  }
+
+  // TODO move InternalModel cache into InstanceCache
+  createSnapshot(identifier: StableRecordIdentifier, options?: FindOptions) {
+    return this.getInternalModel(identifier).createSnapshot(options);
   }
 }

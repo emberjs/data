@@ -20,10 +20,9 @@ import type CoreStore from '../core-store';
 import type { PromiseArray } from '../promise-proxies';
 import { promiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
-import { internalModelFactoryFor } from '../store/internal-model-factory';
 
 function recordForIdentifier(store: CoreStore, identifier: StableRecordIdentifier): RecordInstance {
-  return internalModelFactoryFor(store).lookup(identifier).getRecord();
+  return store._instanceCache.getRecord(identifier);
 }
 
 export interface RecordArrayCreateArgs {
@@ -291,7 +290,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @internal
   */
   _takeSnapshot(): Snapshot[] {
-    return this.content.map((identifier) => internalModelFactoryFor(this.store).lookup(identifier).createSnapshot());
+    return this.content.map((identifier) => this.store._instanceCache.createSnapshot(identifier));
   }
 }
 

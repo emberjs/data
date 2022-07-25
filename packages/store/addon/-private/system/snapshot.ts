@@ -84,7 +84,7 @@ export default class Snapshot implements Snapshot {
     this.identifier = identifier;
 
     /*
-      If the internalModel does not yet have a record, then we are
+      If the we do not yet have a record, then we are
       likely a snapshot being provided to a find request, so we
       populate __attributes lazily. Else, to preserve the "moment
       in time" in which a snapshot is created, we greedily grab
@@ -135,7 +135,7 @@ export default class Snapshot implements Snapshot {
      @type {String}
      @public
      */
-    this.modelName = internalModel.modelName;
+    this.modelName = identifier.type;
     if (internalModel.hasRecord) {
       this._changedAttributes = recordDataFor(internalModel).changedAttributes();
     }
@@ -156,7 +156,7 @@ export default class Snapshot implements Snapshot {
    @public
    */
   get record(): RecordInstance {
-    return this._internalModel.getRecord();
+    return this._store._instanceCache.getRecord(this.identifier);
   }
 
   get _attributes(): Dict<any> {

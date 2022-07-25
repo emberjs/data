@@ -16,6 +16,7 @@ import type { CreateRecordProperties } from '@ember-data/store/-private/system/c
 import ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
 import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
@@ -83,7 +84,7 @@ export interface ManyArrayCreateArgs {
   @extends Ember.EmberObject
   @uses Ember.MutableArray
 */
-export default class ManyArray extends MutableArrayWithObject<InternalModel, RecordInstance> {
+export default class ManyArray extends MutableArrayWithObject<StableRecordIdentifier, RecordInstance> {
   declare isAsync: boolean;
   declare isLoaded: boolean;
   declare isPolymorphic: boolean;
@@ -95,7 +96,7 @@ export default class ManyArray extends MutableArrayWithObject<InternalModel, Rec
   declare _length: number;
   declare _meta: Dict<unknown> | null;
   declare _links: Links | PaginationLinks | null;
-  declare currentState: InternalModel[];
+  declare currentState: StableRecordIdentifier[];
   declare recordData: RelationshipRecordData;
   declare internalModel: InternalModel;
   declare store: CoreStore;
@@ -260,23 +261,25 @@ export default class ManyArray extends MutableArrayWithObject<InternalModel, Rec
     if (this._isDirty) {
       this.retrieveLatest();
     }
-    let internalModel = this.currentState[index];
-    if (internalModel === undefined) {
+    let identifier = this.currentState[index];
+    if (identifier === undefined) {
       return;
     }
 
-    return internalModel.getRecord();
+    return this.store._instanceCache.getRecord(identifier);
   }
 
   replace(idx: number, amt: number, objects?: RecordInstance[]) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
-    this.store._backburner.join(() => {
-      let internalModels: InternalModel[];
+    const { store } = this;
+    store._backburner.join(() => {
+      let identifiers: StableRecordIdentifier[];
       if (amt > 0) {
-        internalModels = this.currentState.slice(idx, idx + amt);
+        identifiers = this.currentState.slice(idx, idx + amt);
         this.recordData.removeFromHasMany(
           this.key,
-          internalModels.map((im) => recordDataFor(im))
+          // TODO RecordData V2: recordData should take identifiers not RecordDatas
+          identifiers.map((identifier) => store._instanceCache.getRecordData(identifier))
         );
       }
       if (objects) {
@@ -303,14 +306,15 @@ export default class ManyArray extends MutableArrayWithObject<InternalModel, Rec
     this._isUpdating = true;
     let jsonApi = this.recordData.getHasMany(this.key);
 
-    let internalModels: InternalModel[] = [];
+    let identifiers: StableRecordIdentifier[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
+        // TODO figure out where this state comes from
         let im = this.store._internalModelForResource(jsonApi.data[i]);
         let shouldRemove = im._isDematerializing || im.isEmpty || !im.isLoaded;
 
         if (!shouldRemove) {
-          internalModels.push(im);
+          identifiers.push(im.identifier);
         }
       }
     }
@@ -325,19 +329,19 @@ export default class ManyArray extends MutableArrayWithObject<InternalModel, Rec
 
     if (this._hasArrayObservers && !this._hasNotified) {
       // diff to find changes
-      let diff = diffArray(this.currentState, internalModels);
+      let diff = diffArray(this.currentState, identifiers);
       // it's null if no change found
       if (diff.firstChangeIndex !== null) {
         // we found a change
         this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
-        this._length = internalModels.length;
-        this.currentState = internalModels;
+        this._length = identifiers.length;
+        this.currentState = identifiers;
         this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       }
     } else {
       this._hasNotified = false;
-      this._length = internalModels.length;
-      this.currentState = internalModels;
+      this._length = identifiers.length;
+      this.currentState = identifiers;
     }
 
     this._isUpdating = false;

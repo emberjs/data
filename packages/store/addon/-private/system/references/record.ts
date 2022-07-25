@@ -8,7 +8,6 @@ import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type CoreStore from '../core-store';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
-import { internalModelFactoryFor } from '../store/internal-model-factory';
 import Reference from './reference';
 /**
   @module @ember-data/store
@@ -190,13 +189,7 @@ export default class RecordReference extends Reference {
      @return {Model} the record for this RecordReference
   */
   value(): RecordInstance | null {
-    if (this.id() !== null) {
-      let internalModel = internalModelFactoryFor(this.store).peek(this.#identifier);
-      if (internalModel && internalModel.isLoaded) {
-        return internalModel.getRecord();
-      }
-    }
-    return null;
+    return this.store.peekRecord(this.#identifier);
   }
 
   /**

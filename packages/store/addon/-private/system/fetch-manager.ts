@@ -277,7 +277,7 @@ export default class FetchManager {
         // may result in the merging of identifiers (and thus records)
         let potentiallyNewIm = store._push(payload);
         if (potentiallyNewIm && !Array.isArray(potentiallyNewIm)) {
-          return potentiallyNewIm.identifier;
+          return potentiallyNewIm;
         }
 
         return identifier;

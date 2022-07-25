@@ -34,7 +34,6 @@ import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
 import type { Dict } from '../../ts-interfaces/utils';
 import type CoreStore from '../core-store';
-import type { CreateRecordProperties } from '../core-store';
 import { errorsHashToArray } from '../errors-utils';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
@@ -278,16 +277,6 @@ export default class InternalModel {
     return !this.isEmpty;
   }
 
-  getRecord(properties?: CreateRecordProperties): RecordInstance {
-    if (this._isDematerializing) {
-      // TODO we should assert here instead of this return.
-      return null as unknown as RecordInstance;
-    }
-
-    this.hasRecord = true;
-    return this.store._instanceCache.getRecord(this.identifier, properties);
-  }
-
   dematerializeRecord() {
     this._isDematerializing = true;
 
@@ -429,7 +418,7 @@ export default class InternalModel {
   ): Promise<RecordInstance | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
-    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
+    return this.store._findBelongsToByJsonApiResource(resource, this.identifier, relationshipMeta, options).then(
       (identifier: StableRecordIdentifier | null) =>
         handleCompletedRelationshipRequest(this, key, resource._relationship, identifier),
       (e) => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
@@ -455,8 +444,6 @@ export default class InternalModel {
     };
 
     if (isAsync) {
-      let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
-
       if (resource._relationship.state.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key] as PromiseBelongsTo;
       }
@@ -465,15 +452,14 @@ export default class InternalModel {
 
       return this._updatePromiseProxyFor('belongsTo', key, {
         promise,
-        content: internalModel ? internalModel.getRecord() : null,
+        content: identifier ? store._instanceCache.getRecord(identifier) : null,
         _belongsToState,
       });
     } else {
       if (identifier === null) {
         return null;
       } else {
-        let internalModel = store._internalModelForResource(identifier);
-        let toReturn = internalModel.getRecord();
+        let toReturn = store._instanceCache.getRecord(identifier);
         assert(
           "You looked up the '" +
             key +
@@ -482,7 +468,7 @@ export default class InternalModel {
             "' with id " +
             parentInternalModel.id +
             ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`belongsTo({ async: true })`)',
-          toReturn === null || !internalModel.isEmpty
+          toReturn === null || !store._instanceCache.getInternalModel(identifier).isEmpty
         );
         return toReturn;
       }
@@ -531,7 +517,7 @@ export default class InternalModel {
 
       const jsonApi = this._recordData.getHasMany(key);
 
-      loadingPromise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationship, options).then(
+      loadingPromise = this.store._findHasManyByJsonApiResource(jsonApi, this.identifier, relationship, options).then(
         () => handleCompletedRelationshipRequest(this, key, relationship, manyArray),
         (e) => handleCompletedRelationshipRequest(this, key, relationship, manyArray, e)
       );
@@ -968,7 +954,7 @@ export default class InternalModel {
     if (error && parsedErrors) {
       // TODO add assertion forcing consuming RecordData's to implement getErrors
       if (!this._recordData.getErrors) {
-        let record = this.getRecord() as DSModel;
+        let record = this.store._instanceCache.getRecord(this.identifier) as DSModel;
         let errors = record.errors;
         for (attribute in parsedErrors) {
           if (Object.prototype.hasOwnProperty.call(parsedErrors, attribute)) {

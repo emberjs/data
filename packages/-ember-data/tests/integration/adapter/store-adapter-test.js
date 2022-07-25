@@ -210,7 +210,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       });
   });
 
-  test('calling store.didSaveRecord can provide an optional hash', async function (assert) {
+  test('additional new values can be returned on store save', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     let Person = store.modelFor('person');

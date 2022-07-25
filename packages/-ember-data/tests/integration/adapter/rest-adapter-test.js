@@ -2091,10 +2091,6 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         },
         (reason) => {
           assert.ok(/saved to the server/.test(reason.message));
-          // Workaround for #7371 to get the record a correct state before teardown
-          let identifier = recordIdentifierFor(post);
-          let im = store._internalModelForResource(identifier);
-          store.didSaveRecord(im, { data: { id: '1', type: 'post' } }, 'createRecord');
         }
       );
     }

@@ -11,7 +11,7 @@ import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
 import { importSync } from '@embroider/macros';
-import { all, default as RSVP, reject, resolve } from 'rsvp';
+import { all, reject, resolve } from 'rsvp';
 
 import type DSModelClass from '@ember-data/model';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
@@ -63,8 +63,7 @@ import {
 import type ShimModelClass from './model/shim-model-class';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
-import type { PromiseArray, PromiseObject } from './promise-proxies';
-import { promiseArray, promiseObject } from './promise-proxies';
+import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import { setRecordDataFor } from './record-data-for';
@@ -224,30 +223,6 @@ class CoreStore extends Service {
   declare __asyncWaiter: () => boolean;
 
   /**
-    The default adapter to use to communicate to a backend server or
-    other persistence layer. This will be overridden by an application
-    adapter if present.
-
-    If you want to specify `app/adapters/custom.js` as a string, do:
-
-    ```js
-    import Store from '@ember-data/store';
-
-    export default Store.extend({
-      constructor() {
-        super(...arguments);
-        this.adapter = 'custom';
-      }
-    }
-    ```
-
-    @property adapter
-    @public
-    @default '-json-api'
-    @type {String}
-  */
-
-  /**
     @method init
     @private
   */
@@ -335,6 +310,7 @@ class CoreStore extends Service {
     return this._fetchManager.requestCache;
   }
 
+  // TODO move this to InstanceCache
   _instantiateRecord(
     recordData: RecordData,
     identifier: StableRecordIdentifier,
@@ -408,9 +384,11 @@ class CoreStore extends Service {
     let record = this._modelFactoryFor(modelName).create(createOptions);
     return record;
   }
+
+  // TODO move this to InstanceCache
   _teardownRecord(record: DSModel | RecordInstance) {
     StoreMap.delete(record);
-    // TODO remove identifier
+    // TODO remove identifier:record cache link
     this.teardownRecord(record);
   }
   teardownRecord(record: DSModel | RecordInstance): void {
@@ -420,6 +398,7 @@ class CoreStore extends Service {
     );
     (record as DSModel).destroy();
   }
+
   getSchemaDefinitionService(): SchemaDefinitionService {
     if (!this._schemaDefinitionService) {
       this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
@@ -573,11 +552,12 @@ class CoreStore extends Service {
 
         const factory = internalModelFactoryFor(this);
         const internalModel = factory.build({ type: normalizedModelName, id: properties.id });
+        const { identifier } = internalModel;
 
-        internalModel._recordData.clientDidCreate();
-        this.recordArrayManager.recordDidChange(internalModel.identifier);
+        this._instanceCache.getRecordData(identifier).clientDidCreate();
+        this.recordArrayManager.recordDidChange(identifier);
 
-        return internalModel.getRecord(properties);
+        return this._instanceCache.getRecord(identifier, properties);
       });
     });
   }
@@ -1100,59 +1080,48 @@ class CoreStore extends Service {
     }
 
     const internalModel = internalModelFactoryFor(this).lookup(resource);
+    const { identifier } = internalModel;
+    let promise;
     options = options || {};
 
+    // if not loaded start loading
     if (!internalModel.isLoaded) {
-      return promiseRecord(
-        this,
-        this._fetchDataIfNeededForIdentifier(internalModel.identifier, options),
-        `DS: Store#findRecord ${internalModel.identifier}`
-      );
-    }
+      promise = this._fetchDataIfNeededForIdentifier(identifier, options);
 
-    let fetchedIdentifier = this._findRecord(internalModel, options);
-
-    return promiseRecord(this, fetchedIdentifier, `DS: Store#findRecord ${internalModel.identifier}`);
-  }
-
-  _findRecord(internalModel: InternalModel, options: FindOptions): Promise<StableRecordIdentifier> {
-    const { identifier } = internalModel;
-
-    // Refetch if the reload option is passed
-    if (options.reload) {
+      // Refetch if the reload option is passed
+    } else if (options.reload) {
       assertIdentifierHasId(identifier);
-      return this._fetchManager.scheduleFetch(identifier, options);
+      promise = this._fetchManager.scheduleFetch(identifier, options);
+    } else {
+      let snapshot = this._instanceCache.createSnapshot(identifier, options);
+      let adapter = this.adapterFor(identifier.type);
+
+      // Refetch the record if the adapter thinks the record is stale
+      if (
+        typeof options.reload === 'undefined' &&
+        adapter.shouldReloadRecord &&
+        adapter.shouldReloadRecord(this, snapshot)
+      ) {
+        assertIdentifierHasId(identifier);
+        promise = this._fetchManager.scheduleFetch(identifier, options);
+      } else {
+        // Trigger the background refetch if backgroundReload option is passed
+        if (
+          options.backgroundReload !== false &&
+          (options.backgroundReload ||
+            !adapter.shouldBackgroundReloadRecord ||
+            adapter.shouldBackgroundReloadRecord(this, snapshot))
+        ) {
+          assertIdentifierHasId(identifier);
+          this._fetchManager.scheduleFetch(identifier, options);
+        }
+
+        // Return the cached record
+        promise = resolve(identifier);
+      }
     }
 
-    let snapshot = internalModel.createSnapshot(options);
-    let adapter = this.adapterFor(internalModel.modelName);
-
-    // Refetch the record if the adapter thinks the record is stale
-    if (
-      typeof options.reload === 'undefined' &&
-      adapter.shouldReloadRecord &&
-      adapter.shouldReloadRecord(this, snapshot)
-    ) {
-      assertIdentifierHasId(identifier);
-      return this._fetchManager.scheduleFetch(identifier, options);
-    }
-
-    if (options.backgroundReload === false) {
-      return resolve(internalModel.identifier);
-    }
-
-    // Trigger the background refetch if backgroundReload option is passed
-    if (
-      options.backgroundReload ||
-      !adapter.shouldBackgroundReloadRecord ||
-      adapter.shouldBackgroundReloadRecord(this, snapshot)
-    ) {
-      assertIdentifierHasId(identifier);
-      this._fetchManager.scheduleFetch(identifier, options);
-    }
-
-    // Return the cached record
-    return resolve(internalModel.identifier);
+    return promiseRecord(this, promise, `DS: Store#findRecord ${identifier}`);
   }
 
   _fetchDataIfNeededForIdentifier(
@@ -1318,11 +1287,11 @@ class CoreStore extends Service {
   peekRecord(identifier: ResourceIdentifierObject): RecordInstance | null;
   peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
-      let stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
-      if (stableIdentifier) {
-        return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord() || null;
-      }
-      return null;
+      const stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
+      const internalModel = stableIdentifier && internalModelFactoryFor(this).peek(stableIdentifier);
+      // TODO come up with a better mechanism for determining if we have data and could peek.
+      // this is basically an "are we not empty" query.
+      return internalModel && internalModel.isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
     }
 
     if (DEBUG) {
@@ -1341,7 +1310,7 @@ class CoreStore extends Service {
     const stableIdentifier = this.identifierCache.peekRecordIdentifier(resource);
     const internalModel = stableIdentifier && internalModelFactoryFor(this).peek(stableIdentifier);
 
-    return internalModel && internalModel.isLoaded ? internalModel.getRecord() : null;
+    return internalModel && internalModel.isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
   }
 
   /**
@@ -1395,7 +1364,7 @@ class CoreStore extends Service {
 
   _findHasManyByJsonApiResource(
     resource,
-    parentInternalModel: InternalModel,
+    parentIdentifier: StableRecordIdentifier,
     relationship: ManyRelationship,
     options?: FindOptions
   ): Promise<void | unknown[]> {
@@ -1420,7 +1389,7 @@ class CoreStore extends Service {
         // findHasMany, although not public, does not need to care about our upgrade relationship definitions
         // and can stick with the public definition API for now.
         const relationshipMeta = this._storeWrapper.relationshipsDefinitionFor(definition.inverseType)[definition.key];
-        let adapter = this.adapterFor(parentInternalModel.modelName);
+        let adapter = this.adapterFor(parentIdentifier.type);
 
         /*
           If a relationship was originally populated by the adapter as a link
@@ -1434,7 +1403,7 @@ class CoreStore extends Service {
           then use that URL in the future to make a request for the relationship.
         */
         assert(
-          `You tried to load a hasMany relationship but you have no adapter (for ${parentInternalModel.modelName})`,
+          `You tried to load a hasMany relationship but you have no adapter (for ${parentIdentifier.type})`,
           adapter
         );
         assert(
@@ -1442,7 +1411,7 @@ class CoreStore extends Service {
           typeof adapter.findHasMany === 'function'
         );
 
-        return _findHasMany(adapter, this, parentInternalModel, resource.links.related, relationshipMeta, options);
+        return _findHasMany(adapter, this, parentIdentifier, resource.links.related, relationshipMeta, options);
       }
 
       let preferLocalCache = hasReceivedData && !isEmpty;
@@ -1477,40 +1446,15 @@ class CoreStore extends Service {
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  _fetchBelongsToLinkFromResource(
-    resource,
-    parentInternalModel: InternalModel,
-    relationshipMeta,
-    options
-  ): Promise<InternalModel | null> {
-    if (DEBUG) {
-      assertDestroyingStore(this, '_fetchBelongsToLinkFromResource');
-    }
-    if (!resource || !resource.links || !resource.links.related) {
-      // should we warn here, not sure cause its an internal method
-      return resolve(null);
-    }
-
-    let adapter = this.adapterFor(parentInternalModel.modelName);
-
-    assert(
-      `You tried to load a belongsTo relationship but you have no adapter (for ${parentInternalModel.modelName})`,
-      adapter
-    );
-    assert(
-      `You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'`,
-      typeof adapter.findBelongsTo === 'function'
-    );
-
-    return _findBelongsTo(adapter, this, parentInternalModel, resource.links.related, relationshipMeta, options);
-  }
-
   _findBelongsToByJsonApiResource(
     resource,
-    parentInternalModel: InternalModel,
+    parentIdentifier: StableRecordIdentifier,
     relationshipMeta,
     options: FindOptions = {}
   ): Promise<StableRecordIdentifier | null> {
+    if (DEBUG) {
+      assertDestroyingStore(this, '_findBelongsToByJsonApiResource');
+    }
     if (!resource) {
       return resolve(null);
     }
@@ -1535,9 +1479,7 @@ class CoreStore extends Service {
 
     // fetch via link
     if (shouldFindViaLink) {
-      return this._fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options).then((im) =>
-        im ? im.identifier : null
-      );
+      return _findBelongsTo(this, parentIdentifier, resource.links.related, relationshipMeta, options);
     }
 
     let preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
@@ -1794,19 +1736,15 @@ class CoreStore extends Service {
       typeof adapter.queryRecord === 'function'
     );
 
-    const promise: Promise<InternalModel | null> = _queryRecord(
+    const promise: Promise<StableRecordIdentifier | null> = _queryRecord(
       adapter,
       this,
       normalizedModelName,
       query,
       adapterOptionsWrapper
-    ) as Promise<InternalModel | null>;
+    ) as Promise<StableRecordIdentifier | null>;
 
-    return promiseObject(
-      promise.then((internalModel: InternalModel | null) => {
-        return internalModel ? internalModel.getRecord() : null;
-      })
-    );
+    return promiseObject(promise.then((identifier) => identifier && this.peekRecord(identifier)));
   }
 
   /**
@@ -2134,118 +2072,6 @@ class CoreStore extends Service {
   // ..............
 
   /**
-    This method is called by `record.save`, and gets passed a
-    resolver for the promise that `record.save` returns.
-
-    It schedules saving to happen at the end of the run loop.
-
-    @method scheduleSave
-    @private
-    @param {InternalModel} internalModel
-    @param {Resolver} resolver
-    @param {Object} options
-  */
-  scheduleSave(internalModel: InternalModel, resolver: RSVP.Deferred<void>, options: FindOptions): Promise<void> {
-    assert(
-      `Cannot initiate a save request for an unloaded record: ${internalModel.identifier}`,
-      !internalModel.isEmpty && !internalModel.isDestroyed
-    );
-    if (internalModel._isRecordFullyDeleted()) {
-      resolver.resolve();
-      return resolver.promise;
-    }
-
-    internalModel.adapterWillCommit();
-
-    if (!options) {
-      options = {};
-    }
-    let recordData = internalModel._recordData;
-    let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
-
-    // TODO handle missing isNew
-    if (recordData.isNew && recordData.isNew()) {
-      operation = 'createRecord';
-    } else if (recordData.isDeleted && recordData.isDeleted()) {
-      operation = 'deleteRecord';
-    }
-
-    const saveOptions = Object.assign({ [SaveOp]: operation }, options);
-    let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, saveOptions);
-    let promise = fetchManagerPromise.then(
-      (payload) => {
-        /*
-        Note to future spelunkers hoping to optimize.
-        We rely on this `run` to create a run loop if needed
-        that `store._push` and `store.didSaveRecord` will both share.
-
-        We use `join` because it is often the case that we
-        have an outer run loop available still from the first
-        call to `store._push`;
-       */
-        this._backburner.join(() => {
-          let data = payload && payload.data;
-          this.didSaveRecord(internalModel, { data }, operation);
-          if (payload && payload.included) {
-            this._push({ data: null, included: payload.included });
-          }
-        });
-      },
-      (e) => {
-        if (typeof e === 'string') {
-          throw e;
-        }
-        const { error, parsedErrors } = e;
-        internalModel.adapterDidInvalidate(parsedErrors, error);
-        throw error;
-      }
-    );
-
-    return promise;
-  }
-
-  /**
-    This method is called once the promise returned by an
-    adapter's `createRecord`, `updateRecord` or `deleteRecord`
-    is resolved.
-
-    If the data provides a server-generated ID, it will
-    update the record and the store's indexes.
-
-    @method didSaveRecord
-    @private
-    @param {InternalModel} internalModel the in-flight internal model
-    @param {Object} data optional data (see above)
-    @param {string} op the adapter operation that was committed
-  */
-  didSaveRecord(internalModel, dataArg, op: 'createRecord' | 'updateRecord' | 'deleteRecord') {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'didSaveRecord');
-    }
-    let data;
-    if (dataArg) {
-      data = dataArg.data;
-    }
-    if (!data) {
-      assert(
-        `Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
-        internalModel.id
-      );
-    }
-
-    const cache = this.identifierCache;
-    const identifier = internalModel.identifier;
-
-    if (op !== 'deleteRecord' && data) {
-      cache.updateRecordIdentifier(identifier, data);
-    }
-
-    //We first make sure the primary data has been updated
-    //TODO try to move notification to the user to the end of the runloop
-    internalModel.adapterDidCommit(data);
-  }
-
-  /**
     This method is called once the promise returned by an
     adapter's `createRecord`, `updateRecord` or `deleteRecord`
     is rejected with a `InvalidError`.
@@ -2286,6 +2112,7 @@ class CoreStore extends Service {
     @param {string} newId
     @param {string} clientId
    */
+  // TODO move this into one of the caches
   setRecordId(modelName: string, newId: string, clientId: string) {
     if (DEBUG) {
       assertDestroyingStore(this, 'setRecordId');
@@ -2304,7 +2131,48 @@ class CoreStore extends Service {
     @private
     @param {Object} data
   */
-  _load(data: ExistingResourceObject) {
+  _load(data: ExistingResourceObject): StableExistingRecordIdentifier {
+    // TODO type should be pulled from the identifier for debug
+    let modelName = data.type;
+    assert(
+      `You must include an 'id' for ${modelName} in an object passed to 'push'`,
+      data.id !== null && data.id !== undefined && data.id !== ''
+    );
+    assert(
+      `You tried to push data with a type '${modelName}' but no model could be found with that name.`,
+      this.getSchemaDefinitionService().doesTypeExist(modelName)
+    );
+
+    if (DEBUG) {
+      // If ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
+      // contains unknown attributes or relationships, log a warning.
+
+      // TODO @runspired @deprecate in favor of a build-time config not in ENV
+      if (ENV.DS_WARN_ON_UNKNOWN_KEYS) {
+        let unknownAttributes, unknownRelationships;
+        let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor({ type: modelName });
+        let attributes = this.getSchemaDefinitionService().attributesDefinitionFor({ type: modelName });
+        // Check unknown attributes
+        unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
+          return !attributes[key];
+        });
+
+        // Check unknown relationships
+        unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
+          return !relationships[key];
+        });
+        let unknownAttributesMessage = `The payload for '${modelName}' contains these unknown attributes: ${unknownAttributes}. Make sure they've been defined in your model.`;
+        warn(unknownAttributesMessage, unknownAttributes.length === 0, {
+          id: 'ds.store.unknown-keys-in-payload',
+        });
+
+        let unknownRelationshipsMessage = `The payload for '${modelName}' contains these unknown relationships: ${unknownRelationships}. Make sure they've been defined in your model.`;
+        warn(unknownRelationshipsMessage, unknownRelationships.length === 0, {
+          id: 'ds.store.unknown-keys-in-payload',
+        });
+      }
+    }
+
     // TODO this should determine identifier via the cache before making assumptions
     const resource = constructResource(normalizeModelName(data.type), ensureStringId(data.id), coerceId(data.lid));
     const maybeIdentifier = this.identifierCache.peekRecordIdentifier(resource);
@@ -2340,7 +2208,7 @@ class CoreStore extends Service {
       this.recordArrayManager.recordDidChange(identifier);
     }
 
-    return internalModel;
+    return internalModel.identifier as StableExistingRecordIdentifier;
   }
 
   /**
@@ -2504,7 +2372,7 @@ class CoreStore extends Service {
     let pushed = this._push(data);
 
     if (Array.isArray(pushed)) {
-      let records = pushed.map((internalModel) => internalModel.getRecord());
+      let records = pushed.map((identifier) => this._instanceCache.getRecord(identifier));
       return records;
     }
 
@@ -2512,8 +2380,7 @@ class CoreStore extends Service {
       return null;
     }
 
-    let record = pushed.getRecord();
-    return record;
+    return this._instanceCache.getRecord(pushed);
   }
 
   /**
@@ -2525,28 +2392,28 @@ class CoreStore extends Service {
     @param {Object} jsonApiDoc
     @return {InternalModel|Array<InternalModel>} pushed InternalModel(s)
   */
-  _push(jsonApiDoc): InternalModel | InternalModel[] | null {
+  _push(jsonApiDoc): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
-    let internalModelOrModels = this._backburner.join(() => {
+    let identifiers = this._backburner.join(() => {
       let included = jsonApiDoc.included;
       let i, length;
 
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {
-          this._pushInternalModel(included[i]);
+          this._load(included[i]);
         }
       }
 
       if (Array.isArray(jsonApiDoc.data)) {
         length = jsonApiDoc.data.length;
-        let internalModels = new Array(length);
+        let identifiers = new Array(length);
 
         for (i = 0; i < length; i++) {
-          internalModels[i] = this._pushInternalModel(jsonApiDoc.data[i]);
+          identifiers[i] = this._load(jsonApiDoc.data[i]);
         }
-        return internalModels;
+        return identifiers;
       }
 
       if (jsonApiDoc.data === null) {
@@ -2560,61 +2427,11 @@ class CoreStore extends Service {
         typeof jsonApiDoc.data === 'object'
       );
 
-      return this._pushInternalModel(jsonApiDoc.data);
+      return this._load(jsonApiDoc.data);
     });
 
     // this typecast is necessary because `backburner.join` is mistyped to return void
-    return internalModelOrModels as unknown as InternalModel | InternalModel[];
-  }
-
-  _pushInternalModel(data) {
-    // TODO type should be pulled from the identifier for debug
-    let modelName = data.type;
-    assert(
-      `You must include an 'id' for ${modelName} in an object passed to 'push'`,
-      data.id !== null && data.id !== undefined && data.id !== ''
-    );
-    assert(
-      `You tried to push data with a type '${modelName}' but no model could be found with that name.`,
-      this.getSchemaDefinitionService().doesTypeExist(modelName)
-    );
-
-    if (DEBUG) {
-      // If ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
-      // contains unknown attributes or relationships, log a warning.
-
-      // TODO @runspired @deprecate in favor of a build-time config not in ENV
-      if (ENV.DS_WARN_ON_UNKNOWN_KEYS) {
-        let unknownAttributes, unknownRelationships;
-        let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
-        let attributes = this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
-        // Check unknown attributes
-        unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
-          return !attributes[key];
-        });
-
-        // Check unknown relationships
-        unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
-          return !relationships[key];
-        });
-        let unknownAttributesMessage = `The payload for '${modelName}' contains these unknown attributes: ${unknownAttributes}. Make sure they've been defined in your model.`;
-        warn(unknownAttributesMessage, unknownAttributes.length === 0, {
-          id: 'ds.store.unknown-keys-in-payload',
-        });
-
-        let unknownRelationshipsMessage = `The payload for '${modelName}' contains these unknown relationships: ${unknownRelationships}. Make sure they've been defined in your model.`;
-        warn(unknownRelationshipsMessage, unknownRelationships.length === 0, {
-          id: 'ds.store.unknown-keys-in-payload',
-        });
-      }
-    }
-
-    // Actually load the record into the store.
-    let internalModel = this._load(data);
-
-    //    this._setupRelationshipsForModel(internalModel, data);
-
-    return internalModel;
+    return identifiers;
   }
 
   /**
@@ -2673,6 +2490,7 @@ class CoreStore extends Service {
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
     @param {Object} inputPayload
   */
+  // TODO @runspired @deprecate pushPayload in favor of looking up the serializer
   pushPayload(modelName, inputPayload) {
     if (DEBUG) {
       assertDestroyingStore(this, 'pushPayload');
@@ -2702,6 +2520,7 @@ class CoreStore extends Service {
     serializer.pushPayload(this, payload);
   }
 
+  // TODO string candidate for early elimination
   _internalModelForResource(resource: ResourceIdentifierObject): InternalModel {
     return internalModelFactoryFor(this).getByResource(resource);
   }
@@ -2714,6 +2533,7 @@ class CoreStore extends Service {
     return internalModel!.createSnapshot(options).serialize(options);
   }
 
+  // todo @runspired this should likely be publicly documented for custom records
   saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
@@ -2728,12 +2548,87 @@ class CoreStore extends Service {
     // Casting can be removed once REQUEST_SERVICE ff is turned on
     // because a `Record` is provided there will always be a matching internalModel
 
-    let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer<void>(promiseLabel);
+    assert(
+      `Cannot initiate a save request for an unloaded record: ${internalModel.identifier}`,
+      !internalModel.isEmpty && !internalModel.isDestroyed
+    );
+    if (internalModel._isRecordFullyDeleted()) {
+      return resolve(record);
+    }
 
-    return this.scheduleSave(internalModel, resolver, options).then(() => record);
+    internalModel.adapterWillCommit();
+
+    if (!options) {
+      options = {};
+    }
+    let recordData = internalModel._recordData;
+    let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
+
+    // TODO handle missing isNew
+    if (recordData.isNew && recordData.isNew()) {
+      operation = 'createRecord';
+    } else if (recordData.isDeleted && recordData.isDeleted()) {
+      operation = 'deleteRecord';
+    }
+
+    const saveOptions = Object.assign({ [SaveOp]: operation }, options);
+    let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, saveOptions);
+    return fetchManagerPromise.then(
+      (payload) => {
+        /*
+        // TODO @runspired re-evaluate the below claim now that
+        // the save request pipeline is more streamlined.
+
+        Note to future spelunkers hoping to optimize.
+        We rely on this `run` to create a run loop if needed
+        that `store._push` and `store.saveRecord` will both share.
+
+        We use `join` because it is often the case that we
+        have an outer run loop available still from the first
+        call to `store._push`;
+       */
+        this._backburner.join(() => {
+          if (DEBUG) {
+            assertDestroyingStore(this, 'saveRecord');
+          }
+
+          let data = payload && payload.data;
+          if (!data) {
+            assert(
+              `Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
+              internalModel.id
+            );
+          }
+
+          const cache = this.identifierCache;
+          const identifier = internalModel.identifier;
+
+          if (operation !== 'deleteRecord' && data) {
+            cache.updateRecordIdentifier(identifier, data);
+          }
+
+          //We first make sure the primary data has been updated
+          //TODO try to move notification to the user to the end of the runloop
+          internalModel.adapterDidCommit(data);
+
+          if (payload && payload.included) {
+            this._push({ data: null, included: payload.included });
+          }
+        });
+        return record;
+      },
+      (e) => {
+        if (typeof e === 'string') {
+          throw e;
+        }
+        const { error, parsedErrors } = e;
+        internalModel.adapterDidInvalidate(parsedErrors, error);
+        throw error;
+      }
+    );
   }
 
+  // TODO move this to InstanceCache
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
     let stableIdentifier = this.identifierCache.getOrCreateRecordIdentifier(identifier);
     let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
@@ -2747,6 +2642,7 @@ class CoreStore extends Service {
    * @method _createRecordData
    * @internal
    */
+  // TODO move this to InstanceCache
   _createRecordData(identifier: StableRecordIdentifier): RecordData {
     const recordData = this.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
     setRecordDataFor(identifier, recordData);
@@ -2800,6 +2696,8 @@ class CoreStore extends Service {
   /**
    * @internal
    */
+
+  // TODO move this to InstanceCache private property
   __recordDataFor(resource: RecordIdentifier) {
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     return this.recordDataFor(identifier, false);
@@ -2808,6 +2706,7 @@ class CoreStore extends Service {
   /**
    * @internal
    */
+  // TODO move this to InstanceCache
   recordDataFor(identifier: StableRecordIdentifier | { type: string }, isCreate: boolean): RecordData {
     let internalModel: InternalModel;
     if (isCreate === true) {

@@ -1182,32 +1182,29 @@ module('integration/store - deleteRecord', function (hooks) {
     }, /expected the primary data returned from a 'findRecord' response to be an object but instead it found an array/);
   });
 
-  testInDebug(
-    'store#didSaveRecord should assert when the response to a save does not include the id',
-    async function (assert) {
-      this.owner.register('model:car', Car);
-      this.owner.register('adapter:application', RESTAdapter.extend());
-      this.owner.register('serializer:application', RESTSerializer.extend());
+  testInDebug('saveRecord should assert when the response to a save does not include the id', async function (assert) {
+    this.owner.register('model:car', Car);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
-      adapter.createRecord = function () {
-        return {};
-      };
+    adapter.createRecord = function () {
+      return {};
+    };
 
-      let car = store.createRecord('car');
+    let car = store.createRecord('car');
 
-      await assert.expectAssertion(async () => {
-        await car.save();
-      }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
+    await assert.expectAssertion(async () => {
+      await car.save();
+    }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
 
-      // This is here to transition the model out of the inFlight state to avoid
-      // throwing another error when the test context is torn down, which tries
-      // to unload the record, which is not allowed when record is inFlight.
-      // car._internalModel.transitionTo('loaded.saved');
-    }
-  );
+    // This is here to transition the model out of the inFlight state to avoid
+    // throwing another error when the test context is torn down, which tries
+    // to unload the record, which is not allowed when record is inFlight.
+    // car._internalModel.transitionTo('loaded.saved');
+  });
 });
 
 module('integration/store - queryRecord', function (hooks) {

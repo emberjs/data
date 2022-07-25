@@ -19,7 +19,7 @@ import type { RecordInstance } from '../ts-interfaces/record-instance';
 export default function promiseRecord(
   store: CoreStore,
   promise: Promise<StableRecordIdentifier>,
-  label: string
+  label?: string
 ): PromiseObject<RecordInstance> {
   let toReturn = promise.then((identifier: StableRecordIdentifier) => store.peekRecord(identifier)!);
 

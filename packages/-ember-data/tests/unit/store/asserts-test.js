@@ -62,7 +62,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'findAll',
     'peekAll',
     'unloadAll',
-    'didSaveRecord',
     'modelFor',
     '_modelFactoryFor',
     'push',
