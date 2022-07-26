@@ -28,7 +28,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'findAll',
     'peekAll',
     'modelFor',
-    '_modelFactoryFor',
     'normalize',
     'adapterFor',
     'serializerFor',
@@ -63,7 +62,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'peekAll',
     'unloadAll',
     'modelFor',
-    '_modelFactoryFor',
     'push',
     '_push',
     'pushPayload',
@@ -84,7 +82,7 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     });
   });
 
-  const STORE_TEARDOWN_METHODS = ['unloadAll', 'modelFor', '_modelFactoryFor'];
+  const STORE_TEARDOWN_METHODS = ['unloadAll', 'modelFor'];
 
   test('Calling Store teardown methods during destroy does not assert, but calling other methods does', function (assert) {
     store.shouldAssertMethodCallsOnDestroyedStore = true;
