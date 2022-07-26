@@ -11,11 +11,9 @@ import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
 import { importSync } from '@embroider/macros';
-import { all, reject, resolve } from 'rsvp';
+import { reject, resolve } from 'rsvp';
 
 import type DSModelClass from '@ember-data/model';
-import type BelongsToReference from '@ember-data/model/-private/references/belongs-to';
-import type HasManyReference from '@ember-data/model/-private/references/has-many';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_HAS_RECORD,
@@ -23,8 +21,7 @@ import {
   DEPRECATE_RECORD_WAS_INVALID,
   DEPRECATE_STORE_FIND,
 } from '@ember-data/private-build-infra/deprecations';
-import type { ManyRelationship, RecordData as RecordDataClass } from '@ember-data/record-data/-private';
-import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
+import type { RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 
 import { IdentifierCache } from '../identifiers/cache';
 import { InstanceCache } from '../instance-cache';
@@ -45,7 +42,6 @@ import type {
 import { MinimumAdapterInterface } from '../ts-interfaces/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serializer-interface';
 import type { RecordData } from '../ts-interfaces/record-data';
-import type { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
 import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
 import type { RecordInstance } from '../ts-interfaces/record-instance';
 import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
@@ -57,6 +53,7 @@ import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
 import FetchManager, { SaveOp } from './fetch-manager';
 import type InternalModel from './model/internal-model';
+import RecordReference from './model/record-reference';
 import type ShimModelClass from './model/shim-model-class';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
@@ -65,10 +62,9 @@ import RecordArrayManager from './record-array-manager';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import recordDataFor, { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
-import { RecordReference } from './references';
 import type RequestCache from './request-cache';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
-import { _findAll, _findBelongsTo, _findHasMany, _query, _queryRecord } from './store/finders';
+import { _findAll, _query, _queryRecord } from './store/finders';
 import {
   internalModelFactoryFor,
   peekRecordIdentifier,
@@ -1148,22 +1144,6 @@ class CoreStore extends Service {
     return promise;
   }
 
-  _scheduleFetchMany(
-    identifiers: StableRecordIdentifier[],
-    options: FindOptions = {}
-  ): Promise<StableRecordIdentifier[]> {
-    let fetches = new Array(identifiers.length);
-    const manager = this._fetchManager;
-
-    for (let i = 0; i < identifiers.length; i++) {
-      let identifier = identifiers[i];
-      assertIdentifierHasId(identifier);
-      fetches[i] = manager.scheduleFetch(identifier, options);
-    }
-
-    return all(fetches);
-  }
-
   /**
     Get the reference for the specified record.
 
@@ -1202,6 +1182,7 @@ class CoreStore extends Service {
     @since 2.5.0
     @return {RecordReference}
   */
+  // TODO @deprecate getReference (and references generally)
   getReference(resource: string | ResourceIdentifierObject, id: string | number): RecordReference {
     if (DEBUG) {
       assertDestroyingStore(this, 'getReference');
@@ -1350,167 +1331,6 @@ class CoreStore extends Service {
       return !!internalModel && internalModel.isLoaded;
     }
     assert(`store.hasRecordForId has been removed`);
-  }
-
-  _findHasManyByJsonApiResource(
-    resource,
-    parentIdentifier: StableRecordIdentifier,
-    relationship: ManyRelationship,
-    options?: FindOptions
-  ): Promise<void | unknown[]> {
-    if (HAS_RECORD_DATA_PACKAGE) {
-      if (!resource) {
-        return resolve();
-      }
-      const { definition, state } = relationship;
-      let adapter = this.adapterFor(definition.type);
-
-      let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = state;
-      const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
-
-      let shouldFindViaLink =
-        resource.links &&
-        resource.links.related &&
-        (typeof adapter.findHasMany === 'function' || typeof resource.data === 'undefined') &&
-        (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
-
-      // fetch via link
-      if (shouldFindViaLink) {
-        // findHasMany, although not public, does not need to care about our upgrade relationship definitions
-        // and can stick with the public definition API for now.
-        const relationshipMeta = this._storeWrapper.relationshipsDefinitionFor(definition.inverseType)[definition.key];
-        let adapter = this.adapterFor(parentIdentifier.type);
-
-        /*
-          If a relationship was originally populated by the adapter as a link
-          (as opposed to a list of IDs), this method is called when the
-          relationship is fetched.
-
-          The link (which is usually a URL) is passed through unchanged, so the
-          adapter can make whatever request it wants.
-
-          The usual use-case is for the server to register a URL as a link, and
-          then use that URL in the future to make a request for the relationship.
-        */
-        assert(
-          `You tried to load a hasMany relationship but you have no adapter (for ${parentIdentifier.type})`,
-          adapter
-        );
-        assert(
-          `You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'`,
-          typeof adapter.findHasMany === 'function'
-        );
-
-        return _findHasMany(adapter, this, parentIdentifier, resource.links.related, relationshipMeta, options);
-      }
-
-      let preferLocalCache = hasReceivedData && !isEmpty;
-
-      let hasLocalPartialData =
-        hasDematerializedInverse || (isEmpty && Array.isArray(resource.data) && resource.data.length > 0);
-
-      // fetch using data, pulling from local cache if possible
-      if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
-        let finds = new Array(resource.data.length);
-        for (let i = 0; i < resource.data.length; i++) {
-          let identifier = this.identifierCache.getOrCreateRecordIdentifier(resource.data[i]);
-          finds[i] = this._fetchDataIfNeededForIdentifier(identifier, options);
-        }
-
-        return all(finds);
-      }
-
-      let hasData = hasReceivedData && !isEmpty;
-
-      // fetch by data
-      if (hasData || hasLocalPartialData) {
-        let identifiers = resource.data.map((json) => this.identifierCache.getOrCreateRecordIdentifier(json));
-
-        return this._scheduleFetchMany(identifiers, options);
-      }
-
-      // we were explicitly told we have no data and no links.
-      //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-      return resolve();
-    }
-    assert(`hasMany only works with the @ember-data/record-data package`);
-  }
-
-  _findBelongsToByJsonApiResource(
-    resource,
-    parentIdentifier: StableRecordIdentifier,
-    relationshipMeta,
-    options: FindOptions = {}
-  ): Promise<StableRecordIdentifier | null> {
-    if (DEBUG) {
-      assertDestroyingStore(this, '_findBelongsToByJsonApiResource');
-    }
-    if (!resource) {
-      return resolve(null);
-    }
-
-    const internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
-
-    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
-      .state as RelationshipState;
-    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
-
-    let shouldFindViaLink =
-      resource.links &&
-      resource.links.related &&
-      (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
-
-    if (internalModel) {
-      // short circuit if we are already loading
-      let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
-      if (pendingRequest) {
-        return pendingRequest;
-      }
-    }
-
-    // fetch via link
-    if (shouldFindViaLink) {
-      return _findBelongsTo(this, parentIdentifier, resource.links.related, relationshipMeta, options);
-    }
-
-    let preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
-    let hasLocalPartialData = hasDematerializedInverse || (isEmpty && resource.data);
-    // null is explicit empty, undefined is "we don't know anything"
-    let localDataIsEmpty = resource.data === undefined || resource.data === null;
-
-    // fetch using data, pulling from local cache if possible
-    if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
-      /*
-        We have canonical data, but our local state is empty
-       */
-      if (localDataIsEmpty) {
-        return resolve(null);
-      }
-
-      if (!internalModel) {
-        assert(`No InternalModel found for ${resource.lid}`, internalModel);
-      }
-
-      return this._fetchDataIfNeededForIdentifier(internalModel.identifier, options);
-    }
-
-    let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
-
-    if (internalModel && resourceIsLocal) {
-      return resolve(internalModel.identifier);
-    }
-
-    // fetch by data
-    if (internalModel && !localDataIsEmpty) {
-      let identifier = internalModel.identifier;
-      assertIdentifierHasId(identifier);
-
-      return this._fetchManager.scheduleFetch(identifier, options);
-    }
-
-    // we were explicitly told we have no data and no links.
-    //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-    return resolve(null);
   }
 
   /**
@@ -2615,16 +2435,6 @@ class CoreStore extends Service {
     );
   }
 
-  // TODO move this to InstanceCache
-  // TODO this is probably a public API from custom model classes? If not move to InstanceCache
-  // TODO probably just deprecate this. There seems to be zero usage.
-  relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
-    let stableIdentifier = this.identifierCache.getOrCreateRecordIdentifier(identifier);
-    let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
-    // TODO we used to check if the record was destroyed here
-    return internalModel!.referenceFor(null, key);
-  }
-
   /**
    * Manages setting setting up the recordData returned by createRecordDataFor
    *
@@ -2988,47 +2798,6 @@ if (DEBUG) {
       !store.isDestroyed
     );
   };
-}
-
-/**
- * Flag indicating whether all inverse records are available
- *
- * true if the inverse exists and is loaded (not empty)
- * true if there is no inverse
- * false if the inverse exists and is not loaded (empty)
- *
- * @internal
- * @return {boolean}
- */
-function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelationship): boolean {
-  const cache = store.identifierCache;
-
-  if (Array.isArray(resource.data)) {
-    // treat as collection
-    // check for unloaded records
-    let hasEmptyRecords = resource.data.reduce((hasEmptyModel, resourceIdentifier) => {
-      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).isEmpty;
-    }, false);
-
-    return !hasEmptyRecords;
-  } else {
-    // treat as single resource
-    if (!resource.data) {
-      return true;
-    } else {
-      const internalModel = internalModelForRelatedResource(store, cache, resource.data);
-      return !internalModel.isEmpty;
-    }
-  }
-}
-
-function internalModelForRelatedResource(
-  store: CoreStore,
-  cache: IdentifierCache,
-  resource: ResourceIdentifierObject
-): InternalModel {
-  const identifier = cache.getOrCreateRecordIdentifier(resource);
-  return store._internalModelForResource(identifier);
 }
 
 function isMaybeIdentifier(

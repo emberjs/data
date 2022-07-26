@@ -151,6 +151,10 @@ class Model extends EmberObject {
     });
   }
 
+  willDestroy() {
+    LEGACY_SUPPORT.get(this)?.destroy();
+  }
+
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -1096,7 +1100,7 @@ class Model extends EmberObject {
     @return {HasManyReference} reference for this relationship
   */
   hasMany(name) {
-    return this._internalModel.referenceFor('hasMany', name);
+    return LEGACY_SUPPORT.lookup(this).referenceFor('hasMany', name);
   }
 
   /**

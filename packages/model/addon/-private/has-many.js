@@ -5,6 +5,7 @@ import { assert, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
+import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
 /**
@@ -182,28 +183,28 @@ function hasMany(type, options) {
   return computed({
     get(key) {
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );
         }
       }
-      return this._internalModel.getHasMany(key);
+      return LEGACY_SUPPORT.lookup(this).getHasMany(key);
     },
     set(key, records) {
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );
         }
       }
-      let internalModel = this._internalModel;
+      const support = LEGACY_SUPPORT.lookup(this);
       this.store._backburner.join(() => {
-        internalModel.setDirtyHasMany(key, records);
+        support.setDirtyHasMany(key, records);
       });
 
-      return internalModel.getHasMany(key);
+      return support.getHasMany(key);
     },
   }).meta(meta);
 }

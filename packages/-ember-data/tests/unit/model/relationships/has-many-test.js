@@ -2389,8 +2389,8 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
         assert.false(people.isDestroying, 'people is NOT destroying sync after unloadRecord');
         assert.false(people.isDestroyed, 'people is NOT destroyed sync after unloadRecord');
 
-        assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying sync after unloadRecord');
-        assert.true(peopleProxy.isDestroyed, 'peopleProxy is destroyed sync after unloadRecord');
+        assert.false(peopleProxy.isDestroying, 'peopleProxy is NOT destroying sync after unloadRecord');
+        assert.false(peopleProxy.isDestroyed, 'peopleProxy is NOT destroyed sync after unloadRecord');
       });
 
       assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying after the run post unloadRecord');

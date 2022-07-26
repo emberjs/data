@@ -2,28 +2,47 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { DEBUG } from '@glimmer/env';
 import { cached, tracked } from '@glimmer/tracking';
 
+import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { resolve } from 'rsvp';
 
 import { ManyArray } from 'ember-data/-private';
 
 import type { ManyRelationship } from '@ember-data/record-data/-private';
+import type CoreStore from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
-
-import {
+import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
+import type { DebugWeakCache } from '@ember-data/store/-private/system/weak-cache';
+import type {
   CollectionResourceDocument,
+  CollectionResourceRelationship,
   ExistingResourceObject,
+  LinkObject,
+  PaginationLinks,
   SingleResourceDocument,
-} from '../../ts-interfaces/ember-data-json-api';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import CoreStore from '../core-store';
-import { NotificationType, unsubscribe } from '../record-notification-manager';
-import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
-import RecordReference from './record';
-import Reference from './reference';
-/**
-  @module @ember-data/store
-*/
+} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
+import type { FindOptions } from '@ember-data/store/-private/ts-interfaces/store';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
+import type { LegacySupport } from '../legacy-relationships-support';
+import { LEGACY_SUPPORT } from '../model';
+/**
+  @module @ember-data/model
+*/
+interface ResourceIdentifier {
+  links?: {
+    related?: string | LinkObject;
+  };
+  meta?: JSONObject;
+}
+
+function isResourceIdentiferWithRelatedLinks(
+  value: CollectionResourceRelationship | ResourceIdentifier | null
+): value is ResourceIdentifier & { links: { related: string | LinkObject | null } } {
+  return Boolean(value && value.links && value.links.related);
+}
 /**
  A `HasManyReference` is a low-level API that allows users and addon
  authors to perform meta-operations on a has-many relationship.
@@ -32,11 +51,12 @@ import Reference from './reference';
  @public
  @extends Reference
  */
-export default class HasManyReference extends Reference {
+export default class HasManyReference {
   declare key: string;
   declare hasManyRelationship: ManyRelationship;
   declare type: string;
-  declare parent: RecordReference;
+  declare store: CoreStore;
+  // declare parent: RecordReference;
 
   // unsubscribe tokens given to us by the notification manager
   #token!: Object;
@@ -51,12 +71,12 @@ export default class HasManyReference extends Reference {
     hasManyRelationship: ManyRelationship,
     key: string
   ) {
-    super(store, parentIdentifier);
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.definition.type;
 
-    this.parent = internalModelFactoryFor(store).peek(parentIdentifier)!.recordReference;
+    // this.parent = internalModelFactoryFor(store).peek(parentIdentifier)!.recordReference;
+    this.store = store;
     this.#identifier = parentIdentifier;
     this.#token = store._notificationManager.subscribe(
       parentIdentifier,
@@ -71,9 +91,9 @@ export default class HasManyReference extends Reference {
   }
 
   destroy() {
-    unsubscribe(this.#token);
+    this.store._notificationManager.unsubscribe(this.#token);
     this.#relatedTokenMap.forEach((token) => {
-      unsubscribe(token);
+      this.store._notificationManager.unsubscribe(token);
     });
     this.#relatedTokenMap.clear();
   }
@@ -86,7 +106,7 @@ export default class HasManyReference extends Reference {
     let resource = this._resource();
 
     this.#relatedTokenMap.forEach((token) => {
-      unsubscribe(token);
+      this.store._notificationManager.unsubscribe(token);
     });
     this.#relatedTokenMap.clear();
 
@@ -112,7 +132,7 @@ export default class HasManyReference extends Reference {
   }
 
   _resource() {
-    return this.recordData.getHasMany(this.key);
+    return this.store.recordDataFor(this.#identifier, false).getHasMany(this.key);
   }
 
   /**
@@ -206,6 +226,111 @@ export default class HasManyReference extends Reference {
   }
 
   /**
+   The link Ember Data will use to fetch or reload this belongs-to
+   relationship. By default it uses only the "related" resource linkage.
+
+   Example
+
+   ```javascript
+   // models/blog.js
+   import Model, { belongsTo } from '@ember-data/model';
+   export default Model.extend({
+      user: belongsTo({ async: true })
+    });
+
+   let blog = store.push({
+      data: {
+        type: 'blog',
+        id: 1,
+        relationships: {
+          user: {
+            links: {
+              related: '/articles/1/author'
+            }
+          }
+        }
+      }
+    });
+   let userRef = blog.belongsTo('user');
+
+   // get the identifier of the reference
+   if (userRef.remoteType() === "link") {
+      let link = userRef.link();
+    }
+   ```
+
+   @method link
+   @public
+   @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
+   */
+  link(): string | null {
+    let resource = this._resource();
+
+    if (isResourceIdentiferWithRelatedLinks(resource)) {
+      if (resource.links) {
+        let related = resource.links.related;
+        return !related || typeof related === 'string' ? related : related.href;
+      }
+    }
+    return null;
+  }
+
+  links(): PaginationLinks | null {
+    let resource = this._resource();
+
+    return resource && resource.links ? resource.links : null;
+  }
+
+  /**
+   The meta data for the belongs-to relationship.
+
+   Example
+
+   ```javascript
+   // models/blog.js
+   import Model, { belongsTo } from '@ember-data/model';
+   export default Model.extend({
+      user: belongsTo({ async: true })
+    });
+
+   let blog = store.push({
+      data: {
+        type: 'blog',
+        id: 1,
+        relationships: {
+          user: {
+            links: {
+              related: {
+                href: '/articles/1/author'
+              },
+            },
+            meta: {
+              lastUpdated: 1458014400000
+            }
+          }
+        }
+      }
+    });
+
+   let userRef = blog.belongsTo('user');
+
+   userRef.meta() // { lastUpdated: 1458014400000 }
+   ```
+
+   @method meta
+    @public
+   @return {Object} The meta information for the belongs-to relationship.
+   */
+  meta() {
+    let meta: Dict<JSONValue> | null = null;
+    let resource = this._resource();
+    if (resource && resource.meta && typeof resource.meta === 'object') {
+      meta = resource.meta;
+    }
+    return meta;
+  }
+
+  /**
    `push` can be used to update the data in the relationship and Ember
    Data will treat the new data as the canonical value of this
    relationship on the backend.
@@ -262,11 +387,10 @@ export default class HasManyReference extends Reference {
       array = payload as ExistingResourceObject[];
     }
 
-    const internalModel = internalModelFactoryFor(this.store).peek(this.#identifier)!;
     const { store } = this;
 
     let identifiers = array.map((obj) => {
-      let record;
+      let record: RecordInstance;
       if ('data' in obj) {
         // TODO deprecate pushing non-valid JSON:API here
         record = store.push(obj);
@@ -277,6 +401,8 @@ export default class HasManyReference extends Reference {
       if (DEBUG) {
         let relationshipMeta = this.hasManyRelationship.definition;
         let identifier = this.hasManyRelationship.identifier;
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         assertPolymorphicType(identifier, relationshipMeta, recordIdentifierFor(record), store);
       }
       return recordIdentifierFor(record);
@@ -292,8 +418,7 @@ export default class HasManyReference extends Reference {
       });
     });
 
-    // TODO IGOR it seems wrong that we were returning the many array here
-    return internalModel.getHasMany(this.key) as Promise<ManyArray> | ManyArray; // this cast is necessary because typescript does not work properly with custom thenables
+    return this.load();
   }
 
   _isLoaded() {
@@ -304,7 +429,7 @@ export default class HasManyReference extends Reference {
 
     let members = this.hasManyRelationship.currentState;
 
-    //TODO Igor cleanup
+    //TODO @runspired determine isLoaded via a better means
     return members.every((identifier) => {
       let internalModel = this.store._internalModelForResource(identifier);
       return internalModel.isLoaded === true;
@@ -353,12 +478,11 @@ export default class HasManyReference extends Reference {
    @return {ManyArray}
    */
   value() {
-    const internalModel = internalModelFactoryFor(this.store).peek(this.#identifier)!;
-    if (this._isLoaded()) {
-      return internalModel.getManyArray(this.key);
-    }
+    const support: LegacySupport = (
+      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
+    ).getWithError(this.#identifier);
 
-    return null;
+    return this._isLoaded() ? support.getManyArray(this.key) : null;
   }
 
   /**
@@ -425,9 +549,11 @@ export default class HasManyReference extends Reference {
    @return {Promise} a promise that resolves with the ManyArray in
    this has-many relationship.
    */
-  load(options) {
-    const internalModel = internalModelFactoryFor(this.store).peek(this.#identifier)!;
-    return internalModel.getHasMany(this.key, options);
+  async load(options?: FindOptions): Promise<ManyArray> {
+    const support: LegacySupport = (
+      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
+    ).getWithError(this.#identifier);
+    return support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray; // this cast is necessary because typescript does not work properly with custom thenables;
   }
 
   /**
@@ -480,8 +606,10 @@ export default class HasManyReference extends Reference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
-  reload(options) {
-    const internalModel = internalModelFactoryFor(this.store).peek(this.#identifier)!;
-    return internalModel.reloadHasMany(this.key, options);
+  reload(options?: FindOptions) {
+    const support: LegacySupport = (
+      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
+    ).getWithError(this.#identifier);
+    return support.reloadHasMany(this.key, options);
   }
 }

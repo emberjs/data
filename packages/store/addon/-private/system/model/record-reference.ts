@@ -1,14 +1,18 @@
-import { dependentKeyCompat } from '@ember/object/compat';
-import { cached, tracked } from '@glimmer/tracking';
+import { assert } from '@ember/debug';
+import { tracked } from '@glimmer/tracking';
 
+/**
+  @module @ember-data/store
+*/
 import RSVP, { resolve } from 'rsvp';
 
 import type { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type CoreStore from '../core-store';
-import { NotificationType, unsubscribe } from '../record-notification-manager';
-import Reference from './reference';
+import type { NotificationType } from '../record-notification-manager';
+import { unsubscribe } from '../record-notification-manager';
+
 /**
   @module @ember-data/store
 */
@@ -21,15 +25,14 @@ import Reference from './reference';
    @public
    @extends Reference
 */
-export default class RecordReference extends Reference {
+export default class RecordReference {
   // unsubscribe token given to us by the notification manager
   #token!: Object;
-  #identifier;
+  #identifier: StableRecordIdentifier;
 
   @tracked _ref = 0;
 
   constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
-    super(store, identifier);
     this.#identifier = identifier;
     this.#token = store._notificationManager.subscribe(
       identifier,
@@ -45,20 +48,8 @@ export default class RecordReference extends Reference {
     unsubscribe(this.#token);
   }
 
-  public get type(): string {
+  get type(): string {
     return this.identifier().type;
-  }
-
-  @cached
-  @dependentKeyCompat
-  private get _id(): string | null {
-    this._ref; // consume the tracked prop
-    let identifier = this.identifier();
-    if (identifier) {
-      return identifier.id;
-    }
-
-    return null;
   }
 
   /**
@@ -80,7 +71,8 @@ export default class RecordReference extends Reference {
      @return {String} The id of the record.
   */
   id() {
-    return this._id;
+    this._ref; // consume the tracked prop
+    return this.#identifier.id;
   }
 
   /**
@@ -166,6 +158,7 @@ export default class RecordReference extends Reference {
     @return a promise for the value (record or relationship)
   */
   push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<RecordInstance> {
+    // TODO @deprecate pushing unresolved payloads
     return resolve(objectOrPromise).then((data) => {
       return this.store.push(data);
     });
@@ -214,7 +207,7 @@ export default class RecordReference extends Reference {
     if (id !== null) {
       return this.store.findRecord(this.type, id);
     }
-    throw new Error(`Unable to fetch record of type ${this.type} without an id`);
+    assert(`Unable to fetch record of type ${this.type} without an id`);
   }
 
   /**
@@ -239,6 +232,6 @@ export default class RecordReference extends Reference {
     if (id !== null) {
       return this.store.findRecord(this.type, id, { reload: true });
     }
-    throw new Error(`Unable to fetch record of type ${this.type} without an id`);
+    assert(`Unable to fetch record of type ${this.type} without an id`);
   }
 }

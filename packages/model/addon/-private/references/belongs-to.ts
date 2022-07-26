@@ -1,6 +1,7 @@
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
+import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { resolve } from 'rsvp';
 
 import type { BelongsToRelationship } from '@ember-data/record-data/-private';
@@ -9,19 +10,35 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
 import type { DebugWeakCache } from '@ember-data/store/-private/system/weak-cache';
-import type { SingleResourceDocument } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import type {
+  LinkObject,
+  Links,
+  SingleResourceDocument,
+  SingleResourceRelationship,
+} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 import type { LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
-// import RecordReference from './record';
-import Reference from './reference';
 
 /**
-  @module @ember-data/store
+  @module @ember-data/model
 */
+
+interface ResourceIdentifier {
+  links?: {
+    related?: string | LinkObject;
+  };
+  meta?: JSONObject;
+}
+
+function isResourceIdentiferWithRelatedLinks(
+  value: SingleResourceRelationship | ResourceIdentifier | null
+): value is ResourceIdentifier & { links: { related: string | LinkObject | null } } {
+  return Boolean(value && value.links && value.links.related);
+}
 
 /**
  A `BelongsToReference` is a low-level API that allows users and
@@ -30,14 +47,13 @@ import Reference from './reference';
 
  @class BelongsToReference
  @public
- @extends Reference
  */
-export default class BelongsToReference extends Reference {
+export default class BelongsToReference {
   declare key: string;
   declare belongsToRelationship: BelongsToRelationship;
   declare type: string;
   // declare parent: RecordReference;
-  declare parentIdentifier: StableRecordIdentifier;
+  #identifier: StableRecordIdentifier;
   declare store: CoreStore;
 
   // unsubscribe tokens given to us by the notification manager
@@ -52,14 +68,13 @@ export default class BelongsToReference extends Reference {
     belongsToRelationship: BelongsToRelationship,
     key: string
   ) {
-    super(store, parentIdentifier);
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.definition.type;
     this.store = store;
     // const parent = internalModelFactoryFor(store).peek(parentIdentifier);
     // this.parent = parent.recordReference;
-    this.parentIdentifier = parentIdentifier;
+    this.#identifier = parentIdentifier;
 
     this.#token = store._notificationManager.subscribe(
       parentIdentifier,
@@ -152,8 +167,121 @@ export default class BelongsToReference extends Reference {
     return this._relatedIdentifier?.id || null;
   }
 
+  /**
+   The link Ember Data will use to fetch or reload this belongs-to
+   relationship. By default it uses only the "related" resource linkage.
+
+   Example
+
+   ```javascript
+   // models/blog.js
+   import Model, { belongsTo } from '@ember-data/model';
+   export default Model.extend({
+      user: belongsTo({ async: true })
+    });
+
+   let blog = store.push({
+      data: {
+        type: 'blog',
+        id: 1,
+        relationships: {
+          user: {
+            links: {
+              related: '/articles/1/author'
+            }
+          }
+        }
+      }
+    });
+   let userRef = blog.belongsTo('user');
+
+   // get the identifier of the reference
+   if (userRef.remoteType() === "link") {
+      let link = userRef.link();
+    }
+   ```
+
+   @method link
+   @public
+   @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
+   */
+  link(): string | null {
+    let resource = this._resource();
+
+    if (isResourceIdentiferWithRelatedLinks(resource)) {
+      if (resource.links) {
+        let related = resource.links.related;
+        return !related || typeof related === 'string' ? related : related.href;
+      }
+    }
+    return null;
+  }
+
+  links(): Links | null {
+    let resource = this._resource();
+
+    return resource && resource.links ? resource.links : null;
+  }
+
+  /**
+   The meta data for the belongs-to relationship.
+
+   Example
+
+   ```javascript
+   // models/blog.js
+   import Model, { belongsTo } from '@ember-data/model';
+   export default Model.extend({
+      user: belongsTo({ async: true })
+    });
+
+   let blog = store.push({
+      data: {
+        type: 'blog',
+        id: 1,
+        relationships: {
+          user: {
+            links: {
+              related: {
+                href: '/articles/1/author'
+              },
+            },
+            meta: {
+              lastUpdated: 1458014400000
+            }
+          }
+        }
+      }
+    });
+
+   let userRef = blog.belongsTo('user');
+
+   userRef.meta() // { lastUpdated: 1458014400000 }
+   ```
+
+   @method meta
+    @public
+   @return {Object} The meta information for the belongs-to relationship.
+   */
+  meta() {
+    let meta: Dict<JSONValue> | null = null;
+    let resource = this._resource();
+    if (resource && resource.meta && typeof resource.meta === 'object') {
+      meta = resource.meta;
+    }
+    return meta;
+  }
+
   _resource() {
-    return this.recordData.getBelongsTo(this.key);
+    return this.store.recordDataFor(this.#identifier, false).getBelongsTo(this.key);
+  }
+
+  remoteType(): 'link' | 'id' {
+    let value = this._resource();
+    if (isResourceIdentiferWithRelatedLinks(value)) {
+      return 'link';
+    }
+    return 'id';
   }
 
   /**
@@ -203,6 +331,7 @@ export default class BelongsToReference extends Reference {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
   async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
+    // TODO @deprecate pushing unresolved payloads
     const jsonApiDoc = await resolve(data);
     let record = this.store.push(jsonApiDoc);
 
@@ -347,7 +476,7 @@ export default class BelongsToReference extends Reference {
   load(options?: Dict<unknown>) {
     const support: LegacySupport = (
       LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.parentIdentifier);
+    ).getWithError(this.#identifier);
     return support.getBelongsTo(this.key, options);
   }
 
@@ -404,7 +533,7 @@ export default class BelongsToReference extends Reference {
   reload(options?: Dict<unknown>) {
     const support: LegacySupport = (
       LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.parentIdentifier);
+    ).getWithError(this.#identifier);
     return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }

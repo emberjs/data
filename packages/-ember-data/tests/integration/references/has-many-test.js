@@ -135,34 +135,6 @@ module('integration/references/has-many', function (hooks) {
     assert.strictEqual(personsReference.link(), '/families/1/persons');
   });
 
-  test('HasManyReference#parent is a reference to the parent where the relationship is defined', function (assert) {
-    let store = this.owner.lookup('service:store');
-
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: 1,
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
-              ],
-            },
-          },
-        },
-      });
-    });
-
-    var familyReference = store.getReference('family', 1);
-    var personsReference = family.hasMany('persons');
-
-    assert.ok(familyReference, 'person reference is present');
-    assert.deepEqual(personsReference.parent, familyReference, 'parent reference on HasManyReferencee');
-  });
-
   test('HasManyReference#meta() returns the most recent meta for the relationship', function (assert) {
     let store = this.owner.lookup('service:store');
 

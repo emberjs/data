@@ -11,7 +11,6 @@ import type { JsonApiResource, JsonApiValidationError } from '../../ts-interface
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type CoreStore from '../core-store';
 import { errorsHashToArray } from '../errors-utils';
-import { RecordReference } from '../references';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
 /**
@@ -46,7 +45,6 @@ export default class InternalModel {
   declare _scheduledDestroy: any;
   declare _modelClass: any;
   declare __recordArrays: any;
-  declare _recordReference: RecordReference;
   declare error: any;
   declare store: CoreStore;
   declare identifier: StableRecordIdentifier;
@@ -81,7 +79,6 @@ export default class InternalModel {
     // caches for lazy getters
     this._modelClass = null;
     this.__recordArrays = null;
-    this._recordReference = null as unknown as RecordReference;
 
     this.error = null;
   }
@@ -102,13 +99,6 @@ export default class InternalModel {
     if (this.store.modelFor) {
       return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
     }
-  }
-
-  get recordReference(): RecordReference {
-    if (this._recordReference === null) {
-      this._recordReference = new RecordReference(this.store, this.identifier);
-    }
-    return this._recordReference;
   }
 
   get _recordData(): RecordData {
@@ -206,6 +196,8 @@ export default class InternalModel {
     this._doNotDestroy = false;
     // this has to occur before the internal model is removed
     // for legacy compat.
+    const { identifier } = this;
+    this.store._instanceCache.removeRecord(identifier);
 
     // move to an empty never-loaded state
     // ensure any record notifications happen prior to us
@@ -333,10 +325,6 @@ export default class InternalModel {
       !record || record.isDestroyed || record.isDestroying
     );
     this.isDestroying = true;
-    if (this._recordReference) {
-      this._recordReference.destroy();
-    }
-    this._recordReference = null as unknown as RecordReference;
 
     internalModelFactoryFor(this.store).remove(this);
     this._isDestroyed = true;

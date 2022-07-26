@@ -11,3 +11,4 @@ export { default as _modelForMixin } from './system/model-for-mixin';
 
 // // Used by tests
 export { default as diffArray } from './system/diff-array';
+export { LEGACY_SUPPORT } from './model';

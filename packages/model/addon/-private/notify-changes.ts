@@ -4,7 +4,8 @@ import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
-type Model = InstanceType<typeof import('@ember-data/model').default>;
+import type Model from './model';
+import { LEGACY_SUPPORT } from './model';
 
 export default function notifyChanges(
   identifier: StableRecordIdentifier,
@@ -24,10 +25,10 @@ export default function notifyChanges(
   } else if (value === 'relationships') {
     if (key) {
       let meta = record.constructor.relationshipsByName.get(key);
-      notifyRelationship(store, identifier, key, record, meta);
+      notifyRelationship(identifier, key, record, meta);
     } else {
       record.eachRelationship((key, meta) => {
-        notifyRelationship(store, identifier, key, record, meta);
+        notifyRelationship(identifier, key, record, meta);
       });
     }
   } else if (value === 'identity') {
@@ -35,12 +36,12 @@ export default function notifyChanges(
   }
 }
 
-function notifyRelationship(store: CoreStore, identifier: StableRecordIdentifier, key: string, record: Model, meta) {
-  let internalModel = store._internalModelForResource(identifier);
+function notifyRelationship(identifier: StableRecordIdentifier, key: string, record: Model, meta) {
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
   } else if (meta.kind === 'hasMany') {
-    let manyArray = internalModel._manyArrayCache[key];
+    let support = LEGACY_SUPPORT.get(identifier);
+    let manyArray = support && support._manyArrayCache[key];
 
     if (manyArray) {
       manyArray.notify();

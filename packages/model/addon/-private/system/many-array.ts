@@ -9,7 +9,6 @@ import EmberObject, { get } from '@ember/object';
 import { all } from 'rsvp';
 
 import type { RelationshipRecordData } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
-import type { InternalModel } from '@ember-data/store/-private';
 import { PromiseArray, recordDataFor } from '@ember-data/store/-private';
 import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type { CreateRecordProperties } from '@ember-data/store/-private/system/core-store';
@@ -18,8 +17,10 @@ import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-
 import type { Links, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
+import { FindOptions } from '@ember-data/store/-private/ts-interfaces/store';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
+import { LegacySupport } from '../legacy-relationships-support';
 import diffArray from './diff-array';
 
 interface MutableArrayWithObject<T, M = T> extends EmberObject, MutableArray<M> {}
@@ -36,7 +37,7 @@ export interface ManyArrayCreateArgs {
   isPolymorphic: boolean;
   isAsync: boolean;
   _inverseIsAsync: boolean;
-  internalModel: InternalModel;
+  legacySupport: LegacySupport;
   isLoaded: boolean;
 }
 /**
@@ -98,7 +99,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
   declare _links: Links | PaginationLinks | null;
   declare currentState: StableRecordIdentifier[];
   declare recordData: RelationshipRecordData;
-  declare internalModel: InternalModel;
+  declare legacySupport: LegacySupport;
   declare store: CoreStore;
   declare key: string;
   declare type: DSModelSchema;
@@ -369,9 +370,9 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     @method reload
     @public
   */
-  reload(options) {
+  reload(options?: FindOptions) {
     // TODO this is odd, we don't ask the store for anything else like this?
-    return this.internalModel.reloadHasMany(this.key, options);
+    return this.legacySupport.reloadHasMany(this.key, options);
   }
 
   /**
