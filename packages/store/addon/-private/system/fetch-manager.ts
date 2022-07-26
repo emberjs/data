@@ -24,7 +24,6 @@ import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
 import ShimModelClass from './model/shim-model-class';
 import RequestCache from './request-cache';
-import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
@@ -128,9 +127,7 @@ export default class FetchManager {
     let adapter = this._store.adapterFor(identifier.type);
     let operation = options[SaveOp];
 
-    // TODO We have to cast due to our reliance on this private property
-    // this will be refactored away once we change our pending API to be identifier based
-    let internalModel = (snapshot as unknown as PrivateSnapshot)._internalModel;
+    let internalModel = snapshot._internalModel;
     let modelName = snapshot.modelName;
     let store = this._store;
     let modelClass = store.modelFor(modelName);

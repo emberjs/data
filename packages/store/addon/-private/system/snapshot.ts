@@ -32,12 +32,6 @@ function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModel
   return (schema as DSModelSchema).isModel === true;
 }
 
-type ProtoExntends<T, U> = U & Omit<T, keyof U>;
-interface _PrivateSnapshot {
-  _internalModel: InternalModel;
-}
-export type PrivateSnapshot = ProtoExntends<Snapshot, _PrivateSnapshot>;
-
 /**
   Snapshot is not directly instantiable.
   Instances are provided to a consuming application's

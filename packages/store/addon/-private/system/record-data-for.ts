@@ -8,25 +8,8 @@ import WeakCache from './weak-cache';
 
 /*
  * Returns the RecordData instance associated with a given
- * Model or InternalModel.
- *
- * Intentionally "loose" to allow anything with an _internalModel
- * property until InternalModel is eliminated.
- *
- * Intentionally not typed to `InternalModel` due to circular dependency
- *  which that creates.
- *
- * Overtime, this should shift to a "weakmap" based lookup in the
- *  "Ember.getOwner(obj)" style.
+ * Model or Identifier
  */
-interface InternalModel {
-  _recordData: RecordData;
-}
-
-type DSModelOrSnapshot = { _internalModel: InternalModel };
-type Reference = { internalModel: InternalModel };
-
-type Instance = StableRecordIdentifier | InternalModel | RecordData | DSModelOrSnapshot | Reference;
 
 const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier | RecordInstance, RecordData>(
   DEBUG ? 'recordData' : ''
@@ -45,18 +28,11 @@ export function removeRecordDataFor(identifier: StableRecordIdentifier): void {
 }
 
 export default function recordDataFor(instance: StableRecordIdentifier): RecordData | null;
-export default function recordDataFor(instance: Instance): RecordData;
 export default function recordDataFor(instance: RecordInstance): RecordData;
-export default function recordDataFor(instance: object): null;
-export default function recordDataFor(instance: Instance | object): RecordData | null {
+export default function recordDataFor(instance: StableRecordIdentifier | RecordInstance): RecordData | null {
   if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier)) {
     return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier) as RecordData;
   }
-
-  let internalModel =
-    (instance as DSModelOrSnapshot)._internalModel || (instance as Reference).internalModel || instance;
-
-  assert(`Expected to no longer need this`, !internalModel._recordData);
 
   return null;
 }
