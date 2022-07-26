@@ -408,8 +408,9 @@ class CoreStore extends Service {
         'destroy' in record
       );
       (record as DSModel).destroy();
+    } else {
+      assert(`You must implement the store's teardownRecord hook for your custom models`);
     }
-    assert(`You must implement the store's teardownRecord hook for your custom models`);
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
