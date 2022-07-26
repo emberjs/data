@@ -4,15 +4,19 @@ import { cached, tracked } from '@glimmer/tracking';
 import { resolve } from 'rsvp';
 
 import type { BelongsToRelationship } from '@ember-data/record-data/-private';
+import type CoreStore from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+import { recordIdentifierFor } from '@ember-data/store/-private';
+import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
+import type { DebugWeakCache } from '@ember-data/store/-private/system/weak-cache';
+import type { SingleResourceDocument } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
-import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import { RecordInstance } from '../../ts-interfaces/record-instance';
-import CoreStore from '../core-store';
-import { NotificationType, unsubscribe } from '../record-notification-manager';
-import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
-import RecordReference from './record';
+import type { LegacySupport } from '../legacy-relationships-support';
+import { LEGACY_SUPPORT } from '../model';
+// import RecordReference from './record';
 import Reference from './reference';
 
 /**
@@ -32,8 +36,9 @@ export default class BelongsToReference extends Reference {
   declare key: string;
   declare belongsToRelationship: BelongsToRelationship;
   declare type: string;
-  declare parent: RecordReference;
+  // declare parent: RecordReference;
   declare parentIdentifier: StableRecordIdentifier;
+  declare store: CoreStore;
 
   // unsubscribe tokens given to us by the notification manager
   #token!: Object;
@@ -51,8 +56,9 @@ export default class BelongsToReference extends Reference {
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.definition.type;
-    const parent = internalModelFactoryFor(store).peek(parentIdentifier);
-    this.parent = parent!.recordReference;
+    this.store = store;
+    // const parent = internalModelFactoryFor(store).peek(parentIdentifier);
+    // this.parent = parent.recordReference;
     this.parentIdentifier = parentIdentifier;
 
     this.#token = store._notificationManager.subscribe(
@@ -68,9 +74,11 @@ export default class BelongsToReference extends Reference {
   }
 
   destroy() {
-    unsubscribe(this.#token);
+    // TODO @feature we need the notification manager often enough
+    // we should potentially just expose it fully public
+    this.store._notificationManager.unsubscribe(this.#token);
     if (this.#relatedToken) {
-      unsubscribe(this.#relatedToken);
+      this.store._notificationManager.unsubscribe(this.#relatedToken);
     }
   }
 
@@ -79,7 +87,7 @@ export default class BelongsToReference extends Reference {
   get _relatedIdentifier(): StableRecordIdentifier | null {
     this._ref; // consume the tracked prop
     if (this.#relatedToken) {
-      unsubscribe(this.#relatedToken);
+      this.store._notificationManager.unsubscribe(this.#relatedToken);
     }
 
     let resource = this._resource();
@@ -198,6 +206,7 @@ export default class BelongsToReference extends Reference {
     const jsonApiDoc = await resolve(data);
     let record = this.store.push(jsonApiDoc);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     assertPolymorphicType(
       this.belongsToRelationship.identifier,
       this.belongsToRelationship.definition,
@@ -335,9 +344,11 @@ export default class BelongsToReference extends Reference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
-  load(options) {
-    let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-    return parentInternalModel!.getBelongsTo(this.key, options);
+  load(options?: Dict<unknown>) {
+    const support: LegacySupport = (
+      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
+    ).getWithError(this.parentIdentifier);
+    return support.getBelongsTo(this.key, options);
   }
 
   /**
@@ -390,10 +401,10 @@ export default class BelongsToReference extends Reference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
-  reload(options) {
-    let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-    return parentInternalModel!.reloadBelongsTo(this.key, options).then((internalModel) => {
-      return this.value();
-    });
+  reload(options?: Dict<unknown>) {
+    const support: LegacySupport = (
+      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
+    ).getWithError(this.parentIdentifier);
+    return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }

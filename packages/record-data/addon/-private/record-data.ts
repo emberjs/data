@@ -388,7 +388,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return (graphFor(this.storeWrapper).get(this.identifier, key) as BelongsToRelationship).getData();
   }
 
-  setDirtyBelongsTo(key: string, recordData: RecordData) {
+  setDirtyBelongsTo(key: string, recordData: RecordData | null) {
     graphFor(this.storeWrapper).update({
       op: 'replaceRelatedRecord',
       record: this.identifier,

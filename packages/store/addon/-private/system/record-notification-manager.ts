@@ -52,6 +52,10 @@ export default class NotificationManager {
     return unsubToken;
   }
 
+  unsubscribe(token: UnsubscribeToken) {
+    unsubscribe(token);
+  }
+
   notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): boolean;
   notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
   notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {

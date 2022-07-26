@@ -3,16 +3,17 @@ import { computed } from '@ember/object';
 import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
 
-import type { InternalModel } from '@ember-data/store/-private';
 import { PromiseObject } from '@ember-data/store/-private';
 import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
+import { LegacySupport } from '../legacy-relationships-support';
+
 export interface BelongsToProxyMeta {
   key: string;
   store: CoreStore;
-  originatingInternalModel: InternalModel;
+  legacySupport: LegacySupport;
   modelName: string;
 }
 export interface BelongsToProxyCreateArgs {
@@ -63,8 +64,8 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
 
   async reload(options: Dict<unknown>): Promise<this> {
     assert('You are trying to reload an async belongsTo before it has been created', this.content !== undefined);
-    let { key, originatingInternalModel } = this._belongsToState;
-    await originatingInternalModel.reloadBelongsTo(key, options);
+    let { key, legacySupport } = this._belongsToState;
+    await legacySupport.reloadBelongsTo(key, options);
     return this;
   }
 }
