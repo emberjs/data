@@ -369,30 +369,30 @@ class CoreStore extends Service {
     recordDataFor: (identifier: StableRecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
   ): DSModel | RecordInstance {
-    let modelName = identifier.type;
-    let store = this;
+    if (HAS_MODEL_PACKAGE) {
+      let modelName = identifier.type;
+      let store = this;
 
-    let internalModel = this._internalModelForResource(identifier);
-    let createOptions: any = {
-      _internalModel: internalModel,
-      // TODO deprecate allowing unknown args setting
-      _createProps: createRecordArgs,
-      // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
-      _secretInit: (record: RecordInstance): void => {
-        setRecordIdentifier(record, identifier);
-        StoreMap.set(record, store);
-        setRecordDataFor(record, internalModel._recordData);
-      },
-      container: null, // necessary hack for setOwner?
-    };
+      let internalModel = this._internalModelForResource(identifier);
+      let createOptions: any = {
+        _internalModel: internalModel,
+        // TODO deprecate allowing unknown args setting
+        _createProps: createRecordArgs,
+        // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
+        _secretInit: (record: RecordInstance): void => {
+          setRecordIdentifier(record, identifier);
+          StoreMap.set(record, store);
+          setRecordDataFor(record, internalModel._recordData);
+        },
+        container: null, // necessary hack for setOwner?
+      };
 
-    // ensure that `getOwner(this)` works inside a model instance
-    setOwner(createOptions, getOwner(this));
-    delete createOptions.container;
-
-    let record = this._modelFactoryFor(modelName).create(createOptions);
-
-    return record;
+      // ensure that `getOwner(this)` works inside a model instance
+      setOwner(createOptions, getOwner(this));
+      delete createOptions.container;
+      return getModelFactory(this, this._modelFactoryCache, modelName).create(createOptions);
+    }
+    assert(`You must implement the store's instantiateRecord hook for your custom model class.`);
   }
 
   // TODO move this to InstanceCache
@@ -413,18 +413,18 @@ class CoreStore extends Service {
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
-    if (!this._schemaDefinitionService) {
+    if (HAS_MODEL_PACKAGE && !this._schemaDefinitionService) {
       this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
     }
+    assert(
+      `You must registerSchemaDefinitionService with the store to use custom model classes`,
+      this._schemaDefinitionService
+    );
     return this._schemaDefinitionService;
   }
 
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {
     this._schemaDefinitionService = schema;
-  }
-
-  _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    return this.getSchemaDefinitionService().relationshipsDefinitionFor({ type: modelName })[key];
   }
 
   /**
@@ -452,36 +452,26 @@ class CoreStore extends Service {
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
+    if (HAS_MODEL_PACKAGE) {
+      let normalizedModelName = normalizeModelName(modelName);
+      let maybeFactory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
-    let maybeFactory = this._modelFactoryFor(modelName);
+      // for factorFor factory/class split
+      let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
+      if (!klass || !klass.isModel) {
+        assert(
+          `No model was found for '${modelName}' and no schema handles the type`,
+          this.getSchemaDefinitionService().doesTypeExist(modelName)
+        );
 
-    // for factorFor factory/class split
-    let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
-    if (!klass || !klass.isModel) {
-      assert(
-        `No model was found for '${modelName}' and no schema handles the type`,
-        this.getSchemaDefinitionService().doesTypeExist(modelName)
-      );
-
-      return getShimClass(this, modelName);
-    } else {
-      return klass;
+        return getShimClass(this, modelName);
+      } else {
+        // TODO @deprecate ever returning the klass, always return the shim
+        return klass;
+      }
     }
-  }
 
-  _modelFactoryFor(modelName: string): DSModelClass {
-    if (DEBUG) {
-      assertDestroyedStoreOnly(this, '_modelFactoryFor');
-    }
-    assert(`You need to pass a model name to the store's _modelFactoryFor method`, modelName);
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-    let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
-
-    return factory;
+    return getShimClass(this, modelName);
   }
 
   // .....................

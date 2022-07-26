@@ -117,12 +117,12 @@ module('integration/snapshot - Snapshot', function (hooks) {
       assert.expect(3);
 
       let postClassLoaded = false;
-      let modelFactoryFor = store._modelFactoryFor;
-      store._modelFactoryFor = (name) => {
+      let modelFor = store.modelFor;
+      store.modelFor = (name) => {
         if (name === 'post') {
           postClassLoaded = true;
         }
-        return modelFactoryFor.call(store, name);
+        return modelFor.call(store, name);
       };
 
       await store._push({

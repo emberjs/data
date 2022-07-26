@@ -27,7 +27,6 @@ if (HAS_MODEL_PACKAGE) {
 }
 
 export class DSModelSchemaDefinitionService {
-  private _modelFactoryCache = Object.create(null);
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);
 
@@ -98,7 +97,7 @@ export class DSModelSchemaDefinitionService {
 
   doesTypeExist(modelName: string): boolean {
     let normalizedModelName = normalizeModelName(modelName);
-    let factory = getModelFactory(this.store, this._modelFactoryCache, normalizedModelName);
+    let factory = getModelFactory(this.store, this.store._modelFactoryCache, normalizedModelName);
 
     return factory !== null;
   }
@@ -108,7 +107,8 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
   let factory = cache[normalizedModelName];
 
   if (!factory) {
-    factory = _lookupModelFactory(store, normalizedModelName);
+    let owner: any = getOwner(store);
+    factory = owner.factoryFor(`model:${normalizedModelName}`);
 
     if (!factory && HAS_MODEL_PACKAGE) {
       //Support looking up mixins as base types for polymorphic relationships
@@ -133,10 +133,4 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
   }
 
   return factory;
-}
-
-export function _lookupModelFactory(store: Store, normalizedModelName: string): Model | null {
-  let owner: any = getOwner(store);
-
-  return owner.factoryFor(`model:${normalizedModelName}`);
 }

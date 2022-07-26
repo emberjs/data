@@ -315,7 +315,9 @@ export default class Snapshot implements Snapshot {
       return this._belongsToRelationships[keyName];
     }
 
-    let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
+    let relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
+      keyName
+    ];
     assert(
       `Model '${this.identifier}' has no belongsTo relationship named '${keyName}' defined.`,
       relationshipMeta && relationshipMeta.kind === 'belongsTo'
@@ -416,7 +418,9 @@ export default class Snapshot implements Snapshot {
     }
 
     let store = this._internalModel.store;
-    let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
+    let relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
+      keyName
+    ];
     assert(
       `Model '${this.identifier}' has no hasMany relationship named '${keyName}' defined.`,
       relationshipMeta && relationshipMeta.kind === 'hasMany'

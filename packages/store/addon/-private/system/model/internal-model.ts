@@ -418,7 +418,9 @@ export default class InternalModel {
     let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     let identifier =
       resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
-    let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
+    let relationshipMeta = this.store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
+      key
+    ];
     assert(`Attempted to access a belongsTo relationship but no definition exists for it`, relationshipMeta);
 
     let store = this.store;
@@ -622,7 +624,9 @@ export default class InternalModel {
       resource._relationship.state.hasFailedLoadAttempt = false;
       resource._relationship.state.shouldForceReload = true;
     }
-    let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
+    let relationshipMeta = this.store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
+      key
+    ];
     assert(`Attempted to reload a belongsTo relationship but no definition exists for it`, relationshipMeta);
     let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
     if (this._relationshipProxyCache[key]) {
