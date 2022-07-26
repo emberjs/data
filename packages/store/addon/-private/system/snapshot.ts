@@ -164,7 +164,7 @@ export default class Snapshot implements Snapshot {
     }
     let record = this.record;
     let attributes = (this.__attributes = Object.create(null));
-    let attrs = Object.keys(this._store._attributesDefinitionFor(this.identifier));
+    let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier));
     let recordData = this._store._instanceCache.getRecordData(this.identifier);
     attrs.forEach((keyName) => {
       if (schemaIsDSModel(this._internalModel.modelClass)) {
@@ -492,7 +492,7 @@ export default class Snapshot implements Snapshot {
     @public
   */
   eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
-    let attrDefs = this._store._attributesDefinitionFor(this.identifier);
+    let attrDefs = this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier);
     Object.keys(attrDefs).forEach((key) => {
       callback.call(binding, key, attrDefs[key] as AttributeSchema);
     });
@@ -516,7 +516,7 @@ export default class Snapshot implements Snapshot {
     @public
   */
   eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
-    let relationshipDefs = this._store._relationshipsDefinitionFor(this.identifier);
+    let relationshipDefs = this._store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier);
     Object.keys(relationshipDefs).forEach((key) => {
       callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
     });

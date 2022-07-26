@@ -107,11 +107,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   }
 
   attributesDefinitionFor(type: string): AttributesSchema {
-    return this._store._attributesDefinitionFor({ type });
+    return this._store.getSchemaDefinitionService().attributesDefinitionFor({ type });
   }
 
   relationshipsDefinitionFor(type: string): RelationshipsSchema {
-    return this._store._relationshipsDefinitionFor({ type });
+    return this._store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
   }
 
   inverseForRelationship(type: string, key: string): string | null {

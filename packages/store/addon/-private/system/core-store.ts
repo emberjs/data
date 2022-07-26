@@ -14,7 +14,7 @@ import { importSync } from '@embroider/macros';
 import { all, reject, resolve } from 'rsvp';
 
 import type DSModelClass from '@ember-data/model';
-import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
@@ -45,7 +45,6 @@ import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serial
 import type { RecordData } from '../ts-interfaces/record-data';
 import type { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
 import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
-import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import type { RecordInstance } from '../ts-interfaces/record-instance';
 import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import type { FindOptions } from '../ts-interfaces/store';
@@ -328,7 +327,7 @@ class CoreStore extends Service {
       const { type } = identifier;
 
       // convert relationship Records to RecordDatas before passing to RecordData
-      let defs = this._relationshipsDefinitionFor({ type });
+      let defs = this.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
 
       if (defs !== null) {
         let keys = Object.keys(properties);
@@ -403,11 +402,14 @@ class CoreStore extends Service {
     this.teardownRecord(record);
   }
   teardownRecord(record: DSModel | RecordInstance): void {
-    assert(
-      `expected to receive an instance of DSModel. If using a custom model make sure you implement teardownRecord`,
-      'destroy' in record
-    );
-    (record as DSModel).destroy();
+    if (HAS_MODEL_PACKAGE) {
+      assert(
+        `expected to receive an instance of DSModel. If using a custom model make sure you implement teardownRecord`,
+        'destroy' in record
+      );
+      (record as DSModel).destroy();
+    }
+    assert(`You must implement the store's teardownRecord hook for your custom models`);
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
@@ -417,20 +419,12 @@ class CoreStore extends Service {
     return this._schemaDefinitionService;
   }
 
-  _attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
-    return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-  }
-
-  _relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
-    return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-  }
-
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {
     this._schemaDefinitionService = schema;
   }
 
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    return this._relationshipsDefinitionFor({ type: modelName })[key];
+    return this.getSchemaDefinitionService().relationshipsDefinitionFor({ type: modelName })[key];
   }
 
   /**
