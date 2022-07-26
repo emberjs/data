@@ -18,7 +18,10 @@ import { IdentifierCache } from '@ember-data/store/-private/identifiers/cache';
 import type CoreStore from '@ember-data/store/-private/system/core-store';
 import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import { ResourceIdentifierObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type {
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@ember-data/store/-private/ts-interfaces/identifier';
 import { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 import { JsonApiRelationship } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
@@ -351,10 +354,10 @@ export class LegacySupport {
         return resolve();
       }
       const { definition, state } = relationship;
-      let adapter = this.adapterFor(definition.type);
+      let adapter = this.store.adapterFor(definition.type);
 
       let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = state;
-      const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
+      const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
 
       let shouldFindViaLink =
         resource.links &&
@@ -366,8 +369,10 @@ export class LegacySupport {
       if (shouldFindViaLink) {
         // findHasMany, although not public, does not need to care about our upgrade relationship definitions
         // and can stick with the public definition API for now.
-        const relationshipMeta = this._storeWrapper.relationshipsDefinitionFor(definition.inverseType)[definition.key];
-        let adapter = this.adapterFor(parentIdentifier.type);
+        const relationshipMeta = this.store._storeWrapper.relationshipsDefinitionFor(definition.inverseType)[
+          definition.key
+        ];
+        let adapter = this.store.adapterFor(parentIdentifier.type);
 
         /*
           If a relationship was originally populated by the adapter as a link
@@ -401,8 +406,8 @@ export class LegacySupport {
       if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
         let finds = new Array(resource.data.length);
         for (let i = 0; i < resource.data.length; i++) {
-          let identifier = this.identifierCache.getOrCreateRecordIdentifier(resource.data[i]);
-          finds[i] = this._fetchDataIfNeededForIdentifier(identifier, options);
+          let identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data[i]);
+          finds[i] = this.store._instanceCache._fetchDataIfNeededForIdentifier(identifier, options);
         }
 
         return all(finds);
@@ -412,9 +417,9 @@ export class LegacySupport {
 
       // fetch by data
       if (hasData || hasLocalPartialData) {
-        let identifiers = resource.data.map((json) => this.identifierCache.getOrCreateRecordIdentifier(json));
+        let identifiers = resource.data.map((json) => this.store.identifierCache.getOrCreateRecordIdentifier(json));
         let fetches = new Array(identifiers.length);
-        const manager = this._fetchManager;
+        const manager = this.store._fetchManager;
 
         for (let i = 0; i < identifiers.length; i++) {
           let identifier = identifiers[i];
@@ -438,18 +443,15 @@ export class LegacySupport {
     relationshipMeta,
     options: FindOptions = {}
   ): Promise<StableRecordIdentifier | null> {
-    if (DEBUG) {
-      assertDestroyingStore(this, '_findBelongsToByJsonApiResource');
-    }
     if (!resource) {
       return resolve(null);
     }
 
-    const internalModel = resource.data ? this.store._internalModelForResource(resource.data) : null;
+    const internalModel = resource.data ? this.store._instanceCache._internalModelForResource(resource.data) : null;
 
     let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
       .state as RelationshipState;
-    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
+    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
 
     let shouldFindViaLink =
       resource.links &&
@@ -487,7 +489,7 @@ export class LegacySupport {
         assert(`No InternalModel found for ${resource.lid}`, internalModel);
       }
 
-      return this.store._fetchDataIfNeededForIdentifier(internalModel.identifier, options);
+      return this.store._instanceCache._fetchDataIfNeededForIdentifier(internalModel.identifier, options);
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
@@ -832,6 +834,12 @@ function recordDataFindInverseRelationshipInfo({ _storeWrapper }, parentIdentifi
       kind,
     };
   }
+}
+
+function assertIdentifierHasId(
+  identifier: StableRecordIdentifier
+): asserts identifier is StableExistingRecordIdentifier {
+  assert(`Attempted to schedule a fetch for a record without an id.`, identifier.id !== null);
 }
 
 function relationshipDataPointsToParent(relationshipData, identifier) {

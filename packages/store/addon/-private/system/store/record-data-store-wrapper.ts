@@ -206,11 +206,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
       identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     }
 
-    return this._store.recordDataFor(identifier, isCreate);
+    return this._store._instanceCache.recordDataFor(identifier, isCreate);
   }
 
   setRecordId(type: string, id: string, lid: string) {
-    this._store.setRecordId(type, id, lid);
+    this._store._instanceCache.setRecordId(type, id, lid);
   }
 
   isRecordInUse(type: string, id: string | null, lid: string): boolean;

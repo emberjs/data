@@ -29,6 +29,7 @@ if (HAS_MODEL_PACKAGE) {
 export class DSModelSchemaDefinitionService {
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);
+  _modelFactoryCache = Object.create(null);
 
   constructor(public store: Store) {}
 

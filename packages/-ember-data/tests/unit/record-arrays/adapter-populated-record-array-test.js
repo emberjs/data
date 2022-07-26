@@ -74,7 +74,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     let deferred = RSVP.defer();
 
     const store = {
-      _query(modelName, query, array) {
+      // TODO this isn't quite right
+      query(modelName, query, array) {
         queryCalled++;
         assert.strictEqual(modelName, 'recordType');
         assert.strictEqual(query, 'some-query');
