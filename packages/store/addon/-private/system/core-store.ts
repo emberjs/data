@@ -14,6 +14,8 @@ import { importSync } from '@embroider/macros';
 import { all, reject, resolve } from 'rsvp';
 
 import type DSModelClass from '@ember-data/model';
+import type BelongsToReference from '@ember-data/model/-private/references/belongs-to';
+import type HasManyReference from '@ember-data/model/-private/references/has-many';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_HAS_RECORD,
@@ -55,20 +57,14 @@ import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
 import FetchManager, { SaveOp } from './fetch-manager';
 import type InternalModel from './model/internal-model';
-import {
-  assertRecordsPassedToHasMany,
-  extractRecordDataFromRecord,
-  extractRecordDatasFromRecords,
-} from './model/internal-model';
 import type ShimModelClass from './model/shim-model-class';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
-import { setRecordDataFor } from './record-data-for';
+import recordDataFor, { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
-import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
 import type RequestCache from './request-cache';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
@@ -1226,9 +1222,7 @@ class CoreStore extends Service {
     );
 
     let identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
-    if (identifier) {
-      return RECORD_REFERENCES.lookup(identifier);
-    }
+    return RECORD_REFERENCES.lookup(identifier);
   }
 
   /**
@@ -2623,6 +2617,7 @@ class CoreStore extends Service {
 
   // TODO move this to InstanceCache
   // TODO this is probably a public API from custom model classes? If not move to InstanceCache
+  // TODO probably just deprecate this. There seems to be zero usage.
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
     let stableIdentifier = this.identifierCache.getOrCreateRecordIdentifier(identifier);
     let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
@@ -3051,4 +3046,37 @@ function assertIdentifierHasId(
   identifier: StableRecordIdentifier
 ): asserts identifier is StableExistingRecordIdentifier {
   assert(`Attempted to schedule a fetch for a record without an id.`, identifier.id !== null);
+}
+
+function assertRecordsPassedToHasMany(records) {
+  assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
+  assert(
+    `All elements of a hasMany relationship must be instances of Model, you passed ${records
+      .map((r) => `${typeof r}`)
+      .join(', ')}`,
+    (function () {
+      return records.every((record) => Object.prototype.hasOwnProperty.call(record, '_internalModel') === true);
+    })()
+  );
+}
+
+function extractRecordDatasFromRecords(records) {
+  return records.map(extractRecordDataFromRecord);
+}
+
+function extractRecordDataFromRecord(recordOrPromiseRecord) {
+  if (!recordOrPromiseRecord) {
+    return null;
+  }
+
+  if (recordOrPromiseRecord.then) {
+    let content = recordOrPromiseRecord.get && recordOrPromiseRecord.get('content');
+    assert(
+      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
+      content !== undefined
+    );
+    return content ? recordDataFor(content) : null;
+  }
+
+  return recordDataFor(recordOrPromiseRecord);
 }
