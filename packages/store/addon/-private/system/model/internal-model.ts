@@ -527,7 +527,7 @@ export default class InternalModel {
 
     if (didChange && id !== null) {
       if (!fromCache) {
-        this.store.setRecordId(this.modelName, id, this.clientId);
+        this.store._instanceCache.setRecordId(this.modelName, id, this.clientId);
       }
       // internal set of ID to get it to RecordData from DS.Model
       // if we are within create we may not have a recordData yet.

@@ -40,11 +40,11 @@ Graphs._generator = (wrapper: RecordDataStoreWrapper) => {
 };
 
 function isStore(maybeStore: unknown): maybeStore is Store {
-  return (maybeStore as Store)._storeWrapper !== undefined;
+  return (maybeStore as Store)._instanceCache !== undefined;
 }
 
 function getWrapper(store: RecordDataStoreWrapper | Store): RecordDataStoreWrapper {
-  return isStore(store) ? store._storeWrapper : store;
+  return isStore(store) ? store._instanceCache._storeWrapper : store;
 }
 
 export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefined {

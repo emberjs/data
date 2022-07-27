@@ -56,7 +56,6 @@ export default class HasManyReference {
   declare hasManyRelationship: ManyRelationship;
   declare type: string;
   declare store: CoreStore;
-  // declare parent: RecordReference;
 
   // unsubscribe tokens given to us by the notification manager
   #token!: Object;
@@ -75,7 +74,6 @@ export default class HasManyReference {
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.definition.type;
 
-    // this.parent = internalModelFactoryFor(store).peek(parentIdentifier)!.recordReference;
     this.store = store;
     this.#identifier = parentIdentifier;
     this.#token = store._notificationManager.subscribe(

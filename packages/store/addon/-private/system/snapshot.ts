@@ -64,7 +64,7 @@ export default class Snapshot implements Snapshot {
    * @param _store
    */
   constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store) {
-    let internalModel = (this._internalModel = _store._internalModelForResource(identifier));
+    let internalModel = (this._internalModel = _store._instanceCache._internalModelForResource(identifier));
     this.modelName = identifier.type;
 
     /**
@@ -330,7 +330,7 @@ export default class Snapshot implements Snapshot {
       importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
     ).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as BelongsToRelationship;
+    const relationship = graphFor(this._store).get(identifier, keyName) as BelongsToRelationship;
 
     assert(
       `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
@@ -344,7 +344,7 @@ export default class Snapshot implements Snapshot {
     let value = relationship.getData();
     let data = value && value.data;
 
-    inverseInternalModel = data ? store._internalModelForResource(data) : null;
+    inverseInternalModel = data ? store._instanceCache._internalModelForResource(data) : null;
 
     if (value && value.data !== undefined) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
@@ -433,7 +433,7 @@ export default class Snapshot implements Snapshot {
       importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
     ).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as ManyRelationship;
+    const relationship = graphFor(this._store).get(identifier, keyName) as ManyRelationship;
     assert(
       `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
       relationship
@@ -448,7 +448,7 @@ export default class Snapshot implements Snapshot {
     if (value.data) {
       results = [];
       value.data.forEach((member) => {
-        let internalModel = store._internalModelForResource(member);
+        let internalModel = store._instanceCache._internalModelForResource(member);
         if (!internalModel.isDeleted()) {
           if (returnModeIsIds) {
             (results as RecordId[]).push(

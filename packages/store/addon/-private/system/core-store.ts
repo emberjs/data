@@ -179,7 +179,6 @@ class CoreStore extends Service {
   declare identifierCache: IdentifierCache;
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: CoreStore }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: CoreStore }>;
-  declare _storeWrapper: RecordDataStoreWrapper;
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
@@ -197,15 +196,6 @@ class CoreStore extends Service {
   */
   constructor() {
     super(...arguments);
-    this._adapterCache = Object.create(null);
-    this._serializerCache = Object.create(null);
-    this._storeWrapper = new RecordDataStoreWrapper(this);
-    this._backburner = edBackburner;
-    this.recordArrayManager = new RecordArrayManager({ store: this });
-    this._instanceCache = new InstanceCache(this);
-
-    this._fetchManager = new FetchManager(this);
-    this._notificationManager = new NotificationManager(this);
 
     /**
      * Provides access to the IdentifierCache instance
@@ -218,6 +208,22 @@ class CoreStore extends Service {
      * @public
      */
     this.identifierCache = new IdentifierCache();
+
+    // private but maybe useful to be here, somewhat intimate
+    this.recordArrayManager = new RecordArrayManager({ store: this });
+
+    // private, TODO consider taking public as the instance is public to instantiateRecord anyway
+    this._notificationManager = new NotificationManager(this);
+
+    // private
+    this._fetchManager = new FetchManager(this);
+    this._instanceCache = new InstanceCache(this);
+    this._adapterCache = Object.create(null);
+    this._serializerCache = Object.create(null);
+
+    // private
+    // TODO we should find a path to something simpler than backburner
+    this._backburner = edBackburner;
 
     if (DEBUG) {
       if (this.generateStackTracesForTrackedRequests === undefined) {

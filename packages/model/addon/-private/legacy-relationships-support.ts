@@ -318,7 +318,7 @@ export class LegacySupport {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      const relationship = graphFor(this.store._storeWrapper).get(this.identifier, name);
+      const relationship = graphFor(this.store).get(this.identifier, name);
 
       if (DEBUG && kind) {
         let modelName = this.identifier.type;
@@ -369,9 +369,9 @@ export class LegacySupport {
       if (shouldFindViaLink) {
         // findHasMany, although not public, does not need to care about our upgrade relationship definitions
         // and can stick with the public definition API for now.
-        const relationshipMeta = this.store._storeWrapper.relationshipsDefinitionFor(definition.inverseType)[
-          definition.key
-        ];
+        const relationshipMeta = this.store._instanceCache._storeWrapper.relationshipsDefinitionFor(
+          definition.inverseType
+        )[definition.key];
         let adapter = this.store.adapterFor(parentIdentifier.type);
 
         /*
@@ -816,19 +816,24 @@ function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, paren
   }
 }
 
-function getInverse(store, parentInternalModel, parentRelationship, type) {
+function getInverse(store: CoreStore, parentInternalModel: StableRecordIdentifier, parentRelationship, type: string) {
   return recordDataFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship, type);
 }
 
-function recordDataFindInverseRelationshipInfo({ _storeWrapper }, parentIdentifier, parentRelationship, type) {
+function recordDataFindInverseRelationshipInfo(
+  store: CoreStore,
+  parentIdentifier: StableRecordIdentifier,
+  parentRelationship,
+  type: string
+) {
   let { name: lhs_relationshipName } = parentRelationship;
   let { type: parentType } = parentIdentifier;
-  let inverseKey = _storeWrapper.inverseForRelationship(parentType, lhs_relationshipName);
+  let inverseKey = store._instanceCache._storeWrapper.inverseForRelationship(parentType, lhs_relationshipName);
 
   if (inverseKey) {
     let {
       meta: { kind },
-    } = _storeWrapper.relationshipsDefinitionFor(type)[inverseKey];
+    } = store._instanceCache._storeWrapper.relationshipsDefinitionFor(type)[inverseKey];
     return {
       inverseKey,
       kind,

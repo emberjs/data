@@ -52,7 +52,6 @@ export default class BelongsToReference {
   declare key: string;
   declare belongsToRelationship: BelongsToRelationship;
   declare type: string;
-  // declare parent: RecordReference;
   #identifier: StableRecordIdentifier;
   declare store: CoreStore;
 
@@ -72,8 +71,6 @@ export default class BelongsToReference {
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.definition.type;
     this.store = store;
-    // const parent = internalModelFactoryFor(store).peek(parentIdentifier);
-    // this.parent = parent.recordReference;
     this.#identifier = parentIdentifier;
 
     this.#token = store._notificationManager.subscribe(

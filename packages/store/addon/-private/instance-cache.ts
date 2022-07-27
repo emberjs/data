@@ -11,6 +11,7 @@ import normalizeModelName from './system/normalize-model-name';
 import recordDataFor, { setRecordDataFor } from './system/record-data-for';
 import Snapshot from './system/snapshot';
 import { internalModelFactoryFor, setRecordIdentifier } from './system/store/internal-model-factory';
+import RecordDataStoreWrapper from './system/store/record-data-store-wrapper';
 import WeakCache from './system/weak-cache';
 import { ExistingResourceObject, ResourceIdentifierObject } from './ts-interfaces/ember-data-json-api';
 import type {
@@ -42,6 +43,7 @@ type Caches = {
 };
 export class InstanceCache {
   declare store: CoreStore;
+  declare _storeWrapper: RecordDataStoreWrapper;
 
   #instances: Caches = {
     record: new WeakMap<StableRecordIdentifier, RecordInstance>(),
@@ -51,6 +53,7 @@ export class InstanceCache {
   constructor(store: CoreStore) {
     this.store = store;
 
+    this._storeWrapper = new RecordDataStoreWrapper(this.store);
     this.__recordDataFor = this.__recordDataFor.bind(this);
 
     RECORD_REFERENCES._generator = (identifier) => {
@@ -258,7 +261,7 @@ export class InstanceCache {
       identifier.type,
       identifier.id,
       identifier.lid,
-      this.store._storeWrapper
+      this._storeWrapper
     );
     setRecordDataFor(identifier, recordData);
     // TODO this is invalid for v2 recordData but required
