@@ -6,7 +6,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { ReplaceRelatedRecordOperation } from '../-operations';
 import { isBelongsTo, isNew } from '../-utils';
 import type { Graph } from '../index';
-import { addToInverse, removeFromInverse } from './replace-related-records';
+import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records';
 
 export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRecordOperation, isRemote = false) {
   const relationship = graph.get(op.record, op.field);
@@ -75,11 +75,15 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
     if (isRemote) {
       const { localState } = relationship;
       // don't sync if localState is a new record and our canonicalState is null
-      if ((localState && isNew(localState) && !existingState) || localState === existingState) {
+      if (localState && isNew(localState) && !existingState) {
         return;
       }
-      relationship.localState = existingState;
-      relationship.notifyBelongsToChange();
+      if (existingState && localState === existingState) {
+        notifyInverseOfPotentialMaterialization(graph, existingState, definition.inverseKey, op.record, isRemote);
+      } else {
+        relationship.localState = existingState;
+        relationship.notifyBelongsToChange();
+      }
     }
     return;
   }

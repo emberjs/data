@@ -1,6 +1,5 @@
 import EmberObject from '@ember/object';
 import { run } from '@ember/runloop';
-import Ember from 'ember';
 
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
@@ -827,54 +826,6 @@ module('unit/store/push - DS.Store#push', function (hooks) {
         });
       });
     }, /must not be an array/);
-  });
-
-  testInDebug('Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown attributes', function (assert) {
-    run(() => {
-      let originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
-      try {
-        Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
-        assert.expectWarning(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: '1',
-              attributes: {
-                firstName: 'Tomster',
-                emailAddress: 'tomster@emberjs.com',
-                isMascot: true,
-              },
-            },
-          });
-        }, `The payload for 'person' contains these unknown attributes: emailAddress,isMascot. Make sure they've been defined in your model.`);
-      } finally {
-        Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
-      }
-    });
-  });
-
-  testInDebug('Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown relationships', function (assert) {
-    run(() => {
-      var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
-      try {
-        Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
-        assert.expectWarning(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: '1',
-              relationships: {
-                phoneNumbers: {},
-                emailAddresses: {},
-                mascots: {},
-              },
-            },
-          });
-        }, `The payload for 'person' contains these unknown relationships: emailAddresses,mascots. Make sure they've been defined in your model.`);
-      } finally {
-        Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
-      }
-    });
   });
 
   testInDebug('Calling push with unknown keys should not warn by default', function (assert) {

@@ -42,6 +42,13 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
   } else if (meta.kind === 'hasMany') {
     let support = LEGACY_SUPPORT.get(identifier);
     let manyArray = support && support._manyArrayCache[key];
+    let hasPromise = support && support._relationshipPromisesCache[key];
+
+    if (manyArray && hasPromise) {
+      // do nothing, we will notify the ManyArray directly
+      // once the fetch has completed.
+      return;
+    }
 
     if (manyArray) {
       manyArray.notify();

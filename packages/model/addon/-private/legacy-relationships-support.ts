@@ -394,7 +394,7 @@ export class LegacySupport {
           typeof adapter.findHasMany === 'function'
         );
 
-        return _findHasMany(adapter, this, parentIdentifier, resource.links.related, relationshipMeta, options);
+        return _findHasMany(adapter, this.store, parentIdentifier, resource.links.related, relationshipMeta, options);
       }
 
       let preferLocalCache = hasReceivedData && !isEmpty;
@@ -468,7 +468,7 @@ export class LegacySupport {
 
     // fetch via link
     if (shouldFindViaLink) {
-      return _findBelongsTo(this, parentIdentifier, resource.links.related, relationshipMeta, options);
+      return _findBelongsTo(this.store, parentIdentifier, resource.links.related, relationshipMeta, options);
     }
 
     let preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;

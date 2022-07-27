@@ -190,7 +190,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('can unload all records for a given type', function (assert) {
-    assert.expect(10);
+    assert.expect(6);
 
     let car;
     run(function () {
@@ -261,23 +261,10 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.ok(!!car, 'We have a car');
     assert.notOk(person, 'We dont have a person');
-
-    /*
-   @runspired believes these asserts were incorrect on master.
-   Basically, we intentionally treat unload on a sync belongsTo as client-side
-   delete bc "bad reason" of legacy support for the mis-use of unloadRecord.
-   Because of this, there should be no way to resurrect the relationship without
-   receiving new relationship info which does not occur in this test.
-   He checked how master manages to do this, and discovered bad things. TL;DR
-   because the `person` relationship is never materialized, it's state was
-   not cleared on unload, and thus the client-side delete never happened as intended.
-  */
-    // assert.strictEqual(person.get('id'), '1', 'Inverse can load relationship after the record is unloaded');
-    // assert.strictEqual(person.get('name'), 'Richard II', 'Inverse can load relationship after the record is unloaded');
   });
 
   test('can unload all records', function (assert) {
-    assert.expect(8);
+    assert.expect(4);
 
     run(function () {
       store.push({
@@ -331,7 +318,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('removes findAllCache after unloading all records', function (assert) {
-    assert.expect(4);
+    assert.expect(2);
 
     run(function () {
       store.push({
@@ -415,7 +402,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   }
 
   test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', async function (assert) {
-    assert.expect(15);
+    assert.expect(13);
 
     let person = store.push({
       data: {
@@ -474,7 +461,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via relationship reload)', function (assert) {
-    assert.expect(17);
+    assert.expect(15);
 
     adapter.findRecord = (store, type, id) => {
       assert.strictEqual(type.modelName, 'boat', 'We refetch the boat');
@@ -537,7 +524,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has their boats');
   });
 
-  test('(regression) unloadRecord followed by push in the same run-loop', function (assert) {
+  test('(regression) unloadRecord followed by push in the same run-loop', async function (assert) {
     let person = run(() =>
       store.push({
         data: {
@@ -603,11 +590,40 @@ module('integration/unload - Unloading Records', function (hooks) {
       });
     });
 
-    store.peekRecord('boat', '1');
+    boat = store.peekRecord('boat', '1');
 
+    assert.notStrictEqual(boat, null, 'we have a boat');
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person thas their boat');
+
+    // and the other way too!
+    // and now the kicker, run-loop fun!
+    //   here, we will dematerialize the record, but push it back into the store
+    //   all in the same run-loop!
+    //   effectively this tests that our destroySync is not stupid
+    let newPerson;
+    run(() => {
+      person.unloadRecord();
+      newPerson = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Could be Anybody',
+          },
+          relationships: {
+            boats: {
+              data: [{ type: 'boat', id: '1' }],
+            },
+          },
+        },
+      });
+    });
+
+    const relatedPerson = await boat.person;
+    assert.notStrictEqual(relatedPerson, person, 'the original record is gone');
+    assert.strictEqual(relatedPerson, newPerson, 'we have a new related record');
   });
 
   test('Unloading a record twice only schedules destroy once', function (assert) {
@@ -1521,7 +1537,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
           run(() => person.unloadRecord());
 
-          assert.false(boats.isDestroyed, 'ManyArray is not destroyed when 1 side is unloaded');
+          assert.true(boats.isDestroyed, 'ManyArray is destroyed when 1 side is unloaded');
           assert.strictEqual(boat2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
           assert.strictEqual(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
@@ -2026,7 +2042,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     run(() => person.unloadRecord());
 
-    assert.false(spoons.isDestroyed, 'ManyArray is not destroyed when 1 side is unloaded');
+    assert.true(spoons.isDestroyed, 'ManyArray is destroyed when 1 side is unloaded');
     assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
     assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 

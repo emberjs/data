@@ -292,6 +292,19 @@ export function addToInverse(
   }
 }
 
+export function notifyInverseOfPotentialMaterialization(
+  graph: Graph,
+  identifier: StableRecordIdentifier,
+  key: string,
+  value: StableRecordIdentifier,
+  isRemote: boolean
+) {
+  const relationship = graph.get(identifier, key);
+  if (isHasMany(relationship) && isRemote && relationship.canonicalMembers.has(value)) {
+    relationship.notifyHasManyChange();
+  }
+}
+
 export function removeFromInverse(
   graph: Graph,
   identifier: StableRecordIdentifier,

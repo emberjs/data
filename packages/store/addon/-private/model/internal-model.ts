@@ -382,15 +382,6 @@ export default class InternalModel {
 
   notifyHasManyChange(key: string) {
     if (this.hasRecord) {
-      // let manyArray = this._manyArrayCache[key];
-      // let hasPromise = !!this._relationshipPromisesCache[key];
-
-      // if (manyArray && hasPromise) {
-      // do nothing, we will notify the ManyArray directly
-      // once the fetch has completed.
-      // return;
-      // }
-
       this.store._notificationManager.notify(this.identifier, 'relationships', key);
     }
   }
@@ -503,7 +494,7 @@ export default class InternalModel {
   }
 
   /*
-   * calling `store.setRecordId` is necessary to update
+   * calling `InstanceCache.setRecordId` is necessary to update
    * the cache index for this record if we have changed.
    *
    * However, since the store is not aware of whether the update

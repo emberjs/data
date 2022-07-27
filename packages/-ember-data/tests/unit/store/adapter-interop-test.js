@@ -691,75 +691,6 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
   });
 
-  test('store.fetchMany should always return a promise', function (assert) {
-    assert.expect(3);
-
-    const Person = Model.extend();
-
-    this.owner.register('model:person', Person);
-
-    let store = this.owner.lookup('service:store');
-
-    store.createRecord('person');
-
-    let records = [];
-    let results = run(() => store._scheduleFetchMany(records));
-
-    assert.ok(results, 'A call to store._scheduleFetchMany() should return a result');
-    assert.ok(results.then, 'A call to store._scheduleFetchMany() should return a promise');
-
-    return results.then((returnedRecords) => {
-      assert.deepEqual(returnedRecords, [], 'The correct records are returned');
-    });
-  });
-
-  test('store._scheduleFetchMany should not resolve until all the records are resolved', async function (assert) {
-    assert.expect(1);
-
-    const ApplicationAdapter = Adapter.extend({
-      findRecord(store, type, id, snapshot) {
-        let record = { id, type: type.modelName };
-
-        return new EmberPromise((resolve) => {
-          later(() => resolve({ data: record }), 5);
-        });
-      },
-
-      findMany(store, type, ids, snapshots) {
-        let records = ids.map((id) => ({ id, type: type.modelName }));
-
-        return new EmberPromise((resolve) => {
-          later(() => {
-            resolve({ data: records });
-          }, 15);
-        });
-      },
-    });
-
-    this.owner.register('model:test', Model.extend());
-    this.owner.register('model:phone', Model.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
-    this.owner.register('adapter:application', ApplicationAdapter);
-
-    let store = this.owner.lookup('service:store');
-
-    store.createRecord('test');
-
-    let identifiers = [
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '10' }),
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'phone', id: '20' }),
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'phone', id: '21' }),
-    ];
-
-    await store._scheduleFetchMany(identifiers);
-
-    const records = [store.peekRecord('test', '10'), store.peekRecord('phone', '20'), store.peekRecord('phone', '21')];
-
-    let unloadedRecords = records.filter((record) => record === null || record.isEmpty);
-
-    assert.strictEqual(unloadedRecords.length, 0, 'All unloaded records should be loaded');
-  });
-
   test('the store calls adapter.findMany according to groupings returned by adapter.groupRecordsForFindMany', async function (assert) {
     assert.expect(3);
 
@@ -794,13 +725,13 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '21' }),
     ];
 
-    const result = await store._scheduleFetchMany(identifiers);
+    const result = await all(identifiers.map((id) => store.findRecord(id)));
 
     let ids = result.map((x) => x.id);
     assert.deepEqual(ids, ['10', '20', '21'], 'The promise fulfills with the identifiers');
   });
 
-  test('the promise returned by `_scheduleFetch`, when it resolves, does not depend on the promises returned to other calls to `_scheduleFetch` that are in the same run loop, but different groups', function (assert) {
+  test('the promise returned by `findRecord`, when it resolves, does not depend on the promises returned to other calls to `findRecord` that are in the same run loop, but different groups', function (assert) {
     assert.expect(2);
 
     let davidResolved = false;
@@ -853,7 +784,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
   });
 
-  test('the promise returned by `_scheduleFetch`, when it rejects, does not depend on the promises returned to other calls to `_scheduleFetch` that are in the same run loop, but different groups', function (assert) {
+  test('the promise returned by `findRecord`, when it rejects, does not depend on the promises returned to other calls to `findRecord` that are in the same run loop, but different groups', function (assert) {
     assert.expect(2);
 
     let davidResolved = false;

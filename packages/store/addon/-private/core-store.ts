@@ -180,6 +180,7 @@ class Store extends Service {
   declare identifierCache: IdentifierCache;
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
+  declare _modelFactoryCache: Dict<unknown>;
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
@@ -221,6 +222,7 @@ class Store extends Service {
     this._instanceCache = new InstanceCache(this);
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
+    this._modelFactoryCache = Object.create(null);
 
     // private
     // TODO we should find a path to something simpler than backburner
@@ -305,11 +307,7 @@ class Store extends Service {
       setOwner(createOptions, getOwner(this));
       delete createOptions.container;
       // TODO this needs to not use the private property here to get modelFactoryCache so as to not break interop
-      return getModelFactory(
-        this,
-        (this.getSchemaDefinitionService() as DSModelSchemaDefinitionService)._modelFactoryCache,
-        modelName
-      ).create(createOptions);
+      return getModelFactory(this, this._modelFactoryCache, modelName).create(createOptions);
     }
     assert(`You must implement the store's instantiateRecord hook for your custom model class.`);
   }
@@ -373,11 +371,7 @@ class Store extends Service {
       // apps would be horribly broken if the schema service were using DS_MODEL but not using DS_MODEL's schema service.
       // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
       // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
-      let maybeFactory = getModelFactory(
-        this,
-        (this.getSchemaDefinitionService() as DSModelSchemaDefinitionService)._modelFactoryCache,
-        normalizedModelName
-      );
+      let maybeFactory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
       // for factorFor factory/class split
       let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
