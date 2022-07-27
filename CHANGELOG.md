@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## v4.6.0 (2022-07-27)
+
+4.6.0 is a re-release of 4.5.0. No new changes are involved.
 ## v4.5.0 (2022-07-27)
 
 #### :rocket: Enhancement
