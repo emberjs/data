@@ -12,6 +12,7 @@
     ],
     "paths": [
       "addon",
+      "../../ember-data-types",
       "../adapter/addon",
       "../model/addon",
       "../serializer/addon",

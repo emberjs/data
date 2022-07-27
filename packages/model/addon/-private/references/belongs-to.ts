@@ -214,6 +214,13 @@ export default class BelongsToReference {
     return null;
   }
 
+  /**
+   * any links that have been received for this relationship
+   *
+   * @method links
+   * @public
+   * @returns
+   */
   links(): Links | null {
     let resource = this._resource();
 
@@ -273,6 +280,48 @@ export default class BelongsToReference {
     return this.store._instanceCache.recordDataFor(this.#identifier, false).getBelongsTo(this.key);
   }
 
+  /**
+   This returns a string that represents how the reference will be
+   looked up when it is loaded. If the relationship has a link it will
+   use the "link" otherwise it defaults to "id".
+
+   Example
+
+   ```app/models/post.js
+   import Model, { hasMany } from '@ember-data/model';
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
+   ```
+
+   ```javascript
+   let post = store.push({
+     data: {
+       type: 'post',
+       id: 1,
+       relationships: {
+         comments: {
+           data: [{ type: 'comment', id: 1 }]
+         }
+       }
+     }
+   });
+
+   let commentsRef = post.hasMany('comments');
+
+   // get the identifier of the reference
+   if (commentsRef.remoteType() === "ids") {
+     let ids = commentsRef.ids();
+   } else if (commentsRef.remoteType() === "link") {
+     let link = commentsRef.link();
+   }
+   ```
+
+   @method remoteType
+   @public
+   @return {String} The name of the remote type. This should either be `link` or `id`
+   */
   remoteType(): 'link' | 'id' {
     let value = this._resource();
     if (isResourceIdentiferWithRelatedLinks(value)) {

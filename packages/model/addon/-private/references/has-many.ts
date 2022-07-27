@@ -28,6 +28,7 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import type { LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
+
 /**
   @module @ember-data/model
 */
@@ -273,6 +274,13 @@ export default class HasManyReference {
     return null;
   }
 
+  /**
+   * any links that have been received for this relationship
+   *
+   * @method links
+   * @public
+   * @returns
+   */
   links(): PaginationLinks | null {
     let resource = this._resource();
 
@@ -280,15 +288,15 @@ export default class HasManyReference {
   }
 
   /**
-   The meta data for the belongs-to relationship.
+   The meta data for the has-many relationship.
 
    Example
 
    ```javascript
    // models/blog.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import Model, { hasMany } from '@ember-data/model';
    export default Model.extend({
-      user: belongsTo({ async: true })
+      users: hasMany({ async: true })
     });
 
    let blog = store.push({
@@ -296,10 +304,10 @@ export default class HasManyReference {
         type: 'blog',
         id: 1,
         relationships: {
-          user: {
+          users: {
             links: {
               related: {
-                href: '/articles/1/author'
+                href: '/articles/1/authors'
               },
             },
             meta: {
@@ -310,15 +318,15 @@ export default class HasManyReference {
       }
     });
 
-   let userRef = blog.belongsTo('user');
+   let usersRef = blog.hasMany('user');
 
-   userRef.meta() // { lastUpdated: 1458014400000 }
+   usersRef.meta() // { lastUpdated: 1458014400000 }
    ```
 
-   @method meta
-    @public
-   @return {Object} The meta information for the belongs-to relationship.
-   */
+  @method meta
+  @public
+  @return {Object} The meta information for the belongs-to relationship.
+  */
   meta() {
     let meta: Dict<JSONValue> | null = null;
     let resource = this._resource();
