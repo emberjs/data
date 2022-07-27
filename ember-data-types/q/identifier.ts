@@ -1,14 +1,13 @@
 /**
   @module @ember-data/store
 */
+
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '@ember-data/store/-private/identifer-debug-consts';
+
 import type { ExistingResourceObject, ResourceIdentifierObject } from './ember-data-json-api';
 
 export type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
 export type IdentifierBucket = 'record';
-
-// provided for additional debuggability
-export const DEBUG_CLIENT_ORIGINATED: unique symbol = Symbol('record-originated-on-client');
-export const DEBUG_IDENTIFIER_BUCKET: unique symbol = Symbol('identifier-bucket');
 
 export interface Identifier {
   lid: string;

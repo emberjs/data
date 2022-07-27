@@ -5,7 +5,7 @@ import { DEBUG } from '@glimmer/env';
 import QUnit from 'qunit';
 import semver from 'semver';
 
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';

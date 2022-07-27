@@ -1,6 +1,6 @@
 import { DEBUG } from '@glimmer/env';
 
-import { DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
+import { DEBUG_IDENTIFIER_BUCKET } from './identifer-debug-consts';
 
 /*
   DEBUG only fields. Keeping this in a separate interface

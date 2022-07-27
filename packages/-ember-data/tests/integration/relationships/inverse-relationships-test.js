@@ -678,7 +678,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     const identifier = comment._internalModel.identifier;
 
-    assert.false(graphFor(store._storeWrapper).identifiers.has(identifier), 'relationships are cleared');
+    assert.false(graphFor(store).identifiers.has(identifier), 'relationships are cleared');
     assert.ok(recordData.isDestroyed, 'recordData is destroyed');
   });
 });

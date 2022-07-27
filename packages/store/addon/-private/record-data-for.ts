@@ -1,9 +1,10 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
-import type { RecordData } from '../ts-interfaces/record-data';
-import type { RecordInstance } from '../ts-interfaces/record-instance';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordData } from '@ember-data/types/q/record-data';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+
 import WeakCache from './weak-cache';
 
 /*

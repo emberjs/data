@@ -5,10 +5,10 @@
 import { deprecate } from '@ember/debug';
 
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
+import type { FindOptions } from '@ember-data/types/q/store';
+import type { Dict } from '@ember-data/types/q/utils';
 
-import type { ModelSchema } from '../ts-interfaces/ds-model';
-import { FindOptions } from '../ts-interfaces/store';
-import type { Dict } from '../ts-interfaces/utils';
 import type RecordArray from './record-arrays/record-array';
 import type Snapshot from './snapshot';
 /**

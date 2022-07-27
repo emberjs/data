@@ -7,23 +7,22 @@ import type {
 } from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
-import type CoreStore from '@ember-data/store/-private/core-store';
-import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
+import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
   JsonApiDocument,
   SingleResourceDocument,
-} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+} from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { Dict } from '@ember-data/types/q/utils';
 
 class AbstractMap {
-  constructor(private store: CoreStore, private isImplicit: boolean) {}
+  constructor(private store: Store, private isImplicit: boolean) {}
 
   has(identifier: StableRecordIdentifier) {
-    let graph = graphFor(this.store._storeWrapper);
+    let graph = graphFor(this.store);
     return graph.identifiers.has(identifier);
   }
 }
@@ -32,7 +31,7 @@ class AbstractGraph {
   public identifiers: AbstractMap;
   public implicit: { has(identifier: StableRecordIdentifier): boolean };
 
-  constructor(private store: CoreStore) {
+  constructor(private store: Store) {
     this.identifiers = new AbstractMap(store, false);
     this.implicit = {
       has: (identifier) => {
@@ -45,11 +44,11 @@ class AbstractGraph {
     identifier: StableRecordIdentifier,
     propertyName: string
   ): ManyRelationship | BelongsToRelationship | ImplicitRelationship {
-    return graphFor(this.store._storeWrapper).get(identifier, propertyName);
+    return graphFor(this.store).get(identifier, propertyName);
   }
 
   getImplicit(identifier: StableRecordIdentifier): Dict<ImplicitRelationship> {
-    const rels = graphFor(this.store._storeWrapper).identifiers.get(identifier);
+    const rels = graphFor(this.store).identifiers.get(identifier);
     let implicits = Object.create(null);
     if (rels) {
       Object.keys(rels).forEach((key) => {
@@ -63,7 +62,7 @@ class AbstractGraph {
   }
 }
 
-function graphForTest(store: CoreStore) {
+function graphForTest(store: Store) {
   return new AbstractGraph(store);
 }
 
@@ -145,7 +144,7 @@ export interface Context {
   owner: any;
 }
 
-interface TestStore<T extends RecordInstance> extends CoreStore {
+interface TestStore<T extends RecordInstance> extends Store {
   push(data: EmptyResourceDocument): null;
   push(data: SingleResourceDocument): T;
   push(data: CollectionResourceDocument): T[];

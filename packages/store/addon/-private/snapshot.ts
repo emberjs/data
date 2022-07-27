@@ -10,19 +10,19 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
+import type { DSModel, DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
 import type {
   ExistingResourceIdentifierObject,
   NewResourceIdentifierObject,
-} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+} from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
+import type { ChangedAttributesHash } from '@ember-data/types/q/record-data';
+import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { FindOptions } from '@ember-data/types/q/store';
+import type { Dict } from '@ember-data/types/q/utils';
 
-import type { DSModel, DSModelSchema, ModelSchema } from '../ts-interfaces/ds-model';
-import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
-import { OptionsHash } from '../ts-interfaces/minimum-serializer-interface';
-import type { ChangedAttributesHash } from '../ts-interfaces/record-data';
-import type { AttributeSchema, RelationshipSchema } from '../ts-interfaces/record-data-schemas';
-import type { RecordInstance } from '../ts-interfaces/record-instance';
-import type { FindOptions } from '../ts-interfaces/store';
-import type { Dict } from '../ts-interfaces/utils';
 import type Store from './core-store';
 import type InternalModel from './model/internal-model';
 

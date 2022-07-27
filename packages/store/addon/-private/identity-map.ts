@@ -1,4 +1,5 @@
-import type { ConfidentDict } from '../ts-interfaces/utils';
+import type { ConfidentDict } from '@ember-data/types/q/utils';
+
 import InternalModelMap from './internal-model-map';
 
 /**

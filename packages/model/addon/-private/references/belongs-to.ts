@@ -5,20 +5,20 @@ import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { resolve } from 'rsvp';
 
 import type { BelongsToRelationship } from '@ember-data/record-data/-private';
-import type CoreStore from '@ember-data/store';
+import type Store from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
+import type { DebugWeakCache } from '@ember-data/store/-private/weak-cache';
 import type {
   LinkObject,
   Links,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
-import type { DebugWeakCache } from '@ember-data/store/-private/weak-cache';
+} from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import type { LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
@@ -53,7 +53,7 @@ export default class BelongsToReference {
   declare belongsToRelationship: BelongsToRelationship;
   declare type: string;
   #identifier: StableRecordIdentifier;
-  declare store: CoreStore;
+  declare store: Store;
 
   // unsubscribe tokens given to us by the notification manager
   #token!: Object;
@@ -62,7 +62,7 @@ export default class BelongsToReference {
   @tracked _ref = 0;
 
   constructor(
-    store: CoreStore,
+    store: Store,
     parentIdentifier: StableRecordIdentifier,
     belongsToRelationship: BelongsToRelationship,
     key: string
@@ -270,7 +270,7 @@ export default class BelongsToReference {
   }
 
   _resource() {
-    return this.store.recordDataFor(this.#identifier, false).getBelongsTo(this.key);
+    return this.store._instanceCache.recordDataFor(this.#identifier, false).getBelongsTo(this.key);
   }
 
   remoteType(): 'link' | 'id' {

@@ -11,7 +11,6 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { recordDataFor } from '@ember-data/store/-private';
 
 function idsFromArr(arr) {
   return arr.map((i) => i.id);

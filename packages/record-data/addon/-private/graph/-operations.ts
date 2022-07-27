@@ -1,8 +1,8 @@
 import type {
   CollectionResourceRelationship,
   SingleResourceRelationship,
-} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+} from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 export interface Operation {
   op: string;

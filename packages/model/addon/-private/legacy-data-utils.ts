@@ -1,22 +1,45 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import type Store from '@ember-data/store';
+import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
 import type { JsonApiDocument } from '@ember-data/types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface, RequestType } from '@ember-data/types/q/minimum-serializer-interface';
 
-import type Store from './core-store';
-import type ShimModelClass from './model/shim-model-class';
+export function iterateData<T>(data: T[] | T, fn: (o: T, index?: number) => T) {
+  if (Array.isArray(data)) {
+    return data.map(fn);
+  } else {
+    return fn(data);
+  }
+}
 
-/**
-  This is a helper method that validates a JSON API top-level document
+export function assertIdentifierHasId(
+  identifier: StableRecordIdentifier
+): asserts identifier is StableExistingRecordIdentifier {
+  assert(`Attempted to schedule a fetch for a record without an id.`, identifier.id !== null);
+}
 
-  The format of a document is described here:
-  http://jsonapi.org/format/#document-top-level
+export function normalizeResponseHelper(
+  serializer: MinimumSerializerInterface | null,
+  store: Store,
+  modelClass: ShimModelClass,
+  payload: AdapterPayload,
+  id: string | null,
+  requestType: RequestType
+): JsonApiDocument {
+  let normalizedResponse = serializer
+    ? serializer.normalizeResponse(store, modelClass, payload, id, requestType)
+    : payload;
 
-  @internal
-*/
-function validateDocumentStructure(doc?: AdapterPayload | JsonApiDocument): asserts doc is JsonApiDocument {
+  validateDocumentStructure(normalizedResponse);
+
+  return normalizedResponse;
+}
+
+export function validateDocumentStructure(doc?: AdapterPayload | JsonApiDocument): asserts doc is JsonApiDocument {
   if (DEBUG) {
     let errors: string[] = [];
     if (!doc || typeof doc !== 'object') {
@@ -66,21 +89,4 @@ function validateDocumentStructure(doc?: AdapterPayload | JsonApiDocument): asse
       errors.length === 0
     );
   }
-}
-
-export function normalizeResponseHelper(
-  serializer: MinimumSerializerInterface | null,
-  store: Store,
-  modelClass: ShimModelClass,
-  payload: AdapterPayload,
-  id: string | null,
-  requestType: RequestType
-): JsonApiDocument {
-  let normalizedResponse = serializer
-    ? serializer.normalizeResponse(store, modelClass, payload, id, requestType)
-    : payload;
-
-  validateDocumentStructure(normalizedResponse);
-
-  return normalizedResponse;
 }

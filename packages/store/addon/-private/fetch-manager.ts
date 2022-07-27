@@ -8,25 +8,25 @@ import { DEBUG } from '@glimmer/env';
 import { default as RSVP, resolve } from 'rsvp';
 
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
-
-import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
-import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
+import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
+import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
-} from '../ts-interfaces/identifier';
-import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serializer-interface';
-import { FindOptions } from '../ts-interfaces/store';
-import type { Dict } from '../ts-interfaces/utils';
+} from '@ember-data/types/q/identifier';
+import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
+import type { FindOptions } from '@ember-data/types/q/store';
+import type { Dict } from '@ember-data/types/q/utils';
+
 import coerceId from './coerce-id';
-import type CoreStore from './core-store';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
+import type Store from './core-store';
 import { errorsArrayToHash } from './errors-utils';
 import ShimModelClass from './model/shim-model-class';
 import RequestCache from './request-cache';
+import { normalizeResponseHelper } from './serializer-response';
 import Snapshot from './snapshot';
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
-import { normalizeResponseHelper } from './store/serializer-response';
 import WeakCache from './weak-cache';
 
 function payloadIsNotBlank(adapterPayload): boolean {
@@ -39,7 +39,7 @@ function payloadIsNotBlank(adapterPayload): boolean {
 
 type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
-  extractErrors?(store: CoreStore, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
+  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
 };
 
 export const SaveOp: unique symbol = Symbol('SaveOp');
@@ -77,7 +77,7 @@ export default class FetchManager {
   // fetches pending in the runloop, waiting to be coalesced
   declare _pendingFetch: Map<string, PendingFetchItem[]>;
 
-  constructor(private _store: CoreStore) {
+  constructor(private _store: Store) {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
@@ -437,7 +437,7 @@ export default class FetchManager {
 
   _findMany(
     adapter: any,
-    store: CoreStore,
+    store: Store,
     modelName: string,
     snapshots: Snapshot[],
     identifiers: RecordIdentifier[],

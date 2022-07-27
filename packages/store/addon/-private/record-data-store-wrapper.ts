@@ -1,20 +1,20 @@
 import { importSync } from '@embroider/macros';
 
-import type { RelationshipDefinition } from '@ember-data/model/-private/relationships/relationship-meta';
+import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
-
-import type { IdentifierCache } from '../../identifier-cache';
-import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { RecordData } from '../../ts-interfaces/record-data';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordData } from '@ember-data/types/q/record-data';
 import type {
   AttributesSchema,
   RelationshipSchema,
   RelationshipsSchema,
-} from '../../ts-interfaces/record-data-schemas';
-import type { RecordDataStoreWrapper as StoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import constructResource from '../../utils/construct-resource';
-import type CoreStore from '../core-store';
+} from '@ember-data/types/q/record-data-schemas';
+import type { RecordDataStoreWrapper as StoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
+
+import type Store from './core-store';
+import type { IdentifierCache } from './identifier-cache';
 import { internalModelFactoryFor } from './internal-model-factory';
+import constructResource from './utils/construct-resource';
 
 /**
   @module @ember-data/store
@@ -38,9 +38,9 @@ if (HAS_RECORD_DATA_PACKAGE) {
 export default class RecordDataStoreWrapper implements StoreWrapper {
   declare _willNotify: boolean;
   declare _pendingNotifies: Map<StableRecordIdentifier, Map<string, string>>;
-  declare _store: CoreStore;
+  declare _store: Store;
 
-  constructor(_store: CoreStore) {
+  constructor(_store: Store) {
     this._store = _store;
     this._willNotify = false;
     this._pendingNotifies = new Map();

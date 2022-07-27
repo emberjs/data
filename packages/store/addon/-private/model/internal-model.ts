@@ -3,15 +3,15 @@ import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+import type { DSModel } from '@ember-data/types/q/ds-model';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
+import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
-import type { DSModel } from '../../ts-interfaces/ds-model';
-import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { ChangedAttributesHash, RecordData } from '../../ts-interfaces/record-data';
-import type { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
-import type CoreStore from '../core-store';
+import type Store from '../core-store';
 import { errorsHashToArray } from '../errors-utils';
-import { internalModelFactoryFor } from '../store/internal-model-factory';
+import { internalModelFactoryFor } from '../internal-model-factory';
 
 /**
   @module @ember-data/store
@@ -46,11 +46,11 @@ export default class InternalModel {
   declare _modelClass: any;
   declare __recordArrays: any;
   declare error: any;
-  declare store: CoreStore;
+  declare store: Store;
   declare identifier: StableRecordIdentifier;
   declare hasRecord: boolean;
 
-  constructor(store: CoreStore, identifier: StableRecordIdentifier) {
+  constructor(store: Store, identifier: StableRecordIdentifier) {
     this.store = store;
     this.identifier = identifier;
     this._id = identifier.id;

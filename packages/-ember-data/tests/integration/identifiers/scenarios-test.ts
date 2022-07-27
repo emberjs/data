@@ -14,14 +14,14 @@ import Store, {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
+import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   IdentifierBucket,
   ResourceData,
   StableIdentifier,
   StableRecordIdentifier,
-} from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { ConfidentDict } from '@ember-data/store/-private/ts-interfaces/utils';
+} from '@ember-data/types/q/identifier';
+import type { ConfidentDict } from '@ember-data/types/q/utils';
 
 function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;

@@ -31,7 +31,7 @@ import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
 import notifyChanges from './notify-changes';
 import RecordState, { peekTag, tagged } from './record-state';
-import { relationshipFromMeta } from './relationships/relationship-meta';
+import { relationshipFromMeta } from './relationship-meta';
 
 const { changeProperties } = Ember;
 export const LEGACY_SUPPORT = new WeakCache(DEBUG ? 'legacy-relationships' : '');

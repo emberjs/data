@@ -12,22 +12,22 @@ import { Promise } from 'rsvp';
 import type { RecordArrayManager, Snapshot } from 'ember-data/-private';
 
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { FindOptions } from '@ember-data/types/q/store';
 
-import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
-import type { FindOptions } from '../../ts-interfaces/store';
-import type CoreStore from '../core-store';
+import type Store from '../core-store';
 import type { PromiseArray } from '../promise-proxies';
 import { promiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
 
-function recordForIdentifier(store: CoreStore, identifier: StableRecordIdentifier): RecordInstance {
+function recordForIdentifier(store: Store, identifier: StableRecordIdentifier): RecordInstance {
   return store._instanceCache.getRecord(identifier);
 }
 
 export interface RecordArrayCreateArgs {
   modelName: string;
-  store: CoreStore;
+  store: Store;
   manager: RecordArrayManager;
   content: NativeArray<StableRecordIdentifier>;
   isLoaded: boolean;
@@ -82,7 +82,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @private
     @type Store
     */
-  declare store: CoreStore;
+  declare store: Store;
   declare _updatingPromise: PromiseArray<RecordInstance, RecordArray> | null;
   declare manager: RecordArrayManager;
 

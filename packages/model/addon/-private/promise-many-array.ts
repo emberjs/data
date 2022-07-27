@@ -10,7 +10,7 @@ import { resolve } from 'rsvp';
 import type { ManyArray } from 'ember-data/-private';
 
 import type { InternalModel } from '@ember-data/store/-private';
-import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 export interface HasManyProxyCreateArgs {
   promise: Promise<ManyArray>;

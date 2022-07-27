@@ -7,24 +7,20 @@ import { isEqual } from '@ember/utils';
 
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { recordDataFor, recordIdentifierFor, removeRecordDataFor } from '@ember-data/store/-private';
-import type { CollectionResourceRelationship } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { ChangedAttributesHash, RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+import type { CollectionResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
+import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type {
-  AttributesHash,
-  JsonApiResource,
-  JsonApiValidationError,
-} from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
+  DefaultSingleResourceRelationship,
+  RelationshipRecordData,
+} from '@ember-data/types/q/relationship-record-data';
 
 import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
 import type BelongsToRelationship from './relationships/state/belongs-to';
 import type ManyRelationship from './relationships/state/has-many';
-import type {
-  DefaultSingleResourceRelationship,
-  RelationshipRecordData,
-} from './ts-interfaces/relationship-record-data';
 
 let nextBfsId = 1;
 

@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';

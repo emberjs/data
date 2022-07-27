@@ -7,9 +7,9 @@ import { importSync } from '@embroider/macros';
 import type Model from '@ember-data/model';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_STRING_ARG_SCHEMAS } from '@ember-data/private-build-infra/deprecations';
+import type { RecordIdentifier } from '@ember-data/types/q/identifier';
+import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
-import type { RecordIdentifier } from '../ts-interfaces/identifier';
-import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import type Store from './core-store';
 import normalizeModelName from './normalize-model-name';
 

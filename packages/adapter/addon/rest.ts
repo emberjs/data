@@ -13,8 +13,8 @@ import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
 import type Snapshot from '@ember-data/store/-private/snapshot';
 import type SnapshotRecordArray from '@ember-data/store/-private/snapshot-record-array';
-import { AdapterPayload } from '@ember-data/store/-private/ts-interfaces/minimum-adapter-interface';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 import type { FastBoot } from './-private/fastboot-interface';

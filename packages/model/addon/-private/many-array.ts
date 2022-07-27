@@ -8,20 +8,20 @@ import EmberObject, { get } from '@ember/object';
 
 import { all } from 'rsvp';
 
-import type { RelationshipRecordData } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
+import type Store from '@ember-data/store';
 import { PromiseArray, recordDataFor } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/core-store';
 import type { CreateRecordProperties } from '@ember-data/store/-private/core-store';
-import ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
-import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-model';
-import type { Links, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
-import { FindOptions } from '@ember-data/store/-private/ts-interfaces/store';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
+import type { DSModelSchema } from '@ember-data/types/q/ds-model';
+import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { RelationshipRecordData } from '@ember-data/types/q/relationship-record-data';
+import type { FindOptions } from '@ember-data/types/q/store';
+import type { Dict } from '@ember-data/types/q/utils';
 
-import { LegacySupport } from '../legacy-relationships-support';
 import diffArray from './diff-array';
+import { LegacySupport } from './legacy-relationships-support';
 
 interface MutableArrayWithObject<T, M = T> extends EmberObject, MutableArray<M> {}
 const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as new <
@@ -30,7 +30,7 @@ const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as ne
 >() => MutableArrayWithObject<T, M>;
 
 export interface ManyArrayCreateArgs {
-  store: CoreStore;
+  store: Store;
   type: ShimModelClass;
   recordData: RelationshipRecordData;
   key: string;
@@ -100,7 +100,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
   declare currentState: StableRecordIdentifier[];
   declare recordData: RelationshipRecordData;
   declare legacySupport: LegacySupport;
-  declare store: CoreStore;
+  declare store: Store;
   declare key: string;
   declare type: DSModelSchema;
 
@@ -311,7 +311,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
         // TODO figure out where this state comes from
-        let im = this.store._internalModelForResource(jsonApi.data[i]);
+        let im = this.store._instanceCache._internalModelForResource(jsonApi.data[i]);
         let shouldRemove = im._isDematerializing || im.isEmpty || !im.isLoaded;
 
         if (!shouldRemove) {

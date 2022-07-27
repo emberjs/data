@@ -3,31 +3,34 @@ import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
-import coerceId, { ensureStringId } from './coerce-id';
-import CoreStore, { assertIdentifierHasId, CreateRecordProperties } from './core-store';
-import InternalModel from './model/internal-model';
-import RecordReference from './model/record-reference';
-import normalizeModelName from './normalize-model-name';
-import recordDataFor, { setRecordDataFor } from './record-data-for';
-import Snapshot from './snapshot';
-import { internalModelFactoryFor, setRecordIdentifier } from './store/internal-model-factory';
-import RecordDataStoreWrapper from './store/record-data-store-wrapper';
-import { ExistingResourceObject, ResourceIdentifierObject } from './ts-interfaces/ember-data-json-api';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
-} from './ts-interfaces/identifier';
-import { RecordData } from './ts-interfaces/record-data';
-import type { RecordInstance } from './ts-interfaces/record-instance';
-import { FindOptions } from './ts-interfaces/store';
+} from '@ember-data/types/q/identifier';
+import type { RecordData } from '@ember-data/types/q/record-data';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { FindOptions } from '@ember-data/types/q/store';
+
+import coerceId, { ensureStringId } from './coerce-id';
+import type { CreateRecordProperties } from './core-store';
+import type Store from './core-store';
+import { assertIdentifierHasId } from './core-store';
+import { internalModelFactoryFor, setRecordIdentifier } from './internal-model-factory';
+import InternalModel from './model/internal-model';
+import RecordReference from './model/record-reference';
+import normalizeModelName from './normalize-model-name';
+import recordDataFor, { setRecordDataFor } from './record-data-for';
+import RecordDataStoreWrapper from './record-data-store-wrapper';
+import Snapshot from './snapshot';
 import constructResource from './utils/construct-resource';
 import WeakCache from './weak-cache';
 
 const RECORD_REFERENCES = new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : '');
-export const StoreMap = new WeakCache<RecordInstance, CoreStore>(DEBUG ? 'store' : '');
+export const StoreMap = new WeakCache<RecordInstance, Store>(DEBUG ? 'store' : '');
 
-export function storeFor(record: RecordInstance): CoreStore | undefined {
+export function storeFor(record: RecordInstance): Store | undefined {
   const store = StoreMap.get(record);
 
   assert(
@@ -42,7 +45,7 @@ type Caches = {
   recordData: WeakMap<StableRecordIdentifier, RecordData>;
 };
 export class InstanceCache {
-  declare store: CoreStore;
+  declare store: Store;
   declare _storeWrapper: RecordDataStoreWrapper;
 
   #instances: Caches = {
@@ -50,7 +53,7 @@ export class InstanceCache {
     recordData: new WeakMap<StableRecordIdentifier, RecordData>(),
   };
 
-  constructor(store: CoreStore) {
+  constructor(store: Store) {
     this.store = store;
 
     this._storeWrapper = new RecordDataStoreWrapper(this.store);

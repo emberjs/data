@@ -11,7 +11,7 @@ export default function getFetchFunction(): FetchFunction {
 
   if (has('fetch')) {
     // use `fetch` module by default, this is commonly provided by ember-fetch
-    let fetchFn = require('fetch').default;
+    let fetchFn = (require('fetch') as { default: FetchFunction }).default;
     _fetch = () => fetchFn;
   } else if (typeof fetch === 'function') {
     // fallback to using global fetch

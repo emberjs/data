@@ -3,16 +3,16 @@ import { computed } from '@ember/object';
 import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
 
+import type Store from '@ember-data/store';
 import { PromiseObject } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/core-store';
-import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { Dict } from '@ember-data/types/q/utils';
 
-import { LegacySupport } from '../legacy-relationships-support';
+import { LegacySupport } from './legacy-relationships-support';
 
 export interface BelongsToProxyMeta {
   key: string;
-  store: CoreStore;
+  store: Store;
   legacySupport: LegacySupport;
   modelName: string;
 }

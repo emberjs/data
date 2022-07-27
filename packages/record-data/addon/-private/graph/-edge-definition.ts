@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import type { Graph } from '.';
 import { expandingGet, expandingSet } from './-utils';

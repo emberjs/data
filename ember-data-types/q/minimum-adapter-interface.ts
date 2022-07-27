@@ -1,8 +1,9 @@
-import type Store from '../core-store';
-import type AdapterPopulatedRecordArray from '../record-arrays/adapter-populated-record-array';
-import type Snapshot from '../snapshot';
-import type SnapshotRecordArray from '../snapshot-record-array';
-import type { ModelSchema } from '../ts-interfaces/ds-model';
+import type Store from '@ember-data/store';
+import type AdapterPopulatedRecordArray from '@ember-data/store/-private/record-arrays/adapter-populated-record-array';
+import type Snapshot from '@ember-data/store/-private/snapshot';
+import type SnapshotRecordArray from '@ember-data/store/-private/snapshot-record-array';
+
+import type { ModelSchema } from './ds-model';
 import type { RelationshipSchema } from './record-data-schemas';
 import type { Dict } from './utils';
 

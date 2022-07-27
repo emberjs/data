@@ -21,50 +21,51 @@ import {
   DEPRECATE_STORE_FIND,
 } from '@ember-data/private-build-infra/deprecations';
 import type { RecordData as RecordDataClass } from '@ember-data/record-data/-private';
-
-import { IdentifierCache } from '../identifiers/cache';
-import { InstanceCache, storeFor, StoreMap } from '../instance-cache';
-import type { DSModel } from '../ts-interfaces/ds-model';
+import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
   JsonApiDocument,
   ResourceIdentifierObject,
   SingleResourceDocument,
-} from '../ts-interfaces/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
-import { MinimumAdapterInterface } from '../ts-interfaces/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serializer-interface';
-import type { RecordData } from '../ts-interfaces/record-data';
-import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
-import type { RecordInstance } from '../ts-interfaces/record-instance';
-import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
-import type { FindOptions } from '../ts-interfaces/store';
-import type { Dict } from '../ts-interfaces/utils';
-import constructResource from '../utils/construct-resource';
-import promiseRecord from '../utils/promise-record';
+} from '@ember-data/types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
+import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
+import type { RecordData } from '@ember-data/types/q/record-data';
+import type { RecordDataRecordWrapper } from '@ember-data/types/q/record-data-record-wrapper';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
+import type { FindOptions } from '@ember-data/types/q/store';
+import type { Dict } from '@ember-data/types/q/utils';
+
 import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
 import FetchManager, { SaveOp } from './fetch-manager';
+import { _findAll, _query, _queryRecord } from './finders';
+import { IdentifierCache } from './identifier-cache';
+import { InstanceCache, storeFor, StoreMap } from './instance-cache';
+import {
+  internalModelFactoryFor,
+  peekRecordIdentifier,
+  recordIdentifierFor,
+  setRecordIdentifier,
+} from './internal-model-factory';
 import RecordReference from './model/record-reference';
 import type ShimModelClass from './model/shim-model-class';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
-import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
+import AdapterPopulatedRecordArray from './record-arrays/adapter-populated-record-array';
+import RecordArray from './record-arrays/record-array';
 import { setRecordDataFor } from './record-data-for';
+import RecordDataStoreWrapper from './record-data-store-wrapper';
 import NotificationManager from './record-notification-manager';
 import type RequestCache from './request-cache';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
-import { _findAll, _query, _queryRecord } from './store/finders';
-import {
-  internalModelFactoryFor,
-  peekRecordIdentifier,
-  recordIdentifierFor,
-  setRecordIdentifier,
-} from './store/internal-model-factory';
-import RecordDataStoreWrapper from './store/record-data-store-wrapper';
+import constructResource from './utils/construct-resource';
+import promiseRecord from './utils/promise-record';
 
 export { storeFor };
 
@@ -160,7 +161,7 @@ export interface CreateRecordProperties {
   @extends Ember.Service
 */
 
-class CoreStore extends Service {
+class Store extends Service {
   /**
    * Ember Data uses several specialized micro-queues for organizing
     and coalescing similar async work.
@@ -177,8 +178,8 @@ class CoreStore extends Service {
 
   declare _notificationManager: NotificationManager;
   declare identifierCache: IdentifierCache;
-  declare _adapterCache: Dict<MinimumAdapterInterface & { store: CoreStore }>;
-  declare _serializerCache: Dict<MinimumSerializerInterface & { store: CoreStore }>;
+  declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
+  declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
@@ -306,7 +307,7 @@ class CoreStore extends Service {
       // TODO this needs to not use the private property here to get modelFactoryCache so as to not break interop
       return getModelFactory(
         this,
-        (this._schemaDefinitionService as DSModelSchemaDefinitionService)._modelFactoryCache,
+        (this.getSchemaDefinitionService() as DSModelSchemaDefinitionService)._modelFactoryCache,
         modelName
       ).create(createOptions);
     }
@@ -368,11 +369,13 @@ class CoreStore extends Service {
     );
     if (HAS_MODEL_PACKAGE) {
       let normalizedModelName = normalizeModelName(modelName);
-      // TODO for interop _modelFactoryCache needs to be accessible without us grabbing it from the schema service
-      // or we need a private way to know we are directly working with the DSModel schema service
+      // TODO this is safe only because
+      // apps would be horribly broken if the schema service were using DS_MODEL but not using DS_MODEL's schema service.
+      // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
+      // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
       let maybeFactory = getModelFactory(
         this,
-        (this._schemaDefinitionService as DSModelSchemaDefinitionService)._modelFactoryCache,
+        (this.getSchemaDefinitionService() as DSModelSchemaDefinitionService)._modelFactoryCache,
         normalizedModelName
       );
 
@@ -1284,6 +1287,7 @@ class CoreStore extends Service {
     if (options && options.adapterOptions) {
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
     }
+    let recordArray = options?._recordArray || null;
 
     let normalizedModelName = normalizeModelName(modelName);
     let adapter = this.adapterFor(normalizedModelName);
@@ -1299,7 +1303,7 @@ class CoreStore extends Service {
       this,
       normalizedModelName,
       query,
-      null,
+      recordArray,
       adapterOptionsWrapper
     ) as unknown as Promise<AdapterPopulatedRecordArray>;
 
@@ -2471,7 +2475,7 @@ class CoreStore extends Service {
   }
 }
 
-export default CoreStore;
+export default Store;
 
 let assertDestroyingStore: Function;
 let assertDestroyedStoreOnly: Function;

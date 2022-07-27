@@ -1,4 +1,4 @@
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import type { RecordIdentifier } from './identifier';
 
@@ -25,14 +25,10 @@ export interface Request {
   options?: any;
 }
 
-export enum RequestStateEnum {
-  pending = 'pending',
-  fulfilled = 'fulfilled',
-  rejected = 'rejected',
-}
+export type RequestStates = 'pending' | 'fulfilled' | 'rejected';
 
 export interface RequestState {
-  state: RequestStateEnum;
+  state: RequestStates;
   type: 'query' | 'mutation';
   request: Request;
   response?: Response;

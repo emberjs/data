@@ -8,10 +8,11 @@ import { resolve } from 'rsvp';
 import { ManyArray } from 'ember-data/-private';
 
 import type { ManyRelationship } from '@ember-data/record-data/-private';
-import type CoreStore from '@ember-data/store';
+import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
+import type { DebugWeakCache } from '@ember-data/store/-private/weak-cache';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -19,12 +20,11 @@ import type {
   LinkObject,
   PaginationLinks,
   SingleResourceDocument,
-} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
-import type { FindOptions } from '@ember-data/store/-private/ts-interfaces/store';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
-import type { DebugWeakCache } from '@ember-data/store/-private/weak-cache';
+} from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { FindOptions } from '@ember-data/types/q/store';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import type { LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
@@ -55,7 +55,7 @@ export default class HasManyReference {
   declare key: string;
   declare hasManyRelationship: ManyRelationship;
   declare type: string;
-  declare store: CoreStore;
+  declare store: Store;
 
   // unsubscribe tokens given to us by the notification manager
   #token!: Object;
@@ -65,7 +65,7 @@ export default class HasManyReference {
   @tracked _ref = 0;
 
   constructor(
-    store: CoreStore,
+    store: Store,
     parentIdentifier: StableRecordIdentifier,
     hasManyRelationship: ManyRelationship,
     key: string
@@ -130,7 +130,7 @@ export default class HasManyReference {
   }
 
   _resource() {
-    return this.store.recordDataFor(this.#identifier, false).getHasMany(this.key);
+    return this.store._instanceCache.recordDataFor(this.#identifier, false).getHasMany(this.key);
   }
 
   /**
@@ -429,7 +429,7 @@ export default class HasManyReference {
 
     //TODO @runspired determine isLoaded via a better means
     return members.every((identifier) => {
-      let internalModel = this.store._internalModelForResource(identifier);
+      let internalModel = this.store._instanceCache._internalModelForResource(identifier);
       return internalModel.isLoaded === true;
     });
   }

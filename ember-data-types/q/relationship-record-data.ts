@@ -1,12 +1,9 @@
+import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
-import type {
-  CollectionResourceRelationship,
-  SingleResourceRelationship,
-} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 
-import type BelongsToRelationship from '../relationships/state/belongs-to';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
+import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
+import type { RecordData } from './record-data';
 
 export interface DefaultSingleResourceRelationship extends SingleResourceRelationship {
   _relationship: BelongsToRelationship;

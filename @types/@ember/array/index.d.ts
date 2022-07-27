@@ -96,6 +96,8 @@ declare class Array<T> extends Mixin<Array<unknown>> {
   static detect(arr: unknown): boolean;
 }
 
+export const NativeArray;
+
 export default Array;
 
 /**

@@ -262,7 +262,7 @@ module('async belongs-to rendering tests', function (hooks) {
         },
       });
 
-      const storeWrapper = store._storeWrapper;
+      const storeWrapper = store._instanceCache._storeWrapper;
       const identifier = pete._internalModel.identifier;
       const implicitRelationships = implicitRelationshipsFor(storeWrapper, identifier);
       const implicitKeys = Object.keys(implicitRelationships);

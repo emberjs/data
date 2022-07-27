@@ -4,7 +4,8 @@ import { reads } from '@ember/object/computed';
 
 import { resolve } from 'rsvp';
 
-import type { Dict } from '../ts-interfaces/utils';
+import type { Dict } from '@ember-data/types/q/utils';
+
 import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
 
 /**

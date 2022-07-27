@@ -2,7 +2,7 @@ import { getOwner } from '@ember/application';
 
 import type Store from '@ember-data/store';
 
-import Model from '../model';
+import Model from './model';
 
 /*
     In case someone defined a relationship to a mixin, for example:

@@ -9,7 +9,7 @@ import { pluralize } from 'ember-inflector';
 import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
 import type Snapshot from '@ember-data/store/-private/snapshot';
-import { AdapterPayload } from '@ember-data/store/-private/ts-interfaces/minimum-adapter-interface';
+import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 
 import { serializeIntoHash } from './-private';
 import type { FetchRequestInit, JQueryRequestInit } from './rest';

@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type ManyRelationship from '../../relationships/state/has-many';
 import type { RemoveFromRelatedRecordsOperation } from '../-operations';

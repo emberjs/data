@@ -1,11 +1,11 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import type Store from '@ember-data/store';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { WeakCache } from '@ember-data/store/-private';
-import type Store from '@ember-data/store/-private/core-store';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';

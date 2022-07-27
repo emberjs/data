@@ -9,12 +9,14 @@ import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 // import isStableIdentifier from '../identifiers/is-stable-identifier';
-import type { CollectionResourceDocument, Meta } from '../ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
-import type { Dict } from '../ts-interfaces/utils';
-import type CoreStore from './core-store';
-import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
-import { internalModelFactoryFor } from './store/internal-model-factory';
+import type { CollectionResourceDocument, Meta } from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { Dict } from '@ember-data/types/q/utils';
+
+import type Store from './core-store';
+import { internalModelFactoryFor } from './internal-model-factory';
+import AdapterPopulatedRecordArray from './record-arrays/adapter-populated-record-array';
+import RecordArray from './record-arrays/record-array';
 import WeakCache from './weak-cache';
 
 const RecordArraysCache = new WeakCache<StableRecordIdentifier, Set<RecordArray>>(DEBUG ? 'record-arrays' : '');
@@ -36,7 +38,7 @@ function getIdentifier(identifier: StableRecordIdentifier): StableRecordIdentifi
   return identifier;
 }
 
-function shouldIncludeInRecordArrays(store: CoreStore, identifier: StableRecordIdentifier): boolean {
+function shouldIncludeInRecordArrays(store: Store, identifier: StableRecordIdentifier): boolean {
   const cache = internalModelFactoryFor(store);
   const internalModel = cache.peek(identifier);
 
@@ -51,14 +53,14 @@ function shouldIncludeInRecordArrays(store: CoreStore, identifier: StableRecordI
   @internal
 */
 class RecordArrayManager {
-  declare store: CoreStore;
+  declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
   declare _liveRecordArrays: Dict<RecordArray>;
   declare _pendingIdentifiers: Dict<StableRecordIdentifier[]>;
   declare _adapterPopulatedRecordArrays: RecordArray[];
 
-  constructor(options: { store: CoreStore }) {
+  constructor(options: { store: Store }) {
     this.store = options.store;
     this.isDestroying = false;
     this.isDestroyed = false;
@@ -278,8 +280,8 @@ class RecordArrayManager {
         // TODO this assign kills the root reference but a deep-copy would be required
         // for both meta and links to actually not be by-ref. We whould likely change
         // this to a dev-only deep-freeze.
-        meta: Object.assign({} as Meta, payload!.meta),
-        links: Object.assign({}, payload!.links),
+        meta: Object.assign({} as Meta, payload?.meta),
+        links: Object.assign({}, payload?.links),
       });
 
       this._associateWithRecordArray(identifiers, array);
@@ -392,11 +394,7 @@ function removeFromArray(array: RecordArray[], item: RecordArray): boolean {
   return false;
 }
 
-function updateLiveRecordArray(
-  store: CoreStore,
-  recordArray: RecordArray,
-  identifiers: StableRecordIdentifier[]
-): void {
+function updateLiveRecordArray(store: Store, recordArray: RecordArray, identifiers: StableRecordIdentifier[]): void {
   let identifiersToAdd: StableRecordIdentifier[] = [];
   let identifiersToRemove: StableRecordIdentifier[] = [];
 
@@ -426,13 +424,13 @@ function updateLiveRecordArray(
   }
 }
 
-function removeFromAdapterPopulatedRecordArrays(store: CoreStore, identifiers: StableRecordIdentifier[]): void {
+function removeFromAdapterPopulatedRecordArrays(store: Store, identifiers: StableRecordIdentifier[]): void {
   for (let i = 0; i < identifiers.length; i++) {
     removeFromAll(store, identifiers[i]);
   }
 }
 
-function removeFromAll(store: CoreStore, identifier: StableRecordIdentifier): void {
+function removeFromAll(store: Store, identifier: StableRecordIdentifier): void {
   identifier = getIdentifier(identifier);
   const recordArrays = recordArraysForIdentifier(identifier);
 

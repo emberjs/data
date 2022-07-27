@@ -6,10 +6,11 @@ import { tracked } from '@glimmer/tracking';
 */
 import RSVP, { resolve } from 'rsvp';
 
-import type { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
-import type CoreStore from '../core-store';
+import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+
+import type Store from '../core-store';
 import type { NotificationType } from '../record-notification-manager';
 import { unsubscribe } from '../record-notification-manager';
 
@@ -32,7 +33,7 @@ export default class RecordReference {
 
   @tracked _ref = 0;
 
-  constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
+  constructor(public store: Store, identifier: StableRecordIdentifier) {
     this.#identifier = identifier;
     this.#token = store._notificationManager.subscribe(
       identifier,

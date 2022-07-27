@@ -4,9 +4,7 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import coerceId from './coerce-id';
-import normalizeModelName from './normalize-model-name';
-import type { ExistingResourceObject, ResourceIdentifierObject } from './ts-interfaces/ember-data-json-api';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
   ForgetMethod,
   GenerationMethod,
@@ -17,9 +15,12 @@ import type {
   ResourceData,
   StableRecordIdentifier,
   UpdateMethod,
-} from './ts-interfaces/identifier';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from './ts-interfaces/identifier';
-import type { ConfidentDict } from './ts-interfaces/utils';
+} from '@ember-data/types/q/identifier';
+import type { ConfidentDict } from '@ember-data/types/q/utils';
+
+import coerceId from './coerce-id';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from './identifer-debug-consts';
+import normalizeModelName from './normalize-model-name';
 import isNonEmptyString from './utils/is-non-empty-string';
 import WeakCache from './weak-cache';
 

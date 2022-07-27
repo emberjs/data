@@ -1,21 +1,22 @@
 import type NativeArray from '@ember/array/-private/native-array';
 import { assert } from '@ember/debug';
 
-import type { PromiseArray, RecordArrayManager } from 'ember-data/-private';
+import type { CollectionResourceDocument, Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { FindOptions } from '@ember-data/types/q/store';
+import type { Dict } from '@ember-data/types/q/utils';
 
-import type { CollectionResourceDocument, Links, Meta, PaginationLinks } from '../../ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { RecordInstance } from '../../ts-interfaces/record-instance';
-import type { FindOptions } from '../../ts-interfaces/store';
-import type { Dict } from '../../ts-interfaces/utils';
-import type CoreStore from '../core-store';
+import type Store from '../core-store';
+import type { PromiseArray } from '../promise-proxies';
 import { promiseArray } from '../promise-proxies';
+import type RecordArrayManager from '../record-array-manager';
 import SnapshotRecordArray from '../snapshot-record-array';
 import RecordArray from './record-array';
 
 export interface AdapterPopulatedRecordArrayCreateArgs {
   modelName: string;
-  store: CoreStore;
+  store: Store;
   manager: RecordArrayManager;
   content: NativeArray<StableRecordIdentifier>;
   isLoaded: boolean;
@@ -89,7 +90,7 @@ export default class AdapterPopulatedRecordArray extends RecordArray {
     const { store, query } = this;
 
     // TODO save options from initial request?
-    return promiseArray(store._query(this.modelName, query, this, {}));
+    return promiseArray(store.query(this.modelName, query, { _recordArray: this }));
   }
 
   _setObjects(identifiers: StableRecordIdentifier[], payload: CollectionResourceDocument) {

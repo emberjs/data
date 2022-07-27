@@ -4,9 +4,8 @@ import type {
   Request,
   RequestState,
   SaveRecordMutation,
-} from '../ts-interfaces/fetch-manager';
-import { RequestStateEnum } from '../ts-interfaces/fetch-manager';
-import type { RecordIdentifier } from '../ts-interfaces/identifier';
+} from '@ember-data/types/q/fetch-manager';
+import type { RecordIdentifier } from '@ember-data/types/q/identifier';
 
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
@@ -36,7 +35,7 @@ export default class RequestCache {
         this._pending[lid] = [];
       }
       let request: InternalRequest = {
-        state: RequestStateEnum.pending,
+        state: 'pending',
         request: queryRequest,
         type,
       } as InternalRequest;
@@ -48,7 +47,7 @@ export default class RequestCache {
         (result) => {
           this._dequeue(lid, request);
           let finalizedRequest = {
-            state: RequestStateEnum.fulfilled,
+            state: 'fulfilled',
             request: queryRequest,
             type,
             response: { data: result },
@@ -60,7 +59,7 @@ export default class RequestCache {
         (error) => {
           this._dequeue(lid, request);
           let finalizedRequest = {
-            state: RequestStateEnum.rejected,
+            state: 'rejected',
             request: queryRequest,
             type,
             response: { data: error && error.error },

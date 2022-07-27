@@ -1,6 +1,6 @@
 import { assert, warn } from '@ember/debug';
 
-import type { ExistingResourceIdentifierObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
 import _normalizeLink from '../../normalize-link';
 import type { UpdateRelationshipOperation } from '../-operations';

@@ -1,8 +1,12 @@
 import { assert } from '@ember/debug';
 
+import type {
+  ExistingResourceIdentifierObject,
+  ResourceIdentifierObject,
+} from '@ember-data/types/q/ember-data-json-api';
+
 import coerceId from '../coerce-id';
 import { isStableIdentifier } from '../identifier-cache';
-import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 import isNonEmptyString from './is-non-empty-string';
 
 function constructResource(type: ResourceIdentifierObject): ResourceIdentifierObject;

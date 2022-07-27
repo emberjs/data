@@ -9,8 +9,8 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import type { NewRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+import type { NewRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordData } from '@ember-data/types/q/record-data';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
