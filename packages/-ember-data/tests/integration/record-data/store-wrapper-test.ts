@@ -298,7 +298,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (count === 1) {
           recordData = storeWrapper.recordDataFor('house');
         } else if (count === 2) {
-          internalModel = store._internalModelForResource({ type: 'house', lid });
+          internalModel = store._instanceCache._internalModelForResource({ type: 'house', lid });
         }
       }
 

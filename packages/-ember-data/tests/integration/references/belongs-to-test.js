@@ -124,31 +124,6 @@ module('integration/references/belongs-to', function (hooks) {
     assert.strictEqual(familyReference.link(), '/families/1');
   });
 
-  test('BelongsToReference#parent is a reference to the parent where the relationship is defined', function (assert) {
-    let store = this.owner.lookup('service:store');
-
-    var person;
-    run(function () {
-      person = store.push({
-        data: {
-          type: 'person',
-          id: 1,
-          relationships: {
-            family: {
-              data: { type: 'family', id: 1 },
-            },
-          },
-        },
-      });
-    });
-
-    var personReference = store.getReference('person', 1);
-    var familyReference = person.belongsTo('family');
-
-    assert.ok(personReference, 'person reference is present');
-    assert.deepEqual(familyReference.parent, personReference, 'parent reference on BelongsToReference');
-  });
-
   test('BelongsToReference#meta() returns the most recent meta for the relationship', async function (assert) {
     let store = this.owner.lookup('service:store');
 

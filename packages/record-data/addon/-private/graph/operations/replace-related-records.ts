@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { ManyRelationship } from '../..';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
@@ -289,6 +289,19 @@ export function addToInverse(
     } else {
       relationship.addRecordData(value);
     }
+  }
+}
+
+export function notifyInverseOfPotentialMaterialization(
+  graph: Graph,
+  identifier: StableRecordIdentifier,
+  key: string,
+  value: StableRecordIdentifier,
+  isRemote: boolean
+) {
+  const relationship = graph.get(identifier, key);
+  if (isHasMany(relationship) && isRemote && relationship.canonicalMembers.has(value)) {
+    relationship.notifyHasManyChange();
   }
 }
 

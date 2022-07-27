@@ -10,6 +10,7 @@ import { setupRenderingTest } from 'ember-qunit';
 import { ServerError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 
@@ -261,7 +262,7 @@ module('async belongs-to rendering tests', function (hooks) {
         },
       });
 
-      const storeWrapper = store._storeWrapper;
+      const storeWrapper = store._instanceCache._storeWrapper;
       const identifier = pete._internalModel.identifier;
       const implicitRelationships = implicitRelationshipsFor(storeWrapper, identifier);
       const implicitKeys = Object.keys(implicitRelationships);
@@ -516,8 +517,8 @@ module('async belongs-to rendering tests', function (hooks) {
 
       const relationship = sedona.belongsTo('parent').belongsToRelationship;
       const { state, definition } = relationship;
-      let RelationshipPromiseCache = sedona._internalModel._relationshipPromisesCache;
-      let RelationshipProxyCache = sedona._internalModel._relationshipProxyCache;
+      let RelationshipPromiseCache = LEGACY_SUPPORT.get(sedona)._relationshipPromisesCache;
+      let RelationshipProxyCache = LEGACY_SUPPORT.get(sedona)._relationshipProxyCache;
 
       assert.true(definition.isAsync, 'The relationship is async');
       assert.false(state.isEmpty, 'The relationship is not empty');

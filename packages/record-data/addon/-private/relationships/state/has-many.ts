@@ -6,8 +6,8 @@ import type {
   Links,
   Meta,
   PaginationLinks,
-} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+} from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { BelongsToRelationship } from '../..';
 import type { Graph } from '../../graph';

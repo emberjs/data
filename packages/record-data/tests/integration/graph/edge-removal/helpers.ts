@@ -3,7 +3,7 @@ import { settled } from '@ember/test-helpers';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type { Relationship as ImplicitRelationship } from '@ember-data/record-data/-private';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { Context, UserRecord } from './setup';
 import { stateOf } from './setup';

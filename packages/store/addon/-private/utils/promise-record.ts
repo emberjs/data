@@ -1,23 +1,12 @@
-import CoreStore from '../system/core-store';
-import type { PromiseObject } from '../system/promise-proxies';
-import { promiseObject } from '../system/promise-proxies';
-import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
-import type { RecordInstance } from '../ts-interfaces/record-instance';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
-/**
-  @module @ember-data/store
-*/
+import type Store from '../core-store';
+import type { PromiseObject } from '../promise-proxies';
+import { promiseObject } from '../promise-proxies';
 
-/**
- * Get the materialized model from the internalModel/promise
- * that returns an internal model and return it in a promiseObject.
- *
- * Useful for returning from find methods
- *
- * @internal
- */
 export default function promiseRecord(
-  store: CoreStore,
+  store: Store,
   promise: Promise<StableRecordIdentifier>,
   label?: string
 ): PromiseObject<RecordInstance> {

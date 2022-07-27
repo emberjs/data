@@ -24,15 +24,28 @@ import {
   errorsArrayToHash,
   InternalModel,
   recordDataFor,
+  WeakCache,
 } from '@ember-data/store/-private';
 
 import Errors from './errors';
+import { LegacySupport } from './legacy-relationships-support';
 import notifyChanges from './notify-changes';
 import RecordState, { peekTag, tagged } from './record-state';
-import { relationshipFromMeta } from './system/relationships/relationship-meta';
+import { relationshipFromMeta } from './relationship-meta';
 
 const { changeProperties } = Ember;
+export const LEGACY_SUPPORT = new WeakCache(DEBUG ? 'legacy-relationships' : '');
+LEGACY_SUPPORT._generator = (record) => {
+  const identifier = recordIdentifierFor(record);
+  let support = LEGACY_SUPPORT.get(identifier);
 
+  if (!support) {
+    support = new LegacySupport(record);
+    LEGACY_SUPPORT.set(identifier, support);
+  }
+
+  return support;
+};
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
 
@@ -136,6 +149,10 @@ class Model extends EmberObject {
     notifications.subscribe(identity, (identifier, type, key) => {
       notifyChanges(identifier, type, key, this, store);
     });
+  }
+
+  willDestroy() {
+    LEGACY_SUPPORT.get(this)?.destroy();
   }
 
   /**
@@ -1020,7 +1037,7 @@ class Model extends EmberObject {
     @return {BelongsToReference} reference for this relationship
   */
   belongsTo(name) {
-    return this._internalModel.referenceFor('belongsTo', name);
+    return LEGACY_SUPPORT.lookup(this).referenceFor('belongsTo', name);
   }
 
   /**
@@ -1083,7 +1100,7 @@ class Model extends EmberObject {
     @return {HasManyReference} reference for this relationship
   */
   hasMany(name) {
-    return this._internalModel.referenceFor('hasMany', name);
+    return LEGACY_SUPPORT.lookup(this).referenceFor('hasMany', name);
   }
 
   /**

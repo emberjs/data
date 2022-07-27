@@ -1,6 +1,7 @@
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
-import type { Links, Meta, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { DefaultSingleResourceRelationship } from '@ember-data/types/q/relationship-record-data';
 
 import type { ManyRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -8,7 +9,6 @@ import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
 import { isNew } from '../../graph/-utils';
-import type { DefaultSingleResourceRelationship } from '../../ts-interfaces/relationship-record-data';
 
 export default class BelongsToRelationship {
   declare localState: StableRecordIdentifier | null;

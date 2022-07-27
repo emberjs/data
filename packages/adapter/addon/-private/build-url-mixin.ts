@@ -3,9 +3,9 @@ import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
-import type Snapshot from '@ember-data/store/-private/system/snapshot';
-import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type Snapshot from '@ember-data/store/-private/snapshot';
+import type SnapshotRecordArray from '@ember-data/store/-private/snapshot-record-array';
+import type { Dict } from '@ember-data/types/q/utils';
 
 /**
   @module @ember-data/adapter

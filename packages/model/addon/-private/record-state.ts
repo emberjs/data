@@ -3,13 +3,13 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { DEBUG } from '@glimmer/env';
 import { cached, tracked } from '@glimmer/tracking';
 
+import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { errorsArrayToHash, recordIdentifierFor } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
-import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
-import type RequestCache from '@ember-data/store/-private/system/request-cache';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
+import type RequestCache from '@ember-data/store/-private/request-cache';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordData } from '@ember-data/types/q/record-data';
 
 type Model = InstanceType<typeof import('./model')>;
 
@@ -139,7 +139,7 @@ root
   @internal
 */
 export default class RecordState {
-  declare store: CoreStore;
+  declare store: Store;
   declare identifier: StableRecordIdentifier;
   declare record: Model;
   declare rs: RequestCache;

@@ -58,8 +58,8 @@ function addonBuildConfigForDataPackage(PackageName) {
       if (message.code === 'CIRCULAR_DEPENDENCY') {
         return;
       } else if (message.code === 'NON_EXISTENT_EXPORT') {
-        // ignore ts-interface imports
-        if (message.message.indexOf(`/ts-interfaces/`) !== -1) {
+        // ignore type imports
+        if (message.message.indexOf(`@ember-data/types`) !== -1) {
           return;
         }
       } else if (message.code === 'UNRESOLVED_IMPORT') {

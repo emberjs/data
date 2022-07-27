@@ -1,11 +1,11 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import type Store from '@ember-data/store';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { WeakCache } from '@ember-data/store/-private';
-import type Store from '@ember-data/store/-private/system/core-store';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
@@ -40,11 +40,11 @@ Graphs._generator = (wrapper: RecordDataStoreWrapper) => {
 };
 
 function isStore(maybeStore: unknown): maybeStore is Store {
-  return (maybeStore as Store)._storeWrapper !== undefined;
+  return (maybeStore as Store)._instanceCache !== undefined;
 }
 
 function getWrapper(store: RecordDataStoreWrapper | Store): RecordDataStoreWrapper {
-  return isStore(store) ? store._storeWrapper : store;
+  return isStore(store) ? store._instanceCache._storeWrapper : store;
 }
 
 export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefined {

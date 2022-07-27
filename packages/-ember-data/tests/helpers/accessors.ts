@@ -4,28 +4,28 @@ import type {
   Relationship as ImplicitRelationship,
 } from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
+import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { ConfidentDict as RelationshipDict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { ConfidentDict as RelationshipDict } from '@ember-data/types/q/utils';
 
 export function getRelationshipStateForRecord(
-  record: { store: CoreStore },
+  record: { store: Store },
   propertyName: string
 ): BelongsToRelationship | ManyRelationship | ImplicitRelationship {
   const identifier = recordIdentifierFor(record);
-  return graphFor(record.store._storeWrapper).get(identifier, propertyName);
+  return graphFor(record.store).get(identifier, propertyName);
 }
 
 export function hasRelationshipForRecord(
   record: {
-    store: CoreStore;
+    store: Store;
   },
   propertyName: string
 ): boolean {
   const identifier = recordIdentifierFor(record);
-  const relationships = graphFor(record.store._storeWrapper).identifiers.get(identifier);
+  const relationships = graphFor(record.store).identifiers.get(identifier);
   return relationships ? propertyName in relationships : false;
 }
 

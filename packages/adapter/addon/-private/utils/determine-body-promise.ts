@@ -1,7 +1,7 @@
 import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import type { RequestData } from '../../rest';
 import continueOnReject from './continue-on-reject';

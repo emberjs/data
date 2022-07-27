@@ -9,9 +9,9 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
-import type { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
+import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordData } from '@ember-data/types/q/record-data';
+import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

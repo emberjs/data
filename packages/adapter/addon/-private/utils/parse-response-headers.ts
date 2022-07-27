@@ -1,4 +1,4 @@
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { Dict } from '@ember-data/types/q/utils';
 
 const newline = /\r?\n/;
 

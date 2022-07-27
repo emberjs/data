@@ -1,17 +1,18 @@
 import { cacheFor } from '@ember/object/internals';
 
-import type CoreStore from '@ember-data/store/-private/system/core-store';
-import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
-import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type Store from '@ember-data/store';
+import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-type Model = InstanceType<typeof import('@ember-data/model').default>;
+import type Model from './model';
+import { LEGACY_SUPPORT } from './model';
 
 export default function notifyChanges(
   identifier: StableRecordIdentifier,
   value: NotificationType,
   key: string | undefined,
   record: Model,
-  store: CoreStore
+  store: Store
 ) {
   if (value === 'attributes') {
     if (key) {
@@ -24,10 +25,10 @@ export default function notifyChanges(
   } else if (value === 'relationships') {
     if (key) {
       let meta = record.constructor.relationshipsByName.get(key);
-      notifyRelationship(store, identifier, key, record, meta);
+      notifyRelationship(identifier, key, record, meta);
     } else {
       record.eachRelationship((key, meta) => {
-        notifyRelationship(store, identifier, key, record, meta);
+        notifyRelationship(identifier, key, record, meta);
       });
     }
   } else if (value === 'identity') {
@@ -35,12 +36,19 @@ export default function notifyChanges(
   }
 }
 
-function notifyRelationship(store: CoreStore, identifier: StableRecordIdentifier, key: string, record: Model, meta) {
-  let internalModel = store._internalModelForResource(identifier);
+function notifyRelationship(identifier: StableRecordIdentifier, key: string, record: Model, meta) {
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
   } else if (meta.kind === 'hasMany') {
-    let manyArray = internalModel._manyArrayCache[key];
+    let support = LEGACY_SUPPORT.get(identifier);
+    let manyArray = support && support._manyArrayCache[key];
+    let hasPromise = support && support._relationshipPromisesCache[key];
+
+    if (manyArray && hasPromise) {
+      // do nothing, we will notify the ManyArray directly
+      // once the fetch has completed.
+      return;
+    }
 
     if (manyArray) {
       manyArray.notify();
@@ -55,7 +63,7 @@ function notifyRelationship(store: CoreStore, identifier: StableRecordIdentifier
   }
 }
 
-function notifyAttribute(store: CoreStore, identifier: StableRecordIdentifier, key: string, record: Model) {
+function notifyAttribute(store: Store, identifier: StableRecordIdentifier, key: string, record: Model) {
   let currentValue = cacheFor(record, key);
 
   if (currentValue !== store._instanceCache.getRecordData(identifier).getAttr(key)) {

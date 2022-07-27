@@ -8,7 +8,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/system/relationships/relationship-payloads-manager (polymorphic)', function (hooks) {
+module('unit/relationships/relationship-payloads-manager (polymorphic)', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {

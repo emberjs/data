@@ -2,6 +2,7 @@ import { assert, inspect, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
+import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
 /**
@@ -142,6 +143,8 @@ function belongsTo(modelName, options) {
 
   return computed({
     get(key) {
+      const support = LEGACY_SUPPORT.lookup(this);
+
       if (DEBUG) {
         if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
@@ -150,7 +153,7 @@ function belongsTo(modelName, options) {
         }
         if (Object.prototype.hasOwnProperty.call(opts, 'serialize')) {
           warn(
-            `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://api.emberjs.com/ember-data/release/classes/Serializer`,
+            `You provided a serialize option on the "${key}" property in the "${support.identifier.type}" class, this belongs in the serializer. See Serializer and it's implementations https://api.emberjs.com/ember-data/release/classes/Serializer`,
             false,
             {
               id: 'ds.model.serialize-option-in-belongs-to',
@@ -160,7 +163,7 @@ function belongsTo(modelName, options) {
 
         if (Object.prototype.hasOwnProperty.call(opts, 'embedded')) {
           warn(
-            `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://api.emberjs.com/ember-data/release/classes/EmbeddedRecordsMixin`,
+            `You provided an embedded option on the "${key}" property in the "${support.identifier.type}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://api.emberjs.com/ember-data/release/classes/EmbeddedRecordsMixin`,
             false,
             {
               id: 'ds.model.embedded-option-in-belongs-to',
@@ -169,9 +172,10 @@ function belongsTo(modelName, options) {
         }
       }
 
-      return this._internalModel.getBelongsTo(key);
+      return support.getBelongsTo(key);
     },
     set(key, value) {
+      const support = LEGACY_SUPPORT.lookup(this);
       if (DEBUG) {
         if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
@@ -180,10 +184,10 @@ function belongsTo(modelName, options) {
         }
       }
       this.store._backburner.join(() => {
-        this._internalModel.setDirtyBelongsTo(key, value);
+        support.setDirtyBelongsTo(key, value);
       });
 
-      return this._internalModel.getBelongsTo(key);
+      return support.getBelongsTo(key);
     },
   }).meta(meta);
 }

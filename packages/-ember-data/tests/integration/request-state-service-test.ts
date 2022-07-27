@@ -8,8 +8,7 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
-import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
-import type { RequestStateEnum } from '@ember-data/store/-private/ts-interfaces/fetch-manager';
+import type { DSModel } from '@ember-data/types/q/ds-model';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -39,7 +38,7 @@ module('integration/request-state-service - Request State Service', function (ho
       data: {
         type: 'person',
         id: '1',
-        lid: '@ember-data:lid-person-1',
+        lid: '@lid:person-1',
         attributes: {
           name: 'Scumbag Dale',
         },
@@ -98,7 +97,7 @@ module('integration/request-state-service - Request State Service', function (ho
     let lastRequest = requestService.getLastRequestForRecord(identifier);
     let requestStateResult = {
       type: 'query' as const,
-      state: 'fulfilled' as RequestStateEnum,
+      state: 'fulfilled' as const,
       request: { data: [requestOp] },
       response: { data: normalizedHash },
     };
@@ -121,7 +120,7 @@ module('integration/request-state-service - Request State Service', function (ho
     let lastSavingRequest = requestService.getLastRequestForRecord(identifier);
     let savingRequestStateResult = {
       type: 'mutation' as const,
-      state: 'fulfilled' as RequestStateEnum,
+      state: 'fulfilled' as const,
       request: { data: [savingRequestOp] },
       response: { data: undefined },
     };
@@ -142,7 +141,7 @@ module('integration/request-state-service - Request State Service', function (ho
       data: {
         type: 'person',
         id: '1',
-        lid: '@ember-data:lid-person-1',
+        lid: '@lid:person-1',
         attributes: {
           name: 'Scumbag Dale',
         },
@@ -195,9 +194,9 @@ module('integration/request-state-service - Request State Service', function (ho
         assert.strictEqual(request.type, 'query', 'request is a query');
         assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
       } else if (count === 1) {
-        let requestStateResult = {
+        const requestStateResult = {
           type: 'query' as const,
-          state: 'fulfilled' as RequestStateEnum,
+          state: 'fulfilled' as const,
           request: { data: [requestOp] },
           response: { data: normalizedHash },
         };
@@ -207,9 +206,9 @@ module('integration/request-state-service - Request State Service', function (ho
         assert.strictEqual(request.type, 'mutation', 'request is a mutation');
         assert.deepEqual(request.request.data[0], savingRequestOp, 'request op is correct');
       } else if (count === 3) {
-        let savingRequestStateResult = {
+        const savingRequestStateResult = {
           type: 'mutation' as const,
-          state: 'fulfilled' as RequestStateEnum,
+          state: 'fulfilled' as const,
           request: { data: [savingRequestOp] },
           response: { data: undefined },
         };
