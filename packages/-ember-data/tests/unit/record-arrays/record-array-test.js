@@ -173,9 +173,9 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       content,
     });
 
-    let model1 = { lid: '@ember-data:lid-model-1' };
-    let model2 = { lid: '@ember-data:lid-model-2' };
-    let model3 = { lid: '@ember-data:lid-model-3' };
+    let model1 = { lid: '@lid:model-1' };
+    let model2 = { lid: '@lid:model-2' };
+    let model3 = { lid: '@lid:model-3' };
 
     assert.strictEqual(recordArray._pushIdentifiers([model1]), undefined, '_pushIdentifiers has no return value');
     assert.deepEqual(recordArray.get('content'), [model1], 'now contains model1');
@@ -201,9 +201,9 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       content,
     });
 
-    let model1 = { lid: '@ember-data:lid-model-1' };
-    let model2 = { lid: '@ember-data:lid-model-2' };
-    let model3 = { lid: '@ember-data:lid-model-3' };
+    let model1 = { lid: '@lid:model-1' };
+    let model2 = { lid: '@lid:model-2' };
+    let model3 = { lid: '@lid:model-3' };
 
     assert.strictEqual(recordArray.get('content').length, 0);
     assert.strictEqual(recordArray._removeIdentifiers([model1]), undefined, '_removeIdentifiers has no return value');

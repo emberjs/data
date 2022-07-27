@@ -6,7 +6,7 @@ import type {
 import { graphFor } from '@ember-data/record-data/-private';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type CoreStore from '@ember-data/store/-private/core-store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { ConfidentDict as RelationshipDict } from '@ember-data/store/-private/ts-interfaces/utils';
 

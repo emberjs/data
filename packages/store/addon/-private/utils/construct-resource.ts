@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
-import isStableIdentifier from '../identifiers/is-stable-identifier';
-import coerceId from '../system/coerce-id';
+import coerceId from '../coerce-id';
+import { isStableIdentifier } from '../identifier-cache';
 import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 import isNonEmptyString from './is-non-empty-string';
 

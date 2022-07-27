@@ -9,8 +9,8 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import type { RecordDataStoreWrapper, Snapshot } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
-import type NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
+import type CoreStore from '@ember-data/store/-private/core-store';
+import type NotificationManager from '@ember-data/store/-private/record-notification-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordDataRecordWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
 import type {

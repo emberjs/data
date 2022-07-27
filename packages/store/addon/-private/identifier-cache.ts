@@ -4,10 +4,9 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import coerceId from '../system/coerce-id';
-import normalizeModelName from '../system/normalize-model-name';
-import WeakCache from '../system/weak-cache';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
+import coerceId from './coerce-id';
+import normalizeModelName from './normalize-model-name';
+import type { ExistingResourceObject, ResourceIdentifierObject } from './ts-interfaces/ember-data-json-api';
 import type {
   ForgetMethod,
   GenerationMethod,
@@ -18,12 +17,24 @@ import type {
   ResourceData,
   StableRecordIdentifier,
   UpdateMethod,
-} from '../ts-interfaces/identifier';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
-import type { ConfidentDict } from '../ts-interfaces/utils';
-import isNonEmptyString from '../utils/is-non-empty-string';
-import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
-import uuidv4 from './utils/uuid-v4';
+} from './ts-interfaces/identifier';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from './ts-interfaces/identifier';
+import type { ConfidentDict } from './ts-interfaces/utils';
+import isNonEmptyString from './utils/is-non-empty-string';
+import WeakCache from './weak-cache';
+
+const IDENTIFIERS = new WeakSet();
+
+export function isStableIdentifier(identifier: Object): identifier is StableRecordIdentifier {
+  return IDENTIFIERS.has(identifier);
+}
+
+const isFastBoot = typeof FastBoot !== 'undefined';
+const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
+
+function uuidv4(): string {
+  return _crypto.randomUUID();
+}
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
@@ -75,7 +86,7 @@ function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 
     let { type, id } = data;
     // TODO: add test for id not a string
     if (isNonEmptyString(coerceId(id))) {
-      return `@ember-data:lid-${normalizeModelName(type)}-${id}`;
+      return `@lid:${normalizeModelName(type)}-${id}`;
     }
   }
   return uuidv4();
@@ -440,7 +451,7 @@ export class IdentifierCache {
     let index = keyOptions._allIdentifiers.indexOf(identifier);
     keyOptions._allIdentifiers.splice(index, 1);
 
-    unmarkStableIdentifier(identifierObject);
+    IDENTIFIERS.delete(identifierObject);
     this._forget(identifier, 'record');
   }
 
@@ -476,7 +487,7 @@ function makeStableRecordIdentifier(
     id,
     type,
   };
-  markStableIdentifier(recordIdentifier);
+  IDENTIFIERS.add(recordIdentifier);
 
   if (DEBUG) {
     // we enforce immutability in dev
@@ -498,7 +509,7 @@ function makeStableRecordIdentifier(
     };
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
     wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
-    markStableIdentifier(wrapper);
+    IDENTIFIERS.add(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);
     wrapper = freeze(wrapper);
     return wrapper;

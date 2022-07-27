@@ -3,16 +3,15 @@ import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
-import coerceId, { ensureStringId } from './system/coerce-id';
-import CoreStore, { assertIdentifierHasId, CreateRecordProperties } from './system/core-store';
-import InternalModel from './system/model/internal-model';
-import RecordReference from './system/model/record-reference';
-import normalizeModelName from './system/normalize-model-name';
-import recordDataFor, { setRecordDataFor } from './system/record-data-for';
-import Snapshot from './system/snapshot';
-import { internalModelFactoryFor, setRecordIdentifier } from './system/store/internal-model-factory';
-import RecordDataStoreWrapper from './system/store/record-data-store-wrapper';
-import WeakCache from './system/weak-cache';
+import coerceId, { ensureStringId } from './coerce-id';
+import CoreStore, { assertIdentifierHasId, CreateRecordProperties } from './core-store';
+import InternalModel from './model/internal-model';
+import RecordReference from './model/record-reference';
+import normalizeModelName from './normalize-model-name';
+import recordDataFor, { setRecordDataFor } from './record-data-for';
+import Snapshot from './snapshot';
+import { internalModelFactoryFor, setRecordIdentifier } from './store/internal-model-factory';
+import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { ExistingResourceObject, ResourceIdentifierObject } from './ts-interfaces/ember-data-json-api';
 import type {
   RecordIdentifier,
@@ -23,6 +22,7 @@ import { RecordData } from './ts-interfaces/record-data';
 import type { RecordInstance } from './ts-interfaces/record-instance';
 import { FindOptions } from './ts-interfaces/store';
 import constructResource from './utils/construct-resource';
+import WeakCache from './weak-cache';
 
 const RECORD_REFERENCES = new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : '');
 export const StoreMap = new WeakCache<RecordInstance, CoreStore>(DEBUG ? 'store' : '');
@@ -243,11 +243,6 @@ export class InstanceCache {
 
   createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
     return new Snapshot(options, identifier, this.store);
-  }
-
-  // TODO remove test usage
-  _internalModelsFor(modelName: string) {
-    return internalModelFactoryFor(this.store).modelMapFor(modelName);
   }
 
   __recordDataFor(resource: RecordIdentifier) {

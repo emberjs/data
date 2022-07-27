@@ -143,8 +143,8 @@ import { Promise as RSVPPromise } from 'rsvp';
 
 import type Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
-import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
-import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
+import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
+import type SnapshotRecordArray from '@ember-data/store/-private/snapshot-record-array';
 import type {
   AdapterPayload,
   MinimumAdapterInterface,

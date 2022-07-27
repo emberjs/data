@@ -3,7 +3,7 @@ import { assert } from '@ember/debug';
 import type { Snapshot } from 'ember-data/-private';
 
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
 import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type { MinimumSerializerInterface } from '@ember-data/store/-private/ts-interfaces/minimum-serializer-interface';
 

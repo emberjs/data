@@ -53,10 +53,10 @@ module('Integration | Graph | Operations', function (hooks) {
       JSON.parse(JSON.stringify(data.getData())),
       {
         data: [
-          { type: 'config', id: '1', lid: '@ember-data:lid-config-1' },
-          { type: 'config', id: '2', lid: '@ember-data:lid-config-2' },
-          { type: 'config', id: '3', lid: '@ember-data:lid-config-3' },
-          { type: 'config', id: '4', lid: '@ember-data:lid-config-4' },
+          { type: 'config', id: '1', lid: '@lid:config-1' },
+          { type: 'config', id: '2', lid: '@lid:config-2' },
+          { type: 'config', id: '3', lid: '@lid:config-3' },
+          { type: 'config', id: '4', lid: '@lid:config-4' },
         ],
       },
       'we have the expected data'
@@ -107,10 +107,10 @@ module('Integration | Graph | Operations', function (hooks) {
       JSON.parse(JSON.stringify(data.getData())),
       {
         data: [
-          { type: 'config', id: '1', lid: '@ember-data:lid-config-1' },
-          { type: 'config', id: '2', lid: '@ember-data:lid-config-2' },
-          { type: 'config', id: '3', lid: '@ember-data:lid-config-3' },
-          { type: 'config', id: '4', lid: '@ember-data:lid-config-4' },
+          { type: 'config', id: '1', lid: '@lid:config-1' },
+          { type: 'config', id: '2', lid: '@lid:config-2' },
+          { type: 'config', id: '3', lid: '@lid:config-3' },
+          { type: 'config', id: '4', lid: '@lid:config-4' },
         ],
       },
       'we have the expected data'

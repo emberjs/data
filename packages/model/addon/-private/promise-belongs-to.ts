@@ -4,7 +4,7 @@ import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
 
 import { PromiseObject } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type CoreStore from '@ember-data/store/-private/core-store';
 import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 

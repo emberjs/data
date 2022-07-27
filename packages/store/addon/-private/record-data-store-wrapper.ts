@@ -1,9 +1,9 @@
 import { importSync } from '@embroider/macros';
 
-import type { RelationshipDefinition } from '@ember-data/model/-private/system/relationships/relationship-meta';
+import type { RelationshipDefinition } from '@ember-data/model/-private/relationships/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
-import type { IdentifierCache } from '../../identifiers/cache';
+import type { IdentifierCache } from '../../identifier-cache';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordData } from '../../ts-interfaces/record-data';
 import type {

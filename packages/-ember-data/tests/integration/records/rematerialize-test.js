@@ -86,7 +86,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
     assert.true(
-      !!store.identifierCache.peekRecordIdentifier({ lid: '@ember-data:lid-person-1' }),
+      !!store.identifierCache.peekRecordIdentifier({ lid: '@lid:person-1' }),
       'The person identifier is loaded'
     );
 
@@ -94,7 +94,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     assert.strictEqual(store.peekRecord('person', '1'), null, 'The person is unloaded');
     assert.false(
-      !!store.identifierCache.peekRecordIdentifier({ lid: '@ember-data:lid-person-1' }),
+      !!store.identifierCache.peekRecordIdentifier({ lid: '@lid:person-1' }),
       'The person identifier is freed'
     );
 
@@ -215,14 +215,11 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     // assert our initial cache state
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
     assert.true(
-      !!store.identifierCache.peekRecordIdentifier({ lid: '@ember-data:lid-person-1' }),
+      !!store.identifierCache.peekRecordIdentifier({ lid: '@lid:person-1' }),
       'The person identifier is loaded'
     );
     assert.notStrictEqual(store.peekRecord('boat', '1'), null, 'The boat is in the store');
-    assert.true(
-      !!store.identifierCache.peekRecordIdentifier({ lid: '@ember-data:lid-boat-1' }),
-      'The boat identifier is loaded'
-    );
+    assert.true(!!store.identifierCache.peekRecordIdentifier({ lid: '@lid:boat-1' }), 'The boat identifier is loaded');
 
     let boats = await adam.get('boats');
     assert.strictEqual(boats.get('length'), 2, 'Before unloading boats.length is correct');
@@ -233,7 +230,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     // assert our new cache state
     assert.strictEqual(store.peekRecord('boat', '1'), null, 'The boat is unloaded');
     assert.true(
-      !!store.identifierCache.peekRecordIdentifier({ lid: '@ember-data:lid-boat-1' }),
+      !!store.identifierCache.peekRecordIdentifier({ lid: '@lid:boat-1' }),
       'The boat identifier is retained'
     );
 
@@ -249,7 +246,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     assert.notStrictEqual(store.peekRecord('boat', '1'), null, 'The boat is loaded');
     assert.true(
-      !!store.identifierCache.peekRecordIdentifier({ lid: '@ember-data:lid-boat-1' }),
+      !!store.identifierCache.peekRecordIdentifier({ lid: '@lid:boat-1' }),
       'The boat identifier is retained'
     );
   });

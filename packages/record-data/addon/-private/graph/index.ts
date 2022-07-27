@@ -3,7 +3,7 @@ import { DEBUG } from '@glimmer/env';
 
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { WeakCache } from '@ember-data/store/-private';
-import type Store from '@ember-data/store/-private/system/core-store';
+import type Store from '@ember-data/store/-private/core-store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 

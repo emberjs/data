@@ -98,7 +98,7 @@ export class DSModelSchemaDefinitionService {
 
   doesTypeExist(modelName: string): boolean {
     let normalizedModelName = normalizeModelName(modelName);
-    let factory = getModelFactory(this.store, this.store._modelFactoryCache, normalizedModelName);
+    let factory = getModelFactory(this.store, this._modelFactoryCache, normalizedModelName);
 
     return factory !== null;
   }

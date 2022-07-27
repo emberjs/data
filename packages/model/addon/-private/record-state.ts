@@ -5,9 +5,9 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import { storeFor } from '@ember-data/store';
 import { errorsArrayToHash, recordIdentifierFor } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
-import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
-import type RequestCache from '@ember-data/store/-private/system/request-cache';
+import type CoreStore from '@ember-data/store/-private/core-store';
+import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
+import type RequestCache from '@ember-data/store/-private/request-cache';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 

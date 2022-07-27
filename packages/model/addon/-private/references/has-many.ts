@@ -11,8 +11,7 @@ import type { ManyRelationship } from '@ember-data/record-data/-private';
 import type CoreStore from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
-import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
-import type { DebugWeakCache } from '@ember-data/store/-private/system/weak-cache';
+import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -25,6 +24,7 @@ import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-inter
 import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { FindOptions } from '@ember-data/store/-private/ts-interfaces/store';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { DebugWeakCache } from '@ember-data/store/-private/weak-cache';
 
 import type { LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';

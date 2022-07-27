@@ -1,6 +1,6 @@
-import CoreStore from '../system/core-store';
-import type { PromiseObject } from '../system/promise-proxies';
-import { promiseObject } from '../system/promise-proxies';
+import CoreStore from '../core-store';
+import type { PromiseObject } from '../promise-proxies';
+import { promiseObject } from '../promise-proxies';
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordInstance } from '../ts-interfaces/record-instance';
 

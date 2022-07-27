@@ -14,8 +14,8 @@ import type {
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type { DefaultSingleResourceRelationship } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
 import { InternalModel, recordDataFor, recordIdentifierFor, storeFor } from '@ember-data/store/-private';
-import { IdentifierCache } from '@ember-data/store/-private/identifiers/cache';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type CoreStore from '@ember-data/store/-private/core-store';
+import { IdentifierCache } from '@ember-data/store/-private/identifier-cache';
 import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import { ResourceIdentifierObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type {
@@ -29,14 +29,14 @@ import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/re
 import { FindOptions } from '@ember-data/store/-private/ts-interfaces/store';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
+import type { ManyArrayCreateArgs } from './many-array';
+import ManyArray from './many-array';
+import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
+import PromiseBelongsTo from './promise-belongs-to';
+import type { HasManyProxyCreateArgs } from './promise-many-array';
+import PromiseManyArray from './promise-many-array';
 import BelongsToReference from './references/belongs-to';
 import HasManyReference from './references/has-many';
-import type { ManyArrayCreateArgs } from './system/many-array';
-import ManyArray from './system/many-array';
-import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './system/promise-belongs-to';
-import PromiseBelongsTo from './system/promise-belongs-to';
-import type { HasManyProxyCreateArgs } from './system/promise-many-array';
-import PromiseManyArray from './system/promise-many-array';
 
 type ManyArrayFactory = { create(args: ManyArrayCreateArgs): ManyArray };
 type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): PromiseBelongsTo };

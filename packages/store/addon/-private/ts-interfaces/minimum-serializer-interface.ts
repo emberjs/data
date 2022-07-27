@@ -1,7 +1,7 @@
 import type { Object as JSONObject } from 'json-typescript';
 
-import type Store from '../system/core-store';
-import type Snapshot from '../system/snapshot';
+import type Store from '../core-store';
+import type Snapshot from '../snapshot';
 import type { ModelSchema } from './ds-model';
 import type { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
 import type { AdapterPayload } from './minimum-adapter-interface';

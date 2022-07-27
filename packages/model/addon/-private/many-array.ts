@@ -10,9 +10,9 @@ import { all } from 'rsvp';
 
 import type { RelationshipRecordData } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
 import { PromiseArray, recordDataFor } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
-import type { CreateRecordProperties } from '@ember-data/store/-private/system/core-store';
-import ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type CoreStore from '@ember-data/store/-private/core-store';
+import type { CreateRecordProperties } from '@ember-data/store/-private/core-store';
+import ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
 import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';

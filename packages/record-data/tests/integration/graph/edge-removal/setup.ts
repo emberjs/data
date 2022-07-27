@@ -7,7 +7,7 @@ import type {
 } from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type CoreStore from '@ember-data/store/-private/core-store';
 import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type {
   CollectionResourceDocument,
