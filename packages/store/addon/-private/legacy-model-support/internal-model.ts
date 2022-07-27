@@ -10,8 +10,8 @@ import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/reco
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
-import type Store from '../core-store';
-import { internalModelFactoryFor } from '../internal-model-factory';
+import { internalModelFactoryFor } from '../caches/internal-model-factory';
+import type Store from '../store-service';
 import type ShimModelClass from './shim-model-class';
 
 /**

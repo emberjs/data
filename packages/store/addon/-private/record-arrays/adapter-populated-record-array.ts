@@ -7,11 +7,11 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type Store from '../core-store';
-import type { PromiseArray } from '../promise-proxies';
-import { promiseArray } from '../promise-proxies';
-import type RecordArrayManager from '../record-array-manager';
-import SnapshotRecordArray from '../snapshot-record-array';
+import type RecordArrayManager from '../managers/record-array-manager';
+import SnapshotRecordArray from '../network/snapshot-record-array';
+import type { PromiseArray } from '../proxies/promise-proxies';
+import { promiseArray } from '../proxies/promise-proxies';
+import type Store from '../store-service';
 import RecordArray from './record-array';
 
 export interface AdapterPopulatedRecordArrayCreateArgs {

@@ -2,7 +2,10 @@
   @module @ember-data/store
 */
 
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '@ember-data/store/-private/identifer-debug-consts';
+import {
+  DEBUG_CLIENT_ORIGINATED,
+  DEBUG_IDENTIFIER_BUCKET,
+} from '@ember-data/store/-private/utils/identifer-debug-consts';
 
 import type { ExistingResourceObject, ResourceIdentifierObject } from './ember-data-json-api';
 

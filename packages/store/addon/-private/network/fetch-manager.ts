@@ -19,14 +19,14 @@ import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-ser
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import coerceId from './coerce-id';
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
-import type Store from './core-store';
-import ShimModelClass from './model/shim-model-class';
+import ShimModelClass from '../legacy-model-support/shim-model-class';
+import type Store from '../store-service';
+import coerceId from '../utils/coerce-id';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from '../utils/common';
+import { normalizeResponseHelper } from '../utils/serializer-response';
+import WeakCache from '../utils/weak-cache';
 import RequestCache from './request-cache';
-import { normalizeResponseHelper } from './serializer-response';
 import Snapshot from './snapshot';
-import WeakCache from './weak-cache';
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {

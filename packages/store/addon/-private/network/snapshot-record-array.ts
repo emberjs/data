@@ -9,7 +9,7 @@ import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type RecordArray from './record-arrays/record-array';
+import type RecordArray from '../record-arrays/record-array';
 import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.

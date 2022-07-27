@@ -5,8 +5,8 @@ import type { JsonApiDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface, RequestType } from '@ember-data/types/q/minimum-serializer-interface';
 
-import type Store from './core-store';
-import type ShimModelClass from './model/shim-model-class';
+import type ShimModelClass from '../legacy-model-support/shim-model-class';
+import type Store from '../store-service';
 
 /**
   This is a helper method that validates a JSON API top-level document

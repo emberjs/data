@@ -2,8 +2,8 @@ import { assert } from '@ember/debug';
 
 import { Promise } from 'rsvp';
 
-import { guardDestroyedStore } from './common';
-import { normalizeResponseHelper } from './serializer-response';
+import { guardDestroyedStore } from '../utils/common';
+import { normalizeResponseHelper } from '../utils/serializer-response';
 
 /**
   @module @ember-data/store

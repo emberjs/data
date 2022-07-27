@@ -11,8 +11,8 @@ import type { ManyRelationship } from '@ember-data/record-data/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
-import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
-import type { DebugWeakCache } from '@ember-data/store/-private/weak-cache';
+import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
+import type { DebugWeakCache } from '@ember-data/store/-private/utils/weak-cache';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,

@@ -11,11 +11,11 @@ import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import { Dict } from '@ember-data/types/q/utils';
 
-import type Store from './core-store';
+import InternalModel from '../legacy-model-support/internal-model';
+import type Store from '../store-service';
+import constructResource from '../utils/construct-resource';
+import WeakCache from '../utils/weak-cache';
 import type { IdentifierCache } from './identifier-cache';
-import InternalModel from './model/internal-model';
-import constructResource from './utils/construct-resource';
-import WeakCache from './weak-cache';
 
 /**
   @module @ember-data/store

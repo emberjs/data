@@ -10,8 +10,8 @@ import { DEPRECATE_STRING_ARG_SCHEMAS } from '@ember-data/private-build-infra/de
 import type { RecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
-import type Store from './core-store';
-import normalizeModelName from './normalize-model-name';
+import type Store from '../store-service';
+import normalizeModelName from '../utils/normalize-model-name';
 
 type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
 

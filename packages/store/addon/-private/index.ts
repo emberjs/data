@@ -6,19 +6,19 @@ import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
 
-import _normalize from './normalize-model-name';
+import _normalize from './utils/normalize-model-name';
 
-export { default as Store, storeFor } from './core-store';
+export { default as Store, storeFor } from './store-service';
 
-export { recordIdentifierFor } from './internal-model-factory';
+export { recordIdentifierFor } from './caches/internal-model-factory';
 
-export { default as Snapshot } from './snapshot';
+export { default as Snapshot } from './network/snapshot';
 export {
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,
   setIdentifierForgetMethod,
   setIdentifierResetMethod,
-} from './identifier-cache';
+} from './caches/identifier-cache';
 
 export function normalizeModelName(modelName: string) {
   if (DEPRECATE_HELPERS) {
@@ -37,23 +37,23 @@ export function normalizeModelName(modelName: string) {
   assert(`normalizeModelName support has been removed`);
 }
 
-export { default as coerceId } from './coerce-id';
+export { default as coerceId } from './utils/coerce-id';
 
 // `ember-data-model-fragments` relies on `InternalModel`
-export { default as InternalModel } from './model/internal-model';
+export { default as InternalModel } from './legacy-model-support/internal-model';
 
-export { PromiseArray, PromiseObject, deprecatedPromiseObject } from './promise-proxies';
+export { PromiseArray, PromiseObject, deprecatedPromiseObject } from './proxies/promise-proxies';
 
 export { default as RecordArray } from './record-arrays/record-array';
 export { default as AdapterPopulatedRecordArray } from './record-arrays/adapter-populated-record-array';
 
-export { default as RecordArrayManager } from './record-array-manager';
+export { default as RecordArrayManager } from './managers/record-array-manager';
 
 // // Used by tests
-export { default as SnapshotRecordArray } from './snapshot-record-array';
+export { default as SnapshotRecordArray } from './network/snapshot-record-array';
 
 // New
-export { default as recordDataFor, removeRecordDataFor } from './record-data-for';
-export { default as RecordDataStoreWrapper } from './record-data-store-wrapper';
+export { default as recordDataFor, removeRecordDataFor } from './caches/record-data-for';
+export { default as RecordDataStoreWrapper } from './managers/record-data-store-wrapper';
 
-export { default as WeakCache } from './weak-cache';
+export { default as WeakCache } from './utils/weak-cache';

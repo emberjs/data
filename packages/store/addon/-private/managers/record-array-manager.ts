@@ -12,11 +12,11 @@ import type { CollectionResourceDocument, Meta } from '@ember-data/types/q/ember
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type Store from './core-store';
-import { internalModelFactoryFor } from './internal-model-factory';
-import AdapterPopulatedRecordArray from './record-arrays/adapter-populated-record-array';
-import RecordArray from './record-arrays/record-array';
-import WeakCache from './weak-cache';
+import { internalModelFactoryFor } from '../caches/internal-model-factory';
+import AdapterPopulatedRecordArray from '../record-arrays/adapter-populated-record-array';
+import RecordArray from '../record-arrays/record-array';
+import type Store from '../store-service';
+import WeakCache from '../utils/weak-cache';
 
 const RecordArraysCache = new WeakCache<StableRecordIdentifier, Set<RecordArray>>(DEBUG ? 'record-arrays' : '');
 RecordArraysCache._generator = () => new Set();

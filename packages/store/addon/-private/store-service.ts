@@ -40,31 +40,31 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import edBackburner from './backburner';
-import coerceId, { ensureStringId } from './coerce-id';
-import FetchManager, { SaveOp } from './fetch-manager';
-import { _findAll, _query, _queryRecord } from './finders';
-import { IdentifierCache } from './identifier-cache';
-import { InstanceCache, storeFor, StoreMap } from './instance-cache';
+import { IdentifierCache } from './caches/identifier-cache';
+import { InstanceCache, storeFor, StoreMap } from './caches/instance-cache';
 import {
   internalModelFactoryFor,
   peekRecordIdentifier,
   recordIdentifierFor,
   setRecordIdentifier,
-} from './internal-model-factory';
-import RecordReference from './model/record-reference';
-import type ShimModelClass from './model/shim-model-class';
-import { getShimClass } from './model/shim-model-class';
-import normalizeModelName from './normalize-model-name';
-import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './promise-proxies';
-import RecordArrayManager from './record-array-manager';
+} from './caches/internal-model-factory';
+import { setRecordDataFor } from './caches/record-data-for';
+import RecordReference from './legacy-model-support/record-reference';
+import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
+import type ShimModelClass from './legacy-model-support/shim-model-class';
+import { getShimClass } from './legacy-model-support/shim-model-class';
+import RecordArrayManager from './managers/record-array-manager';
+import RecordDataStoreWrapper from './managers/record-data-store-wrapper';
+import NotificationManager from './managers/record-notification-manager';
+import FetchManager, { SaveOp } from './network/fetch-manager';
+import { _findAll, _query, _queryRecord } from './network/finders';
+import type RequestCache from './network/request-cache';
+import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import AdapterPopulatedRecordArray from './record-arrays/adapter-populated-record-array';
 import RecordArray from './record-arrays/record-array';
-import { setRecordDataFor } from './record-data-for';
-import RecordDataStoreWrapper from './record-data-store-wrapper';
-import NotificationManager from './record-notification-manager';
-import type RequestCache from './request-cache';
-import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
+import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
+import normalizeModelName from './utils/normalize-model-name';
 import promiseRecord from './utils/promise-record';
 
 export { storeFor };
@@ -306,7 +306,6 @@ class Store extends Service {
       // ensure that `getOwner(this)` works inside a model instance
       setOwner(createOptions, getOwner(this));
       delete createOptions.container;
-      // TODO this needs to not use the private property here to get modelFactoryCache so as to not break interop
       return getModelFactory(this, this._modelFactoryCache, modelName).create(createOptions);
     }
     assert(`You must implement the store's instantiateRecord hook for your custom model class.`);
@@ -326,6 +325,8 @@ class Store extends Service {
 
   getSchemaDefinitionService(): SchemaDefinitionService {
     if (HAS_MODEL_PACKAGE && !this._schemaDefinitionService) {
+      // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
+      // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
       this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
     }
     assert(
@@ -367,10 +368,6 @@ class Store extends Service {
     );
     if (HAS_MODEL_PACKAGE) {
       let normalizedModelName = normalizeModelName(modelName);
-      // TODO this is safe only because
-      // apps would be horribly broken if the schema service were using DS_MODEL but not using DS_MODEL's schema service.
-      // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
-      // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
       let maybeFactory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
       // for factorFor factory/class split
@@ -2233,7 +2230,7 @@ class Store extends Service {
       if (_RecordData === undefined) {
         _RecordData = (
           importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-        ).RecordData as RecordDataConstruct;
+        ).RecordData;
       }
 
       let identifier = this.identifierCache.getOrCreateRecordIdentifier({

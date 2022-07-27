@@ -16,10 +16,10 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 
-import type Store from '../core-store';
-import type { PromiseArray } from '../promise-proxies';
-import { promiseArray } from '../promise-proxies';
-import SnapshotRecordArray from '../snapshot-record-array';
+import SnapshotRecordArray from '../network/snapshot-record-array';
+import type { PromiseArray } from '../proxies/promise-proxies';
+import { promiseArray } from '../proxies/promise-proxies';
+import type Store from '../store-service';
 
 function recordForIdentifier(store: Store, identifier: StableRecordIdentifier): RecordInstance {
   return store._instanceCache.getRecord(identifier);

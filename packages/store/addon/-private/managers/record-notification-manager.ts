@@ -2,8 +2,8 @@ import { DEBUG } from '@glimmer/env';
 
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type Store from './core-store';
-import WeakCache from './weak-cache';
+import type Store from '../store-service';
+import WeakCache from '../utils/weak-cache';
 
 type UnsubscribeToken = Object;
 

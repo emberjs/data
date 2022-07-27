@@ -3,8 +3,8 @@ import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
-import type Snapshot from '@ember-data/store/-private/snapshot';
-import type SnapshotRecordArray from '@ember-data/store/-private/snapshot-record-array';
+import type Snapshot from '@ember-data/store/-private/network/snapshot';
+import type SnapshotRecordArray from '@ember-data/store/-private/network/snapshot-record-array';
 import type { Dict } from '@ember-data/types/q/utils';
 
 /**

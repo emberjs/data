@@ -1,7 +1,7 @@
 import { cacheFor } from '@ember/object/internals';
 
 import type Store from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
+import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type Model from './model';

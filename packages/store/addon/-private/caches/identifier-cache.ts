@@ -18,11 +18,11 @@ import type {
 } from '@ember-data/types/q/identifier';
 import type { ConfidentDict } from '@ember-data/types/q/utils';
 
-import coerceId from './coerce-id';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from './identifer-debug-consts';
-import normalizeModelName from './normalize-model-name';
-import isNonEmptyString from './utils/is-non-empty-string';
-import WeakCache from './weak-cache';
+import coerceId from '../utils/coerce-id';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifer-debug-consts';
+import isNonEmptyString from '../utils/is-non-empty-string';
+import normalizeModelName from '../utils/normalize-model-name';
+import WeakCache from '../utils/weak-cache';
 
 const IDENTIFIERS = new WeakSet();
 

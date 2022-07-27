@@ -11,10 +11,10 @@ import type {
 } from '@ember-data/types/q/record-data-schemas';
 import type { RecordDataStoreWrapper as StoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
-import type Store from './core-store';
-import type { IdentifierCache } from './identifier-cache';
-import { internalModelFactoryFor } from './internal-model-factory';
-import constructResource from './utils/construct-resource';
+import type { IdentifierCache } from '../caches/identifier-cache';
+import { internalModelFactoryFor } from '../caches/internal-model-factory';
+import type Store from '../store-service';
+import constructResource from '../utils/construct-resource';
 
 /**
   @module @ember-data/store

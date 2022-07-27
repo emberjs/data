@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
+import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { JsonApiDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';

@@ -6,8 +6,8 @@ import { cached, tracked } from '@glimmer/tracking';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
-import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
-import type RequestCache from '@ember-data/store/-private/request-cache';
+import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
+import type RequestCache from '@ember-data/store/-private/network/request-cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 

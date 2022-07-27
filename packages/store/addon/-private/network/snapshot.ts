@@ -23,8 +23,8 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type Store from './core-store';
-import type InternalModel from './model/internal-model';
+import type InternalModel from '../legacy-model-support/internal-model';
+import type Store from '../store-service';
 
 type RecordId = string | null;
 
