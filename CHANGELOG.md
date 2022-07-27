@@ -1,5 +1,103 @@
 # Ember Data Changelog
 
+## v4.5.0 (2022-07-27)
+
+#### :rocket: Enhancement
+* `-ember-data`, `private-build-infra`, `store`
+  * [#7880](https://github.com/emberjs/data/pull/7880) [rfc]: deprecate RSVP.Promise ([@snewcomer](https://github.com/snewcomer))
+
+
+#### :evergreen_tree: New Deprecation
+* `-ember-data`, `adapter`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-model-encapsulation-test-app`
+  * [#8055](https://github.com/emberjs/data/pull/8055) chore: Continuing InternalModel Burndown ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+* `-ember-data`, `adapter`
+  * [#8083](https://github.com/emberjs/data/pull/8083) [BUGFIX] Serialize null array items as empty strings ([@camerondubas](https://github.com/camerondubas))
+* `-ember-data`, `store`
+  * [#7901](https://github.com/emberjs/data/pull/7901) fix: waiter should be always on ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `canary-features`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#8042](https://github.com/emberjs/data/pull/8042) fix: RecordState cleanup, drop requireESM and node12 ([@runspired](https://github.com/runspired))
+* `-ember-data`, `debug`
+  * [#8008](https://github.com/emberjs/data/pull/8008) schedule watchTypeIfUnseen to prevent loop ([@patricklx](https://github.com/patricklx))
+* `adapter`, `model`, `private-build-infra`, `serializer`
+  * [#8013](https://github.com/emberjs/data/pull/8013) [BUGFIX release] Fix generated import paths for test setup functions in addons ([@bertdeblock](https://github.com/bertdeblock))
+* `-ember-data`, `model`, `store`
+  * [#8025](https://github.com/emberjs/data/pull/8025) Fix: PromiseProxy Deprecation for Save ([@runspired](https://github.com/runspired))
+* `-ember-data`
+  * [#7902](https://github.com/emberjs/data/pull/7902) test for async hasMany does not trigger relationship fetch ([@snewcomer](https://github.com/snewcomer))
+* `serializer`
+  * [#7854](https://github.com/emberjs/data/pull/7854) fix: pass correct args to keyFor<Attribute|Relationship> when normalizing ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`
+  * [#7945](https://github.com/emberjs/data/pull/7945) fix for #7904 computed chains not updated for async hasMany loading ([@runspired](https://github.com/runspired))
+
+#### :memo: Documentation
+* `-ember-data`, `adapter`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-model-encapsulation-test-app`
+  * [#8055](https://github.com/emberjs/data/pull/8055) chore: Continuing InternalModel Burndown ([@runspired](https://github.com/runspired))
+* `model`
+  * [#8002](https://github.com/emberjs/data/pull/8002) Update imports in doc code samples ([@CuriousCorrelation](https://github.com/CuriousCorrelation))
+* [#7984](https://github.com/emberjs/data/pull/7984) Add `LICENSE.md` ([@ddzz](https://github.com/ddzz))
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `store`, `unpublished-test-infra`
+  * [#8078](https://github.com/emberjs/data/pull/8078) chore: InternalModel burndown ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `record-data`, `store`, `unpublished-test-infra`
+  * [#7971](https://github.com/emberjs/data/pull/7971) chore: remove the state machine ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `debug`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7970](https://github.com/emberjs/data/pull/7970) chore: remove unused evented infra ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `model`, `store`
+  * [#7953](https://github.com/emberjs/data/pull/7953) chore: cleanup a few more leaf types ([@runspired](https://github.com/runspired))
+* `-ember-data`
+  * [#7623](https://github.com/emberjs/data/pull/7623) [CHORE]: Modernize Find-Test ([@runnerboy22](https://github.com/runnerboy22))
+  * [#7952](https://github.com/emberjs/data/pull/7952) chore: migrate files that only re-export to ts to preserve type flow ([@runspired](https://github.com/runspired))
+  * [#7951](https://github.com/emberjs/data/pull/7951) chore: remove unneeded version code in ember-data package ([@runspired](https://github.com/runspired))
+  * [#7629](https://github.com/emberjs/data/pull/7629) [CHORE]: Modernize queries-test ([@runnerboy22](https://github.com/runnerboy22))
+  * [#7624](https://github.com/emberjs/data/pull/7624) [CHORE]: Modernize find-all-test ([@runnerboy22](https://github.com/runnerboy22))
+* `-ember-data`, `adapter`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7950](https://github.com/emberjs/data/pull/7950) some small cleanups and fix test container ([@runspired](https://github.com/runspired))
+* `-ember-data`, `store`
+  * [#7849](https://github.com/emberjs/data/pull/7849) Remove some usage of runtime require ([@SergeAstapov](https://github.com/SergeAstapov))
+
+#### :goal_net: Test
+* `-ember-data`, `adapter`, `canary-features`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-eslint-rules`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#8027](https://github.com/emberjs/data/pull/8027) fix test runs, update lts support tests ([@runspired](https://github.com/runspired))
+* `-ember-data`
+  * [#7628](https://github.com/emberjs/data/pull/7628) [CHORE]: Modernize json-api-adapter-test ([@runnerboy22](https://github.com/runnerboy22))
+  * [#7626](https://github.com/emberjs/data/pull/7626) [CHORE]: Modernize build-url-mixin-strict-equal ([@runnerboy22](https://github.com/runnerboy22))
+  * [#7630](https://github.com/emberjs/data/pull/7630) [CHORE]: Modernize record-persistence-test ([@runnerboy22](https://github.com/runnerboy22))
+  * [#7625](https://github.com/emberjs/data/pull/7625) [CHORE]: Modernize client-side-delete-test ([@runnerboy22](https://github.com/runnerboy22))
+
+#### :house: Internal
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `store`, `unpublished-test-infra`
+  * [#8078](https://github.com/emberjs/data/pull/8078) chore: InternalModel burndown ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-model-encapsulation-test-app`
+  * [#8055](https://github.com/emberjs/data/pull/8055) chore: Continuing InternalModel Burndown ([@runspired](https://github.com/runspired))
+* Other
+  * [#8073](https://github.com/emberjs/data/pull/8073) [DOC] update pull request template ([@jenweber](https://github.com/jenweber))
+* Other
+  * [#7982](https://github.com/emberjs/data/pull/7982) Add GitHub Actions to Dependabot and update actions ([@ddzz](https://github.com/ddzz))
+  * [#8026](https://github.com/emberjs/data/pull/8026) Deactivate Perf Benchmarks until Fixed ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `canary-features`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-eslint-rules`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#8027](https://github.com/emberjs/data/pull/8027) fix test runs, update lts support tests ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `model`, `private-build-infra`, `record-data`, `store`
+  * [#7954](https://github.com/emberjs/data/pull/7954) port more types work over from #7585 ([@runspired](https://github.com/runspired))
+* `-ember-data`
+  * [#7622](https://github.com/emberjs/data/pull/7622) [CHORE]: Modernize Handle-Response-Test ([@runnerboy22](https://github.com/runnerboy22))
+  * [#7631](https://github.com/emberjs/data/pull/7631) [CHORE]: Modernized serialize-test ([@runnerboy22](https://github.com/runnerboy22))
+  * [#7624](https://github.com/emberjs/data/pull/7624) [CHORE]: Modernize find-all-test ([@runnerboy22](https://github.com/runnerboy22))
+
+#### Committers: 10
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Sergey Astapov ([@SergeAstapov](https://github.com/SergeAstapov))
+- Tyler ([@runnerboy22](https://github.com/runnerboy22))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+- Darius Dzien ([@ddzz](https://github.com/ddzz))
+- [@CuriousCorrelation](https://github.com/CuriousCorrelation)
+- Bert De Block ([@bertdeblock](https://github.com/bertdeblock))
+- [@patricklx](https://github.com/patricklx)
+- Cameron Dubas ([@camerondubas](https://github.com/camerondubas))
+- Jen Weber ([@jenweber](https://github.com/jenweber))
+
 ## v4.1.0 (2021-12-30)
 
 #### :house: Internal
