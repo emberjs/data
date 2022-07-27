@@ -388,6 +388,10 @@ class Store extends Service {
       }
     }
 
+    assert(
+      `No model was found for '${modelName}' and no schema handles the type`,
+      this.getSchemaDefinitionService().doesTypeExist(modelName)
+    );
     return getShimClass(this, modelName);
   }
 
