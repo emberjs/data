@@ -9,11 +9,10 @@ import type {
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import { Dict } from '@ember-data/types/q/utils';
 
 import type Store from './core-store';
 import type { IdentifierCache } from './identifier-cache';
-import IdentityMap from './identity-map';
-import type InternalModelMap from './internal-model-map';
 import InternalModel from './model/internal-model';
 import constructResource from './utils/construct-resource';
 import WeakCache from './weak-cache';
@@ -94,11 +93,14 @@ export function internalModelFactoryFor(store: Store): InternalModelFactory {
  * @internal
  */
 export default class InternalModelFactory {
-  declare _identityMap: IdentityMap;
   declare identifierCache: IdentifierCache;
   declare store: Store;
+  declare cache: Map<StableRecordIdentifier, InternalModel>;
+  declare peekList: Dict<Set<StableRecordIdentifier>>;
 
   constructor(store: Store) {
+    this.cache = new Map<StableRecordIdentifier, InternalModel>();
+    this.peekList = Object.create(null);
     this.store = store;
     this.identifierCache = store.identifierCache;
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
@@ -112,9 +114,9 @@ export default class InternalModelFactory {
       let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
 
       // check for duplicate InternalModel's
-      const map = this.modelMapFor(identifier.type);
-      let im = map.get(intendedIdentifier.lid);
-      let otherIm = map.get(altIdentifier.lid);
+      const cache = this.cache;
+      let im = cache.get(intendedIdentifier);
+      let otherIm = cache.get(altIdentifier);
 
       // we cannot merge internalModels when both have records
       // (this may not be strictly true, we could probably swap the internalModel the record points at)
@@ -136,7 +138,8 @@ export default class InternalModelFactory {
 
       // remove otherIm from cache
       if (otherIm) {
-        map.remove(otherIm, altIdentifier.lid);
+        cache.delete(altIdentifier);
+        this.peekList[altIdentifier.type]?.delete(altIdentifier);
       }
 
       if (im === null && otherIm === null) {
@@ -148,14 +151,17 @@ export default class InternalModelFactory {
       } else if ((im === null && otherIm !== null) || (im && !im.hasRecord && otherIm && otherIm.hasRecord)) {
         if (im) {
           // TODO check if we are retained in any async relationships
-          map.remove(im, intendedIdentifier.lid);
+          cache.delete(intendedIdentifier);
+          this.peekList[intendedIdentifier.type]?.delete(intendedIdentifier);
           // im.destroy();
         }
-        im = otherIm;
+        im = otherIm!;
         // TODO do we need to notify the id change?
         im._id = intendedIdentifier.id;
         im.identifier = intendedIdentifier;
-        map.add(im, intendedIdentifier.lid);
+        cache.set(intendedIdentifier, im);
+        this.peekList[intendedIdentifier.type] = this.peekList[intendedIdentifier.type] || new Set();
+        this.peekList[intendedIdentifier.type]!.add(intendedIdentifier);
 
         // just use im
       } else {
@@ -174,7 +180,6 @@ export default class InternalModelFactory {
 
       return intendedIdentifier;
     });
-    this._identityMap = new IdentityMap();
   }
 
   /**
@@ -225,7 +230,7 @@ export default class InternalModelFactory {
    * @private
    */
   peek(identifier: StableRecordIdentifier): InternalModel | null {
-    return this.modelMapFor(identifier.type).get(identifier.lid);
+    return this.cache.get(identifier) || null;
   }
 
   getByResource(resource: ResourceIdentifierObject): InternalModel {
@@ -286,7 +291,7 @@ export default class InternalModelFactory {
 
   peekById(type: string, id: string): InternalModel | null {
     const identifier = this.identifierCache.peekRecordIdentifier({ type, id });
-    let internalModel = identifier ? this.modelMapFor(type).get(identifier.lid) : null;
+    let internalModel = identifier ? this.cache.get(identifier) || null : null;
 
     if (internalModel && internalModel.hasScheduledDestroy()) {
       // unloadRecord is async, if one attempts to unload + then sync create,
@@ -329,31 +334,34 @@ export default class InternalModelFactory {
     // lookupFactory should really return an object that creates
     // instances with the injections applied
     let internalModel = new InternalModel(this.store, identifier);
-
-    this.modelMapFor(resource.type).add(internalModel, identifier.lid);
+    this.cache.set(identifier, internalModel);
+    this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
+    this.peekList[identifier.type]!.add(identifier);
 
     return internalModel;
   }
 
   remove(internalModel: InternalModel): void {
-    let recordMap = this.modelMapFor(internalModel.modelName);
-    let clientId = internalModel.identifier.lid;
-
-    recordMap.remove(internalModel, clientId);
-
     const { identifier } = internalModel;
-    this.identifierCache.forgetRecordIdentifier(identifier);
-  }
+    this.cache.delete(identifier);
+    this.peekList[identifier.type]!.delete(identifier);
 
-  modelMapFor(type: string): InternalModelMap {
-    return this._identityMap.retrieve(type);
+    this.identifierCache.forgetRecordIdentifier(identifier);
   }
 
   clear(type?: string) {
     if (type === undefined) {
-      this._identityMap.clear();
+      let keys = Object.keys(this.peekList);
+      keys.forEach((key) => this.clear(key));
     } else {
-      this.modelMapFor(type).clear();
+      let identifiers = this.peekList[type];
+      if (identifiers) {
+        identifiers.forEach((identifier) => {
+          let internalModel = this.peek(identifier);
+          internalModel!.unloadRecord();
+          this.remove(internalModel!);
+        });
+      }
     }
   }
 }

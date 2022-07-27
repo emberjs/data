@@ -308,8 +308,6 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.true(internalModel.isEmpty, 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
 
-    // let cache = store._identityMap._map.person._models;
-
     // assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
     assert.true(internalModel.isDestroyed, 'The internal model is destroyed');
 
@@ -343,8 +341,6 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
     assert.true(internalModel.isEmpty, 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-
-    // let cache = store._identityMap._map.person._models;
 
     // assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
     assert.true(internalModel.isDestroyed, 'The internal model is destroyed');

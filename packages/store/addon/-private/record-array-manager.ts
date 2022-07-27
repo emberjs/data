@@ -8,7 +8,6 @@ import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-// import isStableIdentifier from '../identifiers/is-stable-identifier';
 import type { CollectionResourceDocument, Meta } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -130,8 +129,8 @@ class RecordArrayManager {
       return;
     }
     let hasNoPotentialDeletions = pending.length === 0;
-    let map = internalModelFactoryFor(this.store).modelMapFor(modelName);
-    let hasNoInsertionsOrRemovals = map.length === array.length;
+    let listSize = internalModelFactoryFor(this.store).peekList[modelName]?.size;
+    let hasNoInsertionsOrRemovals = listSize === array.length;
 
     /*
       Ideally the recordArrayManager has knowledge of the changes to be applied to
@@ -204,7 +203,8 @@ class RecordArrayManager {
   }
 
   _visibleIdentifiersByType(modelName: string) {
-    let all = internalModelFactoryFor(this.store).modelMapFor(modelName).recordIdentifiers;
+    const list = internalModelFactoryFor(this.store).peekList[modelName];
+    let all = list ? [...list.values()] : [];
     let visible: StableRecordIdentifier[] = [];
     for (let i = 0; i < all.length; i++) {
       let identifier = all[i];
