@@ -358,8 +358,15 @@ export default class InternalModelFactory {
       if (identifiers) {
         identifiers.forEach((identifier) => {
           let internalModel = this.peek(identifier);
+
+          // TODO we rely on not removing the main cache
+          // and only removing the peekList cache apparently.
+          // we should figure out this duality and codify whatever
+          // signal it is actually trying to give us.
+          // this.cache.delete(identifier);
+          this.peekList[identifier.type]!.delete(identifier);
           internalModel!.unloadRecord();
-          this.remove(internalModel!);
+          // TODO we don't remove the identifier, should we?
         });
       }
     }
