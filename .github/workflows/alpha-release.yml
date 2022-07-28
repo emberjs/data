@@ -18,14 +18,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies for master
-        run: yarn install --frozen-lockfile --non-interactive
+        run: pnpm install --frozen-lockfile --non-interactive
       - name: Basic Tests
         env:
           CI: true
           ASSERT_ALL_DEPRECATIONS: true
-        run: yarn test
+        run: pnpm test
 
   release:
     name: Run publish script
@@ -38,9 +38,9 @@ jobs:
         with:
           registry-url: 'https://registry.npmjs.org'
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies for master
-        run: yarn install --frozen-lockfile --non-interactive
+        run: pnpm install --frozen-lockfile --non-interactive
       - name: Make sure git user is setup
         run: |
           git config --local user.email 'tomster@emberjs.com'

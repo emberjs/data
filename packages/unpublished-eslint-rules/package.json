@@ -10,6 +10,8 @@
   },
   "volta": {
     "node": "16.16.0",
-    "yarn": "1.22.19"
+    "yarn": "use pnpm",
+    "npm": "use pnpm",
+    "pnpm": "7.6.0"
   }
 }

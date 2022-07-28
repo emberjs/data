@@ -6,7 +6,7 @@
  * Usage
  *
  * ```
- * yarn run sync-dev
+ * pnpm sync-dev
  * ```
  */
 

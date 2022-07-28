@@ -12,19 +12,19 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies for master
-        run: yarn install
+        run: pnpm install
       - name: Basic Tests
         env:
           CI: true
           ASSERT_ALL_DEPRECATIONS: true
-        run: yarn test
+        run: pnpm test
       - name: Encapsulation tests
         env:
           CI: true
           ASSERT_ALL_DEPRECATIONS: true
-        run: yarn test:encapsulation
+        run: pnpm test:encapsulation
 
   test-all-deprecations-releases:
     strategy:
@@ -37,11 +37,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies for ${{ matrix.scenario }}
-        run: yarn install
+        run: pnpm install
       - name: Basic Tests
         env:
           CI: true
           ASSERT_ALL_DEPRECATIONS: true
-        run: yarn test:try-one ${{ matrix.scenario }}
+        run: pnpm test:try-one ${{ matrix.scenario }}

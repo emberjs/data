@@ -4,7 +4,9 @@
   "description": "Addon fixture package for ember-cli-blueprint-test-helpers",
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "yarn": "use pnpm",
+    "npm": "use pnpm",
+    "pnpm": "7.6.0"
   },
   "devDependencies": {
     "ember-cli": "*",

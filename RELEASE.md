@@ -18,7 +18,7 @@ In order to release `ember-data` you must first ensure the following things:
 - You have an account on `npm` and belongs to the `ember-data` organization on NPM
 - You have `publish` rights within the `ember-data` organization on NPM
 - You have configured your NPM account to use `2fa` (two factor authentication)
-- You have installed `lerna` `yarn` and `node` globally
+- You have installed `lerna` `pnpm` and `node` globally
 
 ## Release Order
 
@@ -74,7 +74,7 @@ For subsequent versions it will be whatever version number we previously publish
 
 To actually generate the changelog, run:
 ```
-yarn lerna-changelog --from=PREVIOUS_VERSION_TAG
+pnpm lerna-changelog --from=PREVIOUS_VERSION_TAG
 ```
 Note: if it is the first time that you use lerna-changelog, you might have to add a token to fetch from Github API:
 https://github.com/lerna/lerna-changelog#github-token 

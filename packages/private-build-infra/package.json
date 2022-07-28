@@ -44,12 +44,17 @@
     "semver": "^7.3.7",
     "silent-error": "^1.1.1"
   },
+  "devDependencies": {
+    "@babel/core": "^7.18.9"
+  },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "yarn": "use pnpm",
+    "npm": "use pnpm",
+    "pnpm": "7.6.0"
   },
   "volta": {
     "node": "16.16.0",
-    "yarn": "1.22.19"
+    "pnpm": "7.6.0"
   }
 }

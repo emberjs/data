@@ -6,7 +6,7 @@
  * Usage
  *
  * ```
- * yarn run add-dev <package@version>
+ * pnpm add-dev <package@version>
  * ```
  */
 
@@ -50,7 +50,7 @@ packages.forEach((localName) => {
   // for each package with this devDep, run command
   if (pkg.devDependencies && pkg.devDependencies[packageName]) {
     updatedFiles.push(`packages/${localName}/package.json`);
-    execWithLog(`yarn workspace ${pkg.name} add ${cliOptions.package} --dev`);
+    execWithLog(`pnpm --filter ${pkg.name} add ${cliOptions.package} --dev`);
   }
 });
 

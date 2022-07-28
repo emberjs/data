@@ -14,22 +14,22 @@
   "scripts": {
     "add-dev": "node ./scripts/add-dev-dependency.js",
     "sync-dev": "node ./scripts/sync-dev-dependency.js",
-    "build": "yarn workspace ember-data build",
-    "build:production": "yarn workspace ember-data build:production",
+    "build": "pnpm --filter ember-data build",
+    "build:production": "pnpm --filter ember-data build:production",
     "lint:features": "node ./scripts/lint-features.js",
     "lint:js": "eslint --cache --ext=js,ts .",
     "lint:js:changed": "node ./scripts/lint-changed-js.js",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
-    "start": "yarn workspace ember-data start",
+    "start": "pnpm --filter ember-data start",
     "test": "lerna run --stream --no-private --ignore='@ember-data/{private-build-infra,canary-features,debug}' test",
-    "test:all": "yarn workspace ember-data test:all",
+    "test:all": "pnpm --filter ember-data test:all",
     "test:node": "lerna run --stream test:node",
     "test:production": "lerna run --stream --no-private --ignore='@ember-data/{private-build-infra,canary-features,debug}' test:production",
     "test:try-one": "lerna run --stream --no-private --ignore='@ember-data/{private-build-infra,canary-features,debug}' test:try-one --",
-    "test:docs": "yarn workspace ember-data test:docs",
+    "test:docs": "pnpm --filter ember-data test:docs",
     "test:encapsulation": "lerna run --stream --scope='*-encapsulation-test-app' test",
-    "test:fastboot": "yarn workspace fastboot-test-app test:scenario",
-    "test:infra": "yarn workspace @ember-data/unpublished-test-infra test",
+    "test:fastboot": "pnpm --filter fastboot-test-app test:scenario",
+    "test:infra": "pnpm --filter @ember-data/unpublished-test-infra test",
     "test-external:ember-m3": "node ./scripts/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "node ./scripts/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
     "test-external:model-fragments": "node ./scripts/test-external-partner-project.js model-fragments https://github.com/lytics/ember-data-model-fragments.git",
@@ -42,6 +42,7 @@
     "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.9",
     "@babel/eslint-parser": "^7.18.9",
     "@babel/plugin-proposal-decorators": "^7.18.9",
     "@babel/plugin-transform-typescript": "^7.18.8",
@@ -138,12 +139,15 @@
   "dependencies": {},
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "npm": "Use pnpm",
+    "yarn": "Use pnpm",
+    "pnpm": "7.6.0"
   },
   "volta": {
     "node": "16.16.0",
-    "yarn": "1.22.19"
+    "pnpm": "7.6.0"
   },
+  "packageManager": "pnpm@7.6.0",
   "changelog": {
     "labels": {
       "changelog:breaking": ":boom: Breaking Change",

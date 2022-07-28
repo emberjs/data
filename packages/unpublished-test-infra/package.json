@@ -36,6 +36,7 @@
     "webpack": "^5.74.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.9",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
     "@glimmer/component": "^1.1.2",
@@ -58,7 +59,9 @@
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "yarn": "use pnpm",
+    "npm": "use pnpm",
+    "pnpm": "7.6.0"
   },
   "ember": {
     "edition": "octane"
@@ -68,6 +71,6 @@
   },
   "volta": {
     "node": "16.16.0",
-    "yarn": "1.22.19"
+    "pnpm": "7.6.0"
   }
 }

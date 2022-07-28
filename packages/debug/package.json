@@ -26,6 +26,7 @@
     "ember-cli-typescript": "^5.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.9",
     "@ember-data/unpublished-test-infra": "4.8.0-alpha.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
@@ -54,13 +55,15 @@
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "yarn": "use pnpm",
+    "npm": "use pnpm",
+    "pnpm": "7.6.0"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
   },
   "volta": {
     "node": "16.16.0",
-    "yarn": "1.22.19"
+    "pnpm": "7.6.0"
   }
 }

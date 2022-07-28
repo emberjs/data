@@ -22,6 +22,7 @@
     "ember-cli-typescript": "^5.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.9",
     "babel-plugin-debug-macros": "^0.3.4",
     "babel-plugin-filter-imports": "^4.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
@@ -44,10 +45,12 @@
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "yarn": "use pnpm",
+    "npm": "use pnpm",
+    "pnpm": "7.6.0"
   },
   "volta": {
     "node": "16.16.0",
-    "yarn": "1.22.19"
+    "pnpm": "7.6.0"
   }
 }

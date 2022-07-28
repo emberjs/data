@@ -40,6 +40,7 @@
     "ember-inflector": "^4.0.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.9",
     "@babel/plugin-transform-typescript": "^7.18.8",
     "@ember-data/unpublished-test-infra": "4.8.0-alpha.0",
     "@ember/optional-features": "^2.0.0",
@@ -88,7 +89,9 @@
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "yarn": "use pnpm",
+    "npm": "use pnpm",
+    "pnpm": "7.6.0"
   },
   "keywords": [
     "ember-addon"
@@ -101,6 +104,6 @@
   },
   "volta": {
     "node": "16.16.0",
-    "yarn": "1.22.19"
+    "pnpm": "7.6.0"
   }
 }
