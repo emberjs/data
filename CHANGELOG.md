@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## v4.6.1 (2022-07-28)
+
+#### :bug: Bug Fix
+* `-ember-data`, `adapter`, `canary-features`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`
+  * [#8089](https://github.com/emberjs/data/pull/8089) fix: unpin yarn for consumers ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## v4.6.0 (2022-07-27)
 
 4.6.0 is a re-release of 4.5.0. No new changes are involved.
