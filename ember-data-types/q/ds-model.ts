@@ -2,7 +2,7 @@ import type EmberObject from '@ember/object';
 
 import type { Errors } from '@ember-data/model/-private';
 import type Store from '@ember-data/store';
-import type InternalModel from '@ember-data/store/-private/model/internal-model';
+import type InternalModel from '@ember-data/store/-private/legacy-model-support/internal-model';
 
 import type { JsonApiValidationError } from './record-data-json-api';
 import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from './record-data-schemas';
