@@ -12,6 +12,7 @@ import type { CollectionResourceDocument, Meta } from '@ember-data/types/q/ember
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import { isHiddenFromRecordArrays } from '../caches/instance-cache';
 import { internalModelFactoryFor } from '../caches/internal-model-factory';
 import AdapterPopulatedRecordArray from '../record-arrays/adapter-populated-record-array';
 import RecordArray from '../record-arrays/record-array';
@@ -35,16 +36,6 @@ function getIdentifier(identifier: StableRecordIdentifier): StableRecordIdentifi
   // }
 
   return identifier;
-}
-
-function shouldIncludeInRecordArrays(store: Store, identifier: StableRecordIdentifier): boolean {
-  const cache = internalModelFactoryFor(store);
-  const internalModel = cache.peek(identifier);
-
-  if (internalModel === null) {
-    return false;
-  }
-  return !internalModel.isHiddenFromRecordArrays();
 }
 
 /**
@@ -90,7 +81,7 @@ class RecordArrayManager {
       // recordArrayManager
       pendingForIdentifier.delete(i);
       // build up a set of models to ensure we have purged correctly;
-      let isIncluded = shouldIncludeInRecordArrays(this.store, i);
+      let isIncluded = !isHiddenFromRecordArrays(this.store._instanceCache, i);
       if (!isIncluded) {
         identifiersToRemove.push(i);
       }
@@ -208,7 +199,7 @@ class RecordArrayManager {
     let visible: StableRecordIdentifier[] = [];
     for (let i = 0; i < all.length; i++) {
       let identifier = all[i];
-      let shouldInclude = shouldIncludeInRecordArrays(this.store, identifier);
+      let shouldInclude = !isHiddenFromRecordArrays(this.store._instanceCache, identifier);
 
       if (shouldInclude) {
         visible.push(identifier);
@@ -400,7 +391,7 @@ function updateLiveRecordArray(store: Store, recordArray: RecordArray, identifie
 
   for (let i = 0; i < identifiers.length; i++) {
     let identifier = identifiers[i];
-    let shouldInclude = shouldIncludeInRecordArrays(store, identifier);
+    let shouldInclude = !isHiddenFromRecordArrays(store._instanceCache, identifier);
     let recordArrays = recordArraysForIdentifier(identifier);
 
     if (shouldInclude) {

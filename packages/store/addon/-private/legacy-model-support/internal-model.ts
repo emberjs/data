@@ -114,42 +114,6 @@ export default class InternalModel {
     return this.store._instanceCache.getRecordData(this.identifier);
   }
 
-  isHiddenFromRecordArrays() {
-    // During dematerialization we don't want to rematerialize the record.
-    // recordWasDeleted can cause other records to rematerialize because it
-    // removes the internal model from the array and Ember arrays will always
-    // `objectAt(0)` and `objectAt(len -1)` to check whether `firstObject` or
-    // `lastObject` have changed.  When this happens we don't want those
-    // models to rematerialize their records.
-
-    // eager checks to avoid instantiating record data if we are empty or loading
-    if (this.isEmpty) {
-      return true;
-    }
-
-    if (this.isLoading) {
-      return false;
-    }
-
-    let isRecordFullyDeleted = this._isRecordFullyDeleted();
-    return this._isDematerializing || this.hasScheduledDestroy() || this.isDestroyed || isRecordFullyDeleted;
-  }
-
-  _isRecordFullyDeleted(): boolean {
-    if (this._recordData.isDeletionCommitted && this._recordData.isDeletionCommitted()) {
-      return true;
-    } else if (
-      this._recordData.isNew &&
-      this._recordData.isDeleted &&
-      this._recordData.isNew() &&
-      this._recordData.isDeleted()
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   isDeleted(): boolean {
     if (this._recordData.isDeleted) {
       return this._recordData.isDeleted();

@@ -348,6 +348,47 @@ export class InstanceCache {
   }
 }
 
+export function isHiddenFromRecordArrays(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+  // During dematerialization we don't want to rematerialize the record.
+  // recordWasDeleted can cause other records to rematerialize because it
+  // removes the internal model from the array and Ember arrays will always
+  // `objectAt(0)` and `objectAt(len -1)` to check whether `firstObject` or
+  // `lastObject` have changed.  When this happens we don't want those
+  // models to rematerialize their records.
+
+  // eager checks to avoid instantiating record data if we are empty or loading
+  let recordData = cache.peek({ identifier, bucket: 'recordData' });
+  if (!recordData) {
+    return true;
+  }
+
+  // if isLoading return false
+  // if isDematerializing, destroyed, or has scheduled destroy return true
+  // TODO eliminate this internalModel need
+  const internalModel = cache.getInternalModel(identifier);
+  if (!internalModel.isEmpty || internalModel.isLoading) {
+    return false;
+  }
+  if (recordData.isDeletionCommitted?.() || (recordData.isNew?.() && recordData.isDeleted?.())) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function _recordDataIsFullDeleted(recordData: RecordData): boolean {
+  if (recordData.isDeletionCommitted?.() || (recordData.isNew?.() && recordData.isDeleted?.())) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+  let recordData = cache.peek({ identifier, bucket: 'recordData' });
+  return !recordData || _recordDataIsFullDeleted(recordData);
+}
+
 function assertRecordsPassedToHasMany(records: RecordInstance[]) {
   assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
   assert(

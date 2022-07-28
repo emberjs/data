@@ -41,7 +41,7 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import edBackburner from './backburner';
 import { IdentifierCache } from './caches/identifier-cache';
-import { InstanceCache, storeFor, StoreMap } from './caches/instance-cache';
+import { InstanceCache, recordDataIsFullyDeleted, storeFor, StoreMap } from './caches/instance-cache';
 import {
   internalModelFactoryFor,
   peekRecordIdentifier,
@@ -2127,7 +2127,7 @@ class Store extends Service {
       `Cannot initiate a save request for an unloaded record: ${identifier}`,
       !internalModel.isEmpty && !internalModel.isDestroyed
     );
-    if (internalModel._isRecordFullyDeleted()) {
+    if (recordDataIsFullyDeleted(this._instanceCache, identifier)) {
       return resolve(record);
     }
 
