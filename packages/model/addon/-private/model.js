@@ -2278,6 +2278,23 @@ class Model extends EmberObject {
    @static
    */
   static toString() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     return `model:${get(this, 'modelName')}`;
   }
 }
