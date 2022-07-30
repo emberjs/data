@@ -6,39 +6,36 @@ import { underscore } from '@ember/string';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
+import { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
+import Transform from '@ember-data/serializer/transform';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-
-var Post, Comment, Favorite;
 
 module('integration/serializer/json - JSONSerializer', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    Post = DS.Model.extend({
-      title: DS.attr('string'),
-      comments: DS.hasMany('comment', { inverse: null, async: false }),
-    });
-    Comment = DS.Model.extend({
-      body: DS.attr('string'),
-      post: DS.belongsTo('post', { inverse: null, async: false }),
-    });
-    Favorite = DS.Model.extend({
-      post: DS.belongsTo('post', { inverse: null, async: true, polymorphic: true }),
-    });
-
-    this.owner.register('model:post', Post);
-    this.owner.register('model:comment', Comment);
-    this.owner.register('model:favorite', Favorite);
     this.owner.register('serializer:application', JSONSerializer.extend());
   });
 
   test("serialize doesn't include ID when includeId is false", function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
+
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     let post = store.createRecord('post', {
       title: 'Rails is omakase',
@@ -55,6 +52,19 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   test("serialize doesn't include relationship if not aware of one", function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
+
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     let post = store.createRecord('post', { title: 'Rails is omakase' });
     let json = serializer.serialize(post._createSnapshot());
 
@@ -66,6 +76,19 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   test('serialize includes id when includeId is true', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
+
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     let post = store.createRecord('post', { title: 'Rails is omakase', comments: [] });
 
     run(() => {
@@ -82,6 +105,18 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializeAttribute', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let post = store.createRecord('post', { title: 'Rails is omakase' });
@@ -95,9 +130,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializeAttribute respects keyForAttribute', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         keyForAttribute(key) {
           return key.toUpperCase();
         },
@@ -114,6 +161,18 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializeBelongsTo', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let post = store.createRecord('post', { title: 'Rails is omakase', id: '1' });
@@ -126,6 +185,18 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializeBelongsTo with null', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: null });
@@ -143,9 +214,17 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('async serializeBelongsTo with null', function (assert) {
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: true }),
-    });
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
@@ -164,9 +243,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializeBelongsTo respects keyForRelationship', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         keyForRelationship(key, type) {
           return key.toUpperCase();
         },
@@ -186,9 +277,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializeHasMany respects keyForRelationship', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         keyForRelationship(key, type) {
           return key.toUpperCase();
         },
@@ -217,6 +320,18 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializeHasMany omits unknown relationships on pushed record', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     let store = this.owner.lookup('service:store');
 
     let post = run(() =>
@@ -238,6 +353,18 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('shouldSerializeHasMany', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     let store = this.owner.lookup('service:store');
     let post = store.createRecord('post', { title: 'Rails is omakase', id: '1' });
     store.createRecord('comment', { body: 'Omakase is delicious', post: post, id: '1' });
@@ -252,12 +379,24 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializeIntoHash', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let post = store.createRecord('post', { title: 'Rails is omakase', comments: [] });
     let json = {};
 
-    serializer.serializeIntoHash(json, Post, post._createSnapshot());
+    serializer.serializeIntoHash(json, store.modelFor('post'), post._createSnapshot());
 
     assert.deepEqual(json, {
       title: 'Rails is omakase',
@@ -266,11 +405,23 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('serializePolymorphicType sync', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     assert.expect(1);
 
     this.owner.register(
       'serializer:comment',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         serializePolymorphicType(record, json, relationship) {
           let key = relationship.key;
           let belongsTo = record.belongsTo(key);
@@ -292,14 +443,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('serializePolymorphicType async', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
 
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: true }),
-    });
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:comment',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         serializePolymorphicType(record, json, relationship) {
           assert.ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
         },
@@ -316,6 +474,18 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('normalizeResponse normalizes each record in the array', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     var postNormalizeCount = 0;
     var posts = [
       { id: '1', title: 'Rails is omakase' },
@@ -324,7 +494,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         normalize() {
           postNormalizeCount++;
           return this._super.apply(this, arguments);
@@ -335,16 +505,28 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let store = this.owner.lookup('service:store');
 
     run(function () {
-      store.serializerFor('post').normalizeResponse(store, Post, posts, null, 'findAll');
+      store.serializerFor('post').normalizeResponse(store, store.modelFor('post'), posts, null, 'findAll');
     });
 
     assert.strictEqual(postNormalizeCount, 2, 'two posts are normalized');
   });
 
   test('Serializer should respect the attrs hash when extracting records', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           title: 'title_payload_key',
           comments: { key: 'my_comments' },
@@ -359,7 +541,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
+    var post = store
+      .serializerFor('post')
+      .normalizeResponse(store, store.modelFor('post'), jsonHash, '1', 'findRecord');
 
     assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
     assert.deepEqual(post.data.relationships.comments.data, [
@@ -369,15 +553,15 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('Serializer should map `attrs` attributes directly when keyForAttribute also has a transform', function (assert) {
-    const Post = DS.Model.extend({
-      authorName: DS.attr('string'),
+    const Post = Model.extend({
+      authorName: attr('string'),
     });
 
     this.owner.register('model:post', Post);
 
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         keyForAttribute: underscore,
         attrs: {
           authorName: 'author_name_key',
@@ -392,18 +576,30 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
+    var post = store
+      .serializerFor('post')
+      .normalizeResponse(store, store.modelFor('post'), jsonHash, '1', 'findRecord');
 
     assert.strictEqual(post.data.attributes.authorName, 'DHH');
   });
 
   test('Serializer should respect the attrs hash when serializing records', function (assert) {
-    Post.reopen({
-      parentPost: DS.belongsTo('post', { inverse: null, async: true }),
-    });
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+      @belongsTo('post', { inverse: null, async: true }) parentPost;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           title: 'title_payload_key',
           parentPost: { key: 'my_parent' },
@@ -435,10 +631,10 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('Serializer respects if embedded model has an attribute named "type" - #3726', function (assert) {
-    this.owner.register('serializer:child', DS.JSONSerializer);
+    this.owner.register('serializer:child', JSONSerializer);
     this.owner.register(
       'serializer:parent',
-      DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+      JSONSerializer.extend(EmbeddedRecordsMixin, {
         attrs: {
           child: { embedded: 'always' },
         },
@@ -446,14 +642,14 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     );
     this.owner.register(
       'model:parent',
-      DS.Model.extend({
-        child: DS.belongsTo('child'),
+      Model.extend({
+        child: belongsTo('child'),
       })
     );
     this.owner.register(
       'model:child',
-      DS.Model.extend({
-        type: DS.attr(),
+      Model.extend({
+        type: attr(),
       })
     );
 
@@ -481,10 +677,10 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('Serializer respects if embedded model has a relationship named "type" - #3726', function (assert) {
-    this.owner.register('serializer:child', DS.JSONSerializer);
+    this.owner.register('serializer:child', JSONSerializer);
     this.owner.register(
       'serializer:parent',
-      DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+      JSONSerializer.extend(EmbeddedRecordsMixin, {
         attrs: {
           child: { embedded: 'always' },
         },
@@ -492,17 +688,17 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     );
     this.owner.register(
       'model:parent',
-      DS.Model.extend({
-        child: DS.belongsTo('child'),
+      Model.extend({
+        child: belongsTo('child'),
       })
     );
     this.owner.register(
       'model:child',
-      DS.Model.extend({
-        type: DS.belongsTo('le-type'),
+      Model.extend({
+        type: belongsTo('le-type'),
       })
     );
-    this.owner.register('model:le-type', DS.Model.extend());
+    this.owner.register('model:le-type', Model.extend());
 
     var jsonHash = {
       id: 1,
@@ -534,10 +730,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('Serializer respects `serialize: false` on the attrs hash', function (assert) {
     assert.expect(2);
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           title: { serialize: false },
         },
@@ -554,10 +761,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           comments: { serialize: false },
         },
@@ -577,10 +795,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:comment',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           post: { serialize: false },
         },
@@ -600,10 +829,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           comments: { serialize: false },
         },
@@ -623,10 +863,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:comment',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           post: { serialize: false },
         },
@@ -646,10 +897,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           comments: { serialize: true },
         },
@@ -673,10 +935,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` property', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:comment',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           post: { serialize: true },
         },
@@ -696,11 +969,21 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
   test('Serializer should merge attrs from superclasses', function (assert) {
     assert.expect(4);
-    Post.reopen({
-      description: DS.attr('string'),
-      anotherString: DS.attr('string'),
-    });
-    var BaseSerializer = DS.JSONSerializer.extend({
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
+    var BaseSerializer = JSONSerializer.extend({
       attrs: {
         title: 'title_payload_key',
         anotherString: 'base_another_string_key',
@@ -731,25 +1014,54 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('Serializer should respect the primaryKey attribute when extracting records', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         primaryKey: '_ID_',
       })
     );
 
     let jsonHash = { _ID_: 1, title: 'Rails is omakase' };
     let store = this.owner.lookup('service:store');
-    let post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
+    let post = store
+      .serializerFor('post')
+      .normalizeResponse(store, store.modelFor('post'), jsonHash, '1', 'findRecord');
 
     assert.strictEqual(post.data.id, '1');
     assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
   });
 
   test('Serializer should respect the primaryKey attribute when serializing records', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         primaryKey: '_ID_',
       })
     );
@@ -762,9 +1074,22 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('Serializer should respect keyForAttribute when extracting records', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         keyForAttribute(key) {
           return key.toUpperCase();
         },
@@ -773,16 +1098,29 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     let jsonHash = { id: 1, TITLE: 'Rails is omakase' };
     let store = this.owner.lookup('service:store');
-    let post = store.serializerFor('post').normalize(Post, jsonHash);
+    let post = store.serializerFor('post').normalize(store.modelFor('post'), jsonHash);
 
     assert.strictEqual(post.data.id, '1');
     assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
   });
 
   test('Serializer should respect keyForRelationship when extracting records', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         keyForRelationship(key, type) {
           return key.toUpperCase();
         },
@@ -791,36 +1129,44 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     let jsonHash = { id: 1, title: 'Rails is omakase', COMMENTS: ['1'] };
     let store = this.owner.lookup('service:store');
-    let post = store.serializerFor('post').normalize(Post, jsonHash);
+    let post = store.serializerFor('post').normalize(store.modelFor('post'), jsonHash);
 
     assert.deepEqual(post.data.relationships.comments.data, [{ id: '1', type: 'comment' }]);
   });
 
   test('Calling normalize should normalize the payload (only the passed keys)', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
 
-    var Person = DS.Model.extend({
-      posts: DS.hasMany('post', { async: false }),
-    });
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
 
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           notInHash: 'aCustomAttrNotInHash',
           inHash: 'aCustomAttrInHash',
         },
       })
     );
-
-    this.owner.register('model:person', Person);
-
-    Post.reopen({
-      content: DS.attr('string'),
-      author: DS.belongsTo('person', { async: false }),
-      notInHash: DS.attr('string'),
-      inHash: DS.attr('string'),
-    });
 
     let store = this.owner.lookup('service:store');
 
@@ -852,9 +1198,25 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     var json = {};
     var expected = { post: '1', postTYPE: 'post' };
 
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('comment', { inverse: null, async: false }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: false }) post;
+    }
+    class Favorite extends Model {
+      @belongsTo('post', { inverse: null, async: true, polymorphic: true }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:favorite', Favorite);
+
     this.owner.register(
       'serializer:favorite',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         serializePolymorphicType(snapshot, json, relationship) {
           var key = relationship.key;
           json[key + 'TYPE'] = snapshot.belongsTo(key).modelName;
@@ -875,9 +1237,30 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('extractErrors respects custom key mappings', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           title: 'le_title',
           comments: { key: 'my_comments' },
@@ -899,7 +1282,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    var errors = store.serializerFor('post').extractErrors(store, Post, payload);
+    var errors = store.serializerFor('post').extractErrors(store, store.modelFor('post'), payload);
 
     assert.deepEqual(errors, {
       title: ['title errors'],
@@ -908,7 +1291,28 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('extractErrors expects error information located on the errors property of payload', function (assert) {
-    this.owner.register('serializer:post', DS.JSONSerializer.extend());
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:post', JSONSerializer.extend());
 
     var payload = {
       attributeWhichWillBeRemovedinExtractErrors: ['true'],
@@ -921,28 +1325,70 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    var errors = store.serializerFor('post').extractErrors(store, Post, payload);
+    var errors = store.serializerFor('post').extractErrors(store, store.modelFor('post'), payload);
 
     assert.deepEqual(errors, { title: ['title errors'] });
   });
 
   test('extractErrors leaves payload untouched if it has no errors property', function (assert) {
-    this.owner.register('serializer:post', DS.JSONSerializer.extend());
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:post', JSONSerializer.extend());
 
     var payload = {
       untouchedSinceNoErrorsSiblingPresent: ['true'],
     };
 
     let store = this.owner.lookup('service:store');
-    var errors = store.serializerFor('post').extractErrors(store, Post, payload);
+    var errors = store.serializerFor('post').extractErrors(store, store.modelFor('post'), payload);
 
     assert.deepEqual(errors, { untouchedSinceNoErrorsSiblingPresent: ['true'] });
   });
 
   test('normalizeResponse should extract meta using extractMeta', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         extractMeta(store, modelClass, payload) {
           let meta = this._super(...arguments);
           meta.authors.push('Tomhuda');
@@ -961,13 +1407,36 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
+    var post = store
+      .serializerFor('post')
+      .normalizeResponse(store, store.modelFor('post'), jsonHash, '1', 'findRecord');
 
     assert.deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
   });
 
   test('normalizeResponse returns empty `included` payload by default', function (assert) {
-    this.owner.register('serializer:post', DS.JSONSerializer.extend());
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:post', JSONSerializer.extend());
 
     var jsonHash = {
       id: '1',
@@ -975,13 +1444,36 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
+    var post = store
+      .serializerFor('post')
+      .normalizeResponse(store, store.modelFor('post'), jsonHash, '1', 'findRecord');
 
     assert.deepEqual(post.included, []);
   });
 
   test('normalizeResponse returns empty `included` payload when relationship is undefined', function (assert) {
-    this.owner.register('serializer:post', DS.JSONSerializer.extend());
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:post', JSONSerializer.extend());
 
     var jsonHash = {
       id: '1',
@@ -990,16 +1482,39 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
+    var post = store
+      .serializerFor('post')
+      .normalizeResponse(store, store.modelFor('post'), jsonHash, '1', 'findRecord');
 
     assert.deepEqual(post.included, []);
   });
 
   test('normalizeResponse respects `included` items (single response)', function (assert) {
-    this.owner.register('serializer:comment', DS.JSONSerializer);
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:comment', JSONSerializer);
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+      JSONSerializer.extend(EmbeddedRecordsMixin, {
         attrs: {
           comments: { embedded: 'always' },
         },
@@ -1016,7 +1531,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
+    var post = store
+      .serializerFor('post')
+      .normalizeResponse(store, store.modelFor('post'), jsonHash, '1', 'findRecord');
 
     assert.deepEqual(post.included, [
       { id: '1', type: 'comment', attributes: { body: 'comment 1' }, relationships: {} },
@@ -1025,10 +1542,31 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   test('normalizeResponse respects `included` items (array response)', function (assert) {
-    this.owner.register('serializer:comment', DS.JSONSerializer);
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:comment', JSONSerializer);
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+      JSONSerializer.extend(EmbeddedRecordsMixin, {
         attrs: {
           comments: { embedded: 'always' },
         },
@@ -1052,7 +1590,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     ];
 
     let store = this.owner.lookup('service:store');
-    var post = store.serializerFor('post').normalizeResponse(store, Post, payload, '1', 'findAll');
+    var post = store.serializerFor('post').normalizeResponse(store, store.modelFor('post'), payload, '1', 'findAll');
 
     assert.deepEqual(post.included, [
       { id: '1', type: 'comment', attributes: { body: 'comment 1' }, relationships: {} },
@@ -1062,9 +1600,30 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
   });
 
   testInDebug('normalizeResponse ignores unmapped attributes', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           title: { serialize: false },
           notInMapping: { serialize: false },
@@ -1081,28 +1640,46 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let store = this.owner.lookup('service:store');
 
     assert.expectWarning(function () {
-      var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
+      var post = store
+        .serializerFor('post')
+        .normalizeResponse(store, store.modelFor('post'), jsonHash, '1', 'findRecord');
       assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
     }, /There is no attribute or relationship with the name/);
   });
 
-  test('options are passed to transform for serialization', function (assert) {
+  test('options are passed to transform for serialization via createSnapshot', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @attr('custom', { custom: 'config' }) custom;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
 
     this.owner.register(
       'transform:custom',
-      DS.Transform.extend({
+      Transform.extend({
         serialize: function (deserialized, options) {
           assert.deepEqual(options, { custom: 'config' });
         },
       })
     );
-
-    Post.reopen({
-      custom: DS.attr('custom', {
-        custom: 'config',
-      }),
-    });
 
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('post');
@@ -1111,36 +1688,74 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     serializer.serialize(post._createSnapshot());
   });
 
-  test('options are passed to transform for normalization', function (assert) {
+  test('options are passed to transform for normalization via serializer.normalize', function (assert) {
     assert.expect(1);
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @attr('custom', { custom: 'config' }) custom;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
 
     this.owner.register(
       'transform:custom',
-      DS.Transform.extend({
+      Transform.extend({
         deserialize: function (serialized, options) {
           assert.deepEqual(options, { custom: 'config' });
         },
       })
     );
 
-    Post.reopen({
-      custom: DS.attr('custom', {
-        custom: 'config',
-      }),
-    });
-
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('post');
 
-    serializer.normalize(Post, {
+    serializer.normalize(store.modelFor('post'), {
       custom: 'value',
     });
   });
 
   test('Serializer should respect the attrs hash in links', function (assert) {
+    class Post extends Model {
+      @attr('string') title;
+      @attr('string') description;
+      @attr('string') anotherString;
+      @attr('string') content;
+      @attr('string') inHash;
+      @attr('string') notInHash;
+      @belongsTo('person', { async: false, inverse: 'posts' }) author;
+      @hasMany('comment', { inverse: null, async: true }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') body;
+      @belongsTo('post', { inverse: null, async: true }) post;
+    }
+    class Person extends Model {
+      @hasMany('post', { async: false, inverse: 'author' }) posts;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:person', Person);
+
     this.owner.register(
       'serializer:post',
-      DS.JSONSerializer.extend({
+      JSONSerializer.extend({
         attrs: {
           title: 'title_payload_key',
           comments: { key: 'my_comments' },
@@ -1156,7 +1771,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    var post = this.owner.lookup('serializer:post').normalizeSingleResponse(store, Post, jsonHash);
+    var post = this.owner.lookup('serializer:post').normalizeSingleResponse(store, store.modelFor('post'), jsonHash);
 
     assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
     assert.strictEqual(post.data.relationships.comments.links.related, 'posts/1/comments');
