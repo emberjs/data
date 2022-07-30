@@ -3,14 +3,13 @@
  */
 import { makeArray } from '@ember/array';
 import { assert, warn } from '@ember/debug';
-import { camelize } from '@ember/string';
+import { camelize, dasherize } from '@ember/string';
 import { isNone, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
 import { singularize } from 'ember-inflector';
 
 import JSONSerializer from '@ember-data/serializer/json';
-import { normalizeModelName } from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
 
 import { modelHasAttributeOrRelationshipNamedType } from './-private';
@@ -350,7 +349,7 @@ const RESTSerializer = JSONSerializer.extend({
   },
 
   isPrimaryType(store, modelName, primaryModelClass) {
-    return normalizeModelName(modelName) === primaryModelClass.modelName;
+    return dasherize(modelName) === primaryModelClass.modelName;
   },
 
   /**
@@ -473,7 +472,7 @@ const RESTSerializer = JSONSerializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return singularize(normalizeModelName(key));
+    return singularize(dasherize(key));
   },
 
   // SERIALIZE

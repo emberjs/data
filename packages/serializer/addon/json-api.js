@@ -9,7 +9,6 @@ import { DEBUG } from '@glimmer/env';
 import { pluralize, singularize } from 'ember-inflector';
 
 import JSONSerializer from '@ember-data/serializer/json';
-import { normalizeModelName } from '@ember-data/store';
 
 /**
   Ember Data 2.0 Serializer:
@@ -361,7 +360,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return singularize(normalizeModelName(key));
+    return singularize(dasherize(key));
   },
 
   /**

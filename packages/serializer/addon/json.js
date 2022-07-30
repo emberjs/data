@@ -7,7 +7,6 @@ import { get } from '@ember/object';
 import { isNone, typeOf } from '@ember/utils';
 
 import Serializer from '@ember-data/serializer';
-import { normalizeModelName } from '@ember-data/store';
 import { coerceId, errorsArrayToHash } from '@ember-data/store/-private';
 
 import { modelHasAttributeOrRelationshipNamedType } from './-private';
@@ -795,7 +794,7 @@ const JSONSerializer = Serializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return normalizeModelName(key);
+    return dasherize(key);
   },
 
   /**

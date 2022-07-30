@@ -19,3 +19,4 @@ export const DEPRECATE_JSON_API_FALLBACK = deprecationState('DEPRECATE_JSON_API_
 export const DEPRECATE_MODEL_REOPEN = deprecationState('DEPRECATE_MODEL_REOPEN');
 export const DEPRECATE_EARLY_STATIC = deprecationState('DEPRECATE_EARLY_STATIC');
 export const DEPRECATE_CLASSIC = deprecationState('DEPRECATE_CLASSIC');
+export const DEPRECATE_HELPERS = deprecationState('DEPRECATE_HELPERS');
