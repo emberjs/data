@@ -2963,7 +2963,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   }
 
   testInDebug('Passing a model as type to hasMany should not work', function (assert) {
-    assert.expect(1);
+    assert.expect(2);
 
     assert.expectAssertion(() => {
       const User = Model.extend();
@@ -2972,6 +2972,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         users: hasMany(User, { async: false }),
       });
     }, /The first argument to hasMany must be a string/);
+
+    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
   });
 
   test('Relationship.clear removes all records correctly', async function (assert) {

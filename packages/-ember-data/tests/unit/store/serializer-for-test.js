@@ -44,5 +44,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function (hooks) {
     assert.expectAssertion(() => {
       store.serializerFor(Person);
     }, /Passing classes to store.serializerFor has been removed/);
+
+    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
   });
 });

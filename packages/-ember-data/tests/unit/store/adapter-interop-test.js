@@ -1277,5 +1277,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.expectAssertion(() => {
       store.adapterFor(Person);
     }, /Passing classes to store.adapterFor has been removed/);
+
+    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
   });
 });
