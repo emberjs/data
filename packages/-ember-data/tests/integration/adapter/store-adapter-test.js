@@ -1063,7 +1063,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    assert.ok(typeof tom.dogs.then === 'function', 'dogs is a thenable');
+    assert.strictEqual(typeof tom.dogs.then, 'function', 'dogs is a thenable');
     let record2 = await tom.dogs;
 
     assert.strictEqual(record2.length, 1, 'The same dogs are loaded');
@@ -1098,7 +1098,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     assert.strictEqual(typeof tom.dogs.then, 'function', 'dogs is a thenable before save');
 
     await tom.save();
-    assert.ok(typeof tom.dogs.then === 'function', 'dogs is a thenable after save');
+    assert.strictEqual(typeof tom.dogs.then, 'function', 'dogs is a thenable after save');
   });
 
   test('createRecord receives a snapshot', function (assert) {
