@@ -387,12 +387,6 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         name: attr('string'),
       });
 
-      Person.reopenClass({
-        toString() {
-          return 'Person';
-        },
-      });
-
       this.owner.register('model:person', Person);
 
       let store = this.owner.lookup('service:store');

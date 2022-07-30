@@ -4,54 +4,35 @@ import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
 import { gte } from 'ember-compatibility-helpers';
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
+import { ManyArray } from "@ember-data/model/-private";
 
-let store, Post, Tag;
+import Model, { attr, hasMany, belongsTo } from "@ember-data/model";
 
-const { attr, hasMany, belongsTo } = DS;
-
-module('unit/many_array - DS.ManyArray', function (hooks) {
+module('unit/many_array - ManyArray', function (hooks) {
   setupTest(hooks);
-
-  hooks.beforeEach(function () {
-    Post = DS.Model.extend({
-      title: attr('string'),
-      tags: hasMany('tag', { async: false }),
-    });
-
-    Post.reopenClass({
-      toString() {
-        return 'Post';
-      },
-    });
-
-    Tag = DS.Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
-
-    Tag.reopenClass({
-      toString() {
-        return 'Tag';
-      },
-    });
-
-    this.owner.register('model:post', Post);
-    this.owner.register('model:tag', Tag);
-
-    store = this.owner.lookup('service:store');
-  });
 
   test('manyArray.save() calls save() on all records', function (assert) {
     assert.expect(3);
 
-    Tag.reopen({
+    class Post extends Model {
+      @attr('string') title;
+      @hasMany('tag', { async: false }) tags;
+    }
+
+    class Tag extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+
       save() {
         assert.ok(true, 'record.save() was called');
         return resolve();
-      },
-    });
+      }
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:tag', Tag);
+    const store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({
@@ -102,8 +83,21 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
   if (!gte('4.0.0')) {
     test('manyArray trigger arrayContentChange functions with the correct values', function (assert) {
       assert.expect(6);
+      class Post extends Model {
+        @attr('string') title;
+        @hasMany('tag', { async: false }) tags;
+      }
 
-      const TestManyArray = DS.ManyArray.proto();
+      class Tag extends Model {
+        @attr('string') name;
+        @belongsTo('post', { async: false }) post;
+      }
+
+      this.owner.register('model:post', Post);
+      this.owner.register('model:tag', Tag);
+      const store = this.owner.lookup('service:store');
+
+      const TestManyArray = ManyArray.proto();
 
       let willChangeStartIdx;
       let willChangeRemoveAmt;
@@ -113,7 +107,7 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
       let originalArrayContentDidChange = TestManyArray.arrayContentDidChange;
       let originalInit = TestManyArray.init;
 
-      // override DS.ManyArray temp (cleanup occures in afterTest);
+      // override ManyArray temp (cleanup occures in afterTest);
 
       TestManyArray.init = function (...args) {
         // We aren't actually adding any observers in this test
