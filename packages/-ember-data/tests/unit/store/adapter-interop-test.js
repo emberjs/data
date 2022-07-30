@@ -387,12 +387,6 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         name: attr('string'),
       });
 
-      Person.reopenClass({
-        toString() {
-          return 'Person';
-        },
-      });
-
       this.owner.register('model:person', Person);
 
       let store = this.owner.lookup('service:store');
@@ -1283,5 +1277,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.expectAssertion(() => {
       store.adapterFor(Person);
     }, /Passing classes to store.adapterFor has been removed/);
+
+    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
   });
 });

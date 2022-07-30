@@ -732,16 +732,35 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test('normalizeResponse with async polymorphic hasMany', function (assert) {
-    SuperVillain.reopen({
-      evilMinions: DS.hasMany('evil-minion', { async: true, polymorphic: true }),
+    const HomePlanet = DS.Model.extend({
+      name: DS.attr('string'),
+      superVillains: DS.hasMany('super-villain2', { async: false }),
     });
+    const SuperVillain = DS.Model.extend({
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
+      homePlanet: DS.belongsTo('home-planet2', { async: false }),
+      evilMinions: DS.hasMany('evil-minion2', { async: true, polymorphic: true }),
+    });
+    const EvilMinion = DS.Model.extend({
+      superVillain: DS.belongsTo('super-villain2', { async: false }),
+      name: DS.attr('string'),
+    });
+    const YellowMinion = EvilMinion.extend({
+      eyes: DS.attr('number'),
+    });
+
+    this.owner.register('model:super-villain2', SuperVillain);
+    this.owner.register('model:home-planet2', HomePlanet);
+    this.owner.register('model:evil-minion2', EvilMinion);
+    this.owner.register('model:yellow-minion2', YellowMinion);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     adapter.findRecord = () => {
       return {
-        superVillains: [
+        superVillain2s: [
           {
             id: '1',
             firstName: 'Yehuda',
@@ -756,10 +775,10 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     adapter.findHasMany = () => {
       return {
-        evilMinion: [
+        evilMinion2: [
           {
             id: 1,
-            type: 'yellowMinion',
+            type: 'yellowMinion2',
             name: 'Alex',
             eyes: 3,
           },
@@ -769,13 +788,13 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     run(function () {
       store
-        .findRecord('super-villain', 1)
+        .findRecord('super-villain2', '1')
         .then((superVillain) => {
           return superVillain.get('evilMinions');
         })
         .then((evilMinions) => {
-          assert.ok(evilMinions.get('firstObject') instanceof YellowMinion);
-          assert.strictEqual(evilMinions.get('firstObject.eyes'), 3);
+          assert.ok(evilMinions.get('firstObject') instanceof YellowMinion, 'we have an instance');
+          assert.strictEqual(evilMinions.get('firstObject.eyes'), 3, 'we have the right minion');
         });
     });
   });

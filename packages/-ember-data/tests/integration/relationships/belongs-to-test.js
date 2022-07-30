@@ -13,8 +13,6 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
 
-let Book, Chapter;
-
 module('integration/relationship/belongs-to BelongsTo Relationships (new-style)', function (hooks) {
   let store;
   setupTest(hooks);
@@ -271,45 +269,44 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const User = Model.extend({
-      name: attr('string'),
-      messages: hasMany('message', { polymorphic: true, async: false }),
-      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null, async: false }),
-    });
+    class User extends Model {
+      @attr('string') name;
+      @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+      @belongsTo('message', { polymorphic: true, inverse: null, async: false }) favouriteMessage;
+    }
 
-    const Message = Model.extend({
-      user: belongsTo('user', { inverse: 'messages', async: false }),
-      created_at: attr('date'),
-    });
+    class Message extends Model {
+      @belongsTo('user', { inverse: 'messages', async: false }) user;
+      @attr('date') created_at;
+    }
 
-    const Post = Message.extend({
-      title: attr('string'),
-      comments: hasMany('comment', { async: false, inverse: null }),
-    });
+    class Comment extends Message {
+      @attr('string') body;
+      @belongsTo('message', { polymorphic: true, async: false, inverse: null }) message;
+    }
+    class Post extends Message {
+      @attr('string') title;
+      @hasMany('comment', { async: false, inverse: null }) comments;
+    }
 
-    const Comment = Message.extend({
-      body: attr('string'),
-      message: belongsTo('message', { polymorphic: true, async: false, inverse: null }),
-    });
-
-    Book = Model.extend({
-      name: attr('string'),
-      author: belongsTo('author', { async: false }),
-      chapters: hasMany('chapters', { async: false, inverse: 'book' }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: false, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
 
     const Book1 = Model.extend({
       name: attr('string'),
     });
 
-    Chapter = Model.extend({
-      title: attr('string'),
-      book: belongsTo('book', { async: false, inverse: 'chapters' }),
-    });
+    class Chapter extends Model {
+      @attr title;
+      @belongsTo('book', { async: false, inverse: 'chapters' }) book;
+    }
 
     const Author = Model.extend({
       name: attr('string'),
-      books: hasMany('books', { async: false }),
+      books: hasMany('books', { async: false, inverse: 'author' }),
     });
 
     const Section = Model.extend({
@@ -337,10 +334,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       })
     );
-
-    const store = this.owner.lookup('service:store');
-    Book = store.modelFor('book');
-    Chapter = store.modelFor('chapter');
   });
 
   test('returning a null relationship from payload sets the relationship to null on both sides', function (assert) {
@@ -428,16 +421,20 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
   test('The store can materialize a non loaded monomorphic belongsTo association', function (assert) {
     assert.expect(1);
+    class Message extends Model {
+      @belongsTo('user', { inverse: 'messages', async: false }) user;
+      @attr('date') created_at;
+    }
+    class Post extends Message {
+      @attr('string') title;
+      @hasMany('comment', { async: false, inverse: null }) comments;
+      @belongsTo('user', { async: true, inverse: 'messages' }) user;
+    }
+    this.owner.register('model:message', Message);
+    this.owner.register('model:post', Post);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
-
-    store.modelFor('post').reopen({
-      user: belongsTo('user', {
-        async: true,
-        inverse: 'messages',
-      }),
-    });
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = function (store, type, id, snapshot) {
@@ -960,16 +957,23 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    store.modelFor('post').reopen({
-      comments: hasMany('comment', {
-        async: true,
-        inverse: 'post',
-      }),
-    });
+    class Message extends Model {
+      @attr('date') created_at;
+    }
+    class Post extends Message {
+      @attr('string') title;
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
+    }
 
-    store.modelFor('comment').reopen({
-      post: belongsTo('post', { async: false }),
-    });
+    class Comment extends Message {
+      @attr('string') body;
+      @belongsTo('message', { polymorphic: true, async: false, inverse: null }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:message', Message);
+    this.owner.register('model:comment', Comment);
 
     let comment;
     run(() => {
@@ -1039,18 +1043,25 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     let adapter = store.adapterFor('application');
     let post;
 
-    store.modelFor('message').reopen({
-      user: hasMany('user', {
-        async: true,
-      }),
-    });
+    class Message extends Model {
+      @attr('date') created_at;
+      @hasMany('user', { async: true, inverse: 'messages' }) user;
+    }
+    class Post extends Message {
+      @attr('string') title;
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
+      @belongsTo('user', { async: true, inverse: 'messages' }) user;
+    }
 
-    store.modelFor('post').reopen({
-      user: belongsTo('user', {
-        async: true,
-        inverse: 'messages',
-      }),
-    });
+    class Comment extends Message {
+      @attr('string') body;
+      @belongsTo('message', { polymorphic: true, async: false, inverse: null }) message;
+      @belongsTo('post', { async: false, inverse: 'user' }) messages;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:message', Message);
+    this.owner.register('model:comment', Comment);
 
     run(() => {
       post = store.push({
@@ -1126,12 +1137,14 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test('Rollbacking attributes for a deleted record restores implicit relationship - async', function (assert) {
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
 
     let store = this.owner.lookup('service:store');
-
     let book, author;
     run(() => {
       book = store.push({
@@ -1214,7 +1227,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   testInDebug('Passing a model as type to belongsTo should not work', function (assert) {
-    assert.expect(1);
+    assert.expect(2);
 
     assert.expectAssertion(() => {
       const User = Model.extend();
@@ -1223,15 +1236,17 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         user: belongsTo(User, { async: false }),
       });
     }, /The first argument to belongsTo must be a string/);
+    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
   });
 
   test('belongsTo hasAnyRelationshipData async loaded', function (assert) {
     assert.expect(1);
-
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
-
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -1285,11 +1300,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
   test('belongsTo hasAnyRelationshipData async not loaded', function (assert) {
     assert.expect(1);
-
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
-
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -1340,11 +1356,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
   test('belongsTo hasAnyRelationshipData NOT created', function (assert) {
     assert.expect(2);
-
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
-
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
     let store = this.owner.lookup('service:store');
 
     run(() => {
@@ -1453,10 +1470,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
   test('Related link should be fetched when no relationship data is present', function (assert) {
     assert.expect(3);
-
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1497,9 +1516,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('Related link should take precedence over relationship data if no local record data is available', async function (assert) {
     assert.expect(2);
 
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1542,9 +1564,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('Relationship data should take precedence over related link when local record data is available', function (assert) {
     assert.expect(1);
 
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1592,9 +1617,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('New related link should take precedence over local data', function (assert) {
     assert.expect(3);
 
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1654,9 +1682,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('Updated related link should take precedence over relationship data and local record data', function (assert) {
     assert.expect(4);
 
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1734,9 +1765,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('Updated identical related link should not take precedence over local data', function (assert) {
     assert.expect(2);
 
-    Book.reopen({
-      author: belongsTo('author', { async: true }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('author', { async: true, inverse: 'books' }) author;
+      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+    }
+    this.owner.register('model:book', Book);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1802,9 +1836,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test('A belongsTo relationship can be reloaded using the reference if it was fetched via link', function (assert) {
-    Chapter.reopen({
-      book: belongsTo({ async: true }),
-    });
+    class Chapter extends Model {
+      @attr title;
+      @belongsTo('book', { async: true, inverse: 'chapters' }) book;
+    }
+    this.owner.register('model:chapter', Chapter);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1865,10 +1901,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test('A synchronous belongsTo relationship can be reloaded using a reference if it was fetched via id', function (assert) {
-    Chapter.reopen({
-      book: belongsTo({ async: false }),
-    });
-
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -1920,9 +1952,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test('A belongsTo relationship can be reloaded using a reference if it was fetched via id', function (assert) {
-    Chapter.reopen({
-      book: belongsTo({ async: true }),
-    });
+    class Chapter extends Model {
+      @attr title;
+      @belongsTo('book', { async: true, inverse: 'chapters' }) book;
+    }
+    this.owner.register('model:chapter', Chapter);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1998,9 +2032,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test("belongsTo relationship with links doesn't trigger extra change notifications - #4942", function (assert) {
-    Chapter.reopen({
-      book: belongsTo({ async: true }),
-    });
+    class Chapter extends Model {
+      @attr title;
+      @belongsTo('book', { async: true, inverse: 'chapters' }) book;
+    }
+    this.owner.register('model:chapter', Chapter);
 
     let store = this.owner.lookup('service:store');
 

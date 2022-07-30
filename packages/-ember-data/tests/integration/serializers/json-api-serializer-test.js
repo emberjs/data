@@ -388,24 +388,31 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('options are passed to transform for serialization', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-
-    this.owner.register(
-      'transform:custom',
-      DS.Transform.extend({
-        serialize: function (deserialized, options) {
-          assert.deepEqual(options, { custom: 'config' });
-        },
-      })
-    );
-
-    store.modelFor('user').reopen({
+    const User = DS.Model.extend({
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
+      title: DS.attr('string'),
+      handles: DS.hasMany('handle', { async: true, polymorphic: true }),
+      company: DS.belongsTo('company', { async: true }),
+      reportsTo: DS.belongsTo('user', { async: true, inverse: null }),
       myCustomField: DS.attr('custom', {
         custom: 'config',
       }),
     });
 
+    this.owner.register('model:user', User);
+
+    let store = this.owner.lookup('service:store');
     let user = store.createRecord('user', { myCustomField: 'value' });
+
+    this.owner.register(
+      'transform:custom',
+      DS.Transform.extend({
+        serialize: function (deserialized, options) {
+          assert.deepEqual(options, { custom: 'config' }, 'we have the right options');
+        },
+      })
+    );
 
     store.serializerFor('user').serialize(user._createSnapshot());
   });

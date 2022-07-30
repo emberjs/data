@@ -22,12 +22,6 @@ module('unit/store/unload - Store unloading records', function (hooks) {
       wasFetched: attr('boolean'),
     });
 
-    Record.reopenClass({
-      toString() {
-        return 'Record';
-      },
-    });
-
     this.owner.register('model:record', Record);
     this.owner.register('serializer:application', JSONAPISerializer);
 
@@ -136,12 +130,6 @@ module('Store - unload record with relationships', function (hooks) {
       name: attr('string'),
     });
 
-    Brand.reopenClass({
-      toString() {
-        return 'Brand';
-      },
-    });
-
     const Product = Model.extend({
       description: attr('string'),
       brand: belongsTo('brand', {
@@ -149,22 +137,10 @@ module('Store - unload record with relationships', function (hooks) {
       }),
     });
 
-    Product.reopenClass({
-      toString() {
-        return 'Product';
-      },
-    });
-
     const Like = Model.extend({
       product: belongsTo('product', {
         async: false,
       }),
-    });
-
-    Like.reopenClass({
-      toString() {
-        return 'Like';
-      },
     });
 
     this.owner.register('model:brand', Brand);

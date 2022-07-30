@@ -29,10 +29,8 @@ export default function modelForMixin(store: Store, normalizedModelName: string)
   let mixin = MaybeMixin && MaybeMixin.class;
   if (mixin) {
     let ModelForMixin = Model.extend(mixin);
-    ModelForMixin.reopenClass({
-      __isMixin: true,
-      __mixin: mixin,
-    });
+    ModelForMixin.__isMixin = true;
+    ModelForMixin.__mixin = mixin;
     //Cache the class as a model
     owner.register('model:' + normalizedModelName, ModelForMixin);
   }

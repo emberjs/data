@@ -3,10 +3,9 @@ import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
-import Model from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { modelHasAttributeOrRelationshipNamedType } from '@ember-data/serializer/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -17,12 +16,12 @@ module('unit/utils', function (hooks) {
   hooks.beforeEach(function () {
     const Person = Model.extend();
     const User = Model.extend({
-      messages: DS.hasMany('message', { async: false }),
+      messages: hasMany('message', { async: false }),
     });
 
     const Message = Model.extend();
     const Post = Message.extend({
-      medias: DS.hasMany('medium', { async: false }),
+      medias: hasMany('medium', { async: false }),
     });
 
     const Medium = Mixin.create();
@@ -86,21 +85,27 @@ module('unit/utils', function (hooks) {
   });
 
   test('modelHasAttributeOrRelationshipNamedType', function (assert) {
-    let ModelWithTypeAttribute = Model.extend({
-      type: DS.attr(),
-    });
-    let ModelWithTypeBelongsTo = Model.extend({
-      type: DS.belongsTo(),
-    });
-    let ModelWithTypeHasMany = Model.extend({
-      type: DS.hasMany(),
-    });
+    class Blank extends Model {}
+    class ModelWithTypeAttribute extends Model {
+      @attr type;
+    }
+    class ModelWithTypeBelongsTo extends Model {
+      @belongsTo type;
+    }
+    class ModelWithTypeHasMany extends Model {
+      @hasMany type;
+    }
+    this.owner.register('model:blank', Blank);
+    this.owner.register('model:with-attr', ModelWithTypeAttribute);
+    this.owner.register('model:with-belongs-to', ModelWithTypeBelongsTo);
+    this.owner.register('model:with-has-many', ModelWithTypeHasMany);
+    const store = this.owner.lookup('service:store');
 
-    assert.false(modelHasAttributeOrRelationshipNamedType(Model));
+    assert.false(modelHasAttributeOrRelationshipNamedType(store.modelFor('blank')));
 
-    assert.true(modelHasAttributeOrRelationshipNamedType(ModelWithTypeAttribute));
-    assert.true(modelHasAttributeOrRelationshipNamedType(ModelWithTypeBelongsTo));
-    assert.true(modelHasAttributeOrRelationshipNamedType(ModelWithTypeHasMany));
+    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-attr')));
+    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-belongs-to')));
+    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-has-many')));
   });
 
   testInDebug('assertPolymorphicType works for mixins', function (assert) {

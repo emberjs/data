@@ -16,3 +16,6 @@ export const DEPRECATE_HAS_RECORD = deprecationState('DEPRECATE_HAS_RECORD');
 export const DEPRECATE_RECORD_WAS_INVALID = deprecationState('DEPRECATE_RECORD_WAS_INVALID');
 export const DEPRECATE_STRING_ARG_SCHEMAS = deprecationState('DEPRECATE_STRING_ARG_SCHEMAS');
 export const DEPRECATE_JSON_API_FALLBACK = deprecationState('DEPRECATE_JSON_API_FALLBACK');
+export const DEPRECATE_MODEL_REOPEN = deprecationState('DEPRECATE_MODEL_REOPEN');
+export const DEPRECATE_EARLY_STATIC = deprecationState('DEPRECATE_EARLY_STATIC');
+export const DEPRECATE_CLASSIC = deprecationState('DEPRECATE_CLASSIC');

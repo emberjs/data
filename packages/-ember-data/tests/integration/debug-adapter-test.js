@@ -15,24 +15,22 @@ import Model, { attr } from '@ember-data/model';
 if (has('@ember-data/debug')) {
   const DebugAdapter = require('@ember-data/debug').default;
 
-  class Post extends Model {
-    @attr()
-    title;
-  }
-
-  module('integration/debug-adapter - DS.DebugAdapter', function (hooks) {
+  module('integration/debug-adapter - DebugAdapter', function (hooks) {
     setupTest(hooks);
 
     let store;
 
     hooks.beforeEach(function () {
       let { owner } = this;
+      class Post extends Model {
+        @attr title;
+      }
 
       owner.register('model:post', Post);
       store = owner.lookup('service:store');
       let _adapter = DebugAdapter.extend({
         getModelTypes() {
-          return A([{ klass: Post, name: 'post' }]);
+          return A([{ klass: store.modelFor('post'), name: 'post' }]);
         },
       });
       owner.register('data-adapter:main', _adapter);
@@ -205,14 +203,13 @@ if (has('@ember-data/debug')) {
       let { owner } = this;
       let debugAdapter = owner.lookup('data-adapter:main');
       class Person extends Model {
-        @attr()
-        title;
-
-        @attr()
-        firstOrLastName;
+        @attr title;
+        @attr firstOrLastName;
       }
+      owner.register('model:person', Person);
+      const store = owner.lookup('service:store');
 
-      const columns = debugAdapter.columnsForType(Person);
+      const columns = debugAdapter.columnsForType(store.modelFor('person'));
 
       assert.strictEqual(columns[0].desc, 'Id');
       assert.strictEqual(columns[1].desc, 'Title');

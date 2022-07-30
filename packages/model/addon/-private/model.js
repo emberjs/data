@@ -2,7 +2,7 @@
   @module @ember-data/model
  */
 
-import { assert, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
 import EmberObject, { get } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
@@ -16,7 +16,11 @@ import Ember from 'ember';
 import { resolve } from 'rsvp';
 
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import {
+  DEPRECATE_EARLY_STATIC,
+  DEPRECATE_MODEL_REOPEN,
+  DEPRECATE_SAVE_PROMISE_ACCESS,
+} from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import {
   coerceId,
@@ -1258,12 +1262,46 @@ class Model extends EmberObject {
    @return {Model} the type of the relationship, or undefined
    */
   static typeForRelationship(name, store) {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let relationship = this.relationshipsByName.get(name);
     return relationship && store.modelFor(relationship.type);
   }
 
   @computeOnce
   static get inverseMap() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     return Object.create(null);
   }
 
@@ -1301,6 +1339,23 @@ class Model extends EmberObject {
    @return {Object} the inverse relationship, or null
    */
   static inverseFor(name, store) {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let inverseMap = this.inverseMap;
     if (inverseMap[name]) {
       return inverseMap[name];
@@ -1313,6 +1368,23 @@ class Model extends EmberObject {
 
   //Calculate the inverse, ignoring the cache
   static _findInverseFor(name, store) {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let inverseType = this.typeForRelationship(name, store);
     if (!inverseType) {
       return null;
@@ -1457,6 +1529,23 @@ class Model extends EmberObject {
 
   @computeOnce
   static get relationships() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let map = new Map();
     let relationshipsByName = this.relationshipsByName;
 
@@ -1511,6 +1600,23 @@ class Model extends EmberObject {
    */
   @computeOnce
   static get relationshipNames() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let names = {
       hasMany: [],
       belongsTo: [],
@@ -1561,6 +1667,23 @@ class Model extends EmberObject {
    */
   @computeOnce
   static get relatedTypes() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let types = [];
 
     let rels = this.relationshipsObject;
@@ -1620,6 +1743,23 @@ class Model extends EmberObject {
    */
   @computeOnce
   static get relationshipsByName() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let map = new Map();
     let rels = this.relationshipsObject;
     let relationships = Object.keys(rels);
@@ -1636,6 +1776,23 @@ class Model extends EmberObject {
 
   @computeOnce
   static get relationshipsObject() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let relationships = Object.create(null);
     let modelName = this.modelName;
     this.eachComputedProperty((name, meta) => {
@@ -1693,6 +1850,23 @@ class Model extends EmberObject {
    */
   @computeOnce
   static get fields() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
@@ -1718,6 +1892,23 @@ class Model extends EmberObject {
    @param {any} binding the value to which the callback's `this` should be bound
    */
   static eachRelationship(callback, binding) {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     this.relationshipsByName.forEach((relationship, name) => {
       callback.call(binding, name, relationship);
     });
@@ -1736,6 +1927,23 @@ class Model extends EmberObject {
    @param {any} binding the value to which the callback's `this` should be bound
    */
   static eachRelatedType(callback, binding) {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let relationshipTypes = this.relatedTypes;
 
     for (let i = 0; i < relationshipTypes.length; i++) {
@@ -1745,6 +1953,23 @@ class Model extends EmberObject {
   }
 
   static determineRelationshipType(knownSide, store) {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let knownKey = knownSide.key;
     let knownKind = knownSide.kind;
     let inverse = this.inverseFor(knownKey, store);
@@ -1806,6 +2031,23 @@ class Model extends EmberObject {
    */
   @computeOnce
   static get attributes() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
@@ -1865,6 +2107,23 @@ class Model extends EmberObject {
    */
   @computeOnce
   static get transformedAttributes() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     let map = new Map();
 
     this.eachAttribute((key, meta) => {
@@ -1921,6 +2180,23 @@ class Model extends EmberObject {
    @static
    */
   static eachAttribute(callback, binding) {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     this.attributes.forEach((meta, name) => {
       callback.call(binding, name, meta);
     });
@@ -1972,6 +2248,23 @@ class Model extends EmberObject {
    @static
    */
   static eachTransformedAttribute(callback, binding) {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     this.transformedAttributes.forEach((type, name) => {
       callback.call(binding, name, type);
     });
@@ -1985,6 +2278,23 @@ class Model extends EmberObject {
    @static
    */
   static toString() {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        this.modelName,
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     return `model:${get(this, 'modelName')}`;
   }
 }
@@ -2111,6 +2421,35 @@ if (DEBUG) {
       }
     },
   });
+
+  if (DEPRECATE_MODEL_REOPEN) {
+    const originalReopen = Model.reopen;
+    const originalReopenClass = Model.reopenClass;
+
+    Model.reopen = function deprecatedReopen() {
+      deprecate(`Model.reopen is deprecated. Use Foo extends Model to extend your class instead.`, false, {
+        id: 'ember-data:deprecate-model-reopen',
+        for: 'ember-data',
+        until: '5.0',
+        since: { available: '4.8', enabled: '4.8' },
+      });
+      return originalReopen.call(this, arguments);
+    };
+
+    Model.reopenClass = function deprecatedReopenClass() {
+      deprecate(
+        `Model.reopenClass is deprecated. Use Foo extends Model to add static methods and properties to your class instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-model-reopenclass',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        }
+      );
+      return originalReopenClass.call(this, arguments);
+    };
+  }
 }
 
 export default Model;

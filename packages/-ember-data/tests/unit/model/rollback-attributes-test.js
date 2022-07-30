@@ -30,11 +30,6 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
           this.incrementProperty('rolledBackCount');
         },
       });
-      Person.reopenClass({
-        toString() {
-          return 'Person';
-        },
-      });
 
       this.owner.register('model:person', Person);
       this.owner.register('adapter:application', Adapter.extend());
