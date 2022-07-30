@@ -14,6 +14,7 @@ module('Deprecations', function (hooks) {
     function (assert) {
       class Post extends Model {}
       Post.reopenClass({});
+      assert.ok(true);
     }
   );
 
@@ -23,6 +24,7 @@ module('Deprecations', function (hooks) {
     function (assert) {
       const Post = Model.extend();
       Post.reopenClass({});
+      assert.ok(true);
     }
   );
 });

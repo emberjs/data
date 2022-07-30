@@ -38,6 +38,7 @@ module('Deprecations', function (hooks) {
       function (assert) {
         class Post extends Model {}
         Post[prop.name];
+        assert.ok(true);
       }
     );
   }
@@ -52,6 +53,7 @@ module('Deprecations', function (hooks) {
         } catch {
           // do nothing
         }
+        assert.ok(true);
       }
     );
   }
