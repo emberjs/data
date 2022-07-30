@@ -123,11 +123,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   }
 
   test('updateRecord - an empty payload is a basic success', async function (assert) {
+    class Comment extends Model {
+      @attr name;
+    }
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
     this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     store.push({
       data: {
@@ -153,9 +157,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - passes the requestType to buildURL', async function (assert) {
+    class Comment extends Model {
+      @attr name;
+    }
+    this.owner.register('model:comment', Comment);
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
     this.owner.register('model:post', Post);
 
@@ -183,9 +191,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - a payload with updates applies the updates', async function (assert) {
+    class Comment extends Model {
+      @attr name;
+    }
+    this.owner.register('model:comment', Comment);
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
     this.owner.register('model:post', Post);
 
@@ -214,9 +226,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - a payload with updates applies the updates (with legacy singular name)', async function (assert) {
+    class Comment extends Model {
+      @attr name;
+    }
+    this.owner.register('model:comment', Comment);
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
     this.owner.register('model:post', Post);
 
@@ -245,9 +261,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - a payload with sideloaded updates pushes the updates', async function (assert) {
+    class Comment extends Model {
+      @attr name;
+    }
+    this.owner.register('model:comment', Comment);
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
     this.owner.register('model:post', Post);
 
@@ -272,9 +292,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - a payload with sideloaded updates pushes the updates', async function (assert) {
+    class Comment extends Model {
+      @attr name;
+    }
+    this.owner.register('model:comment', Comment);
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
     this.owner.register('model:post', Post);
 
@@ -309,9 +333,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test("updateRecord - a serializer's primary key and attributes are consulted when building the payload", async function (assert) {
+    class Comment extends Model {
+      @attr name;
+    }
+    this.owner.register('model:comment', Comment);
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
     this.owner.register('model:post', Post);
 
@@ -346,13 +374,17 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - hasMany relationships faithfully reflect simultaneous adds and removes', async function (assert) {
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: false, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
 
-    Comment.reopen({ post: DS.belongsTo('post', { async: false, inverse: 'comment' }) });
     adapter.shouldBackgroundReloadRecord = () => false;
 
     store.push({
@@ -411,7 +443,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
     class Comment extends Model {
       @attr name;
-      @belongsTo('post', { async: false, inverse: 'comment' }) post;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
 
     this.owner.register('model:post', Post);
@@ -459,13 +491,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @attr name;
       @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
     class Comment extends Model {
       @attr name;
-      @belongsTo('post', { async: false, inverse: 'comment' }) post;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
 
     this.owner.register('model:post', Post);
-    this.owner.register('model:comment', Comment);
 
     store.push({
       data: {
@@ -505,8 +537,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('deleteRecord - an empty payload is a basic success', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -537,8 +575,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('deleteRecord - passes the requestType to buildURL', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -568,8 +612,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('deleteRecord - a payload with sideloaded updates pushes the updates', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -603,8 +653,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('deleteRecord - a payload with sidloaded updates pushes the updates when the original record is omitted', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -638,8 +694,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('deleteRecord - deleting a newly created record should not throw an error', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     let post = store.createRecord('post');
@@ -660,8 +722,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findAll - returning an array populates the array', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -691,8 +759,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findAll - passes buildURL the requestType and snapshot', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     assert.expect(2);
@@ -716,8 +790,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findAll - passed `include` as a query parameter to ajax', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -731,8 +811,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findAll - returning sideloaded data loads the data', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -752,8 +838,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findAll - data is normalized through custom serializers', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     this.owner.register(
@@ -786,8 +878,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('query - if `sortQueryParams` option is not provided, query params are sorted alphabetically', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -805,8 +903,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('query - passes buildURL the requestType', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.buildURL = function (type, id, snapshot, requestType) {
@@ -824,8 +928,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('query - if `sortQueryParams` is falsey, query params are not sorted at all', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -845,8 +955,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('query - if `sortQueryParams` is a custom function, query params passed through that function', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -875,8 +991,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test("query - payload 'meta' is accessible on the record array", async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -891,8 +1013,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test("query - each record array can have it's own meta object", async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -915,8 +1043,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('query - returning an array populates the array', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -945,8 +1079,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('query - returning sideloaded data loads the data', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -966,8 +1106,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('query - data is normalized through custom serializers', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     this.owner.register(
@@ -1001,8 +1147,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('queryRecord - empty response', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({});
@@ -1014,8 +1166,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('queryRecord - primary data being null', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -1029,8 +1187,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('queryRecord - primary data being a single object', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -1047,8 +1211,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('queryRecord - returning sideloaded data loads the data', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -1065,8 +1235,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   testInDebug('queryRecord - returning an array is asserted', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -1085,8 +1261,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   testInDebug("queryRecord - returning an single object doesn't throw a deprecation", async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     ajaxResponse({
@@ -1101,8 +1283,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('queryRecord - data is normalized through custom serializers', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     this.owner.register(
@@ -1129,8 +1317,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findMany - findMany uses a correct URL to access the records', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.coalesceFindRequests = true;
@@ -1171,8 +1365,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findMany - passes buildURL the requestType', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.buildURL = function (type, id, snapshot, requestType) {
@@ -1217,8 +1417,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findMany - findMany does not coalesce by default', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     store.push({
@@ -1259,8 +1465,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => false;
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.coalesceFindRequests = true;
@@ -1312,8 +1524,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => false;
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
     adapter.coalesceFindRequests = true;
 
@@ -1367,8 +1585,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findMany - a custom serializer is used if present', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -1438,8 +1662,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => false;
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     store.push({
@@ -1501,8 +1731,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     store.push({
@@ -1539,8 +1775,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => false;
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     adapter.coalesceFindRequests = true;
@@ -1604,8 +1846,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
+    this.owner.register('model:comment', Comment);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+
     this.owner.register('model:post', Post);
 
     store.push({
@@ -1656,10 +1904,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('findBelongsTo - passes buildURL the requestType', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
     this.owner.register('model:post', Post);
-    Comment.reopen({ post: DS.belongsTo('post', { async: true, inverse: null }) }); //add inverse once comment.reopen is refactored
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: true, inverse: null }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -1694,12 +1946,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     'coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request',
     async function (assert) {
       assert.expect(2);
-      Comment.reopen({ posts: DS.belongsTo('post', { async: false, inverse: null }) }); //add inverse once comment.reopen is refactored
       class Post extends Model {
         @attr name;
-        @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+        @hasMany('comment', { async: true, inverse: 'post' }) comments;
       }
       this.owner.register('model:post', Post);
+      class Comment extends Model {
+        @attr name;
+        @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      }
+      this.owner.register('model:comment', Comment);
 
       adapter.coalesceFindRequests = true;
 
@@ -1737,12 +1993,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   );
 
   test('groupRecordsForFindMany groups records based on their url', async function (assert) {
-    Comment.reopen({ post: DS.belongsTo('post', { async: false, inverse: 'comment' }) });
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     adapter.coalesceFindRequests = true;
 
     adapter.buildURL = function (type, id, snapshot) {
@@ -1785,12 +2045,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('groupRecordsForFindMany groups records correctly when singular URLs are encoded as query params', async function (assert) {
-    Comment.reopen({ post: DS.belongsTo('post', { async: false, inverse: 'comment' }) });
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     adapter.coalesceFindRequests = true;
 
     adapter.buildURL = function (type, id, snapshot) {
@@ -1836,11 +2100,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     class Post extends Model {
       @attr name;
       @attr authorName;
-      @hasMany('comment', { async: false }) comments;
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
       @belongsTo('user', { async: false }) author;
     }
-
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     this.owner.register(
       'serializer:application',
@@ -1915,12 +2183,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('groupRecordsForFindMany splits up calls for large ids', async function (assert) {
-    Comment.reopen({ post: DS.belongsTo('post', { async: false, inverse: 'comment' }) });
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     assert.expect(2);
 
     function repeatChar(character, n) {
@@ -1967,12 +2239,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('groupRecordsForFindMany groups calls for small ids', async function (assert) {
-    Comment.reopen({ post: DS.belongsTo('post', { async: false, inverse: 'comment' }) });
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     assert.expect(1);
 
@@ -2021,8 +2297,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @attr name;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
-
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     assert.expect(2);
 
@@ -2042,6 +2322,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.deepEqual(json, data);
       return json;
     };
+
+    await store.findRecord('post', '1');
   });
 
   test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', async function (assert) {
@@ -2050,6 +2332,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     assert.expect(4);
 
     let responseText = 'Nope lol';
@@ -2083,6 +2370,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     assert.expect(3);
 
@@ -2113,6 +2405,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     assert.expect(1);
 
@@ -2137,6 +2434,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     assert.expect(1);
 
@@ -2161,6 +2463,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     assert.expect(3);
 
@@ -2185,13 +2492,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('on error appends errorThrown for sanity', async function (assert) {
     assert.expect(2);
-      class Post extends Model {
-        @attr name;
-        @hasMany('comment', { async: true, inverse: 'post' }) comments;
-      }
-      this.owner.register('model:post', Post);
-
-      assert.expect(2);
+    class Post extends Model {
+      @attr name;
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
+    }
+    this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     let jqXHR = {
       responseText: 'Nope lol',
@@ -2221,12 +2531,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('on error wraps the error string in an DS.AdapterError object', async function (assert) {
     assert.expect(2);
-      class Post extends Model {
-        @attr name;
-        @hasMany('comment', { async: true, inverse: 'post' }) comments;
-      }
-      this.owner.register('model:post', Post);
-      assert.expect(2);
+    class Post extends Model {
+      @attr name;
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
+    }
+    this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     let jqXHR = {
       responseText: '',
@@ -2256,6 +2570,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     assert.expect(10);
 
     ajaxError('error', 401);
@@ -2310,6 +2629,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     assert.expect(2);
 
     ajaxError('An error message, perhaps generated from a backend server!', 500, {
@@ -2333,6 +2657,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     assert.expect(2);
 
     ajaxError(new Array(100).join('<blink />'), 500, { 'Content-Type': 'text/html' });
@@ -2354,6 +2683,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
     assert.expect(4);
 
     ajaxResponse({
@@ -2381,9 +2715,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('createRecord - sideloaded records are pushed to the store', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: false, inverse: null }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     ajaxResponse({
       post: {
@@ -2418,9 +2757,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     function (assert) {
       class Post extends Model {
         @attr name;
-        @hasMany('comment', { async: false, inverse: null }) comments; //add inverse once comment.reopen is refactored
+        @hasMany('comment', { async: true, inverse: 'post' }) comments;
       }
       this.owner.register('model:post', Post);
+      class Comment extends Model {
+        @attr name;
+        @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      }
+      this.owner.register('model:comment', Comment);
 
       assert.expect(1);
 
@@ -2447,9 +2791,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         assert.expect(1);
         class Post extends Model {
           @attr name;
-          @hasMany('comment', { async: false, inverse: null }) comments; //add inverse once comment.reopen is refactored
+          @hasMany('comment', { async: true, inverse: 'post' }) comments;
         }
         this.owner.register('model:post', Post);
+        class Comment extends Model {
+          @attr name;
+          @belongsTo('post', { async: false, inverse: 'comments' }) post;
+        }
+        this.owner.register('model:comment', Comment);
 
         adapter.useFetch = false;
         server.post('/posts', function () {
@@ -2475,10 +2824,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.expect(2);
       class Post extends Model {
         @attr name;
-        @hasMany('comment', { async: true, inverse: null }) comments; //add inverse once comment.reopen is refactored
+        @hasMany('comment', { async: true, inverse: 'post' }) comments;
       }
       this.owner.register('model:post', Post);
-
+      class Comment extends Model {
+        @attr name;
+        @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      }
+      this.owner.register('model:comment', Comment);
 
       server.put('/posts/1', function () {
         return [200, { 'Content-Type': 'application/json' }, ''];
@@ -2494,6 +2847,17 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('can return an empty 200 response, though a valid stringified JSON is expected', async function (assert) {
     assert.expect(1);
 
+    class Post extends Model {
+      @attr name;
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
+    }
+    this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
+
     server.put('/posts/1', function () {
       return [200, { 'Content-Type': 'application/json' }, ''];
     });
@@ -2505,9 +2869,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   test('can return a null 200 response, though a valid stringified JSON is expected', async function (assert) {
     class Post extends Model {
       @attr name;
-      @hasMany('comment', { async: true, inverse: 'post' }) comments; //add inverse once comment.reopen is refactored
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
     this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
+    this.owner.register('model:comment', Comment);
 
     assert.expect(1);
 
@@ -2518,5 +2887,4 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let post = store.push({ data: { id: '1', type: 'post' } });
     return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
   });
-
 });
