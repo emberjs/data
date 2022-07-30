@@ -5,9 +5,9 @@ import { resolve } from 'rsvp';
 
 import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
-import { ManyArray } from "@ember-data/model/-private";
 
-import Model, { attr, hasMany, belongsTo } from "@ember-data/model";
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { ManyArray } from '@ember-data/model/-private';
 
 module('unit/many_array - ManyArray', function (hooks) {
   setupTest(hooks);

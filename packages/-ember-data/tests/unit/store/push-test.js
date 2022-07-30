@@ -6,12 +6,11 @@ import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
+import Adapter from '@ember-data/adapter';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import RESTSerializer from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-
-import Model, { attr, hasMany, belongsTo } from "@ember-data/model";
-import JSONAPISerializer from "@ember-data/serializer/json-api";
-import RESTSerializer from "@ember-data/serializer/rest";
-import Adapter from "@ember-data/adapter";
 
 module('unit/store/push - Store#push', function (hooks) {
   setupTest(hooks);
@@ -680,7 +679,12 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
 
   test(`Calling pushPayload should use the type's serializer for normalizing`, function (assert) {
     assert.expect(4);
-    this.owner.register('model:person', class extends Model { @attr firstName });
+    this.owner.register(
+      'model:person',
+      class extends Model {
+        @attr firstName;
+      }
+    );
     this.owner.register(
       'serializer:post',
       RESTSerializer.extend({
@@ -752,8 +756,12 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
 
   test(`Calling pushPayload without a type should use a model's serializer when normalizing`, function (assert) {
     assert.expect(4);
-    this.owner.register('model:person', class extends Model { @attr firstName });
-
+    this.owner.register(
+      'model:person',
+      class extends Model {
+        @attr firstName;
+      }
+    );
 
     this.owner.register(
       'serializer:post',
@@ -804,7 +812,13 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
 
   test('Calling pushPayload allows partial updates with raw JSON', function (assert) {
     this.owner.register('serializer:person', RESTSerializer);
-    this.owner.register('model:person', class extends Model { @attr firstName; @attr lastName; });
+    this.owner.register(
+      'model:person',
+      class extends Model {
+        @attr firstName;
+        @attr lastName;
+      }
+    );
 
     const store = this.owner.lookup('service:store');
     run(() => {
@@ -937,7 +951,6 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
 
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
-
   });
 
   test('Should support pushing multiple models into the store', function (assert) {
