@@ -16,76 +16,71 @@ function idsFromArr(arr) {
   return arr.map((i) => i.id);
 }
 
-const Person = Model.extend({
-  name: attr('string'),
+class Person extends Model {
+  @attr('string') name;
   // 1:many sync
-  cars: hasMany('car', { async: false }),
+  @hasMany('car', { async: false }) cars;
   // 1:many async
-  boats: hasMany('boat', { async: true }),
+  @hasMany('boat', { async: true }) boats;
   // many:many sync
-  groups: hasMany('group', { async: false }),
+  @hasMany('group', { async: false }) groups;
   // many:many async
-  friends: hasMany('people', { async: true }),
+  @hasMany('people', { async: true }) friends;
   // 1:1 sync inverse null
-  bike: belongsTo('bike', { async: false, inverse: null }),
+  @belongsTo('bike', { async: false, inverse: null }) bike;
   // 1:1 sync
-  house: belongsTo('house', { async: false }),
+  @belongsTo('house', { async: false }) house;
   // 1:1 async
-  mortgage: belongsTo('mortgage', { async: true }),
+  @belongsTo('mortgage', { async: true }) mortgage;
   // 1 async : 1 sync
-  favoriteBook: belongsTo('book', { async: false }),
+  @belongsTo('book', { async: false }) favoriteBook;
   // 1 async : many sync
-  favoriteSpoons: hasMany('spoon', { async: false }),
+  @hasMany('spoon', { async: false }) favoriteSpoons;
   // 1 sync: many async
-  favoriteShows: hasMany('show', { async: true }),
+  @hasMany('show', { async: true }) favoriteShows;
   // many sync : many async
-  favoriteFriends: hasMany('people', { async: true, inverse: 'favoriteAsyncFriends' }),
+  @hasMany('people', { async: true, inverse: 'favoriteAsyncFriends' }) favoriteFriends;
   // many async : many sync
-  favoriteAsyncFriends: hasMany('people', { async: false, inverse: 'favoriteFriends' }),
-});
-Person.reopenClass({
-  toString() {
+  @hasMany('people', { async: false, inverse: 'favoriteFriends' }) favoriteAsyncFriends;
+
+  static toString() {
     return 'Person';
-  },
-});
+  }
+}
 
-const House = Model.extend({
-  person: belongsTo('person', { async: false }),
-});
-House.reopenClass({
-  toString() {
+class House extends Model {
+  @belongsTo('person', { async: false }) person;
+
+  static toString() {
     return 'House';
-  },
-});
+  }
+}
 
-const Mortgage = Model.extend({
-  person: belongsTo('person', { async: true }),
-});
-Mortgage.reopenClass({
-  toString() {
+class Mortgage extends Model {
+  @belongsTo('person', { async: true }) person;
+
+  static toString() {
     return 'Mortgage';
-  },
-});
+  }
+}
 
-const Group = Model.extend({
-  people: hasMany('person', { async: false }),
-});
-Group.reopenClass({
-  toString() {
+class Group extends Model {
+  @hasMany('person', { async: false }) people;
+
+  static toString() {
     return 'Group';
-  },
-});
+  }
+}
 
-const Car = Model.extend({
-  make: attr('string'),
-  model: attr('string'),
-  person: belongsTo('person', { async: false }),
-});
-Car.reopenClass({
-  toString() {
+class Car extends Model {
+  @attr('string') make;
+  @attr('string') model;
+  @belongsTo('person', { async: false }) person;
+
+  static toString() {
     return 'Car';
-  },
-});
+  }
+}
 
 const Boat = Model.extend({
   name: attr('string'),

@@ -197,22 +197,20 @@ module('integration/records/error', function (hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.reopen({
-      createRecord() {
-        return RSVP.reject(
-          new InvalidError([
-            {
-              detail: 'Must be unique',
-              source: { pointer: '/data/attributes/first-name' },
-            },
-            {
-              detail: 'Must not be blank',
-              source: { pointer: '/data/attributes/last-name' },
-            },
-          ])
-        );
-      },
-    });
+    adapter.createRecord = () => {
+      return RSVP.reject(
+        new InvalidError([
+          {
+            detail: 'Must be unique',
+            source: { pointer: '/data/attributes/first-name' },
+          },
+          {
+            detail: 'Must not be blank',
+            source: { pointer: '/data/attributes/last-name' },
+          },
+        ])
+      );
+    };
 
     let person = store.createRecord('person');
 

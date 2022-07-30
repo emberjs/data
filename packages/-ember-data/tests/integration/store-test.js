@@ -9,34 +9,31 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-const Person = DS.Model.extend({
-  name: DS.attr('string'),
-  cars: DS.hasMany('car', { async: false }),
-});
+class Person extends Model {
+  @attr('string') name;
+  @hasMany('car', { async: false }) cars;
 
-Person.reopenClass({
-  toString() {
+  static toString() {
     return 'Person';
-  },
-});
+  }
+}
 
-const Car = DS.Model.extend({
-  make: DS.attr('string'),
-  model: DS.attr('string'),
-  person: DS.belongsTo('person', { async: false }),
-});
+class Car extends Model {
+  @attr('string') make;
+  @attr('string') model;
+  @belongsTo('person', { async: false }) person;
 
-Car.reopenClass({
-  toString() {
+  static toString() {
     return 'Car';
-  },
-});
+  }
+}
 
 function ajaxResponse(value) {
   return function (url, verb, hash) {
