@@ -2,8 +2,11 @@
   @module @ember-data/store
 */
 
-import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
 import { assert, deprecate } from '@ember/debug';
+
+import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
+
+import _normalize from './normalize-model-name';
 
 export { default as Store, storeFor } from './core-store';
 
@@ -17,20 +20,18 @@ export {
   setIdentifierResetMethod,
 } from './identifier-cache';
 
-
-/**
-  @module @ember-data/store
-*/
-
-import _normalize from './normalize-model-name';
 export function normalizeModelName(modelName: string) {
   if (DEPRECATE_HELPERS) {
-    deprecate(`the helper function normalizeModelName is deprecated. You should use model names that are already normalized, or use string helpers of your own. This function is primarily an alias for dasherize from @ember/string.`, false, {
-      id: 'ember-data:deprecate-normalize-model-name-helper',
-      for: 'ember-data',
-      until: '5.0',
-      since: { available: '4.8', enabled: '4.8' }
-    });
+    deprecate(
+      `the helper function normalizeModelName is deprecated. You should use model names that are already normalized, or use string helpers of your own. This function is primarily an alias for dasherize from @ember/string.`,
+      false,
+      {
+        id: 'ember-data:deprecate-normalize-modelname-helper',
+        for: 'ember-data',
+        until: '5.0',
+        since: { available: '4.8', enabled: '4.8' },
+      }
+    );
     return _normalize(modelName);
   }
   assert(`normalizeModelName support has been removed`);

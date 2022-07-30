@@ -10,6 +10,7 @@ import Serializer from '@ember-data/serializer';
 import { coerceId, errorsArrayToHash } from '@ember-data/store/-private';
 
 import { modelHasAttributeOrRelationshipNamedType } from './-private';
+import { dasherize } from '@ember/string';
 
 /**
   Ember Data 2.0 Serializer:
