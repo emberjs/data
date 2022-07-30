@@ -541,7 +541,6 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
     this.owner.register('model:comment', Comment);
 
-
     adapter.shouldBackgroundReloadRecord = () => false;
     store.push({
       data: {
