@@ -1,8 +1,10 @@
 /**
   @module @ember-data/adapter/error
  */
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import EmberError from '@ember/error';
+
+import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
 
 /**
   A `AdapterError` is used by an adapter to signal that an error occurred
@@ -396,30 +398,39 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   @return {Array} array of errors in JSON-API format
 */
 export function errorsHashToArray(errors) {
-  let out = [];
-
-  if (errors) {
-    Object.keys(errors).forEach((key) => {
-      let messages = makeArray(errors[key]);
-      for (let i = 0; i < messages.length; i++) {
-        let title = 'Invalid Attribute';
-        let pointer = `/data/attributes/${key}`;
-        if (key === PRIMARY_ATTRIBUTE_KEY) {
-          title = 'Invalid Document';
-          pointer = `/data`;
-        }
-        out.push({
-          title: title,
-          detail: messages[i],
-          source: {
-            pointer: pointer,
-          },
-        });
-      }
+  if (DEPRECATE_HELPERS) {
+    deprecate(`errorsHashToArray helper has been deprecated.`, false, {
+      id: 'ember-data:deprecate-errors-hash-to-array-helper',
+      for: 'ember-data',
+      until: '5.0',
+      since: { available: '4.8', enabled: '4.8' },
     });
-  }
+    let out = [];
 
-  return out;
+    if (errors) {
+      Object.keys(errors).forEach((key) => {
+        let messages = makeArray(errors[key]);
+        for (let i = 0; i < messages.length; i++) {
+          let title = 'Invalid Attribute';
+          let pointer = `/data/attributes/${key}`;
+          if (key === PRIMARY_ATTRIBUTE_KEY) {
+            title = 'Invalid Document';
+            pointer = `/data`;
+          }
+          out.push({
+            title: title,
+            detail: messages[i],
+            source: {
+              pointer: pointer,
+            },
+          });
+        }
+      });
+    }
+
+    return out;
+  }
+  assert(`errorsHashToArray helper has been removed`);
 }
 
 /**
@@ -464,26 +475,35 @@ export function errorsHashToArray(errors) {
   @return {Object}
 */
 export function errorsArrayToHash(errors) {
-  let out = {};
-
-  if (errors) {
-    errors.forEach((error) => {
-      if (error.source && error.source.pointer) {
-        let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
-
-        if (key) {
-          key = key[2];
-        } else if (error.source.pointer.search(SOURCE_POINTER_PRIMARY_REGEXP) !== -1) {
-          key = PRIMARY_ATTRIBUTE_KEY;
-        }
-
-        if (key) {
-          out[key] = out[key] || [];
-          out[key].push(error.detail || error.title);
-        }
-      }
+  if (DEPRECATE_HELPERS) {
+    deprecate(`errorsArrayToHash helper has been deprecated.`, false, {
+      id: 'ember-data:deprecate-errors-array-to-hash-helper',
+      for: 'ember-data',
+      until: '5.0',
+      since: { available: '4.8', enabled: '4.8' },
     });
-  }
+    let out = {};
 
-  return out;
+    if (errors) {
+      errors.forEach((error) => {
+        if (error.source && error.source.pointer) {
+          let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
+
+          if (key) {
+            key = key[2];
+          } else if (error.source.pointer.search(SOURCE_POINTER_PRIMARY_REGEXP) !== -1) {
+            key = PRIMARY_ATTRIBUTE_KEY;
+          }
+
+          if (key) {
+            out[key] = out[key] || [];
+            out[key].push(error.detail || error.title);
+          }
+        }
+      });
+    }
+
+    return out;
+  }
+  assert(`errorsArrayToHash helper has been removed`);
 }

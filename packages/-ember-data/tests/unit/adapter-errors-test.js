@@ -148,16 +148,19 @@ module('unit/adapter-errors - DS.AdapterError', function () {
   test('errorsHashToArray', function (assert) {
     let result = DS.errorsHashToArray(errorsHash);
     assert.deepEqual(result, errorsArray);
+    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
   });
 
   test('errorsHashToArray for primary data object', function (assert) {
     let result = DS.errorsHashToArray(errorsPrimaryHash);
     assert.deepEqual(result, errorsPrimaryArray);
+    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
   });
 
   test('errorsArrayToHash', function (assert) {
     let result = DS.errorsArrayToHash(errorsArray);
     assert.deepEqual(result, errorsHash);
+    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
   });
 
   test('errorsArrayToHash without trailing slash', function (assert) {
@@ -168,11 +171,13 @@ module('unit/adapter-errors - DS.AdapterError', function () {
       },
     ]);
     assert.deepEqual(result, { name: ['error message'] });
+    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
   });
 
   test('errorsArrayToHash for primary data object', function (assert) {
     let result = DS.errorsArrayToHash(errorsPrimaryArray);
     assert.deepEqual(result, errorsPrimaryHash);
+    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
   });
 
   testInDebug('DS.InvalidError will normalize errors hash will assert', function (assert) {

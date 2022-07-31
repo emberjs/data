@@ -44,8 +44,6 @@ class TestRecordData implements RecordData {
     }
   }
 
-
-
   // Use correct interface once imports have been fix
   _storeWrapper: any;
 

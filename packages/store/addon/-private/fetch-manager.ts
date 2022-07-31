@@ -308,34 +308,32 @@ export default class FetchManager {
       }),
       this._store,
       label
-    ).then(
-      (adapterPayload) => {
-        assert(
-          `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
-          !!payloadIsNotBlank(adapterPayload)
-        );
-        let serializer = this._store.serializerFor(modelName);
-        let payload = normalizeResponseHelper(serializer, this._store, klass, adapterPayload, id, 'findRecord');
-        assert(
-          `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
-          !Array.isArray(payload.data)
-        );
-        assert(
-          `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
-          'data' in payload && payload.data !== null && typeof payload.data === 'object'
-        );
+    ).then((adapterPayload) => {
+      assert(
+        `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
+        !!payloadIsNotBlank(adapterPayload)
+      );
+      let serializer = this._store.serializerFor(modelName);
+      let payload = normalizeResponseHelper(serializer, this._store, klass, adapterPayload, id, 'findRecord');
+      assert(
+        `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
+        !Array.isArray(payload.data)
+      );
+      assert(
+        `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
+        'data' in payload && payload.data !== null && typeof payload.data === 'object'
+      );
 
-        warn(
-          `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
-          coerceId(payload.data.id) === coerceId(id),
-          {
-            id: 'ds.store.findRecord.id-mismatch',
-          }
-        );
+      warn(
+        `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
+        coerceId(payload.data.id) === coerceId(id),
+        {
+          id: 'ds.store.findRecord.id-mismatch',
+        }
+      );
 
-        return payload;
-      }
-    );
+      return payload;
+    });
 
     fetchItem.resolver.resolve(promise);
   }

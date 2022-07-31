@@ -10,8 +10,8 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -44,7 +44,6 @@ class TestRecordData {
   clientDidCreate() {}
 
   willCommit() {}
-
 
   _errors: JsonApiValidationError[] = [];
   getErrors(recordIdentifier: StableRecordIdentifier): JsonApiValidationError[] {
