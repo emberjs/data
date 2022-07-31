@@ -1788,7 +1788,10 @@ class Store extends Service {
       if (DEBUG) {
         assertDestroyingStore(this, 'recordWasInvalid');
       }
-      internalModel.adapterDidInvalidate(parsedErrors, error);
+      error = error || new Error(`unknown invalid error`);
+      error = typeof error === 'string' ? new Error(error) : error;
+      error._parsedErrors = parsedErrors;
+      internalModel.adapterDidInvalidate(error);
     }
     assert(`store.recordWasInvalid has been removed`);
   }
@@ -2182,7 +2185,8 @@ class Store extends Service {
 
           //We first make sure the primary data has been updated
           //TODO try to move notification to the user to the end of the runloop
-          internalModel.adapterDidCommit(data);
+          internalModel._recordData.didCommit(data);
+          this.recordArrayManager.recordDidChange(internalModel.identifier);
 
           if (payload && payload.included) {
             this._push({ data: null, included: payload.included });
@@ -2194,9 +2198,8 @@ class Store extends Service {
         if (typeof e === 'string') {
           throw e;
         }
-        const { error, parsedErrors } = e;
-        internalModel.adapterDidInvalidate(parsedErrors, error);
-        throw error;
+        internalModel.adapterDidInvalidate(e);
+        throw e.error;
       }
     );
   }

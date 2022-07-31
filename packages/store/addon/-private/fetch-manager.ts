@@ -22,7 +22,6 @@ import type { Dict } from '@ember-data/types/q/utils';
 import coerceId from './coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import type Store from './core-store';
-import { errorsArrayToHash } from './errors-utils';
 import ShimModelClass from './model/shim-model-class';
 import RequestCache from './request-cache';
 import { normalizeResponseHelper } from './serializer-response';
@@ -170,24 +169,7 @@ export default class FetchManager {
         if (adapterPayload) {
           return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         }
-      },
-      function (error) {
-        if (error && error.isAdapterError === true && error.code === 'InvalidError') {
-          let parsedErrors = error.errors;
-
-          // TODO deprecate extractErrors being called and/or make it part of the public interface
-          if (serializer && typeof serializer.extractErrors === 'function') {
-            parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
-          } else {
-            parsedErrors = errorsArrayToHash(error.errors);
-          }
-
-          throw { error, parsedErrors };
-        } else {
-          throw { error };
-        }
-      },
-      label
+      }
     );
     resolver.resolve(promise);
   }

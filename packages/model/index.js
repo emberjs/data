@@ -17,6 +17,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember-data/store/-private',
       '@ember-data/store/-debug',
       '@embroider/macros',
+      '@ember/string',
       '@embroider/macros/es-compat',
 
       '@ember/application',

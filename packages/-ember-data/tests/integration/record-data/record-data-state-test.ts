@@ -9,8 +9,9 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import type { NewRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
+import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -26,6 +27,9 @@ class TestRecordIdentifier implements NewRecordIdentifier {
 }
 
 class TestRecordData implements RecordData {
+  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
+    throw new Error('Method not implemented.');
+  }
   id: string | null = '1';
   clientId: string | null = 'test-record-data-1';
   modelName = 'tst';

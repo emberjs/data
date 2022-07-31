@@ -1,7 +1,6 @@
 /**
  * @module @ember-data/serializer/rest
  */
-import { makeArray } from '@ember/array';
 import { assert, warn } from '@ember/debug';
 import { camelize, dasherize } from '@ember/string';
 import { isNone, typeOf } from '@ember/utils';
@@ -13,6 +12,10 @@ import JSONSerializer from '@ember-data/serializer/json';
 import { coerceId } from '@ember-data/store/-private';
 
 import { modelHasAttributeOrRelationshipNamedType } from './-private';
+
+function makeArray(value) {
+  return Array.isArray(value) ? value : [value];
+}
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing

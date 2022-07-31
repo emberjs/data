@@ -30,12 +30,7 @@ export interface RecordDataRecordWrapper {
   hasAttr(key: string): boolean;
 
   // new
-  getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
-  /**
-   * @internal
-   * @deprecated
-   */
-  getErrors?({}): JsonApiValidationError[]; // eslint-disable-line no-empty-pattern
+  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
 
   isNew?(): boolean;
   isDeleted?(): boolean;

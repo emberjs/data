@@ -75,11 +75,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
-
-    if (internalModel) {
-      internalModel.notifyErrorsChange();
-    }
+    this._store._notificationManager.notify(identifier, 'errors');
   }
 
   _flushNotifications(): void {

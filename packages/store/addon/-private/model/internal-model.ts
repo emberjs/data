@@ -5,13 +5,14 @@ import { DEBUG } from '@glimmer/env';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 import type Store from '../core-store';
-import { errorsHashToArray } from '../errors-utils';
 import { internalModelFactoryFor } from '../internal-model-factory';
+import type ShimModelClass from './shim-model-class';
 
 /**
   @module @ember-data/store
@@ -26,6 +27,11 @@ function isDSModel(record: RecordInstance | null): record is DSModel {
     record.constructor.isModel === true
   );
 }
+
+type AdapterErrors = Error & { errors?: unknown[]; isAdapterError?: true; code?: string };
+type SerializerWithParseErrors = MinimumSerializerInterface & {
+  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
+};
 
 export default class InternalModel {
   declare _id: string | null;
@@ -91,7 +97,10 @@ export default class InternalModel {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
       // TODO potentially this needs to handle merged result
       this.store.identifierCache.updateRecordIdentifier(this.identifier, newIdentifier);
-      this.notifyPropertyChange('id');
+      if (this.hasRecord) {
+        // TODO this should likely *mostly* be the a different bucket
+        this.store._notificationManager.notify(this.identifier, 'property', 'id');
+      }
     }
   }
 
@@ -392,16 +401,6 @@ export default class InternalModel {
     }
   }
 
-  notifyPropertyChange(key: string) {
-    if (this.hasRecord) {
-      // TODO this should likely *mostly* be the `attributes` bucket
-      // but it seems for local mutations we rely on computed updating
-      // iteself when set. As we design our own thing we may need to change
-      // that.
-      this.store._notificationManager.notify(this.identifier, 'property', key);
-    }
-  }
-
   notifyStateChange(key?: string) {
     if (this.hasRecord) {
       this.store._notificationManager.notify(this.identifier, 'state');
@@ -533,52 +532,26 @@ export default class InternalModel {
     this._isUpdatingId = false;
   }
 
-  didError() {}
-
-  /*
-    If the adapter did not return a hash in response to a commit,
-    merge the changed attributes and relationships into the existing
-    saved data.
-  */
-  adapterDidCommit(data) {
-    this._recordData.didCommit(data);
-    this.store.recordArrayManager.recordDidChange(this.identifier);
-  }
-
-  hasErrors(): boolean {
-    // TODO add assertion forcing consuming RecordData's to implement getErrors
-    if (this._recordData.getErrors) {
-      return this._recordData.getErrors(this.identifier).length > 0;
-    } else {
-      let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
-      // we can't have errors if we never tried loading
-      if (!record) {
-        return false;
-      }
-      let errors = (record as DSModel).errors;
-      return errors.length > 0;
-    }
-  }
-
   // FOR USE DURING COMMIT PROCESS
-  adapterDidInvalidate(parsedErrors, error?) {
-    // TODO @runspired this should be handled by RecordState
-    // and errors should be dirtied but lazily fetch if at
-    // all possible. We should only notify errors here.
-    let attribute;
-    if (error && parsedErrors) {
-      // TODO add assertion forcing consuming RecordData's to implement getErrors
-      if (!this._recordData.getErrors) {
-        let record = this.store._instanceCache.getRecord(this.identifier) as DSModel;
-        let errors = record.errors;
-        for (attribute in parsedErrors) {
-          if (Object.prototype.hasOwnProperty.call(parsedErrors, attribute)) {
-            errors.add(attribute, parsedErrors[attribute]);
-          }
-        }
-      }
+  adapterDidInvalidate(error: Error & { errors?: JsonApiValidationError[]; isAdapterError?: true; code?: string }) {
+    if (error && error.isAdapterError === true && error.code === 'InvalidError') {
+      let serializer = this.store.serializerFor(this.modelName) as SerializerWithParseErrors;
 
-      let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
+      // TODO @deprecate extractErrors being called
+      // TODO remove extractErrors from the default serializers.
+      if (serializer && typeof serializer.extractErrors === 'function') {
+        let errorsHash = serializer.extractErrors(this.store, this.store.modelFor(this.modelName), error, this.id);
+        error.errors = errorsHashToArray(errorsHash);
+      }
+    }
+
+    if (error.errors) {
+      assert(
+        `Expected the RecordData implementation for ${this.identifier} to have a getErrors(identifier) method for retreiving errors.`,
+        typeof this._recordData.getErrors === 'function'
+      );
+
+      let jsonApiErrors: JsonApiValidationError[] = error.errors;
       if (jsonApiErrors.length === 0) {
         jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
       }
@@ -588,15 +561,40 @@ export default class InternalModel {
     }
   }
 
-  notifyErrorsChange() {
-    this.store._notificationManager.notify(this.identifier, 'errors');
-  }
-
-  adapterDidError() {
-    this._recordData.commitWasRejected();
-  }
-
   toString() {
     return `<${this.modelName}:${this.id}>`;
   }
+}
+
+function makeArray(value) {
+  return Array.isArray(value) ? value : [value];
+}
+
+const PRIMARY_ATTRIBUTE_KEY = 'base';
+
+function errorsHashToArray(errors): JsonApiValidationError[] {
+  const out: JsonApiValidationError[] = [];
+
+  if (errors) {
+    Object.keys(errors).forEach((key) => {
+      let messages = makeArray(errors[key]);
+      for (let i = 0; i < messages.length; i++) {
+        let title = 'Invalid Attribute';
+        let pointer = `/data/attributes/${key}`;
+        if (key === PRIMARY_ATTRIBUTE_KEY) {
+          title = 'Invalid Document';
+          pointer = `/data`;
+        }
+        out.push({
+          title: title,
+          detail: messages[i],
+          source: {
+            pointer: pointer,
+          },
+        });
+      }
+    });
+  }
+
+  return out;
 }

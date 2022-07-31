@@ -39,8 +39,6 @@ export function normalizeModelName(modelName: string) {
 
 export { default as coerceId } from './coerce-id';
 
-export { errorsHashToArray, errorsArrayToHash } from './errors-utils';
-
 // `ember-data-model-fragments` relies on `InternalModel`
 export { default as InternalModel } from './model/internal-model';
 

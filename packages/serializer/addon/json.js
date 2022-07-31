@@ -4,13 +4,17 @@
 import { getOwner } from '@ember/application';
 import { assert, warn } from '@ember/debug';
 import { get } from '@ember/object';
+import { dasherize } from '@ember/string';
 import { isNone, typeOf } from '@ember/utils';
 
 import Serializer from '@ember-data/serializer';
-import { coerceId, errorsArrayToHash } from '@ember-data/store/-private';
+import { coerceId } from '@ember-data/store/-private';
 
 import { modelHasAttributeOrRelationshipNamedType } from './-private';
-import { dasherize } from '@ember/string';
+
+const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
+const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
+const PRIMARY_ATTRIBUTE_KEY = 'base';
 
 /**
   Ember Data 2.0 Serializer:
@@ -1467,25 +1471,48 @@ const JSONSerializer = Serializer.extend({
   */
   extractErrors(store, typeClass, payload, id) {
     if (payload && typeof payload === 'object' && payload.errors) {
-      payload = errorsArrayToHash(payload.errors);
+      // the default assumption is that errors is already in JSON:API format
+      const extracted = {};
 
-      this.normalizeUsingDeclaredMapping(typeClass, payload);
+      payload.errors.forEach((error) => {
+        if (error.source && error.source.pointer) {
+          let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
 
+          if (key) {
+            key = key[2];
+          } else if (error.source.pointer.search(SOURCE_POINTER_PRIMARY_REGEXP) !== -1) {
+            key = PRIMARY_ATTRIBUTE_KEY;
+          }
+
+          if (key) {
+            extracted[key] = extracted[key] || [];
+            extracted[key].push(error.detail || error.title);
+          }
+        }
+      });
+
+      // if the user has an attrs hash, convert keys using it
+      this.normalizeUsingDeclaredMapping(typeClass, extracted);
+
+      // for each attr and relationship, make sure that we use
+      // the normalized key
       typeClass.eachAttribute((name) => {
         let key = this.keyForAttribute(name, 'deserialize');
-        if (key !== name && payload[key] !== undefined) {
-          payload[name] = payload[key];
-          delete payload[key];
+        if (key !== name && extracted[key] !== undefined) {
+          extracted[name] = extracted[key];
+          delete extracted[key];
         }
       });
 
       typeClass.eachRelationship((name) => {
         let key = this.keyForRelationship(name, 'deserialize');
-        if (key !== name && payload[key] !== undefined) {
-          payload[name] = payload[key];
-          delete payload[key];
+        if (key !== name && extracted[key] !== undefined) {
+          extracted[name] = extracted[key];
+          delete extracted[key];
         }
       });
+
+      return extracted;
     }
 
     return payload;
