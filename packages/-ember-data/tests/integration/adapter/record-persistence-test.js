@@ -26,7 +26,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -70,7 +70,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -106,7 +106,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -140,7 +140,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -186,7 +186,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -283,7 +283,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');

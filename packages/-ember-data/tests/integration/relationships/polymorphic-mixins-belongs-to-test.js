@@ -36,7 +36,7 @@ module(
       this.owner.register('mixin:message', Message);
 
       this.owner.register('adapter:application', Adapter.extend());
-      this.owner.register('serializer:application', JSONAPISerializer.extend());
+      this.owner.register('serializer:application', class extends JSONAPISerializer {});
     });
 
     /*

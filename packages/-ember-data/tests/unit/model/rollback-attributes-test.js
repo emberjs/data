@@ -33,7 +33,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
 
       this.owner.register('model:person', Person);
       this.owner.register('adapter:application', Adapter.extend());
-      this.owner.register('serializer:application', JSONAPISerializer.extend());
+      this.owner.register('serializer:application', class extends JSONAPISerializer {});
     });
 
     test('changes to attributes can be rolled back', function (assert) {

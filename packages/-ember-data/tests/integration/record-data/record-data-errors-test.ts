@@ -9,7 +9,7 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/types/q/identifier';
+import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 
@@ -37,7 +37,13 @@ class TestRecordData implements RecordData {
     }
   }
 
-  commitWasRejected(recordIdentifier: RecordIdentifier, errors?: JsonApiValidationError[]): void {}
+  _errors: JsonApiValidationError[] = [];
+  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
+    return this._errors;
+  }
+  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void {
+    this._errors = errors;
+  }
 
   // Use correct interface once imports have been fix
   _storeWrapper: any;
@@ -142,6 +148,7 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
 
     class LifecycleRecordData extends TestRecordData {
       commitWasRejected(recordIdentifier, errors) {
+        super.commitWasRejected(recordIdentifier, errors);
         assert.strictEqual(errors[0].detail, 'is a generally unsavoury character', 'received the error');
         assert.strictEqual(errors[0].source.pointer, '/data/attributes/name', 'pointer is correct');
       }
@@ -201,6 +208,7 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
 
     class LifecycleRecordData extends TestRecordData {
       commitWasRejected(recordIdentifier, errors) {
+        super.commitWasRejected(recordIdentifier, errors);
         assert.strictEqual(errors, undefined, 'Did not pass adapter errors');
       }
     }
@@ -299,69 +307,5 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
     assert.strictEqual(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
     let lastNameError = person.get('errors').errorsFor('lastName').get('firstObject');
     assert.strictEqual(lastNameError.attribute, 'lastName', 'error shows up on lastName');
-  });
-
-  test('Record data which does not implement getErrors still works correctly with the default DS.Model', async function (assert) {
-    assert.expect(4);
-
-    const personHash = {
-      type: 'person',
-      id: '1',
-      attributes: {
-        name: 'Scumbag Dale',
-      },
-    };
-    let { owner } = this;
-
-    class LifecycleRecordData extends TestRecordData {
-      commitWasRejected(recordIdentifier, errors) {
-        assert.strictEqual(errors[0].detail, 'is a generally unsavoury character', 'received the error');
-        assert.strictEqual(errors[0].source.pointer, '/data/attributes/name', 'pointer is correct');
-      }
-    }
-
-    let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        return new LifecycleRecordData();
-      },
-    });
-
-    let TestAdapter = EmberObject.extend({
-      updateRecord() {
-        return Promise.reject(
-          new InvalidError([
-            {
-              title: 'Invalid Attribute',
-              detail: 'is a generally unsavoury character',
-              source: {
-                pointer: '/data/attributes/name',
-              },
-            },
-          ])
-        );
-      },
-
-      createRecord() {
-        return Promise.resolve();
-      },
-    });
-
-    owner.register('service:store', TestStore);
-    owner.register('adapter:application', TestAdapter, { singleton: false });
-
-    store = owner.lookup('service:store');
-
-    store.push({
-      data: [personHash],
-    });
-    let person = store.peekRecord('person', '1');
-    await person.save().then(
-      () => {},
-      (err) => {}
-    );
-
-    assert.false(person.get('isValid'), 'rejecting the save invalidates the person');
-    let nameError = person.get('errors').errorsFor('name').get('firstObject');
-    assert.strictEqual(nameError.attribute, 'name', 'error shows up on name');
   });
 });

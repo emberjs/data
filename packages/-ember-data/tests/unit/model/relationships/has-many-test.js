@@ -19,7 +19,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
   hooks.beforeEach(function () {
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('hasMany handles pre-loaded relationships', function (assert) {

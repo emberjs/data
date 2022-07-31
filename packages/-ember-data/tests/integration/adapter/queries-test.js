@@ -15,7 +15,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
   hooks.beforeEach(function () {
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   testInDebug('It raises an assertion when no type is passed', function (assert) {

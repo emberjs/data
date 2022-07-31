@@ -36,7 +36,7 @@ module('integration/references/has-many', function (hooks) {
     this.owner.register('model:pet', Pet);
 
     this.owner.register('adapter:application', DS.Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   testInDebug("record#hasMany asserts when specified relationship doesn't exist", function (assert) {

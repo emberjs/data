@@ -1,9 +1,9 @@
+import { dasherize } from '@ember/string';
 import { DEBUG } from '@glimmer/env';
 
 import { singularize } from 'ember-inflector';
 
 import type Store from '@ember-data/store';
-import { normalizeModelName } from '@ember-data/store/-private';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
 /**
@@ -11,7 +11,7 @@ import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas
 */
 
 function typeForRelationshipMeta(meta) {
-  let modelName = normalizeModelName(meta.type || meta.key);
+  let modelName = dasherize(meta.type || meta.key);
 
   if (meta.kind === 'hasMany') {
     modelName = singularize(modelName);

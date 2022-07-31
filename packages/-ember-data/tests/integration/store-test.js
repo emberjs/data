@@ -66,7 +66,7 @@ module('integration/store - destroy', function (hooks) {
     this.owner.register('model:person', Person);
 
     this.owner.register('adapter:application', DS.Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test("destroying record during find doesn't cause unexpected error (find resolves)", async function (assert) {
@@ -429,7 +429,7 @@ module('integration/store - findRecord', function (hooks) {
     });
 
     this.owner.register('adapter:application', testAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let car = await store.findRecord('car', '1');
 
@@ -477,7 +477,7 @@ module('integration/store - findRecord', function (hooks) {
     }
 
     this.owner.register('adapter:application', TestAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     let firstPromise, secondPromise;
 
     firstPromise = store.findRecord('car', '1', { reload: true });
@@ -521,7 +521,7 @@ module('integration/store - findRecord', function (hooks) {
     });
 
     this.owner.register('adapter:application', testAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     let firstPromise, secondPromise;
 
     run(() => {
@@ -1169,7 +1169,7 @@ module('integration/store - deleteRecord', function (hooks) {
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:car', Car);
 
     let store = this.owner.lookup('service:store');
@@ -1210,7 +1210,7 @@ module('integration/store - queryRecord', function (hooks) {
   hooks.beforeEach(function () {
     this.owner.register('model:car', Car);
     this.owner.register('adapter:application', DS.Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   testInDebug(

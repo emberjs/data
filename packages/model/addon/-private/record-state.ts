@@ -5,7 +5,7 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
-import { errorsArrayToHash, recordIdentifierFor } from '@ember-data/store/-private';
+import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
 import type RequestCache from '@ember-data/store/-private/request-cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -13,6 +13,9 @@ import type { RecordData } from '@ember-data/types/q/record-data';
 
 type Model = InstanceType<typeof import('./model')>;
 
+const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
+const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
+const PRIMARY_ATTRIBUTE_KEY = 'base';
 function isInvalidError(error) {
   return error && error.isAdapterError === true && error.code === 'InvalidError';
 }
@@ -176,7 +179,6 @@ export default class RecordState {
             break;
           case 'rejected':
             this.isSaving = false;
-
             this._lastError = req;
             if (!(req.response && isInvalidError(req.response.data))) {
               this._errorRequests.push(req);
@@ -246,11 +248,7 @@ export default class RecordState {
           this.notify('isDeleted');
           break;
         case 'errors':
-          // we only hit this if a foreign RecordData notifies
-          // errors changed. Our own implementation does not
-          // take this path currently, but we should probably
-          // fix that.
-          this.updateInvalidErrors();
+          this.updateInvalidErrors(this.record.errors);
           this.notify('isValid');
           break;
       }
@@ -261,16 +259,33 @@ export default class RecordState {
     getTag(this, key).notify();
   }
 
-  updateInvalidErrors() {
-    let jsonApiErrors = this.recordData.getErrors!(this.identifier);
+  updateInvalidErrors(errors) {
+    assert(
+      `Expected the RecordData instance for ${this.identifier}  to implement getErrors(identifier)`,
+      typeof this.recordData.getErrors === 'function'
+    );
+    let jsonApiErrors = this.recordData.getErrors(this.identifier);
 
-    const { errors } = this.record;
     errors.clear();
-    let newErrors = errorsArrayToHash(jsonApiErrors);
-    let errorKeys = Object.keys(newErrors);
 
-    for (let i = 0; i < errorKeys.length; i++) {
-      errors.add(errorKeys[i], newErrors[errorKeys[i]]);
+    for (let i = 0; i < jsonApiErrors.length; i++) {
+      let error = jsonApiErrors[i];
+
+      if (error.source && error.source.pointer) {
+        let keyMatch = error.source.pointer.match(SOURCE_POINTER_REGEXP);
+        let key: string | undefined;
+
+        if (keyMatch) {
+          key = keyMatch[2];
+        } else if (error.source.pointer.search(SOURCE_POINTER_PRIMARY_REGEXP) !== -1) {
+          key = PRIMARY_ATTRIBUTE_KEY;
+        }
+
+        if (key) {
+          let errMsg = error.detail || error.title;
+          errors.add(key, errMsg);
+        }
+      }
     }
   }
 

@@ -10,6 +10,8 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -43,7 +45,13 @@ class TestRecordData {
 
   willCommit() {}
 
-  commitWasRejected() {}
+  _errors: JsonApiValidationError[] = [];
+  getErrors(recordIdentifier: StableRecordIdentifier): JsonApiValidationError[] {
+    return this._errors;
+  }
+  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void {
+    this._errors = errors;
+  }
 
   unloadRecord() {}
   rollbackAttributes() {}
@@ -144,7 +152,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.unregister('service:store');
     owner.register('service:store', CustomStore);
     owner.register('adapter:application', JSONAPIAdapter.extend());
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('A RecordData implementation that has the required spec methods should not error out', async function (assert) {
@@ -191,7 +199,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
   });
 
   test('Record Data push, create and save lifecycle', async function (assert) {
-    assert.expect(17);
+    assert.expect(19);
     let called = 0;
     const personHash = {
       type: 'person',
@@ -226,7 +234,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledWillCommit++;
       }
 
-      commitWasRejected() {
+      commitWasRejected(identifier, errors) {
+        super.commitWasRejected(identifier, errors);
         calledWasRejected++;
       }
 
@@ -286,10 +295,11 @@ module('integration/record-data - Custom RecordData Implementations', function (
     await settled();
     assert.strictEqual(calledDidCommit, 1, 'Called didCommit');
 
-    person.save();
+    let promise = person.save();
     assert.strictEqual(calledWillCommit, 2, 'Called willCommit');
 
-    await settled();
+    await promise.catch((_e) => assert.ok(true, 'we erred'));
+
     assert.strictEqual(calledDidCommit, 1, 'Did not call didCommit again');
     assert.strictEqual(calledWasRejected, 1, 'Called commitWasRejected');
 
@@ -319,10 +329,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
     await settled();
     assert.strictEqual(calledDidCommit, 1, 'Called didCommit');
 
-    clientPerson.save();
+    promise = clientPerson.save();
     assert.strictEqual(calledWillCommit, 2, 'Called willCommit');
 
-    await settled();
+    await promise.catch((_e) => assert.ok('we erred'));
     assert.strictEqual(calledWasRejected, 1, 'Called commitWasRejected');
     assert.strictEqual(calledDidCommit, 1, 'Did not call didCommit again');
 

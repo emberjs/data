@@ -16,7 +16,7 @@ module('integration/adapter/serialize - DS.Adapter integration test', function (
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');

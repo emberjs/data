@@ -4,9 +4,6 @@ import { dasherize } from '@ember/string';
   @module @ember-data/store
 */
 
-// All modelNames are dasherized internally. Changing this function may
-// require changes to other normalization hooks (such as typeForRoot).
-
 /**
  This method normalizes a modelName into the format Ember Data uses
  internally by dasherizing it.
@@ -14,6 +11,7 @@ import { dasherize } from '@ember/string';
   @method normalizeModelName
   @static
   @public
+  @deprecated
   @for @ember-data/store
   @param {String} modelName
   @return {String} normalizedModelName

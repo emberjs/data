@@ -53,12 +53,7 @@ export interface RecordData {
   _initRecordCreateOptions(options: any): { [key: string]: unknown };
 
   // new
-  getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
-  /**
-   * @deprecated
-   * @internal
-   */
-  getErrors?({}): JsonApiValidationError[]; // eslint-disable-line no-empty-pattern
+  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
 
   isNew?(): boolean;
   isDeleted?(): boolean;

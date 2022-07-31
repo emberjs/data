@@ -42,7 +42,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend());
 
     return run(() => currentStore.findRecord('test', 1));
@@ -69,7 +69,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend());
 
     let store = this.owner.lookup('service:store');
@@ -131,7 +131,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend());
 
     let store = this.owner.lookup('service:store');
@@ -153,7 +153,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend({ name: attr() }));
 
     let store = this.owner.lookup('service:store');
@@ -176,7 +176,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend({ name: attr() }));
 
     let store = this.owner.lookup('service:store');
@@ -226,7 +226,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -278,7 +278,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -323,7 +323,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     this.owner.register('model:person', Person);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -457,7 +457,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:test', TestModel);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -481,7 +481,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -517,7 +517,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -550,7 +550,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -587,7 +587,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -611,7 +611,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -637,7 +637,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -668,7 +668,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -709,7 +709,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:test', Model.extend());
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -752,7 +752,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     this.owner.register('model:test', Model.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('adapter:application', ApplicationAdapter);
 
     let store = this.owner.lookup('service:store');
@@ -805,7 +805,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     this.owner.register('model:test', Model.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('adapter:application', ApplicationAdapter);
 
     let store = this.owner.lookup('service:store');
@@ -845,7 +845,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
       this.owner.register('model:test', Model.extend());
       this.owner.register('adapter:application', ApplicationAdapter);
-      this.owner.register('serializer:application', JSONAPISerializer.extend());
+      this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
       let store = this.owner.lookup('service:store');
 
@@ -875,7 +875,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:test', Model.extend());
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -921,7 +921,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Model.extend());
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -946,7 +946,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Model.extend());
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -978,7 +978,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Model.extend({ name: attr() }));
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -1018,7 +1018,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -1052,7 +1052,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Model.extend());
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -1086,7 +1086,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Model.extend({ name: attr() }));
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -1126,7 +1126,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Model.extend());
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -1153,7 +1153,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -1186,7 +1186,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -1217,7 +1217,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Model.extend());
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -1252,7 +1252,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 

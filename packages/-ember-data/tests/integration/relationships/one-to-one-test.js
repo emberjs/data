@@ -30,7 +30,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       deleteRecord: () => resolve(),
     });
 
-    const ApplicationSerializer = JSONAPISerializer.extend();
+    const ApplicationSerializer = class extends JSONAPISerializer {};
 
     this.owner.register('model:user', User);
     this.owner.register('model:job', Job);

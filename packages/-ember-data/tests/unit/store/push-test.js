@@ -30,7 +30,7 @@ module('unit/store/push - Store#push', function (hooks) {
     }
     this.owner.register('model:phone-number', PhoneNumber);
 
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('Changed attributes are reset when matching data is pushed', function (assert) {
@@ -862,7 +862,7 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
         @hasMany('person', { async: false, inverse: 'friends' }) friends; // many to many
       }
       this.owner.register('model:person', Person);
-      this.owner.register('serializer:application', JSONAPISerializer.extend());
+      this.owner.register('serializer:application', class extends JSONAPISerializer {});
       // one person with two friends
       // if we push a change to a friend, the
       // person's friends should be in the same order
@@ -950,7 +950,7 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
     this.owner.register('model:car', Car);
 
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('Should support pushing multiple models into the store', function (assert) {

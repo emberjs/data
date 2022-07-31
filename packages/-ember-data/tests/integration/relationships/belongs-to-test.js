@@ -324,7 +324,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     this.owner.register('model:section', Section);
 
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     this.owner.register(
       'serializer:user',

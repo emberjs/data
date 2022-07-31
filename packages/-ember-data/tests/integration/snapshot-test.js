@@ -38,7 +38,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     owner.register('model:post', Post);
     owner.register('model:comment', Comment);
     owner.register('adapter:application', JSONAPIAdapter.extend());
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
     store = owner.lookup('service:store');
   });
 

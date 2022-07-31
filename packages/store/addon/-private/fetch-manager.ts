@@ -22,7 +22,6 @@ import type { Dict } from '@ember-data/types/q/utils';
 import coerceId from './coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import type Store from './core-store';
-import { errorsArrayToHash } from './errors-utils';
 import ShimModelClass from './model/shim-model-class';
 import RequestCache from './request-cache';
 import { normalizeResponseHelper } from './serializer-response';
@@ -170,24 +169,7 @@ export default class FetchManager {
         if (adapterPayload) {
           return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         }
-      },
-      function (error) {
-        if (error && error.isAdapterError === true && error.code === 'InvalidError') {
-          let parsedErrors = error.errors;
-
-          // TODO deprecate extractErrors being called and/or make it part of the public interface
-          if (serializer && typeof serializer.extractErrors === 'function') {
-            parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
-          } else {
-            parsedErrors = errorsArrayToHash(error.errors);
-          }
-
-          throw { error, parsedErrors };
-        } else {
-          throw { error };
-        }
-      },
-      label
+      }
     );
     resolver.resolve(promise);
   }
@@ -326,38 +308,32 @@ export default class FetchManager {
       }),
       this._store,
       label
-    ).then(
-      (adapterPayload) => {
-        assert(
-          `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
-          !!payloadIsNotBlank(adapterPayload)
-        );
-        let serializer = this._store.serializerFor(modelName);
-        let payload = normalizeResponseHelper(serializer, this._store, klass, adapterPayload, id, 'findRecord');
-        assert(
-          `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
-          !Array.isArray(payload.data)
-        );
-        assert(
-          `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
-          'data' in payload && payload.data !== null && typeof payload.data === 'object'
-        );
+    ).then((adapterPayload) => {
+      assert(
+        `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
+        !!payloadIsNotBlank(adapterPayload)
+      );
+      let serializer = this._store.serializerFor(modelName);
+      let payload = normalizeResponseHelper(serializer, this._store, klass, adapterPayload, id, 'findRecord');
+      assert(
+        `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
+        !Array.isArray(payload.data)
+      );
+      assert(
+        `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
+        'data' in payload && payload.data !== null && typeof payload.data === 'object'
+      );
 
-        warn(
-          `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
-          coerceId(payload.data.id) === coerceId(id),
-          {
-            id: 'ds.store.findRecord.id-mismatch',
-          }
-        );
+      warn(
+        `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
+        coerceId(payload.data.id) === coerceId(id),
+        {
+          id: 'ds.store.findRecord.id-mismatch',
+        }
+      );
 
-        return payload;
-      },
-      (error) => {
-        throw error;
-      },
-      `DS: Extract payload of '${modelName}'`
-    );
+      return payload;
+    });
 
     fetchItem.resolver.resolve(promise);
   }

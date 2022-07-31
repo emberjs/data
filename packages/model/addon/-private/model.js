@@ -22,14 +22,7 @@ import {
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import {
-  coerceId,
-  deprecatedPromiseObject,
-  errorsArrayToHash,
-  InternalModel,
-  recordDataFor,
-  WeakCache,
-} from '@ember-data/store/-private';
+import { coerceId, deprecatedPromiseObject, InternalModel, WeakCache } from '@ember-data/store/-private';
 
 import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
@@ -569,22 +562,7 @@ class Model extends EmberObject {
   @computeOnce
   get errors() {
     let errors = Errors.create({ __record: this });
-    // TODO we should unify how errors gets populated
-    // with the code managing the update. Probably a
-    // lazy flush similar to retrieveLatest in ManyArray
-    let recordData = recordDataFor(this);
-    let jsonApiErrors;
-    if (recordData.getErrors) {
-      jsonApiErrors = recordData.getErrors();
-      if (jsonApiErrors) {
-        let errorsHash = errorsArrayToHash(jsonApiErrors);
-        let errorKeys = Object.keys(errorsHash);
-
-        for (let i = 0; i < errorKeys.length; i++) {
-          errors.add(errorKeys[i], errorsHash[errorKeys[i]]);
-        }
-      }
-    }
+    this.currentState.updateInvalidErrors(errors);
     return errors;
   }
 

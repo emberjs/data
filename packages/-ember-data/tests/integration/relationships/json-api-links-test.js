@@ -28,13 +28,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('model:user', User);
     this.owner.register('model:organisation', Organisation);
     this.owner.register('adapter:application', DS.Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
     this.owner.register(
       'adapter:user',
-      DS.JSONAPISerializer.extend({
+      class extends JSONAPISerializer {
         findRecord(store, type, id) {
           return resolve({
             data: {
@@ -47,13 +47,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
               },
             },
           });
-        },
-      })
+        }
+      }
     );
 
     this.owner.register(
       'adapter:organisation',
-      DS.JSONAPISerializer.extend({
+      class extends JSONAPISerializer {
         findRecord(store, type, id) {
           return resolve({
             data: {
@@ -68,8 +68,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
               },
             },
           });
-        },
-      })
+        }
+      }
     );
 
     return run(() => {
@@ -106,7 +106,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('model:child', Child);
     this.owner.register('model:parent', Parent);
     this.owner.register('adapter:application', DS.Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -179,7 +179,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('model:pet', Pet);
 
     this.owner.register('adapter:application', Adapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -265,7 +265,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('model:pet', Pet);
 
     this.owner.register('adapter:application', Adapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -350,7 +350,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('model:pet', Pet);
 
     this.owner.register('adapter:application', Adapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -437,7 +437,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('model:pet', Pet);
 
     this.owner.register('adapter:application', Adapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -526,7 +526,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('model:pet', Pet);
 
     this.owner.register('adapter:application', Adapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -597,7 +597,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('model:pet', Pet);
 
     this.owner.register('adapter:application', Adapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -667,7 +667,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     this.owner.register('model:home', Home);
 
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   /*

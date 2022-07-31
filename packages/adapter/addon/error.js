@@ -1,8 +1,10 @@
 /**
   @module @ember-data/adapter/error
  */
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import EmberError from '@ember/error';
+
+import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
 
 /**
   A `AdapterError` is used by an adapter to signal that an error occurred
@@ -179,6 +181,7 @@ AdapterError.extend = extendFn(AdapterError);
   @public
   @extends AdapterError
 */
+// TODO @deprecate extractError documentation
 export const InvalidError = extend(AdapterError, 'The adapter rejected the commit because it was invalid');
 InvalidError.prototype.code = 'InvalidError';
 
@@ -343,4 +346,164 @@ ConflictError.prototype.code = 'ConflictError';
 export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');
 ServerError.prototype.code = 'ServerError';
 
-export { errorsHashToArray, errorsArrayToHash } from '@ember-data/store/-private';
+function makeArray(value) {
+  return Array.isArray(value) ? value : [value];
+}
+
+const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
+const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
+const PRIMARY_ATTRIBUTE_KEY = 'base';
+/**
+  Convert an hash of errors into an array with errors in JSON-API format.
+   ```javascript
+  import DS from 'ember-data';
+
+   const { errorsHashToArray } = DS;
+
+   let errors = {
+    base: 'Invalid attributes on saving this record',
+    name: 'Must be present',
+    age: ['Must be present', 'Must be a number']
+  };
+   let errorsArray = errorsHashToArray(errors);
+  // [
+  //   {
+  //     title: "Invalid Document",
+  //     detail: "Invalid attributes on saving this record",
+  //     source: { pointer: "/data" }
+  //   },
+  //   {
+  //     title: "Invalid Attribute",
+  //     detail: "Must be present",
+  //     source: { pointer: "/data/attributes/name" }
+  //   },
+  //   {
+  //     title: "Invalid Attribute",
+  //     detail: "Must be present",
+  //     source: { pointer: "/data/attributes/age" }
+  //   },
+  //   {
+  //     title: "Invalid Attribute",
+  //     detail: "Must be a number",
+  //     source: { pointer: "/data/attributes/age" }
+  //   }
+  // ]
+  ```
+  @method errorsHashToArray
+  @for @ember-data/adapter/error
+  @static
+  @deprecated
+  @public
+  @param {Object} errors hash with errors as properties
+  @return {Array} array of errors in JSON-API format
+*/
+export function errorsHashToArray(errors) {
+  if (DEPRECATE_HELPERS) {
+    deprecate(`errorsHashToArray helper has been deprecated.`, false, {
+      id: 'ember-data:deprecate-errors-hash-to-array-helper',
+      for: 'ember-data',
+      until: '5.0',
+      since: { available: '4.8', enabled: '4.8' },
+    });
+    let out = [];
+
+    if (errors) {
+      Object.keys(errors).forEach((key) => {
+        let messages = makeArray(errors[key]);
+        for (let i = 0; i < messages.length; i++) {
+          let title = 'Invalid Attribute';
+          let pointer = `/data/attributes/${key}`;
+          if (key === PRIMARY_ATTRIBUTE_KEY) {
+            title = 'Invalid Document';
+            pointer = `/data`;
+          }
+          out.push({
+            title: title,
+            detail: messages[i],
+            source: {
+              pointer: pointer,
+            },
+          });
+        }
+      });
+    }
+
+    return out;
+  }
+  assert(`errorsHashToArray helper has been removed`);
+}
+
+/**
+  Convert an array of errors in JSON-API format into an object.
+
+  ```javascript
+  import DS from 'ember-data';
+
+  const { errorsArrayToHash } = DS;
+
+  let errorsArray = [
+    {
+      title: 'Invalid Attribute',
+      detail: 'Must be present',
+      source: { pointer: '/data/attributes/name' }
+    },
+    {
+      title: 'Invalid Attribute',
+      detail: 'Must be present',
+      source: { pointer: '/data/attributes/age' }
+    },
+    {
+      title: 'Invalid Attribute',
+      detail: 'Must be a number',
+      source: { pointer: '/data/attributes/age' }
+    }
+  ];
+
+  let errors = errorsArrayToHash(errorsArray);
+  // {
+  //   "name": ["Must be present"],
+  //   "age":  ["Must be present", "must be a number"]
+  // }
+  ```
+
+  @method errorsArrayToHash
+  @static
+  @for @ember-data/adapter/error
+  @deprecated
+  @public
+  @param {Array} errors array of errors in JSON-API format
+  @return {Object}
+*/
+export function errorsArrayToHash(errors) {
+  if (DEPRECATE_HELPERS) {
+    deprecate(`errorsArrayToHash helper has been deprecated.`, false, {
+      id: 'ember-data:deprecate-errors-array-to-hash-helper',
+      for: 'ember-data',
+      until: '5.0',
+      since: { available: '4.8', enabled: '4.8' },
+    });
+    let out = {};
+
+    if (errors) {
+      errors.forEach((error) => {
+        if (error.source && error.source.pointer) {
+          let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
+
+          if (key) {
+            key = key[2];
+          } else if (error.source.pointer.search(SOURCE_POINTER_PRIMARY_REGEXP) !== -1) {
+            key = PRIMARY_ATTRIBUTE_KEY;
+          }
+
+          if (key) {
+            out[key] = out[key] || [];
+            out[key].push(error.detail || error.title);
+          }
+        }
+      });
+    }
+
+    return out;
+  }
+  assert(`errorsArrayToHash helper has been removed`);
+}

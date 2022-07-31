@@ -32,7 +32,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     let { owner } = this;
 
     owner.register('model:person', Person);
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
 
     store = owner.lookup('service:store');
   });
