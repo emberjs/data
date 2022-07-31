@@ -185,23 +185,6 @@ export default class InternalModel {
     this.store.recordArrayManager.recordDidChange(this.identifier);
   }
 
-  deleteRecord() {
-    run(() => {
-      const backburner = this.store._backburner;
-      backburner.run(() => {
-        if (this._recordData.setIsDeleted) {
-          this._recordData.setIsDeleted(true);
-        }
-
-        if (this.isNew()) {
-          // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
-          this._deletedRecordWasNew = true;
-          this.unloadRecord();
-        }
-      });
-    });
-  }
-
   /*
     Unload the record for this internal model. This will cause the record to be
     destroyed and freed up for garbage collection. It will also do a check

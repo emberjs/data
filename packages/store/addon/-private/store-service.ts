@@ -3,7 +3,7 @@
  */
 import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
-import { _backburner as emberBackburner } from '@ember/runloop';
+import { _backburner as emberBackburner, run } from '@ember/runloop';
 import type { Backburner } from '@ember/runloop/-private/backburner';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
@@ -492,12 +492,28 @@ class Store extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'deleteRecord');
     }
+    // TODO eliminate this interleaving
+    // it is unlikely we need both an outer join and the inner run
+    // of our own queue
     this._backburner.join(() => {
       let identifier = peekRecordIdentifier(record);
       if (identifier) {
-        let internalModel = internalModelFactoryFor(this).peek(identifier);
+        const internalModel = internalModelFactoryFor(this).peek(identifier);
         if (internalModel) {
-          internalModel.deleteRecord();
+          run(() => {
+            const backburner = this._backburner;
+            backburner.run(() => {
+              if (internalModel._recordData.setIsDeleted) {
+                internalModel._recordData.setIsDeleted(true);
+              }
+
+              if (internalModel.isNew()) {
+                // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
+                internalModel._deletedRecordWasNew = true;
+                internalModel.unloadRecord();
+              }
+            });
+          });
         }
       }
     });
