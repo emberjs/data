@@ -2195,11 +2195,14 @@ class Store extends Service {
         return record;
       },
       (e) => {
-        if (typeof e === 'string') {
-          throw e;
+        let err = e;
+        if (!e) {
+          err = new Error(`Unknown Error Occurred During Request`);
+        } if (typeof e === 'string') {
+          err = new Error(e);
         }
-        internalModel.adapterDidInvalidate(e);
-        throw e.error;
+        internalModel.adapterDidInvalidate(err);
+        throw err;
       }
     );
   }

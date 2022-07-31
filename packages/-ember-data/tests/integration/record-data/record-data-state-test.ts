@@ -9,7 +9,7 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/types/q/identifier';
+import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 
@@ -27,12 +27,16 @@ class TestRecordIdentifier implements NewRecordIdentifier {
 }
 
 class TestRecordData implements RecordData {
-  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
-    throw new Error('Method not implemented.');
-  }
   id: string | null = '1';
   clientId: string | null = 'test-record-data-1';
   modelName = 'tst';
+  _errors: JsonApiValidationError[] = [];
+  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
+    return this._errors;
+  }
+  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void {
+    this._errors = errors;
+  }
 
   getResourceIdentifier() {
     if (this.clientId !== null) {
@@ -40,7 +44,7 @@ class TestRecordData implements RecordData {
     }
   }
 
-  commitWasRejected(): void {}
+
 
   // Use correct interface once imports have been fix
   _storeWrapper: any;

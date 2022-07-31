@@ -9,7 +9,7 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/types/q/identifier';
+import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 
@@ -27,9 +27,6 @@ class TestRecordIdentifier implements NewRecordIdentifier {
 }
 
 class TestRecordData implements RecordData {
-  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
-    throw new Error('Method not implemented.');
-  }
   id: string | null = '1';
   clientId: string | null = 'test-record-data-1';
   modelName = 'tst';
@@ -40,7 +37,13 @@ class TestRecordData implements RecordData {
     }
   }
 
-  commitWasRejected(recordIdentifier: RecordIdentifier, errors?: JsonApiValidationError[]): void {}
+  _errors: JsonApiValidationError[] = [];
+  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
+    return this._errors;
+  }
+  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void {
+    this._errors = errors;
+  }
 
   // Use correct interface once imports have been fix
   _storeWrapper: any;
@@ -145,6 +148,7 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
 
     class LifecycleRecordData extends TestRecordData {
       commitWasRejected(recordIdentifier, errors) {
+        super.commitWasRejected(recordIdentifier, errors);
         assert.strictEqual(errors[0].detail, 'is a generally unsavoury character', 'received the error');
         assert.strictEqual(errors[0].source.pointer, '/data/attributes/name', 'pointer is correct');
       }
@@ -204,6 +208,7 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
 
     class LifecycleRecordData extends TestRecordData {
       commitWasRejected(recordIdentifier, errors) {
+        super.commitWasRejected(recordIdentifier, errors);
         assert.strictEqual(errors, undefined, 'Did not pass adapter errors');
       }
     }
