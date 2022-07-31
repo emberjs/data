@@ -20,7 +20,7 @@ module('integration/records/error', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -76,7 +76,7 @@ module('integration/records/error', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -125,7 +125,7 @@ module('integration/records/error', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -159,7 +159,7 @@ module('integration/records/error', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
@@ -192,7 +192,7 @@ module('integration/records/error', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');

@@ -39,7 +39,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     this.owner.register('model:account', Account);
 
     this.owner.register('adapter:application', ApplicationAdapter);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   /*

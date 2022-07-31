@@ -15,7 +15,7 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
         useFetch = true;
       }
     );
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('ajaxOptions() adds Accept when no other headers exist', function (assert) {

@@ -24,7 +24,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
   hooks.beforeEach(function () {
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('when a record is deleted in an adapter populated record array, it should be removed', async function (assert) {

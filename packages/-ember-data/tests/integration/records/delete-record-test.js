@@ -25,7 +25,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('records should not be removed from record arrays just after deleting, but only after committing them', async function (assert) {

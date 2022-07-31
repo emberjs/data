@@ -152,7 +152,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.unregister('service:store');
     owner.register('service:store', CustomStore);
     owner.register('adapter:application', JSONAPIAdapter.extend());
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('A RecordData implementation that has the required spec methods should not error out', async function (assert) {

@@ -33,7 +33,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     const { owner } = this;
 
     owner.register('adapter:application', JSONAPIAdapter.extend());
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
     class User extends Model {
       @attr()
       declare firstName: string;

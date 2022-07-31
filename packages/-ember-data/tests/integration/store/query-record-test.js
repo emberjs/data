@@ -18,7 +18,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
     });
 
     this.owner.register('model:person', Person);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   testInDebug('It raises an assertion when no type is passed', function (assert) {
@@ -55,7 +55,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
       })
     );
 
-    this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     run(function () {
       store.queryRecord('person', { related: 'posts' });
@@ -86,7 +86,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
 
     this.owner.register(
       'serializer:person',
-      DS.JSONAPISerializer.extend({
+      class extends JSONAPISerializer {
         normalizeQueryRecordResponse(store, primaryModelClass, payload, id, requestType) {
           assert.strictEqual(
             payload.data.id,
@@ -94,8 +94,8 @@ module('integration/store/query-record - Query one record with a query hash', fu
             'the normalizeQueryRecordResponse method was called with the right payload'
           );
           return this._super(...arguments);
-        },
-      })
+        }
+      }
     );
 
     this.owner.register(

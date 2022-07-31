@@ -20,7 +20,7 @@ module('integration/records/property-changes - Property changes', function (hook
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('Calling push with partial records trigger observers for just those attributes that changed', function (assert) {

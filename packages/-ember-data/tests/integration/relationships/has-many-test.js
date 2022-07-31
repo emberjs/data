@@ -84,7 +84,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:page', Page);
 
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   testInDebug(

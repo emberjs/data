@@ -20,7 +20,7 @@ module('unit/model/merge - Merging', function (hooks) {
     });
 
     this.owner.register('model:person', Person);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     this.store = this.owner.lookup('service:store');
   });

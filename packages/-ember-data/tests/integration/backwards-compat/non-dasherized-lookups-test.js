@@ -27,7 +27,7 @@ module(
 
       this.owner.register('model:post-note', PostNote);
       this.owner.register('adapter:application', ApplicationAdapter);
-      this.owner.register('serializer:application', JSONAPISerializer.extend());
+      this.owner.register('serializer:application', class extends JSONAPISerializer {});
     });
 
     test('can lookup records using camelCase strings', function (assert) {
@@ -110,7 +110,7 @@ module(
       this.owner.register('model:note-post', NotePost);
       this.owner.register('model:post-note', PostNote);
       this.owner.register('adapter:application', ApplicationAdapter);
-      this.owner.register('serializer:application', JSONAPISerializer.extend());
+      this.owner.register('serializer:application', class extends JSONAPISerializer {});
     });
 
     test('looks up belongsTo using camelCase strings', function (assert) {

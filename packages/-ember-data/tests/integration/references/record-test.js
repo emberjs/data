@@ -20,7 +20,7 @@ module('integration/references/record', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('a RecordReference can be retrieved via store.getReference(type, id)', function (assert) {

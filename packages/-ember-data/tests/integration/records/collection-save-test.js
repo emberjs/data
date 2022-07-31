@@ -19,7 +19,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
 
     this.owner.register('model:post', Post);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('Collection will resolve save on success', function (assert) {

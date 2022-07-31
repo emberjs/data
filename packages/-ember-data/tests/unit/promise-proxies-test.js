@@ -151,7 +151,7 @@ module('unit/PromiseBelongsTo', function (hooks) {
     owner.register('model:parent', Parent);
     owner.register('model:child', Child);
     owner.register('adapter:child', ChildAdapter);
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
     const store = owner.lookup('service:store');
     const meta = {
       example: 'example meta',

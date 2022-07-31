@@ -6,6 +6,8 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/serializers/json-api-serializer - JSONAPISerializer', function (hooks) {
@@ -49,8 +51,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     this.owner.register('model:company', Company);
     this.owner.register('model:project', Project);
 
-    this.owner.register('adapter:application', DS.JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
+    this.owner.register('adapter:application', class extends JSONAPIAdapter {});
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('Calling pushPayload works', function (assert) {
@@ -256,7 +258,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('Serializer should respect the attrs hash when extracting attributes and relationships', function (assert) {
     this.owner.register(
       'serializer:user',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           firstName: 'firstname_attribute_key',
           title: 'title_attribute_key',
@@ -303,7 +305,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('Serializer should respect the attrs hash when serializing attributes and relationships', function (assert) {
     this.owner.register(
       'serializer:user',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           firstName: 'firstname_attribute_key',
           title: 'title_attribute_key',
@@ -343,7 +345,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('Serializer should respect the attrs hash when extracting attributes with not camelized keys', function (assert) {
     this.owner.register(
       'serializer:project',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           'company-name': 'company_name',
         },
@@ -371,7 +373,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('Serializer should respect the attrs hash when serializing attributes with not camelized keys', function (assert) {
     this.owner.register(
       'serializer:project',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           'company-name': 'company_name',
         },
@@ -419,7 +421,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
   testInDebug('Warns when defining extractMeta()', function (assert) {
     assert.expectWarning(function () {
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         extractMeta() {},
       }).create();
     }, /You've defined 'extractMeta' in/);
@@ -506,7 +508,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('it should serialize a hasMany relationship', function (assert) {
     this.owner.register(
       'serializer:user',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           handles: { serialize: true },
         },
@@ -564,7 +566,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('it should not include new records when serializing a hasMany relationship', function (assert) {
     this.owner.register(
       'serializer:user',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           handles: { serialize: true },
         },
@@ -623,7 +625,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('it should not include any records when serializing a hasMany relationship if they are all new', function (assert) {
     this.owner.register(
       'serializer:user',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           handles: { serialize: true },
         },
@@ -667,7 +669,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('it should include an empty list when serializing an empty hasMany relationship', function (assert) {
     this.owner.register(
       'serializer:user',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           handles: { serialize: true },
         },
@@ -725,13 +727,13 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
   testInDebug('Asserts when combined with EmbeddedRecordsMixin', function (assert) {
     assert.expectAssertion(function () {
-      DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();
+      JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();
     }, /You've used the EmbeddedRecordsMixin in/);
   });
 
   testInDebug('Allows EmbeddedRecordsMixin if isEmbeddedRecordsMixinCompatible is true', function (assert) {
     assert.expectNoAssertion(function () {
-      DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin, {
+      JSONAPISerializer.extend(DS.EmbeddedRecordsMixin, {
         isEmbeddedRecordsMixinCompatible: true,
       }).create();
     });

@@ -21,7 +21,7 @@ module('integration/records/save - Save Record', function (hooks) {
 
     this.owner.register('model:post', Post);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('Will resolve save on success', async function (assert) {

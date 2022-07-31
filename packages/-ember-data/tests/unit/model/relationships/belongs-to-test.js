@@ -17,7 +17,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
   hooks.beforeEach(function () {
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('belongsTo lazily loads relationships as needed', function (assert) {

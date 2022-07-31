@@ -26,7 +26,7 @@ module('unit/store/finders', function (hooks) {
   hooks.beforeEach(function () {
     this.owner.register('model:person', Person);
     this.owner.register('model:dog', Dog);
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     this.store = this.owner.lookup('service:store');
     this.adapter = this.store.adapterFor('application');

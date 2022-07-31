@@ -136,7 +136,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     owner.register(`model:spoon`, Spoon);
     owner.register(`model:show`, Show);
     owner.register('adapter:application', JSONAPIAdapter.extend());
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
 
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');

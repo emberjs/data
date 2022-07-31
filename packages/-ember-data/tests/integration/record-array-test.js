@@ -39,7 +39,7 @@ module('unit/record-array - RecordArray', function (hooks) {
     owner.register('model:tag', Tag);
     owner.register('model:tool', Tool);
     owner.register('adapter:application', JSONAPIAdapter.extend());
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
 
     store = owner.lookup('service:store');
   });

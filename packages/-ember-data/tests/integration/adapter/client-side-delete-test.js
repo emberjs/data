@@ -12,7 +12,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
 
   test('client-side deleted records can be added back from an inverse', async function (assert) {
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     class Bookstore extends Model {
       @attr name;

@@ -16,7 +16,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
   hooks.beforeEach(function () {
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('a sync belongs to relationship to an unloaded record can restore that record', function (assert) {

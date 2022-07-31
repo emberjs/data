@@ -38,7 +38,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     }
 
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:person', Person);
     this.owner.register('model:dog', Dog);
   });

@@ -38,7 +38,7 @@ module('integration - Client Id Generation', function (hooks) {
     owner.register('model:post', Post);
     owner.register('model:misc', Misc);
     owner.register('adapter:application', JSONAPIAdapter.extend());
-    owner.register('serializer:application', JSONAPISerializer.extend());
+    owner.register('serializer:application', class extends JSONAPISerializer {});
 
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');

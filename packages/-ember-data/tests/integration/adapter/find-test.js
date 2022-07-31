@@ -18,7 +18,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     const store = this.owner.lookup('service:store');
 
@@ -40,7 +40,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let count = 0;
 
@@ -64,7 +64,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
         },
       })
     );
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     const store = this.owner.lookup('service:store');
 
@@ -79,7 +79,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let resolveFindRecordPromise;
     let findRecordPromise = new Promise((resolve) => (resolveFindRecordPromise = resolve));
@@ -125,7 +125,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register(
       'adapter:person',
       Adapter.extend({
@@ -152,7 +152,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register(
       'adapter:person',
       Adapter.extend({
@@ -180,7 +180,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register(
       'adapter:person',
       Adapter.extend({
@@ -208,7 +208,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register(
       'adapter:person',
       Adapter.extend({
@@ -237,7 +237,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register(
       'adapter:person',
       Adapter.extend({
@@ -269,7 +269,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register(
       'serializer:application',
       JSONAPISerializer.extend({

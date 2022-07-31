@@ -44,7 +44,7 @@ function setupModels(owner, testState) {
   owner.register('model:author', Author);
 
   owner.register('adapter:application', JSONAPIAdapter.extend());
-  owner.register('serializer:application', JSONAPISerializer.extend());
+  owner.register('serializer:application', class extends JSONAPISerializer {});
 
   let store = owner.lookup('service:store');
   let adapter = store.adapterFor('application');
@@ -275,7 +275,7 @@ module('unit/model - init properties', function (hooks) {
 
     this.owner.register('model:post', Post);
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 

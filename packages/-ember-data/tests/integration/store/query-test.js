@@ -16,7 +16,7 @@ module('integration/store/query', function (hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', DS.Adapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
   test('meta is proxied correctly on the PromiseArray', function (assert) {
