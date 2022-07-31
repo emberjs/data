@@ -4,6 +4,7 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
+import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/adapter-errors - DS.AdapterError', function () {
@@ -105,80 +106,82 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.strictEqual(error.message, 'custom error!');
   });
 
-  const errorsHash = {
-    name: ['is invalid', 'must be a string'],
-    age: ['must be a number'],
-  };
+  if (DEPRECATE_HELPERS) {
+    const errorsHash = {
+      name: ['is invalid', 'must be a string'],
+      age: ['must be a number'],
+    };
 
-  const errorsArray = [
-    {
-      title: 'Invalid Attribute',
-      detail: 'is invalid',
-      source: { pointer: '/data/attributes/name' },
-    },
-    {
-      title: 'Invalid Attribute',
-      detail: 'must be a string',
-      source: { pointer: '/data/attributes/name' },
-    },
-    {
-      title: 'Invalid Attribute',
-      detail: 'must be a number',
-      source: { pointer: '/data/attributes/age' },
-    },
-  ];
-
-  const errorsPrimaryHash = {
-    base: ['is invalid', 'error message'],
-  };
-
-  const errorsPrimaryArray = [
-    {
-      title: 'Invalid Document',
-      detail: 'is invalid',
-      source: { pointer: '/data' },
-    },
-    {
-      title: 'Invalid Document',
-      detail: 'error message',
-      source: { pointer: '/data' },
-    },
-  ];
-
-  test('errorsHashToArray', function (assert) {
-    let result = DS.errorsHashToArray(errorsHash);
-    assert.deepEqual(result, errorsArray);
-    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
-  });
-
-  test('errorsHashToArray for primary data object', function (assert) {
-    let result = DS.errorsHashToArray(errorsPrimaryHash);
-    assert.deepEqual(result, errorsPrimaryArray);
-    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
-  });
-
-  test('errorsArrayToHash', function (assert) {
-    let result = DS.errorsArrayToHash(errorsArray);
-    assert.deepEqual(result, errorsHash);
-    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
-  });
-
-  test('errorsArrayToHash without trailing slash', function (assert) {
-    let result = DS.errorsArrayToHash([
+    const errorsArray = [
       {
-        detail: 'error message',
-        source: { pointer: 'data/attributes/name' },
+        title: 'Invalid Attribute',
+        detail: 'is invalid',
+        source: { pointer: '/data/attributes/name' },
       },
-    ]);
-    assert.deepEqual(result, { name: ['error message'] });
-    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
-  });
+      {
+        title: 'Invalid Attribute',
+        detail: 'must be a string',
+        source: { pointer: '/data/attributes/name' },
+      },
+      {
+        title: 'Invalid Attribute',
+        detail: 'must be a number',
+        source: { pointer: '/data/attributes/age' },
+      },
+    ];
 
-  test('errorsArrayToHash for primary data object', function (assert) {
-    let result = DS.errorsArrayToHash(errorsPrimaryArray);
-    assert.deepEqual(result, errorsPrimaryHash);
-    assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
-  });
+    const errorsPrimaryHash = {
+      base: ['is invalid', 'error message'],
+    };
+
+    const errorsPrimaryArray = [
+      {
+        title: 'Invalid Document',
+        detail: 'is invalid',
+        source: { pointer: '/data' },
+      },
+      {
+        title: 'Invalid Document',
+        detail: 'error message',
+        source: { pointer: '/data' },
+      },
+    ];
+
+    test('errorsHashToArray', function (assert) {
+      let result = DS.errorsHashToArray(errorsHash);
+      assert.deepEqual(result, errorsArray);
+      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
+    });
+
+    test('errorsHashToArray for primary data object', function (assert) {
+      let result = DS.errorsHashToArray(errorsPrimaryHash);
+      assert.deepEqual(result, errorsPrimaryArray);
+      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
+    });
+
+    test('errorsArrayToHash', function (assert) {
+      let result = DS.errorsArrayToHash(errorsArray);
+      assert.deepEqual(result, errorsHash);
+      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
+    });
+
+    test('errorsArrayToHash without trailing slash', function (assert) {
+      let result = DS.errorsArrayToHash([
+        {
+          detail: 'error message',
+          source: { pointer: 'data/attributes/name' },
+        },
+      ]);
+      assert.deepEqual(result, { name: ['error message'] });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
+    });
+
+    test('errorsArrayToHash for primary data object', function (assert) {
+      let result = DS.errorsArrayToHash(errorsPrimaryArray);
+      assert.deepEqual(result, errorsPrimaryHash);
+      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
+    });
+  }
 
   testInDebug('DS.InvalidError will normalize errors hash will assert', function (assert) {
     assert.expectAssertion(function () {
