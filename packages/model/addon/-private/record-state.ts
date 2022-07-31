@@ -179,7 +179,6 @@ export default class RecordState {
             break;
           case 'rejected':
             this.isSaving = false;
-
             this._lastError = req;
             if (!(req.response && isInvalidError(req.response.data))) {
               this._errorRequests.push(req);
@@ -249,10 +248,6 @@ export default class RecordState {
           this.notify('isDeleted');
           break;
         case 'errors':
-          // we only hit this if a foreign RecordData notifies
-          // errors changed. Our own implementation does not
-          // take this path currently, but we should probably
-          // fix that.
           this.updateInvalidErrors(this.record.errors);
           this.notify('isValid');
           break;

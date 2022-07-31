@@ -62,7 +62,7 @@ export default class RequestCache {
             state: 'rejected',
             request: queryRequest,
             type,
-            response: { data: error && error.error },
+            response: { data: error },
           } as InternalRequest;
           finalizedRequest[Touching] = request[Touching];
           this._addDone(finalizedRequest);

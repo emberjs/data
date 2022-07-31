@@ -334,11 +334,7 @@ export default class FetchManager {
         );
 
         return payload;
-      },
-      (error) => {
-        throw error;
-      },
-      `DS: Extract payload of '${modelName}'`
+      }
     );
 
     fetchItem.resolver.resolve(promise);

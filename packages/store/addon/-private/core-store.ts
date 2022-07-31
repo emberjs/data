@@ -2198,7 +2198,7 @@ class Store extends Service {
         let err = e;
         if (!e) {
           err = new Error(`Unknown Error Occurred During Request`);
-        } if (typeof e === 'string') {
+        } else if (typeof e === 'string') {
           err = new Error(e);
         }
         internalModel.adapterDidInvalidate(err);
