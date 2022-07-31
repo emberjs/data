@@ -93,7 +93,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
             '1',
             'the normalizeQueryRecordResponse method was called with the right payload'
           );
-          return this._super(...arguments);
+          return super.normalizeQueryRecordResponse(...arguments);
         }
       }
     );
