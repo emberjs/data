@@ -277,7 +277,7 @@ export default class BelongsToReference {
   }
 
   _resource() {
-    return this.store._instanceCache.recordDataFor(this.#identifier, false).getBelongsTo(this.key);
+    return this.store._instanceCache.recordDataFor(this.#identifier).getBelongsTo(this.key);
   }
 
   /**

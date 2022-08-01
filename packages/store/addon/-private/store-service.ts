@@ -289,6 +289,7 @@ class Store extends Service {
       let modelName = identifier.type;
       let store = this;
 
+      let recordData = this._instanceCache.recordDataFor(identifier);
       let internalModel = this._instanceCache._internalModelForResource(identifier);
       let createOptions: any = {
         _internalModel: internalModel,
@@ -298,7 +299,7 @@ class Store extends Service {
         _secretInit: (record: RecordInstance): void => {
           setRecordIdentifier(record, identifier);
           StoreMap.set(record, store);
-          setRecordDataFor(record, internalModel._recordData);
+          setRecordDataFor(record, recordData);
         },
         container: null, // necessary hack for setOwner?
       };
@@ -496,15 +497,16 @@ class Store extends Service {
     // it is unlikely we need both an outer join and the inner run
     // of our own queue
     this._backburner.join(() => {
-      let identifier = peekRecordIdentifier(record);
+      const identifier = peekRecordIdentifier(record);
       if (identifier) {
         const internalModel = internalModelFactoryFor(this).peek(identifier);
         if (internalModel) {
           run(() => {
             const backburner = this._backburner;
             backburner.run(() => {
-              if (internalModel._recordData.setIsDeleted) {
-                internalModel._recordData.setIsDeleted(true);
+              const recordData = this._instanceCache.peek({ identifier, bucket: 'recordData' });
+              if (recordData?.setIsDeleted) {
+                recordData.setIsDeleted(true);
               }
 
               if (internalModel.isNew()) {
@@ -2147,12 +2149,16 @@ class Store extends Service {
       return resolve(record);
     }
 
-    internalModel.adapterWillCommit();
+
+    const recordData = this._instanceCache.getRecordData(identifier);
+    recordData.willCommit();
+    if (isDSModel(record)) {
+      record.errors.clear();
+    }
 
     if (!options) {
       options = {};
     }
-    let recordData = this._instanceCache.getRecordData(identifier);
     let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
 
     // TODO handle missing isNew
@@ -2186,20 +2192,21 @@ class Store extends Service {
           let data = payload && payload.data;
           if (!data) {
             assert(
-              `Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
-              internalModel.id
+              `Your ${identifier.type} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
+              identifier.id
             );
           }
 
           const cache = this.identifierCache;
+          let actualIdentifier = identifier;
           if (operation !== 'deleteRecord' && data) {
-            cache.updateRecordIdentifier(identifier, data);
+            actualIdentifier = cache.updateRecordIdentifier(identifier, data);
           }
 
           //We first make sure the primary data has been updated
-          //TODO try to move notification to the user to the end of the runloop
-          internalModel._recordData.didCommit(data);
-          this.recordArrayManager.recordDidChange(internalModel.identifier);
+          const recordData = this._instanceCache.getRecordData(actualIdentifier);
+          recordData.didCommit(data);
+          this.recordArrayManager.recordDidChange(actualIdentifier);
 
           if (payload && payload.included) {
             this._push({ data: null, included: payload.included });
@@ -2228,13 +2235,13 @@ class Store extends Service {
    * @public
    * @param modelName
    * @param id
-   * @param clientId
+   * @param lid
    * @param storeWrapper
    */
   createRecordDataFor(
     modelName: string,
     id: string | null,
-    clientId: string,
+    lid: string,
     storeWrapper: RecordDataStoreWrapper
   ): RecordData {
     if (HAS_RECORD_DATA_PACKAGE) {
@@ -2252,7 +2259,7 @@ class Store extends Service {
       let identifier = this.identifierCache.getOrCreateRecordIdentifier({
         type: modelName,
         id,
-        lid: clientId,
+        lid,
       });
       return new _RecordData(identifier, storeWrapper);
     }
@@ -2527,4 +2534,14 @@ export function assertIdentifierHasId(
   identifier: StableRecordIdentifier
 ): asserts identifier is StableExistingRecordIdentifier {
   assert(`Attempted to schedule a fetch for a record without an id.`, identifier.id !== null);
+}
+
+function isDSModel(record: RecordInstance | null): record is DSModel {
+  return (
+    HAS_MODEL_PACKAGE &&
+    !!record &&
+    'constructor' in record &&
+    'isModel' in record.constructor &&
+    record.constructor.isModel === true
+  );
 }

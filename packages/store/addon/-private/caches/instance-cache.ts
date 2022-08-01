@@ -250,7 +250,7 @@ export class InstanceCache {
 
   __recordDataFor(resource: RecordIdentifier) {
     const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
-    return this.recordDataFor(identifier, false);
+    return this.recordDataFor(identifier);
   }
 
   // TODO move this to InstanceCache
@@ -274,8 +274,8 @@ export class InstanceCache {
     return internalModelFactoryFor(this.store).getByResource(resource);
   }
 
-  setRecordId(modelName: string, newId: string, clientId: string) {
-    internalModelFactoryFor(this.store).setRecordId(modelName, newId, clientId);
+  setRecordId(modelName: string, newId: string, lid: string) {
+    internalModelFactoryFor(this.store).setRecordId(modelName, newId, lid);
   }
 
   _load(data: ExistingResourceObject): StableExistingRecordIdentifier {
@@ -319,7 +319,12 @@ export class InstanceCache {
       }
     }
 
-    internalModel.setupData(data);
+    if (internalModel.isNew()) {
+      this.store._notificationManager.notify(identifier, 'identity');
+    }
+
+    const hasRecord = this.#instances.record.has(identifier);
+    this.getRecordData(identifier).pushData(data, hasRecord);
 
     if (!isUpdate) {
       this.store.recordArrayManager.recordDidChange(identifier);
@@ -328,8 +333,26 @@ export class InstanceCache {
     return identifier as StableExistingRecordIdentifier;
   }
 
-  recordDataFor(identifier: StableRecordIdentifier | { type: string }, isCreate: boolean): RecordData {
+  destroyRecord(identifier: StableRecordIdentifier) {
+    const record = this.#instances.record.get(identifier);
+    assert(
+      'Cannot destroy record while it is still materialized',
+      !record || record.isDestroyed || record.isDestroying
+    );
+
+    const factory = internalModelFactoryFor(this.store);
+
+    let internalModel = factory.peek(identifier);
+    if (internalModel) {
+      internalModel.isDestroying = true;
+      factory.remove(internalModel);
+      internalModel._isDestroyed = true;
+    }
+  }
+
+  recordDataFor(identifier: StableRecordIdentifier | { type: string }, isCreate?: boolean): RecordData {
     let recordData: RecordData;
+    // TODO remove isCreate arg @deprecate if needed
     if (isCreate === true) {
       // TODO remove once InternalModel is no longer essential to internal state
       // and just build a new identifier directly

@@ -2,7 +2,6 @@
   @module @ember-data/store
 */
 import { assert, deprecate } from '@ember/debug';
-import { get } from '@ember/object';
 
 import { importSync } from '@embroider/macros';
 
@@ -160,10 +159,12 @@ export default class Snapshot implements Snapshot {
     let attributes = (this.__attributes = Object.create(null));
     let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier));
     let recordData = this._store._instanceCache.getRecordData(this.identifier);
+    const modelClass =  this._store.modelFor(this.identifier.type);
+    const isDSModel = schemaIsDSModel(modelClass);
     attrs.forEach((keyName) => {
-      if (schemaIsDSModel(this._internalModel.modelClass)) {
+      if (isDSModel) {
         // if the schema is for a DSModel then the instance is too
-        attributes[keyName] = get(record as DSModel, keyName);
+        attributes[keyName] = record[keyName];
       } else {
         attributes[keyName] = recordData.getAttr(keyName);
       }
@@ -566,7 +567,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._internalModel.modelClass;
+      return this._store.modelFor(this.identifier.type);
     },
   });
 }

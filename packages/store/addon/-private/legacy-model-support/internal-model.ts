@@ -1,14 +1,10 @@
 import { assert } from '@ember/debug';
-import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
+import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 import { internalModelFactoryFor } from '../caches/internal-model-factory';
 import type Store from '../store-service';
@@ -18,16 +14,6 @@ import type ShimModelClass from './shim-model-class';
   @module @ember-data/store
 */
 
-function isDSModel(record: RecordInstance | null): record is DSModel {
-  return (
-    HAS_MODEL_PACKAGE &&
-    !!record &&
-    'constructor' in record &&
-    'isModel' in record.constructor &&
-    record.constructor.isModel === true
-  );
-}
-
 type AdapterErrors = Error & { errors?: unknown[]; isAdapterError?: true; code?: string };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
   extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
@@ -36,22 +22,13 @@ type SerializerWithParseErrors = MinimumSerializerInterface & {
 export default class InternalModel {
   declare _id: string | null;
   declare modelName: string;
-  declare clientId: string;
   declare hasRecordData: boolean;
   declare _isDestroyed: boolean;
-  declare isError: boolean;
-  declare _pendingRecordArrayManagerFlush: boolean;
   declare _isDematerializing: boolean;
-  declare _doNotDestroy: boolean;
   declare isDestroying: boolean;
   declare _isUpdatingId: boolean;
-  declare _deletedRecordWasNew: boolean;
 
   // Not typed yet
-  declare _scheduledDestroy: any;
-  declare _modelClass: any;
-  declare __recordArrays: any;
-  declare error: any;
   declare store: Store;
   declare identifier: StableRecordIdentifier;
   declare hasRecord: boolean;
@@ -62,15 +39,11 @@ export default class InternalModel {
     this._id = identifier.id;
     this._isUpdatingId = false;
     this.modelName = identifier.type;
-    this.clientId = identifier.lid;
     this.hasRecord = false;
 
     this.hasRecordData = false;
 
     this._isDestroyed = false;
-    this._doNotDestroy = false;
-    this.isError = false;
-    this._pendingRecordArrayManagerFlush = false; // used by the recordArrayManager
 
     // During dematerialization we don't want to rematerialize the record.  The
     // reason this might happen is that dematerialization removes records from
@@ -78,15 +51,6 @@ export default class InternalModel {
     // `objectAt(len - 1)` to test whether or not `firstObject` or `lastObject`
     // have changed.
     this._isDematerializing = false;
-    this._scheduledDestroy = null;
-
-    this.error = null;
-
-    // caches for lazy getters
-    this._modelClass = null;
-    this.__recordArrays = null;
-
-    this.error = null;
   }
 
   get id(): string | null {
@@ -104,12 +68,49 @@ export default class InternalModel {
     }
   }
 
-  get modelClass() {
-    if (this.store.modelFor) {
-      return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
+  /*
+   * calling `InstanceCache.setRecordId` is necessary to update
+   * the cache index for this record if we have changed.
+   *
+   * However, since the store is not aware of whether the update
+   * is from us (via user set) or from a push of new data
+   * it will also call us so that we can notify and update state.
+   *
+   * When it does so it calls with `fromCache` so that we can
+   * short-circuit instead of cycling back.
+   *
+   * This differs from the short-circuit in the `_isUpdatingId`
+   * case in that the the cache can originate the call to setId,
+   * so on first entry we will still need to do our own update.
+   */
+  setId(id: string | null, fromCache: boolean = false) {
+    if (this._isUpdatingId === true) {
+      return;
     }
+    this._isUpdatingId = true;
+    let didChange = id !== this._id;
+    this._id = id;
+
+    if (didChange && id !== null) {
+      if (!fromCache) {
+        this.store._instanceCache.setRecordId(this.modelName, id, this.identifier.lid);
+      }
+      // internal set of ID to get it to RecordData from DS.Model
+      // if we are within create we may not have a recordData yet.
+      if (this.hasRecordData && this._recordData.__setId) {
+        this._recordData.__setId(id);
+      }
+    }
+
+    if (didChange && this.hasRecord) {
+      this.store._notificationManager.notify(this.identifier, 'identity');
+    }
+    this._isUpdatingId = false;
   }
 
+
+
+  // STATE we end up needing for various reasons
   get _recordData(): RecordData {
     return this.store._instanceCache.getRecordData(this.identifier);
   }
@@ -161,28 +162,8 @@ export default class InternalModel {
     return !this.isEmpty;
   }
 
-  dematerializeRecord() {
-    this._isDematerializing = true;
-
-    // TODO IGOR add a test that fails when this is missing, something that involves canceling a destroy
-    // and the destroy not happening, and then later on trying to destroy
-    this._doNotDestroy = false;
-    // this has to occur before the internal model is removed
-    // for legacy compat.
-    const { identifier } = this;
-    this.store._instanceCache.removeRecord(identifier);
-
-    // move to an empty never-loaded state
-    // ensure any record notifications happen prior to us
-    // unseting the record but after we've triggered
-    // destroy
-    this.store._backburner.join(() => {
-      this._recordData.unloadRecord();
-    });
-
-    this.hasRecord = false; // this must occur after relationship removal
-    this.error = null;
-    this.store.recordArrayManager.recordDidChange(this.identifier);
+  get isDestroyed(): boolean {
+    return this._isDestroyed;
   }
 
   /*
@@ -211,67 +192,23 @@ export default class InternalModel {
         assert('You can only unload a record which is not inFlight. `' + this + '`');
       }
     }
-    this.dematerializeRecord();
-    if (this._scheduledDestroy === null) {
-      this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
-    }
-  }
+    this._isDematerializing = true;
 
-  hasScheduledDestroy() {
-    return !!this._scheduledDestroy;
-  }
+    // this has to occur before the internal model is removed
+    // for legacy compat.
+    const { identifier } = this;
+    this.store._instanceCache.removeRecord(identifier);
 
-  cancelDestroy() {
-    assert(
-      `You cannot cancel the destruction of an InternalModel once it has already been destroyed`,
-      !this.isDestroyed
-    );
+    // move to an empty never-loaded state
+    // ensure any record notifications happen prior to us
+    // unseting the record but after we've triggered
+    // destroy
+    this.store._backburner.join(() => {
+      this._recordData.unloadRecord();
+    });
 
-    this._doNotDestroy = true;
-    this._isDematerializing = false;
-    cancel(this._scheduledDestroy);
-    this._scheduledDestroy = null;
-  }
-
-  // typically, we prefer to async destroy this lets us batch cleanup work.
-  // Unfortunately, some scenarios where that is not possible. Such as:
-  //
-  // ```js
-  // const record = store.findRecord(‘record’, 1);
-  // record.unloadRecord();
-  // store.createRecord(‘record’, 1);
-  // ```
-  //
-  // In those scenarios, we make that model's cleanup work, sync.
-  //
-  destroySync() {
-    if (this._isDematerializing) {
-      this.cancelDestroy();
-    }
-    this._checkForOrphanedInternalModels();
-    if (this.isDestroyed || this.isDestroying) {
-      return;
-    }
-
-    // just in-case we are not one of the orphaned, we should still
-    // still destroy ourselves
-    this.destroy();
-  }
-
-  _checkForOrphanedInternalModels() {
-    this._isDematerializing = false;
-    this._scheduledDestroy = null;
-    if (this.isDestroyed) {
-      return;
-    }
-  }
-
-  destroyFromRecordData() {
-    if (this._doNotDestroy) {
-      this._doNotDestroy = false;
-      return;
-    }
-    this.destroy();
+    this.hasRecord = false; // this must occur after relationship removal
+    this.store.recordArrayManager.recordDidChange(this.identifier);
   }
 
   destroy() {
@@ -284,100 +221,6 @@ export default class InternalModel {
 
     internalModelFactoryFor(this.store).remove(this);
     this._isDestroyed = true;
-  }
-
-  setupData(data) {
-    if (this.isNew()) {
-      this.store._notificationManager.notify(this.identifier, 'identity');
-    }
-    this._recordData.pushData(data, this.hasRecord);
-  }
-
-  notifyAttributes(keys: string[]): void {
-    if (this.hasRecord) {
-      let manager = this.store._notificationManager;
-      let { identifier } = this;
-
-      if (!keys || !keys.length) {
-        manager.notify(identifier, 'attributes');
-      } else {
-        for (let i = 0; i < keys.length; i++) {
-          manager.notify(identifier, 'attributes', keys[i]);
-        }
-      }
-    }
-  }
-
-  get isDestroyed(): boolean {
-    return this._isDestroyed;
-  }
-
-  hasChangedAttributes(): boolean {
-    if (!this.hasRecordData) {
-      // no need to calculate changed attributes when calling `findRecord`
-      return false;
-    }
-    return this._recordData.hasChangedAttributes();
-  }
-
-  changedAttributes(): ChangedAttributesHash {
-    if (!this.hasRecordData) {
-      // no need to calculate changed attributes when calling `findRecord`
-      return {};
-    }
-    return this._recordData.changedAttributes();
-  }
-
-  adapterWillCommit(): void {
-    this._recordData.willCommit();
-    let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
-    if (record && isDSModel(record)) {
-      record.errors.clear();
-    }
-  }
-
-  notifyHasManyChange(key: string) {
-    if (this.hasRecord) {
-      this.store._notificationManager.notify(this.identifier, 'relationships', key);
-    }
-  }
-
-  notifyBelongsToChange(key: string) {
-    if (this.hasRecord) {
-      this.store._notificationManager.notify(this.identifier, 'relationships', key);
-    }
-  }
-
-  notifyStateChange(key?: string) {
-    if (this.hasRecord) {
-      this.store._notificationManager.notify(this.identifier, 'state');
-    }
-    if (!key || key === 'isDeletionCommitted') {
-      this.store.recordArrayManager.recordDidChange(this.identifier);
-    }
-  }
-
-  rollbackAttributes() {
-    this.store._backburner.join(() => {
-      let dirtyKeys = this._recordData.rollbackAttributes();
-
-      let record = this.store._instanceCache.peek({ identifier: this.identifier, bucket: 'record' });
-      if (record && isDSModel(record)) {
-        record.errors.clear();
-      }
-
-      if (this.hasRecord && dirtyKeys && dirtyKeys.length > 0) {
-        this.notifyAttributes(dirtyKeys);
-      }
-    });
-  }
-
-  removeFromInverseRelationships() {
-    if (this.hasRecordData) {
-      this.store._backburner.join(() => {
-        this._recordData.removeFromInverseRelationships();
-      });
-    }
   }
 
   /*
@@ -394,9 +237,10 @@ export default class InternalModel {
   preloadData(preload) {
     let jsonPayload: JsonApiResource = {};
     //TODO(Igor) consider the polymorphic case
+    const modelClass = this.store.modelFor(this.identifier.type);
     Object.keys(preload).forEach((key) => {
       let preloadValue = preload[key];
-      let relationshipMeta = this.modelClass.metaForProperty(key);
+      let relationshipMeta = modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
         if (!jsonPayload.relationships) {
           jsonPayload.relationships = {};
@@ -413,14 +257,15 @@ export default class InternalModel {
   }
 
   _preloadRelationship(key, preloadValue) {
-    let relationshipMeta = this.modelClass.metaForProperty(key);
-    let modelClass = relationshipMeta.type;
+    const modelClass = this.store.modelFor(this.identifier.type);
+    const relationshipMeta = modelClass.metaForProperty(key);
+    const relatedModelClass = relationshipMeta.type;
     let data;
     if (relationshipMeta.kind === 'hasMany') {
       assert('You need to pass in an array to set a hasMany property on a record', Array.isArray(preloadValue));
-      data = preloadValue.map((value) => this._convertPreloadRelationshipToJSON(value, modelClass));
+      data = preloadValue.map((value) => this._convertPreloadRelationshipToJSON(value, relatedModelClass));
     } else {
-      data = this._convertPreloadRelationshipToJSON(preloadValue, modelClass);
+      data = this._convertPreloadRelationshipToJSON(preloadValue, relatedModelClass);
     }
     return { data };
   }
@@ -437,46 +282,6 @@ export default class InternalModel {
     }
     // TODO IGOR DAVID assert if no id is present
     return { type: internalModel.modelName, id: internalModel.id };
-  }
-
-  /*
-   * calling `InstanceCache.setRecordId` is necessary to update
-   * the cache index for this record if we have changed.
-   *
-   * However, since the store is not aware of whether the update
-   * is from us (via user set) or from a push of new data
-   * it will also call us so that we can notify and update state.
-   *
-   * When it does so it calls with `fromCache` so that we can
-   * short-circuit instead of cycling back.
-   *
-   * This differs from the short-circuit in the `_isUpdatingId`
-   * case in that the the cache can originate the call to setId,
-   * so on first entry we will still need to do our own update.
-   */
-  setId(id: string | null, fromCache: boolean = false) {
-    if (this._isUpdatingId === true) {
-      return;
-    }
-    this._isUpdatingId = true;
-    let didChange = id !== this._id;
-    this._id = id;
-
-    if (didChange && id !== null) {
-      if (!fromCache) {
-        this.store._instanceCache.setRecordId(this.modelName, id, this.clientId);
-      }
-      // internal set of ID to get it to RecordData from DS.Model
-      // if we are within create we may not have a recordData yet.
-      if (this.hasRecordData && this._recordData.__setId) {
-        this._recordData.__setId(id);
-      }
-    }
-
-    if (didChange && this.hasRecord) {
-      this.store._notificationManager.notify(this.identifier, 'identity');
-    }
-    this._isUpdatingId = false;
   }
 
   // FOR USE DURING COMMIT PROCESS

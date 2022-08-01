@@ -12,7 +12,6 @@ import type {
 import type { RecordDataStoreWrapper as StoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
 import type { IdentifierCache } from '../caches/identifier-cache';
-import { internalModelFactoryFor } from '../caches/internal-model-factory';
 import type Store from '../store-service';
 import constructResource from '../utils/construct-resource';
 
@@ -86,19 +85,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     let pending = this._pendingNotifies;
     this._pendingNotifies = new Map();
     this._willNotify = false;
-    const factory = internalModelFactoryFor(this._store);
 
     pending.forEach((map, identifier) => {
-      const internalModel = factory.peek(identifier);
-      if (internalModel) {
-        map.forEach((kind, key) => {
-          if (kind === 'belongsTo') {
-            internalModel.notifyBelongsToChange(key);
-          } else {
-            internalModel.notifyHasManyChange(key);
-          }
-        });
-      }
+      map.forEach((kind, key) => {
+        this._store._notificationManager.notify(identifier, 'relationships', key);
+      });
     });
   }
 
@@ -152,11 +143,8 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key?: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
-    if (internalModel) {
-      internalModel.notifyAttributes(key ? [key] : []);
-    }
+    this._store._notificationManager.notify(identifier, 'attributes', key);
   }
 
   notifyHasManyChange(type: string, id: string | null, lid: string, key: string): void;
@@ -181,10 +169,10 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyStateChange(type: string, id: string | null, lid: string | null, key?: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
-    if (internalModel) {
-      internalModel.notifyStateChange(key);
+    this._store._notificationManager.notify(identifier, 'state');
+    if (!key || key === 'isDeletionCommitted') {
+      this._store.recordArrayManager.recordDidChange(identifier);
     }
   }
 
@@ -231,9 +219,6 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
         graph.remove(identifier);
       }
     }
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
-    if (internalModel) {
-      internalModel.destroyFromRecordData();
-    }
+    this._store._instanceCache.destroyRecord(identifier);
   }
 }

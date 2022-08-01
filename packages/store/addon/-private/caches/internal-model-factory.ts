@@ -204,21 +204,7 @@ export default class InternalModelFactory {
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     const internalModel = this.peek(identifier);
 
-    if (internalModel) {
-      // unloadRecord is async, if one attempts to unload + then sync push,
-      //   we must ensure the unload is canceled before continuing
-      //   The createRecord path will take _existingInternalModelForId()
-      //   which will call `destroySync` instead for this unload + then
-      //   sync createRecord scenario. Once we have true client-side
-      //   delete signaling, we should never call destroySync
-      if (internalModel.hasScheduledDestroy()) {
-        internalModel.cancelDestroy();
-      }
-
-      return internalModel;
-    }
-
-    return this._build(identifier, false);
+    return internalModel || this._build(identifier, false);
   }
 
   /**
@@ -291,19 +277,7 @@ export default class InternalModelFactory {
 
   peekById(type: string, id: string): InternalModel | null {
     const identifier = this.identifierCache.peekRecordIdentifier({ type, id });
-    let internalModel = identifier ? this.cache.get(identifier) || null : null;
-
-    if (internalModel && internalModel.hasScheduledDestroy()) {
-      // unloadRecord is async, if one attempts to unload + then sync create,
-      //   we must ensure the unload is complete before starting the create
-      //   The push path will take this.lookup()
-      //   which will call `cancelDestroy` instead for this unload + then
-      //   sync push scenario. Once we have true client-side
-      //   delete signaling, we should never call destroySync
-      internalModel.destroySync();
-      internalModel = null;
-    }
-    return internalModel;
+    return identifier ? this.cache.get(identifier) || null : null;
   }
 
   build(newResourceInfo: NewResourceInfo): InternalModel {

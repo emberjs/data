@@ -131,7 +131,7 @@ export default class HasManyReference {
   }
 
   _resource() {
-    return this.store._instanceCache.recordDataFor(this.#identifier, false).getHasMany(this.key);
+    return this.store._instanceCache.recordDataFor(this.#identifier).getHasMany(this.key);
   }
 
   /**

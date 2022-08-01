@@ -16,7 +16,7 @@ export interface RelationshipRecordData extends RecordData {
   storeWrapper: RecordDataStoreWrapper;
   identifier: StableRecordIdentifier;
   id: string | null;
-  clientId: string | null;
+  lid: string | null;
   isEmpty(): boolean;
   getResourceIdentifier(): RecordIdentifier;
   getBelongsTo(key: string): DefaultSingleResourceRelationship;

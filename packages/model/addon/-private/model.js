@@ -23,6 +23,7 @@ import {
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId, deprecatedPromiseObject, InternalModel, WeakCache } from '@ember-data/store/-private';
+import { recordDataFor } from '@ember-data/store/-private';
 
 import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
@@ -454,13 +455,11 @@ class Model extends EmberObject {
   */
   @tagged
   get id() {
-    // the _internalModel guard exists, because some dev-only deprecation code
+    // this guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
-    if (DEBUG) {
-      if (!this._internalModel) {
-        return void 0;
-      }
+    if (DEBUG && !this._internalModel) {
+      return void 0;
     }
     return this._internalModel.id;
   }
@@ -794,7 +793,7 @@ class Model extends EmberObject {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes() {
-    return this._internalModel.changedAttributes();
+    return recordDataFor(this).changedAttributes();
   }
 
   /**
@@ -817,7 +816,8 @@ class Model extends EmberObject {
   */
   rollbackAttributes() {
     const { currentState } = this;
-    this._internalModel.rollbackAttributes();
+    recordDataFor(this).rollbackAttributes();
+    record.errors.clear();
     currentState.cleanErrorRequests();
   }
 
@@ -830,8 +830,9 @@ class Model extends EmberObject {
     return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this));
   }
 
+  // TODO can we remove this now?
   toStringExtension() {
-    // the _internalModel guard exists, because some dev-only deprecation code
+    // this guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
     return this._internalModel && this._internalModel.id;

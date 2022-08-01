@@ -45,7 +45,7 @@ const EMPTY_ITERATOR = {
 export default class RecordDataDefault implements RelationshipRecordData {
   declare _errors?: JsonApiValidationError[];
   declare modelName: string;
-  declare clientId: string;
+  declare lid: string;
   declare identifier: StableRecordIdentifier;
   declare id: string | null;
   declare isDestroyed: boolean;
@@ -61,7 +61,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
   constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     this.modelName = identifier.type;
-    this.clientId = identifier.lid;
+    this.lid = identifier.lid;
     this.id = identifier.id;
     this.identifier = identifier;
     this.storeWrapper = storeWrapper;
@@ -129,7 +129,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   _clearErrors() {
     if (this._errors) {
       this._errors = undefined;
-      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.lid);
     }
   }
 
@@ -283,6 +283,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._clearErrors();
     this.notifyStateChange();
 
+    if (dirtyKeys && dirtyKeys.length) {
+      this._notifyAttributes(dirtyKeys);
+    }
+
     return dirtyKeys;
   }
 
@@ -301,7 +305,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (data) {
       if (data.id) {
         // didCommit provided an ID, notify the store of it
-        this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
+        this.storeWrapper.setRecordId(this.modelName, data.id, this.lid);
         this.id = coerceId(data.id);
       }
       if (data.relationships) {
@@ -324,7 +328,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   notifyStateChange() {
-    this.storeWrapper.notifyStateChange(this.modelName, this.id, this.clientId);
+    this.storeWrapper.notifyStateChange(this.modelName, this.id, this.lid);
   }
 
   // get ResourceIdentifiers for "current state"
@@ -377,7 +381,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (errors) {
       this._errors = errors;
     }
-    this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+    this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.lid);
   }
 
   getBelongsTo(key: string): DefaultSingleResourceRelationship {
@@ -468,11 +472,11 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
   destroy() {
     this.isDestroyed = true;
-    this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
+    this.storeWrapper.disconnectRecord(this.modelName, this.id, this.lid);
   }
 
   isRecordInUse() {
-    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.clientId);
+    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.lid);
   }
 
   /*
