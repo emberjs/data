@@ -40,7 +40,7 @@
     "ember-inflector": "^4.0.2"
   },
   "devDependencies": {
-    "@babel/plugin-transform-typescript": "^7.18.8",
+    "@babel/plugin-transform-typescript": "^7.18.10",
     "@ember-data/unpublished-test-infra": "4.8.0-alpha.1",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
