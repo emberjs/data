@@ -6,7 +6,7 @@ import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-ser
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 
-import { internalModelFactoryFor } from '../caches/internal-model-factory';
+import { internalModelFactoryFor, recordIdentifierFor } from '../caches/internal-model-factory';
 import type Store from '../store-service';
 import type ShimModelClass from './shim-model-class';
 
@@ -221,67 +221,6 @@ export default class InternalModel {
 
     internalModelFactoryFor(this.store).remove(this);
     this._isDestroyed = true;
-  }
-
-  /*
-    When a find request is triggered on the store, the user can optionally pass in
-    attributes and relationships to be preloaded. These are meant to behave as if they
-    came back from the server, except the user obtained them out of band and is informing
-    the store of their existence. The most common use case is for supporting client side
-    nested URLs, such as `/posts/1/comments/2` so the user can do
-    `store.findRecord('comment', 2, { preload: { post: 1 } })` without having to fetch the post.
-
-    Preloaded data can be attributes and relationships passed in either as IDs or as actual
-    models.
-  */
-  preloadData(preload) {
-    let jsonPayload: JsonApiResource = {};
-    //TODO(Igor) consider the polymorphic case
-    const modelClass = this.store.modelFor(this.identifier.type);
-    Object.keys(preload).forEach((key) => {
-      let preloadValue = preload[key];
-      let relationshipMeta = modelClass.metaForProperty(key);
-      if (relationshipMeta.isRelationship) {
-        if (!jsonPayload.relationships) {
-          jsonPayload.relationships = {};
-        }
-        jsonPayload.relationships[key] = this._preloadRelationship(key, preloadValue);
-      } else {
-        if (!jsonPayload.attributes) {
-          jsonPayload.attributes = {};
-        }
-        jsonPayload.attributes[key] = preloadValue;
-      }
-    });
-    this._recordData.pushData(jsonPayload);
-  }
-
-  _preloadRelationship(key, preloadValue) {
-    const modelClass = this.store.modelFor(this.identifier.type);
-    const relationshipMeta = modelClass.metaForProperty(key);
-    const relatedModelClass = relationshipMeta.type;
-    let data;
-    if (relationshipMeta.kind === 'hasMany') {
-      assert('You need to pass in an array to set a hasMany property on a record', Array.isArray(preloadValue));
-      data = preloadValue.map((value) => this._convertPreloadRelationshipToJSON(value, relatedModelClass));
-    } else {
-      data = this._convertPreloadRelationshipToJSON(preloadValue, relatedModelClass);
-    }
-    return { data };
-  }
-
-  _convertPreloadRelationshipToJSON(value, modelClass) {
-    if (typeof value === 'string' || typeof value === 'number') {
-      return { type: modelClass, id: value };
-    }
-    let internalModel;
-    if (value._internalModel) {
-      internalModel = value._internalModel;
-    } else {
-      internalModel = value;
-    }
-    // TODO IGOR DAVID assert if no id is present
-    return { type: internalModel.modelName, id: internalModel.id };
   }
 
   // FOR USE DURING COMMIT PROCESS

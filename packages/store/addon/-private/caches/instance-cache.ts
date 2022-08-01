@@ -24,8 +24,9 @@ import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
 import WeakCache from '../utils/weak-cache';
-import { internalModelFactoryFor, setRecordIdentifier } from './internal-model-factory';
+import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './internal-model-factory';
 import recordDataFor, { setRecordDataFor } from './record-data-for';
+import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 
 const RECORD_REFERENCES = new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : '');
 export const StoreMap = new WeakCache<RecordInstance, Store>(DEBUG ? 'store' : '');
@@ -133,7 +134,7 @@ export class InstanceCache {
 
     if (options.preload) {
       this.store._backburner.join(() => {
-        internalModel.preloadData(options.preload);
+        preloadData(this.store, identifier, options.preload);
       });
     }
 
@@ -448,4 +449,64 @@ function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
 
 function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
   return !!record.then;
+}
+
+  /*
+    When a find request is triggered on the store, the user can optionally pass in
+    attributes and relationships to be preloaded. These are meant to behave as if they
+    came back from the server, except the user obtained them out of band and is informing
+    the store of their existence. The most common use case is for supporting client side
+    nested URLs, such as `/posts/1/comments/2` so the user can do
+    `store.findRecord('comment', 2, { preload: { post: 1 } })` without having to fetch the post.
+
+    Preloaded data can be attributes and relationships passed in either as IDs or as actual
+    models.
+  */
+function preloadData(store: Store, identifier: StableRecordIdentifier, preload) {
+  let jsonPayload: JsonApiResource = {};
+  //TODO(Igor) consider the polymorphic case
+  const modelClass = store.modelFor(identifier.type);
+  Object.keys(preload).forEach((key) => {
+    let preloadValue = preload[key];
+    let relationshipMeta = modelClass.metaForProperty(key);
+    if (relationshipMeta.isRelationship) {
+      if (!jsonPayload.relationships) {
+        jsonPayload.relationships = {};
+      }
+      jsonPayload.relationships[key] = preloadRelationship(modelClass, key, preloadValue);
+    } else {
+      if (!jsonPayload.attributes) {
+        jsonPayload.attributes = {};
+      }
+      jsonPayload.attributes[key] = preloadValue;
+    }
+  });
+  store._instanceCache.recordDataFor(identifier).pushData(jsonPayload);
+}
+
+
+function preloadRelationship(schema, key: string, preloadValue) {
+  const relationshipMeta = schema.metaForProperty(key);
+  const relatedType = relationshipMeta.type;
+  let data;
+  if (relationshipMeta.kind === 'hasMany') {
+    assert('You need to pass in an array to set a hasMany property on a record', Array.isArray(preloadValue));
+    data = preloadValue.map((value) => _convertPreloadRelationshipToJSON(value, relatedType));
+  } else {
+    data = _convertPreloadRelationshipToJSON(preloadValue, relatedType);
+  }
+  return { data };
+}
+
+/*
+  findRecord('user', '1', { preload: { friends: ['1'] }});
+  findRecord('user', '1', { preload: { friends: [record] }});
+*/
+function _convertPreloadRelationshipToJSON(value, type: string) {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return { type, id: value };
+  }
+  // TODO if not a record instance assert it's an identifier
+  // and allow identifiers to be used
+  return recordIdentifierFor(value);
 }
