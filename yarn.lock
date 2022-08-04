@@ -2382,10 +2382,34 @@
     "@types/jquery" "*"
     "@types/rsvp" "*"
 
-"@types/ember@*", "@types/ember@^4.0.0":
+"@types/ember@*":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@types/ember/-/ember-4.0.0.tgz#0c29294fa0e5aa07ba6090f60243707dde8fc411"
   integrity sha512-IR4o8OkFgoiRKVLRI8URvyNhEBSkjO5DXp2900/TptxOl0Retu8/tKtFaRTwkqteg2a0/6zXAA1rpFb3BbxNpA==
+  dependencies:
+    "@types/ember__application" "*"
+    "@types/ember__array" "*"
+    "@types/ember__component" "*"
+    "@types/ember__controller" "*"
+    "@types/ember__debug" "*"
+    "@types/ember__engine" "*"
+    "@types/ember__error" "*"
+    "@types/ember__object" "*"
+    "@types/ember__polyfills" "*"
+    "@types/ember__routing" "*"
+    "@types/ember__runloop" "*"
+    "@types/ember__service" "*"
+    "@types/ember__string" "*"
+    "@types/ember__template" "*"
+    "@types/ember__test" "*"
+    "@types/ember__utils" "*"
+    "@types/htmlbars-inline-precompile" "*"
+    "@types/rsvp" "*"
+
+"@types/ember@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/@types/ember/-/ember-4.0.1.tgz#5fe3dc8219b7e0391b2c97d8db945a9e0881badc"
+  integrity sha512-fYCZtkGq1UqD1rWjvdY4bVQpdZvxkHqVx/B6p2M0cUdyheLNjQgwXfx3o1UU0Bk99mls5Or4ZCnW7s1yliABiw==
   dependencies:
     "@types/ember__application" "*"
     "@types/ember__array" "*"
@@ -7207,7 +7231,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "4.8.0-alpha.1"
+  version "4.8.0-alpha.2"
 
 eslint-plugin-ember@^11.0.5:
   version "11.0.5"
