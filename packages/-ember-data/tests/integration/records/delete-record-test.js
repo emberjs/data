@@ -429,8 +429,9 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     // Sanity Check
     assert.ok(group, 'expected group to be found');
     assert.strictEqual(group.get('company.name'), 'Inc.', 'group belongs to our company');
-    assert.strictEqual(group.get('employees.length'), 1, 'expected 1 related record before delete');
-    employee = group.get('employees').objectAt(0);
+    assert.strictEqual(group.employees.length, 1, 'expected 1 related record before delete');
+    const employees = await group.employees;
+    employee = employees.objectAt(0);
     assert.strictEqual(employee.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
 
     await group.destroyRecord();
@@ -444,6 +445,6 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     store.push(jsonGroup);
 
     group = store.peekRecord('group', '1');
-    assert.strictEqual(group.get('employees.length'), 1, 'expected 1 related record after delete and restore');
+    assert.strictEqual(group.employees.length, 1, 'expected 1 related record after delete and restore');
   });
 });

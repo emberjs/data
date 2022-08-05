@@ -200,15 +200,18 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       'The author for the last post is loaded and has the correct last name'
     );
 
-    assert.strictEqual(posts.firstObject.comments.length, 0, 'First post doesnt have comments');
+    const firstComments = await posts.firstObject.comments;
+    const lastComments = await posts.lastObject.comments;
+
+    assert.strictEqual(firstComments.length, 0, 'First post doesnt have comments');
 
     assert.strictEqual(
-      posts.lastObject.comments.firstObject.text,
+      lastComments.firstObject.text,
       'This is the first comment',
       'Loads first comment for second post'
     );
     assert.strictEqual(
-      posts.lastObject.comments.lastObject.text,
+      lastComments.lastObject.text,
       'This is the second comment',
       'Loads second comment for second post'
     );

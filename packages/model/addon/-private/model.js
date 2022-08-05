@@ -818,9 +818,13 @@ class Model extends EmberObject {
   */
   rollbackAttributes() {
     const { currentState } = this;
+    const { isNew } = currentState;
     recordDataFor(this).rollbackAttributes();
     this.errors.clear();
     currentState.cleanErrorRequests();
+    if (isNew) {
+      this.unloadRecord();
+    }
   }
 
   /**
@@ -1805,7 +1809,7 @@ class Model extends EmberObject {
 
    let fields = Blog.fields;
    fields.forEach(function(kind, field) {
-      console.log(field, kind);
+      // do thing
     });
 
    // prints:
@@ -1987,7 +1991,7 @@ class Model extends EmberObject {
    let attributes = Person.attributes
 
    attributes.forEach(function(meta, name) {
-      console.log(name, meta);
+      // do thing
     });
 
    // prints:
@@ -2064,7 +2068,7 @@ class Model extends EmberObject {
    let transformedAttributes = Person.transformedAttributes
 
    transformedAttributes.forEach(function(field, type) {
-      console.log(field, type);
+      // do thing
     });
 
    // prints:
@@ -2137,7 +2141,7 @@ class Model extends EmberObject {
     }
 
    PersonModel.eachAttribute(function(name, meta) {
-      console.log(name, meta);
+      // do thing
     });
 
    // prints:
@@ -2206,7 +2210,7 @@ class Model extends EmberObject {
     });
 
    Person.eachTransformedAttribute(function(name, type) {
-      console.log(name, type);
+      // do thing
     });
 
    // prints:

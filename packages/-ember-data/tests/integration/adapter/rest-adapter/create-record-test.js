@@ -185,7 +185,8 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     const post = store.peekRecord('post', 1);
     const comment = store.createRecord('comment', { name: 'The Parley Letter' });
 
-    post.get('comments').pushObject(comment);
+    const comments = await post.get('comments');
+    comments.pushObject(comment);
 
     assert.strictEqual(comment.get('post'), post, 'the post has been set correctly');
 

@@ -18,6 +18,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class Person extends Model {
   @attr()
@@ -751,13 +752,211 @@ module('autotracking has-many', function (hooks) {
     assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
   });
 
+  deprecatedTest(
+    'We can re-render hasMany w/PromiseManyArray.sortBy',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
+    async function (assert) {
+      class ChildrenList extends Component {
+        @service store;
+
+        get sortedChildren() {
+          return this.args.person.children.sortBy('name');
+        }
+
+        @action
+        createChild() {
+          const parent = this.args.person;
+          const name = 'RGB';
+          this.store.createRecord('person', { name, parent });
+        }
+      }
+
+      let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.sortedChildren.length}}</h2>
+      <ul>
+        {{#each this.sortedChildren as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+      this.owner.register('component:children-list', ChildrenList);
+      this.owner.register('template:components/children-list', layout);
+
+      store.createRecord('person', { id: '1', name: 'Doodad' });
+      this.person = store.peekRecord('person', '1');
+
+      await render(hbs`<ChildrenList @person={{this.person}} />`);
+
+      let names = findAll('li').map((e) => e.textContent);
+
+      assert.deepEqual(names, [], 'rendered no children');
+
+      await click('#createChild');
+
+      names = findAll('li').map((e) => e.textContent);
+      assert.deepEqual(names, ['RGB'], 'rendered 1 child');
+
+      await click('#createChild');
+
+      names = findAll('li').map((e) => e.textContent);
+      assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+    }
+  );
+
+  deprecatedTest(
+    'We can re-render hasMany with sort computed macro on PromiseManyArray',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
+    async function (assert) {
+      class ChildrenList extends Component {
+        @service store;
+
+        sortProperties = ['name'];
+        @sort('args.person.children', 'sortProperties') sortedChildren;
+
+        @action
+        createChild() {
+          const parent = this.args.person;
+          const name = 'RGB';
+          this.store.createRecord('person', { name, parent });
+        }
+      }
+
+      let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.sortedChildren.length}}</h2>
+      <ul>
+        {{#each this.sortedChildren as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+      this.owner.register('component:children-list', ChildrenList);
+      this.owner.register('template:components/children-list', layout);
+
+      store.createRecord('person', { id: '1', name: 'Doodad' });
+      this.person = store.peekRecord('person', '1');
+
+      await render(hbs`<ChildrenList @person={{this.person}} />`);
+
+      let names = findAll('li').map((e) => e.textContent);
+
+      assert.deepEqual(names, [], 'rendered no children');
+
+      await click('#createChild');
+
+      names = findAll('li').map((e) => e.textContent);
+      assert.deepEqual(names, ['RGB'], 'rendered 1 child');
+
+      await click('#createChild');
+
+      names = findAll('li').map((e) => e.textContent);
+      assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+    }
+  );
+
+  deprecatedTest(
+    'We can re-render hasMany with PromiseManyArray.objectAt',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
+    async function (assert) {
+      class ChildrenList extends Component {
+        @service store;
+
+        get firstChild() {
+          return this.args.person.children.objectAt(0);
+        }
+
+        @action
+        createChild() {
+          const parent = this.args.person;
+          const name = 'RGB';
+          this.store.createRecord('person', { name, parent });
+        }
+      }
+
+      let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.firstChild.name}}</h2>
+    `;
+      this.owner.register('component:children-list', ChildrenList);
+      this.owner.register('template:components/children-list', layout);
+
+      store.createRecord('person', { id: '1', name: 'Doodad' });
+      this.person = store.peekRecord('person', '1');
+
+      await render(hbs`<ChildrenList @person={{this.person}} />`);
+
+      assert.dom('h2').hasText('', 'rendered no children');
+
+      await click('#createChild');
+
+      assert.dom('h2').hasText('RGB', 'renders first child');
+
+      await click('#createChild');
+
+      assert.dom('h2').hasText('RGB', 'renders first child');
+    }
+  );
+
+  deprecatedTest(
+    'We can re-render hasMany with PromiseManyArray.map',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
+    async function (assert) {
+      class ChildrenList extends Component {
+        @service store;
+
+        get children() {
+          return this.args.person.children.map((child) => child);
+        }
+
+        @action
+        createChild() {
+          const parent = this.args.person;
+          const name = 'RGB';
+          this.store.createRecord('person', { name, parent });
+        }
+      }
+
+      let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.children.length}}</h2>
+      <ul>
+        {{#each this.children as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+      this.owner.register('component:children-list', ChildrenList);
+      this.owner.register('template:components/children-list', layout);
+
+      store.createRecord('person', { id: '1', name: 'Doodad' });
+      this.person = store.peekRecord('person', '1');
+
+      await render(hbs`<ChildrenList @person={{this.person}} />`);
+
+      let names = findAll('li').map((e) => e.textContent);
+
+      assert.deepEqual(names, [], 'rendered no children');
+
+      await click('#createChild');
+
+      names = findAll('li').map((e) => e.textContent);
+      assert.deepEqual(names, ['RGB'], 'rendered 1 child');
+
+      await click('#createChild');
+
+      names = findAll('li').map((e) => e.textContent);
+      assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+    }
+  );
+
   test('We can re-render hasMany', async function (assert) {
     class ChildrenList extends Component {
       @service store;
-
-      get sortedChildren() {
-        return this.args.person.children.sortBy('name');
-      }
 
       @action
       createChild() {
@@ -770,9 +969,9 @@ module('autotracking has-many', function (hooks) {
     let layout = hbs`
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
-      <h2>{{this.sortedChildren.length}}</h2>
+      <h2>{{@person.children.length}}</h2>
       <ul>
-        {{#each this.sortedChildren as |child|}}
+        {{#each @person.children as |child|}}
           <li>{{child.name}}</li>
         {{/each}}
       </ul>
@@ -805,7 +1004,7 @@ module('autotracking has-many', function (hooks) {
       @service store;
 
       sortProperties = ['name'];
-      @sort('args.person.children', 'sortProperties') sortedChildren;
+      @sort('args.children', 'sortProperties') sortedChildren;
 
       @action
       createChild() {
@@ -830,8 +1029,9 @@ module('autotracking has-many', function (hooks) {
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
+    this.children = await this.person.children;
 
-    await render(hbs`<ChildrenList @person={{this.person}} />`);
+    await render(hbs`<ChildrenList @children={{this.children}} @person={{this.person}} />`);
 
     let names = findAll('li').map((e) => e.textContent);
 
@@ -853,7 +1053,7 @@ module('autotracking has-many', function (hooks) {
       @service store;
 
       get firstChild() {
-        return this.args.person.children.objectAt(0);
+        return this.args.children.objectAt(0);
       }
 
       @action
@@ -874,8 +1074,9 @@ module('autotracking has-many', function (hooks) {
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
+    this.children = await this.person.children;
 
-    await render(hbs`<ChildrenList @person={{this.person}} />`);
+    await render(hbs`<ChildrenList @children={{this.children}} @person={{this.person}} />`);
 
     assert.dom('h2').hasText('', 'rendered no children');
 
@@ -893,7 +1094,7 @@ module('autotracking has-many', function (hooks) {
       @service store;
 
       get children() {
-        return this.args.person.children.map((child) => child);
+        return this.args.children.map((child) => child);
       }
 
       @action
@@ -919,8 +1120,59 @@ module('autotracking has-many', function (hooks) {
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
+    this.children = await this.person.children;
 
-    await render(hbs`<ChildrenList @person={{this.person}} />`);
+    await render(hbs`<ChildrenList @children={{this.children}} @person={{this.person}} />`);
+
+    let names = findAll('li').map((e) => e.textContent);
+
+    assert.deepEqual(names, [], 'rendered no children');
+
+    await click('#createChild');
+
+    names = findAll('li').map((e) => e.textContent);
+    assert.deepEqual(names, ['RGB'], 'rendered 1 child');
+
+    await click('#createChild');
+
+    names = findAll('li').map((e) => e.textContent);
+    assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+  });
+
+  test('We can re-render hasMany with toArray', async function (assert) {
+    class ChildrenList extends Component {
+      @service store;
+
+      get children() {
+        return this.args.children.toArray();
+      }
+
+      @action
+      createChild() {
+        const parent = this.args.person;
+        const name = 'RGB';
+        this.store.createRecord('person', { name, parent });
+      }
+    }
+
+    let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.children.length}}</h2>
+      <ul>
+        {{#each this.children as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+    this.owner.register('component:children-list', ChildrenList);
+    this.owner.register('template:components/children-list', layout);
+
+    store.createRecord('person', { id: '1', name: 'Doodad' });
+    this.person = store.peekRecord('person', '1');
+    this.children = await this.person.children;
+
+    await render(hbs`<ChildrenList @children={{this.children}} @person={{this.person}} />`);
 
     let names = findAll('li').map((e) => e.textContent);
 

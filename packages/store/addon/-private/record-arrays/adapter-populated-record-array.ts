@@ -48,9 +48,7 @@ export interface AdapterPopulatedRecordArrayCreateArgs {
   // GET /users?isAdmin=true
   store.query('user', { isAdmin: true }).then(function(admins) {
 
-    admins.then(function() {
-      console.log(admins.get("length")); // 42
-    });
+    admins.get("length"); // 42
 
     // somewhere later in the app code, when new admins have been created
     // in the meantime
@@ -58,7 +56,7 @@ export interface AdapterPopulatedRecordArrayCreateArgs {
     // GET /users?isAdmin=true
     admins.update().then(function() {
       admins.get('isUpdating'); // false
-      console.log(admins.get("length")); // 123
+      admins.get("length"); // 123
     });
 
     admins.get('isUpdating'); // true

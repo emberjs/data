@@ -137,6 +137,14 @@ function attr(type, options) {
         }
       }
       let recordData = recordDataFor(this);
+      // TODO hasAttr is not spec'd
+      // essentially this is needed because
+      // there is a difference between "undefined" meaning never set
+      // and "undefined" meaning set to "undefined". In the "key present"
+      // case we want to return undefined. In the "key absent" case
+      // we want to return getDefaultValue. RecordDataV2 can fix this
+      // by providing the attributes blob such that we can make our
+      // own determination.
       if (recordData.hasAttr(key)) {
         return recordData.getAttr(key);
       } else {

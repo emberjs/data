@@ -7,7 +7,7 @@ import type { JsonApiValidationError } from './record-data-json-api';
   @module @ember-data/store
 */
 
-export interface RecordDataRecordWrapper {
+export interface RecordDataWrapper {
   rollbackAttributes(): string[];
   changedAttributes(): ChangedAttributesHash;
   hasChangedAttributes(): boolean;
@@ -16,17 +16,15 @@ export interface RecordDataRecordWrapper {
   getAttr(key: string): any;
   getHasMany(key: string): CollectionResourceRelationship;
 
-  addToHasMany(key: string, recordDatas: RecordDataRecordWrapper[], idx?: number): void;
-  removeFromHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
-  setDirtyHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
+  addToHasMany(key: string, recordDatas: RecordDataWrapper[], idx?: number): void;
+  removeFromHasMany(key: string, recordDatas: RecordDataWrapper[]): void;
+  setDirtyHasMany(key: string, recordDatas: RecordDataWrapper[]): void;
 
   getBelongsTo(key: string): SingleResourceRelationship;
 
-  setDirtyBelongsTo(name: string, recordData: RecordDataRecordWrapper | null): void;
+  setDirtyBelongsTo(name: string, recordData: RecordDataWrapper | null): void;
 
   // ----- unspecced
-  isAttrDirty(key: string): boolean;
-  removeFromInverseRelationships(): void;
   hasAttr(key: string): boolean;
 
   // new

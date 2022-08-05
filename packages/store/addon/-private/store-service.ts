@@ -33,7 +33,7 @@ import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapte
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import type { RecordDataRecordWrapper } from '@ember-data/types/q/record-data-record-wrapper';
+import type { RecordDataWrapper } from '@ember-data/types/q/record-data-record-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
 import type { FindOptions } from '@ember-data/types/q/store';
@@ -285,7 +285,7 @@ class Store extends Service {
   instantiateRecord(
     identifier: StableRecordIdentifier,
     createRecordArgs: { [key: string]: unknown },
-    recordDataFor: (identifier: StableRecordIdentifier) => RecordDataRecordWrapper,
+    recordDataFor: (identifier: StableRecordIdentifier) => RecordDataWrapper,
     notificationManager: NotificationManager
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
@@ -466,7 +466,7 @@ class Store extends Service {
           const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
 
           assert(
-            `The id ${properties.id} has already been used with another '${normalizeModelName}' record.`,
+            `The id ${properties.id} has already been used with another '${normalizedModelName}' record.`,
             !identifier
           );
         }
@@ -1352,7 +1352,7 @@ class Store extends Service {
     ```javascript
     store.queryRecord('user', {}).then(function(user) {
       let username = user.get('username');
-      console.log(`Currently logged in as ${username}`);
+      // do thing
     });
     ```
 
@@ -1409,7 +1409,7 @@ class Store extends Service {
 
     ```javascript
     store.queryRecord('user', { username: 'unique' }).then(function(user) {
-      console.log(user); // null
+       // user is null
     });
     ```
 

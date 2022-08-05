@@ -556,20 +556,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return array;
   }
 
-  isAttrDirty(key: string): boolean {
-    if (this._attributes[key] === undefined) {
-      return false;
-    }
-    let originalValue;
-    if (this._inFlightAttributes[key] !== undefined) {
-      originalValue = this._inFlightAttributes[key];
-    } else {
-      originalValue = this._data[key];
-    }
-
-    return originalValue !== this._attributes[key];
-  }
-
   get _attributes() {
     if (this.__attributes === null) {
       this.__attributes = Object.create(null);
@@ -661,20 +647,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return createOptions;
   }
 
-  /*
-    TODO IGOR AND DAVID this shouldn't be public
-   This method should only be called by records in the `isNew()` state OR once the record
-   has been deleted and that deletion has been persisted.
-
-   It will remove this record from any associated relationships.
-
-   If `isNew` is true (default false), it will also completely reset all
-    relationships to an empty state as well.
-
-    @method removeFromInverseRelationships
-    @param {Boolean} isNew whether to unload from the `isNew` perspective
-    @private
-   */
   removeFromInverseRelationships() {
     graphFor(this.storeWrapper).push({
       op: 'deleteRecord',

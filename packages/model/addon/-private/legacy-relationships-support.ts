@@ -14,9 +14,9 @@ import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 import type Store from '@ember-data/store';
 import { recordDataFor, recordIdentifierFor, storeFor } from '@ember-data/store/-private';
-import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
+import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { DSModel } from '@ember-data/types/q/ds-model';
-import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
@@ -140,8 +140,7 @@ export class LegacySupport {
           `You looked up the '${key}' relationship on a '${identifier.type}' with id ${
             identifier.id || 'null'
           } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`belongsTo({ async: true })\`)`,
-          toReturn === null ||
-            !store._instanceCache.peek({ identifier: relatedIdentifier, bucket: 'recordData' })?.isEmpty?.()
+          toReturn === null || store._instanceCache.recordIsLoaded(relatedIdentifier)
         );
         return toReturn;
       }
@@ -674,16 +673,6 @@ function anyUnloaded(store: Store, relationship: ManyRelationship) {
   return unloaded || false;
 }
 
-/**
- * Flag indicating whether all inverse records are available
- *
- * true if the inverse exists and is loaded (not empty)
- * true if there is no inverse
- * false if the inverse exists and is not loaded (empty)
- *
- * @internal
- * @return {boolean}
- */
 function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship): boolean {
   const cache = store.identifierCache;
 

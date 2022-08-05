@@ -1,4 +1,5 @@
 import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { Promise as EmberPromise, resolve } from 'rsvp';
@@ -1009,27 +1010,23 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     });
   });
 
-  test('Rollbacking attributes of created record removes the relationship on both sides - sync', function (assert) {
+  test('Rollbacking attributes of created record removes the relationship on both sides - sync', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var user, job;
-    run(function () {
-      user = store.push({
-        data: {
-          id: 1,
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
+    const user = store.push({
+      data: {
+        id: 1,
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
         },
-      });
+      },
+    });
+    const job = store.createRecord('job', { user: user });
+    job.rollbackAttributes();
+    await settled();
 
-      job = store.createRecord('job', { user: user });
-    });
-    run(function () {
-      job.rollbackAttributes();
-    });
-    assert.strictEqual(user.get('job'), null, 'Job got rollbacked correctly');
-    assert.strictEqual(job.get('user'), null, 'Job does not have user anymore');
+    assert.strictEqual(user.job, null, 'Job got rollbacked correctly');
+    assert.true(job.isDestroyed, 'Job is destroyed');
   });
 });
