@@ -9,7 +9,7 @@ import { resolve } from 'rsvp';
 
 import type { ManyArray } from 'ember-data/-private';
 
-import type { InternalModel } from '@ember-data/store/-private';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 export interface HasManyProxyCreateArgs {
@@ -42,7 +42,7 @@ export interface HasManyProxyCreateArgs {
   @class PromiseManyArray
   @public
 */
-export default interface PromiseManyArray extends Omit<ArrayProxy<InternalModel, RecordInstance>, 'destroy'> {}
+export default interface PromiseManyArray extends Omit<ArrayProxy<StableRecordIdentifier, RecordInstance>, 'destroy'> {}
 export default class PromiseManyArray {
   declare promise: Promise<ManyArray> | null;
   declare isDestroyed: boolean;

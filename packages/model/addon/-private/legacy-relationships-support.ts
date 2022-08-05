@@ -13,7 +13,6 @@ import type {
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 import type Store from '@ember-data/store';
-import type { InternalModel } from '@ember-data/store/-private';
 import { recordDataFor, recordIdentifierFor, storeFor } from '@ember-data/store/-private';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { DSModel } from '@ember-data/types/q/ds-model';
@@ -141,7 +140,8 @@ export class LegacySupport {
           `You looked up the '${key}' relationship on a '${identifier.type}' with id ${
             identifier.id || 'null'
           } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`belongsTo({ async: true })\`)`,
-          toReturn === null || !store._instanceCache.peek({ identifier: relatedIdentifier, bucket: 'recordData' })?.isEmpty?.()
+          toReturn === null ||
+            !store._instanceCache.peek({ identifier: relatedIdentifier, bucket: 'recordData' })?.isEmpty?.()
         );
         return toReturn;
       }
@@ -705,11 +705,7 @@ function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship)
   }
 }
 
-function isEmpty(
-  store: Store,
-  cache: IdentifierCache,
-  resource: ResourceIdentifierObject
-): boolean {
+function isEmpty(store: Store, cache: IdentifierCache, resource: ResourceIdentifierObject): boolean {
   const identifier = cache.getOrCreateRecordIdentifier(resource);
   const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
   return !recordData || !!recordData.isEmpty?.();

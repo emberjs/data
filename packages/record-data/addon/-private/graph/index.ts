@@ -59,7 +59,7 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
  * Graph acts as the cache for relationship data. It allows for
  * us to ask about and update relationships for a given Identifier
  * without requiring other objects for that Identifier to be
- * instantiated (such as `InternalModel`, `RecordData` or a `Record`)
+ * instantiated (such as `RecordData` or a `Record`)
  *
  * This also allows for us to make more substantive changes to relationships
  * with increasingly minor alterations to other portions of the internals
@@ -398,9 +398,9 @@ function destroyRelationship(rel) {
     rel.clear();
 
     // necessary to clear relationships in the ui from dematerialized records
-    // hasMany is managed by InternalModel which calls `retreiveLatest` after
+    // hasMany is managed by Model which calls `retreiveLatest` after
     // dematerializing the recordData instance.
-    // but sync belongsTo require this since they don't have a proxy to update.
+    // but sync belongsTo requires this since they don't have a proxy to update.
     // so we have to notify so it will "update" to null.
     // we should discuss whether we still care about this, probably fine to just
     // leave the ui relationship populated since the record is destroyed and

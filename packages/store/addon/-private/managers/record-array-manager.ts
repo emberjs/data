@@ -26,17 +26,6 @@ export function recordArraysForIdentifier(identifier: StableRecordIdentifier): S
 
 const pendingForIdentifier: Set<StableRecordIdentifier> = new Set([]);
 
-function getIdentifier(identifier: StableRecordIdentifier): StableRecordIdentifier {
-  // during dematerialization we will get an identifier that
-  // has already been removed from the identifiers cache
-  // so it will not behave as if stable. This is a bug we should fix.
-  // if (!isStableIdentifier(identifierOrInternalModel)) {
-  //   console.log({ unstable: i });
-  // }
-
-  return identifier;
-}
-
 /**
   @class RecordArrayManager
   @internal
@@ -325,7 +314,6 @@ class RecordArrayManager {
   _associateWithRecordArray(identifiers: StableRecordIdentifier[], array: RecordArray): void {
     for (let i = 0, l = identifiers.length; i < l; i++) {
       let identifier = identifiers[i];
-      identifier = getIdentifier(identifier);
       let recordArrays = this.getRecordArraysForIdentifier(identifier);
       recordArrays.add(array);
     }
@@ -340,7 +328,6 @@ class RecordArrayManager {
       return;
     }
     let modelName = identifier.type;
-    identifier = getIdentifier(identifier);
 
     if (pendingForIdentifier.has(identifier)) {
       return;
@@ -421,7 +408,6 @@ function removeFromAdapterPopulatedRecordArrays(store: Store, identifiers: Stabl
 }
 
 function removeFromAll(store: Store, identifier: StableRecordIdentifier): void {
-  identifier = getIdentifier(identifier);
   const recordArrays = recordArraysForIdentifier(identifier);
 
   recordArrays.forEach(function (recordArray) {

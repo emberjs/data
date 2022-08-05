@@ -141,8 +141,8 @@ export class IdentifierCache {
   /**
    * Internal hook to allow management of merge conflicts with identifiers.
    *
-   * we allow late binding of this private internal merge so that `internalModelFactory`
-   * can insert itself here to handle elimination of duplicates
+   * we allow late binding of this private internal merge so that
+   * the cache can insert itself here to handle elimination of duplicates
    *
    * @method __configureMerge
    * @private

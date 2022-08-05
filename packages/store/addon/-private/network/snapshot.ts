@@ -9,11 +9,7 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
-import type { DSModel, DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
-import type {
-  ExistingResourceIdentifierObject,
-  NewResourceIdentifierObject,
-} from '@ember-data/types/q/ember-data-json-api';
+import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { ChangedAttributesHash } from '@ember-data/types/q/record-data';
@@ -22,7 +18,6 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type InternalModel from '../legacy-model-support/internal-model';
 import type Store from '../store-service';
 
 type RecordId = string | null;
@@ -158,7 +153,7 @@ export default class Snapshot implements Snapshot {
     let attributes = (this.__attributes = Object.create(null));
     let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier));
     let recordData = this._store._instanceCache.getRecordData(this.identifier);
-    const modelClass =  this._store.modelFor(this.identifier.type);
+    const modelClass = this._store.modelFor(this.identifier.type);
     const isDSModel = schemaIsDSModel(modelClass);
     attrs.forEach((keyName) => {
       if (isDSModel) {
@@ -319,7 +314,7 @@ export default class Snapshot implements Snapshot {
 
     // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
     // this check is not a regression in behavior because relationships don't currently
-    // function without access to intimate API contracts between RecordData and InternalModel.
+    // function without access to intimate API contracts between RecordData and Model.
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
     if (!HAS_RECORD_DATA_PACKAGE) {
@@ -422,7 +417,7 @@ export default class Snapshot implements Snapshot {
 
     // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
     // this check is not a regression in behavior because relationships don't currently
-    // function without access to intimate API contracts between RecordData and InternalModel.
+    // function without access to intimate API contracts between RecordData and Model.
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
     if (!HAS_RECORD_DATA_PACKAGE) {

@@ -186,9 +186,10 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     // enforcing someone to use the record-data and identifier-cache APIs to
     // create a new identifier and then call clientDidCreate on the RecordData
     // instead.
-    const identifier = !id && !lid ?
-      this.identifierCache.createIdentifierForNewRecord({ type: type }) :
-      this.identifierCache.getOrCreateRecordIdentifier(constructResource(type, id, lid));
+    const identifier =
+      !id && !lid
+        ? this.identifierCache.createIdentifierForNewRecord({ type: type })
+        : this.identifierCache.getOrCreateRecordIdentifier(constructResource(type, id, lid));
 
     return this._store._instanceCache.getRecordData(identifier);
   }

@@ -16,7 +16,6 @@ import type {
   RelationshipRecordData,
 } from '@ember-data/types/q/relationship-record-data';
 
-import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
 import type BelongsToRelationship from './relationships/state/belongs-to';
@@ -689,7 +688,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   /*
-    Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
+    Ember Data has 3 buckets for storing the value of an attribute.
 
     `_data` holds all of the attributes that have been acknowledged by
     a backend via the adapter. When rollbackAttributes is called on a model all

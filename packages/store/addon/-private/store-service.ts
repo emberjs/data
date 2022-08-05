@@ -17,7 +17,6 @@ import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
-  DEPRECATE_RECORD_WAS_INVALID,
   DEPRECATE_STORE_FIND,
 } from '@ember-data/private-build-infra/deprecations';
 import type { RecordData as RecordDataClass } from '@ember-data/record-data/-private';
@@ -33,6 +32,7 @@ import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@em
 import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { RecordData } from '@ember-data/types/q/record-data';
+import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordDataRecordWrapper } from '@ember-data/types/q/record-data-record-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
@@ -41,12 +41,15 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import edBackburner from './backburner';
 import { IdentifierCache } from './caches/identifier-cache';
-import { InstanceCache, recordDataIsFullyDeleted, storeFor, StoreMap } from './caches/instance-cache';
 import {
+  InstanceCache,
   peekRecordIdentifier,
+  recordDataIsFullyDeleted,
   recordIdentifierFor,
   setRecordIdentifier,
-} from './caches/internal-model-factory';
+  storeFor,
+  StoreMap,
+} from './caches/instance-cache';
 import { setRecordDataFor } from './caches/record-data-for';
 import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
@@ -65,8 +68,6 @@ import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
 import promiseRecord from './utils/promise-record';
-import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import InternalModel from './legacy-model-support/internal-model';
 
 export { storeFor };
 
@@ -1771,42 +1772,6 @@ class Store extends Service {
   }
 
   /**
-    This method is called once the promise returned by an
-    adapter's `createRecord`, `updateRecord` or `deleteRecord`
-    is rejected with a `InvalidError`.
-
-    @method recordWasInvalid
-    @private
-    @deprecated
-    @param {InternalModel} internalModel
-    @param {Object} errors
-  */
-  recordWasInvalid(internalModel: InternalModel, parsedErrors, error) {
-    if (DEPRECATE_RECORD_WAS_INVALID) {
-      deprecate(
-        `The private API recordWasInvalid will be removed in an upcoming release. Use record.errors add/remove instead if the intent was to move the record into an invalid state manually.`,
-        false,
-        {
-          id: 'ember-data:deprecate-record-was-invalid',
-          for: 'ember-data',
-          until: '5.0',
-          since: { enabled: '4.5', available: '4.5' },
-        }
-      );
-      if (DEBUG) {
-        assertDestroyingStore(this, 'recordWasInvalid');
-      }
-      error = error || new Error(`unknown invalid error`);
-      error = typeof error === 'string' ? new Error(error) : error;
-      error._parsedErrors = parsedErrors;
-      // TODO figure out how to handle ember-model-validator given internalModel wouldn't be available
-      // anymore.
-      adapterDidInvalidate(this, internalModel.identifier, error);
-    }
-    assert(`store.recordWasInvalid has been removed`);
-  }
-
-  /**
     Push some data for a given type into the store.
 
     This method expects normalized [JSON API](http://jsonapi.org/) document. This means you have to follow [JSON API specification](http://jsonapi.org/format/) with few minor adjustments:
@@ -1985,7 +1950,7 @@ class Store extends Service {
     @method _push
     @private
     @param {Object} jsonApiDoc
-    @return {InternalModel|Array<InternalModel>} pushed InternalModel(s)
+    @return {StableRecordIdentifier|Array<StableRecordIdentifier>} identifiers for the primary records that had data loaded
   */
   _push(jsonApiDoc): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
     if (DEBUG) {
@@ -2134,7 +2099,8 @@ class Store extends Service {
     }
     // TODO we used to check if the record was destroyed here
     // Casting can be removed once REQUEST_SERVICE ff is turned on
-    // because a `Record` is provided there will always be a matching internalModel
+    // because a `Record` is provided there will always be a matching
+    // RecordData
 
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier}`,
@@ -2544,7 +2510,11 @@ type SerializerWithParseErrors = MinimumSerializerInterface & {
   extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
 };
 
-function adapterDidInvalidate(store: Store, identifier: StableRecordIdentifier, error: Error & { errors?: JsonApiValidationError[]; isAdapterError?: true; code?: string }) {
+function adapterDidInvalidate(
+  store: Store,
+  identifier: StableRecordIdentifier,
+  error: Error & { errors?: JsonApiValidationError[]; isAdapterError?: true; code?: string }
+) {
   if (error && error.isAdapterError === true && error.code === 'InvalidError') {
     let serializer = store.serializerFor(identifier.type) as SerializerWithParseErrors;
 

@@ -104,8 +104,9 @@ export function tagged(_target, key, desc) {
 }
 
 /**
-Historically InternalModel managed a state machine
-the currentState for which was reflected onto Model.
+Historically EmberData managed a state machine
+for each record, the currentState for which
+was reflected onto Model.
 
 This implements the flags and stateName for backwards compat
 with the state tree that used to be possible (listed below).
@@ -304,7 +305,6 @@ export default class RecordState {
     return !this.isLoaded && this.pendingCount > 0 && this.fulfilledCount === 0;
   }
 
-  // TODO @runspired handle "unloadRecord" see note in InternalModel
   @tagged
   get isLoaded() {
     if (this.isNew) {

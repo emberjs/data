@@ -96,20 +96,20 @@ export default class ManyRelationship {
     let seen = Object.create(null);
 
     for (let i = 0; i < this.currentState.length; i++) {
-      const inverseInternalModel = this.currentState[i];
-      const id = inverseInternalModel.lid;
+      const inverseIdentifier = this.currentState[i];
+      const id = inverseIdentifier.lid;
       if (!seen[id]) {
         seen[id] = true;
-        callback(inverseInternalModel);
+        callback(inverseIdentifier);
       }
     }
 
     for (let i = 0; i < this.canonicalState.length; i++) {
-      const inverseInternalModel = this.canonicalState[i];
-      const id = inverseInternalModel.lid;
+      const inverseIdentifier = this.canonicalState[i];
+      const id = inverseIdentifier.lid;
       if (!seen[id]) {
         seen[id] = true;
-        callback(inverseInternalModel);
+        callback(inverseIdentifier);
       }
     }
   }

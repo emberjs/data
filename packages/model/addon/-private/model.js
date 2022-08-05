@@ -22,8 +22,7 @@ import {
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId, deprecatedPromiseObject, InternalModel, WeakCache } from '@ember-data/store/-private';
-import { recordDataFor } from '@ember-data/store/-private';
+import { coerceId, deprecatedPromiseObject, recordDataFor, WeakCache } from '@ember-data/store/-private';
 
 import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
@@ -138,8 +137,6 @@ class Model extends EmberObject {
 
     this.setProperties(createProps);
 
-    // TODO  pass something in such that we don't need internalModel
-    // to get this info
     let store = storeFor(this);
     let notifications = store._notificationManager;
     let identity = recordIdentifierFor(this);
@@ -458,8 +455,12 @@ class Model extends EmberObject {
     // this guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
-    if (DEBUG && !this._internalModel) {
-      return void 0;
+    if (DEBUG) {
+      try {
+        return recordIdentifierFor(this).id;
+      } catch {
+        return void 0;
+      }
     }
     return recordIdentifierFor(this).id;
   }
@@ -467,7 +468,10 @@ class Model extends EmberObject {
     const normalizedId = coerceId(id);
     const identifier = recordIdentifierFor(this);
     let didChange = normalizedId !== identifier.id;
-    assert(`Cannot set ${identifier.type} record's id to ${id}, because id is already ${identifier.id}`, !didChange || identifier.id === null);
+    assert(
+      `Cannot set ${identifier.type} record's id to ${id}, because id is already ${identifier.id}`,
+      !didChange || identifier.id === null
+    );
 
     if (normalizedId !== null && didChange) {
       this.store._instanceCache.setRecordId(identifier.type, normalizedId, identifier.lid);
@@ -815,7 +819,7 @@ class Model extends EmberObject {
   rollbackAttributes() {
     const { currentState } = this;
     recordDataFor(this).rollbackAttributes();
-    record.errors.clear();
+    this.errors.clear();
     currentState.cleanErrorRequests();
   }
 

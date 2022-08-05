@@ -10,7 +10,7 @@ import _normalize from './utils/normalize-model-name';
 
 export { default as Store, storeFor } from './store-service';
 
-export { recordIdentifierFor } from './caches/internal-model-factory';
+export { recordIdentifierFor } from './caches/instance-cache';
 
 export { default as Snapshot } from './network/snapshot';
 export {
@@ -38,9 +38,6 @@ export function normalizeModelName(modelName: string) {
 }
 
 export { default as coerceId } from './utils/coerce-id';
-
-// `ember-data-model-fragments` relies on `InternalModel`
-export { default as InternalModel } from './legacy-model-support/internal-model';
 
 export { PromiseArray, PromiseObject, deprecatedPromiseObject } from './proxies/promise-proxies';
 

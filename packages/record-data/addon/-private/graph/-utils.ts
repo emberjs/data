@@ -1,11 +1,12 @@
 import { assert, inspect, warn } from '@ember/debug';
 
-import { coerceId, recordDataFor as peekRecordData } from '@ember-data/store/-private';
+import { recordDataFor as peekRecordData } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RelationshipRecordData } from '@ember-data/types/q/relationship-record-data';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import { coerceId } from '../coerce-id';
 import type BelongsToRelationship from '../relationships/state/belongs-to';
 import type ManyRelationship from '../relationships/state/has-many';
 import type ImplicitRelationship from '../relationships/state/implicit';
