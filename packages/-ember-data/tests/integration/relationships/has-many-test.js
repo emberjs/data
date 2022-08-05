@@ -478,7 +478,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   // This tests the case where a serializer materializes a has-many
-  // relationship as a internalModel that it can fetch lazily. The most
+  // relationship as an identifier  that it can fetch lazily. The most
   // common use case of this is to provide a URL to a collection that
   // is loaded later.
   test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function (assert) {
@@ -2238,7 +2238,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
   });
 
-  test('dual non-async HM <-> BT', function (assert) {
+  test('dual non-async HM <-> BT', async function (assert) {
     class Message extends Model {
       @attr('date') created_at;
       @belongsTo('user', { async: false }) iser;
@@ -2266,52 +2266,41 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       return resolve(serialized);
     };
 
-    let post, firstComment;
-
-    run(function () {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [{ type: 'comment', id: '1' }],
-            },
+    let post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
           },
         },
-      });
-      store.push({
-        data: {
-          type: 'comment',
-          id: '1',
-          relationships: {
-            comments: {
-              post: { type: 'post', id: '1' },
-            },
-          },
-        },
-      });
-
-      post = store.peekRecord('post', 1);
-      firstComment = store.peekRecord('comment', 1);
-
-      store
-        .createRecord('comment', {
-          post: post,
-        })
-        .save()
-        .then(function (comment) {
-          let commentPost = comment.get('post');
-          let postComments = comment.get('post.comments');
-          let postCommentsLength = comment.get('post.comments.length');
-
-          assert.deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
-          assert.ok(postComments, 'comments should exist');
-          assert.strictEqual(postCommentsLength, 2, "comment's post should have a internalModel back to comment");
-          assert.ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
-          assert.ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
-        });
+      },
     });
+    let firstComment = store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        relationships: {
+          comments: {
+            post: { type: 'post', id: '1' },
+          },
+        },
+      },
+    });
+
+    const comment = store.createRecord('comment', { post });
+    await comment.save();
+
+    let commentPost = comment.get('post');
+    let postComments = comment.get('post.comments');
+    let postCommentsLength = comment.get('post.comments.length');
+
+    assert.deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
+    assert.ok(postComments, 'comments should exist');
+    assert.strictEqual(postCommentsLength, 2, "comment's post should have an identifier back to comment");
+    assert.ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
+    assert.ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
   });
 
   test('When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched', async function (assert) {

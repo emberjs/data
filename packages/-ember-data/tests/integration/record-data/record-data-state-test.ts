@@ -162,7 +162,9 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(identifier, isDeleted): void {}
+      setIsDeleted(): void {
+        isDeleted = true;
+      }
     }
 
     let TestStore = Store.extend({
@@ -235,6 +237,10 @@ module('integration/record-data - Record Data State', function (hooks) {
         storeWrapper = sw;
       }
 
+      isEmpty(): boolean {
+        return !isNew && isDeleted;
+      }
+
       isNew(): boolean {
         return isNew;
       }
@@ -247,7 +253,8 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(identifier, isDeleted: boolean): void {
+      setIsDeleted(identifier, value: boolean): void {
+        isDeleted = true;
         calledSetIsDeleted = true;
       }
     }

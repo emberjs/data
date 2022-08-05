@@ -1196,11 +1196,6 @@ module('integration/store - deleteRecord', function (hooks) {
     await assert.expectAssertion(async () => {
       await car.save();
     }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
-
-    // This is here to transition the model out of the inFlight state to avoid
-    // throwing another error when the test context is torn down, which tries
-    // to unload the record, which is not allowed when record is inFlight.
-    // car._internalModel.transitionTo('loaded.saved');
   });
 });
 

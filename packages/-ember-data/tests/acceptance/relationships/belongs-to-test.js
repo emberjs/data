@@ -12,7 +12,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
+import Store, { recordIdentifierFor } from '@ember-data/store';
 
 import { implicitRelationshipsFor } from '../../helpers/accessors';
 
@@ -263,7 +263,7 @@ module('async belongs-to rendering tests', function (hooks) {
       });
 
       const storeWrapper = store._instanceCache._storeWrapper;
-      const identifier = pete._internalModel.identifier;
+      const identifier = recordIdentifierFor(pete);
       const implicitRelationships = implicitRelationshipsFor(storeWrapper, identifier);
       const implicitKeys = Object.keys(implicitRelationships);
       const petOwnerImplicit = implicitRelationships[implicitKeys[0]];

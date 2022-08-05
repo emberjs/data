@@ -13,6 +13,7 @@ import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 
 module('integration/deletedRecord - Deleting Records', function (hooks) {
   setupTest(hooks);
@@ -202,11 +203,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     );
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
 
     record.deleteRecord();
 
-    assert.true(internalModel.isEmpty, 'new person state is empty');
+    assert.true(recordData.isEmpty(), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -244,11 +246,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     );
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
 
     await record.destroyRecord();
 
-    assert.true(internalModel.isEmpty, 'new person state is empty');
+    assert.true(recordData.isEmpty(), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -299,17 +302,14 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
 
     record.deleteRecord();
 
-    // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
-    //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
-    assert.true(internalModel.isEmpty, 'We reached the correct persisted saved state');
+    assert.true(recordData.isEmpty(), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-
-    // assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
-    assert.true(internalModel.isDestroyed, 'The internal model is destroyed');
+    assert.true(recordData.isDestroyed, 'The recordData is destroyed');
 
     await record.save();
   });
@@ -332,18 +332,15 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
 
     record.deleteRecord();
     await settled();
 
-    // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
-    //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
-    assert.true(internalModel.isEmpty, 'We reached the correct persisted saved state');
+    assert.true(recordData.isEmpty(), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-
-    // assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
-    assert.true(internalModel.isDestroyed, 'The internal model is destroyed');
+    assert.true(recordData.isDestroyed, 'The internal model is destroyed');
 
     record.unloadRecord();
     await settled();

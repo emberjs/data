@@ -30,7 +30,7 @@ import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
 import WeakCache from '../utils/weak-cache';
-import recordDataFor, { setRecordDataFor } from './record-data-for';
+import recordDataFor, { removeRecordDataFor, setRecordDataFor } from './record-data-for';
 
 /**
   @module @ember-data/store
@@ -386,23 +386,6 @@ export class InstanceCache {
     return record;
   }
 
-  _teardownRecord(record: RecordInstance) {
-    StoreMap.delete(record);
-    // TODO remove identifier:record cache link
-    this.store.teardownRecord(record);
-  }
-
-  removeRecord(identifier: StableRecordIdentifier): boolean {
-    let record = this.peek({ identifier, bucket: 'record' });
-
-    if (record) {
-      this.#instances.record.delete(identifier);
-      this._teardownRecord(record);
-    }
-
-    return !!record;
-  }
-
   // TODO move RecordData Cache into InstanceCache
   getRecordData(identifier: StableRecordIdentifier) {
     let recordData = this.peek({ identifier, bucket: 'recordData' });
@@ -484,10 +467,9 @@ export class InstanceCache {
     }
 
     let existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type: modelName, id });
-
     assert(
       `'${modelName}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
-      existingIdentifier === identifier
+      !existingIdentifier || existingIdentifier === identifier
     );
 
     if (identifier.id === null) {
@@ -554,7 +536,7 @@ export class InstanceCache {
       !record || record.isDestroyed || record.isDestroying
     );
 
-    this.peekList[identifier.type]!.delete(identifier);
+    this.peekList[identifier.type]?.delete(identifier);
     this.store.identifierCache.forgetRecordIdentifier(identifier);
   }
 
@@ -570,19 +552,29 @@ export class InstanceCache {
       }
     }
 
-    // this has to occur before the internal model is removed
-    // for legacy compat.
-    this.store._instanceCache.removeRecord(identifier);
-    const recordData = this.#instances.recordData.get(identifier);
+    // TODO is this join still necessary?
+    this.store._backburner.join(() => {
+      const record = this.peek({ identifier, bucket: 'record' });
+      const recordData = this.peek({ identifier, bucket: 'recordData' });
+      this.peekList[identifier.type]?.delete(identifier);
 
-    if (recordData) {
-      // TODO is this join still necessary?
-      this.store._backburner.join(() => {
+      if (record) {
+        this.#instances.record.delete(identifier);
+        StoreMap.delete(record);
+        // TODO remove identifier:record cache link
+        this.store.teardownRecord(record);
+      }
+
+      if (recordData) {
+        this.#instances.recordData.delete(identifier);
         recordData.unloadRecord();
-      });
-    }
+        removeRecordDataFor(identifier);
+      } else {
+        this._storeWrapper.disconnectRecord(identifier.type, identifier.id, identifier.lid);
+      }
 
-    this.store.recordArrayManager.recordDidChange(identifier);
+      this.store.recordArrayManager.recordDidChange(identifier);
+    });
   }
 }
 
@@ -735,7 +727,7 @@ function _convertPreloadRelationshipToJSON(value: RecordInstance | string, type:
   return recordIdentifierFor(value);
 }
 
-function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+export function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
   const recordData = cache.peek({ identifier: identifier, bucket: 'recordData' });
   if (!recordData) {
     return true;

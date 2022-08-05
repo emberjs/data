@@ -97,12 +97,12 @@ module('integration/record_array_manager', function (hooks) {
     let adapterPopulated = manager.createAdapterPopulatedRecordArray('person', query);
     let allSummary = tap(all, 'willDestroy');
     let adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
-    let internalPersonModel = person._internalModel;
+    let identifier = recordIdentifierFor(person);
 
     assert.strictEqual(allSummary.called.length, 0, 'initial: no calls to all.willDestroy');
     assert.strictEqual(adapterPopulatedSummary.called.length, 0, 'initial: no calls to adapterPopulated.willDestroy');
     assert.strictEqual(
-      manager.getRecordArraysForIdentifier(internalPersonModel.identifier).size,
+      manager.getRecordArraysForIdentifier(identifier).size,
       1,
       'initial: expected the person to be a member of 1 recordArrays'
     );
@@ -112,7 +112,7 @@ module('integration/record_array_manager', function (hooks) {
     await settled();
 
     assert.strictEqual(
-      manager.getRecordArraysForIdentifier(internalPersonModel.identifier).size,
+      manager.getRecordArraysForIdentifier(identifier).size,
       0,
       'expected the person to be a member of no recordArrays'
     );
@@ -123,7 +123,7 @@ module('integration/record_array_manager', function (hooks) {
     await settled();
 
     assert.strictEqual(
-      manager.getRecordArraysForIdentifier(internalPersonModel.identifier).size,
+      manager.getRecordArraysForIdentifier(identifier).size,
       0,
       'expected the person to be a member of no recordArrays'
     );
@@ -285,11 +285,11 @@ module('integration/record_array_manager', function (hooks) {
     let createRecordArrayCalled = 0;
     let superCreateRecordArray = manager.createRecordArray;
 
-    manager.createRecordArray = function (modelName, internalModels) {
+    manager.createRecordArray = function (modelName, identifiers) {
       createRecordArrayCalled++;
       assert.strictEqual(modelName, 'car');
-      assert.strictEqual(internalModels.length, 1);
-      assert.strictEqual(internalModels[0].id, '1');
+      assert.strictEqual(identifiers.length, 1);
+      assert.strictEqual(identifiers[0].id, '1');
       return superCreateRecordArray.apply(this, arguments);
     };
 

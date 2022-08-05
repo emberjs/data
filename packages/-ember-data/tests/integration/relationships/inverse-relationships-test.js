@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { graphFor } from '@ember-data/record-data/-private';
+import { recordIdentifierFor } from '@ember-data/store';
 import { recordDataFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -673,10 +674,9 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const post = store.createRecord('post');
 
     post.get('comments').pushObject(comment);
+    const identifier = recordIdentifierFor(comment);
 
     await comment.destroyRecord();
-
-    const identifier = comment._internalModel.identifier;
 
     assert.false(graphFor(store).identifiers.has(identifier), 'relationships are cleared');
     assert.ok(recordData.isDestroyed, 'recordData is destroyed');

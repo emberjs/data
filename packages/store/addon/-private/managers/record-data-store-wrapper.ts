@@ -171,6 +171,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     this._store._notificationManager.notify(identifier, 'state');
+
     if (!key || key === 'isDeletionCommitted') {
       this._store.recordArrayManager.recordDidChange(identifier);
     }
@@ -191,7 +192,14 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
         ? this.identifierCache.createIdentifierForNewRecord({ type: type })
         : this.identifierCache.getOrCreateRecordIdentifier(constructResource(type, id, lid));
 
-    return this._store._instanceCache.getRecordData(identifier);
+    const recordData = this._store._instanceCache.getRecordData(identifier);
+
+    if (!id && !lid) {
+      recordData.clientDidCreate();
+      this._store.recordArrayManager.recordDidChange(identifier);
+    }
+
+    return recordData;
   }
 
   setRecordId(type: string, id: string, lid: string) {

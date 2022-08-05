@@ -2,6 +2,7 @@
 
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { all, resolve } from 'rsvp';
@@ -11,6 +12,7 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 
 function idsFromArr(arr) {
   return arr.map((i) => i.id);
@@ -142,46 +144,44 @@ module('integration/unload - Unloading Records', function (hooks) {
     adapter = store.adapterFor('application');
   });
 
-  test('can unload a single record', function (assert) {
-    let adam;
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
+  test('can unload a single record', async function (assert) {
+    let adam = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
+        },
+        relationships: {
+          cars: {
+            data: [
+              {
+                id: 1,
+                type: 'car',
+              },
+            ],
           },
-          relationships: {
-            cars: {
-              data: [
-                {
-                  id: 1,
-                  type: 'car',
-                },
-              ],
-            },
-            boats: {
-              data: [
-                {
-                  id: 2,
-                  type: 'boat',
-                },
-              ],
-            },
+          boats: {
+            data: [
+              {
+                id: 2,
+                type: 'boat',
+              },
+            ],
           },
         },
-      });
-      adam = store.peekRecord('person', 1);
+      },
     });
 
-    assert.strictEqual(store.peekAll('person').get('length'), 1, 'one person record loaded');
+    const people = store.peekAll('person');
+    assert.strictEqual(people.length, 1, 'one person record loaded in our live array');
 
-    run(function () {
-      adam.unloadRecord();
-    });
+    adam.unloadRecord();
+    await settled();
 
-    assert.strictEqual(store.peekAll('person').get('length'), 0, 'no person records');
+    assert.strictEqual(people.length, 0, 'no person records in our live array');
+    adam = store.peekRecord('person', '1');
+    assert.strictEqual(adam, null, 'we have no person');
   });
 
   test('can unload all records for a given type', function (assert) {
@@ -795,7 +795,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       });
     });
 
-    const internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     // we test that we can sync call unloadRecord followed by findRecord
@@ -803,11 +804,11 @@ module('integration/unload - Unloading Records', function (hooks) {
       assert.strictEqual(record.get('cars.firstObject.make'), 'jeep');
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.true(internalModel.isEmpty, 'Expected the previous internal model tobe unloaded');
+      assert.true(recordData.isEmpty(), 'Expected the previous data to be unloaded');
 
       return store.findRecord('person', '1').then((record) => {
         assert.strictEqual(record.get('cars.length'), 0, 'Expected relationship to be cleared by the new push');
-        assert.strictEqual(internalModel, record._internalModel, 'the old internalModel is reused');
+        assert.strictEqual(identifier, recordIdentifierFor(record), 'the old identifier is reused');
         assert.strictEqual(
           record.currentState.stateName,
           'root.loaded.saved',
@@ -856,7 +857,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       });
     });
 
-    const internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
     const bike = store.peekRecord('bike', '1');
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
@@ -867,7 +869,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
       assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
-      assert.true(internalModel.isEmpty, 'We are unloaded after unloadRecord');
+      assert.true(recordData.isEmpty(), 'We are unloaded after unloadRecord');
 
       let wait = store.findRecord('person', '1').then((newRecord) => {
         assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
@@ -911,13 +913,14 @@ module('integration/unload - Unloading Records', function (hooks) {
       });
     });
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     run(function () {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.true(internalModel.isEmpty, 'We are unloaded after unloadRecord');
+      assert.true(recordData.isEmpty(), 'We are unloaded after unloadRecord');
     });
 
     run(function () {
@@ -925,7 +928,6 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     record = store.peekRecord('person', '1');
-    internalModel = record._internalModel;
 
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
   });

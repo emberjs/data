@@ -210,6 +210,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
   });
 
   test('pass record array to adapter.query regardless of arity', async function (assert) {
+    assert.expect(10);
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -224,13 +225,13 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     let superCreateAdapterPopulatedRecordArray = store.recordArrayManager.createAdapterPopulatedRecordArray;
 
-    store.recordArrayManager.createStore = function (modelName, query, internalModels, _payload) {
+    store.recordArrayManager.createAdapterPopulatedRecordArray = function (modelName, query, identifiers, _payload) {
       assert.strictEqual(arguments.length, 4);
 
       assert.strictEqual(modelName, 'person');
       assert.strictEqual(query, actualQuery);
       assert.strictEqual(_payload, payload);
-      assert.strictEqual(internalModels.length, 2);
+      assert.strictEqual(identifiers.length, 2);
       return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
     };
 
@@ -247,7 +248,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       return payload;
     };
 
-    store.recordArrayManager.createStore = function (modelName, query) {
+    store.recordArrayManager.createAdapterPopulatedRecordArray = function (modelName, query) {
       assert.strictEqual(arguments.length, 2);
 
       assert.strictEqual(modelName, 'person');
@@ -258,7 +259,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     store.query('person', actualQuery);
   });
 
-  test('loadRecord re-syncs internalModels recordArrays', async function (assert) {
+  test('loadRecord re-syncs identifiers recordArrays', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 

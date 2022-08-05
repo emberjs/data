@@ -12,6 +12,7 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
+import { recordIdentifierFor } from '@ember-data/store';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -695,7 +696,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
 
     let post = store.createRecord('post');
-    let internalModel = post._internalModel;
+    let identifier = recordIdentifierFor(post);
 
     post.deleteRecord();
     await post.save();
@@ -706,7 +707,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.strictEqual(passedVerb, null, 'There is no ajax call to delete a record that has never been saved.');
     assert.strictEqual(passedHash, null, 'There is no ajax call to delete a record that has never been saved.');
 
-    assert.true(internalModel.isEmpty, 'the post is now deleted');
+    const isLoaded = store._instanceCache.recordIsLoaded(identifier);
+    assert.false(isLoaded, 'the post is now deleted');
   });
 
   test('findAll - returning an array populates the array', async function (assert) {
@@ -2475,6 +2477,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     } catch (err) {
       assert.strictEqual(err, errorThrown);
       assert.ok(err, 'promise rejected');
+      if (err !== errorThrown) {
+        throw err;
+      }
     }
   });
 
@@ -2626,7 +2631,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
   });
 
-  test('findAll resolves with a collection of Models, not DS.InternalModels', async function (assert) {
+  test('findAll resolves with a collection of Models, not Identifiers', async function (assert) {
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;

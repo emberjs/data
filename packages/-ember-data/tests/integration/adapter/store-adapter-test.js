@@ -12,15 +12,18 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
+import { recordIdentifierFor } from '@ember-data/store';
 import { Snapshot } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function moveRecordOutOfInFlight(record) {
   // move record out of the inflight state so the tests can clean up
   // correctly
-  let { store, _internalModel } = record;
+  let { store } = record;
+  let identifier = recordIdentifierFor(record);
+
   // TODO this would be made nicer by a cancellation API
-  let pending = store.getRequestStateService().getPendingRequestsForRecord(_internalModel.identifier);
+  let pending = store.getRequestStateService().getPendingRequestsForRecord(identifier);
   pending.splice(0, pending.length);
 }
 

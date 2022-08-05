@@ -444,7 +444,7 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
       ],
     });
 
-    store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -458,7 +458,6 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
         },
       },
     });
-
     store.push({
       data: {
         type: 'comment',
@@ -474,19 +473,14 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
       },
     });
 
-    const post = store.peekRecord('post', 1);
     const commentCount = post.get('comments.length');
-
     assert.strictEqual(commentCount, 1, 'the post starts life with a comment');
 
     let comment = store.createRecord('comment', { name: 'Another Comment', post: post });
-
     await comment.save();
-
     assert.strictEqual(comment.get('post'), post, 'the comment is related to the post');
 
     await post.reload();
-
     assert.strictEqual(post.get('comments.length'), 2, 'Post comment count has been updated');
   });
 

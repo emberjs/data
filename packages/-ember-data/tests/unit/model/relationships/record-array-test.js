@@ -55,16 +55,7 @@ module('unit/model/relationships - RecordArray', function (hooks) {
     let tag = tags.objectAt(0);
     assert.strictEqual(get(tag, 'name'), 'friendly', `precond - we're working with the right tags`);
 
-    set(
-      tags,
-      'content',
-      A(
-        records
-          .map((r) => r._internalModel)
-          .slice(1, 3)
-          .map((im) => im.identifier)
-      )
-    );
+    set(tags, 'content', A(records.map(recordIdentifierFor).slice(1, 3)));
 
     tag = tags.objectAt(0);
     assert.strictEqual(get(tag, 'name'), 'smarmy', 'the lookup was updated');

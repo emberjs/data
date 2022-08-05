@@ -2135,7 +2135,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       tom = store.peekRecord('person', '1');
       sylvain = store.peekRecord('person', '2');
       // Test that since sylvain.get('tags') instanceof ManyArray,
-      // addInternalModels on Relationship iterates correctly.
+      // adding records on Relationship iterates correctly.
       tom.get('tags').setObjects(sylvain.get('tags'));
     });
 

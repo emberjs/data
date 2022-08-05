@@ -70,7 +70,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
       function () {
         record.unloadRecord();
       },
-      'You can only unload a record which is not inFlight. `' + record._internalModel.toString() + '`',
+      'You can only unload a record which is not inFlight. `' + record.toString() + '`',
       'can not unload dirty record'
     );
 

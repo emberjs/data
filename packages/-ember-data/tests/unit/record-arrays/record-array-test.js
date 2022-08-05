@@ -366,12 +366,12 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     assert.strictEqual(
       snapshot1.id,
       String(model1.id),
-      'record array snapshot should contain the first internalModel.createSnapshot result'
+      'record array snapshot should contain the first createSnapshot result'
     );
     assert.strictEqual(
       snapshot2.id,
       String(model2.id),
-      'record array snapshot should contain the second internalModel.createSnapshot result'
+      'record array snapshot should contain the second createSnapshot result'
     );
   });
 

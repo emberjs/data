@@ -134,8 +134,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
           },
         },
       });
-      let postInternalModel = store._instanceCache._internalModelForResource({ type: 'post', id: '1' });
-      let snapshot = await store._instanceCache.createSnapshot(postInternalModel.identifier);
+      let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+      let snapshot = await store._instanceCache.createSnapshot(identifier);
 
       assert.false(postClassLoaded, 'model class is not eagerly loaded');
       assert.strictEqual(snapshot.type, _Post, 'type is correct');
@@ -146,7 +146,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
   test('an initial findRecord call has no record for internal-model when a snapshot is generated', function (assert) {
     assert.expect(2);
     store.adapterFor('application').findRecord = (store, type, id, snapshot) => {
-      assert.false(snapshot._internalModel.hasRecord, 'We do not have a materialized record');
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+      const record = store._instanceCache.peek({ identifier, bucket: 'record' });
+      assert.false(!!record, 'We do not have a materialized record');
       assert.strictEqual(snapshot.__attributes, null, 'attributes were not populated initially');
       return resolve({
         data: {
@@ -175,8 +177,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    let postInternalModel = store._instanceCache._internalModelForResource({ type: 'post', id: '1' });
-    let snapshot = store._instanceCache.createSnapshot(postInternalModel.identifier);
+    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+    let snapshot = store._instanceCache.createSnapshot(identifier);
     let expected = {
       author: undefined,
       title: 'Hello World',
@@ -200,8 +202,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    let postInternalModel = store._instanceCache._internalModelForResource({ type: 'post', id: '1' });
-    let snapshot = store._instanceCache.createSnapshot(postInternalModel.identifier);
+    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+    let snapshot = store._instanceCache.createSnapshot(identifier);
     let expected = {
       author: undefined,
       title: 'Hello World',

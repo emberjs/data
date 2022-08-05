@@ -12,6 +12,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 import { recordDataFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -354,49 +355,13 @@ module('unit/model - Model', function (hooks) {
       // test .get access of id
       assert.strictEqual(person.get('id'), null, 'initial created model id should be null');
 
-      store._instanceCache.setRecordId('odd-person', 'john', person._internalModel.clientId);
+      const identifier = recordIdentifierFor(person);
+      store._instanceCache.setRecordId('odd-person', 'john', identifier.lid);
 
       oddId = person.get('idComputed');
       assert.strictEqual(oddId, 'john', 'computed get is correct');
       // test direct access of id
       assert.strictEqual(person.id, 'john', 'new id should be correctly set.');
-    });
-
-    test('ID mutation (complicated)', async function (assert) {
-      let idChange = 0;
-      let compChange = 0;
-      const OddPerson = Model.extend({
-        name: DSattr('string'),
-        idComputed: computed('id', function () {
-          // we intentionally don't access the id here
-          return 'not-the-id:' + compChange++;
-        }),
-        idDidChange: observer('id', function () {
-          idChange++;
-        }),
-      });
-      this.owner.register('model:odd-person', OddPerson);
-
-      let person = store.createRecord('odd-person');
-      assert.strictEqual(person.get('idComputed'), 'not-the-id:0');
-      assert.strictEqual(idChange, 0, 'we have had no changes initially');
-
-      let personId = person.get('id');
-      assert.strictEqual(personId, null, 'initial created model id should be null');
-      assert.strictEqual(idChange, 0, 'we should still have no id changes');
-
-      // simulate an update from the store or RecordData that doesn't
-      // go through the internalModelFactory
-      person._internalModel.setId('john');
-      assert.strictEqual(idChange, 1, 'we should have one change after updating id');
-      let recordData = recordDataFor(person);
-      assert.strictEqual(
-        recordData.getResourceIdentifier().id,
-        'john',
-        'new id should be set on the identifier on record data.'
-      );
-      assert.strictEqual(recordData.id, 'john', 'new id should be correctly set on the record data itself.');
-      assert.strictEqual(person.get('id'), 'john', 'new id should be correctly set.');
     });
 
     test('an ID of 0 is allowed', async function (assert) {
@@ -624,12 +589,6 @@ module('unit/model - Model', function (hooks) {
       }, /Cannot set property isLoaded of \[object Object\] which has only a getter/);
     });
 
-    class NativePostWithInternalModel extends Model {
-      @attr('string')
-      _internalModel;
-      @attr('string')
-      name;
-    }
     class NativePostWithCurrentState extends Model {
       @attr('string')
       currentState;
@@ -637,7 +596,6 @@ module('unit/model - Model', function (hooks) {
       name;
     }
     const PROP_MAP = {
-      _internalModel: NativePostWithInternalModel,
       currentState: NativePostWithCurrentState,
     };
 
@@ -677,7 +635,7 @@ module('unit/model - Model', function (hooks) {
       });
     }
 
-    ['_internalModel', 'currentState'].forEach(testReservedProperty);
+    ['currentState'].forEach(testReservedProperty);
 
     testInDebug('A subclass of Model throws an error when calling create() directly', async function (assert) {
       class NativePerson extends Model {}
@@ -738,7 +696,7 @@ module('unit/model - Model', function (hooks) {
       assert.strictEqual(person.currentState.stateName, 'root.loaded.saved', 'model is in loaded state');
     });
 
-    test('internalModel is ready by `init`', async function (assert) {
+    test('record properties can be set during `init`', async function (assert) {
       let nameDidChange = 0;
 
       class OddNativePerson extends Model {

@@ -42,6 +42,7 @@ import type { Dict } from '@ember-data/types/q/utils';
 import edBackburner from './backburner';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
+  _isEmpty,
   InstanceCache,
   peekRecordIdentifier,
   recordDataIsFullyDeleted,
@@ -471,6 +472,9 @@ class Store extends Service {
         }
 
         const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
+        const recordData = this._instanceCache.getRecordData(identifier);
+        recordData.clientDidCreate();
+        this.recordArrayManager.recordDidChange(identifier);
 
         return this._instanceCache.getRecord(identifier, properties);
       });
@@ -2101,11 +2105,9 @@ class Store extends Service {
     // Casting can be removed once REQUEST_SERVICE ff is turned on
     // because a `Record` is provided there will always be a matching
     // RecordData
-
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier}`,
-
-      recordData && !recordData.isEmpty?.()
+      recordData && !_isEmpty(this._instanceCache, identifier)
     );
     if (recordDataIsFullyDeleted(this._instanceCache, identifier)) {
       return resolve(record);
