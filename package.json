@@ -44,7 +44,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.18.9",
     "@babel/plugin-proposal-decorators": "^7.18.10",
-    "@babel/plugin-transform-typescript": "^7.18.10",
+    "@babel/plugin-transform-typescript": "^7.18.12",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
