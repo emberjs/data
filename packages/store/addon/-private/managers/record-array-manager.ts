@@ -13,7 +13,6 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { isHiddenFromRecordArrays } from '../caches/instance-cache';
-import { internalModelFactoryFor } from '../caches/internal-model-factory';
 import AdapterPopulatedRecordArray from '../record-arrays/adapter-populated-record-array';
 import RecordArray from '../record-arrays/record-array';
 import type Store from '../store-service';
@@ -120,7 +119,7 @@ class RecordArrayManager {
       return;
     }
     let hasNoPotentialDeletions = pending.length === 0;
-    let listSize = internalModelFactoryFor(this.store).peekList[modelName]?.size;
+    let listSize = this.store._instanceCache.peekList[modelName]?.size;
     let hasNoInsertionsOrRemovals = listSize === array.length;
 
     /*
@@ -194,7 +193,7 @@ class RecordArrayManager {
   }
 
   _visibleIdentifiersByType(modelName: string) {
-    const list = internalModelFactoryFor(this.store).peekList[modelName];
+    const list = this.store._instanceCache.peekList[modelName];
     let all = list ? [...list.values()] : [];
     let visible: StableRecordIdentifier[] = [];
     for (let i = 0; i < all.length; i++) {

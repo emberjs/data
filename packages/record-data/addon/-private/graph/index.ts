@@ -382,9 +382,7 @@ export class Graph {
 // If the inverse is sync, unloading this record is treated as a client-side
 // delete, so we remove the inverse records from this relationship to
 // disconnect the graph.  Because it's not async, we don't need to keep around
-// the internalModel as an id-wrapper for references and because the graph is
-// disconnected we can actually destroy the internalModel when checking for
-// orphaned models.
+// the identifier as an id-wrapper for references
 function destroyRelationship(rel) {
   if (isImplicit(rel)) {
     if (rel.graph.isReleasable(rel.identifier)) {

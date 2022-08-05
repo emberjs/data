@@ -39,7 +39,6 @@ module.exports = {
     '(private) @ember-data/debug InspectorDataAdapter#watchTypeIfUnseen',
     '(private) @ember-data/model Model#_createSnapshot',
     '(private) @ember-data/model Model#_debugInfo',
-    '(private) @ember-data/model Model#_internalModel',
     '(private) @ember-data/model Model#_notifyProperties',
     '(private) @ember-data/model Model#create',
     '(private) @ember-data/model Model#currentState',

@@ -45,7 +45,6 @@ export default class Snapshot implements Snapshot {
   private _belongsToIds: Dict<RecordId> = Object.create(null);
   private _hasManyRelationships: Dict<Snapshot[]> = Object.create(null);
   private _hasManyIds: Dict<RecordId[]> = Object.create(null);
-  declare _internalModel: InternalModel;
   declare _changedAttributes: ChangedAttributesHash;
 
   declare identifier: StableRecordIdentifier;
@@ -63,7 +62,7 @@ export default class Snapshot implements Snapshot {
    * @param _store
    */
   constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store) {
-    let internalModel = (this._internalModel = _store._instanceCache._internalModelForResource(identifier));
+    const hasRecord = !!_store._instanceCache.peek({ identifier, bucket: 'record' });
     this.modelName = identifier.type;
 
     /**
@@ -82,7 +81,7 @@ export default class Snapshot implements Snapshot {
       in time" in which a snapshot is created, we greedily grab
       the values.
      */
-    if (internalModel.hasRecord) {
+    if (hasRecord) {
       this._attributes;
     }
 
@@ -128,7 +127,7 @@ export default class Snapshot implements Snapshot {
      @public
      */
     this.modelName = identifier.type;
-    if (internalModel.hasRecord) {
+    if (hasRecord) {
       this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttributes();
     }
   }
@@ -183,7 +182,8 @@ export default class Snapshot implements Snapshot {
    */
 
   get isNew(): boolean {
-    return this._internalModel.isNew();
+    const recordData = this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'recordData' });
+    return recordData?.isNew?.() || false;
   }
 
   /**
@@ -298,9 +298,8 @@ export default class Snapshot implements Snapshot {
    */
   belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
     let returnModeIsId = !!(options && options.id);
-    let inverseInternalModel: InternalModel | null;
     let result: Snapshot | RecordId | undefined;
-    let store = this._internalModel.store;
+    let store = this._store;
 
     if (returnModeIsId === true && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
@@ -345,14 +344,14 @@ export default class Snapshot implements Snapshot {
     let value = relationship.getData();
     let data = value && value.data;
 
-    inverseInternalModel = data ? store._instanceCache._internalModelForResource(data) : null;
+    let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
+      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted?.()) {
         if (returnModeIsId) {
-          result = inverseInternalModel.id;
+          result = inverseIdentifier.id;
         } else {
-          result = store._instanceCache.createSnapshot(inverseInternalModel.identifier);
+          result = store._instanceCache.createSnapshot(inverseIdentifier);
         }
       } else {
         result = null;
@@ -412,7 +411,7 @@ export default class Snapshot implements Snapshot {
       return cachedSnapshots;
     }
 
-    let store = this._internalModel.store;
+    let store = this._store;
     let relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
       keyName
     ];
@@ -449,14 +448,12 @@ export default class Snapshot implements Snapshot {
     if (value.data) {
       results = [];
       value.data.forEach((member) => {
-        let internalModel = store._instanceCache._internalModelForResource(member);
-        if (!internalModel.isDeleted()) {
+        let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
+        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted?.()) {
           if (returnModeIsIds) {
-            (results as RecordId[]).push(
-              (member as ExistingResourceIdentifierObject | NewResourceIdentifierObject).id || null
-            );
+            (results as RecordId[]).push(inverseIdentifier.id);
           } else {
-            (results as Snapshot[]).push(store._instanceCache.createSnapshot(internalModel.identifier));
+            (results as Snapshot[]).push(store._instanceCache.createSnapshot(inverseIdentifier));
           }
         }
       });

@@ -43,7 +43,6 @@ import edBackburner from './backburner';
 import { IdentifierCache } from './caches/identifier-cache';
 import { InstanceCache, recordDataIsFullyDeleted, storeFor, StoreMap } from './caches/instance-cache';
 import {
-  internalModelFactoryFor,
   peekRecordIdentifier,
   recordIdentifierFor,
   setRecordIdentifier,
@@ -66,6 +65,8 @@ import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
 import promiseRecord from './utils/promise-record';
+import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import InternalModel from './legacy-model-support/internal-model';
 
 export { storeFor };
 
@@ -289,10 +290,8 @@ class Store extends Service {
       let modelName = identifier.type;
       let store = this;
 
-      let recordData = this._instanceCache.recordDataFor(identifier);
-      let internalModel = this._instanceCache._internalModelForResource(identifier);
+      let recordData = this._instanceCache.getRecordData(identifier);
       let createOptions: any = {
-        _internalModel: internalModel,
         // TODO deprecate allowing unknown args setting
         _createProps: createRecordArgs,
         // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
@@ -459,13 +458,18 @@ class Store extends Service {
 
         // Coerce ID to a string
         properties.id = coerceId(properties.id);
+        const resource = { type: normalizedModelName, id: properties.id };
 
-        const factory = internalModelFactoryFor(this);
-        const internalModel = factory.build({ type: normalizedModelName, id: properties.id });
-        const { identifier } = internalModel;
+        if (resource.id) {
+          const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
 
-        this._instanceCache.getRecordData(identifier).clientDidCreate();
-        this.recordArrayManager.recordDidChange(identifier);
+          assert(
+            `The id ${properties.id} has already been used with another '${normalizeModelName}' record.`,
+            !identifier
+          );
+        }
+
+        const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
 
         return this._instanceCache.getRecord(identifier, properties);
       });
@@ -499,24 +503,21 @@ class Store extends Service {
     this._backburner.join(() => {
       const identifier = peekRecordIdentifier(record);
       if (identifier) {
-        const internalModel = internalModelFactoryFor(this).peek(identifier);
-        if (internalModel) {
-          run(() => {
-            const backburner = this._backburner;
-            backburner.run(() => {
-              const recordData = this._instanceCache.peek({ identifier, bucket: 'recordData' });
+        run(() => {
+          const backburner = this._backburner;
+          backburner.run(() => {
+            const recordData = this._instanceCache.peek({ identifier, bucket: 'recordData' });
+
+            if (recordData) {
               if (recordData?.setIsDeleted) {
                 recordData.setIsDeleted(true);
               }
-
-              if (internalModel.isNew()) {
-                // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
-                internalModel._deletedRecordWasNew = true;
-                internalModel.unloadRecord();
+              if (recordData.isNew?.()) {
+                this._instanceCache.unloadRecord(identifier);
               }
-            });
+            }
           });
-        }
+        });
       }
     });
   }
@@ -543,10 +544,7 @@ class Store extends Service {
     }
     let identifier = peekRecordIdentifier(record);
     if (identifier) {
-      let internalModel = internalModelFactoryFor(this).peek(identifier);
-      if (internalModel) {
-        internalModel.unloadRecord();
-      }
+      this._instanceCache.unloadRecord(identifier);
     }
   }
 
@@ -998,13 +996,12 @@ class Store extends Service {
       resource = constructResource(type, normalizedId);
     }
 
-    const internalModel = internalModelFactoryFor(this).lookup(resource);
-    const { identifier } = internalModel;
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let promise;
     options = options || {};
 
     // if not loaded start loading
-    if (!internalModel.isLoaded) {
+    if (!this._instanceCache.recordIsLoaded(identifier)) {
       promise = this._instanceCache._fetchDataIfNeededForIdentifier(identifier, options);
 
       // Refetch if the reload option is passed
@@ -1159,10 +1156,10 @@ class Store extends Service {
   peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       const stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
-      const internalModel = stableIdentifier && internalModelFactoryFor(this).peek(stableIdentifier);
+      const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
       // TODO come up with a better mechanism for determining if we have data and could peek.
       // this is basically an "are we not empty" query.
-      return internalModel && internalModel.isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
+      return isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
     }
 
     if (DEBUG) {
@@ -1179,9 +1176,9 @@ class Store extends Service {
     const normalizedId = ensureStringId(id);
     const resource = { type, id: normalizedId };
     const stableIdentifier = this.identifierCache.peekRecordIdentifier(resource);
-    const internalModel = stableIdentifier && internalModelFactoryFor(this).peek(stableIdentifier);
+    const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
 
-    return internalModel && internalModel.isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
+    return isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
   }
 
   /**
@@ -1226,9 +1223,7 @@ class Store extends Service {
       const resource = { type, id: trueId };
 
       const identifier = this.identifierCache.peekRecordIdentifier(resource);
-      const internalModel = identifier && internalModelFactoryFor(this).peek(identifier);
-
-      return !!internalModel && internalModel.isLoaded;
+      return Boolean(identifier && this._instanceCache.recordIsLoaded(identifier));
     }
     assert(`store.hasRecordForId has been removed`);
   }
@@ -1767,13 +1762,11 @@ class Store extends Service {
       !modelName || typeof modelName === 'string'
     );
 
-    const factory = internalModelFactoryFor(this);
-
     if (modelName === undefined) {
-      factory.clear();
+      this._instanceCache.clear();
     } else {
       let normalizedModelName = normalizeModelName(modelName);
-      factory.clear(normalizedModelName);
+      this._instanceCache.clear(normalizedModelName);
     }
   }
 
@@ -1788,7 +1781,7 @@ class Store extends Service {
     @param {InternalModel} internalModel
     @param {Object} errors
   */
-  recordWasInvalid(internalModel, parsedErrors, error) {
+  recordWasInvalid(internalModel: InternalModel, parsedErrors, error) {
     if (DEPRECATE_RECORD_WAS_INVALID) {
       deprecate(
         `The private API recordWasInvalid will be removed in an upcoming release. Use record.errors add/remove instead if the intent was to move the record into an invalid state manually.`,
@@ -1806,7 +1799,9 @@ class Store extends Service {
       error = error || new Error(`unknown invalid error`);
       error = typeof error === 'string' ? new Error(error) : error;
       error._parsedErrors = parsedErrors;
-      internalModel.adapterDidInvalidate(error);
+      // TODO figure out how to handle ember-model-validator given internalModel wouldn't be available
+      // anymore.
+      adapterDidInvalidate(this, internalModel.identifier, error);
     }
     assert(`store.recordWasInvalid has been removed`);
   }
@@ -2130,9 +2125,9 @@ class Store extends Service {
   saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
-    let internalModel = identifier && internalModelFactoryFor(this).peek(identifier)!;
+    let recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
 
-    if (!internalModel) {
+    if (!recordData) {
       // this commonly means we're disconnected
       // but just in case we reject here to prevent bad things.
       return reject(`Record Is Disconnected`);
@@ -2143,14 +2138,13 @@ class Store extends Service {
 
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier}`,
-      !internalModel.isEmpty && !internalModel.isDestroyed
+
+      recordData && !recordData.isEmpty?.()
     );
     if (recordDataIsFullyDeleted(this._instanceCache, identifier)) {
       return resolve(record);
     }
 
-
-    const recordData = this._instanceCache.getRecordData(identifier);
     recordData.willCommit();
     if (isDSModel(record)) {
       record.errors.clear();
@@ -2161,10 +2155,9 @@ class Store extends Service {
     }
     let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
 
-    // TODO handle missing isNew
-    if (recordData.isNew && recordData.isNew()) {
+    if (recordData.isNew?.()) {
       operation = 'createRecord';
-    } else if (recordData.isDeleted && recordData.isDeleted()) {
+    } else if (recordData.isDeleted?.()) {
       operation = 'deleteRecord';
     }
 
@@ -2221,7 +2214,7 @@ class Store extends Service {
         } else if (typeof e === 'string') {
           err = new Error(e);
         }
-        internalModel.adapterDidInvalidate(err);
+        adapterDidInvalidate(this, identifier, err);
         throw err;
       }
     );
@@ -2544,4 +2537,71 @@ function isDSModel(record: RecordInstance | null): record is DSModel {
     'isModel' in record.constructor &&
     record.constructor.isModel === true
   );
+}
+
+type AdapterErrors = Error & { errors?: unknown[]; isAdapterError?: true; code?: string };
+type SerializerWithParseErrors = MinimumSerializerInterface & {
+  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
+};
+
+function adapterDidInvalidate(store: Store, identifier: StableRecordIdentifier, error: Error & { errors?: JsonApiValidationError[]; isAdapterError?: true; code?: string }) {
+  if (error && error.isAdapterError === true && error.code === 'InvalidError') {
+    let serializer = store.serializerFor(identifier.type) as SerializerWithParseErrors;
+
+    // TODO @deprecate extractErrors being called
+    // TODO remove extractErrors from the default serializers.
+    if (serializer && typeof serializer.extractErrors === 'function') {
+      let errorsHash = serializer.extractErrors(store, store.modelFor(identifier.type), error, identifier.id);
+      error.errors = errorsHashToArray(errorsHash);
+    }
+  }
+  const recordData = store._instanceCache.getRecordData(identifier);
+
+  if (error.errors) {
+    assert(
+      `Expected the RecordData implementation for ${identifier} to have a getErrors(identifier) method for retreiving errors.`,
+      typeof recordData.getErrors === 'function'
+    );
+
+    let jsonApiErrors: JsonApiValidationError[] = error.errors;
+    if (jsonApiErrors.length === 0) {
+      jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
+    }
+    recordData.commitWasRejected(identifier, jsonApiErrors);
+  } else {
+    recordData.commitWasRejected(identifier);
+  }
+}
+
+function makeArray(value) {
+  return Array.isArray(value) ? value : [value];
+}
+
+const PRIMARY_ATTRIBUTE_KEY = 'base';
+
+function errorsHashToArray(errors): JsonApiValidationError[] {
+  const out: JsonApiValidationError[] = [];
+
+  if (errors) {
+    Object.keys(errors).forEach((key) => {
+      let messages = makeArray(errors[key]);
+      for (let i = 0; i < messages.length; i++) {
+        let title = 'Invalid Attribute';
+        let pointer = `/data/attributes/${key}`;
+        if (key === PRIMARY_ATTRIBUTE_KEY) {
+          title = 'Invalid Document';
+          pointer = `/data`;
+        }
+        out.push({
+          title: title,
+          detail: messages[i],
+          source: {
+            pointer: pointer,
+          },
+        });
+      }
+    });
+  }
+
+  return out;
 }

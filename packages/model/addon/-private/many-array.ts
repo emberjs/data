@@ -306,16 +306,19 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     this._isDirty = false;
     this._isUpdating = true;
     let jsonApi = this.recordData.getHasMany(this.key);
+    const cache = this.store._instanceCache;
+    const idCache = this.store.identifierCache;
 
     let identifiers: StableRecordIdentifier[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
-        // TODO figure out where this state comes from
-        let im = this.store._instanceCache._internalModelForResource(jsonApi.data[i]);
-        let shouldRemove = im._isDematerializing || im.isEmpty || !im.isLoaded;
+        const identifier = idCache.getOrCreateRecordIdentifier(jsonApi.data[i]);
+        const recordData = cache.peek({ identifier, bucket: 'recordData' });
+        // TODO can probably be simpler
+        let shouldRemove = !recordData || recordData.isEmpty?.() || !cache.recordIsLoaded(identifier);
 
         if (!shouldRemove) {
-          identifiers.push(im.identifier);
+          identifiers.push(identifier);
         }
       }
     }

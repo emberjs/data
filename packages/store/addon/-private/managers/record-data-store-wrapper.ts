@@ -180,17 +180,17 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   recordDataFor(type: string, id: string | null, lid: string): RecordData;
   recordDataFor(type: string): RecordData;
   recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData {
-    let identifier: StableRecordIdentifier | { type: string };
-    let isCreate: boolean = false;
-    if (!id && !lid) {
-      isCreate = true;
-      identifier = { type };
-    } else {
-      const resource = constructResource(type, id, lid);
-      identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    }
+    // TODO @deprecate create capability. This is problematic because there's
+    // no outside association between this RecordData and an Identifier. It's
+    // likely a mistake but we said in an RFC we'd allow this. We should RFC
+    // enforcing someone to use the record-data and identifier-cache APIs to
+    // create a new identifier and then call clientDidCreate on the RecordData
+    // instead.
+    const identifier = !id && !lid ?
+      this.identifierCache.createIdentifierForNewRecord({ type: type }) :
+      this.identifierCache.getOrCreateRecordIdentifier(constructResource(type, id, lid));
 
-    return this._store._instanceCache.recordDataFor(identifier, isCreate);
+    return this._store._instanceCache.getRecordData(identifier);
   }
 
   setRecordId(type: string, id: string, lid: string) {

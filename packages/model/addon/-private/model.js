@@ -4,7 +4,7 @@
 
 import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
-import EmberObject, { get } from '@ember/object';
+import EmberObject from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
 import { inject as service } from '@ember/service';
@@ -122,7 +122,7 @@ class Model extends EmberObject {
   @service store;
 
   init(options = {}) {
-    if (DEBUG && !options._secretInit && !options._internalModel && !options._createProps) {
+    if (DEBUG && !options._secretInit && !options._createProps) {
       throw new EmberError(
         'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
       );
@@ -461,13 +461,17 @@ class Model extends EmberObject {
     if (DEBUG && !this._internalModel) {
       return void 0;
     }
-    return this._internalModel.id;
+    return recordIdentifierFor(this).id;
   }
   set id(id) {
     const normalizedId = coerceId(id);
+    const identifier = recordIdentifierFor(this);
+    let didChange = normalizedId !== identifier.id;
+    assert(`Cannot set ${identifier.type} record's id to ${id}, because id is already ${identifier.id}`, !didChange || identifier.id === null);
 
-    if (normalizedId !== null) {
-      this._internalModel.setId(normalizedId);
+    if (normalizedId !== null && didChange) {
+      this.store._instanceCache.setRecordId(identifier.type, normalizedId, identifier.lid);
+      this.store._notificationManager.notify(identifier, 'identity');
     }
   }
 
@@ -492,12 +496,6 @@ class Model extends EmberObject {
   set currentState(_v) {
     throw new Error('cannot set currentState');
   }
-
-  /**
-   @property _internalModel
-   @private
-   @type {Object}
-   */
 
   /**
     The store service instance which created this record instance
@@ -828,14 +826,6 @@ class Model extends EmberObject {
   // TODO @deprecate in favor of a public API or examples of how to test successfully
   _createSnapshot() {
     return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this));
-  }
-
-  // TODO can we remove this now?
-  toStringExtension() {
-    // this guard exists, because some dev-only deprecation code
-    // (addListener via validatePropertyInjections) invokes toString before the
-    // object is real.
-    return this._internalModel && this._internalModel.id;
   }
 
   /**
@@ -2274,13 +2264,12 @@ class Model extends EmberObject {
         this.modelName
       );
     }
-    return `model:${get(this, 'modelName')}`;
+    return `model:${this.modelName}`;
   }
 }
 
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
-Model.prototype._internalModel = null;
 Model.prototype._createProps = null;
 Model.prototype._secretInit = null;
 
@@ -2360,26 +2349,10 @@ if (DEBUG) {
     } while (current !== null);
     return null;
   };
-  let isBasicDesc = function isBasicDesc(desc) {
-    return (
-      !desc ||
-      (!desc.get && !desc.set && desc.enumerable === true && desc.writable === true && desc.configurable === true)
-    );
-  };
-  let isDefaultEmptyDescriptor = function isDefaultEmptyDescriptor(obj, keyName) {
-    let instanceDesc = lookupDescriptor(obj, keyName);
-    return isBasicDesc(instanceDesc) && lookupDescriptor(obj.constructor, keyName) === null;
-  };
 
   Model.reopen({
     init() {
       this._super(...arguments);
-
-      if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
-        throw new Error(
-          `'_internalModel' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
-        );
-      }
 
       let ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
       let theirDescriptor = lookupDescriptor(this, 'currentState');

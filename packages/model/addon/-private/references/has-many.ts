@@ -131,7 +131,7 @@ export default class HasManyReference {
   }
 
   _resource() {
-    return this.store._instanceCache.recordDataFor(this.#identifier).getHasMany(this.key);
+    return this.store._instanceCache.getRecordData(this.#identifier).getHasMany(this.key);
   }
 
   /**
@@ -435,10 +435,8 @@ export default class HasManyReference {
 
     let members = this.hasManyRelationship.currentState;
 
-    //TODO @runspired determine isLoaded via a better means
     return members.every((identifier) => {
-      let internalModel = this.store._instanceCache._internalModelForResource(identifier);
-      return internalModel.isLoaded === true;
+      return this.store._instanceCache.recordIsLoaded(identifier) === true;
     });
   }
 

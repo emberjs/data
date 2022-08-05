@@ -47,7 +47,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
   declare modelName: string;
   declare lid: string;
   declare identifier: StableRecordIdentifier;
-  declare id: string | null;
   declare isDestroyed: boolean;
   declare _isNew: boolean;
   declare _bfsId: number;
@@ -62,7 +61,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
   constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     this.modelName = identifier.type;
     this.lid = identifier.lid;
-    this.id = identifier.id;
     this.identifier = identifier;
     this.storeWrapper = storeWrapper;
 
@@ -73,6 +71,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
     // model twice in the same scan
     this._bfsId = 0;
     this.reset();
+  }
+
+  get id() {
+    return this.identifier.id;
   }
 
   // PUBLIC API
@@ -102,12 +104,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
     if (data.relationships) {
       this._setupRelationships(data);
-    }
-
-    if (data.id) {
-      if (!this.id) {
-        this.id = coerceId(data.id);
-      }
     }
 
     if (changedKeys && changedKeys.length) {
@@ -306,7 +302,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
       if (data.id) {
         // didCommit provided an ID, notify the store of it
         this.storeWrapper.setRecordId(this.modelName, data.id, this.lid);
-        this.id = coerceId(data.id);
       }
       if (data.relationships) {
         this._setupRelationships(data);
@@ -413,13 +408,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
     // If we went back to our original value, we shouldn't keep the attribute around anymore
     if (value === originalValue) {
       delete this._attributes[key];
-    }
-  }
-
-  // internal set coming from the model
-  __setId(id: string) {
-    if (this.id !== id) {
-      this.id = id;
     }
   }
 
@@ -641,7 +629,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
         let propertyValue = options[name];
 
         if (name === 'id') {
-          this.id = propertyValue;
           continue;
         }
 

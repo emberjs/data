@@ -146,7 +146,7 @@ function belongsTo(modelName, options) {
       const support = LEGACY_SUPPORT.lookup(this);
 
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );
@@ -177,7 +177,7 @@ function belongsTo(modelName, options) {
     set(key, value) {
       const support = LEGACY_SUPPORT.lookup(this);
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );

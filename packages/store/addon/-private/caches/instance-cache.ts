@@ -1,9 +1,9 @@
-import { assert } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
-import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type { ExistingResourceObject, NewResourceIdentifierObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
@@ -27,6 +27,8 @@ import WeakCache from '../utils/weak-cache';
 import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './internal-model-factory';
 import recordDataFor, { setRecordDataFor } from './record-data-for';
 import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+import { Dict } from '@ember-data/types/q/utils';
+import { isStableIdentifier } from './identifier-cache';
 
 const RECORD_REFERENCES = new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : '');
 export const StoreMap = new WeakCache<RecordInstance, Store>(DEBUG ? 'store' : '');
@@ -45,17 +47,44 @@ type Caches = {
   record: WeakMap<StableRecordIdentifier, RecordInstance>;
   recordData: WeakMap<StableRecordIdentifier, RecordData>;
 };
+
+
 export class InstanceCache {
   declare store: Store;
   declare _storeWrapper: RecordDataStoreWrapper;
+  declare peekList: Dict<Set<StableRecordIdentifier>>;
+
 
   #instances: Caches = {
     record: new WeakMap<StableRecordIdentifier, RecordInstance>(),
     recordData: new WeakMap<StableRecordIdentifier, RecordData>(),
   };
 
+  recordIsLoaded(identifier: StableRecordIdentifier) {
+    const recordData = this.peek({ identifier, bucket: 'recordData' });
+    if (!recordData) {
+      return false;
+    }
+    const isNew = recordData.isNew?.() ||  false;
+    const isEmpty = recordData.isEmpty?.() || false;
+
+    // if we are new we must consider ourselves loaded
+    if (isNew) {
+      return true;
+    }
+    // even if we have a past request, if we are now empty we are not loaded
+    // typically this is true after an unloadRecord call
+
+    // if we are not empty, not new && we have a fulfilled request then we are loaded
+    // we should consider allowing for something to be loaded that is simply "not empty".
+    // which is how RecordState currently handles this case; however, RecordState is buggy
+    // in that it does not account for unloading.
+    return !isEmpty
+  }
+
   constructor(store: Store) {
     this.store = store;
+    this.peekList = Object.create(null);
 
     this._storeWrapper = new RecordDataStoreWrapper(this.store);
     this.__recordDataFor = this.__recordDataFor.bind(this);
@@ -63,6 +92,84 @@ export class InstanceCache {
     RECORD_REFERENCES._generator = (identifier) => {
       return new RecordReference(this.store, identifier);
     };
+
+    store.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
+      let intendedIdentifier = identifier;
+      if (identifier.id !== matchedIdentifier.id) {
+        intendedIdentifier = 'id' in resourceData && identifier.id === resourceData.id ? identifier : matchedIdentifier;
+      } else if (identifier.type !== matchedIdentifier.type) {
+        intendedIdentifier =
+          'type' in resourceData && identifier.type === resourceData.type ? identifier : matchedIdentifier;
+      }
+      let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
+
+      // check for duplicate entities
+      let imHasRecord = this.#instances.record.has(intendedIdentifier);
+      let otherHasRecord = this.#instances.record.has(altIdentifier);
+      let imRecordData = this.#instances.recordData.get(intendedIdentifier) || null;
+      let otherRecordData = this.#instances.record.get(altIdentifier) || null;
+
+      // we cannot merge entities when both have records
+      // (this may not be strictly true, we could probably swap the recordData the record points at)
+      if (imHasRecord && otherHasRecord) {
+        // TODO we probably don't need to throw these errors anymore
+        // once InternalModel is fully removed, as we can just "swap"
+        // what data source the abandoned record points at so long as
+        // it itself is not retained by the store in any way.
+        if ('id' in resourceData) {
+          throw new Error(
+            `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to '${resourceData.id}', because that id is already in use by '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
+          );
+        }
+        // TODO @runspired determine when this is even possible
+        assert(
+          `Failed to update the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to merge with the detected duplicate identifier '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
+        );
+      }
+
+      // remove "other" from cache
+      if (otherHasRecord) {
+        cache.delete(altIdentifier);
+        this.peekList[altIdentifier.type]?.delete(altIdentifier);
+      }
+
+      if (imRecordData === null && otherRecordData === null) {
+        // nothing more to do
+        return intendedIdentifier;
+
+        // only the other has a RecordData
+        // OR only the other has a Record
+      } else if ((imRecordData === null && otherRecordData !== null) || (imRecordData && !imHasRecord && otherRecordData && otherHasRecord)) {
+        if (imRecordData) {
+          // TODO check if we are retained in any async relationships
+          cache.delete(intendedIdentifier);
+          this.peekList[intendedIdentifier.type]?.delete(intendedIdentifier);
+          // im.destroy();
+        }
+        im = otherIm!;
+        // TODO do we need to notify the id change?
+        im.identifier = intendedIdentifier;
+        cache.set(intendedIdentifier, im);
+        this.peekList[intendedIdentifier.type] = this.peekList[intendedIdentifier.type] || new Set();
+        this.peekList[intendedIdentifier.type]!.add(intendedIdentifier);
+
+        // just use im
+      } else {
+        // otherIm.destroy();
+      }
+
+      /*
+      TODO @runspired consider adding this to make polymorphism even nicer
+      if (HAS_RECORD_DATA_PACKAGE) {
+        if (identifier.type !== matchedIdentifier.type) {
+          const graphFor = importSync('@ember-data/record-data/-private').graphFor;
+          graphFor(this).registerPolymorphicType(identifier.type, matchedIdentifier.type);
+        }
+      }
+      */
+
+      return intendedIdentifier;
+    });
   }
   peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'record' }): RecordInstance | undefined;
   peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'recordData' }): RecordData | undefined;
@@ -87,28 +194,13 @@ export class InstanceCache {
     this.#instances[bucket].set(identifier, value);
   }
 
+
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
     let record = this.peek({ identifier, bucket: 'record' });
 
     if (!record) {
-      // TODO store this state somewhere better
-      const internalModel = this.getInternalModel(identifier);
-
-      if (internalModel._isDematerializing) {
-        // TODO this should be an assertion, this likely means
-        // we have a bug to find wherein our own store is calling this
-        // with an identifier that should have already been disconnected.
-        // the destroy + fetch again case is likely either preserving the
-        // identifier for re-use or failing to unload it.
-        return null as unknown as RecordInstance;
-      }
-
-      // TODO store this state somewhere better
-      internalModel.hasRecord = true;
-
       if (properties && 'id' in properties) {
         assert(`expected id to be a string or null`, properties.id !== undefined);
-        internalModel.setId(properties.id);
       }
 
       record = this._instantiateRecord(this.getRecordData(identifier), identifier, properties);
@@ -116,6 +208,27 @@ export class InstanceCache {
     }
 
     return record;
+  }
+
+  clear(type?: string) {
+    if (type === undefined) {
+      let keys = Object.keys(this.peekList);
+      keys.forEach((key) => this.clear(key));
+    } else {
+      let identifiers = this.peekList[type];
+      if (identifiers) {
+        identifiers.forEach((identifier) => {
+          // TODO we rely on not removing the main cache
+          // and only removing the peekList cache apparently.
+          // we should figure out this duality and codify whatever
+          // signal it is actually trying to give us.
+          // this.cache.delete(identifier);
+          this.peekList[identifier.type]!.delete(identifier);
+          this.unloadRecord(identifier);
+          // TODO we don't remove the identifier, should we?
+        });
+      }
+    }
   }
 
   getReference(identifier: StableRecordIdentifier) {
@@ -235,6 +348,8 @@ export class InstanceCache {
       recordData = this._createRecordData(identifier);
       this.#instances.recordData.set(identifier, recordData);
       this.getInternalModel(identifier).hasRecordData = true;
+      this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
+      this.peekList[identifier.type]!.add(identifier);
     }
 
     return recordData;
@@ -251,7 +366,7 @@ export class InstanceCache {
 
   __recordDataFor(resource: RecordIdentifier) {
     const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
-    return this.recordDataFor(identifier);
+    return this.getRecordData(identifier);
   }
 
   // TODO move this to InstanceCache
@@ -270,13 +385,60 @@ export class InstanceCache {
     return recordData;
   }
 
-  // TODO string candidate for early elimination
-  _internalModelForResource(resource: ResourceIdentifierObject): InternalModel {
-    return internalModelFactoryFor(this.store).getByResource(resource);
+  setRecordId(modelName: string, newId: string, lid: string) {
+    const resource = constructResource(normalizeModelName(modelName), null, coerceId(lid));
+    const maybeIdentifier = this.store.identifierCache.peekRecordIdentifier(resource);
+
+    if (maybeIdentifier) {
+      // TODO handle consequences of identifier merge for notifications
+      this._setRecordId(modelName, newId, lid);
+      this.store._notificationManager.notify(maybeIdentifier, 'identity');
+    }
   }
 
-  setRecordId(modelName: string, newId: string, lid: string) {
-    internalModelFactoryFor(this.store).setRecordId(modelName, newId, lid);
+  _setRecordId(type: string, id: string, lid: string) {
+    const resource: NewResourceIdentifierObject = { type, id: null, lid };
+    const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
+
+    let oldId = identifier.id;
+    let modelName = identifier.type;
+
+    // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
+    assert(
+      `'${modelName}' was saved to the server, but the response does not have an id and your record does not either.`,
+      !(id === null && oldId === null)
+    );
+
+    // ID absolutely can't be different than oldID if oldID is not null
+    // TODO this assertion and restriction may not strictly be needed in the identifiers world
+    assert(
+      `Cannot update the id for '${modelName}:${lid}' from '${oldId}' to '${id}'.`,
+      !(oldId !== null && id !== oldId)
+    );
+
+    // ID can be null if oldID is not null (altered ID in response for a record)
+    // however, this is more than likely a developer error.
+    if (oldId !== null && id === null) {
+      warn(
+        `Your ${modelName} record was saved to the server, but the response does not have an id.`,
+        !(oldId !== null && id === null)
+      );
+      return;
+    }
+
+    let existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type: modelName, id });
+
+    assert(
+      `'${modelName}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
+     existingIdentifier === identifier
+    );
+
+    if (identifier.id === null) {
+      // TODO potentially this needs to handle merged result
+      this.store.identifierCache.updateRecordIdentifier(identifier, { type, id });
+    }
+
+    // TODO update recordData if needed ?
   }
 
   _load(data: ExistingResourceObject): StableExistingRecordIdentifier {
@@ -301,7 +463,7 @@ export class InstanceCache {
     // findRecord will be from root.loading
     // this cannot be loading state if we do not already have an identifier
     // all else will be updates
-    const isLoading = internalModel.isLoading || (!internalModel.isLoaded && maybeIdentifier);
+    const isLoading = internalModel.isLoading || (maybeIdentifier && !this.recordIsLoaded(maybeIdentifier));
     const isUpdate = internalModel.isEmpty === false && !isLoading;
 
     // exclude store.push (root.empty) case
@@ -320,12 +482,13 @@ export class InstanceCache {
       }
     }
 
-    if (internalModel.isNew()) {
+    const recordData = this.getRecordData(identifier);
+    if (recordData.isNew?.()) {
       this.store._notificationManager.notify(identifier, 'identity');
     }
 
     const hasRecord = this.#instances.record.has(identifier);
-    this.getRecordData(identifier).pushData(data, hasRecord);
+    recordData.pushData(data, hasRecord);
 
     if (!isUpdate) {
       this.store.recordArrayManager.recordDidChange(identifier);
@@ -341,34 +504,36 @@ export class InstanceCache {
       !record || record.isDestroyed || record.isDestroying
     );
 
-    const factory = internalModelFactoryFor(this.store);
-
-    let internalModel = factory.peek(identifier);
-    if (internalModel) {
-      internalModel.isDestroying = true;
-      factory.remove(internalModel);
-      internalModel._isDestroyed = true;
-    }
+    this.peekList[identifier.type]!.delete(identifier);
+    this.store.identifierCache.forgetRecordIdentifier(identifier);
   }
 
-  recordDataFor(identifier: StableRecordIdentifier | { type: string }, isCreate?: boolean): RecordData {
-    let recordData: RecordData;
-    // TODO remove isCreate arg @deprecate if needed
-    if (isCreate === true) {
-      // TODO remove once InternalModel is no longer essential to internal state
-      // and just build a new identifier directly
-      let internalModel = internalModelFactoryFor(this.store).build({ type: identifier.type, id: null });
-      let stableIdentifier = internalModel.identifier;
-      recordData = this.getRecordData(stableIdentifier);
-      recordData.clientDidCreate();
-      this.store.recordArrayManager.recordDidChange(stableIdentifier);
-    } else {
-      // TODO remove once InternalModel is no longer essential to internal state
-      internalModelFactoryFor(this.store).lookup(identifier as StableRecordIdentifier);
-      recordData = this.getRecordData(identifier as StableRecordIdentifier);
+  unloadRecord(identifier: StableRecordIdentifier) {
+    if (DEBUG) {
+      const requests = this.store.getRequestStateService().getPendingRequestsForRecord(identifier);
+      if (
+        requests.some((req) => {
+          return req.type === 'mutation';
+        })
+      ) {
+        assert('You can only unload a record which is not inFlight. `' + identifier + '`');
+      }
+    }
+    const internalModel = this.getInternalModel(identifier);
+
+    // this has to occur before the internal model is removed
+    // for legacy compat.
+    this.store._instanceCache.removeRecord(identifier);
+    const recordData = this.#instances.recordData.get(identifier);
+
+    if (recordData) {
+      // TODO is this join still necessary?
+      this.store._backburner.join(() => {
+        recordData.unloadRecord();
+      });
     }
 
-    return recordData;
+    this.store.recordArrayManager.recordDidChange(identifier);
   }
 }
 
@@ -420,7 +585,14 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
       .map((r) => `${typeof r}`)
       .join(', ')}`,
     (function () {
-      return records.every((record) => Object.prototype.hasOwnProperty.call(record, '_internalModel') === true);
+      return records.every((record) => {
+        try {
+          recordIdentifierFor(record);
+          return true;
+        } catch {
+          return false;
+        }
+      });
     })()
   );
 }
@@ -481,7 +653,7 @@ function preloadData(store: Store, identifier: StableRecordIdentifier, preload) 
       jsonPayload.attributes[key] = preloadValue;
     }
   });
-  store._instanceCache.recordDataFor(identifier).pushData(jsonPayload);
+  store._instanceCache.getRecordData(identifier).pushData(jsonPayload);
 }
 
 
