@@ -173,9 +173,17 @@ export class IdentifierCache {
           throw new Error(`The supplied identifier ${resource} does not belong to this store instance`);
         }
       }
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(`Identifiers: Peeked Identifier was already Stable ${String(resource)}`);
+      }
       return resource;
     }
 
+    if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.groupCollapsed('Identifiers: Peeking/Generating Identifier', resource);
+    }
     let lid = coerceId(resource.lid);
     let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids[lid] : undefined;
 
@@ -256,6 +264,12 @@ export class IdentifierCache {
           if (LOG_IDENTIFIERS && shouldGenerate) {
             // eslint-disable-next-line no-console
             console.log(`Identifiers: generated ${String(identifier)} for`, resource);
+            if (resource[DEBUG_IDENTIFIER_BUCKET]) {
+              // eslint-disable-next-line no-console
+              console.trace(
+                `[WARNING] Identifiers: generated a new identifier from a previously used identifier. This is likely a bug.`
+              );
+            }
           }
         }
 
@@ -276,6 +290,15 @@ export class IdentifierCache {
       }
     }
 
+    if (LOG_IDENTIFIERS) {
+      if (!identifier && !shouldGenerate) {
+        // eslint-disable-next-line no-console
+        console.log(`Identifiers: cache MISS`, resource);
+      }
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
+
     return identifier;
   }
 
@@ -290,13 +313,6 @@ export class IdentifierCache {
    * @private
    */
   peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
-    if (LOG_IDENTIFIERS) {
-      const identifier = this._getRecordIdentifier(resource, false);
-      // eslint-disable-next-line no-console
-      console.log(`Identifiers: cache peek found ${String(identifier)}`, resource);
-
-      return identifier;
-    }
     return this._getRecordIdentifier(resource, false);
   }
 
@@ -350,6 +366,11 @@ export class IdentifierCache {
     // ensure a peekAll sees our new identifier too
     // TODO move this outta here?
     keyOptions._allIdentifiers.push(identifier);
+
+    if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.log(`Identifiers: createded identifier ${String(identifier)} for newly generated resource`, data);
+    }
 
     return identifier;
   }
@@ -551,6 +572,10 @@ function makeStableRecordIdentifier(
       toString() {
         let { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
+      },
+      toJSON() {
+        let { type, id, lid } = recordIdentifier;
+        return { type, id, lid };
       },
     };
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
