@@ -3,6 +3,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
+import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import type {
   ExistingResourceObject,
   NewResourceIdentifierObject,
@@ -29,7 +30,7 @@ import { assertIdentifierHasId } from '../store-service';
 import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
-import WeakCache from '../utils/weak-cache';
+import WeakCache, { DebugWeakCache } from '../utils/weak-cache';
 import recordDataFor, { removeRecordDataFor, setRecordDataFor } from './record-data-for';
 
 /**
@@ -85,7 +86,6 @@ export function setRecordIdentifier(record: RecordInstance | RecordData, identif
   RecordCache.set(record, identifier);
 }
 
-const RECORD_REFERENCES = new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : '');
 export const StoreMap = new WeakCache<RecordInstance, Store>(DEBUG ? 'store' : '');
 
 export function storeFor(record: RecordInstance): Store | undefined {
@@ -101,16 +101,19 @@ export function storeFor(record: RecordInstance): Store | undefined {
 type Caches = {
   record: WeakMap<StableRecordIdentifier, RecordInstance>;
   recordData: WeakMap<StableRecordIdentifier, RecordData>;
+  reference: DebugWeakCache<StableRecordIdentifier, RecordReference>;
 };
 
 export class InstanceCache {
   declare store: Store;
   declare _storeWrapper: RecordDataStoreWrapper;
   declare peekList: Dict<Set<StableRecordIdentifier>>;
+  declare __recordDataFor: (resource: RecordIdentifier) => RecordData;
 
   #instances: Caches = {
     record: new WeakMap<StableRecordIdentifier, RecordInstance>(),
     recordData: new WeakMap<StableRecordIdentifier, RecordData>(),
+    reference: new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : ''),
   };
 
   recordIsLoaded(identifier: StableRecordIdentifier) {
@@ -140,9 +143,12 @@ export class InstanceCache {
     this.peekList = Object.create(null) as Dict<Set<StableRecordIdentifier>>;
 
     this._storeWrapper = new RecordDataStoreWrapper(this.store);
-    this.__recordDataFor = this.__recordDataFor.bind(this);
+    this.__recordDataFor = (resource: RecordIdentifier) => {
+      const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
+      return this.getRecordData(identifier);
+    };
 
-    RECORD_REFERENCES._generator = (identifier) => {
+    this.#instances.reference._generator = (identifier) => {
       return new RecordReference(this.store, identifier);
     };
 
@@ -248,31 +254,133 @@ export class InstanceCache {
   }): RecordData | RecordInstance | undefined {
     return this.#instances[bucket]?.get(identifier);
   }
-  set({
-    identifier,
-    bucket,
-    value,
-  }: {
-    identifier: StableRecordIdentifier;
-    bucket: 'record';
-    value: RecordInstance;
-  }): void {
-    this.#instances[bucket].set(identifier, value);
-  }
 
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
     let record = this.peek({ identifier, bucket: 'record' });
 
     if (!record) {
-      if (properties && 'id' in properties) {
-        assert(`expected id to be a string or null`, properties.id !== undefined);
-      }
+      const recordData = this.getRecordData(identifier);
+      const createOptions = recordData._initRecordCreateOptions(
+        normalizeProperties(this.store, identifier, properties)
+      );
+      record = this.store.instantiateRecord(
+        identifier,
+        createOptions,
+        this.__recordDataFor,
+        this.store._notificationManager
+      );
+      setRecordIdentifier(record, identifier);
+      setRecordDataFor(record, recordData);
+      StoreMap.set(record, this.store);
+      this.#instances.record.set(identifier, record);
 
-      record = this._instantiateRecord(this.getRecordData(identifier), identifier, properties);
-      this.set({ identifier, bucket: 'record', value: record });
+      if (LOG_INSTANCE_CACHE) {
+        // eslint-disable-next-line no-console
+        console.log(`InstanceCache: created Record for ${String(identifier)}`, properties);
+      }
     }
 
     return record;
+  }
+
+  getRecordData(identifier: StableRecordIdentifier) {
+    let recordData = this.peek({ identifier, bucket: 'recordData' });
+
+    if (!recordData) {
+      recordData = this.store.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
+      setRecordDataFor(identifier, recordData);
+      // TODO this is invalid for v2 recordData but required
+      // for v1 recordData. Remember to remove this once the
+      // RecordData manager handles converting recordData to identifier
+      setRecordIdentifier(recordData, identifier);
+
+      this.#instances.recordData.set(identifier, recordData);
+      this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
+      this.peekList[identifier.type]!.add(identifier);
+      if (LOG_INSTANCE_CACHE) {
+        // eslint-disable-next-line no-console
+        console.log(`InstanceCache: created RecordData for ${String(identifier)}`);
+      }
+    }
+
+    return recordData;
+  }
+
+  getReference(identifier: StableRecordIdentifier) {
+    return this.#instances.reference.lookup(identifier);
+  }
+
+  createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
+    return new Snapshot(options, identifier, this.store);
+  }
+
+  destroyRecord(identifier: StableRecordIdentifier) {
+    if (LOG_INSTANCE_CACHE) {
+      // eslint-disable-next-line no-console
+      console.log(`InstanceCache: destroying record for ${String(identifier)}`);
+    }
+    const record = this.#instances.record.get(identifier);
+    assert(
+      'Cannot destroy record while it is still materialized',
+      !record || record.isDestroyed || record.isDestroying
+    );
+
+    this.peekList[identifier.type]?.delete(identifier);
+    this.store.identifierCache.forgetRecordIdentifier(identifier);
+  }
+
+  unloadRecord(identifier: StableRecordIdentifier) {
+    if (DEBUG) {
+      const requests = this.store.getRequestStateService().getPendingRequestsForRecord(identifier);
+      if (
+        requests.some((req) => {
+          return req.type === 'mutation';
+        })
+      ) {
+        assert(`You can only unload a record which is not inFlight. '${String(identifier)}'`);
+      }
+    }
+    if (LOG_INSTANCE_CACHE) {
+      // eslint-disable-next-line no-console
+      console.log(`InstanceCache: unloading record for ${String(identifier)}`);
+    }
+
+    // TODO is this join still necessary?
+    this.store._backburner.join(() => {
+      const record = this.peek({ identifier, bucket: 'record' });
+      const recordData = this.peek({ identifier, bucket: 'recordData' });
+      this.peekList[identifier.type]?.delete(identifier);
+
+      if (record) {
+        this.#instances.record.delete(identifier);
+        StoreMap.delete(record);
+        // TODO remove identifier:record cache link
+        this.store.teardownRecord(record);
+        if (LOG_INSTANCE_CACHE) {
+          // eslint-disable-next-line no-console
+          console.log(`InstanceCache: destroyed record for ${String(identifier)}`);
+        }
+      }
+
+      if (recordData) {
+        this.#instances.recordData.delete(identifier);
+        recordData.unloadRecord();
+        removeRecordDataFor(identifier);
+
+        if (LOG_INSTANCE_CACHE) {
+          // eslint-disable-next-line no-console
+          console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
+        }
+      } else {
+        this._storeWrapper.disconnectRecord(identifier.type, identifier.id, identifier.lid);
+        if (LOG_INSTANCE_CACHE) {
+          // eslint-disable-next-line no-console
+          console.log(`InstanceCache: disconnected record for ${String(identifier)}`);
+        }
+      }
+
+      this.store.recordArrayManager.recordDidChange(identifier);
+    });
   }
 
   clear(type?: string) {
@@ -296,10 +404,7 @@ export class InstanceCache {
     }
   }
 
-  getReference(identifier: StableRecordIdentifier) {
-    return RECORD_REFERENCES.lookup(identifier);
-  }
-
+  // TODO this should move into the network layer
   _fetchDataIfNeededForIdentifier(
     identifier: StableRecordIdentifier,
     options: FindOptions = {}
@@ -329,158 +434,62 @@ export class InstanceCache {
     return promise;
   }
 
-  _instantiateRecord(
-    recordData: RecordData,
-    identifier: StableRecordIdentifier,
-    properties?: { [key: string]: unknown }
-  ) {
-    // assert here
-    if (properties !== undefined) {
+  // TODO this should move into something coordinating operations
+  setRecordId(modelName: string, id: string, lid: string) {
+    const type = normalizeModelName(modelName);
+    const resource = constructResource(type, null, coerceId(lid));
+    const identifier = this.store.identifierCache.peekRecordIdentifier(resource);
+
+    if (identifier) {
+      let oldId = identifier.id;
+
+      // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
       assert(
-        `You passed '${typeof properties}' as properties for record creation instead of an object.`,
-        typeof properties === 'object' && properties !== null
+        `'${type}' was saved to the server, but the response does not have an id and your record does not either.`,
+        !(id === null && oldId === null)
       );
 
-      const { type } = identifier;
+      // ID absolutely can't be different than oldID if oldID is not null
+      // TODO this assertion and restriction may not strictly be needed in the identifiers world
+      assert(
+        `Cannot update the id for '${type}:${lid}' from '${String(oldId)}' to '${id}'.`,
+        !(oldId !== null && id !== oldId)
+      );
 
-      // convert relationship Records to RecordDatas before passing to RecordData
-      let defs = this.store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
-
-      if (defs !== null) {
-        let keys = Object.keys(properties);
-        let relationshipValue;
-
-        for (let i = 0; i < keys.length; i++) {
-          let prop = keys[i];
-          let def = defs[prop];
-
-          if (def !== undefined) {
-            if (def.kind === 'hasMany') {
-              if (DEBUG) {
-                assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
-              }
-              relationshipValue = extractRecordDatasFromRecords(properties[prop] as RecordInstance[]);
-            } else {
-              relationshipValue = extractRecordDataFromRecord(properties[prop] as RecordInstance);
-            }
-
-            properties[prop] = relationshipValue;
-          }
-        }
+      // ID can be null if oldID is not null (altered ID in response for a record)
+      // however, this is more than likely a developer error.
+      if (oldId !== null && id === null) {
+        warn(
+          `Your ${type} record was saved to the server, but the response does not have an id.`,
+          !(oldId !== null && id === null)
+        );
+        return;
       }
-    }
 
-    // TODO guard against initRecordOptions no being there
-    let createOptions = recordData._initRecordCreateOptions(properties);
-    //TODO Igor pass a wrapper instead of RD
-    let record = this.store.instantiateRecord(
-      identifier,
-      createOptions,
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      this.__recordDataFor,
-      this.store._notificationManager
-    );
-    setRecordIdentifier(record, identifier);
-    setRecordDataFor(record, recordData);
-    StoreMap.set(record, this.store);
-    return record;
-  }
+      if (LOG_INSTANCE_CACHE) {
+        // eslint-disable-next-line no-console
+        console.log(`InstanceCache: updating id to '${id}' for record ${String(identifier)}`);
+      }
 
-  // TODO move RecordData Cache into InstanceCache
-  getRecordData(identifier: StableRecordIdentifier) {
-    let recordData = this.peek({ identifier, bucket: 'recordData' });
-
-    if (!recordData) {
-      recordData = this._createRecordData(identifier);
-      this.#instances.recordData.set(identifier, recordData);
-      this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
-      this.peekList[identifier.type]!.add(identifier);
-    }
-
-    return recordData;
-  }
-
-  createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
-    return new Snapshot(options, identifier, this.store);
-  }
-
-  __recordDataFor(resource: RecordIdentifier) {
-    const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
-    return this.getRecordData(identifier);
-  }
-
-  // TODO move this to InstanceCache
-  _createRecordData(identifier: StableRecordIdentifier): RecordData {
-    const recordData = this.store.createRecordDataFor(
-      identifier.type,
-      identifier.id,
-      identifier.lid,
-      this._storeWrapper
-    );
-    setRecordDataFor(identifier, recordData);
-    // TODO this is invalid for v2 recordData but required
-    // for v1 recordData. Remember to remove this once the
-    // RecordData manager handles converting recordData to identifier
-    setRecordIdentifier(recordData, identifier);
-    return recordData;
-  }
-
-  setRecordId(modelName: string, newId: string, lid: string) {
-    const resource = constructResource(normalizeModelName(modelName), null, coerceId(lid));
-    const maybeIdentifier = this.store.identifierCache.peekRecordIdentifier(resource);
-
-    if (maybeIdentifier) {
-      // TODO handle consequences of identifier merge for notifications
-      this._setRecordId(modelName, newId, lid);
-      this.store._notificationManager.notify(maybeIdentifier, 'identity');
-    }
-  }
-
-  _setRecordId(type: string, id: string, lid: string) {
-    const resource: NewResourceIdentifierObject = { type, id: null, lid };
-    const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
-
-    let oldId = identifier.id;
-    let modelName = identifier.type;
-
-    // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
-    assert(
-      `'${modelName}' was saved to the server, but the response does not have an id and your record does not either.`,
-      !(id === null && oldId === null)
-    );
-
-    // ID absolutely can't be different than oldID if oldID is not null
-    // TODO this assertion and restriction may not strictly be needed in the identifiers world
-    assert(
-      `Cannot update the id for '${modelName}:${lid}' from '${String(oldId)}' to '${id}'.`,
-      !(oldId !== null && id !== oldId)
-    );
-
-    // ID can be null if oldID is not null (altered ID in response for a record)
-    // however, this is more than likely a developer error.
-    if (oldId !== null && id === null) {
-      warn(
-        `Your ${modelName} record was saved to the server, but the response does not have an id.`,
-        !(oldId !== null && id === null)
+      let existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type, id });
+      assert(
+        `'${type}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
+        !existingIdentifier || existingIdentifier === identifier
       );
-      return;
+
+      if (identifier.id === null) {
+        // TODO potentially this needs to handle merged result
+        this.store.identifierCache.updateRecordIdentifier(identifier, { type, id });
+      }
+
+      // TODO update recordData if needed ?
+      // TODO handle consequences of identifier merge for notifications
+      this.store._notificationManager.notify(identifier, 'identity');
     }
-
-    let existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type: modelName, id });
-    assert(
-      `'${modelName}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
-      !existingIdentifier || existingIdentifier === identifier
-    );
-
-    if (identifier.id === null) {
-      // TODO potentially this needs to handle merged result
-      this.store.identifierCache.updateRecordIdentifier(identifier, { type, id });
-    }
-
-    // TODO update recordData if needed ?
   }
 
-  _load(data: ExistingResourceObject): StableExistingRecordIdentifier {
+  // TODO this should move into something coordinating operations
+  loadData(data: ExistingResourceObject): StableExistingRecordIdentifier {
     // TODO type should be pulled from the identifier for debug
     let modelName = data.type;
     assert(
@@ -528,54 +537,52 @@ export class InstanceCache {
 
     return identifier as StableExistingRecordIdentifier;
   }
+}
 
-  destroyRecord(identifier: StableRecordIdentifier) {
-    const record = this.#instances.record.get(identifier);
+function normalizeProperties(
+  store: Store,
+  identifier: StableRecordIdentifier,
+  properties?: { [key: string]: unknown }
+): { [key: string]: unknown } | undefined {
+  // assert here
+  if (properties !== undefined) {
+    if ('id' in properties) {
+      assert(`expected id to be a string or null`, properties.id !== undefined);
+    }
     assert(
-      'Cannot destroy record while it is still materialized',
-      !record || record.isDestroyed || record.isDestroying
+      `You passed '${typeof properties}' as properties for record creation instead of an object.`,
+      typeof properties === 'object' && properties !== null
     );
 
-    this.peekList[identifier.type]?.delete(identifier);
-    this.store.identifierCache.forgetRecordIdentifier(identifier);
-  }
+    const { type } = identifier;
 
-  unloadRecord(identifier: StableRecordIdentifier) {
-    if (DEBUG) {
-      const requests = this.store.getRequestStateService().getPendingRequestsForRecord(identifier);
-      if (
-        requests.some((req) => {
-          return req.type === 'mutation';
-        })
-      ) {
-        assert(`You can only unload a record which is not inFlight. '${String(identifier)}'`);
+    // convert relationship Records to RecordDatas before passing to RecordData
+    let defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
+
+    if (defs !== null) {
+      let keys = Object.keys(properties);
+      let relationshipValue;
+
+      for (let i = 0; i < keys.length; i++) {
+        let prop = keys[i];
+        let def = defs[prop];
+
+        if (def !== undefined) {
+          if (def.kind === 'hasMany') {
+            if (DEBUG) {
+              assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
+            }
+            relationshipValue = extractRecordDatasFromRecords(properties[prop] as RecordInstance[]);
+          } else {
+            relationshipValue = extractRecordDataFromRecord(properties[prop] as RecordInstance);
+          }
+
+          properties[prop] = relationshipValue;
+        }
       }
     }
-
-    // TODO is this join still necessary?
-    this.store._backburner.join(() => {
-      const record = this.peek({ identifier, bucket: 'record' });
-      const recordData = this.peek({ identifier, bucket: 'recordData' });
-      this.peekList[identifier.type]?.delete(identifier);
-
-      if (record) {
-        this.#instances.record.delete(identifier);
-        StoreMap.delete(record);
-        // TODO remove identifier:record cache link
-        this.store.teardownRecord(record);
-      }
-
-      if (recordData) {
-        this.#instances.recordData.delete(identifier);
-        recordData.unloadRecord();
-        removeRecordDataFor(identifier);
-      } else {
-        this._storeWrapper.disconnectRecord(identifier.type, identifier.id, identifier.lid);
-      }
-
-      this.store.recordArrayManager.recordDidChange(identifier);
-    });
   }
+  return properties;
 }
 
 export function isHiddenFromRecordArrays(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {

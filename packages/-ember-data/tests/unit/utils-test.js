@@ -1,5 +1,4 @@
 import Mixin from '@ember/object/mixin';
-import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 

@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type Store from '@ember-data/store';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { WeakCache } from '@ember-data/store/-private';
@@ -207,6 +208,10 @@ export class Graph {
   }
 
   unload(identifier: StableRecordIdentifier) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: unload ${String(identifier)}`);
+    }
     const relationships = this.identifiers.get(identifier);
 
     if (relationships) {
@@ -223,6 +228,10 @@ export class Graph {
   }
 
   remove(identifier: StableRecordIdentifier) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: remove ${String(identifier)}`);
+    }
     this.unload(identifier);
     this.identifiers.delete(identifier);
   }
@@ -231,6 +240,10 @@ export class Graph {
    * Remote state changes
    */
   push(op: RemoteRelationshipOperation) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: push ${String(op.record)}`, op);
+    }
     if (op.op === 'deleteRecord') {
       this._pushedUpdates.deletions.push(op);
     } else if (op.op === 'replaceRelatedRecord') {
@@ -260,6 +273,10 @@ export class Graph {
       `Cannot update an implicit relationship`,
       op.op === 'deleteRecord' || !isImplicit(this.get(op.record, op.field))
     );
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: update (${isRemote ? 'remote' : 'local'}) ${String(op.record)}`, op);
+    }
 
     switch (op.op) {
       case 'updateRelationship':

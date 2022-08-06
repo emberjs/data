@@ -21,6 +21,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember-data/store/-private',
       '@ember-data/store',
       '@ember-data/canary-features',
+      '@ember-data/private-build-infra/debugging',
     ];
   },
 });

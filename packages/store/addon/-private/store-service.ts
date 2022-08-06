@@ -1966,7 +1966,7 @@ class Store extends Service {
 
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {
-          this._instanceCache._load(included[i]);
+          this._instanceCache.loadData(included[i]);
         }
       }
 
@@ -1975,7 +1975,7 @@ class Store extends Service {
         let identifiers = new Array(length);
 
         for (i = 0; i < length; i++) {
-          identifiers[i] = this._instanceCache._load(jsonApiDoc.data[i]);
+          identifiers[i] = this._instanceCache.loadData(jsonApiDoc.data[i]);
         }
         return identifiers;
       }
@@ -1991,7 +1991,7 @@ class Store extends Service {
         typeof jsonApiDoc.data === 'object'
       );
 
-      return this._instanceCache._load(jsonApiDoc.data);
+      return this._instanceCache.loadData(jsonApiDoc.data);
     });
 
     // this typecast is necessary because `backburner.join` is mistyped to return void

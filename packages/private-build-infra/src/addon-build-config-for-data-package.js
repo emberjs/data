@@ -110,7 +110,6 @@ function addonBuildConfigForDataPackage(PackageName) {
       let babelOptions = this.options.babel || {};
       let existingPlugins = babelOptions.plugins || [];
       let config = this.getEmberDataConfig();
-      console.log({ config });
 
       let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost(), config);
       let plugins = existingPlugins.map((plugin) => {
