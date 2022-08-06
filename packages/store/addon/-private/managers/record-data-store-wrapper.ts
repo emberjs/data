@@ -211,6 +211,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
 
     if (identifier) {
       this._store._instanceCache.disconnect(identifier);
+      this._pendingNotifies.delete(identifier);
     }
   }
 }

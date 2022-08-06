@@ -119,6 +119,7 @@ function computeOnce(target, key, desc) {
 */
 class Model extends EmberObject {
   @service store;
+  #notifications;
 
   init(options = {}) {
     if (DEBUG && !options._secretInit && !options._createProps) {
@@ -141,13 +142,15 @@ class Model extends EmberObject {
     let notifications = store._notificationManager;
     let identity = recordIdentifierFor(this);
 
-    notifications.subscribe(identity, (identifier, type, key) => {
+    this.#notifications = notifications.subscribe(identity, (identifier, type, key) => {
       notifyChanges(identifier, type, key, this, store);
     });
   }
 
   willDestroy() {
     LEGACY_SUPPORT.get(this)?.destroy();
+    this.___recordState?.destroy();
+    storeFor(this)._notificationManager.unsubscribe(this.#notifications);
   }
 
   /**

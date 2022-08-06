@@ -154,6 +154,7 @@ export default class RecordState {
   declare recordData: RecordData;
   declare _errorRequests: any[];
   declare _lastError: any;
+  declare handler: object;
 
   constructor(record: Model) {
     const store = storeFor(record)!;
@@ -233,27 +234,34 @@ export default class RecordState {
       }
     }
 
-    notifications.subscribe(identity, (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
-      switch (type) {
-        case 'state':
-          this.notify('isNew');
-          this.notify('isDeleted');
-          this.notify('isDirty');
-          break;
-        case 'attributes':
-          this.notify('isEmpty');
-          this.notify('isDirty');
-          break;
-        case 'unload':
-          this.notify('isNew');
-          this.notify('isDeleted');
-          break;
-        case 'errors':
-          this.updateInvalidErrors(this.record.errors);
-          this.notify('isValid');
-          break;
+    this.handler = notifications.subscribe(
+      identity,
+      (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
+        switch (type) {
+          case 'state':
+            this.notify('isNew');
+            this.notify('isDeleted');
+            this.notify('isDirty');
+            break;
+          case 'attributes':
+            this.notify('isEmpty');
+            this.notify('isDirty');
+            break;
+          case 'unload':
+            this.notify('isNew');
+            this.notify('isDeleted');
+            break;
+          case 'errors':
+            this.updateInvalidErrors(this.record.errors);
+            this.notify('isValid');
+            break;
+        }
       }
-    });
+    );
+  }
+
+  destroy() {
+    this.store._notificationManager.unsubscribe(this.handler);
   }
 
   notify(key) {

@@ -51,6 +51,7 @@ function getWrapper(store: RecordDataStoreWrapper | Store): RecordDataStoreWrapp
 export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefined {
   return Graphs.get(getWrapper(store));
 }
+export type peekGraph = typeof peekGraph;
 
 export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
   return Graphs.lookup(getWrapper(store));
@@ -89,6 +90,7 @@ export class Graph {
   };
   declare _updatedRelationships: Set<ManyRelationship>;
   declare _transaction: Set<ManyRelationship | BelongsToRelationship> | null;
+  declare _removing: StableRecordIdentifier | null;
 
   constructor(store: RecordDataStoreWrapper) {
     this._definitionCache = Object.create(null);
@@ -100,6 +102,7 @@ export class Graph {
     this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
     this._updatedRelationships = new Set();
     this._transaction = null;
+    this._removing = null;
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
@@ -232,8 +235,11 @@ export class Graph {
       // eslint-disable-next-line no-console
       console.log(`graph: remove ${String(identifier)}`);
     }
+    assert(`Cannot remove ${String(identifier)} while still removing ${String(this._removing)}`, !this._removing);
+    this._removing = identifier;
     this.unload(identifier);
     this.identifiers.delete(identifier);
+    this._removing = null;
   }
 
   /*
@@ -334,6 +340,10 @@ export class Graph {
     if (!this._willSyncRemote) {
       return;
     }
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.groupCollapsed(`Graph: Initialized Transaction`);
+    }
     this._transaction = new Set();
     this._willSyncRemote = false;
     const { deletions, hasMany, belongsTo } = this._pushedUpdates;
@@ -357,6 +367,10 @@ export class Graph {
 
   _addToTransaction(relationship: ManyRelationship | BelongsToRelationship) {
     assert(`expected a transaction`, this._transaction !== null);
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: ${relationship.identifier} ${relationship.definition.key} added to transaction`);
+    }
     relationship.transactionRef++;
     this._transaction.add(relationship);
   }
@@ -365,6 +379,12 @@ export class Graph {
     if (this._transaction) {
       this._transaction.forEach((v) => (v.transactionRef = 0));
       this._transaction = null;
+      if (LOG_GRAPH) {
+        // eslint-disable-next-line no-console
+        console.log(`Graph: transaction finalized`);
+        // eslint-disable-next-line no-console
+        console.groupEnd();
+      }
     }
   }
 

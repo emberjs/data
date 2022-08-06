@@ -1,5 +1,6 @@
 import { assert } from '@ember/debug';
 
+import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type {
   CollectionResourceRelationship,
@@ -163,6 +164,19 @@ export default class ManyRelationship {
 
   notifyHasManyChange() {
     const { store, identifier } = this;
+    if (identifier === this.graph._removing) {
+      if (LOG_GRAPH) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Graph: ignoring hasManyChange for removed identifier ${String(identifier)} ${this.definition.key}`
+        );
+      }
+      return;
+    }
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: notifying hasManyChange for ${String(identifier)} ${this.definition.key}`);
+    }
     store.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, this.definition.key);
   }
 

@@ -357,7 +357,7 @@ export class InstanceCache {
     }
     if (LOG_INSTANCE_CACHE) {
       // eslint-disable-next-line no-console
-      console.log(`InstanceCache: unloading record for ${String(identifier)}`);
+      console.groupCollapsed(`InstanceCache: unloading record for ${String(identifier)}`);
     }
 
     // TODO is this join still necessary?
@@ -389,6 +389,8 @@ export class InstanceCache {
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
         console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
+        // eslint-disable-next-line no-console
+        console.groupEnd();
       }
     });
   }

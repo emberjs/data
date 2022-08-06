@@ -1,12 +1,14 @@
+import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { LOG_NOTIFICATIONS } from '@ember-data/private-build-infra/debugging';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 import WeakCache from '../utils/weak-cache';
 
-type UnsubscribeToken = Object;
+type UnsubscribeToken = object;
 
 const Cache = new WeakCache<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>(
   DEBUG ? 'subscribers' : ''
@@ -25,8 +27,12 @@ export type NotificationType =
   | 'property'; // 'property' is an internal EmberData only transition period concept.
 
 export interface NotificationCallback {
-  (identifier: RecordIdentifier, notificationType: 'attributes' | 'relationships' | 'property', key?: string): void;
-  (identifier: RecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
+  (
+    identifier: StableRecordIdentifier,
+    notificationType: 'attributes' | 'relationships' | 'property',
+    key?: string
+  ): void;
+  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
   (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
 }
 
@@ -45,12 +51,12 @@ export function unsubscribe(token: UnsubscribeToken) {
 export default class NotificationManager {
   constructor(private store: Store) {}
 
-  subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
-    let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);
-    let map = Cache.lookup(stableIdentifier);
+  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
+    assert(`Expected to receive a stable Identifier to subscribe to`, isStableIdentifier(identifier));
+    let map = Cache.lookup(identifier);
     let unsubToken = {};
     map.set(unsubToken, callback);
-    Tokens.set(unsubToken, stableIdentifier);
+    Tokens.set(unsubToken, identifier);
     return unsubToken;
   }
 
@@ -58,20 +64,32 @@ export default class NotificationManager {
     unsubscribe(token);
   }
 
-  notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): boolean;
-  notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
-  notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {
-    let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);
+  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
+  notify(identifier: StableRecordIdentifier, value: NotificationType, key?: string): boolean {
+    if (!isStableIdentifier(identifier)) {
+      if (LOG_NOTIFICATIONS) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Notifying: Expected to receive a stable Identifier to notify '${value}' '${key}' with, but ${String(
+            identifier
+          )} is not in the cache`,
+          identifier
+        );
+      }
+      return false;
+    }
+
     if (LOG_NOTIFICATIONS) {
       // eslint-disable-next-line no-console
-      console.log(`Notifying: ${String(stableIdentifier)}\t${value}\t${key}`);
+      console.log(`Notifying: ${String(identifier)}\t${value}\t${key}`);
     }
-    let callbackMap = Cache.get(stableIdentifier);
+    let callbackMap = Cache.get(identifier);
     if (!callbackMap || !callbackMap.size) {
       return false;
     }
     callbackMap.forEach((cb) => {
-      cb(stableIdentifier, value, key);
+      cb(identifier, value, key);
     });
     return true;
   }

@@ -180,15 +180,20 @@ export class IdentifierCache {
       return resource;
     }
 
-    if (LOG_IDENTIFIERS) {
-      // eslint-disable-next-line no-console
-      console.groupCollapsed('Identifiers: Peeking/Generating Identifier', resource);
-    }
     let lid = coerceId(resource.lid);
     let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids[lid] : undefined;
 
     if (identifier !== undefined) {
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(`Identifiers: cache HIT ${identifier}`, resource);
+      }
       return identifier;
+    }
+
+    if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.groupCollapsed(`Identifiers: ${shouldGenerate ? 'Generating' : 'Peeking'} Identifier`, resource);
     }
 
     if (shouldGenerate === false) {
