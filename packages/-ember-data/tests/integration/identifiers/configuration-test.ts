@@ -541,7 +541,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     assert.strictEqual(forgetMethodCalls, 1, 'We called the forget method once');
     forgetMethodCalls = 0;
-    debugger;
 
     // an async relationship retains
     const jailBird = store.push({
@@ -595,7 +594,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
     const jailBirdIdentifier = recordIdentifierFor(jailBird);
     const gatekeeperIdentifier = recordIdentifierFor(gatekeeper);
     const jailhouseIdentifier = recordIdentifierFor(jailhouse);
-    console.clear();
 
     jailBird.unloadRecord();
     await settled();
@@ -607,7 +605,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
     gatekeeper.unloadRecord();
     await settled();
 
-    // debugger;
     assert.strictEqual(forgetMethodCalls, 2, 'We cleaned up both identifiers');
     forgetMethodCalls = 0;
     expectedIdentifiers.push(jailhouseIdentifier);

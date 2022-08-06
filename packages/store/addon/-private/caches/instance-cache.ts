@@ -1,14 +1,13 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { importSync } from '@embroider/macros';
 import { resolve } from 'rsvp';
 
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
-import type {
-  ExistingResourceObject,
-  NewResourceIdentifierObject,
-  ResourceIdentifierObject,
-} from '@ember-data/types/q/ember-data-json-api';
+import type { Graph, peekGraph } from '@ember-data/record-data/-private/graph/index';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
@@ -32,6 +31,16 @@ import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
 import WeakCache, { DebugWeakCache } from '../utils/weak-cache';
 import recordDataFor, { removeRecordDataFor, setRecordDataFor } from './record-data-for';
+
+let _peekGraph: peekGraph;
+if (HAS_RECORD_DATA_PACKAGE) {
+  let __peekGraph: peekGraph;
+  _peekGraph = (wrapper: Store | RecordDataStoreWrapper): Graph | undefined => {
+    let a = (importSync('@ember-data/record-data/-private') as { peekGraph: peekGraph }).peekGraph;
+    __peekGraph = __peekGraph || a;
+    return __peekGraph(wrapper);
+  };
+}
 
 /**
   @module @ember-data/store
@@ -314,19 +323,25 @@ export class InstanceCache {
     return new Snapshot(options, identifier, this.store);
   }
 
-  destroyRecord(identifier: StableRecordIdentifier) {
-    if (LOG_INSTANCE_CACHE) {
-      // eslint-disable-next-line no-console
-      console.log(`InstanceCache: destroying record for ${String(identifier)}`);
-    }
+  disconnect(identifier: StableRecordIdentifier) {
     const record = this.#instances.record.get(identifier);
     assert(
       'Cannot destroy record while it is still materialized',
       !record || record.isDestroyed || record.isDestroying
     );
 
-    this.peekList[identifier.type]?.delete(identifier);
+    if (HAS_RECORD_DATA_PACKAGE) {
+      let graph = _peekGraph(this.store);
+      if (graph) {
+        graph.remove(identifier);
+      }
+    }
+
     this.store.identifierCache.forgetRecordIdentifier(identifier);
+    if (LOG_INSTANCE_CACHE) {
+      // eslint-disable-next-line no-console
+      console.log(`InstanceCache: disconnected ${String(identifier)}`);
+    }
   }
 
   unloadRecord(identifier: StableRecordIdentifier) {
@@ -366,20 +381,15 @@ export class InstanceCache {
         this.#instances.recordData.delete(identifier);
         recordData.unloadRecord();
         removeRecordDataFor(identifier);
-
-        if (LOG_INSTANCE_CACHE) {
-          // eslint-disable-next-line no-console
-          console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
-        }
       } else {
-        this._storeWrapper.disconnectRecord(identifier.type, identifier.id, identifier.lid);
-        if (LOG_INSTANCE_CACHE) {
-          // eslint-disable-next-line no-console
-          console.log(`InstanceCache: disconnected record for ${String(identifier)}`);
-        }
+        this.disconnect(identifier);
       }
 
       this.store.recordArrayManager.recordDidChange(identifier);
+      if (LOG_INSTANCE_CACHE) {
+        // eslint-disable-next-line no-console
+        console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
+      }
     });
   }
 
@@ -490,7 +500,6 @@ export class InstanceCache {
 
   // TODO this should move into something coordinating operations
   loadData(data: ExistingResourceObject): StableExistingRecordIdentifier {
-    // TODO type should be pulled from the identifier for debug
     let modelName = data.type;
     assert(
       `You must include an 'id' for ${modelName} in an object passed to 'push'`,
@@ -501,9 +510,7 @@ export class InstanceCache {
       this.store.getSchemaDefinitionService().doesTypeExist(modelName)
     );
 
-    // TODO this should determine identifier via the cache before making assumptions
     const resource = constructResource(normalizeModelName(data.type), ensureStringId(data.id), coerceId(data.lid));
-    // we probably should ony peek here
     let identifier = this.store.identifierCache.peekRecordIdentifier(resource);
     let isUpdate = false;
 
@@ -520,7 +527,7 @@ export class InstanceCache {
         identifier = this.store.identifierCache.updateRecordIdentifier(identifier, data);
       }
     } else {
-      identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
+      identifier = this.store.identifierCache.getOrCreateRecordIdentifier(data);
     }
 
     const recordData = this.getRecordData(identifier);

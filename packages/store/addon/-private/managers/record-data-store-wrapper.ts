@@ -1,7 +1,4 @@
-import { importSync } from '@embroider/macros';
-
 import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
-import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type {
@@ -21,17 +18,6 @@ import constructResource from '../utils/construct-resource';
 
 function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
   return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
-}
-
-let peekGraph;
-if (HAS_RECORD_DATA_PACKAGE) {
-  let _peekGraph;
-  peekGraph = (wrapper) => {
-    _peekGraph =
-      _peekGraph ||
-      (importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')).peekGraph;
-    return _peekGraph(wrapper);
-  };
 }
 
 export default class RecordDataStoreWrapper implements StoreWrapper {
@@ -210,9 +196,9 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   isRecordInUse(type: string, id: string, lid?: string | null): boolean;
   isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
     const resource = constructResource(type, id, lid);
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.peekRecordIdentifier(resource);
 
-    const record = this._store._instanceCache.peek({ identifier, bucket: 'record' });
+    const record = identifier && this._store._instanceCache.peek({ identifier, bucket: 'record' });
 
     return record ? !(record.isDestroyed || record.isDestroying) : false;
   }
@@ -221,13 +207,10 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   disconnectRecord(type: string, id: string, lid?: string | null): void;
   disconnectRecord(type: string, id: string | null, lid?: string | null): void {
     const resource = constructResource(type, id, lid);
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    if (HAS_RECORD_DATA_PACKAGE) {
-      let graph = peekGraph(this);
-      if (graph) {
-        graph.remove(identifier);
-      }
+    const identifier = this.identifierCache.peekRecordIdentifier(resource);
+
+    if (identifier) {
+      this._store._instanceCache.disconnect(identifier);
     }
-    this._store._instanceCache.destroyRecord(identifier);
   }
 }

@@ -214,7 +214,7 @@ export class IdentifierCache {
       let newLid = this._generate(resource, 'record');
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
-        console.log(`Identifiers: generated record identifier ${newLid} for resource`, resource);
+        console.log(`Identifiers: lid ${newLid} determined for resource`, resource);
       }
 
       // we do this _even_ when `lid` is present because secondary lookups
@@ -252,6 +252,11 @@ export class IdentifierCache {
           // TODO exists temporarily to support `peekAll`
           // but likely to move
           keyOptions._allIdentifiers.push(identifier);
+
+          if (LOG_IDENTIFIERS && shouldGenerate) {
+            // eslint-disable-next-line no-console
+            console.log(`Identifiers: generated ${String(identifier)} for`, resource);
+          }
         }
 
         // populate our own secondary lookup table
@@ -285,6 +290,13 @@ export class IdentifierCache {
    * @private
    */
   peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
+    if (LOG_IDENTIFIERS) {
+      const identifier = this._getRecordIdentifier(resource, false);
+      // eslint-disable-next-line no-console
+      console.log(`Identifiers: cache peek found ${String(identifier)}`, resource);
+
+      return identifier;
+    }
     return this._getRecordIdentifier(resource, false);
   }
 

@@ -1,3 +1,5 @@
+import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
@@ -79,21 +81,19 @@ module('Store.createRecord() coverage', function (hooks) {
     });
 
     // check that we are properly configured
-    assert.strictEqual(pet.get('owner'), chris, 'Precondition: Our owner is Chris');
+    assert.strictEqual(pet.owner, chris, 'Precondition: Our owner is Chris');
 
     let pets = chris
       .get('pets')
       .toArray()
-      .map((pet) => pet.get('name'));
+      .map((pet) => pet.name);
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
+    debugger;
     pet.unloadRecord();
-    assert.strictEqual(pet.get('owner'), null, 'Shen no longer has an owner');
+    assert.strictEqual(pet.owner, null, 'Shen no longer has an owner');
     // check that the relationship has been dissolved
-    pets = chris
-      .get('pets')
-      .toArray()
-      .map((pet) => pet.get('name'));
+    pets = chris.pets.toArray().map((pet) => pet.name);
     assert.deepEqual(pets, [], 'Chris no longer has any pets');
   });
 
