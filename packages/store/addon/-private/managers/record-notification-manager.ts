@@ -1,5 +1,6 @@
 import { DEBUG } from '@glimmer/env';
 
+import { LOG_NOTIFICATIONS } from '@ember-data/private-build-infra/debugging';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type Store from '../store-service';
@@ -61,6 +62,10 @@ export default class NotificationManager {
   notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
   notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {
     let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);
+    if (LOG_NOTIFICATIONS) {
+      // eslint-disable-next-line no-console
+      console.log(`Notifying: ${String(stableIdentifier)}\t${value}\t${key}`);
+    }
     let callbackMap = Cache.get(stableIdentifier);
     if (!callbackMap || !callbackMap.size) {
       return false;

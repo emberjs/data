@@ -4,6 +4,7 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { LOG_IDENTIFIERS } from '@ember-data/private-build-infra/debugging';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
   ForgetMethod,
@@ -211,6 +212,10 @@ export class IdentifierCache {
       // we have definitely not seen this resource before
       // so we allow the user configured `GenerationMethod` to tell us
       let newLid = this._generate(resource, 'record');
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(`Identifiers: generated record identifier ${newLid} for resource`, resource);
+      }
 
       // we do this _even_ when `lid` is present because secondary lookups
       // may need to be populated, but we enforce not giving us something
@@ -378,7 +383,21 @@ export class IdentifierCache {
 
     if (existingIdentifier) {
       let keyOptions = getTypeIndex(this._cache.types, identifier.type);
-      identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
+      let generatedIdentifier = identifier;
+      identifier = this._mergeRecordIdentifiers(
+        keyOptions,
+        generatedIdentifier,
+        existingIdentifier,
+        data,
+        newId as string
+      );
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Identifiers: merged identifiers ${generatedIdentifier.lid} and ${existingIdentifier.lid} for resource into ${identifier.lid}`,
+          data
+        );
+      }
     }
 
     let id = identifier.id;
@@ -387,12 +406,22 @@ export class IdentifierCache {
 
     // add to our own secondary lookup table
     if (id !== newId && newId !== null) {
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Identifiers: updated id for identifier ${identifier.lid} from '${id}' to '${newId}' for resource`,
+          data
+        );
+      }
       let keyOptions = getTypeIndex(this._cache.types, identifier.type);
       keyOptions.id[newId] = identifier;
 
       if (id !== null) {
         delete keyOptions.id[id];
       }
+    } else if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.log(`Identifiers: updated identifier ${identifier.lid} resource`, data);
     }
 
     return identifier;
@@ -454,6 +483,10 @@ export class IdentifierCache {
 
     IDENTIFIERS.delete(identifierObject);
     this._forget(identifier, 'record');
+    if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.log(`Identifiers: released identifier ${identifierObject.lid}`);
+    }
   }
 
   destroy() {
