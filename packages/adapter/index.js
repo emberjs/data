@@ -1,8 +1,9 @@
 'use strict';
+import { importSync } from '@embroider/macros';
 
-const addonBuildConfigForDataPackage = require('@ember-data/private-build-infra/src/addon-build-config-for-data-package');
+const addonBuildConfigForDataPackage = importSync('@ember-data/private-build-infra/src/addon-build-config-for-data-package');
 
-const name = require('./package').name;
+const name = importSync('./package').name;
 
 const addonBaseConfig = addonBuildConfigForDataPackage(name);
 
