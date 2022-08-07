@@ -147,10 +147,20 @@ class Model extends EmberObject {
     });
   }
 
-  willDestroy() {
+  destroy() {
     LEGACY_SUPPORT.get(this)?.destroy();
     this.___recordState?.destroy();
-    storeFor(this)._notificationManager.unsubscribe(this.#notifications);
+    const store = storeFor(this);
+    const identifier = recordIdentifierFor(this);
+    store._notificationManager.unsubscribe(this.#notifications);
+    // Legacy behavior is to notify the relationships on destroy
+    // such that they "clear". It's uncertain this behavior would
+    // be good for a new model paradigm, likely cheaper and safer
+    // to simply not notify, for this reason the store does not itself
+    // notify individual changes once the delete has been signaled,
+    // this decision is left to model instances.
+    notifyChanges(identifier, 'relationships', undefined, this, store);
+    super.destroy();
   }
 
   /**

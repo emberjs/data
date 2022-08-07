@@ -313,11 +313,8 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
         const identifier = idCache.getOrCreateRecordIdentifier(jsonApi.data[i]);
-        const recordData = cache.peek({ identifier, bucket: 'recordData' });
-        // TODO can probably be simpler
-        let shouldRemove = !recordData || recordData.isEmpty?.() || !cache.recordIsLoaded(identifier);
 
-        if (!shouldRemove) {
+        if (cache.recordIsLoaded(identifier)) {
           identifiers.push(identifier);
         }
       }

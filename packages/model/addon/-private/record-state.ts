@@ -261,7 +261,7 @@ export default class RecordState {
   }
 
   destroy() {
-    this.store._notificationManager.unsubscribe(this.handler);
+    storeFor(this.record)!._notificationManager.unsubscribe(this.handler);
   }
 
   notify(key) {

@@ -172,6 +172,10 @@ function belongsTo(modelName, options) {
         }
       }
 
+      if (this.isDestroyed) {
+        return null;
+      }
+
       return support.getBelongsTo(key);
     },
     set(key, value) {

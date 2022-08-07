@@ -367,10 +367,12 @@ export class InstanceCache {
       this.peekList[identifier.type]?.delete(identifier);
 
       if (record) {
+        this.store.teardownRecord(record);
         this.#instances.record.delete(identifier);
         StoreMap.delete(record);
-        // TODO remove identifier:record cache link
-        this.store.teardownRecord(record);
+        RecordCache.delete(record);
+        removeRecordDataFor(record);
+
         if (LOG_INSTANCE_CACHE) {
           // eslint-disable-next-line no-console
           console.log(`InstanceCache: destroyed record for ${String(identifier)}`);
@@ -378,9 +380,10 @@ export class InstanceCache {
       }
 
       if (recordData) {
-        this.#instances.recordData.delete(identifier);
         recordData.unloadRecord();
+        this.#instances.recordData.delete(identifier);
         removeRecordDataFor(identifier);
+        RecordCache.delete(recordData);
       } else {
         this.disconnect(identifier);
       }

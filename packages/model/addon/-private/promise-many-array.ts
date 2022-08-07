@@ -105,6 +105,19 @@ export default class PromiseManyArray {
     }
   }
 
+  /**
+   * Reload the relationship
+   * @method reload
+   * @public
+   * @param options
+   * @returns
+   */
+  reload(options: FindOptions) {
+    assert('You are trying to reload an async manyArray before it has been created', this.content);
+    this.content.reload(options);
+    return this;
+  }
+
   //----  Properties/Methods from the PromiseProxyMixin that we will keep as our API
 
   /**
@@ -219,30 +232,6 @@ export default class PromiseManyArray {
 }
 
 if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
-  // TODO update RFC to also note reload deprecation
-  /**
-   * Reload the relationship
-   * @method reload
-   * @deprecated
-   * @public
-   * @param options
-   * @returns
-   */
-  PromiseManyArray.prototype.reload = function reload(options: FindOptions) {
-    deprecate(
-      `The reload method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly or use the HasManyReference interface.`,
-      false,
-      {
-        id: 'ember-data:deprecate-promise-many-array-behaviors',
-        until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
-        for: 'ember-data',
-      }
-    );
-    assert('You are trying to reload an async manyArray before it has been created', this.content);
-    this.content.reload(options);
-    return this;
-  };
   PromiseManyArray.prototype.createRecord = function createRecord(...args) {
     deprecate(
       `The createRecord method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,

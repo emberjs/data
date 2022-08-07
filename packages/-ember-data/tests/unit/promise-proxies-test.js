@@ -9,70 +9,79 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import Model, { belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('PromiseManyArray', function () {
-  test('.reload should NOT leak the internal promise, rather return another promiseArray', function (assert) {
-    assert.expect(1);
+  deprecatedTest(
+    '.reload should NOT leak the internal promise, rather return another promiseArray',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
+    function (assert) {
+      assert.expect(1);
 
-    let content = A();
+      let content = A();
 
-    content.reload = () => EmberPromise.resolve(content);
+      content.reload = () => EmberPromise.resolve(content);
 
-    let array = DS.PromiseManyArray.create({
-      content,
-    });
+      let array = DS.PromiseManyArray.create({
+        content,
+      });
 
-    let reloaded = array.reload();
+      let reloaded = array.reload();
 
-    assert.strictEqual(reloaded, array);
-  });
+      assert.strictEqual(reloaded, array);
+    }
+  );
 
-  test('.reload should be stable', async function (assert) {
-    assert.expect(19);
+  deprecatedTest(
+    '.reload should be stable',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
+    async function (assert) {
+      assert.expect(19);
 
-    let content = A();
-    let array;
+      let content = A();
+      let array;
 
-    content.reload = () => {
-      let p = EmberPromise.resolve(content);
-      array._update(p);
-      return p;
-    };
-    let promise = EmberPromise.resolve(content);
+      content.reload = () => {
+        let p = EmberPromise.resolve(content);
+        array._update(p);
+        return p;
+      };
+      let promise = EmberPromise.resolve(content);
 
-    array = DS.PromiseManyArray.create({
-      promise,
-    });
+      array = DS.PromiseManyArray.create({
+        promise,
+      });
 
-    assert.false(array.isRejected, 'should NOT be rejected');
-    assert.true(array.isPending, 'should be pending');
-    assert.false(array.isSettled, 'should NOT be settled');
-    assert.false(array.isFulfilled, 'should NOT be fulfilled');
+      assert.false(array.isRejected, 'should NOT be rejected');
+      assert.true(array.isPending, 'should be pending');
+      assert.false(array.isSettled, 'should NOT be settled');
+      assert.false(array.isFulfilled, 'should NOT be fulfilled');
 
-    await array;
-    assert.false(array.isRejected, 'should NOT be rejected');
-    assert.false(array.isPending, 'should NOT be pending');
-    assert.true(array.isSettled, 'should be settled');
-    assert.true(array.isFulfilled, 'should be fulfilled');
+      await array;
+      assert.false(array.isRejected, 'should NOT be rejected');
+      assert.false(array.isPending, 'should NOT be pending');
+      assert.true(array.isSettled, 'should be settled');
+      assert.true(array.isFulfilled, 'should be fulfilled');
 
-    let reloaded = array.reload();
+      let reloaded = array.reload();
 
-    assert.false(array.isRejected, 'should NOT be rejected');
-    assert.true(array.isPending, 'should be pending');
-    assert.false(array.isSettled, 'should NOT be settled');
-    assert.false(array.isFulfilled, 'should NOT be fulfilled');
+      assert.false(array.isRejected, 'should NOT be rejected');
+      assert.true(array.isPending, 'should be pending');
+      assert.false(array.isSettled, 'should NOT be settled');
+      assert.false(array.isFulfilled, 'should NOT be fulfilled');
 
-    assert.ok(reloaded instanceof DS.PromiseManyArray);
-    assert.strictEqual(reloaded, array);
+      assert.ok(reloaded instanceof DS.PromiseManyArray);
+      assert.strictEqual(reloaded, array);
 
-    let value = await reloaded;
-    assert.false(array.isRejected, 'should NOT be rejected');
-    assert.false(array.isPending, 'should NOT be pending');
-    assert.true(array.isSettled, 'should be settled');
-    assert.true(array.isFulfilled, 'should be fulfilled');
+      let value = await reloaded;
+      assert.false(array.isRejected, 'should NOT be rejected');
+      assert.false(array.isPending, 'should NOT be pending');
+      assert.true(array.isSettled, 'should be settled');
+      assert.true(array.isFulfilled, 'should be fulfilled');
 
-    assert.strictEqual(content, value);
-  });
+      assert.strictEqual(content, value);
+    }
+  );
 
   test('.set to new promise should be like reload', async function (assert) {
     assert.expect(18);

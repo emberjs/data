@@ -10,6 +10,7 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 const Author = Model.extend({
   name: attr('string'),
@@ -108,12 +109,80 @@ module('integration/records/relationship-changes - Relationship changes', functi
   });
 
   if (!gte('4.0.0')) {
-    test('Calling push with relationship triggers observers once if the relationship was empty and is added to', function (assert) {
+    deprecatedTest(
+      'Calling push with relationship triggers observers once if the relationship was empty and is added to',
+      { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 3 },
+      function (assert) {
+        assert.expect(1);
+
+        let store = this.owner.lookup('service:store');
+        let person = null;
+        let observerCount = 0;
+
+        run(() => {
+          store.push({
+            data: {
+              type: 'person',
+              id: 'wat',
+              attributes: {
+                firstName: 'Yehuda',
+                lastName: 'Katz',
+              },
+              relationships: {
+                siblings: {
+                  data: [],
+                },
+              },
+            },
+          });
+          person = store.peekRecord('person', 'wat');
+        });
+
+        run(() => {
+          person.addObserver('siblings.[]', function () {
+            observerCount++;
+          });
+          // prime the pump
+          person.get('siblings');
+        });
+
+        run(() => {
+          store.push({
+            data: {
+              type: 'person',
+              id: 'wat',
+              attributes: {},
+              relationships: {
+                siblings: {
+                  data: [sibling1Ref],
+                },
+              },
+            },
+            included: [sibling1],
+          });
+        });
+
+        run(() => {
+          assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
+        });
+      }
+    );
+  }
+
+  deprecatedTest(
+    'Calling push with relationship recalculates computed alias property if the relationship was empty and is added to',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
+    function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
-      let person = null;
-      let observerCount = 0;
+
+      let Obj = EmberObject.extend({
+        person: null,
+        siblings: alias('person.siblings'),
+      });
+
+      const obj = Obj.create();
 
       run(() => {
         store.push({
@@ -131,15 +200,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
             },
           },
         });
-        person = store.peekRecord('person', 'wat');
-      });
-
-      run(() => {
-        person.addObserver('siblings.[]', function () {
-          observerCount++;
-        });
-        // prime the pump
-        person.get('siblings');
+        set(obj, 'person', store.peekRecord('person', 'wat'));
       });
 
       run(() => {
@@ -159,118 +220,70 @@ module('integration/records/relationship-changes - Relationship changes', functi
       });
 
       run(() => {
-        assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
+        let cpResult = get(obj, 'siblings').toArray();
+        assert.strictEqual(cpResult.length, 1, 'siblings cp should have recalculated');
+        obj.destroy();
       });
-    });
-  }
+    }
+  );
 
-  test('Calling push with relationship recalculates computed alias property if the relationship was empty and is added to', function (assert) {
-    assert.expect(1);
+  deprecatedTest(
+    'Calling push with relationship recalculates computed alias property to firstObject if the relationship was empty and is added to',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
+    function (assert) {
+      assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+      let store = this.owner.lookup('service:store');
 
-    let Obj = EmberObject.extend({
-      person: null,
-      siblings: alias('person.siblings'),
-    });
+      let Obj = EmberObject.extend({
+        person: null,
+        firstSibling: alias('person.siblings.firstObject'),
+      });
 
-    const obj = Obj.create();
+      const obj = Obj.create();
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [],
+      run(() => {
+        store.push({
+          data: {
+            type: 'person',
+            id: 'wat',
+            attributes: {
+              firstName: 'Yehuda',
+              lastName: 'Katz',
+            },
+            relationships: {
+              siblings: {
+                data: [],
+              },
             },
           },
-        },
+        });
+        set(obj, 'person', store.peekRecord('person', 'wat'));
       });
-      set(obj, 'person', store.peekRecord('person', 'wat'));
-    });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
+      run(() => {
+        store.push({
+          data: {
+            type: 'person',
+            id: 'wat',
+            attributes: {},
+            relationships: {
+              siblings: {
+                data: [sibling1Ref],
+              },
             },
           },
-        },
-        included: [sibling1],
+          included: [sibling1],
+        });
       });
-    });
 
-    run(() => {
-      let cpResult = get(obj, 'siblings').toArray();
-      assert.strictEqual(cpResult.length, 1, 'siblings cp should have recalculated');
-      obj.destroy();
-    });
-  });
-
-  test('Calling push with relationship recalculates computed alias property to firstObject if the relationship was empty and is added to', function (assert) {
-    assert.expect(1);
-
-    let store = this.owner.lookup('service:store');
-
-    let Obj = EmberObject.extend({
-      person: null,
-      firstSibling: alias('person.siblings.firstObject'),
-    });
-
-    const obj = Obj.create();
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [],
-            },
-          },
-        },
+      run(() => {
+        let cpResult = get(obj, 'firstSibling');
+        assert.strictEqual(get(cpResult, 'id'), '1', 'siblings cp should have recalculated');
+        obj.destroy();
       });
-      set(obj, 'person', store.peekRecord('person', 'wat'));
-    });
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
-            },
-          },
-        },
-        included: [sibling1],
-      });
-    });
-
-    run(() => {
-      let cpResult = get(obj, 'firstSibling');
-      assert.strictEqual(get(cpResult, 'id'), '1', 'siblings cp should have recalculated');
-      obj.destroy();
-    });
-  });
+    }
+  );
 
   test('Calling push with relationship triggers observers once if the relationship was not empty and was added to', function (assert) {
     assert.expect(1);

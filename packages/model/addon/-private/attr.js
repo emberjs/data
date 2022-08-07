@@ -136,6 +136,9 @@ function attr(type, options) {
           );
         }
       }
+      if (this.isDestroyed) {
+        return;
+      }
       let recordData = recordDataFor(this);
       // TODO hasAttr is not spec'd
       // essentially this is needed because

@@ -24,7 +24,7 @@ export function setRecordDataFor(identifier: StableRecordIdentifier | RecordInst
   RecordDataForIdentifierCache.set(identifier, recordData);
 }
 
-export function removeRecordDataFor(identifier: StableRecordIdentifier): void {
+export function removeRecordDataFor(identifier: StableRecordIdentifier | RecordInstance): void {
   RecordDataForIdentifierCache.delete(identifier);
 }
 

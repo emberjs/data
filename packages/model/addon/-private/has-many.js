@@ -189,6 +189,9 @@ function hasMany(type, options) {
           );
         }
       }
+      if (this.isDestroyed) {
+        return [];
+      }
       return LEGACY_SUPPORT.lookup(this).getHasMany(key);
     },
     set(key, records) {

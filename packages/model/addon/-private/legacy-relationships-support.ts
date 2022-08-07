@@ -510,10 +510,6 @@ export class LegacySupport {
   }
 
   destroy() {
-    assert(
-      'Cannot destroy record while it is materialized',
-      !this.record || this.record.isDestroyed || this.record.isDestroying
-    );
     this.isDestroying = true;
 
     const cache = this._manyArrayCache;
