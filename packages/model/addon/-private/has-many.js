@@ -189,7 +189,7 @@ function hasMany(type, options) {
           );
         }
       }
-      if (this.isDestroyed) {
+      if (this.isDestroyed || this.isDestroying) {
         return [];
       }
       return LEGACY_SUPPORT.lookup(this).getHasMany(key);

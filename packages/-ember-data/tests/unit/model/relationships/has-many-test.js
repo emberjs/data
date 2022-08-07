@@ -2354,7 +2354,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     return EmberPromise.all([people]);
   });
 
-  test('hasMany proxy is destroyed', function (assert) {
+  test('hasMany proxy is destroyed', async function (assert) {
     const Tag = Model.extend({
       name: attr('string'),
       people: hasMany('person'),
@@ -2370,22 +2370,17 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     let store = this.owner.lookup('service:store');
     let tag = store.createRecord('tag');
-    let peopleProxy = tag.get('people');
+    let peopleProxy = tag.people;
+    let people = await peopleProxy;
 
-    return peopleProxy.then((people) => {
-      run(() => {
-        tag.unloadRecord();
-        // TODO Check all unloading behavior
-        assert.false(people.isDestroying, 'people is NOT destroying sync after unloadRecord');
-        assert.false(people.isDestroyed, 'people is NOT destroyed sync after unloadRecord');
+    tag.unloadRecord();
+    assert.true(people.isDestroying, 'people is destroying sync after unloadRecord');
+    assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying after the run post unloadRecord');
+    assert.true(peopleProxy.isDestroyed, 'peopleProxy is destroyed after the run post unloadRecord');
 
-        assert.false(peopleProxy.isDestroying, 'peopleProxy is NOT destroying sync after unloadRecord');
-        assert.false(peopleProxy.isDestroyed, 'peopleProxy is NOT destroyed sync after unloadRecord');
-      });
+    await settled();
 
-      assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying after the run post unloadRecord');
-      assert.true(peopleProxy.isDestroyed, 'peopleProxy is destroyed after the run post unloadRecord');
-    });
+    assert.true(people.isDestroyed, 'people is destroyed after unloadRecord');
   });
 
   test('findHasMany - can push the same record in twice and fetch the link', async function (assert) {

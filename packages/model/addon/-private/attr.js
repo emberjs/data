@@ -136,7 +136,7 @@ function attr(type, options) {
           );
         }
       }
-      if (this.isDestroyed) {
+      if (this.isDestroyed || this.isDestroying) {
         return;
       }
       let recordData = recordDataFor(this);

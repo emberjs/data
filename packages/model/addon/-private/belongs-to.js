@@ -143,6 +143,12 @@ function belongsTo(modelName, options) {
 
   return computed({
     get(key) {
+      // this is a legacy behavior we may not carry into a new model setup
+      // it's better to error on disconnected records so users find errors
+      // in their logic.
+      if (this.isDestroying || this.isDestroyed) {
+        return null;
+      }
       const support = LEGACY_SUPPORT.lookup(this);
 
       if (DEBUG) {
@@ -170,10 +176,6 @@ function belongsTo(modelName, options) {
             }
           );
         }
-      }
-
-      if (this.isDestroyed) {
-        return null;
       }
 
       return support.getBelongsTo(key);

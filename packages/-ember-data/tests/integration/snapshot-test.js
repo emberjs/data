@@ -1069,7 +1069,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     );
   });
 
-  test('snapshot.hasMany() respects the order of items in the relationship', function (assert) {
+  test('snapshot.hasMany() respects the order of items in the relationship', async function (assert) {
     assert.expect(3);
 
     store.push({
@@ -1115,9 +1115,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
     });
     let comment3 = store.peekRecord('comment', 3);
     let post = store.peekRecord('post', 4);
-
-    post.get('comments').removeObject(comment3);
-    post.get('comments').insertAt(0, comment3);
+    const comments = await post.comments;
+    comments.removeObject(comment3);
+    comments.insertAt(0, comment3);
 
     let snapshot = post._createSnapshot();
     let relationship = snapshot.hasMany('comments');

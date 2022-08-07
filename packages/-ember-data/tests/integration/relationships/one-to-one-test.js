@@ -982,32 +982,27 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     assert.strictEqual(job.get('user'), user, 'Job still has the user');
   });
 
-  test('Rollbacking attributes of created record removes the relationship on both sides - async', function (assert) {
+  test('Rollbacking attributes of created record removes the relationship on both sides - async', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var stanleysFriend, stanley;
-    run(function () {
-      stanleysFriend = store.push({
-        data: {
-          id: 2,
-          type: 'user',
-          attributes: {
-            name: "Stanley's friend",
-          },
+    const stanleysFriend = store.push({
+      data: {
+        id: 2,
+        type: 'user',
+        attributes: {
+          name: "Stanley's friend",
         },
-      });
+      },
+    });
+    const stanley = store.createRecord('user', { bestFriend: stanleysFriend });
 
-      stanley = store.createRecord('user', { bestFriend: stanleysFriend });
-    });
-    run(function () {
-      stanley.rollbackAttributes();
-      stanleysFriend.get('bestFriend').then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, null, 'Stanley got rollbacked correctly');
-      });
-      stanley.get('bestFriend').then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, null, 'Stanleys friend did got removed');
-      });
-    });
+    stanley.rollbackAttributes();
+
+    let fetchedUser = await stanleysFriend.bestFriend;
+    assert.strictEqual(fetchedUser, null, 'Stanley got rollbacked correctly');
+    // TODO we should figure out how to handle the fact that we disconnect things. Right now we're asserting eagerly.
+    fetchedUser = await stanley.bestFriend;
+    assert.strictEqual(fetchedUser, null, 'Stanleys friend did get removed');
   });
 
   test('Rollbacking attributes of created record removes the relationship on both sides - sync', async function (assert) {
