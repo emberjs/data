@@ -127,8 +127,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     tom = records.tom;
     yehuda = records.yehuda;
 
-    assert.asyncEqual(tom, store.findRecord('person', '1'), 'Once an ID is in, findRecord returns the same object');
-    assert.asyncEqual(yehuda, store.findRecord('person', '2'), 'Once an ID is in, findRecord returns the same object');
+    assert.strictEqual(
+      tom,
+      await store.findRecord('person', '1'),
+      'Once an ID is in, findRecord returns the same object'
+    );
+    assert.strictEqual(
+      yehuda,
+      await store.findRecord('person', '2'),
+      'Once an ID is in, findRecord returns the same object'
+    );
     assert.strictEqual(tom.updatedAt, 'now', 'The new information is received');
     assert.strictEqual(yehuda.updatedAt, 'now', 'The new information is received');
   });

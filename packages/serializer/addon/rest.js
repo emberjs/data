@@ -11,8 +11,6 @@ import { singularize } from 'ember-inflector';
 import JSONSerializer from '@ember-data/serializer/json';
 import { coerceId } from '@ember-data/store/-private';
 
-import { modelHasAttributeOrRelationshipNamedType } from './-private';
-
 function makeArray(value) {
   return Array.isArray(value) ? value : [value];
 }
@@ -198,7 +196,7 @@ const RESTSerializer = JSONSerializer.extend({
     let serializer = primarySerializer;
     let modelClass = primaryModelClass;
 
-    let primaryHasTypeAttribute = modelHasAttributeOrRelationshipNamedType(primaryModelClass);
+    let primaryHasTypeAttribute = primaryModelClass.fields.has('type');
 
     if (!primaryHasTypeAttribute && hash.type) {
       // Support polymorphic records in async relationships

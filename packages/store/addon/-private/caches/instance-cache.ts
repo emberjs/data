@@ -643,7 +643,7 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
 function extractRecordDatasFromRecords(records: RecordInstance[]): RecordData[] {
   return records.map(extractRecordDataFromRecord) as RecordData[];
 }
-type PromiseProxyRecord = { then(): void; get(str: 'content'): RecordInstance | null | undefined };
+type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 
 function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
   if (!recordOrPromiseRecord) {
@@ -651,7 +651,7 @@ function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   }
 
   if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.get && recordOrPromiseRecord.content;
+    let content = recordOrPromiseRecord.content;
     assert(
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
       content !== undefined

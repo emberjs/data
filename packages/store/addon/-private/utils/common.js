@@ -1,5 +1,4 @@
 import { deprecate } from '@ember/debug';
-import { get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
@@ -27,7 +26,7 @@ export function _guard(promise, test) {
 }
 
 export function _objectIsAlive(object) {
-  return !(get(object, 'isDestroyed') || get(object, 'isDestroying'));
+  return !(object.isDestroyed || object.isDestroying);
 }
 
 export function guardDestroyedStore(promise, store, label) {

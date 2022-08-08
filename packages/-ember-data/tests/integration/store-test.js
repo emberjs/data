@@ -310,7 +310,7 @@ module('integration/store - findRecord', function (hooks) {
   });
 
   test('store#findRecord returns cached record immediately and reloads record in the background', async function (assert) {
-    assert.expect(4);
+    assert.expect(2);
 
     let adapter = store.adapterFor('application');
 
@@ -342,15 +342,12 @@ module('integration/store - findRecord', function (hooks) {
       };
     };
 
-    const promiseCar = store.findRecord('car', '1');
-    const car = await promiseCar;
+    const car = await store.findRecord('car', '1');
 
-    assert.strictEqual(promiseCar.model, 'Mini', 'promiseCar is from cache');
     assert.strictEqual(car.model, 'Mini', 'car record is returned from cache');
 
     await settled();
 
-    assert.strictEqual(promiseCar.model, 'Princess', 'promiseCar is updated');
     assert.strictEqual(car.model, 'Princess', 'Updated car record is returned');
   });
 

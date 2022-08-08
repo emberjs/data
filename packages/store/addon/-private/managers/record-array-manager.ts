@@ -4,7 +4,6 @@
 
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
-import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
@@ -142,7 +141,7 @@ class RecordArrayManager {
   _didUpdateAll(modelName: string): void {
     let recordArray = this._liveRecordArrays[modelName];
     if (recordArray) {
-      set(recordArray, 'isUpdating', false);
+      recordArray.isUpdating = false;
       // TODO potentially we should sync here, currently
       // this occurs as a side-effect of individual records updating
       // this._syncLiveRecordArray(recordArray, modelName);

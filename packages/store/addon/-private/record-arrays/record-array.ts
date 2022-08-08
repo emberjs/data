@@ -4,7 +4,6 @@
 import type NativeArray from '@ember/array/-private/native-array';
 import ArrayProxy from '@ember/array/proxy';
 import { assert, deprecate } from '@ember/debug';
-import { get, set } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 
 import { Promise } from 'rsvp';
@@ -107,7 +106,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     super.init();
 
     // TODO can we get rid of this?
-    this.set('content', this.content || null);
+    this.content = this.content || null;
     this._updatingPromise = null;
   }
 
@@ -135,7 +134,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @return {Model} record
   */
   objectAtContent(index: number): RecordInstance | undefined {
-    let identifier = get(this, 'content').objectAt(index);
+    let identifier = this.content.objectAt(index);
     return identifier ? recordForIdentifier(this.store, identifier) : undefined;
   }
 
@@ -196,7 +195,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     ```javascript
     let messages = store.peekAll('message');
     messages.forEach(function(message) {
-      message.set('hasBeenSeen', true);
+      message.hasBeenSeen = true;
     });
     messages.save();
     ```
@@ -234,8 +233,8 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     //   * the exception being: if an dominator has a reference to this object,
     //     and must be informed to release e.g. e.g. removing itself from th
     //     recordArrayMananger
-    set(this, 'content', null as unknown as NativeArray<StableRecordIdentifier>);
-    set(this, 'length', 0);
+    this.content = null as unknown as NativeArray<StableRecordIdentifier>;
+    this.length = 0;
     super.willDestroy();
   }
 

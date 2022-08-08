@@ -311,13 +311,12 @@ declare const jQuery: JQueryStatic | undefined;
 
   ```app/adapters/application.js
   import RESTAdapter from '@ember-data/adapter/rest';
-  import { get } from '@ember/object';
   import { computed } from '@ember/object';
 
   export default class ApplicationAdapter extends RESTAdapter {
     headers: computed(function() {
       return {
-        'API_KEY': get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
+        'API_KEY': document.cookie.match(/apiKey\=([^;]*)/)['1'],
         'ANOTHER_HEADER': 'Some header value'
       };
     }).volatile()

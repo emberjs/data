@@ -1,6 +1,5 @@
 import { getOwner } from '@ember/application';
 import { deprecate } from '@ember/debug';
-import { get } from '@ember/object';
 
 import { importSync } from '@embroider/macros';
 
@@ -55,7 +54,7 @@ export class DSModelSchemaDefinitionService {
 
     if (attributes === undefined) {
       let modelClass = this.store.modelFor(modelName);
-      let attributeMap = get(modelClass, 'attributes');
+      let attributeMap = modelClass.attributes;
 
       attributes = Object.create(null);
       attributeMap.forEach((meta, name) => (attributes[name] = meta));
@@ -88,7 +87,7 @@ export class DSModelSchemaDefinitionService {
 
     if (relationships === undefined) {
       let modelClass = this.store.modelFor(modelName);
-      relationships = get(modelClass, 'relationshipsObject') || null;
+      relationships = modelClass.relationshipsObject || null;
       this._relationshipsDefCache[modelName] = relationships;
     }
 

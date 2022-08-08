@@ -26,7 +26,6 @@
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import DataAdapter from '@ember/debug/data-adapter';
-import { get } from '@ember/object';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';
 import { capitalize, underscore } from '@ember/string';
@@ -64,7 +63,7 @@ export default DataAdapter.extend({
   },
 
   _nameToClass(type) {
-    return get(this, 'store').modelFor(type);
+    return this.store.modelFor(type);
   },
 
   /**
@@ -80,7 +79,7 @@ export default DataAdapter.extend({
     @return {Function} Method to call to remove all observers
   */
   watchModelTypes(typesAdded, typesUpdated) {
-    const store = get(this, 'store');
+    const { store } = this;
     const __getRecordData = store._instanceCache.getRecordData;
     const _releaseMethods = [];
     const discoveredTypes = typesMapFor(store);
@@ -166,7 +165,7 @@ export default DataAdapter.extend({
     ];
     let count = 0;
     let self = this;
-    get(typeClass, 'attributes').forEach((meta, name) => {
+    typeClass.attributes.forEach((meta, name) => {
       if (count++ > self.attributeLimit) {
         return false;
       }
@@ -213,13 +212,13 @@ export default DataAdapter.extend({
   */
   getRecordColumnValues(record) {
     let count = 0;
-    let columnValues = { id: get(record, 'id') };
+    let columnValues = { id: record.id };
 
     record.eachAttribute((key) => {
       if (count++ > this.attributeLimit) {
         return false;
       }
-      columnValues[key] = get(record, key);
+      columnValues[key] = record[key];
     });
     return columnValues;
   },
@@ -236,7 +235,7 @@ export default DataAdapter.extend({
     let keywords = [];
     let keys = A(['id']);
     record.eachAttribute((key) => keys.push(key));
-    keys.forEach((key) => keywords.push(get(record, key)));
+    keys.forEach((key) => keywords.push(record[key]));
     return keywords;
   },
 

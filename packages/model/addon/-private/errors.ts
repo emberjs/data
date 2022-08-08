@@ -219,7 +219,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
 
    Example
    ```javascript
-    let errors = get(user, 'errors');
+    let errors = user.errors;
 
     // add multiple errors
     errors.add('password', [
@@ -293,7 +293,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
    Example:
 
    ```javascript
-    let errors = get('user', errors);
+    let errors = user.errors;
     errors.add('phone', ['error-1', 'error-2']);
 
     errors.errorsFor('phone');
@@ -344,7 +344,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
   Example:
 
    ```javascript
-   let errors = get('user', errors);
+   let errors = user.errors;
    errors.add('username', ['error-a']);
    errors.add('phone', ['error-1', 'error-2']);
 

@@ -473,8 +473,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       },
     });
 
-    dog.set('name', 'is a dwarf planet');
-    dog.set('breed', 'planet');
+    dog.name = 'is a dwarf planet';
+    dog.breed = 'planet';
 
     addObserver(dog, 'errors.name', function () {
       assert.ok(true, 'errors.name did change');
@@ -486,8 +486,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       assert.strictEqual(reason, thrownAdapterError);
       assert.strictEqual(dog.name, 'is a dwarf planet');
       assert.strictEqual(dog.breed, 'planet');
-      assert.ok(isPresent(dog.errors.name));
-      assert.strictEqual(dog.get('errors.name.length'), 1);
+      assert.ok(isPresent(dog.errors.get('name')));
+      assert.strictEqual(dog.errors.get('name.length'), 1);
 
       dog.set('name', 'Seymour Asses');
       await settled();
@@ -501,7 +501,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       assert.strictEqual(dog.name, 'Pluto');
       assert.strictEqual(dog.breed, 'Disney');
       assert.false(dog.hasDirtyAttributes, 'must not be dirty');
-      assert.notOk(dog.errors.name);
+      assert.notOk(dog.errors.get('name'));
       assert.ok(dog.isValid);
     }
   });

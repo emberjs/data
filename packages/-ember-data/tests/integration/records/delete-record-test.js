@@ -425,10 +425,11 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     store.push(jsonGroup);
 
     group = store.peekRecord('group', '1');
+    const groupCompany = await group.company;
 
     // Sanity Check
     assert.ok(group, 'expected group to be found');
-    assert.strictEqual(group.company.name, 'Inc.', 'group belongs to our company');
+    assert.strictEqual(groupCompany.name, 'Inc.', 'group belongs to our company');
     assert.strictEqual(group.employees.length, 1, 'expected 1 related record before delete');
     const employees = await group.employees;
     employee = employees.objectAt(0);

@@ -1,5 +1,6 @@
 import { get, set } from '@ember/object';
 import { later, run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { all, Promise as EmberPromise, resolve } from 'rsvp';
@@ -523,12 +524,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findRecord('person', 1, { preload: { friend: 2 } }).then(() => {
-        return store
-          .peekRecord('person', 1)
-          .friend
-          .then((friend) => {
-            assert.strictEqual(friend.id, '2', 'Preloaded belongsTo set');
-          });
+        return store.peekRecord('person', 1).friend.then((friend) => {
+          assert.strictEqual(friend.id, '2', 'Preloaded belongsTo set');
+        });
       });
     });
   });
@@ -1228,8 +1226,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
   });
 
-  test('store should reload all records in the background when `shouldBackgroundReloadAll` is true', function (assert) {
+  test('store should reload all records in the background when `shouldBackgroundReloadAll` is true', async function (assert) {
     assert.expect(5);
+    let hasPerformedInitialFind = false;
 
     const Person = Model.extend({
       name: attr(),
@@ -1245,8 +1244,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         return true;
       },
       findAll() {
-        assert.ok(true, 'find should not be called');
-        return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }] };
+        assert.ok(true, 'findAll should be called');
+        return new Promise((resolve) => setTimeout(resolve, 1)).then(() => {
+          return {
+            data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }],
+          };
+        });
       },
     });
 
@@ -1256,15 +1259,14 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    let done = run(() => {
-      return store.findAll('person').then((records) => {
-        assert.strictEqual(records.firstObject.name, undefined);
-      });
-    });
+    store.push({ data: [{ id: '1', type: 'person', attributes: { name: 'John' } }] });
 
-    assert.strictEqual(store.peekRecord('person', 1).name, 'Tom');
+    const records = await store.findAll('person');
 
-    return done;
+    assert.strictEqual(records.firstObject.name, 'John', 'on initial load name is stale');
+
+    await settled();
+    assert.strictEqual(store.peekRecord('person', 1).name, 'Tom', 'after background reload name is loaded');
   });
 
   testInDebug('Calling adapterFor with a model class should assert', function (assert) {
