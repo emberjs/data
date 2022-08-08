@@ -200,7 +200,7 @@ class JSONAPIAdapter extends RESTAdapter {
     }
     ```
 
-    By default calling `post.get('comments')` will trigger the following requests(assuming the
+    By default calling `post.comments` will trigger the following requests(assuming the
     comments haven't been loaded before):
 
     ```

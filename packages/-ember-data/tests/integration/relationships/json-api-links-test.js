@@ -80,7 +80,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
           assert.strictEqual(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
           assert.strictEqual(user1.belongsTo('organisation').id(), '1', `user's belongsTo has its id populated`);
 
-          return user1.get('organisation').then((orgFromUser) => {
+          return user1.organisation.then((orgFromUser) => {
             assert.false(
               user1.belongsTo('organisation').belongsToRelationship.state.isStale,
               'user should have loaded its belongsTo relationship'
@@ -714,7 +714,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
       // setup user
       let user = run(() => store.push(deepCopy(payloads.user)));
-      let pets = run(() => user.get('pets'));
+      let pets = run(() => user.pets);
 
       assert.ok(!!pets, 'We found our pets');
 
@@ -804,7 +804,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
       // setup user
       let user = run(() => store.push(deepCopy(payloads.user)));
-      let home = run(() => user.get('home'));
+      let home = run(() => user.home);
 
       if (homeRelWasEmpty) {
         assert.notOk(didFetchInitially, 'We did not fetch');
@@ -842,13 +842,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
       // setup user
       let user = run(() => store.push(deepCopy(payloads.user)));
-      let home = run(() => user.get('home'));
+      let home = run(() => user.home);
 
       assert.ok(!!home, 'We found our home');
 
       if (!homeRelWasEmpty) {
         run(() => home.then((h) => h.unloadRecord()));
-        run(() => user.get('home'));
+        run(() => user.home);
       } else {
         assert.ok(true, `We cant dirty a relationship we have no knowledge of`);
         assert.ok(true, `Nor should we have fetched it.`);
@@ -1014,7 +1014,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       // setup user and pets
       let user = run(() => store.push(deepCopy(payloads.user)));
       run(() => store.push(deepCopy(payloads.pets)));
-      let pets = run(() => user.get('pets'));
+      let pets = run(() => user.pets);
 
       assert.ok(!!pets, 'We found our pets');
 
@@ -1081,7 +1081,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       // setup user and home
       let user = run(() => store.push(deepCopy(payloads.user)));
       run(() => store.push(deepCopy(payloads.home)));
-      let home = run(() => user.get('home'));
+      let home = run(() => user.home);
 
       assert.ok(!!home, 'We found our home');
 
@@ -1114,12 +1114,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       let user = run(() => store.push(deepCopy(payloads.user)));
       run(() => store.push(deepCopy(payloads.home)));
       let home;
-      run(() => user.get('home').then((h) => (home = h)));
+      run(() => user.home.then((h) => (home = h)));
 
       assert.ok(!!home, 'We found our home');
 
       run(() => home.unloadRecord());
-      run(() => user.get('home'));
+      run(() => user.home);
     });
   }
 
@@ -1374,7 +1374,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       })
     );
-    let pets = run(() => user.get('pets'));
+    let pets = run(() => user.pets);
 
     assert.ok(!!pets, 'We found our pets');
 
@@ -1495,7 +1495,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       })
     );
-    let home = run(() => user.get('home'));
+    let home = run(() => user.home);
 
     assert.ok(!!home, 'We found our home');
 
@@ -1556,12 +1556,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       })
     );
-    let home = run(() => user.get('home'));
+    let home = run(() => user.home);
 
     assert.ok(!!home, 'We found our home');
 
     run(() => home.then((h) => h.unloadRecord()));
-    run(() => user.get('home'));
+    run(() => user.home);
   });
 
   // missing data setup from the other side, no links
@@ -1776,7 +1776,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         ],
       })
     );
-    let home = run(() => user.get('home'));
+    let home = run(() => user.home);
 
     assert.ok(!!home, 'We found our home');
 
@@ -1846,12 +1846,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         ],
       })
     );
-    let home = run(() => user.get('home'));
+    let home = run(() => user.home);
 
     assert.ok(!!home, 'We found our home');
 
     run(() => home.then((h) => h.unloadRecord()));
-    run(() => user.get('home'));
+    run(() => user.home);
   });
 
   // empty data, no links
@@ -1892,7 +1892,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       })
     );
-    let pets = run(() => user.get('pets'));
+    let pets = run(() => user.pets);
 
     assert.ok(!!pets, 'We found our pets');
 
@@ -1975,21 +1975,21 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     // should not fire a request
     requestedUser = null;
     failureDescription = 'We improperly fetched the link for a known empty relationship';
-    run(() => user1.get('pets'));
+    run(() => user1.pets);
 
     // still should not fire a request
     requestedUser = null;
     failureDescription = 'We improperly fetched the link (again) for a known empty relationship';
-    run(() => user1.get('pets'));
+    run(() => user1.pets);
 
     // should fire a request
     requestedUser = user2Payload;
-    run(() => user2.get('pets'));
+    run(() => user2.pets);
 
     // should not fire a request
     requestedUser = null;
     failureDescription = 'We improperly fetched the link for a previously fetched and found to be empty relationship';
-    run(() => user2.get('pets'));
+    run(() => user2.pets);
   });
 
   test('We should not fetch a sync hasMany relationship with a link that is missing the data member', function (assert) {
@@ -2033,7 +2033,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     let shen = run(() => store.push(petPayload));
 
     // should not fire a request
-    run(() => shen.get('pets'));
+    run(() => shen.pets);
 
     assert.ok(true, 'We reached the end of the test');
   });
@@ -2080,7 +2080,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     let shen = run(() => store.push(petPayload));
 
     // should not fire a request
-    run(() => shen.get('owner'));
+    run(() => shen.owner);
 
     assert.ok(true, 'We reached the end of the test');
   });

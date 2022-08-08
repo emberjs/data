@@ -402,14 +402,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
 
     let person = store.peekRecord('person', '1');
-    assert.strictEqual(person.get('name'), 'new attribute');
+    assert.strictEqual(person.name, 'new attribute');
     assert.strictEqual(calledGet, 1, 'called getAttr for initial get');
     person.set('name', 'new value');
     assert.strictEqual(calledGet, 2, 'called getAttr during set');
-    assert.strictEqual(person.get('name'), 'new value');
+    assert.strictEqual(person.name, 'new value');
     assert.strictEqual(calledGet, 2, 'did not call getAttr after set');
     person.notifyPropertyChange('name');
-    assert.strictEqual(person.get('name'), 'new attribute');
+    assert.strictEqual(person.name, 'new attribute');
     assert.strictEqual(calledGet, 3, 'called getAttr after notifyPropertyChange');
     assert.deepEqual(
       person.changedAttributes(),
@@ -466,10 +466,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     let house = store.peekRecord('house', '1');
     let runspired = store.peekRecord('person', '2');
-    assert.strictEqual(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
+    assert.strictEqual(house.landlord.name, 'David', 'belongsTo get correctly looked up');
 
     house.set('landlord', runspired);
-    assert.strictEqual(house.get('landlord.name'), 'David', 'belongsTo does not change if RD did not notify');
+    assert.strictEqual(house.landlord.name, 'David', 'belongsTo does not change if RD did not notify');
   });
 
   test('Record Data custom belongsTo', async function (assert) {
@@ -518,13 +518,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
 
     let house = store.peekRecord('house', '1');
-    assert.strictEqual(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
+    assert.strictEqual(house.landlord.name, 'David', 'belongsTo get correctly looked up');
 
     let runspired = store.peekRecord('person', '2');
     house.set('landlord', runspired);
 
     // This is intentionally !== runspired to test the custom RD implementation
-    assert.strictEqual(house.get('landlord.name'), 'Igor', 'RecordData sets the custom belongsTo value');
+    assert.strictEqual(house.landlord.name, 'Igor', 'RecordData sets the custom belongsTo value');
   });
 
   test('Record Data controls hasMany notifications', async function (assert) {
@@ -597,7 +597,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
 
     let house = store.peekRecord('house', '1');
-    let people = house.get('tenants');
+    let people = house.tenants;
     let david = store.peekRecord('person', '1');
     let runspired = store.peekRecord('person', '2');
     let igor = store.peekRecord('person', '3');
@@ -699,7 +699,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
 
     let house = store.peekRecord('house', '1');
-    let people = house.get('tenants');
+    let people = house.tenants;
     let david = store.peekRecord('person', '1');
     let runspired = store.peekRecord('person', '2');
     let igor = store.peekRecord('person', '3');

@@ -75,9 +75,9 @@ module(
         video = store.peekRecord('video', 2);
       });
       run(function () {
-        user.get('bestMessage').then(function (message) {
+        user.bestMessage.then(function (message) {
           assert.strictEqual(message, video, 'The message was loaded correctly');
-          message.get('user').then(function (fetchedUser) {
+          message.user.then(function (fetchedUser) {
             assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
           });
         });
@@ -116,10 +116,10 @@ module(
 
       run(function () {
         user.set('bestMessage', video);
-        video.get('user').then(function (fetchedUser) {
+        video.user.then(function (fetchedUser) {
           assert.strictEqual(fetchedUser, user, 'user got set correctly');
         });
-        user.get('bestMessage').then(function (message) {
+        user.bestMessage.then(function (message) {
           assert.strictEqual(message, video, 'The message was set correctly');
         });
       });
@@ -193,10 +193,10 @@ module(
 
       run(function () {
         user.set('bestMessage', video);
-        video.get('user').then(function (fetchedUser) {
+        video.user.then(function (fetchedUser) {
           assert.strictEqual(fetchedUser, user, 'user got set correctly');
         });
-        user.get('bestMessage').then(function (message) {
+        user.bestMessage.then(function (message) {
           assert.strictEqual(message, video, 'The message was set correctly');
         });
       });

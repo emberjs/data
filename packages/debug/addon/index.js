@@ -199,7 +199,7 @@ export default DataAdapter.extend({
       }
     }
     assert('Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support', !!modelName);
-    return this.get('store').peekAll(modelName);
+    return this.store.peekAll(modelName);
   },
 
   /**
@@ -251,9 +251,9 @@ export default DataAdapter.extend({
   */
   getRecordFilterValues(record) {
     return {
-      isNew: record.get('isNew'),
-      isModified: record.get('hasDirtyAttributes') && !record.get('isNew'),
-      isClean: !record.get('hasDirtyAttributes'),
+      isNew: record.isNew,
+      isModified: record.hasDirtyAttributes && !record.isNew,
+      isClean: !record.hasDirtyAttributes,
     };
   },
 
@@ -268,9 +268,9 @@ export default DataAdapter.extend({
   */
   getRecordColor(record) {
     let color = 'black';
-    if (record.get('isNew')) {
+    if (record.isNew) {
       color = 'green';
-    } else if (record.get('hasDirtyAttributes')) {
+    } else if (record.hasDirtyAttributes) {
       color = 'blue';
     }
     return color;

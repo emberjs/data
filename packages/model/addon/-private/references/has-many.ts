@@ -442,7 +442,7 @@ export default class HasManyReference {
 
   /**
    `value()` synchronously returns the current value of the has-many
-   relationship. Unlike `record.get('relationshipName')`, calling
+   relationship. Unlike `record.relationshipName`, calling
    `value()` on a reference does not trigger a fetch if the async
    relationship is not yet loaded. If the relationship is not loaded
    it will always return `null`.
@@ -472,7 +472,7 @@ export default class HasManyReference {
 
    let commentsRef = post.hasMany('comments');
 
-   post.get('comments').then(function(comments) {
+   post.comments.then(function(comments) {
      commentsRef.value() === comments
    })
    ```

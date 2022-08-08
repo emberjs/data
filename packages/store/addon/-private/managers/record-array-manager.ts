@@ -12,7 +12,6 @@ import type { CollectionResourceDocument, Meta } from '@ember-data/types/q/ember
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { isHiddenFromRecordArrays } from '../caches/instance-cache';
 import AdapterPopulatedRecordArray from '../record-arrays/adapter-populated-record-array';
 import RecordArray from '../record-arrays/record-array';
 import type Store from '../store-service';
@@ -62,6 +61,7 @@ class RecordArrayManager {
       return;
     }
     let identifiersToRemove: StableRecordIdentifier[] = [];
+    let cache = this.store._instanceCache;
 
     for (let j = 0; j < identifiers.length; j++) {
       let i = identifiers[j];
@@ -69,8 +69,7 @@ class RecordArrayManager {
       // recordArrayManager
       pendingForIdentifier.delete(i);
       // build up a set of models to ensure we have purged correctly;
-      let isIncluded = !isHiddenFromRecordArrays(this.store._instanceCache, i);
-      if (!isIncluded) {
+      if (!cache.recordIsLoaded(i)) {
         identifiersToRemove.push(i);
       }
     }
@@ -182,14 +181,14 @@ class RecordArrayManager {
   }
 
   _visibleIdentifiersByType(modelName: string) {
-    const list = this.store._instanceCache.peekList[modelName];
+    const cache = this.store._instanceCache;
+    const list = cache.peekList[modelName];
     let all = list ? [...list.values()] : [];
     let visible: StableRecordIdentifier[] = [];
     for (let i = 0; i < all.length; i++) {
       let identifier = all[i];
-      let shouldInclude = !isHiddenFromRecordArrays(this.store._instanceCache, identifier);
 
-      if (shouldInclude) {
+      if (cache.recordIsLoaded(identifier)) {
         visible.push(identifier);
       }
     }
@@ -374,20 +373,18 @@ function removeFromArray(array: RecordArray[], item: RecordArray): boolean {
 function updateLiveRecordArray(store: Store, recordArray: RecordArray, identifiers: StableRecordIdentifier[]): void {
   let identifiersToAdd: StableRecordIdentifier[] = [];
   let identifiersToRemove: StableRecordIdentifier[] = [];
+  const cache = store._instanceCache;
 
   for (let i = 0; i < identifiers.length; i++) {
     let identifier = identifiers[i];
-    let shouldInclude = !isHiddenFromRecordArrays(store._instanceCache, identifier);
     let recordArrays = recordArraysForIdentifier(identifier);
 
-    if (shouldInclude) {
+    if (cache.recordIsLoaded(identifier)) {
       if (!recordArrays.has(recordArray)) {
         identifiersToAdd.push(identifier);
         recordArrays.add(recordArray);
       }
-    }
-
-    if (!shouldInclude) {
+    } else {
       identifiersToRemove.push(identifier);
       recordArrays.delete(recordArray);
     }

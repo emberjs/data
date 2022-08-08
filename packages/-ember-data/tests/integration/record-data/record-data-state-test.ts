@@ -278,31 +278,29 @@ module('integration/record-data - Record Data State', function (hooks) {
     isNew = true;
 
     storeWrapper.notifyStateChange('person', '1', null, 'isNew');
-    assert.true(person.get('isNew'), 'person is new');
+    assert.true(person.isNew, 'person is new');
 
     isNew = false;
     isDeleted = true;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
     storeWrapper.notifyStateChange('person', '1', null, 'isNew');
 
-    assert.false(person.get('isNew'), 'person is not new');
-    assert.true(person.get('isDeleted'), 'person is deleted');
+    assert.false(person.isNew, 'person is not new');
+    assert.true(person.isDeleted, 'person is deleted');
 
     isNew = false;
     isDeleted = false;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
-    assert.false(person.get('isNew'), 'person is not new');
-    assert.false(person.get('isDeleted'), 'person is not deleted');
+    assert.false(person.isNew, 'person is not new');
+    assert.false(person.isDeleted, 'person is not deleted');
 
     person.deleteRecord();
-    assert.false(person.get('isDeleted'), 'calling deleteRecord does not automatically set isDeleted flag to true');
+    assert.false(person.isDeleted, 'calling deleteRecord does not automatically set isDeleted flag to true');
     assert.true(calledSetIsDeleted, 'called setIsDeleted');
 
-    assert.strictEqual(people.get('length'), 1, 'live array starting length is 1');
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
     isDeletionCommitted = true;
-    Ember.run(() => {
-      storeWrapper.notifyStateChange('person', '1', null, 'isDeletionCommitted');
-    });
-    assert.strictEqual(people.get('length'), 0, 'commiting a deletion updates the live array');
+    storeWrapper.notifyStateChange('person', '1', null, 'isDeletionCommitted');
+    assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
   });
 });

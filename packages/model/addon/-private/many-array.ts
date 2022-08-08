@@ -348,6 +348,12 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     this._isUpdating = false;
   }
 
+  destroy() {
+    this._length = 0;
+    this.currentState = [];
+    return super.destroy();
+  }
+
   /**
     Reloads all of the records in the manyArray. If the manyArray
     holds a relationship that was originally fetched using a links url

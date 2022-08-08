@@ -56,12 +56,12 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         return person;
       });
 
-      assert.strictEqual(person.get('firstName'), 'Thomas', 'PreCond: we mutated firstName');
+      assert.strictEqual(person.firstName, 'Thomas', 'PreCond: we mutated firstName');
 
       run(() => person.rollbackAttributes());
 
-      assert.strictEqual(person.get('firstName'), 'Tom', 'We rolled back firstName');
-      assert.false(person.get('hasDirtyAttributes'), 'We expect the record to be clean');
+      assert.strictEqual(person.firstName, 'Tom', 'We rolled back firstName');
+      assert.false(person.hasDirtyAttributes, 'We expect the record to be clean');
     });
 
     test('changes to unassigned attributes can be rolled back', function (assert) {
@@ -84,12 +84,12 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         return person;
       });
 
-      assert.strictEqual(person.get('firstName'), 'Thomas');
+      assert.strictEqual(person.firstName, 'Thomas');
 
       run(() => person.rollbackAttributes());
 
-      assert.strictEqual(person.get('firstName'), undefined);
-      assert.false(person.get('hasDirtyAttributes'));
+      assert.strictEqual(person.firstName, undefined);
+      assert.false(person.hasDirtyAttributes);
     });
 
     test('changes to attributes made after a record is in-flight only rolls back the local changes', function (assert) {
@@ -122,20 +122,20 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       return run(() => {
         let saving = person.save();
 
-        assert.strictEqual(person.get('firstName'), 'Thomas');
+        assert.strictEqual(person.firstName, 'Thomas');
 
         person.set('lastName', 'Dolly');
 
-        assert.strictEqual(person.get('lastName'), 'Dolly');
+        assert.strictEqual(person.lastName, 'Dolly');
 
         person.rollbackAttributes();
 
-        assert.strictEqual(person.get('firstName'), 'Thomas');
-        assert.strictEqual(person.get('lastName'), 'Dale');
-        assert.true(person.get('isSaving'));
+        assert.strictEqual(person.firstName, 'Thomas');
+        assert.strictEqual(person.lastName, 'Dale');
+        assert.true(person.isSaving);
 
         return saving.then(() => {
-          assert.false(person.get('hasDirtyAttributes'), 'The person is now clean');
+          assert.false(person.hasDirtyAttributes, 'The person is now clean');
         });
       });
     });
@@ -170,14 +170,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
 
       run(function () {
         person.save().then(null, function () {
-          assert.true(person.get('isError'));
+          assert.true(person.isError);
           assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas']);
           run(function () {
             person.rollbackAttributes();
           });
 
-          assert.strictEqual(person.get('firstName'), 'Tom');
-          assert.false(person.get('isError'));
+          assert.strictEqual(person.firstName, 'Tom');
+          assert.false(person.isError);
           assert.strictEqual(Object.keys(person.changedAttributes()).length, 0);
         });
       });
@@ -210,25 +210,25 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
 
       run(() => person.deleteRecord());
 
-      assert.strictEqual(people.get('length'), 1, 'a deleted record appears in record array until it is saved');
+      assert.strictEqual(people.length, 1, 'a deleted record appears in record array until it is saved');
       assert.strictEqual(people.objectAt(0), person, 'a deleted record appears in record array until it is saved');
 
       return run(() => {
         return person
           .save()
           .catch(() => {
-            assert.true(person.get('isError'));
-            assert.true(person.get('isDeleted'));
+            assert.true(person.isError);
+            assert.true(person.isDeleted);
 
             run(() => person.rollbackAttributes());
 
-            assert.false(person.get('isDeleted'));
-            assert.false(person.get('isError'));
-            assert.false(person.get('hasDirtyAttributes'), 'must be not dirty');
+            assert.false(person.isDeleted);
+            assert.false(person.isError);
+            assert.false(person.hasDirtyAttributes, 'must be not dirty');
           })
           .then(() => {
             assert.strictEqual(
-              people.get('length'),
+              people.length,
               1,
               'the underlying record array is updated accordingly in an asynchronous way'
             );
@@ -240,14 +240,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       let store = this.owner.lookup('service:store');
       let person = store.createRecord('person', { id: 1 });
 
-      assert.true(person.get('isNew'), 'must be new');
-      assert.true(person.get('hasDirtyAttributes'), 'must be dirty');
+      assert.true(person.isNew, 'must be new');
+      assert.true(person.hasDirtyAttributes, 'must be dirty');
 
       run(person, 'rollbackAttributes');
 
-      assert.false(person.get('isNew'), 'must not be new');
-      assert.false(person.get('hasDirtyAttributes'), 'must not be dirty');
-      assert.true(person.get('isDeleted'), 'must be deleted');
+      assert.false(person.isNew, 'must not be new');
+      assert.false(person.hasDirtyAttributes, 'must not be dirty');
+      assert.true(person.isDeleted, 'must be deleted');
     });
 
     test(`invalid new record's attributes can be rollbacked`, function (assert) {
@@ -270,19 +270,19 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       let store = this.owner.lookup('service:store');
       let person = store.createRecord('person', { id: 1 });
 
-      assert.true(person.get('isNew'), 'must be new');
-      assert.true(person.get('hasDirtyAttributes'), 'must be dirty');
+      assert.true(person.isNew, 'must be new');
+      assert.true(person.hasDirtyAttributes, 'must be dirty');
 
       return run(() => {
         return person.save().catch((reason) => {
           assert.strictEqual(error, reason);
-          assert.false(person.get('isValid'));
+          assert.false(person.isValid);
 
           run(() => person.rollbackAttributes());
 
-          assert.false(person.get('isNew'), 'must not be new');
-          assert.false(person.get('hasDirtyAttributes'), 'must not be dirty');
-          assert.true(person.get('isDeleted'), 'must be deleted');
+          assert.false(person.isNew, 'must not be new');
+          assert.false(person.hasDirtyAttributes, 'must not be dirty');
+          assert.true(person.isDeleted, 'must be deleted');
         });
       });
     });
@@ -316,22 +316,22 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       });
 
       return run(() => {
-        assert.strictEqual(person.get('firstName'), 'updated name', 'precondition: firstName is changed');
+        assert.strictEqual(person.firstName, 'updated name', 'precondition: firstName is changed');
 
         return person
           .save()
           .catch(() => {
-            assert.true(person.get('hasDirtyAttributes'), 'has dirty attributes');
-            assert.strictEqual(person.get('firstName'), 'updated name', 'firstName is still changed');
+            assert.true(person.hasDirtyAttributes, 'has dirty attributes');
+            assert.strictEqual(person.firstName, 'updated name', 'firstName is still changed');
 
             return person.save();
           })
           .catch(() => {
             run(() => person.rollbackAttributes());
 
-            assert.false(person.get('hasDirtyAttributes'), 'has no dirty attributes');
+            assert.false(person.hasDirtyAttributes, 'has no dirty attributes');
             assert.strictEqual(
-              person.get('firstName'),
+              person.firstName,
               'original name',
               'after rollbackAttributes() firstName has the original value'
             );
@@ -356,16 +356,16 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         person.deleteRecord();
       });
 
-      assert.strictEqual(people.get('length'), 1, 'a deleted record appears in the record array until it is saved');
+      assert.strictEqual(people.length, 1, 'a deleted record appears in the record array until it is saved');
       assert.strictEqual(people.objectAt(0), person, 'a deleted record appears in the record array until it is saved');
 
-      assert.true(person.get('isDeleted'), 'must be deleted');
+      assert.true(person.isDeleted, 'must be deleted');
 
       run(() => person.rollbackAttributes());
 
-      assert.strictEqual(people.get('length'), 1, 'the rollbacked record should appear again in the record array');
-      assert.false(person.get('isDeleted'), 'must not be deleted');
-      assert.false(person.get('hasDirtyAttributes'), 'must not be dirty');
+      assert.strictEqual(people.length, 1, 'the rollbacked record should appear again in the record array');
+      assert.false(person.isDeleted, 'must not be deleted');
+      assert.false(person.hasDirtyAttributes, 'must not be dirty');
     });
 
     test("invalid record's attributes can be rollbacked", async function (assert) {
@@ -406,7 +406,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       });
 
       if (!gte('4.0.0')) {
-        dog.get('errors').addArrayObserver(
+        dog.errors.addArrayObserver(
           {},
           {
             willChange() {
@@ -428,10 +428,10 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         dog.rollbackAttributes();
         await settled();
 
-        assert.false(dog.get('hasDirtyAttributes'), 'must not be dirty');
-        assert.strictEqual(dog.get('name'), 'Pluto', 'Name is rolled back');
-        assert.notOk(dog.get('errors.name'), 'We have no errors for name anymore');
-        assert.ok(dog.get('isValid'), 'We are now in a valid state');
+        assert.false(dog.hasDirtyAttributes, 'must not be dirty');
+        assert.strictEqual(dog.name, 'Pluto', 'Name is rolled back');
+        assert.notOk(dog.errors.name, 'We have no errors for name anymore');
+        assert.ok(dog.isValid, 'We are now in a valid state');
       }
 
       if (!gte('4.0.0')) {
@@ -484,25 +484,25 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       await dog.save();
     } catch (reason) {
       assert.strictEqual(reason, thrownAdapterError);
-      assert.strictEqual(dog.get('name'), 'is a dwarf planet');
-      assert.strictEqual(dog.get('breed'), 'planet');
-      assert.ok(isPresent(dog.get('errors.name')));
+      assert.strictEqual(dog.name, 'is a dwarf planet');
+      assert.strictEqual(dog.breed, 'planet');
+      assert.ok(isPresent(dog.errors.name));
       assert.strictEqual(dog.get('errors.name.length'), 1);
 
       dog.set('name', 'Seymour Asses');
       await settled();
 
-      assert.strictEqual(dog.get('name'), 'Seymour Asses');
-      assert.strictEqual(dog.get('breed'), 'planet');
+      assert.strictEqual(dog.name, 'Seymour Asses');
+      assert.strictEqual(dog.breed, 'planet');
 
       dog.rollbackAttributes();
       await settled();
 
-      assert.strictEqual(dog.get('name'), 'Pluto');
-      assert.strictEqual(dog.get('breed'), 'Disney');
-      assert.false(dog.get('hasDirtyAttributes'), 'must not be dirty');
-      assert.notOk(dog.get('errors.name'));
-      assert.ok(dog.get('isValid'));
+      assert.strictEqual(dog.name, 'Pluto');
+      assert.strictEqual(dog.breed, 'Disney');
+      assert.false(dog.hasDirtyAttributes, 'must not be dirty');
+      assert.notOk(dog.errors.name);
+      assert.ok(dog.isValid);
     }
   });
 
@@ -547,17 +547,17 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       return dog.destroyRecord().catch((reason) => {
         assert.strictEqual(reason, error);
 
-        assert.false(dog.get('isError'), 'must not be error');
-        assert.true(dog.get('isDeleted'), 'must be deleted');
-        assert.false(dog.get('isValid'), 'must not be valid');
-        assert.ok(dog.get('errors.length') > 0, 'must have errors');
+        assert.false(dog.isError, 'must not be error');
+        assert.true(dog.isDeleted, 'must be deleted');
+        assert.false(dog.isValid, 'must not be valid');
+        assert.ok(dog.errors.length > 0, 'must have errors');
 
         dog.rollbackAttributes();
 
-        assert.false(dog.get('isError'), 'must not be error after `rollbackAttributes`');
-        assert.false(dog.get('isDeleted'), 'must not be deleted after `rollbackAttributes`');
-        assert.true(dog.get('isValid'), 'must be valid after `rollbackAttributes`');
-        assert.strictEqual(dog.get('errors.length'), 0, 'must not have errors');
+        assert.false(dog.isError, 'must not be error after `rollbackAttributes`');
+        assert.false(dog.isDeleted, 'must not be deleted after `rollbackAttributes`');
+        assert.true(dog.isValid, 'must be valid after `rollbackAttributes`');
+        assert.strictEqual(dog.errors.length, 0, 'must not have errors');
       });
     });
   });

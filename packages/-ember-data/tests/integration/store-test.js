@@ -226,7 +226,7 @@ module('integration/store - destroy', function (hooks) {
 
     let personWillDestroy = tap(person, 'willDestroy');
     let carWillDestroy = tap(car, 'willDestroy');
-    let carsWillDestroy = tap(car.get('person.cars'), 'willDestroy');
+    let carsWillDestroy = tap(car.person.cars, 'willDestroy');
 
     adapter.query = function () {
       return {
@@ -256,12 +256,8 @@ module('integration/store - destroy', function (hooks) {
       0,
       'expected adapterPopulatedPeople.willDestroy to not have been called'
     );
-    assert.strictEqual(car.get('person'), person, "expected car's person to be the correct person");
-    assert.strictEqual(
-      person.get('cars.firstObject'),
-      car,
-      " expected persons cars's firstRecord to be the correct car"
-    );
+    assert.strictEqual(car.person, person, "expected car's person to be the correct person");
+    assert.strictEqual(person.cars.firstObject, car, " expected persons cars's firstRecord to be the correct car");
 
     store.destroy();
 
@@ -310,7 +306,7 @@ module('integration/store - findRecord', function (hooks) {
 
     let car = await store.findRecord('car', '20');
 
-    assert.strictEqual(car.get('make'), 'BMC', 'Car with id=20 is now loaded');
+    assert.strictEqual(car.make, 'BMC', 'Car with id=20 is now loaded');
   });
 
   test('store#findRecord returns cached record immediately and reloads record in the background', async function (assert) {
@@ -349,13 +345,13 @@ module('integration/store - findRecord', function (hooks) {
     const promiseCar = store.findRecord('car', '1');
     const car = await promiseCar;
 
-    assert.strictEqual(promiseCar.get('model'), 'Mini', 'promiseCar is from cache');
-    assert.strictEqual(car.get('model'), 'Mini', 'car record is returned from cache');
+    assert.strictEqual(promiseCar.model, 'Mini', 'promiseCar is from cache');
+    assert.strictEqual(car.model, 'Mini', 'car record is returned from cache');
 
     await settled();
 
-    assert.strictEqual(promiseCar.get('model'), 'Princess', 'promiseCar is updated');
-    assert.strictEqual(car.get('model'), 'Princess', 'Updated car record is returned');
+    assert.strictEqual(promiseCar.model, 'Princess', 'promiseCar is updated');
+    assert.strictEqual(car.model, 'Princess', 'Updated car record is returned');
   });
 
   test('store#findRecord { reload: true } ignores cached record and reloads record from server', async function (assert) {
@@ -394,7 +390,7 @@ module('integration/store - findRecord', function (hooks) {
 
     let cachedCar = store.peekRecord('car', '1');
 
-    assert.strictEqual(cachedCar.get('model'), 'Mini', 'cached car has expected model');
+    assert.strictEqual(cachedCar.model, 'Mini', 'cached car has expected model');
 
     let car = await store.findRecord('car', '1', { reload: true });
 
@@ -438,12 +434,12 @@ module('integration/store - findRecord', function (hooks) {
 
     let promiseCar = store.findRecord('car', '1', { reload: true });
 
-    assert.strictEqual(promiseCar.get('model'), undefined, `We don't have early access to local data`);
+    assert.strictEqual(promiseCar.model, undefined, `We don't have early access to local data`);
 
     car = await promiseCar;
 
     assert.strictEqual(calls, 2, 'We made a second call to findRecord');
-    assert.strictEqual(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
+    assert.strictEqual(car.model, 'Princess', 'cached record ignored, record reloaded via server');
   });
 
   test('store#findRecord caches the inflight requests', async function (assert) {
@@ -670,11 +666,11 @@ module('integration/store - findRecord', function (hooks) {
 
     let car = store.peekRecord('car', '1');
 
-    assert.strictEqual(car.get('model'), 'Mini', 'Car record is initially a Mini');
+    assert.strictEqual(car.model, 'Mini', 'Car record is initially a Mini');
 
     car = await store.findRecord('car', '1', { backgroundReload: false });
 
-    assert.strictEqual(car.get('model'), 'Princess', 'Car record is reloaded immediately (not in the background)');
+    assert.strictEqual(car.model, 'Princess', 'Car record is reloaded immediately (not in the background)');
   });
 
   test('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', function (assert) {

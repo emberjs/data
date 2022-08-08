@@ -12,7 +12,7 @@ export default function additionalLegacyAsserts() {
   assert.assertClean = function (promise) {
     return promise.then(
       this.wait((record) => {
-        this.equal(record.get('hasDirtyAttributes'), false, 'The record is now clean');
+        this.equal(record.hasDirtyAttributes, false, 'The record is now clean');
         return record;
       })
     );

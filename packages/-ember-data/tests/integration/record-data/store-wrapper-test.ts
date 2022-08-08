@@ -371,7 +371,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     store = owner.lookup('service:store');
 
     let house = store.createRecord('house');
-    assert.strictEqual(house.get('id'), '17', 'setRecordId correctly set the id');
+    assert.strictEqual(house.id, '17', 'setRecordId correctly set the id');
     assert.strictEqual(
       store.peekRecord('house', 17),
       house,

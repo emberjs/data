@@ -98,7 +98,7 @@ import { computedMacroWithOptionalParams } from './util';
   a related resource is known to exist and it has not been loaded.
 
   ```
-  let post = comment.get('post');
+  let post = comment.post;
 
   ```
 

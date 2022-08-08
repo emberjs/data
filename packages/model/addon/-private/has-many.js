@@ -132,7 +132,7 @@ import { computedMacroWithOptionalParams } from './util';
   when any of the known related resources have not been loaded.
 
   ```
-  post.get('comments').forEach((comment) => {
+  post.comments.forEach((comment) => {
 
   });
 
@@ -188,9 +188,6 @@ function hasMany(type, options) {
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );
         }
-      }
-      if (this.isDestroyed || this.isDestroying) {
-        return [];
       }
       return LEGACY_SUPPORT.lookup(this).getHasMany(key);
     },

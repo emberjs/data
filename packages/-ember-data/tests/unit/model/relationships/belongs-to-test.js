@@ -157,7 +157,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
       person.addObserver('tag', tagDidChange);
 
-      assert.strictEqual(person.get('tag.name'), 'whatever', 'relationship is correct');
+      assert.strictEqual(person.tag.name, 'whatever', 'relationship is correct');
 
       // This needs to be removed so it is not triggered when test context is torn down
       person.removeObserver('tag', tagDidChange);
@@ -525,7 +525,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     return run(() => {
       return store.findRecord('person', '1').then((person) => {
-        assert.strictEqual(person.get('tag'), null, 'undefined values should return null relationships');
+        assert.strictEqual(person.tag, null, 'undefined values should return null relationships');
       });
     });
   });
@@ -640,7 +640,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       });
     });
 
-    run(() => store.peekRecord('person', 1).get('occupation'));
+    run(() => store.peekRecord('person', 1).occupation);
   });
 
   test('belongsTo supports relationships to models with id 0', function (assert) {
@@ -859,6 +859,6 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     let person = store.createRecord('person');
 
-    assert.ok(person.get('tag') instanceof DS.PromiseObject, 'tag should be an async relationship');
+    assert.ok(person.tag instanceof DS.PromiseObject, 'tag should be an async relationship');
   });
 });

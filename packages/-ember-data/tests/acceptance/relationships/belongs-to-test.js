@@ -290,11 +290,11 @@ module('async belongs-to rendering tests', function (hooks) {
 
       assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 2);
 
-      let petOwner = await goofy.get('petOwner');
-      assert.strictEqual(petOwner.get('name'), 'Pete', 'We have the expected owner for goofy');
+      let petOwner = await goofy.petOwner;
+      assert.strictEqual(petOwner.name, 'Pete', 'We have the expected owner for goofy');
 
-      petOwner = await tweety.get('petOwner');
-      assert.strictEqual(petOwner.get('name'), 'Pete', 'We have the expected owner for tweety');
+      petOwner = await tweety.petOwner;
+      assert.strictEqual(petOwner.name, 'Pete', 'We have the expected owner for tweety');
 
       await goofy.destroyRecord();
       assert.ok(goofy.isDeleted, 'goofy is deleted after calling destroyRecord');
@@ -317,8 +317,8 @@ module('async belongs-to rendering tests', function (hooks) {
         },
       });
 
-      petOwner = await jerry.get('petOwner');
-      assert.strictEqual(petOwner.get('name'), 'Pete');
+      petOwner = await jerry.petOwner;
+      assert.strictEqual(petOwner.name, 'Pete');
 
       assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 1);
 
@@ -363,7 +363,7 @@ module('async belongs-to rendering tests', function (hooks) {
 
       let shen = store.peekRecord('pet', '1');
       let pirate = store.peekRecord('pet', '2');
-      let bestDog = await chris.get('bestDog');
+      let bestDog = await chris.bestDog;
 
       this.set('chris', chris);
 
@@ -373,38 +373,38 @@ module('async belongs-to rendering tests', function (hooks) {
       await settled();
 
       assert.strictEqual(this.element.textContent.trim(), '', 'initially there is no name for bestDog');
-      assert.strictEqual(shen.get('bestHuman'), null, 'precond - Shen has no best human');
-      assert.strictEqual(pirate.get('bestHuman'), null, 'precond - pirate has no best human');
+      assert.strictEqual(shen.bestHuman, null, 'precond - Shen has no best human');
+      assert.strictEqual(pirate.bestHuman, null, 'precond - pirate has no best human');
       assert.strictEqual(bestDog, null, 'precond - Chris has no best dog');
 
       // locally update
       chris.set('bestDog', shen);
-      bestDog = await chris.get('bestDog');
+      bestDog = await chris.bestDog;
       await settled();
 
       assert.strictEqual(this.element.textContent.trim(), 'Shen');
-      assert.strictEqual(shen.get('bestHuman'), chris, "scene 1 - Chris is Shen's best human");
-      assert.strictEqual(pirate.get('bestHuman'), null, 'scene 1 - pirate has no best human');
+      assert.strictEqual(shen.bestHuman, chris, "scene 1 - Chris is Shen's best human");
+      assert.strictEqual(pirate.bestHuman, null, 'scene 1 - pirate has no best human');
       assert.strictEqual(bestDog, shen, "scene 1 - Shen is Chris's best dog");
 
       // locally update to a different value
       chris.set('bestDog', pirate);
-      bestDog = await chris.get('bestDog');
+      bestDog = await chris.bestDog;
       await settled();
 
       assert.strictEqual(this.element.textContent.trim(), 'Pirate');
-      assert.strictEqual(shen.get('bestHuman'), null, "scene 2 - Chris is no longer Shen's best human");
-      assert.strictEqual(pirate.get('bestHuman'), chris, 'scene 2 - pirate now has Chris as best human');
+      assert.strictEqual(shen.bestHuman, null, "scene 2 - Chris is no longer Shen's best human");
+      assert.strictEqual(pirate.bestHuman, chris, 'scene 2 - pirate now has Chris as best human');
       assert.strictEqual(bestDog, pirate, "scene 2 - Pirate is now Chris's best dog");
 
       // locally clear the relationship
       chris.set('bestDog', null);
-      bestDog = await chris.get('bestDog');
+      bestDog = await chris.bestDog;
       await settled();
 
       assert.strictEqual(this.element.textContent.trim(), '');
-      assert.strictEqual(shen.get('bestHuman'), null, "scene 3 - Chris remains no longer Shen's best human");
-      assert.strictEqual(pirate.get('bestHuman'), null, 'scene 3 - pirate no longer has Chris as best human');
+      assert.strictEqual(shen.bestHuman, null, "scene 3 - Chris remains no longer Shen's best human");
+      assert.strictEqual(pirate.bestHuman, null, 'scene 3 - pirate no longer has Chris as best human');
       assert.strictEqual(bestDog, null, 'scene 3 - Chris has no best dog');
     });
   });
@@ -531,14 +531,14 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.false(!!relationship.link, 'The relationship does not have a link');
 
       try {
-        let result = await sedona.get('parent.content');
+        let result = await sedona.parent.content;
         assert.strictEqual(result, null, 're-access is safe');
       } catch (e) {
         assert.ok(false, `Accessing resulted in rejected promise error: ${e.message}`);
       }
 
       try {
-        await sedona.get('parent');
+        await sedona.parent;
         assert.ok(false, 're-access should throw original rejection');
       } catch (e) {
         assert.ok(true, `Accessing resulted in rejected promise error: ${e.message}`);
@@ -558,7 +558,7 @@ module('async belongs-to rendering tests', function (hooks) {
       adapter.setupPayloads(assert, [new ServerError([], error)]);
 
       try {
-        await sedona.get('parent');
+        await sedona.parent;
         assert.ok(false, `should have rejected`);
       } catch (e) {
         assert.strictEqual(e.message, error, `should have rejected with '${error}'`);
@@ -571,7 +571,7 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.strictEqual(this.element.textContent.trim(), '', 'we have no parent');
 
       try {
-        await sedona.get('parent');
+        await sedona.parent;
         assert.ok(false, `should have rejected`);
       } catch (e) {
         assert.strictEqual(e.message, error, `should have rejected with '${error}'`);

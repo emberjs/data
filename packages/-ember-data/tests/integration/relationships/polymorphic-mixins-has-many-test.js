@@ -77,11 +77,11 @@ module(
         video = store.peekRecord('video', 2);
       });
       run(function () {
-        user.get('messages').then(function (messages) {
+        user.messages.then(function (messages) {
           assert.strictEqual(messages.objectAt(0), video, 'The hasMany has loaded correctly');
           messages
             .objectAt(0)
-            .get('user')
+            .user
             .then(function (fetchedUser) {
               assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
             });
@@ -125,9 +125,9 @@ module(
       });
 
       run(function () {
-        user.get('messages').then(function (fetchedMessages) {
+        user.messages.then(function (fetchedMessages) {
           fetchedMessages.pushObject(video);
-          video.get('user').then(function (fetchedUser) {
+          video.user.then(function (fetchedUser) {
             assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
         });
@@ -171,9 +171,9 @@ module(
       });
 
       run(function () {
-        user.get('messages').then(function (fetchedMessages) {
+        user.messages.then(function (fetchedMessages) {
           fetchedMessages.pushObject(video);
-          video.get('user').then(function (fetchedUser) {
+          video.user.then(function (fetchedUser) {
             assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
         });
@@ -218,7 +218,7 @@ module(
         });
 
         run(function () {
-          user.get('messages').then(function (fetchedMessages) {
+          user.messages.then(function (fetchedMessages) {
             assert.expectAssertion(function () {
               fetchedMessages.pushObject(notMessage);
             }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message/);
@@ -260,9 +260,9 @@ module(
       });
 
       run(function () {
-        user.get('messages').then(function (fetchedMessages) {
+        user.messages.then(function (fetchedMessages) {
           fetchedMessages.pushObject(video);
-          video.get('user').then(function (fetchedUser) {
+          video.user.then(function (fetchedUser) {
             assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
         });
@@ -307,7 +307,7 @@ module(
         });
 
         run(function () {
-          user.get('messages').then(function (fetchedMessages) {
+          user.messages.then(function (fetchedMessages) {
             assert.expectAssertion(function () {
               fetchedMessages.pushObject(notMessage);
             }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);

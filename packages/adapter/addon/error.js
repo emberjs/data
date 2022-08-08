@@ -298,7 +298,7 @@ ForbiddenError.prototype.code = 'ForbiddenError';
   export default class PostRoute extends Route {
     @service store;
     model(params) {
-      return this.get('store').findRecord('post', params.post_id);
+      return this.store.findRecord('post', params.post_id);
     }
     @action
     error(error, transition) {

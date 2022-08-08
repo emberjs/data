@@ -178,8 +178,8 @@ module('integration/load - Loading Records', function (hooks) {
     assert.false(_isLoading(cache, identifier), 'after first fetch: We have loaded');
     assert.false(record.isReloading, 'after first fetch: We are not reloading');
 
-    let bestFriend = await record.get('bestFriend');
-    let trueBestFriend = await bestFriend.get('bestFriend');
+    let bestFriend = await record.bestFriend;
+    let trueBestFriend = await bestFriend.bestFriend;
 
     // shen is our retainer for the record we are testing
     //  that ensures unloadRecord later in this test does not fully

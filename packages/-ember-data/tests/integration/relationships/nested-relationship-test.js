@@ -131,14 +131,14 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
     return run(() => {
       let kid = store.peekRecord('kid', '1');
 
-      return kid.get('middleAger').then((middleAger) => {
+      return kid.middleAger.then((middleAger) => {
         assert.ok(middleAger, 'MiddleAger relationship was set up correctly');
 
         let middleAgerName = get(middleAger, 'name');
         assert.strictEqual(middleAgerName, 'Middle Ager 1', 'MiddleAger name is there');
-        assert.ok(middleAger.get('kids').includes(kid));
+        assert.ok(middleAger.kids.includes(kid));
 
-        return middleAger.get('elder').then((elder) => {
+        return middleAger.elder.then((elder) => {
           assert.notEqual(elder, null, 'Elder relationship was set up correctly');
           let elderName = get(elder, 'name');
           assert.strictEqual(elderName, 'Elder 1', 'Elder name is there');

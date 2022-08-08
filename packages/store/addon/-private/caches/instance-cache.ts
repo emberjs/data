@@ -144,7 +144,18 @@ export class InstanceCache {
     // we should consider allowing for something to be loaded that is simply "not empty".
     // which is how RecordState currently handles this case; however, RecordState is buggy
     // in that it does not account for unloading.
-    return !isEmpty;
+    // return !isEmpty;
+
+    const req = this.store.getRequestStateService();
+    const fulfilled = req.getLastRequestForRecord(identifier);
+    const isLoading =
+      fulfilled !== null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
+
+    if (isEmpty || recordData.isDeletionCommitted?.() || isLoading) {
+      return false;
+    }
+
+    return true;
   }
 
   constructor(store: Store) {
@@ -597,30 +608,6 @@ function normalizeProperties(
   return properties;
 }
 
-export function isHiddenFromRecordArrays(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  // During dematerialization we don't want to rematerialize the record.
-  // recordWasDeleted can cause other records to rematerialize because it
-  // removes the internal model from the array and Ember arrays will always
-  // `objectAt(0)` and `objectAt(len -1)` to check whether `firstObject` or
-  // `lastObject` have changed.  When this happens we don't want those
-  // models to rematerialize their records.
-
-  // eager checks to avoid instantiating record data if we are empty or loading
-  let recordData = cache.peek({ identifier, bucket: 'recordData' });
-  if (!recordData) {
-    return true;
-  }
-
-  if (!_isEmpty(cache, identifier) || _isLoading(cache, identifier)) {
-    return false;
-  }
-  if (recordData.isDeletionCommitted?.() || (recordData.isNew?.() && recordData.isDeleted?.())) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function _recordDataIsFullDeleted(recordData: RecordData): boolean {
   if (recordData.isDeletionCommitted?.() || (recordData.isNew?.() && recordData.isDeleted?.())) {
     return true;
@@ -664,7 +651,7 @@ function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   }
 
   if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.get && recordOrPromiseRecord.get('content');
+    let content = recordOrPromiseRecord.get && recordOrPromiseRecord.content;
     assert(
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
       content !== undefined
@@ -746,7 +733,7 @@ function _convertPreloadRelationshipToJSON(value: RecordInstance | string, type:
   return recordIdentifierFor(value);
 }
 
-export function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
   const recordData = cache.peek({ identifier: identifier, bucket: 'recordData' });
   if (!recordData) {
     return true;

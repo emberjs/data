@@ -643,7 +643,7 @@ function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   }
 
   if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.get && recordOrPromiseRecord.get('content');
+    let content = recordOrPromiseRecord.get && recordOrPromiseRecord.content;
     assert(
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
       content !== undefined

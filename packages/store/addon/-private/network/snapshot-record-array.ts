@@ -77,7 +77,7 @@ export default class SnapshotRecordArray {
       @public
       @type {Number}
     */
-    this.length = recordArray.get('length');
+    this.length = recordArray.length;
 
     /**
       Meta objects for the record array.
@@ -220,7 +220,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._recordArray.get('type');
+      return this._recordArray.type;
     },
   });
 }

@@ -87,8 +87,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return topic.get('users').then((fetchedUsers) => {
-        assert.strictEqual(fetchedUsers.get('length'), 1, 'User relationship was set up correctly');
+      return topic.users.then((fetchedUsers) => {
+        assert.strictEqual(fetchedUsers.length, 1, 'User relationship was set up correctly');
       });
     });
   });
@@ -129,7 +129,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     run(() => {
-      assert.strictEqual(account.get('users.length'), 1, 'User relationship was set up correctly');
+      assert.strictEqual(account.users.length, 1, 'User relationship was set up correctly');
     });
   });
 
@@ -169,11 +169,11 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return user.get('topics').then((fetchedTopics) => {
-        assert.strictEqual(fetchedTopics.get('length'), 0, 'Topics were removed correctly');
+      return user.topics.then((fetchedTopics) => {
+        assert.strictEqual(fetchedTopics.length, 0, 'Topics were removed correctly');
         assert.strictEqual(fetchedTopics.objectAt(0), undefined, "Topics can't be fetched");
-        return topic.get('users').then((fetchedUsers) => {
-          assert.strictEqual(fetchedUsers.get('length'), 0, 'Users were removed correctly');
+        return topic.users.then((fetchedUsers) => {
+          assert.strictEqual(fetchedUsers.length, 0, 'Users were removed correctly');
           assert.strictEqual(fetchedUsers.objectAt(0), undefined, "User can't be fetched");
         });
       });
@@ -230,8 +230,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     run(() => {
-      assert.strictEqual(user.get('accounts.length'), 0, 'Accounts were removed correctly');
-      assert.strictEqual(account.get('users.length'), 0, 'Users were removed correctly');
+      assert.strictEqual(user.accounts.length, 0, 'Accounts were removed correctly');
+      assert.strictEqual(account.users.length, 0, 'Users were removed correctly');
     });
   });
 
@@ -273,10 +273,10 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return topic.get('users').then((fetchedUsers) => {
+      return topic.users.then((fetchedUsers) => {
         fetchedUsers.pushObject(user);
-        return user.get('topics').then((fetchedTopics) => {
-          assert.strictEqual(fetchedTopics.get('length'), 1, 'User relationship was set up correctly');
+        return user.topics.then((fetchedTopics) => {
+          assert.strictEqual(fetchedTopics.length, 1, 'User relationship was set up correctly');
         });
       });
     });
@@ -305,11 +305,11 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
           },
         },
       });
-      stanley.get('accounts').pushObject(account);
+      stanley.accounts.pushObject(account);
     });
 
     run(() => {
-      assert.strictEqual(account.get('users.length'), 1, 'User relationship was set up correctly');
+      assert.strictEqual(account.users.length, 1, 'User relationship was set up correctly');
     });
   });
 
@@ -349,11 +349,11 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return user.get('topics').then((fetchedTopics) => {
-        assert.strictEqual(fetchedTopics.get('length'), 1, 'Topics were setup correctly');
+      return user.topics.then((fetchedTopics) => {
+        assert.strictEqual(fetchedTopics.length, 1, 'Topics were setup correctly');
         fetchedTopics.removeObject(topic);
-        return topic.get('users').then((fetchedUsers) => {
-          assert.strictEqual(fetchedUsers.get('length'), 0, 'Users were removed correctly');
+        return topic.users.then((fetchedUsers) => {
+          assert.strictEqual(fetchedUsers.length, 0, 'Users were removed correctly');
           assert.strictEqual(fetchedUsers.objectAt(0), undefined, "User can't be fetched");
         });
       });
@@ -396,10 +396,10 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     run(() => {
-      assert.strictEqual(account.get('users.length'), 1, 'Users were setup correctly');
-      account.get('users').removeObject(user);
-      assert.strictEqual(user.get('accounts.length'), 0, 'Accounts were removed correctly');
-      assert.strictEqual(account.get('users.length'), 0, 'Users were removed correctly');
+      assert.strictEqual(account.users.length, 1, 'Users were setup correctly');
+      account.users.removeObject(user);
+      assert.strictEqual(user.accounts.length, 0, 'Accounts were removed correctly');
+      assert.strictEqual(account.users.length, 0, 'Users were removed correctly');
     });
   });
 
@@ -448,12 +448,12 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      let users = topic.get('users').then((fetchedUsers) => {
-        assert.strictEqual(fetchedUsers.get('length'), 1, 'Users are still there');
+      let users = topic.users.then((fetchedUsers) => {
+        assert.strictEqual(fetchedUsers.length, 1, 'Users are still there');
       });
 
-      let topics = user.get('topics').then((fetchedTopics) => {
-        assert.strictEqual(fetchedTopics.get('length'), 1, 'Topic got rollbacked into the user');
+      let topics = user.topics.then((fetchedTopics) => {
+        assert.strictEqual(fetchedTopics.length, 1, 'Topic got rollbacked into the user');
       });
 
       return EmberPromise.all([users, topics]);
@@ -498,8 +498,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     run(() => {
       account.deleteRecord();
       account.rollbackAttributes();
-      assert.strictEqual(account.get('users.length'), 1, 'Users are still there');
-      assert.strictEqual(user.get('accounts.length'), 1, 'Account got rolledback correctly into the user');
+      assert.strictEqual(account.users.length, 1, 'Users are still there');
+      assert.strictEqual(user.accounts.length, 1, 'Account got rolledback correctly into the user');
     });
   });
 
@@ -522,17 +522,17 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return user.get('topics').then((fetchedTopics) => {
+      return user.topics.then((fetchedTopics) => {
         fetchedTopics.pushObject(topic);
         topic.rollbackAttributes();
 
-        let users = topic.get('users').then((fetchedUsers) => {
-          assert.strictEqual(fetchedUsers.get('length'), 0, 'Users got removed');
+        let users = topic.users.then((fetchedUsers) => {
+          assert.strictEqual(fetchedUsers.length, 0, 'Users got removed');
           assert.strictEqual(fetchedUsers.objectAt(0), undefined, "User can't be fetched");
         });
 
-        let topics = user.get('topics').then((fetchedTopics) => {
-          assert.strictEqual(fetchedTopics.get('length'), 0, 'Topics got removed');
+        let topics = user.topics.then((fetchedTopics) => {
+          assert.strictEqual(fetchedTopics.length, 0, 'Topics got removed');
           assert.strictEqual(fetchedTopics.objectAt(0), undefined, "Topic can't be fetched");
         });
 
@@ -560,12 +560,12 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     run(() => {
-      account.get('users').pushObject(user);
+      account.users.pushObject(user);
       user.rollbackAttributes();
     });
 
-    assert.strictEqual(account.get('users.length'), 0, 'Users got removed');
-    assert.strictEqual(user.get('accounts.length'), 0, 'Accounts got rolledback correctly');
+    assert.strictEqual(account.users.length, 0, 'Users got removed');
+    assert.strictEqual(user.accounts.length, 0, 'Accounts got rolledback correctly');
   });
 
   todo(
@@ -625,7 +625,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
             },
           },
         });
-        account.get('users').removeObject(byron);
+        account.users.removeObject(byron);
         account = store.push({
           data: {
             id: '2',
@@ -652,9 +652,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       });
 
       let state = account.hasMany('users').hasManyRelationship.canonicalState;
-      let users = account.get('users');
+      let users = account.users;
 
-      assert.todo.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');
+      assert.todo.equal(users.length, 1, 'Accounts were updated correctly (ui state)');
       assert.todo.deepEqual(
         users.map((r) => get(r, 'id')),
         ['1'],

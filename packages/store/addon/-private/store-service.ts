@@ -42,7 +42,6 @@ import type { Dict } from '@ember-data/types/q/utils';
 import edBackburner from './backburner';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
-  _isEmpty,
   InstanceCache,
   peekRecordIdentifier,
   recordDataIsFullyDeleted,
@@ -763,7 +762,7 @@ class Store extends Service {
     //   }
     // ]
     store.findRecord('post', 1, { reload: true }).then(function(post) {
-      post.get('revision'); // 2
+      post.revision; // 2
     });
     ```
 
@@ -801,7 +800,7 @@ class Store extends Service {
     });
 
     let blogPost = store.findRecord('post', 1).then(function(post) {
-      post.get('revision'); // 1
+      post.revision; // 1
     });
 
     // later, once adapter#findRecord resolved with
@@ -813,7 +812,7 @@ class Store extends Service {
     //   }
     // ]
 
-    blogPost.get('revision'); // 2
+    blogPost.revision; // 2
     ```
 
     If you would like to force or prevent background reloading, you can set a
@@ -1351,7 +1350,7 @@ class Store extends Service {
 
     ```javascript
     store.queryRecord('user', {}).then(function(user) {
-      let username = user.get('username');
+      let username = user.username;
       // do thing
     });
     ```
@@ -1389,9 +1388,9 @@ class Store extends Service {
 
     ```javascript
     store.query('user', { username: 'unique' }).then(function(users) {
-      return users.get('firstObject');
+      return users.firstObject;
     }).then(function(user) {
-      let id = user.get('id');
+      let id = user.id;
     });
     ```
 
@@ -2102,12 +2101,9 @@ class Store extends Service {
       return reject(`Record Is Disconnected`);
     }
     // TODO we used to check if the record was destroyed here
-    // Casting can be removed once REQUEST_SERVICE ff is turned on
-    // because a `Record` is provided there will always be a matching
-    // RecordData
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier}`,
-      recordData && !_isEmpty(this._instanceCache, identifier)
+      recordData && this._instanceCache.recordIsLoaded(identifier)
     );
     if (recordDataIsFullyDeleted(this._instanceCache, identifier)) {
       return resolve(record);

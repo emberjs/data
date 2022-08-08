@@ -208,10 +208,10 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('isLoaded'); // true
+    record.isLoaded; // true
 
     store.findRecord('model', 1).then(function(model) {
-      model.get('isLoaded'); // true
+      model.isLoaded; // true
     });
     ```
 
@@ -235,12 +235,12 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('hasDirtyAttributes'); // true
+    record.hasDirtyAttributes; // true
 
     store.findRecord('model', 1).then(function(model) {
-      model.get('hasDirtyAttributes'); // false
+      model.hasDirtyAttributes; // false
       model.set('foo', 'some value');
-      model.get('hasDirtyAttributes'); // true
+      model.hasDirtyAttributes; // true
     });
     ```
 
@@ -265,11 +265,11 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('isSaving'); // false
+    record.isSaving; // false
     let promise = record.save();
-    record.get('isSaving'); // true
+    record.isSaving; // true
     promise.then(function() {
-      record.get('isSaving'); // false
+      record.isSaving; // false
     });
     ```
 
@@ -295,24 +295,24 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('isDeleted');    // false
+    record.isDeleted;    // false
     record.deleteRecord();
 
     // Locally deleted
-    record.get('isDeleted');           // true
-    record.get('hasDirtyAttributes');  // true
-    record.get('isSaving');            // false
+    record.isDeleted;           // true
+    record.hasDirtyAttributes;  // true
+    record.isSaving;            // false
 
     // Persisting the deletion
     let promise = record.save();
-    record.get('isDeleted');    // true
-    record.get('isSaving');     // true
+    record.isDeleted;    // true
+    record.isSaving;     // true
 
     // Deletion Persisted
     promise.then(function() {
-      record.get('isDeleted');          // true
-      record.get('isSaving');           // false
-      record.get('hasDirtyAttributes'); // false
+      record.isDeleted;          // true
+      record.isSaving;           // false
+      record.hasDirtyAttributes; // false
     });
     ```
 
@@ -336,10 +336,10 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('isNew'); // true
+    record.isNew; // true
 
     record.save().then(function(model) {
-      model.get('isNew'); // false
+      model.isNew; // false
     });
     ```
 
@@ -382,7 +382,7 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('dirtyType'); // 'created'
+    record.dirtyType; // 'created'
     ```
 
     @property dirtyType
@@ -403,10 +403,10 @@ class Model extends EmberObject {
     Example
 
     ```javascript
-    record.get('isError'); // false
+    record.isError; // false
     record.set('foo', 'valid value');
     record.save().then(null, function() {
-      record.get('isError'); // true
+      record.isError; // true
     });
     ```
 
@@ -452,10 +452,10 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('id'); // null
+    record.id; // null
 
     store.findRecord('model', 1).then(function(model) {
-      model.get('id'); // '1'
+      model.id; // '1'
     });
     ```
 
@@ -536,10 +536,10 @@ class Model extends EmberObject {
     - `attribute` The name of the property associated with this error message
 
     ```javascript
-    record.get('errors.length'); // 0
+    record.errors.length; // 0
     record.set('foo', 'invalid value');
     record.save().catch(function() {
-      record.get('errors').get('foo');
+      record.errors.foo;
       // [{message: 'foo should be a number.', attribute: 'foo'}]
     });
     ```
@@ -823,11 +823,11 @@ class Model extends EmberObject {
     Example
 
     ```javascript
-    record.get('name'); // 'Untitled Document'
+    record.name; // 'Untitled Document'
     record.set('name', 'Doc 1');
-    record.get('name'); // 'Doc 1'
+    record.name; // 'Doc 1'
     record.rollbackAttributes();
-    record.get('name'); // 'Untitled Document'
+    record.name; // 'Untitled Document'
     ```
 
     @since 1.13.0
@@ -1508,10 +1508,10 @@ class Model extends EmberObject {
    import Post from 'app/models/post';
 
    let relationships = Blog.relationships;
-   relationships.get('user');
+   relationships.user;
    //=> [ { name: 'users', kind: 'hasMany' },
    //     { name: 'owner', kind: 'belongsTo' } ]
-   relationships.get('post');
+   relationships.post;
    //=> [ { name: 'posts', kind: 'hasMany' } ]
    ```
 
@@ -1724,9 +1724,9 @@ class Model extends EmberObject {
    import Blog from 'app/models/blog';
 
    let relationshipsByName = Blog.relationshipsByName;
-   relationshipsByName.get('users');
+   relationshipsByName.users;
    //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
-   relationshipsByName.get('owner');
+   relationshipsByName.owner;
    //=> { key: 'owner', kind: 'belongsTo', type: 'user', options: Object, isRelationship: true }
    ```
 

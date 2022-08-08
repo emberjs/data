@@ -249,7 +249,7 @@ module('integration/record_array_manager', function (hooks) {
     assert.strictEqual(recordArray.modelName, 'foo');
     assert.true(recordArray.isLoaded);
     assert.strictEqual(recordArray.manager, manager);
-    assert.deepEqual(recordArray.get('content'), []);
+    assert.deepEqual(recordArray.content, []);
     assert.deepEqual(recordArray.toArray(), []);
   });
 
@@ -271,7 +271,7 @@ module('integration/record_array_manager', function (hooks) {
     assert.strictEqual(recordArray.modelName, 'foo', 'has modelName');
     assert.true(recordArray.isLoaded, 'isLoaded is true');
     assert.strictEqual(recordArray.manager, manager, 'recordArray has manager');
-    assert.deepEqual(recordArray.get('content'), [recordIdentifierFor(record)], 'recordArray has content');
+    assert.deepEqual(recordArray.content, [recordIdentifierFor(record)], 'recordArray has content');
     assert.deepEqual(recordArray.toArray(), [record], 'toArray works');
   });
 

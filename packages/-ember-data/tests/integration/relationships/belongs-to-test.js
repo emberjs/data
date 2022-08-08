@@ -191,7 +191,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
 
     let person = await store.findRecord('person', '1');
     let petRequest = store.findRecord('pet', '1');
-    let personPetRequest = person.get('bestDog');
+    let personPetRequest = person.bestDog;
     let personPet = await personPetRequest;
     let pet = await petRequest;
 
@@ -236,31 +236,31 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
 
     let shen = store.peekRecord('pet', '1');
     let pirate = store.peekRecord('pet', '2');
-    let bestDog = await chris.get('bestDog');
+    let bestDog = await chris.bestDog;
 
-    assert.strictEqual(shen.get('bestHuman'), null, 'precond - Shen has no best human');
-    assert.strictEqual(pirate.get('bestHuman'), null, 'precond - pirate has no best human');
+    assert.strictEqual(shen.bestHuman, null, 'precond - Shen has no best human');
+    assert.strictEqual(pirate.bestHuman, null, 'precond - pirate has no best human');
     assert.strictEqual(bestDog, null, 'precond - Chris has no best dog');
 
     chris.set('bestDog', shen);
-    bestDog = await chris.get('bestDog');
+    bestDog = await chris.bestDog;
 
-    assert.strictEqual(shen.get('bestHuman'), chris, "scene 1 - Chris is Shen's best human");
-    assert.strictEqual(pirate.get('bestHuman'), null, 'scene 1 - pirate has no best human');
+    assert.strictEqual(shen.bestHuman, chris, "scene 1 - Chris is Shen's best human");
+    assert.strictEqual(pirate.bestHuman, null, 'scene 1 - pirate has no best human');
     assert.strictEqual(bestDog, shen, "scene 1 - Shen is Chris's best dog");
 
     chris.set('bestDog', pirate);
-    bestDog = await chris.get('bestDog');
+    bestDog = await chris.bestDog;
 
-    assert.strictEqual(shen.get('bestHuman'), null, "scene 2 - Chris is no longer Shen's best human");
-    assert.strictEqual(pirate.get('bestHuman'), chris, 'scene 2 - pirate now has Chris as best human');
+    assert.strictEqual(shen.bestHuman, null, "scene 2 - Chris is no longer Shen's best human");
+    assert.strictEqual(pirate.bestHuman, chris, 'scene 2 - pirate now has Chris as best human');
     assert.strictEqual(bestDog, pirate, "scene 2 - Pirate is now Chris's best dog");
 
     chris.set('bestDog', null);
-    bestDog = await chris.get('bestDog');
+    bestDog = await chris.bestDog;
 
-    assert.strictEqual(shen.get('bestHuman'), null, "scene 3 - Chris remains no longer Shen's best human");
-    assert.strictEqual(pirate.get('bestHuman'), null, 'scene 3 - pirate no longer has Chris as best human');
+    assert.strictEqual(shen.bestHuman, null, "scene 3 - Chris remains no longer Shen's best human");
+    assert.strictEqual(pirate.bestHuman, null, 'scene 3 - pirate no longer has Chris as best human');
     assert.strictEqual(bestDog, null, 'scene 3 - Chris has no best dog');
   });
 });
@@ -389,8 +389,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     const app = store.peekRecord('app', '1');
     const team = store.peekRecord('team', '1');
-    assert.strictEqual(app.get('team.id'), team.get('id'), 'sets team correctly on app');
-    assert.deepEqual(team.get('apps').toArray().mapBy('id'), ['1'], 'sets apps correctly on team');
+    assert.strictEqual(app.team.id, team.id, 'sets team correctly on app');
+    assert.deepEqual(team.apps.toArray().mapBy('id'), ['1'], 'sets apps correctly on team');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = (store, type, snapshot) => {
@@ -413,8 +413,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     return run(() => {
       app.set('name', 'Hello');
       return app.save().then(() => {
-        assert.strictEqual(app.get('team.id'), undefined, 'team removed from app relationship');
-        assert.deepEqual(team.get('apps').toArray().mapBy('id'), [], 'app removed from team apps relationship');
+        assert.strictEqual(app.team.id, undefined, 'team removed from app relationship');
+        assert.deepEqual(team.apps.toArray().mapBy('id'), [], 'app removed from team apps relationship');
       });
     });
   });
@@ -466,7 +466,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     return run(() => {
       return store.findRecord('post', 1).then((post) => {
-        post.get('user');
+        post.user;
       });
     });
   });
@@ -493,7 +493,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
             },
           },
         });
-        post.get('user');
+        post.user;
       });
     }, `Assertion Failed: Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected a json-api identifier but found '{"id":null,"type":"user"}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`);
 
@@ -514,7 +514,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
             },
           },
         });
-        post.get('user');
+        post.user;
       });
     }, `Assertion Failed: Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected a json-api identifier with type 'user' but found '{"id":"1","type":null}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`);
   });
@@ -652,7 +652,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         message: store.findRecord('post', 1),
         comment: store.findRecord('comment', 2),
       }).then((records) => {
-        assert.strictEqual(records.comment.get('message'), records.message);
+        assert.strictEqual(records.comment.message, records.message);
       });
     });
   });
@@ -760,11 +760,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       return store
         .findRecord('person', 1)
         .then((person) => {
-          return person.get('group');
+          return person.group;
         })
         .then((group) => {
           assert.ok(group instanceof Group, 'A group object is loaded');
-          assert.strictEqual(group.get('id'), '1', 'It is the group we are expecting');
+          assert.strictEqual(group.id, '1', 'It is the group we are expecting');
         });
     });
   });
@@ -812,11 +812,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     return run(() => {
       return store.findRecord('person', 1).then((person) => {
-        return person.get('seat').then((seat) => {
+        return person.seat.then((seat) => {
           // this assertion fails too
-          // ok(seat.get('person') === person, 'parent relationship should be populated');
+          // ok(seat.person === person, 'parent relationship should be populated');
           seat.set('person', person);
-          assert.ok(person.get('seat').then, 'seat should be a PromiseObject');
+          assert.ok(person.seat.then, 'seat should be a PromiseObject');
         });
       });
     });
@@ -868,7 +868,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     return store
       .findRecord('person', '1')
       .then((person) => {
-        return person.get('group');
+        return person.group;
       })
       .then((group) => {
         assert.strictEqual(group, null, 'group should be null');
@@ -908,7 +908,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       let person = store.createRecord('person', {
         group: groupPromise,
       });
-      assert.strictEqual(person.get('group.content'), group);
+      assert.strictEqual(person.group.content, group);
     });
   });
 
@@ -923,7 +923,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
       igor.set('favouriteMessage', post);
 
-      assert.strictEqual(igor.get('favouriteMessage.title'), "Igor's unimaginative blog post");
+      assert.strictEqual(igor.favouriteMessage.title, "Igor's unimaginative blog post");
     });
   });
 
@@ -1132,7 +1132,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     });
 
     assert.expectAssertion(() => {
-      message.get('user');
+      message.user;
     }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`belongsTo\({ async: true }\)`\)/);
   });
 
@@ -1178,7 +1178,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       author.deleteRecord();
       author.rollbackAttributes();
 
-      return book.get('author').then((fetchedAuthor) => {
+      return book.author.then((fetchedAuthor) => {
         assert.strictEqual(fetchedAuthor, author, 'Book has an author after rollback attributes');
       });
     });
@@ -1223,7 +1223,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       author.rollbackAttributes();
     });
 
-    assert.strictEqual(book.get('author'), author, 'Book has an author after rollback attributes');
+    assert.strictEqual(book.author, author, 'Book has an author after rollback attributes');
   });
 
   testInDebug('Passing a model as type to belongsTo should not work', function (assert) {
@@ -1460,7 +1460,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     run(() => {
       user = store.createRecord('user');
-      user.get('favouriteMessage');
+      user.favouriteMessage;
       assert.ok(
         hasRelationshipForRecord(user, 'favouriteMessage'),
         'Newly created record with relationships in params passed in its constructor should have relationships'
@@ -1507,8 +1507,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       });
 
-      return book.get('author').then((author) => {
-        assert.strictEqual(author.get('name'), 'This is author', 'author name is correct');
+      return book.author.then((author) => {
+        assert.strictEqual(author.name, 'This is author', 'author name is correct');
       });
     });
   });
@@ -1556,9 +1556,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       },
     });
 
-    const author = await book.get('author');
+    const author = await book.author;
 
-    assert.strictEqual(author.get('name'), 'This is author', 'author name is correct');
+    assert.strictEqual(author.name, 'This is author', 'author name is correct');
   });
 
   test('Relationship data should take precedence over related link when local record data is available', function (assert) {
@@ -1608,8 +1608,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         ],
       });
 
-      return book.get('author').then((author) => {
-        assert.strictEqual(author.get('name'), 'This is author', 'author name is correct');
+      return book.author.then((author) => {
+        assert.strictEqual(author.name, 'This is author', 'author name is correct');
       });
     });
   });
@@ -1673,8 +1673,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       });
 
-      book.get('author').then((author) => {
-        assert.strictEqual(author.get('name'), 'This is author', 'author name is correct');
+      book.author.then((author) => {
+        assert.strictEqual(author.name, 'This is author', 'author name is correct');
       });
     });
   });
@@ -1735,10 +1735,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         ],
       });
 
-      return book
-        .get('author')
+      return book.author
         .then((author) => {
-          assert.strictEqual(author.get('name'), 'This is author', 'author name is correct');
+          assert.strictEqual(author.name, 'This is author', 'author name is correct');
         })
         .then(() => {
           store.push({
@@ -1755,8 +1754,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
             },
           });
 
-          return book.get('author').then((author) => {
-            assert.strictEqual(author.get('name'), 'This is updated author', 'author name is correct');
+          return book.author.then((author) => {
+            assert.strictEqual(author.name, 'This is updated author', 'author name is correct');
           });
         });
     });
@@ -1808,10 +1807,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         ],
       });
 
-      return book
-        .get('author')
+      return book.author
         .then((author) => {
-          assert.strictEqual(author.get('name'), 'This is author', 'author name is correct');
+          assert.strictEqual(author.name, 'This is author', 'author name is correct');
         })
         .then(() => {
           store.push({
@@ -1828,8 +1826,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
             },
           });
 
-          return book.get('author').then((author) => {
-            assert.strictEqual(author.get('name'), 'This is author', 'author name is correct');
+          return book.author.then((author) => {
+            assert.strictEqual(author.name, 'This is author', 'author name is correct');
           });
         });
     });
@@ -1877,10 +1875,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         .then((_chapter) => {
           chapter = _chapter;
 
-          return chapter.get('book');
+          return chapter.book;
         })
         .then((book) => {
-          assert.strictEqual(book.get('name'), 'book title');
+          assert.strictEqual(book.name, 'book title');
 
           adapter.findBelongsTo = function () {
             return resolve({
@@ -1895,7 +1893,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
           return chapter.belongsTo('book').reload();
         })
         .then((book) => {
-          assert.strictEqual(book.get('name'), 'updated book title');
+          assert.strictEqual(book.name, 'updated book title');
         });
     });
   });
@@ -1939,14 +1937,14 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     return run(() => {
-      let book = chapter.get('book');
-      assert.strictEqual(book.get('name'), 'book title');
+      let book = chapter.book;
+      assert.strictEqual(book.name, 'book title');
 
       return chapter
         .belongsTo('book')
         .reload()
         .then(function (book) {
-          assert.strictEqual(book.get('name'), 'updated book title');
+          assert.strictEqual(book.name, 'updated book title');
         });
     });
   });
@@ -1987,10 +1985,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     return run(() => {
-      return chapter
-        .get('book')
+      return chapter.book
         .then((book) => {
-          assert.strictEqual(book.get('name'), 'book title');
+          assert.strictEqual(book.name, 'book title');
 
           adapter.findRecord = function () {
             return resolve({
@@ -2005,7 +2002,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
           return chapter.belongsTo('book').reload();
         })
         .then((book) => {
-          assert.strictEqual(book.get('name'), 'updated book title');
+          assert.strictEqual(book.name, 'updated book title');
         });
     });
   });
@@ -2026,7 +2023,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
             },
           },
         });
-        chapter.get('book');
+        chapter.book;
       });
     }, /Encountered a relationship identifier without a type for the belongsTo relationship 'book' on <chapter:1>, expected a json-api identifier with type 'book'/);
   });
@@ -2064,7 +2061,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     });
 
     run(() => {
-      chapter.get('book');
+      chapter.book;
     });
 
     assert.strictEqual(count, 0);

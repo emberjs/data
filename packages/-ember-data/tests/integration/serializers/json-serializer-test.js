@@ -307,7 +307,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     });
 
     run(function () {
-      post.get('comments').pushObject(comment);
+      post.comments.pushObject(comment);
     });
 
     let json = {};

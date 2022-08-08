@@ -185,7 +185,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       return store
         .findRecord('test', 1)
         .then((object) => {
-          assert.strictEqual(typeof object.get('id'), 'string', 'id was coerced to a string');
+          assert.strictEqual(typeof object.id, 'string', 'id was coerced to a string');
           run(() => {
             store.push({
               data: {
@@ -203,7 +203,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         .then((object) => {
           assert.ok(object, 'object was found');
           assert.strictEqual(
-            typeof object.get('id'),
+            typeof object.id,
             'string',
             'id is a string despite being supplied and searched for as a number'
           );
@@ -525,9 +525,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       return store.findRecord('person', 1, { preload: { friend: 2 } }).then(() => {
         return store
           .peekRecord('person', 1)
-          .get('friend')
+          .friend
           .then((friend) => {
-            assert.strictEqual(friend.get('id'), '2', 'Preloaded belongsTo set');
+            assert.strictEqual(friend.id, '2', 'Preloaded belongsTo set');
           });
       });
     });
@@ -679,7 +679,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     return run(() => {
       return all([tom.save(), yehuda.save()]).then(() => {
         people.forEach((person, index) => {
-          assert.strictEqual(person.get('id'), String(index + 1), `The record's id should be correct.`);
+          assert.strictEqual(person.id, String(index + 1), `The record's id should be correct.`);
         });
       });
     });
@@ -991,7 +991,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.get('name'), 'Tom');
+        assert.strictEqual(record.name, 'Tom');
       });
     });
   });
@@ -1031,7 +1031,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.get('name'), 'Tom');
+        assert.strictEqual(record.name, 'Tom');
       });
     });
   });
@@ -1065,7 +1065,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.get('name'), undefined);
+        assert.strictEqual(record.name, undefined);
       });
     });
   });
@@ -1099,11 +1099,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.get('name'), undefined);
+        assert.strictEqual(record.name, undefined);
       });
     });
 
-    assert.strictEqual(store.peekRecord('person', 1).get('name'), 'Tom');
+    assert.strictEqual(store.peekRecord('person', 1).name, 'Tom');
 
     return done;
   });
@@ -1159,7 +1159,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.get('firstObject.name'), 'Tom');
+        assert.strictEqual(records.firstObject.name, 'Tom');
       });
     });
   });
@@ -1192,7 +1192,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.get('firstObject.name'), 'Tom');
+        assert.strictEqual(records.firstObject.name, 'Tom');
       });
     });
   });
@@ -1223,7 +1223,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.get('firstObject'), undefined);
+        assert.strictEqual(records.firstObject, undefined);
       });
     });
   });
@@ -1258,11 +1258,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let done = run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.get('firstObject.name'), undefined);
+        assert.strictEqual(records.firstObject.name, undefined);
       });
     });
 
-    assert.strictEqual(store.peekRecord('person', 1).get('name'), 'Tom');
+    assert.strictEqual(store.peekRecord('person', 1).name, 'Tom');
 
     return done;
   });

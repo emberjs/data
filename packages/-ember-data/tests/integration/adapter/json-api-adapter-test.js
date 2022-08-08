@@ -190,12 +190,12 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(posts.lastObject.title, 'Tomster rules', 'The title for the second post is correct');
 
     assert.strictEqual(
-      posts.firstObject.author.get('firstName'),
+      posts.firstObject.author.firstName,
       'Yehuda',
       'The author for the first post is loaded and has the correct first name'
     );
     assert.strictEqual(
-      posts.lastObject.author.get('lastName'),
+      posts.lastObject.author.lastName,
       'Katz',
       'The author for the last post is loaded and has the correct last name'
     );

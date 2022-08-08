@@ -67,7 +67,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
 
     ```javascript
     let people = store.peekAll('person');
-    people.get('isLoaded'); // true
+    people.isLoaded; // true
     ```
 
     @property isLoaded
@@ -91,9 +91,9 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     Example
     ```javascript
     let people = store.peekAll('person');
-    people.get('isUpdating'); // false
+    people.isUpdating; // false
     people.update();
-    people.get('isUpdating'); // true
+    people.isUpdating; // true
     ```
     @property isUpdating
     @public
@@ -147,13 +147,13 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
 
     ```javascript
     let people = store.peekAll('person');
-    people.get('isUpdating'); // false
+    people.isUpdating; // false
 
     people.update().then(function() {
-      people.get('isUpdating'); // false
+      people.isUpdating; // false
     });
 
-    people.get('isUpdating'); // true
+    people.isUpdating; // true
     ```
 
     @method update

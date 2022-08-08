@@ -508,7 +508,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let comment = store.peekRecord('comment', 2);
 
     assert.strictEqual(comment._createSnapshot().belongsTo('post'), undefined, 'relationship is undefined');
-    await comment.get('post');
+    await comment.post;
     assert.strictEqual(comment._createSnapshot().belongsTo('post'), undefined, 'relationship is undefined');
   });
 
@@ -561,7 +561,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     });
     let comment = store.peekRecord('comment', 2);
 
-    await comment.get('post').then((post) => {
+    await comment.post.then((post) => {
       store.push({
         data: [
           {
@@ -582,7 +582,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       });
       let comment = store.peekRecord('comment', 2);
 
-      post.get('comments').then((comments) => {
+      post.comments.then((comments) => {
         comments.addObject(comment);
 
         let postSnapshot = post._createSnapshot();
@@ -628,7 +628,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let post = store.peekRecord('post', 1);
     let comment = store.peekRecord('comment', 2);
 
-    const comments = await post.get('comments');
+    const comments = await post.comments;
     comments.addObject(comment);
 
     let postSnapshot = post._createSnapshot();
@@ -1036,7 +1036,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
 
     let post = store.peekRecord('post', 1);
 
-    await post.get('comments').then((comments) => {
+    await post.comments.then((comments) => {
       let snapshot = post._createSnapshot();
       let relationship = snapshot.hasMany('comments');
 

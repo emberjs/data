@@ -149,10 +149,10 @@ module('RecordData Compatibility', function (hooks) {
         },
       ],
     });
-    let pets = chris.get('pets');
+    let pets = chris.pets;
     let shen = pets.objectAt(0);
 
-    assert.strictEqual(shen.get('name'), 'Shen', 'We found Shen');
+    assert.strictEqual(shen.name, 'Shen', 'We found Shen');
     assert.ok(recordDataFor(chris) instanceof RecordData, 'We used the default record-data for person');
     assert.ok(recordDataFor(shen) instanceof CustomRecordData, 'We used the custom record-data for pets');
 
@@ -207,10 +207,10 @@ module('RecordData Compatibility', function (hooks) {
         },
       ],
     });
-    let pets = chris.get('pets');
+    let pets = chris.pets;
     let shen = pets.objectAt(0);
 
-    assert.strictEqual(shen.get('name'), 'Shen', 'We found Shen');
+    assert.strictEqual(shen.name, 'Shen', 'We found Shen');
 
     try {
       run(() => shen.unloadRecord());

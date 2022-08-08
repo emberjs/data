@@ -544,7 +544,7 @@ export default Mixin.create({
   },
 
   attrsOption(attr) {
-    let attrs = this.get('attrs');
+    let attrs = this.attrs;
     return attrs && (attrs[camelize(attr)] || attrs[attr]);
   },
 

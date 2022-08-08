@@ -123,7 +123,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
       email: 'invalidEmail'
     });
     user.save().catch(function(){
-      user.get('errors').errorsFor('email'); // returns:
+      user.errors.errorsFor('email'); // returns:
       // [{attribute: "email", message: "Doesn't look like a valid email."}]
     });
     ```
@@ -369,7 +369,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
    errors.errorsFor('phone');
    // => undefined
 
-   errors.get('messages')
+   errors.messages
    // => []
    ```
    @method clear
@@ -406,7 +406,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     export default class UserEditController extends Controller {
       @action
       save(user) {
-        if (user.get('errors').has('email')) {
+        if (user.errors.has('email')) {
           return alert('Please update your email before attempting to save.');
         }
         user.save();

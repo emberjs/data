@@ -2445,10 +2445,10 @@ it should be pretty straight forward to update current code to the public
 Snapshot API:
 
 ```js
-post.get('id')           => postSnapshot.id
-post.get('title')        => postSnapshot.attr('title')
-post.get('author')       => postSnapshot.belongsTo('author')
-post.get('comments')     => postSnapshot.hasMany('comments')
+post.id           => postSnapshot.id
+post.title        => postSnapshot.attr('title')
+post.author       => postSnapshot.belongsTo('author')
+post.comments     => postSnapshot.hasMany('comments')
 post.constructor         => postSnapshot.type;
 post.constructor.typeKey => postSnapshot.typeKey
 ```
@@ -2525,7 +2525,7 @@ To access attributes you should now use the `attr` function.
 
 ```js
 // Ember Data 1.0.0-beta.14.1
-post.get('title');
+post.title;
 // Ember Data 1.0.0-beta.15
 postSnapshot.attr('title');
 ```
@@ -2534,7 +2534,7 @@ To access a belongsTo relationship you should use `.belongsTo()` method.
 
 ```js
 // Ember Data 1.0.0-beta.14.1
-post.get('author');
+post.author;
 // Ember Data 1.0.0-beta.15
 postSnapshot.belongsTo('author');
 ```
@@ -2543,7 +2543,7 @@ To access a hasMany relationship you should use `.hasMany()` method.
 
 ```js
 // Ember Data 1.0.0-beta.14.1
-post.get('comments');
+post.comments;
 // Ember Data 1.0.0-beta.15
 postSnapshot.hasMany('comments');
 ```
@@ -2619,13 +2619,13 @@ var post = store.push('post', {
   author: 'Tomster',
 });
 
-post.get('title'); // => 'Ember.js is fantastic'
-post.get('author'); // => 'Tomster'
+post.title; // => 'Ember.js is fantastic'
+post.author; // => 'Tomster'
 
 store.push('post', { id: 1, author: 'Tom Dale' });
 
-post.get('title'); // => 'Ember.js is fantastic'
-post.get('author'); // => 'Tom Dale'
+post.title; // => 'Ember.js is fantastic'
+post.author; // => 'Tom Dale'
 ```
 
 This also mean that properties missing in the payload will no longer be reset,
@@ -2698,10 +2698,10 @@ underlying array you will now need to use the `.toArray()` method.
 
 ```javascript
 // Ember Data 1.0.0-beta.12
-record.get('myHasManyRelationship').get('content').map(...);
+record.myHasManyRelationship.content.map(...);
 
 // Ember Data 1.0.0-beta.14
-record.get('myHasManyRelationship').toArray().map(...);
+record.myHasManyRelationship.toArray().map(...);
 ```
 
 Additionally if you were using the `RecordArray`'s `.addRecord()` and
@@ -2736,7 +2736,7 @@ Additionally if you were using the `RecordArray`'s `.addRecord()` and
 - [Feature thrownError] tag errorThrown from jQuery onto the jqXHR like ic-ajax does.
 - Cache relationships meta in production
 - Deprecate store.update()
-- hasMany relationships are no longer `RecordArray`, but `ManyArray`. To access the underlying array use `relationship.toArray()` instead of `relationship.get('content')`.
+- hasMany relationships are no longer `RecordArray`, but `ManyArray`. To access the underlying array use `relationship.toArray()` instead of `relationship.content`.
 
 ### Ember Data 1.0.0-beta.12 (November 25, 2014)
 
@@ -2765,7 +2765,7 @@ Ember Data's build. You should upgrade to Ember 1.8 as soon as you can.
 
 ##### Observing `data` For Changes Has Been Removed
 
-Although `model.get('data')` has been private in Ember Data for a long time, we
+Although `model.data` has been private in Ember Data for a long time, we
 have noticed users may subscribe to changes on `data` for any change to the
 model's attributes. This means that the following code:
 

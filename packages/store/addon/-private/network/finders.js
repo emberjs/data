@@ -48,6 +48,7 @@ export function _findAll(adapter, store, modelName, options) {
 export function _query(adapter, store, modelName, query, recordArray, options) {
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
 
+  // TODO @deprecate RecordArrays being passed to Adapters
   recordArray = recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
   let promise = Promise.resolve().then(() => adapter.query(store, modelClass, query, recordArray, options));
 
@@ -64,16 +65,7 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
         'The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.',
         Array.isArray(identifiers)
       );
-      if (recordArray) {
-        recordArray._setIdentifiers(identifiers, payload);
-      } else {
-        recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(
-          modelName,
-          query,
-          identifiers,
-          payload
-        );
-      }
+      recordArray._setIdentifiers(identifiers, payload);
 
       return recordArray;
     },

@@ -299,7 +299,7 @@ module('unit/model - Model', function (hooks) {
     test('setting the id during createRecord should correctly update the id', async function (assert) {
       let person = store.createRecord('person', { id: 'john' });
 
-      assert.strictEqual(person.get('id'), 'john', 'new id should be correctly set.');
+      assert.strictEqual(person.id, 'john', 'new id should be correctly set.');
 
       let record = store.peekRecord('person', 'john');
 
@@ -309,11 +309,11 @@ module('unit/model - Model', function (hooks) {
     test('setting the id after createRecord should correctly update the id', async function (assert) {
       let person = store.createRecord('person');
 
-      assert.strictEqual(person.get('id'), null, 'initial created model id should be null');
+      assert.strictEqual(person.id, null, 'initial created model id should be null');
 
       person.set('id', 'john');
 
-      assert.strictEqual(person.get('id'), 'john', 'new id should be correctly set.');
+      assert.strictEqual(person.id, 'john', 'new id should be correctly set.');
 
       let record = store.peekRecord('person', 'john');
 
@@ -323,7 +323,7 @@ module('unit/model - Model', function (hooks) {
     testInDebug('mutating the id after createRecord but before save works', async function (assert) {
       let person = store.createRecord('person', { id: 'chris' });
 
-      assert.strictEqual(person.get('id'), 'chris', 'initial created model id should be null');
+      assert.strictEqual(person.id, 'chris', 'initial created model id should be null');
 
       try {
         person.set('id', 'john');
@@ -343,22 +343,22 @@ module('unit/model - Model', function (hooks) {
       const OddPerson = Model.extend({
         name: DSattr('string'),
         idComputed: computed('id', function () {
-          return this.get('id');
+          return this.id;
         }),
       });
       this.owner.register('model:odd-person', OddPerson);
 
       let person = store.createRecord('odd-person');
-      let oddId = person.get('idComputed');
+      let oddId = person.idComputed;
 
       assert.strictEqual(oddId, null, 'initial computed get is null');
       // test .get access of id
-      assert.strictEqual(person.get('id'), null, 'initial created model id should be null');
+      assert.strictEqual(person.id, null, 'initial created model id should be null');
 
       const identifier = recordIdentifierFor(person);
       store._instanceCache.setRecordId('odd-person', 'john', identifier.lid);
 
-      oddId = person.get('idComputed');
+      oddId = person.idComputed;
       assert.strictEqual(oddId, 'john', 'computed get is correct');
       // test direct access of id
       assert.strictEqual(person.id, 'john', 'new id should be correctly set.');
@@ -379,7 +379,7 @@ module('unit/model - Model', function (hooks) {
       // we can locate it in the identity map
       let record = store.peekRecord('person', 0);
 
-      assert.strictEqual(record.get('name'), 'Tom Dale', 'found record with id 0');
+      assert.strictEqual(record.name, 'Tom Dale', 'found record with id 0');
     });
   });
 
@@ -723,10 +723,10 @@ module('unit/model - Model', function (hooks) {
       assert.strictEqual(nameDidChange, 0, 'observer should not trigger on create');
       let person = store.createRecord('legacy-person');
       assert.strictEqual(nameDidChange, 0, 'observer should not trigger on create');
-      assert.strictEqual(person.get('name'), 'my-name-set-in-init');
+      assert.strictEqual(person.name, 'my-name-set-in-init');
 
       person = store.createRecord('native-person');
-      assert.strictEqual(person.get('name'), 'my-name-set-in-init');
+      assert.strictEqual(person.name, 'my-name-set-in-init');
     });
 
     test('accessing attributes during init should not throw an error', async function (assert) {
@@ -735,7 +735,7 @@ module('unit/model - Model', function (hooks) {
 
         init() {
           this._super(...arguments);
-          assert.strictEqual(this.get('name'), 'bam!', 'We all good here');
+          assert.strictEqual(this.name, 'bam!', 'We all good here');
         },
       });
       this.owner.register('model:odd-person', Person);
@@ -895,13 +895,13 @@ module('unit/model - Model', function (hooks) {
 
       let person = await store.findRecord('person', '1');
 
-      assert.false(person.get('hasDirtyAttributes'), 'precond - person record should not be dirty');
+      assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
 
       person.set('name', 'Peter');
       person.set('isDrugAddict', true);
 
       assert.false(
-        person.get('hasDirtyAttributes'),
+        person.hasDirtyAttributes,
         'record does not become dirty after setting property to old value'
       );
     });
@@ -920,15 +920,15 @@ module('unit/model - Model', function (hooks) {
 
       let person = await store.findRecord('person', '1');
 
-      assert.false(person.get('hasDirtyAttributes'), 'precond - person record should not be dirty');
+      assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
 
       person.set('isDrugAddict', false);
 
-      assert.true(person.get('hasDirtyAttributes'), 'record becomes dirty after setting property to a new value');
+      assert.true(person.hasDirtyAttributes, 'record becomes dirty after setting property to a new value');
 
       person.set('isDrugAddict', true);
 
-      assert.false(person.get('hasDirtyAttributes'), 'record becomes clean after resetting property to the old value');
+      assert.false(person.hasDirtyAttributes, 'record becomes clean after resetting property to the old value');
     });
 
     test('resetting a property to the current in-flight value causes it to become clean when the save completes', async function (assert) {
@@ -951,17 +951,17 @@ module('unit/model - Model', function (hooks) {
 
       let saving = person.save();
 
-      assert.strictEqual(person.get('name'), 'Thomas');
+      assert.strictEqual(person.name, 'Thomas');
 
       person.set('name', 'Tomathy');
-      assert.strictEqual(person.get('name'), 'Tomathy');
+      assert.strictEqual(person.name, 'Tomathy');
 
       person.set('name', 'Thomas');
-      assert.strictEqual(person.get('name'), 'Thomas');
+      assert.strictEqual(person.name, 'Thomas');
 
       await saving;
 
-      assert.false(person.get('hasDirtyAttributes'), 'The person is now clean');
+      assert.false(person.hasDirtyAttributes, 'The person is now clean');
     });
 
     test('a record becomes clean again only if all changed properties are reset', async function (assert) {
@@ -978,19 +978,19 @@ module('unit/model - Model', function (hooks) {
 
       let person = await store.findRecord('person', 1);
 
-      assert.false(person.get('hasDirtyAttributes'), 'precond - person record should not be dirty');
+      assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
       person.set('isDrugAddict', false);
-      assert.true(person.get('hasDirtyAttributes'), 'record becomes dirty after setting one property to a new value');
+      assert.true(person.hasDirtyAttributes, 'record becomes dirty after setting one property to a new value');
       person.set('name', 'Mark');
-      assert.true(person.get('hasDirtyAttributes'), 'record stays dirty after setting another property to a new value');
+      assert.true(person.hasDirtyAttributes, 'record stays dirty after setting another property to a new value');
       person.set('isDrugAddict', true);
       assert.true(
-        person.get('hasDirtyAttributes'),
+        person.hasDirtyAttributes,
         'record stays dirty after resetting only one property to the old value'
       );
       person.set('name', 'Peter');
       assert.false(
-        person.get('hasDirtyAttributes'),
+        person.hasDirtyAttributes,
         'record becomes clean after resetting both properties to the old value'
       );
     });
@@ -1021,9 +1021,9 @@ module('unit/model - Model', function (hooks) {
 
       let person = store.peekRecord('person', 1);
 
-      assert.false(person.get('hasDirtyAttributes'), 'precond - person record should not be dirty');
+      assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
       person.set('name', 'Wolf');
-      assert.true(person.get('hasDirtyAttributes'), 'record becomes dirty after setting one property to a new value');
+      assert.true(person.hasDirtyAttributes, 'record becomes dirty after setting one property to a new value');
 
       await person
         .save()
@@ -1031,14 +1031,14 @@ module('unit/model - Model', function (hooks) {
           assert.ok(false, 'We should reject the save');
         })
         .catch(() => {
-          assert.false(person.get('isValid'), 'record is not valid');
-          assert.true(person.get('hasDirtyAttributes'), 'record still has dirty attributes');
+          assert.false(person.isValid, 'record is not valid');
+          assert.true(person.hasDirtyAttributes, 'record still has dirty attributes');
 
           person.set('name', 'Peter');
 
-          assert.true(person.get('isValid'), 'record is valid after resetting attribute to old value');
+          assert.true(person.isValid, 'record is valid after resetting attribute to old value');
           assert.false(
-            person.get('hasDirtyAttributes'),
+            person.hasDirtyAttributes,
             'record becomes clean after resetting property to the old value'
           );
         });
@@ -1070,10 +1070,10 @@ module('unit/model - Model', function (hooks) {
 
       let person = store.peekRecord('person', 1);
 
-      assert.false(person.get('hasDirtyAttributes'), 'precond - person record should not be dirty');
+      assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
       person.set('name', 'Wolf');
       person.set('isDrugAddict', false);
-      assert.true(person.get('hasDirtyAttributes'), 'record becomes dirty after setting one property to a new value');
+      assert.true(person.hasDirtyAttributes, 'record becomes dirty after setting one property to a new value');
 
       await person
         .save()
@@ -1081,13 +1081,13 @@ module('unit/model - Model', function (hooks) {
           assert.ok(false, 'save should have rejected');
         })
         .catch(() => {
-          assert.false(person.get('isValid'), 'record is not valid');
-          assert.true(person.get('hasDirtyAttributes'), 'record still has dirty attributes');
+          assert.false(person.isValid, 'record is not valid');
+          assert.true(person.hasDirtyAttributes, 'record still has dirty attributes');
 
           person.set('name', 'Peter');
 
-          assert.true(person.get('isValid'), 'record is valid after resetting invalid attribute to old value');
-          assert.true(person.get('hasDirtyAttributes'), 'record still has dirty attributes');
+          assert.true(person.isValid, 'record is valid after resetting invalid attribute to old value');
+          assert.true(person.hasDirtyAttributes, 'record still has dirty attributes');
         });
     });
 

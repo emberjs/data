@@ -55,11 +55,11 @@ export interface AdapterPopulatedRecordArrayCreateArgs {
     //
     // GET /users?isAdmin=true
     admins.update().then(function() {
-      admins.get('isUpdating'); // false
+      admins.isUpdating; // false
       admins.get("length"); // 123
     });
 
-    admins.get('isUpdating'); // true
+    admins.isUpdating; // true
   }
   ```
 

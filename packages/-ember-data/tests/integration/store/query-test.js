@@ -38,12 +38,12 @@ module('integration/store/query', function (hooks) {
       result = store.query('person', {});
     });
 
-    assert.notOk(result.get('meta.foo'), 'precond: meta is not yet set');
+    assert.notOk(result.meta.foo, 'precond: meta is not yet set');
 
     run(function () {
       defered.resolve({ data: [], meta: { foo: 'bar' } });
     });
 
-    assert.strictEqual(result.get('meta.foo'), 'bar');
+    assert.strictEqual(result.meta.foo, 'bar');
   });
 });

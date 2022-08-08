@@ -93,10 +93,10 @@ module('unit/model/relationships - RecordArray', function (hooks) {
     });
 
     let person = await store.findRecord('person', 1);
-    person.get('tags').createRecord({ name: 'cool' });
+    person.tags.createRecord({ name: 'cool' });
 
     assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
     assert.strictEqual(get(person, 'tags.length'), 1, 'tag is added to the parent record');
-    assert.strictEqual(get(person, 'tags').objectAt(0).get('name'), 'cool', 'tag values are passed along');
+    assert.strictEqual(get(person, 'tags').objectAt(0).name, 'cool', 'tag values are passed along');
   });
 });

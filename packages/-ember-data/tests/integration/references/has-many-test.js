@@ -292,8 +292,8 @@ module('integration/references/has-many', function (hooks) {
       personsReference.push(data).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
-        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(records.objectAt(0).name, 'Vito');
+        assert.strictEqual(records.objectAt(1).name, 'Michael');
 
         done();
       });
@@ -326,7 +326,7 @@ module('integration/references/has-many', function (hooks) {
       personsReference.push(data).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 1);
-        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
+        assert.strictEqual(records.objectAt(0).name, 'Vito');
 
         done();
       });
@@ -384,8 +384,8 @@ module('integration/references/has-many', function (hooks) {
       personsReference.push(payload).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
-        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(records.objectAt(0).name, 'Vito');
+        assert.strictEqual(records.objectAt(1).name, 'Michael');
 
         done();
       });
@@ -427,8 +427,8 @@ module('integration/references/has-many', function (hooks) {
     const records = await pushResult;
     assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
     assert.strictEqual(get(records, 'length'), 2);
-    assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
-    assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
+    assert.strictEqual(records.objectAt(0).name, 'Vito');
+    assert.strictEqual(records.objectAt(1).name, 'Michael');
   });
 
   test('push valid json:api', async function (assert) {
@@ -461,8 +461,8 @@ module('integration/references/has-many', function (hooks) {
     const records = await pushResult;
     assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
     assert.strictEqual(get(records, 'length'), 2);
-    assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
-    assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
+    assert.strictEqual(records.objectAt(0).name, 'Vito');
+    assert.strictEqual(records.objectAt(1).name, 'Michael');
   });
 
   test('value() returns null when reference is not yet loaded', function (assert) {
@@ -613,8 +613,8 @@ module('integration/references/has-many', function (hooks) {
       personsReference.load({ adapterOptions }).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
-        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(records.objectAt(0).name, 'Vito');
+        assert.strictEqual(records.objectAt(1).name, 'Michael');
 
         done();
       });
@@ -663,8 +663,8 @@ module('integration/references/has-many', function (hooks) {
       personsReference.load({ adapterOptions }).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
-        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(records.objectAt(0).name, 'Vito');
+        assert.strictEqual(records.objectAt(1).name, 'Michael');
 
         done();
       });
@@ -806,8 +806,8 @@ module('integration/references/has-many', function (hooks) {
       personsReference.reload({ adapterOptions }).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).get('name'), 'Vito Coreleone');
-        assert.strictEqual(records.objectAt(1).get('name'), 'Michael Coreleone');
+        assert.strictEqual(records.objectAt(0).name, 'Vito Coreleone');
+        assert.strictEqual(records.objectAt(1).name, 'Michael Coreleone');
 
         done();
       });
@@ -872,8 +872,8 @@ module('integration/references/has-many', function (hooks) {
         .then(function (records) {
           assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
           assert.strictEqual(get(records, 'length'), 2);
-          assert.strictEqual(records.objectAt(0).get('name'), 'Vito Coreleone');
-          assert.strictEqual(records.objectAt(1).get('name'), 'Michael Coreleone');
+          assert.strictEqual(records.objectAt(0).name, 'Vito Coreleone');
+          assert.strictEqual(records.objectAt(1).name, 'Michael Coreleone');
 
           done();
         });

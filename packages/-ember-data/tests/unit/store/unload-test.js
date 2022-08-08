@@ -213,7 +213,7 @@ module('Store - unload record with relationships', function (hooks) {
       })
       .then((product) => {
         assert.strictEqual(
-          product.get('description'),
+          product.description,
           'cuisinart',
           "The record was unloaded and the adapter's `findRecord` was called"
         );

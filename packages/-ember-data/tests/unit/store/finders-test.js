@@ -141,7 +141,7 @@ module('unit/store/finders', function (hooks) {
       },
     });
 
-    let storePromise = this.store.peekRecord('person', 1).get('dogs');
+    let storePromise = this.store.peekRecord('person', 1).dogs;
     assert.false(serializerLoaded, 'serializer is not eagerly loaded');
 
     deferedFind.resolve({
@@ -194,7 +194,7 @@ module('unit/store/finders', function (hooks) {
       },
     });
 
-    let storePromise = this.store.peekRecord('person', 1).get('favoriteDog');
+    let storePromise = this.store.peekRecord('person', 1).favoriteDog;
 
     assert.false(serializerLoaded, 'serializer is not eagerly loaded');
 

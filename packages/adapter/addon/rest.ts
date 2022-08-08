@@ -295,7 +295,7 @@ declare const jQuery: JQueryStatic | undefined;
   export default class ApplicationAdapter extends RESTAdapter {
     headers: computed('session.authToken', function() {
       return {
-        'API_KEY': this.get('session.authToken'),
+        'API_KEY': this.session.authToken,
         'ANOTHER_HEADER': 'Some header value'
       };
     })
@@ -438,7 +438,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     }
     ```
 
-    By default calling `post.get('comments')` will trigger the following requests(assuming the
+    By default calling `post.comments` will trigger the following requests(assuming the
     comments haven't been loaded before):
 
     ```

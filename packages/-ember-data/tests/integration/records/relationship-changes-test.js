@@ -143,7 +143,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
             observerCount++;
           });
           // prime the pump
-          person.get('siblings');
+          person.siblings;
         });
 
         run(() => {
@@ -317,7 +317,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
         observerCount++;
       });
       // prime the pump
-      person.get('siblings');
+      person.siblings;
     });
 
     run(() => {
@@ -373,7 +373,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
         observerCount++;
       });
       // prime the pump
-      person.get('siblings');
+      person.siblings;
     });
 
     run(() => {
@@ -429,7 +429,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
         observerCount++;
       });
       // prime the pump
-      person.get('siblings');
+      person.siblings;
     });
 
     run(() => {
@@ -486,7 +486,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
     run(() => {
       // prime the pump
-      person.get('siblings');
+      person.siblings;
       person.addObserver('siblings.[]', observerMethod);
     });
 
@@ -793,7 +793,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
             },
           };
 
-          let siblings = run(() => person.get('siblings'));
+          let siblings = run(() => person.siblings);
 
           // flush initial state since
           // nothing is consuming us.
@@ -873,7 +873,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
             },
           };
 
-          let siblings = run(() => person.get('siblings'));
+          let siblings = run(() => person.siblings);
           // flush initial state since
           // nothing is consuming us.
           // else the test will fail because we will
@@ -932,7 +932,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
           ],
         });
 
-        post.get('author');
+        post.author;
 
         post.addObserver('author', function () {
           observerCount++;
