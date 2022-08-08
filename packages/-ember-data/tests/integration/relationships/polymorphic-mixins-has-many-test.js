@@ -79,12 +79,9 @@ module(
       run(function () {
         user.messages.then(function (messages) {
           assert.strictEqual(messages.objectAt(0), video, 'The hasMany has loaded correctly');
-          messages
-            .objectAt(0)
-            .user
-            .then(function (fetchedUser) {
-              assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
-            });
+          messages.objectAt(0).user.then(function (fetchedUser) {
+            assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
+          });
         });
       });
     });

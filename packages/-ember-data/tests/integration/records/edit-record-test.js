@@ -67,10 +67,7 @@ module('Editing a Record', function (hooks) {
         // check that we are properly configured
         assert.strictEqual(pet.owner, null, 'Precondition: Our owner is null');
 
-        let pets = chris
-          .pets
-          .toArray()
-          .map((pet) => pet.name);
+        let pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, [], 'Precondition: Chris has no pets');
 
         pet.set('owner', chris);
@@ -78,10 +75,7 @@ module('Editing a Record', function (hooks) {
         assert.strictEqual(pet.owner, chris, 'Shen has Chris as an owner');
 
         // check that the relationship has been established
-        pets = chris
-          .pets
-          .toArray()
-          .map((pet) => pet.name);
+        pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, ['Shen'], 'Chris has Shen as a pet');
       });
 
@@ -107,10 +101,7 @@ module('Editing a Record', function (hooks) {
         // check that we are properly configured
         assert.strictEqual(pet.owner, null, 'Precondition: Our owner is null');
 
-        let pets = chris
-          .pets
-          .toArray()
-          .map((pet) => pet.name);
+        let pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, [], 'Precondition: Chris has no pets');
 
         pet.set('owner', chris);
@@ -118,10 +109,7 @@ module('Editing a Record', function (hooks) {
         assert.strictEqual(pet.owner, chris, 'Shen has Chris as an owner');
 
         // check that the relationship has been established
-        pets = chris
-          .pets
-          .toArray()
-          .map((pet) => pet.name);
+        pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, ['Shen'], 'Chris has Shen as a pet');
       });
 
@@ -139,10 +127,7 @@ module('Editing a Record', function (hooks) {
         // check that we are properly configured
         assert.strictEqual(pet.owner, null, 'Precondition: Our owner is null');
 
-        let pets = chris
-          .pets
-          .toArray()
-          .map((pet) => pet.name);
+        let pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, [], 'Precondition: Chris has no pets');
 
         pet.set('owner', chris);
@@ -150,10 +135,7 @@ module('Editing a Record', function (hooks) {
         assert.strictEqual(pet.owner, chris, 'Shen has Chris as an owner');
 
         // check that the relationship has been established
-        pets = chris
-          .pets
-          .toArray()
-          .map((pet) => pet.name);
+        pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, ['Shen'], 'Chris has Shen as a pet');
       });
 
@@ -179,10 +161,7 @@ module('Editing a Record', function (hooks) {
         // check that we are properly configured
         assert.strictEqual(pet.owner, null, 'Precondition: Our owner is null');
 
-        let pets = chris
-          .pets
-          .toArray()
-          .map((pet) => pet.name);
+        let pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, [], 'Precondition: Chris has no pets');
 
         pet.set('owner', chris);
@@ -190,10 +169,7 @@ module('Editing a Record', function (hooks) {
         assert.strictEqual(pet.owner, chris, 'Shen has Chris as an owner');
 
         // check that the relationship has been established
-        pets = chris
-          .pets
-          .toArray()
-          .map((pet) => pet.name);
+        pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, ['Shen'], 'Chris has Shen as a pet');
       });
 

@@ -403,12 +403,9 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       return this.store.push(payload);
     });
 
-    const familyResultReferences = boyInstance
-      .family
-      .toArray()
-      .map((i) => {
-        return { type: i.constructor.modelName, id: i.id };
-      });
+    const familyResultReferences = boyInstance.family.toArray().map((i) => {
+      return { type: i.constructor.modelName, id: i.id };
+    });
     const twinResult = boyInstance.twin;
     const twinResultReference = { type: twinResult.constructor.modelName, id: twinResult.id };
 
@@ -506,12 +503,9 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       return this.store.push(payload);
     });
 
-    const familyResultReferences = boyInstance
-      .family
-      .toArray()
-      .map((i) => {
-        return { type: i.constructor.modelName, id: i.id };
-      });
+    const familyResultReferences = boyInstance.family.toArray().map((i) => {
+      return { type: i.constructor.modelName, id: i.id };
+    });
     const twinResult = boyInstance.twin;
     const twinResultReference = twinResult && {
       type: twinResult.constructor.modelName,
@@ -558,12 +552,9 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     const expectedHatReference = { id: '2', type: 'big-hat' };
     const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
 
-    const finalHatsReferences = hat2
-      .hats
-      .toArray()
-      .map((i) => {
-        return { type: i.constructor.modelName, id: i.id };
-      });
+    const finalHatsReferences = hat2.hats.toArray().map((i) => {
+      return { type: i.constructor.modelName, id: i.id };
+    });
     const hatResult = hat1.hat;
     const finalHatReference = hatResult && {
       type: hatResult.constructor.modelName,
@@ -605,12 +596,9 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     const expectedHatReference = { id: '1', type: 'big-hat' };
     const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
 
-    const finalHatsReferences = hat
-      .hats
-      .toArray()
-      .map((i) => {
-        return { type: i.constructor.modelName, id: i.id };
-      });
+    const finalHatsReferences = hat.hats.toArray().map((i) => {
+      return { type: i.constructor.modelName, id: i.id };
+    });
     const hatResult = hat.hat;
     const finalHatReference = hatResult && {
       type: hatResult.constructor.modelName,

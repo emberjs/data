@@ -155,11 +155,7 @@ module('unit/model/merge - Merging', function (hooks) {
       return promise.then((person) => {
         assert.true(person.hasDirtyAttributes, 'The person is still dirty');
         assert.strictEqual(person.name, 'Tomasz Dale', 'The local changes apply');
-        assert.strictEqual(
-          person.city,
-          'Portland',
-          'The updates from the server apply on top of the previous pushes'
-        );
+        assert.strictEqual(person.city, 'Portland', 'The updates from the server apply on top of the previous pushes');
       });
     });
   });

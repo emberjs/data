@@ -1228,7 +1228,6 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
   test('store should reload all records in the background when `shouldBackgroundReloadAll` is true', async function (assert) {
     assert.expect(5);
-    let hasPerformedInitialFind = false;
 
     const Person = Model.extend({
       name: attr(),

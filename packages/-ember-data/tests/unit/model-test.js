@@ -900,10 +900,7 @@ module('unit/model - Model', function (hooks) {
       person.set('name', 'Peter');
       person.set('isDrugAddict', true);
 
-      assert.false(
-        person.hasDirtyAttributes,
-        'record does not become dirty after setting property to old value'
-      );
+      assert.false(person.hasDirtyAttributes, 'record does not become dirty after setting property to old value');
     });
 
     test('resetting a property on a record cause it to become clean again', async function (assert) {
@@ -984,15 +981,9 @@ module('unit/model - Model', function (hooks) {
       person.set('name', 'Mark');
       assert.true(person.hasDirtyAttributes, 'record stays dirty after setting another property to a new value');
       person.set('isDrugAddict', true);
-      assert.true(
-        person.hasDirtyAttributes,
-        'record stays dirty after resetting only one property to the old value'
-      );
+      assert.true(person.hasDirtyAttributes, 'record stays dirty after resetting only one property to the old value');
       person.set('name', 'Peter');
-      assert.false(
-        person.hasDirtyAttributes,
-        'record becomes clean after resetting both properties to the old value'
-      );
+      assert.false(person.hasDirtyAttributes, 'record becomes clean after resetting both properties to the old value');
     });
 
     test('an invalid record becomes clean again if changed property is reset', async function (assert) {
@@ -1037,10 +1028,7 @@ module('unit/model - Model', function (hooks) {
           person.set('name', 'Peter');
 
           assert.true(person.isValid, 'record is valid after resetting attribute to old value');
-          assert.false(
-            person.hasDirtyAttributes,
-            'record becomes clean after resetting property to the old value'
-          );
+          assert.false(person.hasDirtyAttributes, 'record becomes clean after resetting property to the old value');
         });
     });
 

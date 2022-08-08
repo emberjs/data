@@ -81,10 +81,7 @@ module('Store.createRecord() coverage', function (hooks) {
     // check that we are properly configured
     assert.strictEqual(pet.owner, chris, 'Precondition: Our owner is Chris');
 
-    let pets = chris
-      .pets
-      .toArray()
-      .map((pet) => pet.name);
+    let pets = chris.pets.toArray().map((pet) => pet.name);
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
     pet.unloadRecord();

@@ -71,12 +71,9 @@ module('unit/many_array - ManyArray', function (hooks) {
 
       let post = store.peekRecord('post', 3);
 
-      return post
-        .tags
-        .save()
-        .then(() => {
-          assert.ok(true, 'manyArray.save() promise resolved');
-        });
+      return post.tags.save().then(() => {
+        assert.ok(true, 'manyArray.save() promise resolved');
+      });
     });
   });
 

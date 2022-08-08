@@ -77,7 +77,7 @@ export default class SnapshotRecordArray {
       @public
       @type {Number}
     */
-    this.length = recordArray.length;
+    this.length = recordArray.length as unknown as number; // deal with computedProperty shennanigans
 
     /**
       Meta objects for the record array.
