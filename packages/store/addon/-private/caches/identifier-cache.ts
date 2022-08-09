@@ -4,6 +4,8 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { getOwnConfig, importSync, macroCondition } from '@embroider/macros';
+
 import { LOG_IDENTIFIERS } from '@ember-data/private-build-infra/debugging';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
@@ -33,6 +35,10 @@ export function isStableIdentifier(identifier: Object): identifier is StableReco
 
 const isFastBoot = typeof FastBoot !== 'undefined';
 const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
+
+if (macroCondition(getOwnConfig<{ polyfillUUID: boolean }>().polyfillUUID)) {
+  importSync('./utils/uuid-polyfill');
+}
 
 function uuidv4(): string {
   return _crypto.randomUUID();
