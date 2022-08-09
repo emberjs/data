@@ -5,14 +5,22 @@ import Pretender from 'pretender';
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
 
-import DS from 'ember-data';
 import { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
+import AdapterError, {
+  AbortError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+  ServerError,
+  UnauthorizedError,
+} from '@ember-data/adapter/error';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
+import { Snapshot } from '@ember-data/store/-private';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -342,13 +350,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => false;
     this.owner.register(
       'serializer:post',
-      DS.RESTSerializer.extend({
-        primaryKey: '_id_',
+      class extends RESTSerializer {
+        primaryKey = '_id_';
 
-        attrs: {
+        attrs = {
           name: '_name_',
-        },
-      })
+        };
+      }
     );
 
     store.push({
@@ -837,10 +845,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     this.owner.register(
       'serializer:post',
-      DS.RESTSerializer.extend({
-        primaryKey: '_ID_',
-        attrs: { name: '_NAME_' },
-      })
+      class extends RESTSerializer {
+        primaryKey = '_ID_';
+        attrs = { name: '_NAME_' };
+      }
     );
 
     ajaxResponse({
@@ -1096,10 +1104,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     this.owner.register(
       'serializer:post',
-      DS.RESTSerializer.extend({
-        primaryKey: '_ID_',
-        attrs: { name: '_NAME_' },
-      })
+      class extends RESTSerializer {
+        primaryKey = '_ID_';
+        attrs = { name: '_NAME_' };
+      }
     );
 
     ajaxResponse({
@@ -1266,7 +1274,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     this.owner.register(
       'serializer:post',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         primaryKey: '_ID_',
         attrs: { name: '_NAME_' },
       })
@@ -1563,7 +1571,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => false;
     this.owner.register(
       'serializer:post',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         primaryKey: '_ID_',
         attrs: { name: '_NAME_' },
       })
@@ -1571,7 +1579,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     this.owner.register(
       'serializer:comment',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         primaryKey: '_ID_',
         attrs: { name: '_NAME_' },
       })
@@ -1689,7 +1697,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
-      assert.ok(snapshot instanceof DS.Snapshot);
+      assert.ok(snapshot instanceof Snapshot);
       assert.strictEqual(requestType, 'findHasMany');
     };
 
@@ -1792,7 +1800,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => false;
     this.owner.register(
       'serializer:post',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         primaryKey: '_ID_',
         attrs: { name: '_NAME_' },
       })
@@ -1800,7 +1808,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     this.owner.register(
       'serializer:comment',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         primaryKey: '_ID_',
         attrs: { name: '_NAME_' },
       })
@@ -1877,7 +1885,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
-      assert.ok(snapshot instanceof DS.Snapshot);
+      assert.ok(snapshot instanceof Snapshot);
       assert.strictEqual(requestType, 'findBelongsTo');
     };
 
@@ -2078,7 +2086,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     this.owner.register(
       'serializer:application',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         keyForAttribute(attr) {
           return underscore(attr);
         },
@@ -2305,7 +2313,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.deepEqual(status, 400);
       assert.deepEqual(json, responseText);
       assert.deepEqual(requestData, expectedRequestData);
-      return new DS.AdapterError('nope!');
+      return new AdapterError('nope!');
     };
 
     try {
@@ -2315,7 +2323,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
   });
 
-  test('rejects promise if DS.AdapterError is returned from adapter.handleResponse', async function (assert) {
+  test('rejects promise if AdapterError is returned from adapter.handleResponse', async function (assert) {
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
@@ -2339,14 +2347,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     adapter.handleResponse = function (status, headers, json) {
       assert.ok(true, 'handleResponse should be called');
-      return new DS.AdapterError(json);
+      return new AdapterError(json);
     };
 
     try {
       await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
-      assert.ok(reason instanceof DS.AdapterError, 'reason should be an instance of DS.AdapterError');
+      assert.ok(reason instanceof AdapterError, 'reason should be an instance of AdapterError');
     }
   });
 
@@ -2430,7 +2438,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     try {
       await store.findRecord('post', '1');
     } catch (err) {
-      assert.ok(err instanceof DS.AbortError, 'reason should be an instance of DS.AbortError');
+      assert.ok(err instanceof AbortError, 'reason should be an instance of AbortError');
       assert.strictEqual(err.errors.length, 1, 'AbortError includes errors with request/response details');
       let expectedError = {
         title: 'Adapter Error',
@@ -2483,7 +2491,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
   });
 
-  test('on error wraps the error string in an DS.AdapterError object', async function (assert) {
+  test('on error wraps the error string in an AdapterError object', async function (assert) {
     assert.expect(2);
     class Post extends Model {
       @attr name;
@@ -2518,7 +2526,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
   });
 
-  test('rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes', async function (assert) {
+  test('rejects promise with a specialized subclass of AdapterError if ajax responds with http error codes', async function (assert) {
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
@@ -2537,7 +2545,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
-      assert.ok(reason instanceof DS.UnauthorizedError, 'reason should be an instance of DS.UnauthorizedError');
+      assert.ok(reason instanceof UnauthorizedError, 'reason should be an instance of UnauthorizedError');
     }
 
     ajaxError('error', 403);
@@ -2546,7 +2554,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
-      assert.ok(reason instanceof DS.ForbiddenError, 'reason should be an instance of DS.ForbiddenError');
+      assert.ok(reason instanceof ForbiddenError, 'reason should be an instance of ForbiddenError');
     }
 
     ajaxError('error', 404);
@@ -2555,7 +2563,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
-      assert.ok(reason instanceof DS.NotFoundError, 'reason should be an instance of DS.NotFoundError');
+      assert.ok(reason instanceof NotFoundError, 'reason should be an instance of NotFoundError');
     }
 
     ajaxError('error', 409);
@@ -2564,7 +2572,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
-      assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
+      assert.ok(reason instanceof ConflictError, 'reason should be an instance of ConflictError');
     }
 
     ajaxError('error', 500);
@@ -2573,7 +2581,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       await store.findRecord('post', '1');
     } catch (reason) {
       assert.ok(true, 'promise should be rejected');
-      assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');
+      assert.ok(reason instanceof ServerError, 'reason should be an instance of ServerError');
     }
   });
 
