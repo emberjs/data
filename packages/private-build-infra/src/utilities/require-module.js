@@ -1,4 +1,4 @@
-const fs = require('node:fs');
+const fs = require('fs');
 
 module.exports = function requireModule(modulePath) {
   const path = require.resolve(modulePath);
