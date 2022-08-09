@@ -484,21 +484,20 @@ export default class FetchManager {
   _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
     let adapter = this._store.adapterFor(modelName);
     let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    let totalItems = pendingFetchItems.length;
-    let identifiers = new Array(totalItems);
-    let seeking: { [id: string]: PendingFetchItem } = Object.create(null);
-
-    let optionsMap = new WeakCache<RecordIdentifier, FindOptions>(DEBUG ? 'fetch-options' : '');
-
-    for (let i = 0; i < totalItems; i++) {
-      let pendingItem = pendingFetchItems[i];
-      let identifier = pendingItem.identifier;
-      identifiers[i] = identifier;
-      optionsMap.set(identifier, pendingItem.options);
-      seeking[identifier.id] = pendingItem;
-    }
 
     if (shouldCoalesce) {
+      let totalItems = pendingFetchItems.length;
+      let identifiers = new Array(totalItems);
+      let seeking: { [id: string]: PendingFetchItem } = Object.create(null);
+      let optionsMap = new WeakCache<RecordIdentifier, FindOptions>(DEBUG ? 'fetch-options' : '');
+
+      for (let i = 0; i < totalItems; i++) {
+        let pendingItem = pendingFetchItems[i];
+        let identifier = pendingItem.identifier;
+        identifiers[i] = identifier;
+        optionsMap.set(identifier, pendingItem.options);
+        seeking[identifier.id] = pendingItem;
+      }
       // TODO: Improve records => snapshots => records => snapshots
       //
       // We want to provide records to all store methods and snapshots to all
