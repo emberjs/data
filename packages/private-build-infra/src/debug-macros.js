@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = function debugMacros(app, isProd, config) {
-  const PACKAGES = require('./packages')(app);
   const FEATURES = require('./features')(isProd);
   const DEBUG = require('./debugging')(config.debug, isProd);
   const DEPRECATIONS = require('./deprecations')(config.compatWith, isProd);
@@ -18,18 +17,6 @@ module.exports = function debugMacros(app, isProd, config) {
         ],
       },
       '@ember-data/canary-features-stripping',
-    ],
-    [
-      debugMacrosPath,
-      {
-        flags: [
-          {
-            source: '@ember-data/private-build-infra',
-            flags: PACKAGES,
-          },
-        ],
-      },
-      '@ember-data/optional-packages-stripping',
     ],
     [
       debugMacrosPath,
