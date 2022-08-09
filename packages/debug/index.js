@@ -2,9 +2,7 @@
 
 const addonBuildConfigForDataPackage = require('@ember-data/private-build-infra/src/addon-build-config-for-data-package');
 
-const name = require('./package').name;
-
-const addonBaseConfig = addonBuildConfigForDataPackage(name);
+const addonBaseConfig = addonBuildConfigForDataPackage(require('./package'));
 
 module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: false,

@@ -3,7 +3,7 @@ const merge = require('broccoli-merge-trees');
 const addonBuildConfigForDataPackage = require('@ember-data/private-build-infra/src/addon-build-config-for-data-package');
 const version = require('@ember-data/private-build-infra/src/create-version-module');
 
-const addonBaseConfig = addonBuildConfigForDataPackage('ember-data');
+const addonBaseConfig = addonBuildConfigForDataPackage(require('./package'));
 
 module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: true,
