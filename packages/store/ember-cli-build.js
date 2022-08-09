@@ -7,6 +7,9 @@ module.exports = function (defaults) {
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
     },
+    '@embroider/macros': {
+      setOwnConfig: {},
+    },
   });
 
   /*
