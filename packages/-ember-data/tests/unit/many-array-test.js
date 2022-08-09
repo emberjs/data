@@ -71,12 +71,9 @@ module('unit/many_array - ManyArray', function (hooks) {
 
       let post = store.peekRecord('post', 3);
 
-      return post
-        .get('tags')
-        .save()
-        .then(() => {
-          assert.ok(true, 'manyArray.save() promise resolved');
-        });
+      return post.tags.save().then(() => {
+        assert.ok(true, 'manyArray.save() promise resolved');
+      });
     });
   });
 
@@ -166,7 +163,7 @@ module('unit/many_array - ManyArray', function (hooks) {
             ],
           });
 
-          store.peekRecord('post', 3).get('tags');
+          store.peekRecord('post', 3).tags;
 
           store.push({
             data: {

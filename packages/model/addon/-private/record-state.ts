@@ -6,8 +6,8 @@ import { cached, tracked } from '@glimmer/tracking';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
-import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
-import type RequestCache from '@ember-data/store/-private/request-cache';
+import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
+import type RequestCache from '@ember-data/store/-private/network/request-cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 
@@ -104,8 +104,9 @@ export function tagged(_target, key, desc) {
 }
 
 /**
-Historically InternalModel managed a state machine
-the currentState for which was reflected onto Model.
+Historically EmberData managed a state machine
+for each record, the currentState for which
+was reflected onto Model.
 
 This implements the flags and stateName for backwards compat
 with the state tree that used to be possible (listed below).
@@ -153,6 +154,7 @@ export default class RecordState {
   declare recordData: RecordData;
   declare _errorRequests: any[];
   declare _lastError: any;
+  declare handler: object;
 
   constructor(record: Model) {
     const store = storeFor(record)!;
@@ -232,27 +234,34 @@ export default class RecordState {
       }
     }
 
-    notifications.subscribe(identity, (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
-      switch (type) {
-        case 'state':
-          this.notify('isNew');
-          this.notify('isDeleted');
-          this.notify('isDirty');
-          break;
-        case 'attributes':
-          this.notify('isEmpty');
-          this.notify('isDirty');
-          break;
-        case 'unload':
-          this.notify('isNew');
-          this.notify('isDeleted');
-          break;
-        case 'errors':
-          this.updateInvalidErrors(this.record.errors);
-          this.notify('isValid');
-          break;
+    this.handler = notifications.subscribe(
+      identity,
+      (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
+        switch (type) {
+          case 'state':
+            this.notify('isNew');
+            this.notify('isDeleted');
+            this.notify('isDirty');
+            break;
+          case 'attributes':
+            this.notify('isEmpty');
+            this.notify('isDirty');
+            break;
+          case 'unload':
+            this.notify('isNew');
+            this.notify('isDeleted');
+            break;
+          case 'errors':
+            this.updateInvalidErrors(this.record.errors);
+            this.notify('isValid');
+            break;
+        }
       }
-    });
+    );
+  }
+
+  destroy() {
+    storeFor(this.record)!._notificationManager.unsubscribe(this.handler);
   }
 
   notify(key) {
@@ -304,7 +313,6 @@ export default class RecordState {
     return !this.isLoaded && this.pendingCount > 0 && this.fulfilledCount === 0;
   }
 
-  // TODO @runspired handle "unloadRecord" see note in InternalModel
   @tagged
   get isLoaded() {
     if (this.isNew) {

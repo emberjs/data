@@ -8,7 +8,7 @@ import { DEBUG } from '@glimmer/env';
 // corresponding record, we will not know if it is a string or a number.
 type Coercable = string | number | boolean | null | undefined | symbol;
 
-function coerceId(id: Coercable): string | null {
+export function coerceId(id: Coercable): string | null {
   if (id === null || id === undefined || id === '') {
     return null;
   }
@@ -35,5 +35,3 @@ export function ensureStringId(id: Coercable): string {
 
   return normalized!;
 }
-
-export default coerceId;

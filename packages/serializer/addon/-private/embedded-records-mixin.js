@@ -1,6 +1,5 @@
 import { A } from '@ember/array';
 import { warn } from '@ember/debug';
-import { get, set } from '@ember/object';
 import Mixin from '@ember/object/mixin';
 import { camelize } from '@ember/string';
 import { typeOf } from '@ember/utils';
@@ -544,7 +543,7 @@ export default Mixin.create({
   },
 
   attrsOption(attr) {
-    let attrs = this.get('attrs');
+    let attrs = this.attrs;
     return attrs && (attrs[camelize(attr)] || attrs[attr]);
   },
 
@@ -571,7 +570,7 @@ export default Mixin.create({
    @private
   */
   _extractEmbeddedHasMany(store, key, hash, relationshipMeta) {
-    let relationshipHash = get(hash, `data.relationships.${key}.data`);
+    let relationshipHash = hash.data?.relationships?.[key]?.data;
 
     if (!relationshipHash) {
       return;
@@ -592,7 +591,7 @@ export default Mixin.create({
     }
 
     let relationship = { data: hasMany };
-    set(hash, `data.relationships.${key}`, relationship);
+    hash.data.relationships[key] = relationship;
   },
 
   /**
@@ -600,7 +599,7 @@ export default Mixin.create({
    @private
   */
   _extractEmbeddedBelongsTo(store, key, hash, relationshipMeta) {
-    let relationshipHash = get(hash, `data.relationships.${key}.data`);
+    let relationshipHash = hash.data?.relationships?.[key]?.data;
     if (!relationshipHash) {
       return;
     }
@@ -615,7 +614,7 @@ export default Mixin.create({
     let belongsTo = { id: data.id, type: data.type };
     let relationship = { data: belongsTo };
 
-    set(hash, `data.relationships.${key}`, relationship);
+    hash.data.relationships[key] = relationship;
   },
 
   /**

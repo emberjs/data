@@ -7,11 +7,11 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type Store from '../core-store';
-import type { PromiseArray } from '../promise-proxies';
-import { promiseArray } from '../promise-proxies';
-import type RecordArrayManager from '../record-array-manager';
-import SnapshotRecordArray from '../snapshot-record-array';
+import type RecordArrayManager from '../managers/record-array-manager';
+import SnapshotRecordArray from '../network/snapshot-record-array';
+import type { PromiseArray } from '../proxies/promise-proxies';
+import { promiseArray } from '../proxies/promise-proxies';
+import type Store from '../store-service';
 import RecordArray from './record-array';
 
 export interface AdapterPopulatedRecordArrayCreateArgs {
@@ -48,20 +48,18 @@ export interface AdapterPopulatedRecordArrayCreateArgs {
   // GET /users?isAdmin=true
   store.query('user', { isAdmin: true }).then(function(admins) {
 
-    admins.then(function() {
-      console.log(admins.get("length")); // 42
-    });
+    admins.get("length"); // 42
 
     // somewhere later in the app code, when new admins have been created
     // in the meantime
     //
     // GET /users?isAdmin=true
     admins.update().then(function() {
-      admins.get('isUpdating'); // false
-      console.log(admins.get("length")); // 123
+      admins.isUpdating; // false
+      admins.get("length"); // 123
     });
 
-    admins.get('isUpdating'); // true
+    admins.isUpdating; // true
   }
   ```
 

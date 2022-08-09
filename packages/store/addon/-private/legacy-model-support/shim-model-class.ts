@@ -4,8 +4,8 @@ import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type Store from '../core-store';
-import WeakCache from '../weak-cache';
+import type Store from '../store-service';
+import WeakCache from '../utils/weak-cache';
 
 const AvailableShims = new WeakCache<Store, Dict<ShimModelClass>>(DEBUG ? 'schema-shims' : '');
 AvailableShims._generator = () => {

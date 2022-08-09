@@ -14,7 +14,7 @@ export interface RelationshipSchema {
   key: string; // TODO @runspired remove our uses
   // TODO @runspired should RFC be updated to make this optional?
   // TODO @runspired sohuld RFC be update to enforce async and inverse are set? else internals need to know
-  // that meta came from DS.Model vs not from DS.Model as defaults should switch.
+  // that meta came from @ember-data/model vs not from @ember-data/model as defaults should switch.
   options: {
     async?: boolean; // controls inverse unloading "client side delete semantics" so we should replace that with a real flag
     polymorphic?: boolean;

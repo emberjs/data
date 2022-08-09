@@ -4,7 +4,7 @@
 
 import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
-import EmberObject, { get } from '@ember/object';
+import EmberObject from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
 import { inject as service } from '@ember/service';
@@ -22,7 +22,7 @@ import {
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId, deprecatedPromiseObject, InternalModel, WeakCache } from '@ember-data/store/-private';
+import { coerceId, deprecatedPromiseObject, recordDataFor, WeakCache } from '@ember-data/store/-private';
 
 import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
@@ -119,9 +119,10 @@ function computeOnce(target, key, desc) {
 */
 class Model extends EmberObject {
   @service store;
+  #notifications;
 
   init(options = {}) {
-    if (DEBUG && !options._secretInit && !options._internalModel && !options._createProps) {
+    if (DEBUG && !options._secretInit && !options._createProps) {
       throw new EmberError(
         'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
       );
@@ -137,19 +138,29 @@ class Model extends EmberObject {
 
     this.setProperties(createProps);
 
-    // TODO  pass something in such that we don't need internalModel
-    // to get this info
     let store = storeFor(this);
     let notifications = store._notificationManager;
     let identity = recordIdentifierFor(this);
 
-    notifications.subscribe(identity, (identifier, type, key) => {
+    this.#notifications = notifications.subscribe(identity, (identifier, type, key) => {
       notifyChanges(identifier, type, key, this, store);
     });
   }
 
-  willDestroy() {
+  destroy() {
     LEGACY_SUPPORT.get(this)?.destroy();
+    this.___recordState?.destroy();
+    const store = storeFor(this);
+    const identifier = recordIdentifierFor(this);
+    store._notificationManager.unsubscribe(this.#notifications);
+    // Legacy behavior is to notify the relationships on destroy
+    // such that they "clear". It's uncertain this behavior would
+    // be good for a new model paradigm, likely cheaper and safer
+    // to simply not notify, for this reason the store does not itself
+    // notify individual changes once the delete has been signaled,
+    // this decision is left to model instances.
+    notifyChanges(identifier, 'relationships', undefined, this, store);
+    super.destroy();
   }
 
   /**
@@ -197,10 +208,10 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('isLoaded'); // true
+    record.isLoaded; // true
 
     store.findRecord('model', 1).then(function(model) {
-      model.get('isLoaded'); // true
+      model.isLoaded; // true
     });
     ```
 
@@ -224,12 +235,12 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('hasDirtyAttributes'); // true
+    record.hasDirtyAttributes; // true
 
     store.findRecord('model', 1).then(function(model) {
-      model.get('hasDirtyAttributes'); // false
+      model.hasDirtyAttributes; // false
       model.set('foo', 'some value');
-      model.get('hasDirtyAttributes'); // true
+      model.hasDirtyAttributes; // true
     });
     ```
 
@@ -254,11 +265,11 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('isSaving'); // false
+    record.isSaving; // false
     let promise = record.save();
-    record.get('isSaving'); // true
+    record.isSaving; // true
     promise.then(function() {
-      record.get('isSaving'); // false
+      record.isSaving; // false
     });
     ```
 
@@ -284,24 +295,24 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('isDeleted');    // false
+    record.isDeleted;    // false
     record.deleteRecord();
 
     // Locally deleted
-    record.get('isDeleted');           // true
-    record.get('hasDirtyAttributes');  // true
-    record.get('isSaving');            // false
+    record.isDeleted;           // true
+    record.hasDirtyAttributes;  // true
+    record.isSaving;            // false
 
     // Persisting the deletion
     let promise = record.save();
-    record.get('isDeleted');    // true
-    record.get('isSaving');     // true
+    record.isDeleted;    // true
+    record.isSaving;     // true
 
     // Deletion Persisted
     promise.then(function() {
-      record.get('isDeleted');          // true
-      record.get('isSaving');           // false
-      record.get('hasDirtyAttributes'); // false
+      record.isDeleted;          // true
+      record.isSaving;           // false
+      record.hasDirtyAttributes; // false
     });
     ```
 
@@ -325,10 +336,10 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('isNew'); // true
+    record.isNew; // true
 
     record.save().then(function(model) {
-      model.get('isNew'); // false
+      model.isNew; // false
     });
     ```
 
@@ -371,7 +382,7 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('dirtyType'); // 'created'
+    record.dirtyType; // 'created'
     ```
 
     @property dirtyType
@@ -392,10 +403,10 @@ class Model extends EmberObject {
     Example
 
     ```javascript
-    record.get('isError'); // false
+    record.isError; // false
     record.set('foo', 'valid value');
     record.save().then(null, function() {
-      record.get('isError'); // true
+      record.isError; // true
     });
     ```
 
@@ -441,10 +452,10 @@ class Model extends EmberObject {
 
     ```javascript
     let record = store.createRecord('model');
-    record.get('id'); // null
+    record.id; // null
 
     store.findRecord('model', 1).then(function(model) {
-      model.get('id'); // '1'
+      model.id; // '1'
     });
     ```
 
@@ -454,22 +465,36 @@ class Model extends EmberObject {
   */
   @tagged
   get id() {
-    // the _internalModel guard exists, because some dev-only deprecation code
+    // this guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
     if (DEBUG) {
-      if (!this._internalModel) {
+      try {
+        return recordIdentifierFor(this).id;
+      } catch {
         return void 0;
       }
     }
-    return this._internalModel.id;
+    return recordIdentifierFor(this).id;
   }
   set id(id) {
     const normalizedId = coerceId(id);
+    const identifier = recordIdentifierFor(this);
+    let didChange = normalizedId !== identifier.id;
+    assert(
+      `Cannot set ${identifier.type} record's id to ${id}, because id is already ${identifier.id}`,
+      !didChange || identifier.id === null
+    );
 
-    if (normalizedId !== null) {
-      this._internalModel.setId(normalizedId);
+    if (normalizedId !== null && didChange) {
+      this.store._instanceCache.setRecordId(identifier.type, normalizedId, identifier.lid);
+      this.store._notificationManager.notify(identifier, 'identity');
     }
+  }
+
+  // TODO just write a nice toString
+  toStringExtension() {
+    return this.id;
   }
 
   /**
@@ -495,12 +520,6 @@ class Model extends EmberObject {
   }
 
   /**
-   @property _internalModel
-   @private
-   @type {Object}
-   */
-
-  /**
     The store service instance which created this record instance
 
    @property store
@@ -517,10 +536,10 @@ class Model extends EmberObject {
     - `attribute` The name of the property associated with this error message
 
     ```javascript
-    record.get('errors.length'); // 0
+    record.errors.length; // 0
     record.set('foo', 'invalid value');
     record.save().catch(function() {
-      record.get('errors').get('foo');
+      record.errors.foo;
       // [{message: 'foo should be a number.', attribute: 'foo'}]
     });
     ```
@@ -794,7 +813,7 @@ class Model extends EmberObject {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes() {
-    return this._internalModel.changedAttributes();
+    return recordDataFor(this).changedAttributes();
   }
 
   /**
@@ -804,11 +823,11 @@ class Model extends EmberObject {
     Example
 
     ```javascript
-    record.get('name'); // 'Untitled Document'
+    record.name; // 'Untitled Document'
     record.set('name', 'Doc 1');
-    record.get('name'); // 'Doc 1'
+    record.name; // 'Doc 1'
     record.rollbackAttributes();
-    record.get('name'); // 'Untitled Document'
+    record.name; // 'Untitled Document'
     ```
 
     @since 1.13.0
@@ -817,8 +836,13 @@ class Model extends EmberObject {
   */
   rollbackAttributes() {
     const { currentState } = this;
-    this._internalModel.rollbackAttributes();
+    const { isNew } = currentState;
+    recordDataFor(this).rollbackAttributes();
+    this.errors.clear();
     currentState.cleanErrorRequests();
+    if (isNew) {
+      this.unloadRecord();
+    }
   }
 
   /**
@@ -828,13 +852,6 @@ class Model extends EmberObject {
   // TODO @deprecate in favor of a public API or examples of how to test successfully
   _createSnapshot() {
     return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this));
-  }
-
-  toStringExtension() {
-    // the _internalModel guard exists, because some dev-only deprecation code
-    // (addListener via validatePropertyInjections) invokes toString before the
-    // object is real.
-    return this._internalModel && this._internalModel.id;
   }
 
   /**
@@ -1491,10 +1508,10 @@ class Model extends EmberObject {
    import Post from 'app/models/post';
 
    let relationships = Blog.relationships;
-   relationships.get('user');
+   relationships.user;
    //=> [ { name: 'users', kind: 'hasMany' },
    //     { name: 'owner', kind: 'belongsTo' } ]
-   relationships.get('post');
+   relationships.post;
    //=> [ { name: 'posts', kind: 'hasMany' } ]
    ```
 
@@ -1707,9 +1724,9 @@ class Model extends EmberObject {
    import Blog from 'app/models/blog';
 
    let relationshipsByName = Blog.relationshipsByName;
-   relationshipsByName.get('users');
+   relationshipsByName.users;
    //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
-   relationshipsByName.get('owner');
+   relationshipsByName.owner;
    //=> { key: 'owner', kind: 'belongsTo', type: 'user', options: Object, isRelationship: true }
    ```
 
@@ -1810,7 +1827,7 @@ class Model extends EmberObject {
 
    let fields = Blog.fields;
    fields.forEach(function(kind, field) {
-      console.log(field, kind);
+      // do thing
     });
 
    // prints:
@@ -1992,7 +2009,7 @@ class Model extends EmberObject {
    let attributes = Person.attributes
 
    attributes.forEach(function(meta, name) {
-      console.log(name, meta);
+      // do thing
     });
 
    // prints:
@@ -2069,7 +2086,7 @@ class Model extends EmberObject {
    let transformedAttributes = Person.transformedAttributes
 
    transformedAttributes.forEach(function(field, type) {
-      console.log(field, type);
+      // do thing
     });
 
    // prints:
@@ -2142,7 +2159,7 @@ class Model extends EmberObject {
     }
 
    PersonModel.eachAttribute(function(name, meta) {
-      console.log(name, meta);
+      // do thing
     });
 
    // prints:
@@ -2211,7 +2228,7 @@ class Model extends EmberObject {
     });
 
    Person.eachTransformedAttribute(function(name, type) {
-      console.log(name, type);
+      // do thing
     });
 
    // prints:
@@ -2273,13 +2290,12 @@ class Model extends EmberObject {
         this.modelName
       );
     }
-    return `model:${get(this, 'modelName')}`;
+    return `model:${this.modelName}`;
   }
 }
 
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
-Model.prototype._internalModel = null;
 Model.prototype._createProps = null;
 Model.prototype._secretInit = null;
 
@@ -2359,26 +2375,10 @@ if (DEBUG) {
     } while (current !== null);
     return null;
   };
-  let isBasicDesc = function isBasicDesc(desc) {
-    return (
-      !desc ||
-      (!desc.get && !desc.set && desc.enumerable === true && desc.writable === true && desc.configurable === true)
-    );
-  };
-  let isDefaultEmptyDescriptor = function isDefaultEmptyDescriptor(obj, keyName) {
-    let instanceDesc = lookupDescriptor(obj, keyName);
-    return isBasicDesc(instanceDesc) && lookupDescriptor(obj.constructor, keyName) === null;
-  };
 
   Model.reopen({
     init() {
       this._super(...arguments);
-
-      if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
-        throw new Error(
-          `'_internalModel' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
-        );
-      }
 
       let ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
       let theirDescriptor = lookupDescriptor(this, 'currentState');

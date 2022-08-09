@@ -283,8 +283,8 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     assert.expect(3);
     let { owner } = this;
     let count = 0;
-    let internalModel;
     let recordData;
+    let newRecordData;
 
     class RecordDataForTest extends TestRecordData {
       id: string;
@@ -298,7 +298,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (count === 1) {
           recordData = storeWrapper.recordDataFor('house');
         } else if (count === 2) {
-          internalModel = store._instanceCache._internalModelForResource({ type: 'house', lid });
+          newRecordData = this;
         }
       }
 
@@ -336,15 +336,15 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     assert.ok(recordData._isNew, 'Our RecordData is new');
     assert.ok(
-      internalModel.isNew(),
-      'The internalModel for a RecordData created via Wrapper.recordDataFor(type) is in the "new" state'
+      newRecordData.isNew(),
+      'The recordData for a RecordData created via Wrapper.recordDataFor(type) is in the "new" state'
     );
 
     assert.strictEqual(count, 2, 'two TestRecordDatas have been created');
   });
 
   test('setRecordId', async function (assert) {
-    assert.expect(1);
+    assert.expect(2);
     let { owner } = this;
 
     class RecordDataForTest extends TestRecordData {
@@ -371,8 +371,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     store = owner.lookup('service:store');
 
     let house = store.createRecord('house');
-    // TODO there is a bug when setting id while creating the Record instance, preventing the id property lookup to work
-    // assert.strictEqual(house.get('id'), '17', 'setRecordId correctly set the id');
+    assert.strictEqual(house.id, '17', 'setRecordId correctly set the id');
     assert.strictEqual(
       store.peekRecord('house', 17),
       house,

@@ -13,7 +13,7 @@ let store;
 const Person = Model.extend({
   name: attr('string'),
   toString() {
-    return `<Person#${this.get('id')}>`;
+    return `<Person#${this.id}>`;
   },
 });
 

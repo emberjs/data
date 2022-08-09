@@ -9,6 +9,7 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, tryToFind;
@@ -70,7 +71,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
       function () {
         record.unloadRecord();
       },
-      'You can only unload a record which is not inFlight. `' + record._internalModel.toString() + '`',
+      `You can only unload a record which is not inFlight. '` + recordIdentifierFor(record).toString() + `'`,
       'can not unload dirty record'
     );
 
@@ -212,7 +213,7 @@ module('Store - unload record with relationships', function (hooks) {
       })
       .then((product) => {
         assert.strictEqual(
-          product.get('description'),
+          product.description,
           'cuisinart',
           "The record was unloaded and the adapter's `findRecord` was called"
         );

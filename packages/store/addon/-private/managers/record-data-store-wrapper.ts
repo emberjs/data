@@ -1,7 +1,4 @@
-import { importSync } from '@embroider/macros';
-
 import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
-import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type {
@@ -11,10 +8,9 @@ import type {
 } from '@ember-data/types/q/record-data-schemas';
 import type { RecordDataStoreWrapper as StoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
-import type Store from './core-store';
-import type { IdentifierCache } from './identifier-cache';
-import { internalModelFactoryFor } from './internal-model-factory';
-import constructResource from './utils/construct-resource';
+import type { IdentifierCache } from '../caches/identifier-cache';
+import type Store from '../store-service';
+import constructResource from '../utils/construct-resource';
 
 /**
   @module @ember-data/store
@@ -22,17 +18,6 @@ import constructResource from './utils/construct-resource';
 
 function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
   return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
-}
-
-let peekGraph;
-if (HAS_RECORD_DATA_PACKAGE) {
-  let _peekGraph;
-  peekGraph = (wrapper) => {
-    _peekGraph =
-      _peekGraph ||
-      (importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')).peekGraph;
-    return _peekGraph(wrapper);
-  };
 }
 
 export default class RecordDataStoreWrapper implements StoreWrapper {
@@ -86,19 +71,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     let pending = this._pendingNotifies;
     this._pendingNotifies = new Map();
     this._willNotify = false;
-    const factory = internalModelFactoryFor(this._store);
 
     pending.forEach((map, identifier) => {
-      const internalModel = factory.peek(identifier);
-      if (internalModel) {
-        map.forEach((kind, key) => {
-          if (kind === 'belongsTo') {
-            internalModel.notifyBelongsToChange(key);
-          } else {
-            internalModel.notifyHasManyChange(key);
-          }
-        });
-      }
+      map.forEach((kind, key) => {
+        this._store._notificationManager.notify(identifier, 'relationships', key);
+      });
     });
   }
 
@@ -152,11 +129,8 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key?: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
-    if (internalModel) {
-      internalModel.notifyAttributes(key ? [key] : []);
-    }
+    this._store._notificationManager.notify(identifier, 'attributes', key);
   }
 
   notifyHasManyChange(type: string, id: string | null, lid: string, key: string): void;
@@ -181,10 +155,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyStateChange(type: string, id: string | null, lid: string | null, key?: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
-    if (internalModel) {
-      internalModel.notifyStateChange(key);
+    this._store._notificationManager.notify(identifier, 'state');
+
+    if (!key || key === 'isDeletionCommitted') {
+      this._store.recordArrayManager.recordDidChange(identifier);
     }
   }
 
@@ -192,17 +167,25 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   recordDataFor(type: string, id: string | null, lid: string): RecordData;
   recordDataFor(type: string): RecordData;
   recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData {
-    let identifier: StableRecordIdentifier | { type: string };
-    let isCreate: boolean = false;
+    // TODO @deprecate create capability. This is problematic because there's
+    // no outside association between this RecordData and an Identifier. It's
+    // likely a mistake but we said in an RFC we'd allow this. We should RFC
+    // enforcing someone to use the record-data and identifier-cache APIs to
+    // create a new identifier and then call clientDidCreate on the RecordData
+    // instead.
+    const identifier =
+      !id && !lid
+        ? this.identifierCache.createIdentifierForNewRecord({ type: type })
+        : this.identifierCache.getOrCreateRecordIdentifier(constructResource(type, id, lid));
+
+    const recordData = this._store._instanceCache.getRecordData(identifier);
+
     if (!id && !lid) {
-      isCreate = true;
-      identifier = { type };
-    } else {
-      const resource = constructResource(type, id, lid);
-      identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+      recordData.clientDidCreate();
+      this._store.recordArrayManager.recordDidChange(identifier);
     }
 
-    return this._store._instanceCache.recordDataFor(identifier, isCreate);
+    return recordData;
   }
 
   setRecordId(type: string, id: string, lid: string) {
@@ -213,9 +196,9 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   isRecordInUse(type: string, id: string, lid?: string | null): boolean;
   isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
     const resource = constructResource(type, id, lid);
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.peekRecordIdentifier(resource);
 
-    const record = this._store._instanceCache.peek({ identifier, bucket: 'record' });
+    const record = identifier && this._store._instanceCache.peek({ identifier, bucket: 'record' });
 
     return record ? !(record.isDestroyed || record.isDestroying) : false;
   }
@@ -224,16 +207,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   disconnectRecord(type: string, id: string, lid?: string | null): void;
   disconnectRecord(type: string, id: string | null, lid?: string | null): void {
     const resource = constructResource(type, id, lid);
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    if (HAS_RECORD_DATA_PACKAGE) {
-      let graph = peekGraph(this);
-      if (graph) {
-        graph.remove(identifier);
-      }
-    }
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
-    if (internalModel) {
-      internalModel.destroyFromRecordData();
+    const identifier = this.identifierCache.peekRecordIdentifier(resource);
+
+    if (identifier) {
+      this._store._instanceCache.disconnect(identifier);
+      this._pendingNotifies.delete(identifier);
     }
   }
 }

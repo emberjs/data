@@ -123,7 +123,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
       email: 'invalidEmail'
     });
     user.save().catch(function(){
-      user.get('errors').errorsFor('email'); // returns:
+      user.errors.errorsFor('email'); // returns:
       // [{attribute: "email", message: "Doesn't look like a valid email."}]
     });
     ```
@@ -219,7 +219,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
 
    Example
    ```javascript
-    let errors = get(user, 'errors');
+    let errors = user.errors;
 
     // add multiple errors
     errors.add('password', [
@@ -293,7 +293,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
    Example:
 
    ```javascript
-    let errors = get('user', errors);
+    let errors = user.errors;
     errors.add('phone', ['error-1', 'error-2']);
 
     errors.errorsFor('phone');
@@ -344,7 +344,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
   Example:
 
    ```javascript
-   let errors = get('user', errors);
+   let errors = user.errors;
    errors.add('username', ['error-a']);
    errors.add('phone', ['error-1', 'error-2']);
 
@@ -369,7 +369,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
    errors.errorsFor('phone');
    // => undefined
 
-   errors.get('messages')
+   errors.messages
    // => []
    ```
    @method clear
@@ -406,7 +406,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     export default class UserEditController extends Controller {
       @action
       save(user) {
-        if (user.get('errors').has('email')) {
+        if (user.errors.has('email')) {
           return alert('Please update your email before attempting to save.');
         }
         user.save();

@@ -109,9 +109,9 @@ function addonBuildConfigForDataPackage(PackageName) {
     buildBabelOptions() {
       let babelOptions = this.options.babel || {};
       let existingPlugins = babelOptions.plugins || [];
-      let compatVersion = this.getEmberDataConfig().compatWith || null;
+      let config = this.getEmberDataConfig();
 
-      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost(), compatVersion);
+      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost(), config);
       let plugins = existingPlugins.map((plugin) => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
@@ -211,8 +211,20 @@ function addonBuildConfigForDataPackage(PackageName) {
 
       let options = (app.options = app.options || {});
       options.emberData = options.emberData || {};
+      options.emberData.debug = options.emberData.debug || {};
+      const debugOptions = Object.assign(
+        {
+          LOG_NOTIFICATIONS: false,
+          LOG_REQUEST_STATUS: false,
+          LOG_IDENTIFIERS: false,
+          LOG_GRAPH: false,
+          LOG_INSTANCE_CACHE: false,
+        },
+        options.emberData.debug
+      );
+      options.emberData.debug = debugOptions;
 
-      return options.emberData;
+      return Object.assign({ compatWith: null }, options.emberData);
     },
   };
 }

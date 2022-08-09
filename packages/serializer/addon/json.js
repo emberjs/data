@@ -3,14 +3,11 @@
  */
 import { getOwner } from '@ember/application';
 import { assert, warn } from '@ember/debug';
-import { get } from '@ember/object';
 import { dasherize } from '@ember/string';
 import { isNone, typeOf } from '@ember/utils';
 
 import Serializer from '@ember-data/serializer';
 import { coerceId } from '@ember-data/store/-private';
-
-import { modelHasAttributeOrRelationshipNamedType } from './-private';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -196,7 +193,7 @@ const JSONSerializer = Serializer.extend({
    @return {Object} data The transformed data object
   */
   applyTransforms(typeClass, data) {
-    let attributes = get(typeClass, 'attributes');
+    let attributes = typeClass.attributes;
 
     typeClass.eachTransformedAttribute((key, typeClass) => {
       if (data[key] === undefined) {
@@ -576,7 +573,7 @@ const JSONSerializer = Serializer.extend({
 
     export default class ApplicationSerializer extends JSONSerializer {
       normalize(typeClass, hash) {
-        let fields = get(typeClass, 'fields');
+        let fields = typeClass.fields;
 
         fields.forEach(function(type, field) {
           let payloadField = underscore(field);
@@ -629,7 +626,7 @@ const JSONSerializer = Serializer.extend({
     @return {String}
   */
   extractId(modelClass, resourceHash) {
-    let primaryKey = get(this, 'primaryKey');
+    let primaryKey = this.primaryKey;
     let id = resourceHash[primaryKey];
     return coerceId(id);
   },
@@ -685,7 +682,7 @@ const JSONSerializer = Serializer.extend({
       }
 
       let modelClass = this.store.modelFor(relationshipModelName);
-      if (relationshipHash.type && !modelHasAttributeOrRelationshipNamedType(modelClass)) {
+      if (relationshipHash.type && !modelClass.fields.has('type')) {
         relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
       }
 
@@ -830,7 +827,7 @@ const JSONSerializer = Serializer.extend({
     @private
   */
   normalizeUsingDeclaredMapping(modelClass, hash) {
-    let attrs = get(this, 'attrs');
+    let attrs = this.attrs;
     let normalizedKey;
     let payloadKey;
 
@@ -842,11 +839,11 @@ const JSONSerializer = Serializer.extend({
           continue;
         }
 
-        if (get(modelClass, 'attributes').has(key)) {
+        if (modelClass.attributes.has(key)) {
           normalizedKey = this.keyForAttribute(key, 'deserialize');
         }
 
-        if (get(modelClass, 'relationshipsByName').has(key)) {
+        if (modelClass.relationshipsByName.has(key)) {
           normalizedKey = this.keyForRelationship(key, modelClass, 'deserialize');
         }
 
@@ -874,13 +871,13 @@ const JSONSerializer = Serializer.extend({
         '` on `' +
         modelClass.modelName +
         '`. Check your serializers attrs hash.',
-      get(modelClass, 'attributes').has(key) || get(modelClass, 'relationshipsByName').has(key),
+      modelClass.attributes.has(key) || modelClass.relationshipsByName.has(key),
       {
         id: 'ds.serializer.no-mapped-attrs-key',
       }
     );
 
-    let attrs = get(this, 'attrs');
+    let attrs = this.attrs;
     let mappedKey;
     if (attrs && attrs[key]) {
       mappedKey = attrs[key];
@@ -907,7 +904,7 @@ const JSONSerializer = Serializer.extend({
     @return {boolean} true if the key can be serialized
   */
   _canSerialize(key) {
-    let attrs = get(this, 'attrs');
+    let attrs = this.attrs;
 
     return !attrs || !attrs[key] || attrs[key].serialize !== false;
   },
@@ -923,7 +920,7 @@ const JSONSerializer = Serializer.extend({
     @return {boolean} true if the key must be serialized
   */
   _mustSerialize(key) {
-    let attrs = get(this, 'attrs');
+    let attrs = this.attrs;
 
     return attrs && attrs[key] && attrs[key].serialize === true;
   },
@@ -1110,7 +1107,7 @@ const JSONSerializer = Serializer.extend({
     if (options && options.includeId) {
       const id = snapshot.id;
       if (id) {
-        json[get(this, 'primaryKey')] = id;
+        json[this.primaryKey] = id;
       }
     }
 

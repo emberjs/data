@@ -1,4 +1,5 @@
 import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { Promise as EmberPromise, resolve } from 'rsvp';
@@ -75,7 +76,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
         },
       });
 
-      stanleysFriend.get('bestFriend').then(function (fetchedUser) {
+      stanleysFriend.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(fetchedUser, stanley, 'User relationship was set up correctly');
       });
     });
@@ -113,7 +114,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
         },
       });
     });
-    assert.strictEqual(job.get('user'), user, 'User relationship was set up correctly');
+    assert.strictEqual(job.user, user, 'User relationship was set up correctly');
   });
 
   test('Fetching a belongsTo that is set to null removes the record from a relationship - async', function (assert) {
@@ -152,7 +153,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           },
         },
       });
-      stanleysFriend.get('bestFriend').then(function (fetchedUser) {
+      stanleysFriend.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(fetchedUser, null, 'User relationship was removed correctly');
       });
     });
@@ -206,7 +207,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
         },
       });
     });
-    assert.strictEqual(job.get('user'), null, 'User relationship was removed correctly');
+    assert.strictEqual(job.user, null, 'User relationship was removed correctly');
   });
 
   test('Fetching a belongsTo that is set to a different record, sets the old relationship to null - async', async function (assert) {
@@ -238,7 +239,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     });
 
     let user2 = store.peekRecord('user', '2');
-    let user1Friend = await user1.get('bestFriend');
+    let user1Friend = await user1.bestFriend;
 
     assert.strictEqual(user1Friend, user2, '<user:1>.bestFriend is <user:2>');
 
@@ -279,9 +280,9 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     });
 
     let user3 = store.peekRecord('user', '3');
-    let user1bestFriend = await user1.get('bestFriend');
-    let user2bestFriend = await user2.get('bestFriend');
-    let user3bestFriend = await user3.get('bestFriend');
+    let user1bestFriend = await user1.bestFriend;
+    let user2bestFriend = await user2.bestFriend;
+    let user3bestFriend = await user3.bestFriend;
 
     assert.strictEqual(user3bestFriend, user2, '<user:3>.bestFriend is <user:2>');
     assert.strictEqual(user2bestFriend, user3, '<user:2>.bestFriend is <user:3>');
@@ -327,7 +328,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     let job1 = store.peekRecord('job', '1');
 
-    assert.strictEqual(user1.get('job'), job1, '<user:1>.job is <job:1>');
+    assert.strictEqual(user1.job, job1, '<user:1>.job is <job:1>');
 
     /*
       Now we "reload" <job:1> but with a new user. While this only gives
@@ -367,9 +368,9 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     let user2 = store.peekRecord('user', '2');
 
-    assert.strictEqual(user2.get('job'), job1, '<user:2>.job is <job:1>');
-    assert.strictEqual(job1.get('user'), user2, '<job:1>.user is <user:2>');
-    assert.strictEqual(user1.get('job'), null, '<user:1>.job is null');
+    assert.strictEqual(user2.job, job1, '<user:2>.job is <job:1>');
+    assert.strictEqual(job1.user, user2, '<job:1>.user is <user:2>');
+    assert.strictEqual(user1.job, null, '<user:1>.job is null');
 
     let user1JobState = user1.belongsTo('job').belongsToRelationship;
 
@@ -411,7 +412,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     });
     run(function () {
       stanley.set('bestFriend', stanleysFriend);
-      stanleysFriend.get('bestFriend').then(function (fetchedUser) {
+      stanleysFriend.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(fetchedUser, stanley, 'User relationship was updated correctly');
       });
     });
@@ -444,7 +445,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       user.set('job', job);
     });
-    assert.strictEqual(job.get('user'), user, 'User relationship was set up correctly');
+    assert.strictEqual(job.user, user, 'User relationship was set up correctly');
   });
 
   test('Setting a BelongsTo to a promise unwraps the promise before setting- async', function (assert) {
@@ -489,15 +490,15 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
     });
     run(function () {
-      newFriend.set('bestFriend', stanleysFriend.get('bestFriend'));
-      stanley.get('bestFriend').then(function (fetchedUser) {
+      newFriend.set('bestFriend', stanleysFriend.bestFriend);
+      stanley.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(
           fetchedUser,
           newFriend,
           `Stanley's bestFriend relationship was updated correctly to newFriend`
         );
       });
-      newFriend.get('bestFriend').then(function (fetchedUser) {
+      newFriend.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(
           fetchedUser,
           stanley,
@@ -549,8 +550,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
     });
     run(function () {
-      newFriend.set('bestFriend', igor.get('bestFriend'));
-      newFriend.get('bestFriend').then(function (fetchedUser) {
+      newFriend.set('bestFriend', igor.bestFriend);
+      newFriend.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(fetchedUser, null, 'User relationship was updated correctly');
       });
     });
@@ -664,10 +665,10 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     };
 
     run(function () {
-      newFriend.set('bestFriend', stanley.get('bestFriend'));
-      newFriend.set('bestFriend', igor.get('bestFriend'));
-      newFriend.get('bestFriend').then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser.get('name'), "Igor's friend", 'User relationship was updated correctly');
+      newFriend.set('bestFriend', stanley.bestFriend);
+      newFriend.set('bestFriend', igor.bestFriend);
+      newFriend.bestFriend.then(function (fetchedUser) {
+        assert.strictEqual(fetchedUser.name, "Igor's friend", 'User relationship was updated correctly');
       });
     });
   });
@@ -715,7 +716,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     run(function () {
       stanley.set('bestFriend', null); // :(
-      stanleysFriend.get('bestFriend').then(function (fetchedUser) {
+      stanleysFriend.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(fetchedUser, null, 'User relationship was removed correctly');
       });
     });
@@ -765,7 +766,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       user.set('job', null);
     });
-    assert.strictEqual(job.get('user'), null, 'User relationship was removed correctly');
+    assert.strictEqual(job.user, null, 'User relationship was removed correctly');
   });
 
   test('Setting a belongsTo to a different record, sets the old relationship to null - async', function (assert) {
@@ -810,7 +811,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
         },
       });
 
-      stanleysFriend.get('bestFriend').then(function (fetchedUser) {
+      stanleysFriend.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(fetchedUser, stanley, 'User relationship was initally setup correctly');
         var stanleysNewFriend = store.push({
           data: {
@@ -826,11 +827,11 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           stanleysNewFriend.set('bestFriend', stanley);
         });
 
-        stanley.get('bestFriend').then(function (fetchedNewFriend) {
+        stanley.bestFriend.then(function (fetchedNewFriend) {
           assert.strictEqual(fetchedNewFriend, stanleysNewFriend, 'User relationship was updated correctly');
         });
 
-        stanleysFriend.get('bestFriend').then(function (fetchedOldFriend) {
+        stanleysFriend.bestFriend.then(function (fetchedOldFriend) {
           assert.strictEqual(fetchedOldFriend, null, 'The old relationship was set to null correctly');
         });
       });
@@ -870,7 +871,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
     });
 
-    assert.strictEqual(job.get('user'), user, 'Job and user initially setup correctly');
+    assert.strictEqual(job.user, user, 'Job and user initially setup correctly');
 
     run(function () {
       newBetterJob = store.push({
@@ -886,9 +887,9 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       newBetterJob.set('user', user);
     });
 
-    assert.strictEqual(user.get('job'), newBetterJob, 'Job updated correctly');
-    assert.strictEqual(job.get('user'), null, 'Old relationship nulled out correctly');
-    assert.strictEqual(newBetterJob.get('user'), user, 'New job setup correctly');
+    assert.strictEqual(user.job, newBetterJob, 'Job updated correctly');
+    assert.strictEqual(job.user, null, 'Old relationship nulled out correctly');
+    assert.strictEqual(newBetterJob.user, user, 'New job setup correctly');
   });
 
   /*
@@ -932,10 +933,10 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     });
     run(function () {
       stanley.rollbackAttributes();
-      stanleysFriend.get('bestFriend').then(function (fetchedUser) {
+      stanleysFriend.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(fetchedUser, stanley, 'Stanley got rollbacked correctly');
       });
-      stanley.get('bestFriend').then(function (fetchedUser) {
+      stanley.bestFriend.then(function (fetchedUser) {
         assert.strictEqual(fetchedUser, stanleysFriend, 'Stanleys friend did not get removed');
       });
     });
@@ -977,59 +978,50 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       job.deleteRecord();
       job.rollbackAttributes();
     });
-    assert.strictEqual(user.get('job'), job, 'Job got rollbacked correctly');
-    assert.strictEqual(job.get('user'), user, 'Job still has the user');
+    assert.strictEqual(user.job, job, 'Job got rollbacked correctly');
+    assert.strictEqual(job.user, user, 'Job still has the user');
   });
 
-  test('Rollbacking attributes of created record removes the relationship on both sides - async', function (assert) {
+  test('Rollbacking attributes of created record removes the relationship on both sides - async', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var stanleysFriend, stanley;
-    run(function () {
-      stanleysFriend = store.push({
-        data: {
-          id: 2,
-          type: 'user',
-          attributes: {
-            name: "Stanley's friend",
-          },
+    const stanleysFriend = store.push({
+      data: {
+        id: 2,
+        type: 'user',
+        attributes: {
+          name: "Stanley's friend",
         },
-      });
+      },
+    });
+    const stanley = store.createRecord('user', { bestFriend: stanleysFriend });
 
-      stanley = store.createRecord('user', { bestFriend: stanleysFriend });
-    });
-    run(function () {
-      stanley.rollbackAttributes();
-      stanleysFriend.get('bestFriend').then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, null, 'Stanley got rollbacked correctly');
-      });
-      stanley.get('bestFriend').then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, null, 'Stanleys friend did got removed');
-      });
-    });
+    stanley.rollbackAttributes();
+
+    let fetchedUser = await stanleysFriend.bestFriend;
+    assert.strictEqual(fetchedUser, null, 'Stanley got rollbacked correctly');
+    // TODO we should figure out how to handle the fact that we disconnect things. Right now we're asserting eagerly.
+    fetchedUser = await stanley.bestFriend;
+    assert.strictEqual(fetchedUser, null, 'Stanleys friend did get removed');
   });
 
-  test('Rollbacking attributes of created record removes the relationship on both sides - sync', function (assert) {
+  test('Rollbacking attributes of created record removes the relationship on both sides - sync', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var user, job;
-    run(function () {
-      user = store.push({
-        data: {
-          id: 1,
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
+    const user = store.push({
+      data: {
+        id: 1,
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
         },
-      });
+      },
+    });
+    const job = store.createRecord('job', { user: user });
+    job.rollbackAttributes();
+    await settled();
 
-      job = store.createRecord('job', { user: user });
-    });
-    run(function () {
-      job.rollbackAttributes();
-    });
-    assert.strictEqual(user.get('job'), null, 'Job got rollbacked correctly');
-    assert.strictEqual(job.get('user'), null, 'Job does not have user anymore');
+    assert.strictEqual(user.job, null, 'Job got rollbacked correctly');
+    assert.true(job.isDestroyed, 'Job is destroyed');
   });
 });

@@ -1,3 +1,4 @@
+import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type { Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -149,8 +150,22 @@ export default class BelongsToRelationship {
   }
 
   notifyBelongsToChange() {
-    let recordData = this.identifier;
-    this.store.notifyBelongsToChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
+    const identifier = this.identifier;
+    if (identifier === this.graph._removing) {
+      if (LOG_GRAPH) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Graph: ignoring belongsToChange for removed identifier ${String(identifier)} ${this.definition.key}`
+        );
+      }
+      return;
+    }
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: notifying belongsToChange for ${String(identifier)} ${this.definition.key}`);
+    }
+
+    this.store.notifyBelongsToChange(identifier.type, identifier.id, identifier.lid, this.definition.key);
   }
 
   clear() {

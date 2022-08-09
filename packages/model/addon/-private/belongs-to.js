@@ -98,7 +98,7 @@ import { computedMacroWithOptionalParams } from './util';
   a related resource is known to exist and it has not been loaded.
 
   ```
-  let post = comment.get('post');
+  let post = comment.post;
 
   ```
 
@@ -143,10 +143,16 @@ function belongsTo(modelName, options) {
 
   return computed({
     get(key) {
+      // this is a legacy behavior we may not carry into a new model setup
+      // it's better to error on disconnected records so users find errors
+      // in their logic.
+      if (this.isDestroying || this.isDestroyed) {
+        return null;
+      }
       const support = LEGACY_SUPPORT.lookup(this);
 
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );
@@ -177,7 +183,7 @@ function belongsTo(modelName, options) {
     set(key, value) {
       const support = LEGACY_SUPPORT.lookup(this);
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );

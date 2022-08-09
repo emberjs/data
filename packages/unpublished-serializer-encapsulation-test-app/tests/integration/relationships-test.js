@@ -114,7 +114,7 @@ module('integration/relationships - running requests for async relatonships with
         },
       },
     });
-    let comments = await post.get('comments');
+    let comments = await post.comments;
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(comments.mapBy('message'), ['Message 1', 'Message 2'], 'response is expected response');
@@ -177,7 +177,7 @@ module('integration/relationships - running requests for async relatonships with
         },
       },
     });
-    let comments = await post.get('comments');
+    let comments = await post.comments;
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(comments.mapBy('message'), ['Message 1', 'Message 2'], 'response is expected response');
@@ -247,7 +247,7 @@ module('integration/relationships - running requests for async relatonships with
         },
       },
     });
-    let post = await comment.get('post');
+    let post = await comment.post;
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(post.title, 'Chris', 'response is expected response');

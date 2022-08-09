@@ -5,8 +5,8 @@ import type {
   ResourceIdentifierObject,
 } from '@ember-data/types/q/ember-data-json-api';
 
-import coerceId from '../coerce-id';
-import { isStableIdentifier } from '../identifier-cache';
+import { isStableIdentifier } from '../caches/identifier-cache';
+import coerceId from './coerce-id';
 import isNonEmptyString from './is-non-empty-string';
 
 function constructResource(type: ResourceIdentifierObject): ResourceIdentifierObject;

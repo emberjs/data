@@ -19,14 +19,14 @@ import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-ser
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import coerceId from './coerce-id';
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
-import type Store from './core-store';
-import ShimModelClass from './model/shim-model-class';
+import ShimModelClass from '../legacy-model-support/shim-model-class';
+import type Store from '../store-service';
+import coerceId from '../utils/coerce-id';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from '../utils/common';
+import { normalizeResponseHelper } from '../utils/serializer-response';
+import WeakCache from '../utils/weak-cache';
 import RequestCache from './request-cache';
-import { normalizeResponseHelper } from './serializer-response';
 import Snapshot from './snapshot';
-import WeakCache from './weak-cache';
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -84,6 +84,10 @@ export default class FetchManager {
     this.isDestroyed = false;
   }
 
+  clearEntries(identifier: StableRecordIdentifier) {
+    delete this.requestCache._done[identifier.lid];
+  }
+
   /**
     This method is called by `record.save`, and gets passed a
     resolver for the promise that `record.save` returns.
@@ -126,10 +130,10 @@ export default class FetchManager {
     let adapter = this._store.adapterFor(identifier.type);
     let operation = options[SaveOp];
 
-    let internalModel = snapshot._internalModel;
     let modelName = snapshot.modelName;
     let store = this._store;
     let modelClass = store.modelFor(modelName);
+    const record = store._instanceCache.getRecord(identifier);
 
     assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
     assert(
@@ -139,16 +143,16 @@ export default class FetchManager {
 
     let promise = resolve().then(() => adapter[operation](store, modelClass, snapshot));
     let serializer: SerializerWithParseErrors | null = store.serializerFor(modelName);
-    let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
+    let label = `DS: Extract and notify about ${operation} completion of ${identifier}`;
 
     assert(
       `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
       promise !== undefined
     );
 
-    promise = _guard(guardDestroyedStore(promise, store, label), _bind(_objectIsAlive, internalModel)).then(
+    promise = _guard(guardDestroyedStore(promise, store, label), _bind(_objectIsAlive, record)).then(
       (adapterPayload) => {
-        if (!_objectIsAlive(internalModel)) {
+        if (!_objectIsAlive(record)) {
           if (DEPRECATE_RSVP_PROMISE) {
             deprecate(
               `A Promise while saving ${modelName} did not resolve by the time your model was destroyed. This will error in a future release.`,
@@ -239,11 +243,8 @@ export default class FetchManager {
     }
 
     let resolverPromise = resolver.promise;
-
-    // TODO replace with some form of record state cache
     const store = this._store;
-    const internalModel = store._instanceCache.getInternalModel(identifier);
-    const isLoading = !internalModel.isLoaded; // we don't use isLoading directly because we are the request
+    const isLoading = !store._instanceCache.recordIsLoaded(identifier); // we don't use isLoading directly because we are the request
 
     const promise = resolverPromise.then(
       (payload) => {
@@ -262,8 +263,9 @@ export default class FetchManager {
         return identifier;
       },
       (error) => {
-        if (internalModel.isEmpty || isLoading) {
-          internalModel.unloadRecord();
+        const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
+        if (!recordData || recordData.isEmpty?.() || isLoading) {
+          store._instanceCache.unloadRecord(identifier);
         }
         throw error;
       }

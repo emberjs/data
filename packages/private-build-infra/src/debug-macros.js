@@ -1,9 +1,10 @@
 'use strict';
 
-module.exports = function debugMacros(app, isProd, compatVersion) {
+module.exports = function debugMacros(app, isProd, config) {
   const PACKAGES = require('./packages')(app);
   const FEATURES = require('./features')(isProd);
-  const DEPRECATIONS = require('./deprecations')(compatVersion, isProd);
+  const DEBUG = require('./debugging')(config.debug, isProd);
+  const DEPRECATIONS = require('./deprecations')(config.compatWith, isProd);
   const debugMacrosPath = require.resolve('babel-plugin-debug-macros');
   let plugins = [
     [
@@ -41,6 +42,18 @@ module.exports = function debugMacros(app, isProd, compatVersion) {
         ],
       },
       '@ember-data/deprecation-stripping',
+    ],
+    [
+      debugMacrosPath,
+      {
+        flags: [
+          {
+            source: '@ember-data/private-build-infra/debugging',
+            flags: DEBUG,
+          },
+        ],
+      },
+      '@ember-data/debugging',
     ],
   ];
 

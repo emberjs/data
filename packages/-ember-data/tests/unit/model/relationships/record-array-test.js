@@ -55,16 +55,7 @@ module('unit/model/relationships - RecordArray', function (hooks) {
     let tag = tags.objectAt(0);
     assert.strictEqual(get(tag, 'name'), 'friendly', `precond - we're working with the right tags`);
 
-    set(
-      tags,
-      'content',
-      A(
-        records
-          .map((r) => r._internalModel)
-          .slice(1, 3)
-          .map((im) => im.identifier)
-      )
-    );
+    set(tags, 'content', A(records.map(recordIdentifierFor).slice(1, 3)));
 
     tag = tags.objectAt(0);
     assert.strictEqual(get(tag, 'name'), 'smarmy', 'the lookup was updated');
@@ -102,10 +93,10 @@ module('unit/model/relationships - RecordArray', function (hooks) {
     });
 
     let person = await store.findRecord('person', 1);
-    person.get('tags').createRecord({ name: 'cool' });
+    person.tags.createRecord({ name: 'cool' });
 
     assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
     assert.strictEqual(get(person, 'tags.length'), 1, 'tag is added to the parent record');
-    assert.strictEqual(get(person, 'tags').objectAt(0).get('name'), 'cool', 'tag values are passed along');
+    assert.strictEqual(get(person, 'tags').objectAt(0).name, 'cool', 'tag values are passed along');
   });
 });

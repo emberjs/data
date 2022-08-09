@@ -13,6 +13,7 @@ import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 
 module('integration/deletedRecord - Deleting Records', function (hooks) {
   setupTest(hooks);
@@ -58,15 +59,15 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let all = store.peekAll('person');
 
     // pre-condition
-    assert.strictEqual(all.get('length'), 2, 'pre-condition: 2 records in array');
+    assert.strictEqual(all.length, 2, 'pre-condition: 2 records in array');
 
-    run(adam, 'deleteRecord');
+    adam.deleteRecord();
 
-    assert.strictEqual(all.get('length'), 2, '2 records in array after deleteRecord');
+    assert.strictEqual(all.length, 2, '2 records in array after deleteRecord');
 
-    run(adam, 'save');
+    await adam.save();
 
-    assert.strictEqual(all.get('length'), 1, '1 record in array after deleteRecord and save');
+    assert.strictEqual(all.length, 1, '1 record in array after deleteRecord and save');
   });
 
   test('deleting a record that is part of a hasMany removes it from the hasMany recordArray', async function (assert) {
@@ -121,12 +122,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let person = store.peekRecord('person', '1');
 
     // Sanity Check we are in the correct state.
-    assert.strictEqual(group.get('people.length'), 2, 'expected 2 related records before delete');
-    assert.strictEqual(person.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
+    assert.strictEqual(group.people.length, 2, 'expected 2 related records before delete');
+    assert.strictEqual(person.name, 'Adam Sunderland', 'expected related records to be loaded');
 
     await person.destroyRecord();
 
-    assert.strictEqual(group.get('people.length'), 1, 'expected 1 related records after delete');
+    assert.strictEqual(group.people.length, 1, 'expected 1 related records after delete');
   });
 
   test('records can be deleted during record array enumeration', async function (assert) {
@@ -160,7 +161,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     var all = store.peekAll('person');
 
     // pre-condition
-    assert.strictEqual(all.get('length'), 2, 'expected 2 records');
+    assert.strictEqual(all.length, 2, 'expected 2 records');
 
     run(function () {
       all.forEach(function (record) {
@@ -168,7 +169,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       });
     });
 
-    assert.strictEqual(all.get('length'), 0, 'expected 0 records');
+    assert.strictEqual(all.length, 0, 'expected 0 records');
     assert.strictEqual(all.objectAt(0), undefined, "can't get any records");
   });
 
@@ -202,11 +203,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     );
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
 
     record.deleteRecord();
 
-    assert.true(internalModel.isEmpty, 'new person state is empty');
+    assert.true(recordData.isEmpty(), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -244,11 +246,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     );
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
 
     await record.destroyRecord();
 
-    assert.true(internalModel.isEmpty, 'new person state is empty');
+    assert.true(recordData.isEmpty(), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -299,19 +302,14 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
 
     record.deleteRecord();
 
-    // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
-    //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
-    assert.true(internalModel.isEmpty, 'We reached the correct persisted saved state');
+    assert.true(recordData.isEmpty(), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-
-    // let cache = store._identityMap._map.person._models;
-
-    // assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
-    assert.true(internalModel.isDestroyed, 'The internal model is destroyed');
+    assert.true(recordData.isDestroyed, 'The recordData is destroyed');
 
     await record.save();
   });
@@ -334,20 +332,15 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let internalModel = record._internalModel;
+    let identifier = recordIdentifierFor(record);
+    let recordData = store._instanceCache.getRecordData(identifier);
 
     record.deleteRecord();
     await settled();
 
-    // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
-    //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
-    assert.true(internalModel.isEmpty, 'We reached the correct persisted saved state');
+    assert.true(recordData.isEmpty(), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-
-    // let cache = store._identityMap._map.person._models;
-
-    // assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
-    assert.true(internalModel.isDestroyed, 'The internal model is destroyed');
+    assert.true(recordData.isDestroyed, 'The internal model is destroyed');
 
     record.unloadRecord();
     await settled();
@@ -432,25 +425,27 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     store.push(jsonGroup);
 
     group = store.peekRecord('group', '1');
+    const groupCompany = await group.company;
 
     // Sanity Check
     assert.ok(group, 'expected group to be found');
-    assert.strictEqual(group.get('company.name'), 'Inc.', 'group belongs to our company');
-    assert.strictEqual(group.get('employees.length'), 1, 'expected 1 related record before delete');
-    employee = group.get('employees').objectAt(0);
-    assert.strictEqual(employee.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
+    assert.strictEqual(groupCompany.name, 'Inc.', 'group belongs to our company');
+    assert.strictEqual(group.employees.length, 1, 'expected 1 related record before delete');
+    const employees = await group.employees;
+    employee = employees.objectAt(0);
+    assert.strictEqual(employee.name, 'Adam Sunderland', 'expected related records to be loaded');
 
     await group.destroyRecord();
     await employee.destroyRecord();
 
-    assert.strictEqual(store.peekAll('employee').get('length'), 0, 'no employee record loaded');
-    assert.strictEqual(store.peekAll('group').get('length'), 0, 'no group record loaded');
+    assert.strictEqual(store.peekAll('employee').length, 0, 'no employee record loaded');
+    assert.strictEqual(store.peekAll('group').length, 0, 'no group record loaded');
 
     // Server pushes the same group and employee once more after they have been destroyed client-side. (The company is a long-lived record)
     store.push(jsonEmployee);
     store.push(jsonGroup);
 
     group = store.peekRecord('group', '1');
-    assert.strictEqual(group.get('employees.length'), 1, 'expected 1 related record after delete and restore');
+    assert.strictEqual(group.employees.length, 1, 'expected 1 related record after delete and restore');
   });
 });

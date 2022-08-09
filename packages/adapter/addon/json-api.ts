@@ -7,8 +7,8 @@ import { dasherize } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
-import type Snapshot from '@ember-data/store/-private/snapshot';
+import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
+import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 
 import { serializeIntoHash } from './-private';
@@ -200,7 +200,7 @@ class JSONAPIAdapter extends RESTAdapter {
     }
     ```
 
-    By default calling `post.get('comments')` will trigger the following requests(assuming the
+    By default calling `post.comments` will trigger the following requests(assuming the
     comments haven't been loaded before):
 
     ```

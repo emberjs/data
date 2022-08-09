@@ -130,12 +130,12 @@ module('integration/application - Using the store as a service', function (hooks
 
   test('The store can be injected as a service', async function (assert) {
     let doodleService = this.owner.lookup('service:doodle');
-    assert.ok(doodleService.get('store') instanceof Store, 'the store can be used as a service');
+    assert.ok(doodleService.store instanceof Store, 'the store can be used as a service');
   });
 
   test('There can be multiple store services', function (assert) {
     let doodleService = this.owner.lookup('service:doodle');
-    let store = doodleService.get('store');
+    let store = doodleService.store;
     let secondService = this.owner.lookup('service:second-store');
 
     assert.ok(secondService instanceof Store, 'the store can be used as a service');
@@ -196,7 +196,7 @@ module('integration/application - Attaching initializer', function (hooks) {
 
     let store = this.owner.lookup('service:store');
     assert.ok(
-      store && store.get('isCustomStore'),
+      store && store.isCustomStore,
       'ember-data initializer does not overwrite the previous registered service store'
     );
   });

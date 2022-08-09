@@ -10,9 +10,9 @@ import { DEBUG } from '@glimmer/env';
 import { Promise as RSVPPromise } from 'rsvp';
 
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
-import type Snapshot from '@ember-data/store/-private/snapshot';
-import type SnapshotRecordArray from '@ember-data/store/-private/snapshot-record-array';
+import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
+import type Snapshot from '@ember-data/store/-private/network/snapshot';
+import type SnapshotRecordArray from '@ember-data/store/-private/network/snapshot-record-array';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -295,7 +295,7 @@ declare const jQuery: JQueryStatic | undefined;
   export default class ApplicationAdapter extends RESTAdapter {
     headers: computed('session.authToken', function() {
       return {
-        'API_KEY': this.get('session.authToken'),
+        'API_KEY': this.session.authToken,
         'ANOTHER_HEADER': 'Some header value'
       };
     })
@@ -311,13 +311,12 @@ declare const jQuery: JQueryStatic | undefined;
 
   ```app/adapters/application.js
   import RESTAdapter from '@ember-data/adapter/rest';
-  import { get } from '@ember/object';
   import { computed } from '@ember/object';
 
   export default class ApplicationAdapter extends RESTAdapter {
     headers: computed(function() {
       return {
-        'API_KEY': get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
+        'API_KEY': document.cookie.match(/apiKey\=([^;]*)/)['1'],
         'ANOTHER_HEADER': 'Some header value'
       };
     }).volatile()
@@ -438,7 +437,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     }
     ```
 
-    By default calling `post.get('comments')` will trigger the following requests(assuming the
+    By default calling `post.comments` will trigger the following requests(assuming the
     comments haven't been loaded before):
 
     ```

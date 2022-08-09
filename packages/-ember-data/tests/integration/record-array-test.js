@@ -134,7 +134,7 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     await settled();
 
-    assert.strictEqual(recordArray.get('length'), 0, 'Has no more records');
+    assert.strictEqual(recordArray.length, 0, 'Has no more records');
     store.push({
       data: {
         type: 'person',
@@ -147,8 +147,8 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     await settled();
 
-    assert.strictEqual(recordArray.get('length'), 0, 'length has not been updated');
-    assert.strictEqual(recordArray.get('content'), null, 'content has not been updated');
+    assert.strictEqual(recordArray.length, 0, 'length has not been updated');
+    assert.strictEqual(recordArray.content, null, 'content has not been updated');
   });
 
   test('a loaded record is removed from a record array when it is deleted', async function (assert) {
@@ -198,11 +198,11 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     let scumbag = await store.findRecord('person', 1);
     let tag = await store.findRecord('tag', 1);
-    let recordArray = tag.get('people');
+    let recordArray = tag.people;
 
     recordArray.addObject(scumbag);
 
-    assert.strictEqual(scumbag.get('tag'), tag, "precond - the scumbag's tag has been set");
+    assert.strictEqual(scumbag.tag, tag, "precond - the scumbag's tag has been set");
     assert.strictEqual(get(recordArray, 'length'), 1, 'precond - record array has one item');
     assert.strictEqual(get(recordArray.objectAt(0), 'name'), 'Scumbag Dale', 'item at index 0 is record with id 1');
 
@@ -265,8 +265,8 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     scumbag.deleteRecord();
 
-    assert.strictEqual(tag.get('people.length'), 1, 'record is not removed from the record array');
-    assert.strictEqual(tag.get('people').objectAt(0), scumbag, 'tag still has the scumbag');
+    assert.strictEqual(tag.people.length, 1, 'record is not removed from the record array');
+    assert.strictEqual(tag.people.objectAt(0), scumbag, 'tag still has the scumbag');
   });
 
   test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", async function (assert) {
@@ -313,13 +313,13 @@ module('unit/record-array - RecordArray', function (hooks) {
     let tag = store.peekRecord('tag', 1);
     let tool = store.peekRecord('tool', 1);
 
-    assert.strictEqual(tag.get('people.length'), 1, 'record is in the record array');
-    assert.strictEqual(tool.get('person'), scumbag, 'the tool belongs to the record');
+    assert.strictEqual(tag.people.length, 1, 'record is in the record array');
+    assert.strictEqual(tool.person, scumbag, 'the tool belongs to the record');
 
     scumbag.deleteRecord();
 
-    assert.strictEqual(tag.get('people.length'), 1, 'record is stil in the record array');
-    assert.strictEqual(tool.get('person'), scumbag, 'the tool still belongs to the record');
+    assert.strictEqual(tag.people.length, 1, 'record is stil in the record array');
+    assert.strictEqual(tool.person, scumbag, 'the tool still belongs to the record');
   });
 
   // GitHub Issue #168

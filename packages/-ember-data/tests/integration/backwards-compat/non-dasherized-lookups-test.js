@@ -151,7 +151,7 @@ module(
       });
     });
 
-    test('looks up belongsTo using under_scored strings', function (assert) {
+    test('looks up belongsTo using under_scored strings', async function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
@@ -181,13 +181,11 @@ module(
         });
       });
 
-      run(() => {
-        store.findRecord('long_model_name', 1).then((longModelName) => {
-          const postNotes = get(longModelName, 'postNotes').toArray();
+      const longModel = await store.findRecord('long_model_name', '1');
+      const postNotesRel = await longModel.postNotes;
+      const postNotes = postNotesRel.toArray();
 
-          assert.deepEqual(postNotes, [store.peekRecord('postNote', 1)], 'inverse records found');
-        });
-      });
+      assert.deepEqual(postNotes, [store.peekRecord('postNote', 1)], 'inverse records found');
     });
   }
 );

@@ -13,11 +13,10 @@ import type {
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 import type Store from '@ember-data/store';
-import type { InternalModel } from '@ember-data/store/-private';
 import { recordDataFor, recordIdentifierFor, storeFor } from '@ember-data/store/-private';
-import type { IdentifierCache } from '@ember-data/store/-private/identifier-cache';
+import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { DSModel } from '@ember-data/types/q/ds-model';
-import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
@@ -141,7 +140,7 @@ export class LegacySupport {
           `You looked up the '${key}' relationship on a '${identifier.type}' with id ${
             identifier.id || 'null'
           } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`belongsTo({ async: true })\`)`,
-          toReturn === null || !store._instanceCache.getInternalModel(relatedIdentifier).isEmpty
+          toReturn === null || store._instanceCache.recordIsLoaded(relatedIdentifier, true)
         );
         return toReturn;
       }
@@ -447,7 +446,7 @@ export class LegacySupport {
       return resolve(null);
     }
 
-    const internalModel = resource.data ? this.store._instanceCache._internalModelForResource(resource.data) : null;
+    const identifier = resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
 
     let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
       .state as RelationshipState;
@@ -458,9 +457,9 @@ export class LegacySupport {
       resource.links.related &&
       (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
 
-    if (internalModel) {
+    if (identifier) {
       // short circuit if we are already loading
-      let pendingRequest = this.store._fetchManager.getPendingFetch(internalModel.identifier, options);
+      let pendingRequest = this.store._fetchManager.getPendingFetch(identifier, options);
       if (pendingRequest) {
         return pendingRequest;
       }
@@ -485,22 +484,21 @@ export class LegacySupport {
         return resolve(null);
       }
 
-      if (!internalModel) {
-        assert(`No InternalModel found for ${resource.lid}`, internalModel);
+      if (!identifier) {
+        assert(`No Information found for ${resource.lid}`, identifier);
       }
 
-      return this.store._instanceCache._fetchDataIfNeededForIdentifier(internalModel.identifier, options);
+      return this.store._instanceCache._fetchDataIfNeededForIdentifier(identifier, options);
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
 
-    if (internalModel && resourceIsLocal) {
-      return resolve(internalModel.identifier);
+    if (identifier && resourceIsLocal) {
+      return resolve(identifier);
     }
 
     // fetch by data
-    if (internalModel && !localDataIsEmpty) {
-      let identifier = internalModel.identifier;
+    if (identifier && !localDataIsEmpty) {
       assertIdentifierHasId(identifier);
 
       return this.store._fetchManager.scheduleFetch(identifier, options);
@@ -512,10 +510,6 @@ export class LegacySupport {
   }
 
   destroy() {
-    assert(
-      'Cannot destroy an internalModel while its record is materialized',
-      !this.record || this.record.isDestroyed || this.record.isDestroying
-    );
     this.isDestroying = true;
 
     const cache = this._manyArrayCache;
@@ -625,7 +619,14 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
       .map((r) => `${typeof r}`)
       .join(', ')}`,
     (function () {
-      return records.every((record) => Object.prototype.hasOwnProperty.call(record, '_internalModel') === true);
+      return records.every((record) => {
+        try {
+          recordIdentifierFor(record);
+          return true;
+        } catch {
+          return false;
+        }
+      });
     })()
   );
 }
@@ -634,7 +635,10 @@ function extractRecordDatasFromRecords(records: RecordInstance[]): RecordData[] 
   return records.map(extractRecordDataFromRecord) as RecordData[];
 }
 
-type PromiseProxyRecord = { then(): void; get(str: 'content'): RecordInstance | null | undefined };
+type PromiseProxyRecord = {
+  then(): void;
+  content: RecordInstance | null | undefined;
+};
 
 function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
   if (!recordOrPromiseRecord) {
@@ -642,7 +646,7 @@ function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   }
 
   if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.get && recordOrPromiseRecord.get('content');
+    let content = recordOrPromiseRecord.content;
     assert(
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
       content !== undefined
@@ -659,24 +663,15 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
 
 function anyUnloaded(store: Store, relationship: ManyRelationship) {
   let state = relationship.currentState;
+  const cache = store._instanceCache;
   const unloaded = state.find((s) => {
-    let im = store._instanceCache.getInternalModel(s);
-    return im._isDematerializing || !im.isLoaded;
+    let isLoaded = cache.recordIsLoaded(s, true);
+    return !isLoaded;
   });
 
   return unloaded || false;
 }
 
-/**
- * Flag indicating whether all inverse records are available
- *
- * true if the inverse exists and is loaded (not empty)
- * true if there is no inverse
- * false if the inverse exists and is not loaded (empty)
- *
- * @internal
- * @return {boolean}
- */
 function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship): boolean {
   const cache = store.identifierCache;
 
@@ -684,7 +679,7 @@ function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship)
     // treat as collection
     // check for unloaded records
     let hasEmptyRecords = resource.data.reduce((hasEmptyModel, resourceIdentifier) => {
-      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).isEmpty;
+      return hasEmptyModel || isEmpty(store, cache, resourceIdentifier);
     }, false);
 
     return !hasEmptyRecords;
@@ -693,17 +688,13 @@ function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship)
     if (!resource.data) {
       return true;
     } else {
-      const internalModel = internalModelForRelatedResource(store, cache, resource.data);
-      return !internalModel.isEmpty;
+      return !isEmpty(store, cache, resource.data);
     }
   }
 }
 
-function internalModelForRelatedResource(
-  store: Store,
-  cache: IdentifierCache,
-  resource: ResourceIdentifierObject
-): InternalModel {
+function isEmpty(store: Store, cache: IdentifierCache, resource: ResourceIdentifierObject): boolean {
   const identifier = cache.getOrCreateRecordIdentifier(resource);
-  return store._instanceCache._internalModelForResource(identifier);
+  const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
+  return !recordData || !!recordData.isEmpty?.();
 }

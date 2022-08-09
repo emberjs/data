@@ -1,12 +1,11 @@
 import Mixin from '@ember/object/mixin';
-import { run } from '@ember/runloop';
 
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { modelHasAttributeOrRelationshipNamedType } from '@ember-data/serializer/-private';
+import Model, { hasMany } from '@ember-data/model';
+import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -37,41 +36,33 @@ module('unit/utils', function (hooks) {
   });
 
   testInDebug('assertPolymorphicType works for subclasses', function (assert) {
-    let user, post, person;
     let store = this.owner.lookup('service:store');
-
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'user',
-            id: '1',
-            relationships: {
-              messages: {
-                data: [],
-              },
+    let [user, post, person] = store.push({
+      data: [
+        {
+          type: 'user',
+          id: '1',
+          relationships: {
+            messages: {
+              data: [],
             },
           },
-          {
-            type: 'post',
-            id: '1',
-          },
-          {
-            type: 'person',
-            id: '1',
-          },
-        ],
-      });
-
-      user = store.peekRecord('user', 1);
-      post = store.peekRecord('post', 1);
-      person = store.peekRecord('person', 1);
+        },
+        {
+          type: 'post',
+          id: '1',
+        },
+        {
+          type: 'person',
+          id: '1',
+        },
+      ],
     });
 
     let relationship = user.relationshipFor('messages');
-    user = user._internalModel.identifier;
-    post = post._internalModel.identifier;
-    person = person._internalModel.identifier;
+    user = recordIdentifierFor(user);
+    post = recordIdentifierFor(post);
+    person = recordIdentifierFor(person);
 
     try {
       assertPolymorphicType(user, relationship, post, store);
@@ -84,60 +75,29 @@ module('unit/utils', function (hooks) {
     }, "The 'person' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name.");
   });
 
-  test('modelHasAttributeOrRelationshipNamedType', function (assert) {
-    class Blank extends Model {}
-    class ModelWithTypeAttribute extends Model {
-      @attr type;
-    }
-    class ModelWithTypeBelongsTo extends Model {
-      @belongsTo type;
-    }
-    class ModelWithTypeHasMany extends Model {
-      @hasMany type;
-    }
-    this.owner.register('model:blank', Blank);
-    this.owner.register('model:with-attr', ModelWithTypeAttribute);
-    this.owner.register('model:with-belongs-to', ModelWithTypeBelongsTo);
-    this.owner.register('model:with-has-many', ModelWithTypeHasMany);
-    const store = this.owner.lookup('service:store');
-
-    assert.false(modelHasAttributeOrRelationshipNamedType(store.modelFor('blank')));
-
-    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-attr')));
-    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-belongs-to')));
-    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-has-many')));
-  });
-
   testInDebug('assertPolymorphicType works for mixins', function (assert) {
-    let post, video, person;
     let store = this.owner.lookup('service:store');
-
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'post',
-            id: '1',
-          },
-          {
-            type: 'video',
-            id: '1',
-          },
-          {
-            type: 'person',
-            id: '1',
-          },
-        ],
-      });
-      post = store.peekRecord('post', 1);
-      video = store.peekRecord('video', 1);
-      person = store.peekRecord('person', 1);
+    let [post, video, person] = store.push({
+      data: [
+        {
+          type: 'post',
+          id: '1',
+        },
+        {
+          type: 'video',
+          id: '1',
+        },
+        {
+          type: 'person',
+          id: '1',
+        },
+      ],
     });
 
     let relationship = post.relationshipFor('medias');
-    post = post._internalModel.identifier;
-    video = video._internalModel.identifier;
-    person = person._internalModel.identifier;
+    post = recordIdentifierFor(post);
+    video = recordIdentifierFor(video);
+    person = recordIdentifierFor(person);
 
     try {
       assertPolymorphicType(post, relationship, video, store);

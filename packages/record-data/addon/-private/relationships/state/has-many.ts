@@ -1,5 +1,6 @@
 import { assert } from '@ember/debug';
 
+import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type {
   CollectionResourceRelationship,
@@ -90,26 +91,26 @@ export default class ManyRelationship {
     });
   }
 
-  forAllMembers(callback: (im: StableRecordIdentifier | null) => void) {
+  forAllMembers(callback: (identifier: StableRecordIdentifier | null) => void) {
     // ensure we don't walk anything twice if an entry is
     // in both members and canonicalMembers
     let seen = Object.create(null);
 
     for (let i = 0; i < this.currentState.length; i++) {
-      const inverseInternalModel = this.currentState[i];
-      const id = inverseInternalModel.lid;
+      const inverseIdentifier = this.currentState[i];
+      const id = inverseIdentifier.lid;
       if (!seen[id]) {
         seen[id] = true;
-        callback(inverseInternalModel);
+        callback(inverseIdentifier);
       }
     }
 
     for (let i = 0; i < this.canonicalState.length; i++) {
-      const inverseInternalModel = this.canonicalState[i];
-      const id = inverseInternalModel.lid;
+      const inverseIdentifier = this.canonicalState[i];
+      const id = inverseIdentifier.lid;
       if (!seen[id]) {
         seen[id] = true;
-        callback(inverseInternalModel);
+        callback(inverseIdentifier);
       }
     }
   }
@@ -121,14 +122,14 @@ export default class ManyRelationship {
     this.canonicalState = [];
   }
 
-  inverseDidDematerialize(inverseRecordData: StableRecordIdentifier) {
-    if (!this.definition.isAsync || (inverseRecordData && isNew(inverseRecordData))) {
+  inverseDidDematerialize(inverseIdentifier: StableRecordIdentifier) {
+    if (!this.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
       // if the record being unloaded only exists on the client, we similarly
       // treat it as a client side delete
-      this.removeCompletelyFromOwn(inverseRecordData);
+      this.removeCompletelyFromOwn(inverseIdentifier);
     } else {
       this.state.hasDematerializedInverse = true;
     }
@@ -142,16 +143,16 @@ export default class ManyRelationship {
     This method is useful when either a deletion or a rollback on a new record
     needs to entirely purge itself from an inverse relationship.
   */
-  removeCompletelyFromOwn(recordData: StableRecordIdentifier) {
-    this.canonicalMembers.delete(recordData);
-    this.members.delete(recordData);
+  removeCompletelyFromOwn(identifier: StableRecordIdentifier) {
+    this.canonicalMembers.delete(identifier);
+    this.members.delete(identifier);
 
-    const canonicalIndex = this.canonicalState.indexOf(recordData);
+    const canonicalIndex = this.canonicalState.indexOf(identifier);
     if (canonicalIndex !== -1) {
       this.canonicalState.splice(canonicalIndex, 1);
     }
 
-    const currentIndex = this.currentState.indexOf(recordData);
+    const currentIndex = this.currentState.indexOf(identifier);
     if (currentIndex !== -1) {
       this.currentState.splice(currentIndex, 1);
       // This allows dematerialized inverses to be rematerialized
@@ -162,8 +163,21 @@ export default class ManyRelationship {
   }
 
   notifyHasManyChange() {
-    const { store, identifier: recordData } = this;
-    store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
+    const { store, identifier } = this;
+    if (identifier === this.graph._removing) {
+      if (LOG_GRAPH) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Graph: ignoring hasManyChange for removed identifier ${String(identifier)} ${this.definition.key}`
+        );
+      }
+      return;
+    }
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: notifying hasManyChange for ${String(identifier)} ${this.definition.key}`);
+    }
+    store.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, this.definition.key);
   }
 
   getData(): CollectionResourceRelationship {

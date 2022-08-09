@@ -4,7 +4,7 @@
 import type NativeArray from '@ember/array/-private/native-array';
 import ArrayProxy from '@ember/array/proxy';
 import { assert, deprecate } from '@ember/debug';
-import { get, set } from '@ember/object';
+import { set } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 
 import { Promise } from 'rsvp';
@@ -16,10 +16,10 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 
-import type Store from '../core-store';
-import type { PromiseArray } from '../promise-proxies';
-import { promiseArray } from '../promise-proxies';
-import SnapshotRecordArray from '../snapshot-record-array';
+import SnapshotRecordArray from '../network/snapshot-record-array';
+import type { PromiseArray } from '../proxies/promise-proxies';
+import { promiseArray } from '../proxies/promise-proxies';
+import type Store from '../store-service';
 
 function recordForIdentifier(store: Store, identifier: StableRecordIdentifier): RecordInstance {
   return store._instanceCache.getRecord(identifier);
@@ -67,7 +67,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
 
     ```javascript
     let people = store.peekAll('person');
-    people.get('isLoaded'); // true
+    people.isLoaded; // true
     ```
 
     @property isLoaded
@@ -91,9 +91,9 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     Example
     ```javascript
     let people = store.peekAll('person');
-    people.get('isUpdating'); // false
+    people.isUpdating; // false
     people.update();
-    people.get('isUpdating'); // true
+    people.isUpdating; // true
     ```
     @property isUpdating
     @public
@@ -107,7 +107,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     super.init();
 
     // TODO can we get rid of this?
-    this.set('content', this.content || null);
+    this.content = this.content || null;
     this._updatingPromise = null;
   }
 
@@ -135,7 +135,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @return {Model} record
   */
   objectAtContent(index: number): RecordInstance | undefined {
-    let identifier = get(this, 'content').objectAt(index);
+    let identifier = this.content.objectAt(index);
     return identifier ? recordForIdentifier(this.store, identifier) : undefined;
   }
 
@@ -147,13 +147,13 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
 
     ```javascript
     let people = store.peekAll('person');
-    people.get('isUpdating'); // false
+    people.isUpdating; // false
 
     people.update().then(function() {
-      people.get('isUpdating'); // false
+      people.isUpdating; // false
     });
 
-    people.get('isUpdating'); // true
+    people.isUpdating; // true
     ```
 
     @method update
@@ -196,7 +196,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     ```javascript
     let messages = store.peekAll('message');
     messages.forEach(function(message) {
-      message.set('hasBeenSeen', true);
+      message.hasBeenSeen = true;
     });
     messages.save();
     ```
@@ -234,6 +234,8 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     //   * the exception being: if an dominator has a reference to this object,
     //     and must be informed to release e.g. e.g. removing itself from th
     //     recordArrayMananger
+    // TODO we have to use set here vs dot notation because computed properties don't clear
+    // otherwise for destroyed records and will not update their value.
     set(this, 'content', null as unknown as NativeArray<StableRecordIdentifier>);
     set(this, 'length', 0);
     super.willDestroy();

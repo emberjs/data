@@ -63,7 +63,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
 
     store.push(payload);
     let book = store.peekRecord('book', 1);
-    assert.strictEqual(book.get('author.id'), '1');
+    assert.strictEqual(book.author.id, '1');
 
     let payloadThatResetsBelongToRelationship = {
       data: {
@@ -79,7 +79,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     };
 
     store.push(payloadThatResetsBelongToRelationship);
-    assert.strictEqual(book.get('author'), null);
+    assert.strictEqual(book.author, null);
   });
 
   test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', function (assert) {
@@ -122,12 +122,11 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
       },
     };
 
-    return book
-      .get('author')
+    return book.author
       .then((author) => {
-        assert.strictEqual(author.get('id'), '1');
+        assert.strictEqual(author.id, '1');
         store.push(payloadThatResetsBelongToRelationship);
-        return book.get('author');
+        return book.author;
       })
       .then((author) => {
         assert.strictEqual(author, null);

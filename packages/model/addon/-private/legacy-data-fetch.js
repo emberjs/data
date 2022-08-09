@@ -8,6 +8,7 @@ import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecat
 import { iterateData, normalizeResponseHelper } from './legacy-data-utils';
 
 export function _findHasMany(adapter, store, identifier, link, relationship, options) {
+  const record = store._instanceCache.getRecord(identifier);
   const snapshot = store._instanceCache.createSnapshot(identifier, options);
   let modelClass = store.modelFor(relationship.type);
   let useLink = !link || typeof link === 'string';
@@ -18,7 +19,7 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
   promise = guardDestroyedStore(promise, store, label);
   promise = promise.then(
     (adapterPayload) => {
-      if (!_objectIsAlive(store._instanceCache.getInternalModel(identifier))) {
+      if (!_objectIsAlive(record)) {
         if (DEPRECATE_RSVP_PROMISE) {
           deprecate(
             `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
@@ -57,13 +58,14 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
   );
 
   if (DEPRECATE_RSVP_PROMISE) {
-    promise = _guard(promise, _bind(_objectIsAlive, store._instanceCache.getInternalModel(identifier)));
+    promise = _guard(promise, _bind(_objectIsAlive, record));
   }
 
   return promise;
 }
 
 export function _findBelongsTo(store, identifier, link, relationship, options) {
+  const record = store._instanceCache.getRecord(identifier);
   let adapter = store.adapterFor(identifier.type);
 
   assert(`You tried to load a belongsTo relationship but you have no adapter (for ${identifier.type})`, adapter);
@@ -79,11 +81,11 @@ export function _findBelongsTo(store, identifier, link, relationship, options) {
   let label = `DS: Handle Adapter#findBelongsTo of ${identifier.type} : ${relationship.type}`;
 
   promise = guardDestroyedStore(promise, store, label);
-  promise = _guard(promise, _bind(_objectIsAlive, store._instanceCache.getInternalModel(identifier)));
+  promise = _guard(promise, _bind(_objectIsAlive, record));
 
   promise = promise.then(
     (adapterPayload) => {
-      if (!_objectIsAlive(store._instanceCache.getInternalModel(identifier))) {
+      if (!_objectIsAlive(record)) {
         if (DEPRECATE_RSVP_PROMISE) {
           deprecate(
             `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
@@ -123,7 +125,7 @@ export function _findBelongsTo(store, identifier, link, relationship, options) {
   );
 
   if (DEPRECATE_RSVP_PROMISE) {
-    promise = _guard(promise, _bind(_objectIsAlive, store._instanceCache.getInternalModel(identifier)));
+    promise = _guard(promise, _bind(_objectIsAlive, record));
   }
 
   return promise;
@@ -229,8 +231,8 @@ function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, paren
   }
 }
 
-function getInverse(store, parentInternalModel, parentRelationship, type) {
-  return recordDataFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship, type);
+function getInverse(store, parentIdentifier, parentRelationship, type) {
+  return recordDataFindInverseRelationshipInfo(store, parentIdentifier, parentRelationship, type);
 }
 
 function recordDataFindInverseRelationshipInfo(store, parentIdentifier, parentRelationship, type) {

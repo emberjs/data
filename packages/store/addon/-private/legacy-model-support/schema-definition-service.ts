@@ -1,6 +1,5 @@
 import { getOwner } from '@ember/application';
 import { deprecate } from '@ember/debug';
-import { get } from '@ember/object';
 
 import { importSync } from '@embroider/macros';
 
@@ -10,8 +9,8 @@ import { DEPRECATE_STRING_ARG_SCHEMAS } from '@ember-data/private-build-infra/de
 import type { RecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
-import type Store from './core-store';
-import normalizeModelName from './normalize-model-name';
+import type Store from '../store-service';
+import normalizeModelName from '../utils/normalize-model-name';
 
 type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
 
@@ -55,7 +54,7 @@ export class DSModelSchemaDefinitionService {
 
     if (attributes === undefined) {
       let modelClass = this.store.modelFor(modelName);
-      let attributeMap = get(modelClass, 'attributes');
+      let attributeMap = modelClass.attributes;
 
       attributes = Object.create(null);
       attributeMap.forEach((meta, name) => (attributes[name] = meta));
@@ -88,7 +87,7 @@ export class DSModelSchemaDefinitionService {
 
     if (relationships === undefined) {
       let modelClass = this.store.modelFor(modelName);
-      relationships = get(modelClass, 'relationshipsObject') || null;
+      relationships = modelClass.relationshipsObject || null;
       this._relationshipsDefCache[modelName] = relationships;
     }
 

@@ -11,6 +11,16 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
+function _isLoading(cache, identifier) {
+  const req = cache.store.getRequestStateService();
+  const fulfilled = req.getLastRequestForRecord(identifier);
+  const isLoaded = cache.recordIsLoaded(identifier);
+
+  return (
+    !isLoaded && fulfilled === null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+  );
+}
+
 class Person extends Model {
   @attr()
   name;
@@ -143,31 +153,35 @@ module('integration/load - Loading Records', function (hooks) {
       })
     );
 
-    let internalModel = store._instanceCache._internalModelForResource({ type: 'person', id: '1' });
+    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    let cache = store._instanceCache;
+    let recordData = cache.peek({ identifier, bucket: 'recordData' });
 
     // test that our initial state is correct
-    assert.true(internalModel.isEmpty, 'We begin in the empty state');
-    assert.false(internalModel.isLoading, 'We have not triggered a load');
+    assert.strictEqual(recordData, undefined, 'We begin in the empty state');
+    assert.false(_isLoading(cache, identifier), 'We have not triggered a load');
 
     let recordPromise = store.findRecord('person', '1');
 
     // test that during the initial load our state is correct
-    assert.true(internalModel.isEmpty, 'awaiting first fetch: We remain in the empty state');
-    assert.true(internalModel.isLoading, 'awaiting first fetch: We have now triggered a load');
+    recordData = cache.peek({ identifier, bucket: 'recordData' });
+    assert.strictEqual(recordData, undefined, 'awaiting first fetch: We remain in the empty state');
+    assert.true(_isLoading(cache, identifier), 'awaiting first fetch: We have now triggered a load');
 
     let record = await recordPromise;
 
     // test that after the initial load our state is correct
-    assert.false(internalModel.isEmpty, 'after first fetch: We are no longer empty');
-    assert.false(internalModel.isLoading, 'after first fetch: We have loaded');
+    recordData = cache.peek({ identifier, bucket: 'recordData' });
+    assert.false(recordData.isEmpty(), 'after first fetch: We are no longer empty');
+    assert.false(_isLoading(cache, identifier), 'after first fetch: We have loaded');
     assert.false(record.isReloading, 'after first fetch: We are not reloading');
 
-    let bestFriend = await record.get('bestFriend');
-    let trueBestFriend = await bestFriend.get('bestFriend');
+    let bestFriend = await record.bestFriend;
+    let trueBestFriend = await bestFriend.bestFriend;
 
     // shen is our retainer for the record we are testing
     //  that ensures unloadRecord later in this test does not fully
-    //  discard the internalModel
+    //  discard the identifier
     let shen = store.peekRecord('person', '2');
 
     assert.strictEqual(bestFriend, shen, 'Precond: bestFriend is correct');
@@ -176,37 +190,41 @@ module('integration/load - Loading Records', function (hooks) {
     recordPromise = record.reload();
 
     // test that during a reload our state is correct
-    assert.false(internalModel.isEmpty, 'awaiting reload: We remain non-empty');
-    assert.false(internalModel.isLoading, 'awaiting reload: We are not loading again');
+    assert.false(recordData.isEmpty(), 'awaiting reload: We remain non-empty');
+    assert.false(_isLoading(cache, identifier), 'awaiting reload: We are not loading again');
     assert.true(record.isReloading, 'awaiting reload: We are reloading');
 
     await recordPromise;
 
     // test that after a reload our state is correct
-    assert.false(internalModel.isEmpty, 'after reload: We remain non-empty');
-    assert.false(internalModel.isLoading, 'after reload: We have loaded');
+    assert.false(recordData.isEmpty(), 'after reload: We remain non-empty');
+    assert.false(_isLoading(cache, identifier), 'after reload: We have loaded');
     assert.false(record.isReloading, 'after reload:: We are not reloading');
 
     run(() => record.unloadRecord());
 
     // test that after an unload our state is correct
-    assert.true(internalModel.isEmpty, 'after unload: We are empty again');
-    assert.false(internalModel.isLoading, 'after unload: We are not loading');
+    assert.true(recordData.isEmpty(), 'after unload: We are empty again');
+    assert.false(_isLoading(cache, identifier), 'after unload: We are not loading');
     assert.false(record.isReloading, 'after unload:: We are not reloading');
 
     recordPromise = store.findRecord('person', '1');
 
     // test that during a reload-due-to-unload our state is correct
     //   This requires a retainer (the async bestFriend relationship)
-    assert.true(internalModel.isEmpty, 'awaiting second find: We remain empty');
-    assert.true(internalModel.isLoading, 'awaiting second find: We are loading again');
+    assert.true(recordData.isEmpty(), 'awaiting second find: We remain empty');
+    let newRecordData = cache.peek({ identifier, bucket: 'recordData' });
+    assert.strictEqual(newRecordData, undefined, 'We have no recordData during second find');
+    assert.true(_isLoading(cache, identifier), 'awaiting second find: We are loading again');
     assert.false(record.isReloading, 'awaiting second find: We are not reloading');
 
     await recordPromise;
 
     // test that after the reload-due-to-unload our state is correct
-    assert.false(internalModel.isEmpty, 'after second find: We are no longer empty');
-    assert.false(internalModel.isLoading, 'after second find: We have loaded');
+    newRecordData = cache.peek({ identifier, bucket: 'recordData' });
+    assert.true(recordData.isEmpty(), 'after second find: Our original recordData is still empty');
+    assert.false(newRecordData.isEmpty(), 'after second find: We are no longer empty');
+    assert.false(_isLoading(cache, identifier), 'after second find: We have loaded');
     assert.false(record.isReloading, 'after second find: We are not reloading');
   });
 });

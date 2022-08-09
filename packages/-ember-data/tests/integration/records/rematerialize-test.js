@@ -82,7 +82,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     });
 
     let person = store.peekRecord('person', 1);
-    assert.strictEqual(person.get('cars.length'), 1, 'The inital length of cars is correct');
+    assert.strictEqual(person.cars.length, 1, 'The inital length of cars is correct');
 
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
     assert.true(
@@ -115,9 +115,9 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       });
     });
 
-    let rematerializedPerson = bob.get('person');
-    assert.strictEqual(rematerializedPerson.get('id'), '1');
-    assert.strictEqual(rematerializedPerson.get('name'), 'Adam Sunderland');
+    let rematerializedPerson = bob.person;
+    assert.strictEqual(rematerializedPerson.id, '1');
+    assert.strictEqual(rematerializedPerson.name, 'Adam Sunderland');
     // the person is rematerialized; the previous person is *not* re-used
     assert.notEqual(rematerializedPerson, adam, 'the person is rematerialized, not recycled');
   });
@@ -221,11 +221,11 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.notStrictEqual(store.peekRecord('boat', '1'), null, 'The boat is in the store');
     assert.true(!!store.identifierCache.peekRecordIdentifier({ lid: '@lid:boat-1' }), 'The boat identifier is loaded');
 
-    let boats = await adam.get('boats');
-    assert.strictEqual(boats.get('length'), 2, 'Before unloading boats.length is correct');
+    let boats = await adam.boats;
+    assert.strictEqual(boats.length, 2, 'Before unloading boats.length is correct');
 
     boaty.unloadRecord();
-    assert.strictEqual(boats.get('length'), 1, 'after unloading boats.length is correct');
+    assert.strictEqual(boats.length, 1, 'after unloading boats.length is correct');
 
     // assert our new cache state
     assert.strictEqual(store.peekRecord('boat', '1'), null, 'The boat is unloaded');
@@ -235,13 +235,13 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     );
 
     // cause a rematerialization, this should also cause us to fetch boat '1' again
-    boats = run(() => adam.get('boats'));
+    boats = await adam.boats;
     let rematerializedBoaty = boats.objectAt(1);
 
     assert.ok(!!rematerializedBoaty, 'We have a boat!');
-    assert.strictEqual(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
-    assert.strictEqual(rematerializedBoaty.get('id'), '1', 'Rematerialized boat has the right id');
-    assert.strictEqual(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
+    assert.strictEqual(adam.boats.length, 2, 'boats.length correct after rematerialization');
+    assert.strictEqual(rematerializedBoaty.id, '1', 'Rematerialized boat has the right id');
+    assert.strictEqual(rematerializedBoaty.name, 'Boaty McBoatface', 'Rematerialized boat has the right name');
     assert.notStrictEqual(rematerializedBoaty, boaty, 'the boat is rematerialized, not recycled');
 
     assert.notStrictEqual(store.peekRecord('boat', '1'), null, 'The boat is loaded');

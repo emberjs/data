@@ -7,7 +7,6 @@ import RSVP from 'rsvp';
 import { start } from 'ember-qunit';
 
 import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-support/assert-all-deprecations';
-import additionalLegacyAsserts from '@ember-data/unpublished-test-infra/test-support/legacy';
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';
 
@@ -26,7 +25,6 @@ if (QUnit.urlParams.enableoptionalfeatures) {
 setup(QUnit.assert);
 
 configureAsserts();
-additionalLegacyAsserts();
 
 setApplication(Application.create(config.APP));
 

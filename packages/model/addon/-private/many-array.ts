@@ -10,8 +10,8 @@ import { all } from 'rsvp';
 
 import type Store from '@ember-data/store';
 import { PromiseArray, recordDataFor } from '@ember-data/store/-private';
-import type { CreateRecordProperties } from '@ember-data/store/-private/core-store';
-import type ShimModelClass from '@ember-data/store/-private/model/shim-model-class';
+import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
+import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import type { DSModelSchema } from '@ember-data/types/q/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -306,16 +306,16 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     this._isDirty = false;
     this._isUpdating = true;
     let jsonApi = this.recordData.getHasMany(this.key);
+    const cache = this.store._instanceCache;
+    const idCache = this.store.identifierCache;
 
     let identifiers: StableRecordIdentifier[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
-        // TODO figure out where this state comes from
-        let im = this.store._instanceCache._internalModelForResource(jsonApi.data[i]);
-        let shouldRemove = im._isDematerializing || im.isEmpty || !im.isLoaded;
+        const identifier = idCache.getOrCreateRecordIdentifier(jsonApi.data[i]);
 
-        if (!shouldRemove) {
-          identifiers.push(im.identifier);
+        if (cache.recordIsLoaded(identifier, true)) {
+          identifiers.push(identifier);
         }
       }
     }
@@ -346,6 +346,12 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     }
 
     this._isUpdating = false;
+  }
+
+  destroy() {
+    this._length = 0;
+    this.currentState = [];
+    return super.destroy();
   }
 
   /**

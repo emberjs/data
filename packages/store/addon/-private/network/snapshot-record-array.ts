@@ -9,7 +9,7 @@ import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type RecordArray from './record-arrays/record-array';
+import type RecordArray from '../record-arrays/record-array';
 import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
@@ -77,7 +77,7 @@ export default class SnapshotRecordArray {
       @public
       @type {Number}
     */
-    this.length = recordArray.get('length');
+    this.length = recordArray.length as unknown as number; // deal with computedProperty shennanigans
 
     /**
       Meta objects for the record array.
@@ -220,7 +220,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._recordArray.get('type');
+      return this._recordArray.type;
     },
   });
 }

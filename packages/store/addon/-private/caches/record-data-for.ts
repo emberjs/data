@@ -5,7 +5,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
-import WeakCache from './weak-cache';
+import WeakCache from '../utils/weak-cache';
 
 /*
  * Returns the RecordData instance associated with a given
@@ -24,7 +24,7 @@ export function setRecordDataFor(identifier: StableRecordIdentifier | RecordInst
   RecordDataForIdentifierCache.set(identifier, recordData);
 }
 
-export function removeRecordDataFor(identifier: StableRecordIdentifier): void {
+export function removeRecordDataFor(identifier: StableRecordIdentifier | RecordInstance): void {
   RecordDataForIdentifierCache.delete(identifier);
 }
 

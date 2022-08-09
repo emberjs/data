@@ -7,10 +7,10 @@ function isProduction(environment) {
   return /production/.test(environment);
 }
 
-module.exports = function (environment, app, compatVersion) {
+module.exports = function (environment, app, config) {
   const isProd = isProduction(environment);
   let plugins = [];
-  const DebugMacros = require('./debug-macros')(app, isProd, compatVersion);
+  const DebugMacros = require('./debug-macros')(app, isProd, config);
   let postTransformPlugins = [];
 
   if (isProd) {

@@ -9,7 +9,7 @@ import { DEBUG } from '@glimmer/env';
   relationship (specified via `relationshipMeta`) of the `record`.
 
   This utility should only be used internally, as both record parameters must
-  be an InternalModel and the `relationshipMeta` needs to be the meta
+  be stable record identifiers and the `relationshipMeta` needs to be the meta
   information about the relationship, retrieved via
   `record.relationshipFor(key)`.
 */

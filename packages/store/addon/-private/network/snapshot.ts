@@ -2,7 +2,6 @@
   @module @ember-data/store
 */
 import { assert, deprecate } from '@ember/debug';
-import { get } from '@ember/object';
 
 import { importSync } from '@embroider/macros';
 
@@ -10,11 +9,7 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
-import type { DSModel, DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
-import type {
-  ExistingResourceIdentifierObject,
-  NewResourceIdentifierObject,
-} from '@ember-data/types/q/ember-data-json-api';
+import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { ChangedAttributesHash } from '@ember-data/types/q/record-data';
@@ -23,8 +18,7 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type Store from './core-store';
-import type InternalModel from './model/internal-model';
+import type Store from '../store-service';
 
 type RecordId = string | null;
 
@@ -46,7 +40,6 @@ export default class Snapshot implements Snapshot {
   private _belongsToIds: Dict<RecordId> = Object.create(null);
   private _hasManyRelationships: Dict<Snapshot[]> = Object.create(null);
   private _hasManyIds: Dict<RecordId[]> = Object.create(null);
-  declare _internalModel: InternalModel;
   declare _changedAttributes: ChangedAttributesHash;
 
   declare identifier: StableRecordIdentifier;
@@ -64,7 +57,7 @@ export default class Snapshot implements Snapshot {
    * @param _store
    */
   constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store) {
-    let internalModel = (this._internalModel = _store._instanceCache._internalModelForResource(identifier));
+    const hasRecord = !!_store._instanceCache.peek({ identifier, bucket: 'record' });
     this.modelName = identifier.type;
 
     /**
@@ -83,7 +76,7 @@ export default class Snapshot implements Snapshot {
       in time" in which a snapshot is created, we greedily grab
       the values.
      */
-    if (internalModel.hasRecord) {
+    if (hasRecord) {
       this._attributes;
     }
 
@@ -129,7 +122,7 @@ export default class Snapshot implements Snapshot {
      @public
      */
     this.modelName = identifier.type;
-    if (internalModel.hasRecord) {
+    if (hasRecord) {
       this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttributes();
     }
   }
@@ -160,10 +153,12 @@ export default class Snapshot implements Snapshot {
     let attributes = (this.__attributes = Object.create(null));
     let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier));
     let recordData = this._store._instanceCache.getRecordData(this.identifier);
+    const modelClass = this._store.modelFor(this.identifier.type);
+    const isDSModel = schemaIsDSModel(modelClass);
     attrs.forEach((keyName) => {
-      if (schemaIsDSModel(this._internalModel.modelClass)) {
+      if (isDSModel) {
         // if the schema is for a DSModel then the instance is too
-        attributes[keyName] = get(record as DSModel, keyName);
+        attributes[keyName] = record[keyName];
       } else {
         attributes[keyName] = recordData.getAttr(keyName);
       }
@@ -182,7 +177,8 @@ export default class Snapshot implements Snapshot {
    */
 
   get isNew(): boolean {
-    return this._internalModel.isNew();
+    const recordData = this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'recordData' });
+    return recordData?.isNew?.() || false;
   }
 
   /**
@@ -297,9 +293,8 @@ export default class Snapshot implements Snapshot {
    */
   belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
     let returnModeIsId = !!(options && options.id);
-    let inverseInternalModel: InternalModel | null;
     let result: Snapshot | RecordId | undefined;
-    let store = this._internalModel.store;
+    let store = this._store;
 
     if (returnModeIsId === true && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
@@ -319,7 +314,7 @@ export default class Snapshot implements Snapshot {
 
     // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
     // this check is not a regression in behavior because relationships don't currently
-    // function without access to intimate API contracts between RecordData and InternalModel.
+    // function without access to intimate API contracts between RecordData and Model.
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
     if (!HAS_RECORD_DATA_PACKAGE) {
@@ -344,14 +339,14 @@ export default class Snapshot implements Snapshot {
     let value = relationship.getData();
     let data = value && value.data;
 
-    inverseInternalModel = data ? store._instanceCache._internalModelForResource(data) : null;
+    let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
+      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted?.()) {
         if (returnModeIsId) {
-          result = inverseInternalModel.id;
+          result = inverseIdentifier.id;
         } else {
-          result = store._instanceCache.createSnapshot(inverseInternalModel.identifier);
+          result = store._instanceCache.createSnapshot(inverseIdentifier);
         }
       } else {
         result = null;
@@ -411,7 +406,7 @@ export default class Snapshot implements Snapshot {
       return cachedSnapshots;
     }
 
-    let store = this._internalModel.store;
+    let store = this._store;
     let relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
       keyName
     ];
@@ -422,7 +417,7 @@ export default class Snapshot implements Snapshot {
 
     // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
     // this check is not a regression in behavior because relationships don't currently
-    // function without access to intimate API contracts between RecordData and InternalModel.
+    // function without access to intimate API contracts between RecordData and Model.
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
     if (!HAS_RECORD_DATA_PACKAGE) {
@@ -448,14 +443,12 @@ export default class Snapshot implements Snapshot {
     if (value.data) {
       results = [];
       value.data.forEach((member) => {
-        let internalModel = store._instanceCache._internalModelForResource(member);
-        if (!internalModel.isDeleted()) {
+        let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
+        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted?.()) {
           if (returnModeIsIds) {
-            (results as RecordId[]).push(
-              (member as ExistingResourceIdentifierObject | NewResourceIdentifierObject).id || null
-            );
+            (results as RecordId[]).push(inverseIdentifier.id);
           } else {
-            (results as Snapshot[]).push(store._instanceCache.createSnapshot(internalModel.identifier));
+            (results as Snapshot[]).push(store._instanceCache.createSnapshot(inverseIdentifier));
           }
         }
       });
@@ -566,7 +559,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._internalModel.modelClass;
+      return this._store.modelFor(this.identifier.type);
     },
   });
 }

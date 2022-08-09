@@ -55,68 +55,64 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
-  test('Calling pushPayload works', function (assert) {
+  test('Calling pushPayload works', async function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
-    run(function () {
-      serializer.pushPayload(store, {
-        data: {
-          type: 'users',
-          id: '1',
-          attributes: {
-            'first-name': 'Yehuda',
-            'last-name': 'Katz',
+    serializer.pushPayload(store, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': 'Yehuda',
+          'last-name': 'Katz',
+        },
+        relationships: {
+          company: {
+            data: { type: 'companies', id: '2' },
           },
-          relationships: {
-            company: {
-              data: { type: 'companies', id: '2' },
-            },
-            handles: {
-              data: [
-                { type: 'github-handles', id: '3' },
-                { type: 'twitter-handles', id: '4' },
-              ],
-            },
+          handles: {
+            data: [
+              { type: 'github-handles', id: '3' },
+              { type: 'twitter-handles', id: '4' },
+            ],
           },
         },
-        included: [
-          {
-            type: 'companies',
-            id: '2',
-            attributes: {
-              name: 'Tilde Inc.',
-            },
+      },
+      included: [
+        {
+          type: 'companies',
+          id: '2',
+          attributes: {
+            name: 'Tilde Inc.',
           },
-          {
-            type: 'github-handles',
-            id: '3',
-            attributes: {
-              username: 'wycats',
-            },
+        },
+        {
+          type: 'github-handles',
+          id: '3',
+          attributes: {
+            username: 'wycats',
           },
-          {
-            type: 'twitter-handles',
-            id: '4',
-            attributes: {
-              nickname: '@wycats',
-            },
+        },
+        {
+          type: 'twitter-handles',
+          id: '4',
+          attributes: {
+            nickname: '@wycats',
           },
-        ],
-      });
-
-      var user = store.peekRecord('user', 1);
-
-      assert.strictEqual(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
-      assert.strictEqual(get(user, 'lastName'), 'Katz', 'lastName is correct');
-      assert.strictEqual(get(user, 'company.name'), 'Tilde Inc.', 'company.name is correct');
-      assert.strictEqual(
-        get(user, 'handles.firstObject.username'),
-        'wycats',
-        'handles.firstObject.username is correct'
-      );
-      assert.strictEqual(get(user, 'handles.lastObject.nickname'), '@wycats', 'handles.lastObject.nickname is correct');
+        },
+      ],
     });
+
+    const user = store.peekRecord('user', 1);
+    const company = await user.company;
+    const handles = await user.handles;
+
+    assert.strictEqual(user.firstName, 'Yehuda', 'firstName is correct');
+    assert.strictEqual(user.lastName, 'Katz', 'lastName is correct');
+    assert.strictEqual(company.name, 'Tilde Inc.', 'company.name is correct');
+    assert.strictEqual(handles.firstObject.username, 'wycats', 'handles.firstObject.username is correct');
+    assert.strictEqual(handles.lastObject.nickname, '@wycats', 'handles.lastObject.nickname is correct');
   });
 
   testInDebug('Warns when normalizing an unknown type', function (assert) {
@@ -666,7 +662,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  test('it should include an empty list when serializing an empty hasMany relationship', function (assert) {
+  test('it should include an empty list when serializing an empty hasMany relationship', async function (assert) {
     this.owner.register(
       'serializer:user',
       JSONAPISerializer.extend({
@@ -678,50 +674,50 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     let store = this.owner.lookup('service:store');
 
-    run(function () {
-      store.serializerFor('user').pushPayload(store, {
-        data: {
-          type: 'users',
-          id: 1,
-          relationships: {
-            handles: {
-              data: [
-                { type: 'handles', id: 1 },
-                { type: 'handles', id: 2 },
-              ],
-            },
+    store.serializerFor('user').pushPayload(store, {
+      data: {
+        type: 'users',
+        id: '1',
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: '1' },
+              { type: 'handles', id: '2' },
+            ],
           },
         },
-        included: [
-          { type: 'handles', id: 1 },
-          { type: 'handles', id: 2 },
-        ],
-      });
+      },
+      included: [
+        { type: 'handles', id: '1' },
+        { type: 'handles', id: '2' },
+      ],
+    });
 
-      let user = store.peekRecord('user', 1);
-      let handle1 = store.peekRecord('handle', 1);
-      let handle2 = store.peekRecord('handle', 2);
-      user.get('handles').removeObject(handle1);
-      user.get('handles').removeObject(handle2);
+    let user = store.peekRecord('user', '1');
+    let handle1 = store.peekRecord('handle', '1');
+    let handle2 = store.peekRecord('handle', '2');
 
-      let serialized = user.serialize({ includeId: true });
+    const handles = await user.handles;
+    handles.removeObject(handle1);
+    handles.removeObject(handle2);
 
-      assert.deepEqual(serialized, {
-        data: {
-          type: 'users',
-          id: '1',
-          attributes: {
-            'first-name': null,
-            'last-name': null,
-            title: null,
-          },
-          relationships: {
-            handles: {
-              data: [],
-            },
+    let serialized = user.serialize({ includeId: true });
+
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': null,
+          'last-name': null,
+          title: null,
+        },
+        relationships: {
+          handles: {
+            data: [],
           },
         },
-      });
+      },
     });
   });
 

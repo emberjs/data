@@ -193,7 +193,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     let post = store.push(initialRecord);
 
-    let comments = await post.get('comments');
+    let comments = await post.comments;
     let serializedComments = {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
@@ -232,7 +232,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let post = store.push(initialRecord);
 
     await assert.expectAssertion(async function () {
-      await post.get('comments');
+      await post.comments;
     }, /You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'/);
   });
 
@@ -302,7 +302,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     owner.register('adapter:application', TestFindRecordAdapter);
 
     let post = store.push(initialRecord);
-    let comments = await post.get('comments');
+    let comments = await post.comments;
     let serializedComments = {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
@@ -374,7 +374,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     owner.register('adapter:application', TestFindRecordAdapter);
 
     let post = store.push(initialRecord);
-    let comments = await post.get('comments');
+    let comments = await post.comments;
     let serializedComments = {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
@@ -457,7 +457,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     owner.register('adapter:application', TestFindManyAdapter);
 
     let post = store.push(initialRecord);
-    let comments = await post.get('comments');
+    let comments = await post.comments;
     let serializedComments = {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
@@ -536,7 +536,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     owner.register('adapter:application', TestFindManyAdapter);
 
     let post = store.push(initialRecord);
-    let comments = await post.get('comments');
+    let comments = await post.comments;
     let serializedComments = {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
@@ -615,7 +615,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     let post = store.push(initialRecord);
 
-    let comments = await post.get('comments');
+    let comments = await post.comments;
     let serializedComments = {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
@@ -697,7 +697,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     owner.register('adapter:application', TestFindManyAdapter);
 
     let post = store.push(initialRecord);
-    let comments = await post.get('comments');
+    let comments = await post.comments;
     let serializedComments = {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
@@ -768,7 +768,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     owner.register('adapter:application', TestFindRecordAdapter);
 
     let post = store.push(initialRecord);
-    let comments = await post.get('comments');
+    let comments = await post.comments;
     let serializedComments = {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };

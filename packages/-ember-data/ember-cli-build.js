@@ -37,14 +37,22 @@ module.exports = function (defaults) {
     terserSettings.enabled = false;
   }
 
-  let app = new EmberAddon(defaults, {
-    emberData: {
-      compatWith,
+  let config = {
+    compatWith,
+    debug: {
+      LOG_NOTIFICATIONS: process.env.DEBUG_DATA ? true : false,
+      LOG_REQUEST_STATUS: process.env.DEBUG_DATA ? true : false,
+      LOG_IDENTIFIERS: process.env.DEBUG_DATA ? true : false,
+      LOG_GRAPH: process.env.DEBUG_DATA ? true : false,
+      LOG_INSTANCE_CACHE: process.env.DEBUG_DATA ? true : false,
     },
+  };
+  let app = new EmberAddon(defaults, {
+    emberData: config,
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
-      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, compatWith)],
+      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, config)],
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,

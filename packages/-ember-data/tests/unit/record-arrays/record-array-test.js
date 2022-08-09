@@ -178,11 +178,11 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let model3 = { lid: '@lid:model-3' };
 
     assert.strictEqual(recordArray._pushIdentifiers([model1]), undefined, '_pushIdentifiers has no return value');
-    assert.deepEqual(recordArray.get('content'), [model1], 'now contains model1');
+    assert.deepEqual(recordArray.content, [model1], 'now contains model1');
 
     recordArray._pushIdentifiers([model1]);
     assert.deepEqual(
-      recordArray.get('content'),
+      recordArray.content,
       [model1, model1],
       'allows duplicates, because record-array-manager ensures no duplicates, this layer should not double check'
     );
@@ -192,7 +192,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
     // can add multiple models at once
     recordArray._pushIdentifiers([model2, model3]);
-    assert.deepEqual(recordArray.get('content'), [model1, model2, model3], 'now contains model1, model2, model3');
+    assert.deepEqual(recordArray.content, [model1, model2, model3], 'now contains model1, model2, model3');
   });
 
   test('#_removeIdentifiers', async function (assert) {
@@ -205,17 +205,17 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let model2 = { lid: '@lid:model-2' };
     let model3 = { lid: '@lid:model-3' };
 
-    assert.strictEqual(recordArray.get('content').length, 0);
+    assert.strictEqual(recordArray.content.length, 0);
     assert.strictEqual(recordArray._removeIdentifiers([model1]), undefined, '_removeIdentifiers has no return value');
-    assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
+    assert.deepEqual(recordArray.content, [], 'now contains no models');
 
     recordArray._pushIdentifiers([model1, model2]);
 
-    assert.deepEqual(recordArray.get('content'), [model1, model2], 'now contains model1, model2,');
+    assert.deepEqual(recordArray.content, [model1, model2], 'now contains model1, model2,');
     assert.strictEqual(recordArray._removeIdentifiers([model1]), undefined, '_removeIdentifiers has no return value');
-    assert.deepEqual(recordArray.get('content'), [model2], 'now only contains model2');
+    assert.deepEqual(recordArray.content, [model2], 'now only contains model2');
     assert.strictEqual(recordArray._removeIdentifiers([model2]), undefined, '_removeIdentifiers has no return value');
-    assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
+    assert.deepEqual(recordArray.content, [], 'now contains no models');
 
     recordArray._pushIdentifiers([model1, model2, model3]);
 
@@ -225,9 +225,9 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       '_removeIdentifiers has no return value'
     );
 
-    assert.deepEqual(recordArray.get('content'), [model2], 'now contains model2');
+    assert.deepEqual(recordArray.content, [model2], 'now contains model2');
     assert.strictEqual(recordArray._removeIdentifiers([model2]), undefined, '_removeIdentifiers has no return value');
-    assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
+    assert.deepEqual(recordArray.content, [], 'now contains no models');
   });
 
   test('#save', async function (assert) {
@@ -366,12 +366,12 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     assert.strictEqual(
       snapshot1.id,
       String(model1.id),
-      'record array snapshot should contain the first internalModel.createSnapshot result'
+      'record array snapshot should contain the first createSnapshot result'
     );
     assert.strictEqual(
       snapshot2.id,
       String(model2.id),
-      'record array snapshot should contain the second internalModel.createSnapshot result'
+      'record array snapshot should contain the second createSnapshot result'
     );
   });
 

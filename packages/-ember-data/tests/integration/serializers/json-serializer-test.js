@@ -307,7 +307,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     });
 
     run(function () {
-      post.get('comments').pushObject(comment);
+      post.comments.pushObject(comment);
     });
 
     let json = {};
@@ -895,7 +895,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
-  test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', function (assert) {
+  test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', async function (assert) {
     assert.expect(1);
     class Post extends Model {
       @attr('string') title;
@@ -922,14 +922,13 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let post = store.createRecord('post', { title: 'Rails is omakase' });
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: post });
 
-    run(function () {
-      post.get('comments').pushObject(comment);
-    });
+    const comments = await post.comments;
+    comments.pushObject(comment);
 
-    var serializer = store.serializerFor('post');
-    var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
+    const serializer = store.serializerFor('post');
+    const serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
+    const payload = serializer.serialize(post._createSnapshot());
 
-    var payload = serializer.serialize(post._createSnapshot());
     assert.ok(payload.hasOwnProperty(serializedProperty), 'Add the key to instance');
   });
 

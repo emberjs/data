@@ -280,7 +280,7 @@ module('integration/inverse_test - inverseFor', function (hooks) {
         },
       });
       reflexiveModel = store.peekRecord('reflexive-model', 1);
-      reflexiveModel.get('reflexiveProp');
+      reflexiveModel.reflexiveProp;
     }, /Detected a reflexive relationship by the name of 'reflexiveProp'/);
   });
 });

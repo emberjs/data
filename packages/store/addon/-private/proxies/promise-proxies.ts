@@ -31,10 +31,10 @@ import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
     promise: $.getJSON('/some/remote/data.json')
   });
 
-  promiseArray.get('length'); // 0
+  promiseArray.length; // 0
 
   promiseArray.then(function() {
-    promiseArray.get('length'); // 100
+    promiseArray.length; // 100
   });
   ```
 
@@ -77,10 +77,10 @@ export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayPr
     promise: $.getJSON('/some/remote/data.json')
   });
 
-  promiseObject.get('name'); // null
+  promiseObject.name; // null
 
   promiseObject.then(function() {
-    promiseObject.get('name'); // 'Tomster'
+    promiseObject.name; // 'Tomster'
   });
   ```
 

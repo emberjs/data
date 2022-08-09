@@ -51,8 +51,8 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     assert.strictEqual(passedVerb, 'POST');
     assert.deepEqual(passedHash.data, { post: { id: 'some-uuid', name: 'The Parley Letter' } });
 
-    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-    assert.strictEqual(post.get('name'), 'The Parley Letter', 'the post was updated');
+    assert.false(post.hasDirtyAttributes, "the post isn't dirty anymore");
+    assert.strictEqual(post.name, 'The Parley Letter', 'the post was updated');
   });
 
   test('createRecord - passes buildURL the requestType', async function (assert) {
@@ -111,9 +111,9 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     assert.strictEqual(passedVerb, 'POST');
     assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-    assert.strictEqual(post.get('id'), '1', 'the post has the updated ID');
-    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-    assert.strictEqual(post.get('name'), 'Dat Parley Letter', 'the post was updated');
+    assert.strictEqual(post.id, '1', 'the post has the updated ID');
+    assert.false(post.hasDirtyAttributes, "the post isn't dirty anymore");
+    assert.strictEqual(post.name, 'Dat Parley Letter', 'the post was updated');
   });
 
   test('createRecord - a payload with a new ID and data applies the updates (with legacy singular name)', async function (assert) {
@@ -142,9 +142,9 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     assert.strictEqual(passedVerb, 'POST');
     assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-    assert.strictEqual(post.get('id'), '1', 'the post has the updated ID');
-    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-    assert.strictEqual(post.get('name'), 'Dat Parley Letter', 'the post was updated');
+    assert.strictEqual(post.id, '1', 'the post has the updated ID');
+    assert.false(post.hasDirtyAttributes, "the post isn't dirty anymore");
+    assert.strictEqual(post.name, 'Dat Parley Letter', 'the post was updated');
   });
 
   test("createRecord - findMany doesn't overwrite owner", async function (assert) {
@@ -185,15 +185,16 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     const post = store.peekRecord('post', 1);
     const comment = store.createRecord('comment', { name: 'The Parley Letter' });
 
-    post.get('comments').pushObject(comment);
+    const comments = await post.comments;
+    comments.pushObject(comment);
 
-    assert.strictEqual(comment.get('post'), post, 'the post has been set correctly');
+    assert.strictEqual(comment.post, post, 'the post has been set correctly');
 
     await comment.save();
 
-    assert.false(comment.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-    assert.strictEqual(comment.get('name'), 'Dat Parley Letter', 'the post was updated');
-    assert.strictEqual(comment.get('post'), post, 'the post is still set');
+    assert.false(comment.hasDirtyAttributes, "the post isn't dirty anymore");
+    assert.strictEqual(comment.name, 'Dat Parley Letter', 'the post was updated');
+    assert.strictEqual(comment.post, post, 'the post is still set');
   });
 
   test("createRecord - a serializer's primary key and attributes are consulted when building the payload", async function (assert) {
@@ -444,7 +445,7 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
       ],
     });
 
-    store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -458,7 +459,6 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
         },
       },
     });
-
     store.push({
       data: {
         type: 'comment',
@@ -474,20 +474,15 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
       },
     });
 
-    const post = store.peekRecord('post', 1);
-    const commentCount = post.get('comments.length');
-
+    const commentCount = post.comments.length;
     assert.strictEqual(commentCount, 1, 'the post starts life with a comment');
 
     let comment = store.createRecord('comment', { name: 'Another Comment', post: post });
-
     await comment.save();
-
-    assert.strictEqual(comment.get('post'), post, 'the comment is related to the post');
+    assert.strictEqual(comment.post, post, 'the comment is related to the post');
 
     await post.reload();
-
-    assert.strictEqual(post.get('comments.length'), 2, 'Post comment count has been updated');
+    assert.strictEqual(post.comments.length, 2, 'Post comment count has been updated');
   });
 
   test('createRecord - sideloaded belongsTo relationships are both marked as loaded', async function (assert) {
@@ -518,9 +513,9 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     const post = store.createRecord('post', { name: 'man' });
     const record = await post.save();
 
-    assert.true(store.peekRecord('post', '1').get('comment.isLoaded'), "post's comment isLoaded (via store)");
-    assert.true(store.peekRecord('comment', '1').get('post.isLoaded'), "comment's post isLoaded (via store)");
-    assert.true(record.get('comment.isLoaded'), "post's comment isLoaded (via record)");
+    assert.true(store.peekRecord('post', '1').comment.isLoaded, "post's comment isLoaded (via store)");
+    assert.true(store.peekRecord('comment', '1').post.isLoaded, "comment's post isLoaded (via store)");
+    assert.true(record.comment.isLoaded, "post's comment isLoaded (via record)");
     assert.true(record.get('comment.post.isLoaded'), "post's comment's post isLoaded (via record)");
   });
 
@@ -604,11 +599,11 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
 
     await post.save();
 
-    assert.strictEqual(post.get('comments.length'), 0, 'post has 0 comments');
+    assert.strictEqual(post.comments.length, 0, 'post has 0 comments');
 
-    post.get('comments').pushObject(comment);
+    post.comments.pushObject(comment);
 
-    assert.strictEqual(post.get('comments.length'), 1, 'post has 1 comment');
+    assert.strictEqual(post.comments.length, 1, 'post has 1 comment');
 
     ajaxResponse(adapter, {
       post: [{ id: '1', name: 'Rails is omakase', comments: [2] }],
@@ -617,6 +612,6 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
 
     await post.save();
 
-    assert.strictEqual(post.get('comments.length'), 1, 'post has 1 comment');
+    assert.strictEqual(post.comments.length, 1, 'post has 1 comment');
   });
 });

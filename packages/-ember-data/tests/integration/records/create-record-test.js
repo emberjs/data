@@ -79,21 +79,15 @@ module('Store.createRecord() coverage', function (hooks) {
     });
 
     // check that we are properly configured
-    assert.strictEqual(pet.get('owner'), chris, 'Precondition: Our owner is Chris');
+    assert.strictEqual(pet.owner, chris, 'Precondition: Our owner is Chris');
 
-    let pets = chris
-      .get('pets')
-      .toArray()
-      .map((pet) => pet.get('name'));
+    let pets = chris.pets.toArray().map((pet) => pet.name);
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
     pet.unloadRecord();
-    assert.strictEqual(pet.get('owner'), null, 'Shen no longer has an owner');
+    assert.strictEqual(pet.owner, null, 'Shen no longer has an owner');
     // check that the relationship has been dissolved
-    pets = chris
-      .get('pets')
-      .toArray()
-      .map((pet) => pet.get('name'));
+    pets = chris.pets.toArray().map((pet) => pet.name);
     assert.deepEqual(pets, [], 'Chris no longer has any pets');
   });
 
@@ -119,23 +113,15 @@ module('Store.createRecord() coverage', function (hooks) {
     });
 
     // check that we are properly configured
-    assert.strictEqual(pet.get('owner'), chris, 'Precondition: Our owner is Chris');
+    assert.strictEqual(pet.owner, chris, 'Precondition: Our owner is Chris');
 
-    let pets = chris
-      .get('pets')
-      .toArray()
-      .map((pet) => pet.get('name'));
+    let pets = chris.pets.toArray().map((pet) => pet.name);
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
-
     chris.unloadRecord();
-
-    assert.strictEqual(pet.get('owner'), null, 'Shen no longer has an owner');
+    assert.strictEqual(pet.owner, null, 'Shen no longer has an owner');
 
     // check that the relationship has been dissolved
-    pets = chris
-      .get('pets')
-      .toArray()
-      .map((pet) => pet.get('name'));
+    pets = chris.pets.toArray().map((pet) => pet.name);
     assert.deepEqual(pets, [], 'Chris no longer has any pets');
   });
 
@@ -199,8 +185,8 @@ module('Store.createRecord() coverage', function (hooks) {
       bestHuman: chris,
     });
 
-    let bestHuman = shen.get('bestHuman');
-    let bestDog = await chris.get('bestDog');
+    let bestHuman = shen.bestHuman;
+    let bestDog = await chris.bestDog;
 
     // check that we are properly configured
     assert.strictEqual(bestHuman, chris, 'Precondition: Shen has bestHuman as Chris');
@@ -208,8 +194,8 @@ module('Store.createRecord() coverage', function (hooks) {
 
     await shen.save();
 
-    bestHuman = shen.get('bestHuman');
-    bestDog = await chris.get('bestDog');
+    bestHuman = shen.bestHuman;
+    bestDog = await chris.bestDog;
 
     // check that the relationship has remained established
     assert.strictEqual(bestHuman, chris, 'Shen bestHuman is still Chris');

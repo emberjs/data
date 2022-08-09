@@ -26,7 +26,6 @@
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import DataAdapter from '@ember/debug/data-adapter';
-import { get } from '@ember/object';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';
 import { capitalize, underscore } from '@ember/string';
@@ -64,7 +63,7 @@ export default DataAdapter.extend({
   },
 
   _nameToClass(type) {
-    return get(this, 'store').modelFor(type);
+    return this.store.modelFor(type);
   },
 
   /**
@@ -80,8 +79,8 @@ export default DataAdapter.extend({
     @return {Function} Method to call to remove all observers
   */
   watchModelTypes(typesAdded, typesUpdated) {
-    const store = get(this, 'store');
-    const __createRecordData = store._instanceCache._createRecordData;
+    const { store } = this;
+    const __getRecordData = store._instanceCache.getRecordData;
     const _releaseMethods = [];
     const discoveredTypes = typesMapFor(store);
 
@@ -91,15 +90,15 @@ export default DataAdapter.extend({
     });
 
     // Overwrite _createRecordData so newly added models will get added to the list
-    store._instanceCache._createRecordData = (identifier) => {
+    store._instanceCache.getRecordData = (identifier) => {
       // defer to ensure first-create does not result in an infinite loop, see https://github.com/emberjs/data/issues/8006
       next(() => this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods));
-      return __createRecordData.call(store._instanceCache, identifier);
+      return __getRecordData.call(store._instanceCache, identifier);
     };
 
     let release = () => {
       _releaseMethods.forEach((fn) => fn());
-      store._instanceCache._createRecordData = __createRecordData;
+      store._instanceCache.getRecordData = __getRecordData;
       // reset the list so the models can be added if the inspector is re-opened
       // the entries are set to false instead of removed, since the models still exist in the app
       // we just need the inspector to become aware of them
@@ -166,7 +165,7 @@ export default DataAdapter.extend({
     ];
     let count = 0;
     let self = this;
-    get(typeClass, 'attributes').forEach((meta, name) => {
+    typeClass.attributes.forEach((meta, name) => {
       if (count++ > self.attributeLimit) {
         return false;
       }
@@ -199,7 +198,7 @@ export default DataAdapter.extend({
       }
     }
     assert('Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support', !!modelName);
-    return this.get('store').peekAll(modelName);
+    return this.store.peekAll(modelName);
   },
 
   /**
@@ -213,13 +212,13 @@ export default DataAdapter.extend({
   */
   getRecordColumnValues(record) {
     let count = 0;
-    let columnValues = { id: get(record, 'id') };
+    let columnValues = { id: record.id };
 
     record.eachAttribute((key) => {
       if (count++ > this.attributeLimit) {
         return false;
       }
-      columnValues[key] = get(record, key);
+      columnValues[key] = record[key];
     });
     return columnValues;
   },
@@ -236,7 +235,7 @@ export default DataAdapter.extend({
     let keywords = [];
     let keys = A(['id']);
     record.eachAttribute((key) => keys.push(key));
-    keys.forEach((key) => keywords.push(get(record, key)));
+    keys.forEach((key) => keywords.push(record[key]));
     return keywords;
   },
 
@@ -251,9 +250,9 @@ export default DataAdapter.extend({
   */
   getRecordFilterValues(record) {
     return {
-      isNew: record.get('isNew'),
-      isModified: record.get('hasDirtyAttributes') && !record.get('isNew'),
-      isClean: !record.get('hasDirtyAttributes'),
+      isNew: record.isNew,
+      isModified: record.hasDirtyAttributes && !record.isNew,
+      isClean: !record.hasDirtyAttributes,
     };
   },
 
@@ -268,9 +267,9 @@ export default DataAdapter.extend({
   */
   getRecordColor(record) {
     let color = 'black';
-    if (record.get('isNew')) {
+    if (record.isNew) {
       color = 'green';
-    } else if (record.get('hasDirtyAttributes')) {
+    } else if (record.hasDirtyAttributes) {
       color = 'blue';
     }
     return color;

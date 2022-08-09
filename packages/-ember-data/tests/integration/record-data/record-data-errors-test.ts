@@ -286,13 +286,13 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    let nameError = person.get('errors').errorsFor('name').get('firstObject');
+    let nameError = person.errors.errorsFor('name').firstObject;
     assert.strictEqual(nameError.attribute, 'name', 'error shows up on name');
-    assert.false(person.get('isValid'), 'person is not valid');
+    assert.false(person.isValid, 'person is not valid');
     errorsToReturn = [];
     storeWrapper.notifyErrorsChange('person', '1');
-    assert.true(person.get('isValid'), 'person is valid');
-    assert.strictEqual(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
+    assert.true(person.isValid, 'person is valid');
+    assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
     errorsToReturn = [
       {
         title: 'Invalid Attribute',
@@ -303,9 +303,9 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
       },
     ];
     storeWrapper.notifyErrorsChange('person', '1');
-    assert.false(person.get('isValid'), 'person is valid');
-    assert.strictEqual(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
-    let lastNameError = person.get('errors').errorsFor('lastName').get('firstObject');
+    assert.false(person.isValid, 'person is valid');
+    assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
+    let lastNameError = person.errors.errorsFor('lastName').firstObject;
     assert.strictEqual(lastNameError.attribute, 'lastName', 'error shows up on lastName');
   });
 });

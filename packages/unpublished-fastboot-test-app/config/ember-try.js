@@ -8,7 +8,7 @@ module.exports = function () {
         name: 'fastboot-with-ember-fetch',
         npm: {
           devDependencies: {
-            'ember-fetch': '*',
+            'ember-fetch': '^8.1.1',
           },
         },
       },

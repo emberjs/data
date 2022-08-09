@@ -1,6 +1,7 @@
 /**
   @module @ember-data/model
 */
+import { A } from '@ember/array';
 import { assert, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
@@ -132,7 +133,7 @@ import { computedMacroWithOptionalParams } from './util';
   when any of the known related resources have not been loaded.
 
   ```
-  post.get('comments').forEach((comment) => {
+  post.comments.forEach((comment) => {
 
   });
 
@@ -183,17 +184,20 @@ function hasMany(type, options) {
   return computed({
     get(key) {
       if (DEBUG) {
-        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
+        if (['currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );
         }
       }
+      if (this.isDestroying || this.isDestroyed) {
+        return A();
+      }
       return LEGACY_SUPPORT.lookup(this).getHasMany(key);
     },
     set(key, records) {
       if (DEBUG) {
-        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
+        if (['currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );

@@ -11,8 +11,8 @@ import type { ManyRelationship } from '@ember-data/record-data/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
-import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
-import type { DebugWeakCache } from '@ember-data/store/-private/weak-cache';
+import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
+import type { DebugWeakCache } from '@ember-data/store/-private/utils/weak-cache';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -131,7 +131,7 @@ export default class HasManyReference {
   }
 
   _resource() {
-    return this.store._instanceCache.recordDataFor(this.#identifier, false).getHasMany(this.key);
+    return this.store._instanceCache.getRecordData(this.#identifier).getHasMany(this.key);
   }
 
   /**
@@ -435,16 +435,14 @@ export default class HasManyReference {
 
     let members = this.hasManyRelationship.currentState;
 
-    //TODO @runspired determine isLoaded via a better means
     return members.every((identifier) => {
-      let internalModel = this.store._instanceCache._internalModelForResource(identifier);
-      return internalModel.isLoaded === true;
+      return this.store._instanceCache.recordIsLoaded(identifier, true) === true;
     });
   }
 
   /**
    `value()` synchronously returns the current value of the has-many
-   relationship. Unlike `record.get('relationshipName')`, calling
+   relationship. Unlike `record.relationshipName`, calling
    `value()` on a reference does not trigger a fetch if the async
    relationship is not yet loaded. If the relationship is not loaded
    it will always return `null`.
@@ -474,7 +472,7 @@ export default class HasManyReference {
 
    let commentsRef = post.hasMany('comments');
 
-   post.get('comments').then(function(comments) {
+   post.comments.then(function(comments) {
      commentsRef.value() === comments
    })
    ```

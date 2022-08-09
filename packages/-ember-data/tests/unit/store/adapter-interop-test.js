@@ -1,5 +1,6 @@
 import { get, set } from '@ember/object';
 import { later, run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { all, Promise as EmberPromise, resolve } from 'rsvp';
@@ -185,7 +186,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       return store
         .findRecord('test', 1)
         .then((object) => {
-          assert.strictEqual(typeof object.get('id'), 'string', 'id was coerced to a string');
+          assert.strictEqual(typeof object.id, 'string', 'id was coerced to a string');
           run(() => {
             store.push({
               data: {
@@ -203,7 +204,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         .then((object) => {
           assert.ok(object, 'object was found');
           assert.strictEqual(
-            typeof object.get('id'),
+            typeof object.id,
             'string',
             'id is a string despite being supplied and searched for as a number'
           );
@@ -523,12 +524,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findRecord('person', 1, { preload: { friend: 2 } }).then(() => {
-        return store
-          .peekRecord('person', 1)
-          .get('friend')
-          .then((friend) => {
-            assert.strictEqual(friend.get('id'), '2', 'Preloaded belongsTo set');
-          });
+        return store.peekRecord('person', 1).friend.then((friend) => {
+          assert.strictEqual(friend.id, '2', 'Preloaded belongsTo set');
+        });
       });
     });
   });
@@ -679,7 +677,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     return run(() => {
       return all([tom.save(), yehuda.save()]).then(() => {
         people.forEach((person, index) => {
-          assert.strictEqual(person.get('id'), String(index + 1), `The record's id should be correct.`);
+          assert.strictEqual(person.id, String(index + 1), `The record's id should be correct.`);
         });
       });
     });
@@ -991,7 +989,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.get('name'), 'Tom');
+        assert.strictEqual(record.name, 'Tom');
       });
     });
   });
@@ -1031,7 +1029,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.get('name'), 'Tom');
+        assert.strictEqual(record.name, 'Tom');
       });
     });
   });
@@ -1065,7 +1063,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.get('name'), undefined);
+        assert.strictEqual(record.name, undefined);
       });
     });
   });
@@ -1099,11 +1097,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.get('name'), undefined);
+        assert.strictEqual(record.name, undefined);
       });
     });
 
-    assert.strictEqual(store.peekRecord('person', 1).get('name'), 'Tom');
+    assert.strictEqual(store.peekRecord('person', 1).name, 'Tom');
 
     return done;
   });
@@ -1159,7 +1157,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.get('firstObject.name'), 'Tom');
+        assert.strictEqual(records.firstObject.name, 'Tom');
       });
     });
   });
@@ -1192,7 +1190,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.get('firstObject.name'), 'Tom');
+        assert.strictEqual(records.firstObject.name, 'Tom');
       });
     });
   });
@@ -1223,12 +1221,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.get('firstObject'), undefined);
+        assert.strictEqual(records.firstObject, undefined);
       });
     });
   });
 
-  test('store should reload all records in the background when `shouldBackgroundReloadAll` is true', function (assert) {
+  test('store should reload all records in the background when `shouldBackgroundReloadAll` is true', async function (assert) {
     assert.expect(5);
 
     const Person = Model.extend({
@@ -1245,8 +1243,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         return true;
       },
       findAll() {
-        assert.ok(true, 'find should not be called');
-        return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }] };
+        assert.ok(true, 'findAll should be called');
+        return new Promise((resolve) => setTimeout(resolve, 1)).then(() => {
+          return {
+            data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }],
+          };
+        });
       },
     });
 
@@ -1256,15 +1258,14 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    let done = run(() => {
-      return store.findAll('person').then((records) => {
-        assert.strictEqual(records.get('firstObject.name'), undefined);
-      });
-    });
+    store.push({ data: [{ id: '1', type: 'person', attributes: { name: 'John' } }] });
 
-    assert.strictEqual(store.peekRecord('person', 1).get('name'), 'Tom');
+    const records = await store.findAll('person');
 
-    return done;
+    assert.strictEqual(records.firstObject.name, 'John', 'on initial load name is stale');
+
+    await settled();
+    assert.strictEqual(store.peekRecord('person', 1).name, 'Tom', 'after background reload name is loaded');
   });
 
   testInDebug('Calling adapterFor with a model class should assert', function (assert) {

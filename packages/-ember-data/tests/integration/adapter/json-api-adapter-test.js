@@ -189,26 +189,32 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(posts.firstObject.title, 'Ember.js rocks', 'The title for the first post is correct');
     assert.strictEqual(posts.lastObject.title, 'Tomster rules', 'The title for the second post is correct');
 
+    const firstPostAuthor = await posts.firstObject.author;
+    const lastPostAuthor = await posts.lastObject.author;
+
     assert.strictEqual(
-      posts.firstObject.author.get('firstName'),
+      firstPostAuthor.firstName,
       'Yehuda',
       'The author for the first post is loaded and has the correct first name'
     );
     assert.strictEqual(
-      posts.lastObject.author.get('lastName'),
+      lastPostAuthor.lastName,
       'Katz',
       'The author for the last post is loaded and has the correct last name'
     );
 
-    assert.strictEqual(posts.firstObject.comments.length, 0, 'First post doesnt have comments');
+    const firstComments = await posts.firstObject.comments;
+    const lastComments = await posts.lastObject.comments;
+
+    assert.strictEqual(firstComments.length, 0, 'First post doesnt have comments');
 
     assert.strictEqual(
-      posts.lastObject.comments.firstObject.text,
+      lastComments.firstObject.text,
       'This is the first comment',
       'Loads first comment for second post'
     );
     assert.strictEqual(
-      posts.lastObject.comments.lastObject.text,
+      lastComments.lastObject.text,
       'This is the second comment',
       'Loads second comment for second post'
     );

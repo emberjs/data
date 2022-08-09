@@ -30,7 +30,6 @@ import {
   AdapterPopulatedRecordArray,
   DS,
   Errors,
-  InternalModel,
   ManyArray,
   PromiseArray,
   PromiseManyArray,
@@ -52,7 +51,6 @@ DS.Model = Model;
 DS.attr = attr;
 DS.Errors = Errors;
 
-DS.InternalModel = InternalModel;
 DS.Snapshot = Snapshot;
 
 DS.Adapter = Adapter;

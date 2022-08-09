@@ -710,7 +710,7 @@ const JSONAPISerializer = JSONSerializer.extend({
         }
 
         // only serialize has many relationships that are not new
-        let nonNewHasMany = hasMany.filter((item) => item.record && !item.record.get('isNew'));
+        let nonNewHasMany = hasMany.filter((item) => item.record && !item.record.isNew);
         let data = new Array(nonNewHasMany.length);
 
         for (let i = 0; i < nonNewHasMany.length; i++) {

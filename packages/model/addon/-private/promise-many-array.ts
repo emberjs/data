@@ -1,6 +1,6 @@
 import ArrayMixin, { NativeArray } from '@ember/array';
 import type ArrayProxy from '@ember/array/proxy';
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
@@ -9,8 +9,10 @@ import { resolve } from 'rsvp';
 
 import type { ManyArray } from 'ember-data/-private';
 
-import type { InternalModel } from '@ember-data/store/-private';
+import { DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS } from '@ember-data/private-build-infra/deprecations';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import { FindOptions } from '@ember-data/types/q/store';
 
 export interface HasManyProxyCreateArgs {
   promise: Promise<ManyArray>;
@@ -24,16 +26,10 @@ export interface HasManyProxyCreateArgs {
   This class is returned as the result of accessing an async hasMany relationship
   on an instance of a Model extending from `@ember-data/model`.
 
-  A PromiseManyArray is an array-like proxy that also proxies certain method calls
-  to the underlying ManyArray in addition to being "promisified".
+  A PromiseManyArray is an iterable proxy that allows templates to consume related
+  ManyArrays and update once their contents are no longer pending.
 
-  Right now we proxy:
-
-    * `reload()`
-    * `createRecord()`
-
-  This promise-proxy behavior is primarily to ensure that async relationship interact
-  nicely with templates. In your JS code you should resolve the promise first.
+  In your JS code you should resolve the promise first.
 
   ```js
   const comments = await post.comments;
@@ -42,10 +38,14 @@ export interface HasManyProxyCreateArgs {
   @class PromiseManyArray
   @public
 */
-export default interface PromiseManyArray extends Omit<ArrayProxy<InternalModel, RecordInstance>, 'destroy'> {}
+export default interface PromiseManyArray extends Omit<ArrayProxy<StableRecordIdentifier, RecordInstance>, 'destroy'> {
+  createRecord(): RecordInstance;
+  reload(options: FindOptions): PromiseManyArray;
+}
 export default class PromiseManyArray {
   declare promise: Promise<ManyArray> | null;
   declare isDestroyed: boolean;
+  // @deprecated (isDestroyed is not deprecated)
   declare isDestroying: boolean;
 
   constructor(promise: Promise<ManyArray>, content?: ManyArray) {
@@ -90,6 +90,8 @@ export default class PromiseManyArray {
 
   /**
    * Iterate the proxied content. Called by the glimmer iterator in #each
+   * We do not guarantee that forEach will always be available. This
+   * may eventually be made to use Symbol.Iterator once glimmer supports it.
    *
    * @method forEach
    * @param cb
@@ -101,6 +103,19 @@ export default class PromiseManyArray {
     if (this.content && this.length) {
       this.content.forEach(cb);
     }
+  }
+
+  /**
+   * Reload the relationship
+   * @method reload
+   * @public
+   * @param options
+   * @returns
+   */
+  reload(options: FindOptions) {
+    assert('You are trying to reload an async manyArray before it has been created', this.content);
+    this.content.reload(options);
+    return this;
   }
 
   //----  Properties/Methods from the PromiseProxyMixin that we will keep as our API
@@ -201,19 +216,6 @@ export default class PromiseManyArray {
     return this.content ? this.content.meta : undefined;
   }
 
-  /**
-   * Reload the relationship
-   * @method reload
-   * @public
-   * @param options
-   * @returns
-   */
-  reload(options) {
-    assert('You are trying to reload an async manyArray before it has been created', this.content);
-    this.content.reload(options);
-    return this;
-  }
-
   //---- Our own stuff
 
   _update(promise: Promise<ManyArray>, content?: ManyArray) {
@@ -227,22 +229,55 @@ export default class PromiseManyArray {
   static create({ promise, content }: HasManyProxyCreateArgs): PromiseManyArray {
     return new this(promise, content);
   }
+}
 
-  // Methods on ManyArray which people should resolve the relationship first before calling
-  createRecord(...args) {
+if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
+  PromiseManyArray.prototype.createRecord = function createRecord(...args) {
+    deprecate(
+      `The createRecord method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
+      false,
+      {
+        id: 'ember-data:deprecate-promise-many-array-behaviors',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+        for: 'ember-data',
+      }
+    );
     assert('You are trying to createRecord on an async manyArray before it has been created', this.content);
     return this.content.createRecord(...args);
-  }
+  };
 
-  // Properties/Methods on ArrayProxy we should deprecate
+  Object.defineProperty(PromiseManyArray.prototype, 'firstObject', {
+    get() {
+      deprecate(
+        `The firstObject property on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-many-array-behaviors',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+          for: 'ember-data',
+        }
+      );
+      return this.content ? this.content.firstObject : undefined;
+    },
+  });
 
-  get firstObject() {
-    return this.content ? this.content.firstObject : undefined;
-  }
-
-  get lastObject() {
-    return this.content ? this.content.lastObject : undefined;
-  }
+  Object.defineProperty(PromiseManyArray.prototype, 'lastObject', {
+    get() {
+      deprecate(
+        `The lastObject property on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-many-array-behaviors',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+          for: 'ember-data',
+        }
+      );
+      return this.content ? this.content.lastObject : undefined;
+    },
+  });
 }
 
 function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
@@ -268,78 +303,101 @@ function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
   );
 }
 
-const EmberObjectMethods = [
-  'addObserver',
-  'cacheFor',
-  'decrementProperty',
-  'get',
-  'getProperties',
-  'incrementProperty',
-  'notifyPropertyChange',
-  'removeObserver',
-  'set',
-  'setProperties',
-  'toggleProperty',
-];
-EmberObjectMethods.forEach((method) => {
-  PromiseManyArray.prototype[method] = function delegatedMethod(...args) {
-    return Ember[method](this, ...args);
-  };
-});
+if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
+  const EmberObjectMethods = [
+    'addObserver',
+    'cacheFor',
+    'decrementProperty',
+    'get',
+    'getProperties',
+    'incrementProperty',
+    'notifyPropertyChange',
+    'removeObserver',
+    'set',
+    'setProperties',
+    'toggleProperty',
+  ];
+  EmberObjectMethods.forEach((method) => {
+    PromiseManyArray.prototype[method] = function delegatedMethod(...args) {
+      deprecate(
+        `The ${method} method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-many-array-behaviors',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+          for: 'ember-data',
+        }
+      );
+      return Ember[method](this, ...args);
+    };
+  });
 
-const InheritedProxyMethods = [
-  'addArrayObserver',
-  'addObject',
-  'addObjects',
-  'any',
-  'arrayContentDidChange',
-  'arrayContentWillChange',
-  'clear',
-  'compact',
-  'every',
-  'filter',
-  'filterBy',
-  'find',
-  'findBy',
-  'getEach',
-  'includes',
-  'indexOf',
-  'insertAt',
-  'invoke',
-  'isAny',
-  'isEvery',
-  'lastIndexOf',
-  'map',
-  'mapBy',
-  'objectAt',
-  'objectsAt',
-  'popObject',
-  'pushObject',
-  'pushObjects',
-  'reduce',
-  'reject',
-  'rejectBy',
-  'removeArrayObserver',
-  'removeAt',
-  'removeObject',
-  'removeObjects',
-  'replace',
-  'reverseObjects',
-  'setEach',
-  'setObjects',
-  'shiftObject',
-  'slice',
-  'sortBy',
-  'toArray',
-  'uniq',
-  'uniqBy',
-  'unshiftObject',
-  'unshiftObjects',
-  'without',
-];
-InheritedProxyMethods.forEach((method) => {
-  PromiseManyArray.prototype[method] = function proxiedMethod(...args) {
-    assert(`Cannot call ${method} before content is assigned.`, this.content);
-    return this.content[method](...args);
-  };
-});
+  const InheritedProxyMethods = [
+    'addArrayObserver',
+    'addObject',
+    'addObjects',
+    'any',
+    'arrayContentDidChange',
+    'arrayContentWillChange',
+    'clear',
+    'compact',
+    'every',
+    'filter',
+    'filterBy',
+    'find',
+    'findBy',
+    'getEach',
+    'includes',
+    'indexOf',
+    'insertAt',
+    'invoke',
+    'isAny',
+    'isEvery',
+    'lastIndexOf',
+    'map',
+    'mapBy',
+    // TODO update RFC to note objectAt was deprecated (forEach was left for iteration)
+    'objectAt',
+    'objectsAt',
+    'popObject',
+    'pushObject',
+    'pushObjects',
+    'reduce',
+    'reject',
+    'rejectBy',
+    'removeArrayObserver',
+    'removeAt',
+    'removeObject',
+    'removeObjects',
+    'replace',
+    'reverseObjects',
+    'setEach',
+    'setObjects',
+    'shiftObject',
+    'slice',
+    'sortBy',
+    'toArray',
+    'uniq',
+    'uniqBy',
+    'unshiftObject',
+    'unshiftObjects',
+    'without',
+  ];
+  InheritedProxyMethods.forEach((method) => {
+    PromiseManyArray.prototype[method] = function proxiedMethod(...args) {
+      deprecate(
+        `The ${method} method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-many-array-behaviors',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+          for: 'ember-data',
+        }
+      );
+      assert(`Cannot call ${method} before content is assigned.`, this.content);
+      return this.content[method](...args);
+    };
+  });
+}

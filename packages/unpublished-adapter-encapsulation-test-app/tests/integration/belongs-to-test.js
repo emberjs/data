@@ -173,7 +173,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let comment = store.push(initialRecord);
 
-    let post = await comment.get('post');
+    let post = await comment.post;
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
     assert.strictEqual(findBelongsToCalled, 1, 'findBelongsTo is called once');
@@ -210,7 +210,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       let comment = store.push(initialRecord);
 
       await assert.expectAssertion(async function () {
-        await comment.get('post');
+        await comment.post;
       }, /You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'/);
     }
   );
@@ -288,7 +288,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let comment = store.push(initialRecord);
 
-    let post = await comment.get('post');
+    let post = await comment.post;
 
     assert.strictEqual(findRecordCalled, 1, 'findRecord is called once');
     assert.strictEqual(findBelongsToCalled, 0, 'findBelongsTo is not called');
@@ -363,7 +363,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let comment = store.push(initialRecord);
 
-    let post = await comment.get('post');
+    let post = await comment.post;
 
     assert.strictEqual(findRecordCalled, 1, 'findRecord is called once');
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
@@ -447,7 +447,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let comment = store.push(initialRecord);
 
-    let post = await comment.get('post');
+    let post = await comment.post;
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
     assert.strictEqual(findBelongsToCalled, 1, 'findBelongsTo is called once');
@@ -522,7 +522,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let comment = store.push(initialRecord);
 
-    let post = await comment.get('post');
+    let post = await comment.post;
 
     assert.strictEqual(findRecordCalled, 1, 'findRecord is called once');
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');

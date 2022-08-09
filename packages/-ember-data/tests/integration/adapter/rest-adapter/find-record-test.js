@@ -49,8 +49,8 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, {});
 
-    assert.strictEqual(post.get('id'), '1');
-    assert.strictEqual(post.get('name'), 'Rails is omakase');
+    assert.strictEqual(post.id, '1');
+    assert.strictEqual(post.name, 'Rails is omakase');
   });
 
   // Ok Identifier tests
@@ -116,8 +116,8 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       assert.strictEqual(passedVerb, 'GET');
       assert.deepEqual(passedHash.data, {});
 
-      assert.strictEqual(post.get('id'), '1');
-      assert.strictEqual(post.get('name'), 'Rails is omakase');
+      assert.strictEqual(post.id, '1');
+      assert.strictEqual(post.name, 'Rails is omakase');
 
       // stress tests
       let peekPost = store.peekRecord(findRecordArgs);
@@ -257,8 +257,8 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(passedUrl, '/posts/1');
     assert.strictEqual(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, {});
-    assert.strictEqual(post.get('id'), '1');
-    assert.strictEqual(post.get('name'), 'Rails is omakase');
+    assert.strictEqual(post.id, '1');
+    assert.strictEqual(post.name, 'Rails is omakase');
   });
 
   test('findRecord - payload with sideloaded records of the same type', async function (assert) {
@@ -291,13 +291,13 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, {});
 
-    assert.strictEqual(post.get('id'), '1');
-    assert.strictEqual(post.get('name'), 'Rails is omakase');
+    assert.strictEqual(post.id, '1');
+    assert.strictEqual(post.name, 'Rails is omakase');
 
     const post2 = await store.peekRecord('post', '2');
 
-    assert.strictEqual(post2.get('id'), '2');
-    assert.strictEqual(post2.get('name'), 'The Parley Letter');
+    assert.strictEqual(post2.id, '2');
+    assert.strictEqual(post2.name, 'The Parley Letter');
   });
 
   test('findRecord - payload with sideloaded records of a different type', async function (assert) {
@@ -327,12 +327,12 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(passedUrl, '/posts/1');
     assert.strictEqual(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, {});
-    assert.strictEqual(post.get('id'), '1');
-    assert.strictEqual(post.get('name'), 'Rails is omakase');
+    assert.strictEqual(post.id, '1');
+    assert.strictEqual(post.name, 'Rails is omakase');
 
     const comment = await store.peekRecord('comment', '1');
 
-    assert.strictEqual(comment.get('id'), '1');
+    assert.strictEqual(comment.id, '1');
   });
 
   test('findRecord - payload with an serializer-specified primary key', async function (assert) {
@@ -366,8 +366,8 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(passedUrl, '/posts/1');
     assert.strictEqual(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, {});
-    assert.strictEqual(post.get('id'), '1');
-    assert.strictEqual(post.get('name'), 'Rails is omakase');
+    assert.strictEqual(post.id, '1');
+    assert.strictEqual(post.name, 'Rails is omakase');
   });
 
   test('findRecord - payload with a serializer-specified attribute mapping', async function (assert) {
@@ -407,9 +407,9 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(passedUrl, '/posts/1');
     assert.strictEqual(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, {});
-    assert.strictEqual(post.get('id'), '1');
-    assert.strictEqual(post.get('name'), 'Rails is omakase');
-    assert.strictEqual(post.get('createdAt'), 2013);
+    assert.strictEqual(post.id, '1');
+    assert.strictEqual(post.name, 'Rails is omakase');
+    assert.strictEqual(post.createdAt, 2013);
   });
 
   test('findRecord - passes `include` as a query parameter to ajax', async function (assert) {

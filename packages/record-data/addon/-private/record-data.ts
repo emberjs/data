@@ -1,12 +1,10 @@
 /**
  * @module @ember-data/record-data
  */
-import { assert } from '@ember/debug';
-import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
-import { recordDataFor, recordIdentifierFor, removeRecordDataFor } from '@ember-data/store/-private';
+import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { CollectionResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
@@ -16,13 +14,10 @@ import type {
   RelationshipRecordData,
 } from '@ember-data/types/q/relationship-record-data';
 
-import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
 import type BelongsToRelationship from './relationships/state/belongs-to';
 import type ManyRelationship from './relationships/state/has-many';
-
-let nextBfsId = 1;
 
 const EMPTY_ITERATOR = {
   iterator() {
@@ -45,34 +40,31 @@ const EMPTY_ITERATOR = {
 export default class RecordDataDefault implements RelationshipRecordData {
   declare _errors?: JsonApiValidationError[];
   declare modelName: string;
-  declare clientId: string;
+  declare lid: string;
   declare identifier: StableRecordIdentifier;
-  declare id: string | null;
   declare isDestroyed: boolean;
   declare _isNew: boolean;
-  declare _bfsId: number;
   declare __attributes: any;
   declare __inFlightAttributes: any;
   declare __data: any;
-  declare _scheduledDestroy: any;
   declare _isDeleted: boolean;
   declare _isDeletionCommited: boolean;
   declare storeWrapper: RecordDataStoreWrapper;
 
   constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     this.modelName = identifier.type;
-    this.clientId = identifier.lid;
-    this.id = identifier.id;
+    this.lid = identifier.lid;
     this.identifier = identifier;
     this.storeWrapper = storeWrapper;
 
     this.isDestroyed = false;
     this._isNew = false;
     this._isDeleted = false;
-    // Used during the mark phase of unloading to avoid checking the same internal
-    // model twice in the same scan
-    this._bfsId = 0;
     this.reset();
+  }
+
+  get id() {
+    return this.identifier.id;
   }
 
   // PUBLIC API
@@ -104,12 +96,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
       this._setupRelationships(data);
     }
 
-    if (data.id) {
-      if (!this.id) {
-        this.id = coerceId(data.id);
-      }
-    }
-
     if (changedKeys && changedKeys.length) {
       this._notifyAttributes(changedKeys);
     }
@@ -129,7 +115,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   _clearErrors() {
     if (this._errors) {
       this._errors = undefined;
-      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.lid);
     }
   }
 
@@ -283,6 +269,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._clearErrors();
     this.notifyStateChange();
 
+    if (dirtyKeys && dirtyKeys.length) {
+      this._notifyAttributes(dirtyKeys);
+    }
+
     return dirtyKeys;
   }
 
@@ -301,8 +291,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (data) {
       if (data.id) {
         // didCommit provided an ID, notify the store of it
-        this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
-        this.id = coerceId(data.id);
+        this.storeWrapper.setRecordId(this.modelName, data.id, this.lid);
       }
       if (data.relationships) {
         this._setupRelationships(data);
@@ -324,7 +313,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   notifyStateChange() {
-    this.storeWrapper.notifyStateChange(this.modelName, this.id, this.clientId);
+    this.storeWrapper.notifyStateChange(this.modelName, this.id, this.lid);
   }
 
   // get ResourceIdentifiers for "current state"
@@ -377,7 +366,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (errors) {
       this._errors = errors;
     }
-    this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+    this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.lid);
   }
 
   getBelongsTo(key: string): DefaultSingleResourceRelationship {
@@ -412,13 +401,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
   }
 
-  // internal set coming from the model
-  __setId(id: string) {
-    if (this.id !== id) {
-      this.id = id;
-    }
-  }
-
   getAttr(key: string): string {
     if (key in this._attributes) {
       return this._attributes[key];
@@ -437,42 +419,29 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (this.isDestroyed) {
       return;
     }
-    graphFor(this.storeWrapper).unload(this.identifier);
+    const { storeWrapper } = this;
+    graphFor(storeWrapper).unload(this.identifier);
     this.reset();
-    if (!this._scheduledDestroy) {
-      this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_cleanupOrphanedRecordDatas');
-    }
-  }
 
-  _cleanupOrphanedRecordDatas() {
-    let relatedRecordDatas = this._allRelatedRecordDatas();
-    if (areAllModelsUnloaded(relatedRecordDatas)) {
+    let relatedIdentifiers = this._allRelatedRecordDatas();
+    if (areAllModelsUnloaded(this.storeWrapper, relatedIdentifiers)) {
       // we don't have a backburner queue yet since
       // we scheduled this into ember's destroy
       // disconnectRecord called from destroy will teardown
       // relationships. We do this to queue that.
       this.storeWrapper._store._backburner.join(() => {
-        for (let i = 0; i < relatedRecordDatas.length; ++i) {
-          let recordData = relatedRecordDatas[i];
-          if (!recordData.isDestroyed) {
-            // TODO @runspired we do not currently destroy RecordData instances *except* via this relationship
-            // traversal. This seems like an oversight since the store should be able to notify destroy.
-            removeRecordDataFor(recordData.identifier);
-            recordData.destroy();
-          }
+        for (let i = 0; i < relatedIdentifiers.length; ++i) {
+          let identifier = relatedIdentifiers[i];
+          storeWrapper.disconnectRecord(identifier.type, identifier.id, identifier.lid);
         }
       });
     }
-    this._scheduledDestroy = null;
-  }
 
-  destroy() {
     this.isDestroyed = true;
-    this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
   }
 
   isRecordInUse() {
-    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.clientId);
+    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.lid);
   }
 
   /*
@@ -505,7 +474,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
           while (k < members.length) {
             let member = members[k++];
             if (member !== null) {
-              return recordDataFor(member);
+              return member;
             }
           }
           k = 0;
@@ -530,53 +499,36 @@ export default class RecordDataDefault implements RelationshipRecordData {
   };
 
   /*
-    Computes the set of internal models reachable from this internal model.
+    Computes the set of Identifiers reachable from this Identifier.
 
     Reachability is determined over the relationship graph (ie a graph where
-    nodes are internal models and edges are belongs to or has many
+    nodes are identifiers and edges are belongs to or has many
     relationships).
 
-    Returns an array including `this` and all internal models reachable
-    from `this`.
+    Returns an array including `this` and all identifiers reachable
+    from `this.identifier`.
   */
-  _allRelatedRecordDatas(): RecordDataDefault[] {
-    let array: RecordDataDefault[] = [];
-    let queue: RecordDataDefault[] = [];
-    let bfsId = nextBfsId++;
-    queue.push(this);
-    this._bfsId = bfsId;
+  _allRelatedRecordDatas(): StableRecordIdentifier[] {
+    let array: StableRecordIdentifier[] = [];
+    let queue: StableRecordIdentifier[] = [];
+    let seen = new Set();
+    queue.push(this.identifier);
     while (queue.length > 0) {
-      let node = queue.shift() as RecordDataDefault;
-      array.push(node);
+      let identifier = queue.shift()!;
+      array.push(identifier);
+      seen.add(identifier);
 
       const iterator = this._directlyRelatedRecordDatasIterable().iterator();
       for (let obj = iterator.next(); !obj.done; obj = iterator.next()) {
-        const recordData = obj.value;
-        if (recordData && recordData instanceof RecordDataDefault) {
-          assert('Internal Error: seen a future bfs iteration', recordData._bfsId <= bfsId);
-          if (recordData._bfsId < bfsId) {
-            queue.push(recordData);
-            recordData._bfsId = bfsId;
-          }
+        const identifier = obj.value;
+        if (identifier && !seen.has(identifier)) {
+          seen.add(identifier);
+          queue.push(identifier);
         }
       }
     }
 
     return array;
-  }
-
-  isAttrDirty(key: string): boolean {
-    if (this._attributes[key] === undefined) {
-      return false;
-    }
-    let originalValue;
-    if (this._inFlightAttributes[key] !== undefined) {
-      originalValue = this._inFlightAttributes[key];
-    } else {
-      originalValue = this._data[key];
-    }
-
-    return originalValue !== this._attributes[key];
   }
 
   get _attributes() {
@@ -637,7 +589,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
         let propertyValue = options[name];
 
         if (name === 'id') {
-          this.id = propertyValue;
           continue;
         }
 
@@ -671,20 +622,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return createOptions;
   }
 
-  /*
-    TODO IGOR AND DAVID this shouldn't be public
-   This method should only be called by records in the `isNew()` state OR once the record
-   has been deleted and that deletion has been persisted.
-
-   It will remove this record from any associated relationships.
-
-   If `isNew` is true (default false), it will also completely reset all
-    relationships to an empty state as well.
-
-    @method removeFromInverseRelationships
-    @param {Boolean} isNew whether to unload from the `isNew` perspective
-    @private
-   */
   removeFromInverseRelationships() {
     graphFor(this.storeWrapper).push({
       op: 'deleteRecord',
@@ -698,7 +635,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   /*
-    Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
+    Ember Data has 3 buckets for storing the value of an attribute.
 
     `_data` holds all of the attributes that have been acknowledged by
     a backend via the adapter. When rollbackAttributes is called on a model all
@@ -784,9 +721,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 }
 
-function areAllModelsUnloaded(recordDatas) {
-  for (let i = 0; i < recordDatas.length; ++i) {
-    if (recordDatas[i].isRecordInUse()) {
+function areAllModelsUnloaded(wrapper: RecordDataStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
+  for (let i = 0; i < identifiers.length; ++i) {
+    let identifer = identifiers[i];
+    if (wrapper.isRecordInUse(identifer.type, identifer.id, identifer.lid)) {
       return false;
     }
   }

@@ -44,7 +44,7 @@ module(
             .join('&');
           let fullUrl = url + '?' + queryString;
 
-          maxLength = this.get('maxURLLength');
+          maxLength = this.maxURLLength;
           lengths.push(fullUrl.length);
 
           let testRecords = options.data.ids.map((id) => ({ id }));

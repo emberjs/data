@@ -7,6 +7,7 @@ import DS from 'ember-data';
 import Inflector, { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -16,40 +17,40 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    HomePlanet = DS.Model.extend({
-      name: DS.attr('string'),
-      superVillains: DS.hasMany('super-villain', { async: false }),
+    HomePlanet = Model.extend({
+      name: attr('string'),
+      superVillains: hasMany('super-villain', { async: false }),
     });
-    SuperVillain = DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-      homePlanet: DS.belongsTo('home-planet', { async: false }),
-      evilMinions: DS.hasMany('evil-minion', { async: false }),
+    SuperVillain = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      homePlanet: belongsTo('home-planet', { async: false }),
+      evilMinions: hasMany('evil-minion', { async: false }),
     });
-    EvilMinion = DS.Model.extend({
-      superVillain: DS.belongsTo('super-villain', { async: false }),
-      name: DS.attr('string'),
-      doomsdayDevice: DS.belongsTo('doomsday-device', { async: false }),
+    EvilMinion = Model.extend({
+      superVillain: belongsTo('super-villain', { async: false }),
+      name: attr('string'),
+      doomsdayDevice: belongsTo('doomsday-device', { async: false }),
     });
     YellowMinion = EvilMinion.extend({
-      eyes: DS.attr('number'),
+      eyes: attr('number'),
     });
-    DoomsdayDevice = DS.Model.extend({
-      name: DS.attr('string'),
-      evilMinion: DS.belongsTo('evil-minion', { polymorphic: true, async: true }),
+    DoomsdayDevice = Model.extend({
+      name: attr('string'),
+      evilMinion: belongsTo('evil-minion', { polymorphic: true, async: true }),
     });
-    Comment = DS.Model.extend({
-      body: DS.attr('string'),
-      root: DS.attr('boolean'),
-      children: DS.hasMany('comment', { inverse: null, async: false }),
+    Comment = Model.extend({
+      body: attr('string'),
+      root: attr('boolean'),
+      children: hasMany('comment', { inverse: null, async: false }),
     });
-    Basket = DS.Model.extend({
-      type: DS.attr('string'),
-      size: DS.attr('number'),
+    Basket = Model.extend({
+      type: attr('string'),
+      size: attr('number'),
     });
-    Container = DS.Model.extend({
-      type: DS.belongsTo('basket', { async: true }),
-      volume: DS.attr('string'),
+    Container = Model.extend({
+      type: belongsTo('basket', { async: true }),
+      volume: attr('string'),
     });
 
     this.owner.register('model:super-villain', SuperVillain);
@@ -682,10 +683,10 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       store
         .findRecord('doomsday-device', 1)
         .then((deathRay) => {
-          return deathRay.get('evilMinion');
+          return deathRay.evilMinion;
         })
         .then((evilMinion) => {
-          assert.strictEqual(evilMinion.get('eyes'), 3);
+          assert.strictEqual(evilMinion.eyes, 3);
         });
     });
   });
@@ -723,31 +724,31 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       store
         .findRecord('doomsday-device', 1)
         .then((deathRay) => {
-          return deathRay.get('evilMinion');
+          return deathRay.evilMinion;
         })
         .then((evilMinion) => {
-          assert.strictEqual(evilMinion.get('eyes'), 3);
+          assert.strictEqual(evilMinion.eyes, 3);
         });
     });
   });
 
   test('normalizeResponse with async polymorphic hasMany', function (assert) {
-    const HomePlanet = DS.Model.extend({
-      name: DS.attr('string'),
-      superVillains: DS.hasMany('super-villain2', { async: false }),
+    const HomePlanet = Model.extend({
+      name: attr('string'),
+      superVillains: hasMany('super-villain2', { async: false }),
     });
-    const SuperVillain = DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-      homePlanet: DS.belongsTo('home-planet2', { async: false }),
-      evilMinions: DS.hasMany('evil-minion2', { async: true, polymorphic: true }),
+    const SuperVillain = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      homePlanet: belongsTo('home-planet2', { async: false }),
+      evilMinions: hasMany('evil-minion2', { async: true, polymorphic: true }),
     });
-    const EvilMinion = DS.Model.extend({
-      superVillain: DS.belongsTo('super-villain2', { async: false }),
-      name: DS.attr('string'),
+    const EvilMinion = Model.extend({
+      superVillain: belongsTo('super-villain2', { async: false }),
+      name: attr('string'),
     });
     const YellowMinion = EvilMinion.extend({
-      eyes: DS.attr('number'),
+      eyes: attr('number'),
     });
 
     this.owner.register('model:super-villain2', SuperVillain);
@@ -790,11 +791,11 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       store
         .findRecord('super-villain2', '1')
         .then((superVillain) => {
-          return superVillain.get('evilMinions');
+          return superVillain.evilMinions;
         })
         .then((evilMinions) => {
-          assert.ok(evilMinions.get('firstObject') instanceof YellowMinion, 'we have an instance');
-          assert.strictEqual(evilMinions.get('firstObject.eyes'), 3, 'we have the right minion');
+          assert.ok(evilMinions.firstObject instanceof YellowMinion, 'we have an instance');
+          assert.strictEqual(evilMinions.firstObject.eyes, 3, 'we have the right minion');
         });
     });
   });
@@ -874,13 +875,13 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     const normalRecord = store.peekRecord('basket', '1');
     assert.ok(normalRecord, "payload with type that doesn't exist");
-    assert.strictEqual(normalRecord.get('type'), 'bamboo');
-    assert.strictEqual(normalRecord.get('size'), 10);
+    assert.strictEqual(normalRecord.type, 'bamboo');
+    assert.strictEqual(normalRecord.size, 10);
 
     const clashingRecord = store.peekRecord('basket', '65536');
     assert.ok(clashingRecord, 'payload with type that matches another model name');
-    assert.strictEqual(clashingRecord.get('type'), 'yellowMinion');
-    assert.strictEqual(clashingRecord.get('size'), 10);
+    assert.strictEqual(clashingRecord.type, 'yellowMinion');
+    assert.strictEqual(clashingRecord.size, 10);
   });
 
   test("don't polymorphically deserialize base on the type key in payload when a type attribute exist on a singular response", function (assert) {
@@ -902,8 +903,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     const clashingRecord = store.peekRecord('basket', '65536');
     assert.ok(clashingRecord, 'payload with type that matches another model name');
-    assert.strictEqual(clashingRecord.get('type'), 'yellowMinion');
-    assert.strictEqual(clashingRecord.get('size'), 10);
+    assert.strictEqual(clashingRecord.type, 'yellowMinion');
+    assert.strictEqual(clashingRecord.size, 10);
   });
 
   test("don't polymorphically deserialize based on the type key in payload when a relationship exists named type", function (assert) {
@@ -921,12 +922,12 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       store
         .findRecord('container', 42)
         .then((container) => {
-          assert.strictEqual(container.get('volume'), '10 liters');
-          return container.get('type');
+          assert.strictEqual(container.volume, '10 liters');
+          return container.type;
         })
         .then((basket) => {
           assert.ok(basket instanceof Basket);
-          assert.strictEqual(basket.get('size'), 4);
+          assert.strictEqual(basket.size, 4);
         });
     });
   });

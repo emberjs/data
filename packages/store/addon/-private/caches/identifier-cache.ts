@@ -4,6 +4,7 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { LOG_IDENTIFIERS } from '@ember-data/private-build-infra/debugging';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
   ForgetMethod,
@@ -18,11 +19,11 @@ import type {
 } from '@ember-data/types/q/identifier';
 import type { ConfidentDict } from '@ember-data/types/q/utils';
 
-import coerceId from './coerce-id';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from './identifer-debug-consts';
-import normalizeModelName from './normalize-model-name';
-import isNonEmptyString from './utils/is-non-empty-string';
-import WeakCache from './weak-cache';
+import coerceId from '../utils/coerce-id';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifer-debug-consts';
+import isNonEmptyString from '../utils/is-non-empty-string';
+import normalizeModelName from '../utils/normalize-model-name';
+import WeakCache from '../utils/weak-cache';
 
 const IDENTIFIERS = new WeakSet();
 
@@ -141,8 +142,8 @@ export class IdentifierCache {
   /**
    * Internal hook to allow management of merge conflicts with identifiers.
    *
-   * we allow late binding of this private internal merge so that `internalModelFactory`
-   * can insert itself here to handle elimination of duplicates
+   * we allow late binding of this private internal merge so that
+   * the cache can insert itself here to handle elimination of duplicates
    *
    * @method __configureMerge
    * @private
@@ -172,6 +173,10 @@ export class IdentifierCache {
           throw new Error(`The supplied identifier ${resource} does not belong to this store instance`);
         }
       }
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(`Identifiers: Peeked Identifier was already Stable ${String(resource)}`);
+      }
       return resource;
     }
 
@@ -179,7 +184,16 @@ export class IdentifierCache {
     let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids[lid] : undefined;
 
     if (identifier !== undefined) {
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(`Identifiers: cache HIT ${identifier}`, resource);
+      }
       return identifier;
+    }
+
+    if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.groupCollapsed(`Identifiers: ${shouldGenerate ? 'Generating' : 'Peeking'} Identifier`, resource);
     }
 
     if (shouldGenerate === false) {
@@ -211,6 +225,10 @@ export class IdentifierCache {
       // we have definitely not seen this resource before
       // so we allow the user configured `GenerationMethod` to tell us
       let newLid = this._generate(resource, 'record');
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(`Identifiers: lid ${newLid} determined for resource`, resource);
+      }
 
       // we do this _even_ when `lid` is present because secondary lookups
       // may need to be populated, but we enforce not giving us something
@@ -247,6 +265,17 @@ export class IdentifierCache {
           // TODO exists temporarily to support `peekAll`
           // but likely to move
           keyOptions._allIdentifiers.push(identifier);
+
+          if (LOG_IDENTIFIERS && shouldGenerate) {
+            // eslint-disable-next-line no-console
+            console.log(`Identifiers: generated ${String(identifier)} for`, resource);
+            if (resource[DEBUG_IDENTIFIER_BUCKET]) {
+              // eslint-disable-next-line no-console
+              console.trace(
+                `[WARNING] Identifiers: generated a new identifier from a previously used identifier. This is likely a bug.`
+              );
+            }
+          }
         }
 
         // populate our own secondary lookup table
@@ -264,6 +293,15 @@ export class IdentifierCache {
           // case.
         }
       }
+    }
+
+    if (LOG_IDENTIFIERS) {
+      if (!identifier && !shouldGenerate) {
+        // eslint-disable-next-line no-console
+        console.log(`Identifiers: cache MISS`, resource);
+      }
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
 
     return identifier;
@@ -334,6 +372,11 @@ export class IdentifierCache {
     // TODO move this outta here?
     keyOptions._allIdentifiers.push(identifier);
 
+    if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.log(`Identifiers: createded identifier ${String(identifier)} for newly generated resource`, data);
+    }
+
     return identifier;
   }
 
@@ -378,7 +421,21 @@ export class IdentifierCache {
 
     if (existingIdentifier) {
       let keyOptions = getTypeIndex(this._cache.types, identifier.type);
-      identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
+      let generatedIdentifier = identifier;
+      identifier = this._mergeRecordIdentifiers(
+        keyOptions,
+        generatedIdentifier,
+        existingIdentifier,
+        data,
+        newId as string
+      );
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Identifiers: merged identifiers ${generatedIdentifier.lid} and ${existingIdentifier.lid} for resource into ${identifier.lid}`,
+          data
+        );
+      }
     }
 
     let id = identifier.id;
@@ -387,12 +444,22 @@ export class IdentifierCache {
 
     // add to our own secondary lookup table
     if (id !== newId && newId !== null) {
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Identifiers: updated id for identifier ${identifier.lid} from '${id}' to '${newId}' for resource`,
+          data
+        );
+      }
       let keyOptions = getTypeIndex(this._cache.types, identifier.type);
       keyOptions.id[newId] = identifier;
 
       if (id !== null) {
         delete keyOptions.id[id];
       }
+    } else if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.log(`Identifiers: updated identifier ${identifier.lid} resource`, data);
     }
 
     return identifier;
@@ -454,6 +521,10 @@ export class IdentifierCache {
 
     IDENTIFIERS.delete(identifierObject);
     this._forget(identifier, 'record');
+    if (LOG_IDENTIFIERS) {
+      // eslint-disable-next-line no-console
+      console.log(`Identifiers: released identifier ${identifierObject.lid}`);
+    }
   }
 
   destroy() {
@@ -506,6 +577,10 @@ function makeStableRecordIdentifier(
       toString() {
         let { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
+      },
+      toJSON() {
+        let { type, id, lid } = recordIdentifier;
+        return { type, id, lid };
       },
     };
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;

@@ -12,15 +12,18 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
+import { recordIdentifierFor } from '@ember-data/store';
 import { Snapshot } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function moveRecordOutOfInFlight(record) {
   // move record out of the inflight state so the tests can clean up
   // correctly
-  let { store, _internalModel } = record;
+  let { store } = record;
+  let identifier = recordIdentifierFor(record);
+
   // TODO this would be made nicer by a cancellation API
-  let pending = store.getRequestStateService().getPendingRequestsForRecord(_internalModel.identifier);
+  let pending = store.getRequestStateService().getPendingRequestsForRecord(identifier);
   pending.splice(0, pending.length);
 }
 
@@ -124,8 +127,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     tom = records.tom;
     yehuda = records.yehuda;
 
-    assert.asyncEqual(tom, store.findRecord('person', '1'), 'Once an ID is in, findRecord returns the same object');
-    assert.asyncEqual(yehuda, store.findRecord('person', '2'), 'Once an ID is in, findRecord returns the same object');
+    assert.strictEqual(
+      tom,
+      await store.findRecord('person', '1'),
+      'Once an ID is in, findRecord returns the same object'
+    );
+    assert.strictEqual(
+      yehuda,
+      await store.findRecord('person', '2'),
+      'Once an ID is in, findRecord returns the same object'
+    );
     assert.strictEqual(tom.updatedAt, 'now', 'The new information is received');
     assert.strictEqual(yehuda.updatedAt, 'now', 'The new information is received');
   });

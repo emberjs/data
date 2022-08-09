@@ -130,13 +130,24 @@ function attr(type, options) {
   return computed({
     get(key) {
       if (DEBUG) {
-        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
+        if (['currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
           );
         }
       }
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
       let recordData = recordDataFor(this);
+      // TODO hasAttr is not spec'd
+      // essentially this is needed because
+      // there is a difference between "undefined" meaning never set
+      // and "undefined" meaning set to "undefined". In the "key present"
+      // case we want to return undefined. In the "key absent" case
+      // we want to return getDefaultValue. RecordDataV2 can fix this
+      // by providing the attributes blob such that we can make our
+      // own determination.
       if (recordData.hasAttr(key)) {
         return recordData.getAttr(key);
       } else {
@@ -145,7 +156,7 @@ function attr(type, options) {
     },
     set(key, value) {
       if (DEBUG) {
-        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
+        if (['currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
           );

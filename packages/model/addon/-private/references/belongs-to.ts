@@ -8,8 +8,8 @@ import type { BelongsToRelationship } from '@ember-data/record-data/-private';
 import type Store from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { recordIdentifierFor } from '@ember-data/store/-private';
-import type { NotificationType } from '@ember-data/store/-private/record-notification-manager';
-import type { DebugWeakCache } from '@ember-data/store/-private/weak-cache';
+import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
+import type { DebugWeakCache } from '@ember-data/store/-private/utils/weak-cache';
 import type {
   LinkObject,
   Links,
@@ -125,7 +125,7 @@ export default class BelongsToReference {
    `type()` and `id()` methods form a composite key for the identity
    map. This can be used to access the id of an async relationship
    without triggering a fetch that would normally happen if you
-   attempted to use `record.get('relationship.id')`.
+   attempted to use `record.relationship.id`.
 
    Example
 
@@ -277,7 +277,7 @@ export default class BelongsToReference {
   }
 
   _resource() {
-    return this.store._instanceCache.recordDataFor(this.#identifier, false).getBelongsTo(this.key);
+    return this.store._instanceCache.getRecordData(this.#identifier).getBelongsTo(this.key);
   }
 
   /**
@@ -404,7 +404,7 @@ export default class BelongsToReference {
 
   /**
    `value()` synchronously returns the current value of the belongs-to
-   relationship. Unlike `record.get('relationshipName')`, calling
+   relationship. Unlike `record.relationshipName`, calling
    `value()` on a reference does not trigger a fetch if the async
    relationship is not yet loaded. If the relationship is not loaded
    it will always return `null`.

@@ -114,7 +114,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         },
 
         findRecord() {
-          assert.true(tom.get('isReloading'), 'Tom is reloading');
+          assert.true(tom.isReloading, 'Tom is reloading');
           if (count++ === 0) {
             return reject();
           } else {
@@ -130,15 +130,15 @@ module('integration/reload - Reloading Records', function (hooks) {
       assert.ok(true, 'we throw an error');
     });
 
-    assert.true(tom.get('isError'), 'Tom is now errored');
-    assert.false(tom.get('isReloading'), 'Tom is no longer reloading');
+    assert.true(tom.isError, 'Tom is now errored');
+    assert.false(tom.isReloading, 'Tom is no longer reloading');
 
     let person = await tom.reload();
 
     assert.strictEqual(person, tom, 'The resolved value is the record');
-    assert.false(tom.get('isError'), 'Tom is no longer errored');
-    assert.false(tom.get('isReloading'), 'Tom is no longer reloading');
-    assert.strictEqual(tom.get('name'), 'Thomas Dale', 'the updates apply');
+    assert.false(tom.isError, 'Tom is no longer errored');
+    assert.false(tom.isReloading, 'Tom is no longer reloading');
+    assert.strictEqual(tom.name, 'Thomas Dale', 'the updates apply');
   });
 
   test('When a record is loaded a second time, isLoaded stays true', async function (assert) {
@@ -245,16 +245,16 @@ module('integration/reload - Reloading Records', function (hooks) {
     let person = await store.findRecord('person', '1');
 
     tom = person;
-    assert.strictEqual(person.get('name'), 'Tom', 'precond');
+    assert.strictEqual(person.name, 'Tom', 'precond');
 
-    let tags = await person.get('tags');
+    let tags = await person.tags;
 
     assert.deepEqual(tags.mapBy('name'), ['hipster', 'hair']);
 
     person = await tom.reload();
-    assert.strictEqual(person.get('name'), 'Tom', 'precond');
+    assert.strictEqual(person.name, 'Tom', 'precond');
 
-    tags = await person.get('tags');
+    tags = await person.tags;
 
     assert.deepEqual(tags.mapBy('name'), ['hipster', 'hair'], 'The tags are still there');
   });
@@ -311,7 +311,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       });
 
       let ownerRef = shen.belongsTo('owner');
-      let owner = shen.get('owner');
+      let owner = shen.owner;
       let ownerViaRef = await ownerRef.reload();
 
       assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
@@ -360,7 +360,7 @@ module('integration/reload - Reloading Records', function (hooks) {
 
       let ownerRef = shen.belongsTo('owner');
       let ownerViaRef = await ownerRef.reload();
-      let owner = shen.get('owner');
+      let owner = shen.owner;
 
       assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
@@ -416,7 +416,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       });
 
       let ownersRef = shen.hasMany('owners');
-      let owners = shen.get('owners');
+      let owners = shen.owners;
       let ownersViaRef = await ownersRef.reload();
 
       assert.strictEqual(owners.objectAt(0), ownersViaRef.objectAt(0), 'We received the same reference via reload');
@@ -465,7 +465,7 @@ module('integration/reload - Reloading Records', function (hooks) {
 
       let ownersRef = shen.hasMany('owners');
       let ownersViaRef = await ownersRef.reload();
-      let owners = shen.get('owners');
+      let owners = shen.owners;
 
       assert.strictEqual(owners.objectAt(0), ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
@@ -526,7 +526,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       });
 
       let ownerRef = shen.belongsTo('owner');
-      let owner = shen.get('owner');
+      let owner = shen.owner;
       let ownerViaRef = await ownerRef.reload();
 
       assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
@@ -578,7 +578,7 @@ module('integration/reload - Reloading Records', function (hooks) {
 
       let ownerRef = shen.belongsTo('owner');
       let ownerViaRef = await ownerRef.reload();
-      let owner = shen.get('owner');
+      let owner = shen.owner;
 
       assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
@@ -639,7 +639,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       });
 
       let ownersRef = shen.hasMany('owners');
-      let owners = shen.get('owners');
+      let owners = shen.owners;
       let ownersViaRef = await ownersRef.reload();
 
       assert.strictEqual(owners.objectAt(0), ownersViaRef.objectAt(0), 'We received the same reference via reload');
@@ -693,7 +693,7 @@ module('integration/reload - Reloading Records', function (hooks) {
 
       let ownersRef = shen.hasMany('owners');
       let ownersViaRef = await ownersRef.reload();
-      let owners = shen.get('owners');
+      let owners = shen.owners;
 
       assert.strictEqual(owners.objectAt(0), ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });

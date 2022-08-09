@@ -39,6 +39,7 @@ module('integration/records/save - Save Record', function (hooks) {
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       // `save` returns a PromiseObject which allows to call get on it
       assert.strictEqual(saved.get('id'), undefined);
+      assert.strictEqual(saved.id, undefined);
     }
 
     deferred.resolve({ data: { id: 123, type: 'post' } });
@@ -47,8 +48,10 @@ module('integration/records/save - Save Record', function (hooks) {
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       assert.strictEqual(saved.get('id'), '123');
       assert.strictEqual(saved.id, undefined);
+      assert.strictEqual(model.id, '123');
     } else {
       assert.strictEqual(saved.id, undefined);
+      assert.strictEqual(model.id, '123');
     }
     assert.strictEqual(model, post, 'resolves with the model');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
@@ -56,7 +59,7 @@ module('integration/records/save - Save Record', function (hooks) {
       // should not throw an error and only show a deprecation.
       assert.strictEqual(saved.__ec_cancel__, undefined);
 
-      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 4 });
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 5 });
     }
   });
 
@@ -107,7 +110,7 @@ module('integration/records/save - Save Record', function (hooks) {
           }
         )
         .then(function (post) {
-          assert.strictEqual(post.get('id'), '123', 'The post ID made it through');
+          assert.strictEqual(post.id, '123', 'The post ID made it through');
         });
     });
   });
@@ -125,12 +128,12 @@ module('integration/records/save - Save Record', function (hooks) {
 
     run(function () {
       post.save().then(null, function () {
-        assert.ok(post.get('isError'));
-        assert.strictEqual(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+        assert.ok(post.isError);
+        assert.strictEqual(post.currentState.stateName, 'root.loaded.created.uncommitted');
 
         post.save().then(null, function () {
-          assert.ok(post.get('isError'));
-          assert.strictEqual(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+          assert.ok(post.isError);
+          assert.strictEqual(post.currentState.stateName, 'root.loaded.created.uncommitted');
         });
       });
     });
@@ -156,10 +159,10 @@ module('integration/records/save - Save Record', function (hooks) {
 
     run(function () {
       post.save().then(null, function () {
-        assert.false(post.get('isValid'));
+        assert.false(post.isValid);
 
         post.save().then(null, function () {
-          assert.false(post.get('isValid'));
+          assert.false(post.isValid);
         });
       });
     });
@@ -179,10 +182,10 @@ module('integration/records/save - Save Record', function (hooks) {
 
     run(function () {
       post.save().then(null, function () {
-        assert.false(post.get('isValid'));
+        assert.false(post.isValid);
 
         post.save().then(null, function () {
-          assert.false(post.get('isValid'));
+          assert.false(post.isValid);
         });
       });
     });

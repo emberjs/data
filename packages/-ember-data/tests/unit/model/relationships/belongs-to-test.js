@@ -20,7 +20,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
-  test('belongsTo lazily loads relationships as needed', function (assert) {
+  test('belongsTo lazily loads relationships as needed', async function (assert) {
     assert.expect(5);
 
     const Tag = Model.extend({
@@ -41,61 +41,55 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'tag',
-            id: '5',
-            attributes: {
-              name: 'friendly',
+    store.push({
+      data: [
+        {
+          type: 'tag',
+          id: '5',
+          attributes: {
+            name: 'friendly',
+          },
+        },
+        {
+          type: 'tag',
+          id: '2',
+          attributes: {
+            name: 'smarmy',
+          },
+        },
+        {
+          type: 'tag',
+          id: '12',
+          attributes: {
+            name: 'oohlala',
+          },
+        },
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            tag: {
+              data: { type: 'tag', id: '5' },
             },
           },
-          {
-            type: 'tag',
-            id: '2',
-            attributes: {
-              name: 'smarmy',
-            },
-          },
-          {
-            type: 'tag',
-            id: '12',
-            attributes: {
-              name: 'oohlala',
-            },
-          },
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              tag: {
-                data: { type: 'tag', id: '5' },
-              },
-            },
-          },
-        ],
-      });
+        },
+      ],
     });
+    const person = await store.findRecord('person', '1');
+    assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
-    return run(() => {
-      return store.findRecord('person', 1).then((person) => {
-        assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
+    assert.true(person.tag instanceof Tag, 'the tag property should return a tag');
+    assert.strictEqual(person.tag.name, 'friendly', 'the tag shuld have name');
 
-        assert.true(get(person, 'tag') instanceof Tag, 'the tag property should return a tag');
-        assert.strictEqual(get(person, 'tag.name'), 'friendly', 'the tag shuld have name');
-
-        assert.strictEqual(get(person, 'tag'), get(person, 'tag'), 'the returned object is always the same');
-        assert.asyncEqual(
-          get(person, 'tag'),
-          store.findRecord('tag', 5),
-          'relationship object is the same as object retrieved directly'
-        );
-      });
-    });
+    assert.strictEqual(person.tag, person.tag, 'the returned object is always the same');
+    assert.strictEqual(
+      person.tag,
+      await store.findRecord('tag', 5),
+      'relationship object is the same as object retrieved directly'
+    );
   });
 
   test('belongsTo does not notify when it is initially reified', function (assert) {
@@ -157,7 +151,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
       person.addObserver('tag', tagDidChange);
 
-      assert.strictEqual(person.get('tag.name'), 'whatever', 'relationship is correct');
+      assert.strictEqual(person.tag.name, 'whatever', 'relationship is correct');
 
       // This needs to be removed so it is not triggered when test context is torn down
       person.removeObserver('tag', tagDidChange);
@@ -525,7 +519,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     return run(() => {
       return store.findRecord('person', '1').then((person) => {
-        assert.strictEqual(person.get('tag'), null, 'undefined values should return null relationships');
+        assert.strictEqual(person.tag, null, 'undefined values should return null relationships');
       });
     });
   });
@@ -640,10 +634,10 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       });
     });
 
-    run(() => store.peekRecord('person', 1).get('occupation'));
+    run(() => store.peekRecord('person', 1).occupation);
   });
 
-  test('belongsTo supports relationships to models with id 0', function (assert) {
+  test('belongsTo supports relationships to models with id 0', async function (assert) {
     assert.expect(5);
 
     const Tag = Model.extend({
@@ -664,61 +658,56 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'tag',
-            id: '0',
-            attributes: {
-              name: 'friendly',
+    store.push({
+      data: [
+        {
+          type: 'tag',
+          id: '0',
+          attributes: {
+            name: 'friendly',
+          },
+        },
+        {
+          type: 'tag',
+          id: '2',
+          attributes: {
+            name: 'smarmy',
+          },
+        },
+        {
+          type: 'tag',
+          id: '12',
+          attributes: {
+            name: 'oohlala',
+          },
+        },
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            tag: {
+              data: { type: 'tag', id: '0' },
             },
           },
-          {
-            type: 'tag',
-            id: '2',
-            attributes: {
-              name: 'smarmy',
-            },
-          },
-          {
-            type: 'tag',
-            id: '12',
-            attributes: {
-              name: 'oohlala',
-            },
-          },
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              tag: {
-                data: { type: 'tag', id: '0' },
-              },
-            },
-          },
-        ],
-      });
+        },
+      ],
     });
 
-    return run(() => {
-      return store.findRecord('person', 1).then((person) => {
-        assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
+    const person = await store.findRecord('person', '1');
+    assert.strictEqual(person.name, 'Tom Dale', 'precond - retrieves person record from store');
 
-        assert.true(get(person, 'tag') instanceof Tag, 'the tag property should return a tag');
-        assert.strictEqual(get(person, 'tag.name'), 'friendly', 'the tag should have name');
+    assert.true(person.tag instanceof Tag, 'the tag property should return a tag');
+    assert.strictEqual(person.tag.name, 'friendly', 'the tag should have name');
 
-        assert.strictEqual(get(person, 'tag'), get(person, 'tag'), 'the returned object is always the same');
-        assert.asyncEqual(
-          get(person, 'tag'),
-          store.findRecord('tag', 0),
-          'relationship object is the same as object retrieved directly'
-        );
-      });
-    });
+    assert.strictEqual(person.tag, person.tag, 'the returned object is always the same');
+    assert.strictEqual(
+      person.tag,
+      await store.findRecord('tag', 0),
+      'relationship object is the same as object retrieved directly'
+    );
   });
 
   testInDebug('belongsTo gives a warning when provided with a serialize option', function (assert) {
@@ -859,6 +848,6 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     let person = store.createRecord('person');
 
-    assert.ok(person.get('tag') instanceof DS.PromiseObject, 'tag should be an async relationship');
+    assert.ok(person.tag instanceof DS.PromiseObject, 'tag should be an async relationship');
   });
 });

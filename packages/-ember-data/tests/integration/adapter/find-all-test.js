@@ -153,9 +153,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     );
 
     store.createRecord('person', { name: 'Carsten Nielsen' });
-    await settled();
-
-    await settled();
+    // await settled();
 
     assert.strictEqual(allRecords.length, 1, "the record array's length is 1");
     assert.strictEqual(

@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type Store from '@ember-data/store';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { WeakCache } from '@ember-data/store/-private';
@@ -50,6 +51,7 @@ function getWrapper(store: RecordDataStoreWrapper | Store): RecordDataStoreWrapp
 export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefined {
   return Graphs.get(getWrapper(store));
 }
+export type peekGraph = typeof peekGraph;
 
 export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
   return Graphs.lookup(getWrapper(store));
@@ -59,7 +61,7 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
  * Graph acts as the cache for relationship data. It allows for
  * us to ask about and update relationships for a given Identifier
  * without requiring other objects for that Identifier to be
- * instantiated (such as `InternalModel`, `RecordData` or a `Record`)
+ * instantiated (such as `RecordData` or a `Record`)
  *
  * This also allows for us to make more substantive changes to relationships
  * with increasingly minor alterations to other portions of the internals
@@ -88,6 +90,7 @@ export class Graph {
   };
   declare _updatedRelationships: Set<ManyRelationship>;
   declare _transaction: Set<ManyRelationship | BelongsToRelationship> | null;
+  declare _removing: StableRecordIdentifier | null;
 
   constructor(store: RecordDataStoreWrapper) {
     this._definitionCache = Object.create(null);
@@ -99,6 +102,7 @@ export class Graph {
     this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
     this._updatedRelationships = new Set();
     this._transaction = null;
+    this._removing = null;
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
@@ -207,6 +211,10 @@ export class Graph {
   }
 
   unload(identifier: StableRecordIdentifier) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: unload ${String(identifier)}`);
+    }
     const relationships = this.identifiers.get(identifier);
 
     if (relationships) {
@@ -223,14 +231,25 @@ export class Graph {
   }
 
   remove(identifier: StableRecordIdentifier) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: remove ${String(identifier)}`);
+    }
+    assert(`Cannot remove ${String(identifier)} while still removing ${String(this._removing)}`, !this._removing);
+    this._removing = identifier;
     this.unload(identifier);
     this.identifiers.delete(identifier);
+    this._removing = null;
   }
 
   /*
    * Remote state changes
    */
   push(op: RemoteRelationshipOperation) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: push ${String(op.record)}`, op);
+    }
     if (op.op === 'deleteRecord') {
       this._pushedUpdates.deletions.push(op);
     } else if (op.op === 'replaceRelatedRecord') {
@@ -260,6 +279,10 @@ export class Graph {
       `Cannot update an implicit relationship`,
       op.op === 'deleteRecord' || !isImplicit(this.get(op.record, op.field))
     );
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: update (${isRemote ? 'remote' : 'local'}) ${String(op.record)}`, op);
+    }
 
     switch (op.op) {
       case 'updateRelationship':
@@ -317,6 +340,10 @@ export class Graph {
     if (!this._willSyncRemote) {
       return;
     }
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.groupCollapsed(`Graph: Initialized Transaction`);
+    }
     this._transaction = new Set();
     this._willSyncRemote = false;
     const { deletions, hasMany, belongsTo } = this._pushedUpdates;
@@ -340,6 +367,10 @@ export class Graph {
 
   _addToTransaction(relationship: ManyRelationship | BelongsToRelationship) {
     assert(`expected a transaction`, this._transaction !== null);
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: ${relationship.identifier} ${relationship.definition.key} added to transaction`);
+    }
     relationship.transactionRef++;
     this._transaction.add(relationship);
   }
@@ -348,6 +379,12 @@ export class Graph {
     if (this._transaction) {
       this._transaction.forEach((v) => (v.transactionRef = 0));
       this._transaction = null;
+      if (LOG_GRAPH) {
+        // eslint-disable-next-line no-console
+        console.log(`Graph: transaction finalized`);
+        // eslint-disable-next-line no-console
+        console.groupEnd();
+      }
     }
   }
 
@@ -382,9 +419,7 @@ export class Graph {
 // If the inverse is sync, unloading this record is treated as a client-side
 // delete, so we remove the inverse records from this relationship to
 // disconnect the graph.  Because it's not async, we don't need to keep around
-// the internalModel as an id-wrapper for references and because the graph is
-// disconnected we can actually destroy the internalModel when checking for
-// orphaned models.
+// the identifier as an id-wrapper for references
 function destroyRelationship(rel) {
   if (isImplicit(rel)) {
     if (rel.graph.isReleasable(rel.identifier)) {
@@ -400,9 +435,9 @@ function destroyRelationship(rel) {
     rel.clear();
 
     // necessary to clear relationships in the ui from dematerialized records
-    // hasMany is managed by InternalModel which calls `retreiveLatest` after
+    // hasMany is managed by Model which calls `retreiveLatest` after
     // dematerializing the recordData instance.
-    // but sync belongsTo require this since they don't have a proxy to update.
+    // but sync belongsTo requires this since they don't have a proxy to update.
     // so we have to notify so it will "update" to null.
     // we should discuss whether we still care about this, probably fine to just
     // leave the ui relationship populated since the record is destroyed and

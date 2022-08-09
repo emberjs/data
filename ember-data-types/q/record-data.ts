@@ -45,8 +45,6 @@ export interface RecordData {
   didCommit(data: JsonApiResource | null): void;
 
   // ----- unspecced
-  isAttrDirty(key: string): boolean;
-  removeFromInverseRelationships(): void;
   hasAttr(key: string): boolean;
 
   isRecordInUse(): boolean;

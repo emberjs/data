@@ -1,5 +1,5 @@
 import EmberObject from '@ember/object';
-import Ember from 'ember';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
@@ -162,7 +162,9 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(identifier, isDeleted): void {}
+      setIsDeleted(): void {
+        isDeleted = true;
+      }
     }
 
     let TestStore = Store.extend({
@@ -215,7 +217,7 @@ module('integration/record-data - Record Data State', function (hooks) {
   });
 
   test('Record Data state record flags', async function (assert) {
-    assert.expect(9);
+    assert.expect(14);
     let isDeleted, isNew, isDeletionCommitted;
     let calledSetIsDeleted = false;
     let storeWrapper;
@@ -235,6 +237,10 @@ module('integration/record-data - Record Data State', function (hooks) {
         storeWrapper = sw;
       }
 
+      isEmpty(): boolean {
+        return !isNew && isDeleted;
+      }
+
       isNew(): boolean {
         return isNew;
       }
@@ -247,7 +253,8 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(identifier, isDeleted: boolean): void {
+      setIsDeleted(identifier, value: boolean): void {
+        isDeleted = true;
         calledSetIsDeleted = true;
       }
     }
@@ -268,34 +275,42 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     let person = store.peekRecord('person', '1');
     let people = store.peekAll('person');
-    isNew = true;
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
+    isNew = true;
     storeWrapper.notifyStateChange('person', '1', null, 'isNew');
-    assert.true(person.get('isNew'), 'person is new');
+    await settled();
+    assert.true(person.isNew, 'person is new');
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = false;
     isDeleted = true;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
     storeWrapper.notifyStateChange('person', '1', null, 'isNew');
-
-    assert.false(person.get('isNew'), 'person is not new');
-    assert.true(person.get('isDeleted'), 'person is deleted');
+    await settled();
+    assert.false(person.isNew, 'person is not new');
+    assert.true(person.isDeleted, 'person is deleted');
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = false;
     isDeleted = false;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
-    assert.false(person.get('isNew'), 'person is not new');
-    assert.false(person.get('isDeleted'), 'person is not deleted');
-
+    await settled();
+    assert.false(person.isNew, 'person is not new');
+    assert.false(person.isDeleted, 'person is not deleted');
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
     person.deleteRecord();
-    assert.false(person.get('isDeleted'), 'calling deleteRecord does not automatically set isDeleted flag to true');
+    await settled();
+    assert.strictEqual(people.length, 1, 'live array starting length is 1 after deleteRecord');
+    assert.false(person.isDeleted, 'calling deleteRecord does not automatically set isDeleted flag to true');
     assert.true(calledSetIsDeleted, 'called setIsDeleted');
 
-    assert.strictEqual(people.get('length'), 1, 'live array starting length is 1');
+    storeWrapper.notifyStateChange('person', '1', null);
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
+
     isDeletionCommitted = true;
-    Ember.run(() => {
-      storeWrapper.notifyStateChange('person', '1', null, 'isDeletionCommitted');
-    });
-    assert.strictEqual(people.get('length'), 0, 'commiting a deletion updates the live array');
+    storeWrapper.notifyStateChange('person', '1', null, 'isDeletionCommitted');
+    await settled();
+    assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
   });
 });

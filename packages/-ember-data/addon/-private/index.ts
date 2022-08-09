@@ -4,11 +4,9 @@ export { default as DS } from './core';
 export { Errors } from '@ember-data/model/-private';
 export { Snapshot } from '@ember-data/store/-private';
 
-// `ember-data-model-fragments` relies on `InternalModel`
 // `ember-data-model-fragments' and `ember-data-change-tracker` rely on `normalizeModelName`
 export {
   AdapterPopulatedRecordArray,
-  InternalModel,
   PromiseArray,
   PromiseObject,
   RecordArray,
