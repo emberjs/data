@@ -11,7 +11,7 @@ export default class Person extends Model {
   parent;
 
   get parentId() {
-    return this.parent.id;
+    return this.belongsTo('parent').id();
   }
 
   toNode() {
