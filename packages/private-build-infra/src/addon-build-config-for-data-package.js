@@ -18,7 +18,7 @@ function addonBuildConfigForDataPackage(PackageName) {
     name: PackageName,
 
     options: {
-      '@embroier/macros': {
+      '@embroider/macros': {
         setOwnConfig: {
           includeDataAdapterInProduction: false,
         },
