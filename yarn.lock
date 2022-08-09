@@ -7188,8 +7188,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.8.0-alpha.1"
 
 eslint-plugin-ember@^11.0.4:
   version "11.0.4"
