@@ -24,5 +24,5 @@ function replaceAll(str, pattern, replacement) {
   if (str.replaceAll) {
     return str.replaceAll(pattern, replacement);
   }
-  return str.replace(new RegExp((pattern, 'g'), replacement));
+  return str.replace(new RegExp(pattern, 'g'), replacement);
 }
