@@ -8,7 +8,7 @@ module.exports = function requireModule(modulePath) {
   if (fileContents.includes('export default')) {
     newContents = fileContents.replace('export default ', 'return ');
   } else {
-    newContents = fileContents.replaceAll('export const ', 'module.exports.');
+    newContents = replaceAll(fileContents, 'export const ', 'module.exports.');
     newContents = `const module = { exports: {} };\n${newContents}\nreturn module.exports;`;
   }
   try {
@@ -19,3 +19,10 @@ module.exports = function requireModule(modulePath) {
     console.log(e);
   }
 };
+
+function replaceAll(str, pattern, replacement) {
+  if (str.replaceAll) {
+    return str.replaceAll(pattern, replacement);
+  }
+  return str.replace(new RegExp((pattern, 'g'), replacement));
+}
