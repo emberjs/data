@@ -8,6 +8,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr, hasMany } from '@ember-data/model';
+import { DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS } from '@ember-data/private-build-infra/deprecations';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('PromiseManyArray', (hooks) => {
@@ -27,19 +28,24 @@ module('PromiseManyArray', (hooks) => {
     const members = ['Bob', 'John', 'Michael', 'Larry', 'Lucy'].map((name) => store.createRecord('person', { name }));
     const group = store.createRecord('group', { members });
 
-    const replaceFn = group.members.replace;
+    const forEachFn = group.members.forEach;
     assert.strictEqual(group.members.length, 5, 'initial length is correct');
 
-    group.members.replace(0, 1);
-    assert.strictEqual(group.members.length, 4, 'updated length is correct');
+    if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
+      group.members.replace(0, 1);
+      assert.strictEqual(group.members.length, 4, 'updated length is correct');
+    }
 
     A(group.members);
 
-    assert.strictEqual(replaceFn, group.members.replace, 'we have the same function for replace');
-    group.members.replace(0, 1);
-    assert.strictEqual(group.members.length, 3, 'updated length is correct');
-    // we'll want to use a different test for this but will want to still ensure we are not side-affected
-    assert.expectDeprecation({ id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 2 });
+    assert.strictEqual(forEachFn, group.members.forEach, 'we have the same function for forEach');
+
+    if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
+      group.members.replace(0, 1);
+      assert.strictEqual(group.members.length, 3, 'updated length is correct');
+      // we'll want to use a different test for this but will want to still ensure we are not side-affected
+      assert.expectDeprecation({ id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 2 });
+    }
   });
 
   deprecatedTest(
