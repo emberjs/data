@@ -503,42 +503,31 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
   });
 
-  test('Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async', function (assert) {
+  test('Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let user, topic;
-    run(() => {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
+    let user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
         },
-      });
-
-      topic = store.createRecord('topic');
+      },
     });
+    let topic = store.createRecord('topic');
 
-    return run(() => {
-      return user.topics.then((fetchedTopics) => {
-        fetchedTopics.pushObject(topic);
-        topic.rollbackAttributes();
+    let fetchedTopics = await user.topics;
+    fetchedTopics.pushObject(topic);
+    topic.rollbackAttributes();
 
-        let users = topic.users.then((fetchedUsers) => {
-          assert.strictEqual(fetchedUsers.length, 0, 'Users got removed');
-          assert.strictEqual(fetchedUsers.objectAt(0), undefined, "User can't be fetched");
-        });
+    let fetchedUsers = await topic.users;
+    assert.strictEqual(fetchedUsers.length, 0, 'Users got removed');
+    assert.strictEqual(fetchedUsers.objectAt(0), undefined, "User can't be fetched");
 
-        let topics = user.topics.then((fetchedTopics) => {
-          assert.strictEqual(fetchedTopics.length, 0, 'Topics got removed');
-          assert.strictEqual(fetchedTopics.objectAt(0), undefined, "Topic can't be fetched");
-        });
-
-        return EmberPromise.all([users, topics]);
-      });
-    });
+    fetchedTopics = await user.topics;
+    assert.strictEqual(fetchedTopics.length, 0, 'Topics got removed');
+    assert.strictEqual(fetchedTopics.objectAt(0), undefined, "Topic can't be fetched");
   });
 
   test('Deleting an unpersisted record via rollbackAttributes that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function (assert) {

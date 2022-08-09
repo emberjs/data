@@ -68,7 +68,7 @@ class RecordArrayManager {
       // recordArrayManager
       pendingForIdentifier.delete(i);
       // build up a set of models to ensure we have purged correctly;
-      if (!cache.recordIsLoaded(i)) {
+      if (!cache.recordIsLoaded(i, true)) {
         identifiersToRemove.push(i);
       }
     }
@@ -187,7 +187,7 @@ class RecordArrayManager {
     for (let i = 0; i < all.length; i++) {
       let identifier = all[i];
 
-      if (cache.recordIsLoaded(identifier)) {
+      if (cache.recordIsLoaded(identifier, true)) {
         visible.push(identifier);
       }
     }
@@ -378,7 +378,7 @@ function updateLiveRecordArray(store: Store, recordArray: RecordArray, identifie
     let identifier = identifiers[i];
     let recordArrays = recordArraysForIdentifier(identifier);
 
-    if (cache.recordIsLoaded(identifier)) {
+    if (cache.recordIsLoaded(identifier, true)) {
       if (!recordArrays.has(recordArray)) {
         identifiersToAdd.push(identifier);
         recordArrays.add(recordArray);

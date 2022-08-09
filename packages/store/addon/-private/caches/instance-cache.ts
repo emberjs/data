@@ -125,7 +125,7 @@ export class InstanceCache {
     reference: new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : ''),
   };
 
-  recordIsLoaded(identifier: StableRecordIdentifier) {
+  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
     const recordData = this.peek({ identifier, bucket: 'recordData' });
     if (!recordData) {
       return false;
@@ -151,7 +151,7 @@ export class InstanceCache {
     const isLoading =
       fulfilled !== null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
 
-    if (isEmpty || recordData.isDeletionCommitted?.() || isLoading) {
+    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted?.()) || isLoading) {
       return false;
     }
 
@@ -399,6 +399,7 @@ export class InstanceCache {
         this.disconnect(identifier);
       }
 
+      this.store._fetchManager.clearEntries(identifier);
       this.store.recordArrayManager.recordDidChange(identifier);
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console

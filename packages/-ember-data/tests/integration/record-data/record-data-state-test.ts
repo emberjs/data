@@ -1,4 +1,5 @@
 import EmberObject from '@ember/object';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
@@ -216,7 +217,7 @@ module('integration/record-data - Record Data State', function (hooks) {
   });
 
   test('Record Data state record flags', async function (assert) {
-    assert.expect(9);
+    assert.expect(14);
     let isDeleted, isNew, isDeletionCommitted;
     let calledSetIsDeleted = false;
     let storeWrapper;
@@ -274,32 +275,42 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     let person = store.peekRecord('person', '1');
     let people = store.peekAll('person');
-    isNew = true;
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
+    isNew = true;
     storeWrapper.notifyStateChange('person', '1', null, 'isNew');
+    await settled();
     assert.true(person.isNew, 'person is new');
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = false;
     isDeleted = true;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
     storeWrapper.notifyStateChange('person', '1', null, 'isNew');
-
+    await settled();
     assert.false(person.isNew, 'person is not new');
     assert.true(person.isDeleted, 'person is deleted');
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = false;
     isDeleted = false;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
+    await settled();
     assert.false(person.isNew, 'person is not new');
     assert.false(person.isDeleted, 'person is not deleted');
-
+    assert.strictEqual(people.length, 1, 'live array starting length is 1');
     person.deleteRecord();
+    await settled();
+    assert.strictEqual(people.length, 1, 'live array starting length is 1 after deleteRecord');
     assert.false(person.isDeleted, 'calling deleteRecord does not automatically set isDeleted flag to true');
     assert.true(calledSetIsDeleted, 'called setIsDeleted');
 
+    storeWrapper.notifyStateChange('person', '1', null);
     assert.strictEqual(people.length, 1, 'live array starting length is 1');
+
     isDeletionCommitted = true;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeletionCommitted');
+    await settled();
     assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
   });
 });

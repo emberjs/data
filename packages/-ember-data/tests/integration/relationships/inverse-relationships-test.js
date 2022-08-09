@@ -672,8 +672,8 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const comment = store.createRecord('comment');
     const recordData = recordDataFor(comment);
     const post = store.createRecord('post');
-
-    post.comments.pushObject(comment);
+    const comments = await post.comments;
+    comments.pushObject(comment);
     const identifier = recordIdentifierFor(comment);
 
     await comment.destroyRecord();

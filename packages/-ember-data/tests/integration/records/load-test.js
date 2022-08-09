@@ -13,13 +13,11 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 function _isLoading(cache, identifier) {
   const req = cache.store.getRequestStateService();
-  // const fulfilled = req.getLastRequestForRecord(identifier);
+  const fulfilled = req.getLastRequestForRecord(identifier);
   const isLoaded = cache.recordIsLoaded(identifier);
 
   return (
-    !isLoaded &&
-    // fulfilled === null &&
-    req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+    !isLoaded && fulfilled === null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
   );
 }
 

@@ -8,7 +8,9 @@ module.exports = function (defaults) {
   const isProd = process.env.EMBER_ENV === 'production';
   // allows testing with env config for stripping all deprecations
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
-  const plugins = [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, { compatWith })];
+  const plugins = [
+    ...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, { compatWith, debug: {} }),
+  ];
 
   let app = new EmberApp(defaults, {
     emberData: {

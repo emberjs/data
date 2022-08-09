@@ -15,7 +15,9 @@ module.exports = function (defaults) {
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
-      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, { compatWith })],
+      plugins: [
+        ...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, { compatWith, debug: {} }),
+      ],
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,

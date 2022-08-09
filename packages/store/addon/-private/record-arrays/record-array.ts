@@ -4,6 +4,7 @@
 import type NativeArray from '@ember/array/-private/native-array';
 import ArrayProxy from '@ember/array/proxy';
 import { assert, deprecate } from '@ember/debug';
+import { set } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 
 import { Promise } from 'rsvp';
@@ -233,8 +234,10 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     //   * the exception being: if an dominator has a reference to this object,
     //     and must be informed to release e.g. e.g. removing itself from th
     //     recordArrayMananger
-    this.content = null as unknown as NativeArray<StableRecordIdentifier>;
-    this.length = 0;
+    // TODO we have to use set here vs dot notation because computed properties don't clear
+    // otherwise for destroyed records and will not update their value.
+    set(this, 'content', null as unknown as NativeArray<StableRecordIdentifier>);
+    set(this, 'length', 0);
     super.willDestroy();
   }
 

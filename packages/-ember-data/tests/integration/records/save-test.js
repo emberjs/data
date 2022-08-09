@@ -38,6 +38,7 @@ module('integration/records/save - Save Record', function (hooks) {
 
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       // `save` returns a PromiseObject which allows to call get on it
+      assert.strictEqual(saved.get('id'), undefined);
       assert.strictEqual(saved.id, undefined);
     }
 
@@ -45,10 +46,12 @@ module('integration/records/save - Save Record', function (hooks) {
     let model = await saved;
     assert.ok(true, 'save operation was resolved');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
-      assert.strictEqual(saved.id, '123');
+      assert.strictEqual(saved.get('id'), '123');
       assert.strictEqual(saved.id, undefined);
+      assert.strictEqual(model.id, '123');
     } else {
       assert.strictEqual(saved.id, undefined);
+      assert.strictEqual(model.id, '123');
     }
     assert.strictEqual(model, post, 'resolves with the model');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
@@ -56,7 +59,7 @@ module('integration/records/save - Save Record', function (hooks) {
       // should not throw an error and only show a deprecation.
       assert.strictEqual(saved.__ec_cancel__, undefined);
 
-      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 4 });
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 5 });
     }
   });
 

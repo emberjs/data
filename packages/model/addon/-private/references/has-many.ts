@@ -436,7 +436,7 @@ export default class HasManyReference {
     let members = this.hasManyRelationship.currentState;
 
     return members.every((identifier) => {
-      return this.store._instanceCache.recordIsLoaded(identifier) === true;
+      return this.store._instanceCache.recordIsLoaded(identifier, true) === true;
     });
   }
 

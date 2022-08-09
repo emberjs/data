@@ -193,6 +193,7 @@ class Store extends Service {
   declare _trackAsyncRequestStart: (str: string) => void;
   declare _trackAsyncRequestEnd: (token: AsyncTrackingToken) => void;
   declare __asyncWaiter: () => boolean;
+  declare DISABLE_WAITER?: boolean;
 
   /**
     @method init
@@ -270,7 +271,7 @@ class Store extends Service {
 
       this.__asyncWaiter = () => {
         let tracked = this._trackedAsyncRequests;
-        return tracked.length === 0;
+        return this.DISABLE_WAITER || tracked.length === 0;
       };
 
       registerWaiter(this.__asyncWaiter);

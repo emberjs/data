@@ -84,6 +84,10 @@ export default class FetchManager {
     this.isDestroyed = false;
   }
 
+  clearEntries(identifier: StableRecordIdentifier) {
+    delete this.requestCache._done[identifier.lid];
+  }
+
   /**
     This method is called by `record.save`, and gets passed a
     resolver for the promise that `record.save` returns.

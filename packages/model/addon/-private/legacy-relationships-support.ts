@@ -140,7 +140,7 @@ export class LegacySupport {
           `You looked up the '${key}' relationship on a '${identifier.type}' with id ${
             identifier.id || 'null'
           } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`belongsTo({ async: true })\`)`,
-          toReturn === null || store._instanceCache.recordIsLoaded(relatedIdentifier)
+          toReturn === null || store._instanceCache.recordIsLoaded(relatedIdentifier, true)
         );
         return toReturn;
       }
@@ -665,7 +665,7 @@ function anyUnloaded(store: Store, relationship: ManyRelationship) {
   let state = relationship.currentState;
   const cache = store._instanceCache;
   const unloaded = state.find((s) => {
-    let isLoaded = cache.recordIsLoaded(s);
+    let isLoaded = cache.recordIsLoaded(s, true);
     return !isLoaded;
   });
 

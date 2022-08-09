@@ -235,7 +235,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     );
 
     // cause a rematerialization, this should also cause us to fetch boat '1' again
-    boats = run(() => adam.boats);
+    boats = await adam.boats;
     let rematerializedBoaty = boats.objectAt(1);
 
     assert.ok(!!rematerializedBoaty, 'We have a boat!');

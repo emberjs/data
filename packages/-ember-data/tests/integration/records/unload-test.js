@@ -621,129 +621,74 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(relatedPerson, newPerson, 'we have a new related record');
   });
 
-  test('Unloading a record twice only schedules destroy once', function (assert) {
-    let record;
-
-    // populate initial record
-    run(function () {
-      record = store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
-        },
-      });
-    });
-
-    const internalModel = record._internalModel;
-
-    run(function () {
-      store.unloadRecord(record);
-      store.unloadRecord(record);
-      internalModel.cancelDestroy();
-    });
-
-    assert.false(internalModel.isDestroyed, 'We cancelled destroy');
-  });
-
-  test('Cancelling destroy leaves the record in the empty state', function (assert) {
-    let record;
-
-    // populate initial record
-    run(function () {
-      record = store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
-        },
-      });
-    });
-
-    const internalModel = record._internalModel;
-    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
-
-    run(function () {
-      store.unloadRecord(record);
-      assert.true(record.isDestroying, 'the record is destroying');
-      assert.false(internalModel.isDestroyed, 'the internal model is not destroyed');
-      assert.true(internalModel._isDematerializing, 'the internal model is dematerializing');
-      internalModel.cancelDestroy();
-      assert.true(internalModel.isEmpty, 'We are unloaded after unloadRecord');
-    });
-
-    assert.false(internalModel.isDestroyed, 'the internal model was not destroyed');
-    assert.false(internalModel._isDematerializing, 'the internal model is no longer dematerializing');
-    assert.true(internalModel.isEmpty, 'We are still unloaded after unloadRecord');
-  });
-
-  test('after unloading a record, the record can be fetched again immediately', function (assert) {
+  test('after unloading a record, the record can be fetched again immediately', async function (assert) {
+    let resolver;
     // stub findRecord
     adapter.findRecord = () => {
-      return {
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
-        },
-      };
+      return new Promise((resolve) => {
+        resolver = resolve;
+      });
     };
 
     // populate initial record
-    let record = run(() => {
-      return store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
-          relationships: {
-            cars: {
-              data: [
-                {
-                  id: 1,
-                  type: 'car',
-                },
-              ],
-            },
+    let record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
+        },
+        relationships: {
+          cars: {
+            data: [
+              {
+                id: 1,
+                type: 'car',
+              },
+            ],
           },
         },
-        included: [
-          {
-            type: 'car',
-            id: 1,
-            attributes: {
-              make: 'jeep',
-              model: 'wrangler',
-            },
+      },
+      included: [
+        {
+          type: 'car',
+          id: 1,
+          attributes: {
+            make: 'jeep',
+            model: 'wrangler',
           },
-        ],
-      });
+        },
+      ],
     });
+    store.DISABLE_WAITER = true;
 
-    const internalModel = record._internalModel;
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     // we test that we can sync call unloadRecord followed by findRecord
-    return run(() => {
-      store.unloadRecord(record);
-      assert.true(record.isDestroying, 'the record is destroying');
-      assert.true(internalModel.isEmpty, 'We are unloaded after unloadRecord');
-      return store.findRecord('person', '1').then((newRecord) => {
-        assert.strictEqual(internalModel, newRecord._internalModel, 'the old internalModel is reused');
-        assert.strictEqual(newRecord.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
-      });
+    const identifier = recordIdentifierFor(record);
+    store.unloadRecord(record);
+    const promise = store.findRecord('person', '1');
+    assert.true(record.isDestroying, 'the record is destroying');
+
+    await settled();
+    assert.strictEqual(store.peekRecord('person', '1'), null, 'We are unloaded after unloadRecord');
+
+    resolver({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
+        },
+      },
     });
+    const newRecord = await promise;
+    const newIdentifier = recordIdentifierFor(newRecord);
+    assert.notStrictEqual(identifier, newIdentifier, 'the identifier is not reused');
+    assert.strictEqual(newRecord.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
   });
 
-  test('after unloading a record, the record can be fetched again immediately (purge relationship)', function (assert) {
+  test('after unloading a record, the record can be fetched again immediately (purge relationship)', async function (assert) {
     // stub findRecord
     adapter.findRecord = () => {
       return {
@@ -763,36 +708,34 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
 
     // populate initial record
-    let record = run(() => {
-      return store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
-          relationships: {
-            cars: {
-              data: [
-                {
-                  id: '1',
-                  type: 'car',
-                },
-              ],
-            },
+    let record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
+        },
+        relationships: {
+          cars: {
+            data: [
+              {
+                id: '1',
+                type: 'car',
+              },
+            ],
           },
         },
-        included: [
-          {
-            type: 'car',
-            id: '1',
-            attributes: {
-              make: 'jeep',
-              model: 'wrangler',
-            },
+      },
+      included: [
+        {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'jeep',
+            model: 'wrangler',
           },
-        ],
-      });
+        },
+      ],
     });
 
     let identifier = recordIdentifierFor(record);
@@ -800,22 +743,19 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     // we test that we can sync call unloadRecord followed by findRecord
-    return run(() => {
-      assert.strictEqual(record.get('cars.firstObject.make'), 'jeep');
-      store.unloadRecord(record);
-      assert.true(record.isDestroying, 'the record is destroying');
-      assert.true(recordData.isEmpty(), 'Expected the previous data to be unloaded');
+    assert.strictEqual(record.get('cars.firstObject.make'), 'jeep');
+    store.unloadRecord(record);
+    assert.true(record.isDestroying, 'the record is destroying');
+    assert.true(recordData.isEmpty(), 'Expected the previous data to be unloaded');
 
-      return store.findRecord('person', '1').then((record) => {
-        assert.strictEqual(record.cars.length, 0, 'Expected relationship to be cleared by the new push');
-        assert.strictEqual(identifier, recordIdentifierFor(record), 'the old identifier is reused');
-        assert.strictEqual(
-          record.currentState.stateName,
-          'root.loaded.saved',
-          'Expected the NEW internal model to be loaded'
-        );
-      });
-    });
+    const recordAgain = await store.findRecord('person', '1');
+    assert.strictEqual(recordAgain.cars.length, 0, 'Expected relationship to be cleared by the new push');
+    assert.notStrictEqual(identifier, recordIdentifierFor(recordAgain), 'the old identifier is not reused');
+    assert.strictEqual(
+      record.currentState.stateName,
+      'root.loaded.saved',
+      'Expected the NEW internal model to be loaded'
+    );
   });
 
   test('after unloading a record, the record can be fetched again immediately (with relationships)', function (assert) {
@@ -1965,46 +1905,44 @@ module('integration/unload - Unloading Records', function (hooks) {
 
       return {
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
         },
       };
     };
 
-    let person = run(() =>
-      store.push({
-        data: {
-          id: 1,
-          type: 'person',
-          relationships: {
-            favoriteSpoons: {
-              data: [
-                {
-                  id: 2,
-                  type: 'spoon',
-                },
-                {
-                  id: 3,
-                  type: 'spoon',
-                },
-              ],
-            },
+    let person = store.push({
+      data: {
+        id: 1,
+        type: 'person',
+        relationships: {
+          favoriteSpoons: {
+            data: [
+              {
+                id: '2',
+                type: 'spoon',
+              },
+              {
+                id: '3',
+                type: 'spoon',
+              },
+            ],
           },
         },
-        included: [
-          {
-            id: 2,
-            type: 'spoon',
-          },
-          {
-            id: 3,
-            type: 'spoon',
-          },
-        ],
-      })
-    );
-    let spoon2 = store.peekRecord('spoon', 2);
-    let spoon3 = store.peekRecord('spoon', 3);
+      },
+      included: [
+        {
+          id: '2',
+          type: 'spoon',
+        },
+        {
+          id: '3',
+          type: 'spoon',
+        },
+      ],
+    });
+    let spoon2 = store.peekRecord('spoon', '2');
+    let spoon3 = store.peekRecord('spoon', '3');
     let spoons = person.favoriteSpoons;
 
     assert.deepEqual(person.favoriteSpoons.mapBy('id'), ['2', '3'], 'initially relationship established lhs');
@@ -2013,7 +1951,8 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.false(spoons.isDestroyed, 'ManyArray is not destroyed');
 
-    run(() => person.unloadRecord());
+    person.unloadRecord();
+    await settled();
 
     assert.true(spoons.isDestroyed, 'ManyArray is destroyed when 1 side is unloaded');
     assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
@@ -2023,7 +1962,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
 
-    assert.deepEqual(person.favoriteSpoons.mapBy('id'), ['2', '3'], 'unload async is not treated as delete');
+    assert.deepEqual(refetchedPerson.favoriteSpoons.mapBy('id'), ['2', '3'], 'unload async is not treated as delete');
     assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
     assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 

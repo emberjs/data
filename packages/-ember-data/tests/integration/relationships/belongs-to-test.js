@@ -336,7 +336,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     );
   });
 
-  test('returning a null relationship from payload sets the relationship to null on both sides', function (assert) {
+  test('returning a null relationship from payload sets the relationship to null on both sides', async function (assert) {
     this.owner.register(
       'model:app',
       Model.extend({
@@ -354,43 +354,43 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    run(() => {
-      store.push({
-        data: {
-          id: '1',
-          type: 'app',
-          relationships: {
-            team: {
-              data: {
-                id: '1',
-                type: 'team',
-              },
+    store.push({
+      data: {
+        id: '1',
+        type: 'app',
+        relationships: {
+          team: {
+            data: {
+              id: '1',
+              type: 'team',
             },
           },
         },
-        included: [
-          {
-            id: '1',
-            type: 'team',
-            relationships: {
-              apps: {
-                data: [
-                  {
-                    id: '1',
-                    type: 'app',
-                  },
-                ],
-              },
+      },
+      included: [
+        {
+          id: '1',
+          type: 'team',
+          relationships: {
+            apps: {
+              data: [
+                {
+                  id: '1',
+                  type: 'app',
+                },
+              ],
             },
           },
-        ],
-      });
+        },
+      ],
     });
 
     const app = store.peekRecord('app', '1');
     const team = store.peekRecord('team', '1');
-    assert.strictEqual(app.team.id, team.id, 'sets team correctly on app');
-    assert.deepEqual(team.apps.toArray().mapBy('id'), ['1'], 'sets apps correctly on team');
+    let appTeam = await app.team;
+    assert.strictEqual(appTeam.id, team.id, 'sets team correctly on app');
+    const apps = await team.apps;
+    assert.deepEqual(apps.toArray().mapBy('id'), ['1'], 'sets apps correctly on team');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = (store, type, snapshot) => {
@@ -410,13 +410,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       });
     };
 
-    return run(() => {
-      app.set('name', 'Hello');
-      return app.save().then(() => {
-        assert.strictEqual(app.team.id, undefined, 'team removed from app relationship');
-        assert.deepEqual(team.apps.toArray().mapBy('id'), [], 'app removed from team apps relationship');
-      });
-    });
+    app.set('name', 'Hello');
+    await app.save();
+    appTeam = await app.team;
+    assert.strictEqual(appTeam?.id, undefined, 'team removed from app relationship');
+    assert.deepEqual(apps.toArray().mapBy('id'), [], 'app removed from team apps relationship');
   });
 
   test('The store can materialize a non loaded monomorphic belongsTo association', function (assert) {

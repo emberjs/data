@@ -1,11 +1,10 @@
 import Mixin from '@ember/object/mixin';
 
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { modelHasAttributeOrRelationshipNamedType } from '@ember-data/serializer/-private';
+import Model, { hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -74,30 +73,6 @@ module('unit/utils', function (hooks) {
     assert.expectAssertion(() => {
       assertPolymorphicType(user, relationship, person, store);
     }, "The 'person' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name.");
-  });
-
-  test('modelHasAttributeOrRelationshipNamedType', function (assert) {
-    class Blank extends Model {}
-    class ModelWithTypeAttribute extends Model {
-      @attr type;
-    }
-    class ModelWithTypeBelongsTo extends Model {
-      @belongsTo type;
-    }
-    class ModelWithTypeHasMany extends Model {
-      @hasMany type;
-    }
-    this.owner.register('model:blank', Blank);
-    this.owner.register('model:with-attr', ModelWithTypeAttribute);
-    this.owner.register('model:with-belongs-to', ModelWithTypeBelongsTo);
-    this.owner.register('model:with-has-many', ModelWithTypeHasMany);
-    const store = this.owner.lookup('service:store');
-
-    assert.false(modelHasAttributeOrRelationshipNamedType(store.modelFor('blank')));
-
-    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-attr')));
-    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-belongs-to')));
-    assert.true(modelHasAttributeOrRelationshipNamedType(store.modelFor('with-has-many')));
   });
 
   testInDebug('assertPolymorphicType works for mixins', function (assert) {

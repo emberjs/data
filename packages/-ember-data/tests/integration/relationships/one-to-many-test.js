@@ -1517,34 +1517,29 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   Rollback attributes from created state
   */
 
-  test('Rollbacking attributes of a created record works correctly when the hasMany side has been created - async', function (assert) {
+  test('Rollbacking attributes of a created record works correctly when the hasMany side has been created - async', async function (assert) {
     let store = this.owner.lookup('service:store');
-
-    var user, message;
-    run(function () {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
+    let user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
         },
-      });
-      message = store.createRecord('message', {
-        user: user,
-      });
+      },
     });
-    run(message, 'rollbackAttributes');
-    run(function () {
-      message.user.then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, null, 'Message does not have the user anymore');
-      });
-      user.messages.then(function (fetchedMessages) {
-        assert.strictEqual(fetchedMessages.length, 0, 'User does not have the message anymore');
-        assert.strictEqual(fetchedMessages.firstObject, undefined, "User message can't be accessed");
-      });
+    let message = store.createRecord('message', {
+      user: user,
     });
+
+    message.rollbackAttributes();
+
+    let fetchedUser = await message.user;
+    assert.strictEqual(fetchedUser, null, 'Message does not have the user anymore');
+    let fetchedMessages = await user.messages;
+
+    assert.strictEqual(fetchedMessages.length, 0, 'User does not have the message anymore');
+    assert.strictEqual(fetchedMessages.firstObject, undefined, "User message can't be accessed");
   });
 
   test('Rollbacking attributes of a created record works correctly when the hasMany side has been created - sync', function (assert) {
@@ -1570,35 +1565,27 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     assert.strictEqual(account.user, null, 'Account does not have the user anymore');
   });
 
-  test('Rollbacking attributes of a created record works correctly when the belongsTo side has been created - async', function (assert) {
+  test('Rollbacking attributes of a created record works correctly when the belongsTo side has been created - async', async function (assert) {
     let store = this.owner.lookup('service:store');
-
-    var message, user;
-    run(function () {
-      message = store.push({
-        data: {
-          id: '2',
-          type: 'message',
-          attributes: {
-            title: 'EmberFest was great',
-          },
+    let message = store.push({
+      data: {
+        id: '2',
+        type: 'message',
+        attributes: {
+          title: 'EmberFest was great',
         },
-      });
-      user = store.createRecord('user');
+      },
     });
-    run(function () {
-      user.messages.then(function (messages) {
-        messages.pushObject(message);
-        user.rollbackAttributes();
-        message.user.then(function (fetchedUser) {
-          assert.strictEqual(fetchedUser, null, 'Message does not have the user anymore');
-        });
-        user.messages.then(function (fetchedMessages) {
-          assert.strictEqual(fetchedMessages.length, 0, 'User does not have the message anymore');
-          assert.strictEqual(fetchedMessages.firstObject, undefined, "User message can't be accessed");
-        });
-      });
-    });
+    let user = store.createRecord('user');
+    let messages = await user.messages;
+    messages.pushObject(message);
+    user.rollbackAttributes();
+    let fetchedUser = await message.user;
+    assert.strictEqual(fetchedUser, null, 'Message does not have the user anymore');
+
+    let fetchedMessages = await user.messages;
+    assert.strictEqual(fetchedMessages.length, 0, 'User does not have the message anymore');
+    assert.strictEqual(fetchedMessages.firstObject, undefined, "User message can't be accessed");
   });
 
   test('Rollbacking attributes of a created record works correctly when the belongsTo side has been created - sync', function (assert) {

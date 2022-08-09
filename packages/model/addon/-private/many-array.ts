@@ -314,7 +314,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
       for (let i = 0; i < jsonApi.data.length; i++) {
         const identifier = idCache.getOrCreateRecordIdentifier(jsonApi.data[i]);
 
-        if (cache.recordIsLoaded(identifier)) {
+        if (cache.recordIsLoaded(identifier, true)) {
           identifiers.push(identifier);
         }
       }

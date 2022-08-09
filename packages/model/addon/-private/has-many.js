@@ -1,6 +1,7 @@
 /**
   @module @ember-data/model
 */
+import { A } from '@ember/array';
 import { assert, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
@@ -188,6 +189,9 @@ function hasMany(type, options) {
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );
         }
+      }
+      if (this.isDestroying || this.isDestroyed) {
+        return A();
       }
       return LEGACY_SUPPORT.lookup(this).getHasMany(key);
     },
