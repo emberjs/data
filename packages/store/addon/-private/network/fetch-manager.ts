@@ -124,59 +124,6 @@ export default class FetchManager {
     return resolver.promise;
   }
 
-  _flushPendingSave(pending: PendingSaveItem) {
-    let { snapshot, resolver, identifier, options } = pending;
-    let adapter = this._store.adapterFor(identifier.type);
-    let operation = options[SaveOp];
-
-    let modelName = snapshot.modelName;
-    let store = this._store;
-    let modelClass = store.modelFor(modelName);
-    const record = store._instanceCache.getRecord(identifier);
-
-    assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
-    assert(
-      `You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`,
-      typeof adapter[operation] === 'function'
-    );
-
-    let promise = resolve().then(() => adapter[operation](store, modelClass, snapshot));
-    let serializer: SerializerWithParseErrors | null = store.serializerFor(modelName);
-    let label = `DS: Extract and notify about ${operation} completion of ${identifier}`;
-
-    assert(
-      `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
-      promise !== undefined
-    );
-
-    promise = _guard(guardDestroyedStore(promise, store, label), _bind(_objectIsAlive, record)).then(
-      (adapterPayload) => {
-        if (!_objectIsAlive(record)) {
-          if (DEPRECATE_RSVP_PROMISE) {
-            deprecate(
-              `A Promise while saving ${modelName} did not resolve by the time your model was destroyed. This will error in a future release.`,
-              false,
-              {
-                id: 'ember-data:rsvp-unresolved-async',
-                until: '5.0',
-                for: '@ember-data/store',
-                since: {
-                  available: '4.5',
-                  enabled: '4.5',
-                },
-              }
-            );
-          }
-        }
-
-        if (adapterPayload) {
-          return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
-        }
-      }
-    );
-    resolver.resolve(promise);
-  }
-
   /**
     This method is called at the end of the run loop, and
     flushes any records passed into `scheduleSave`
@@ -185,11 +132,12 @@ export default class FetchManager {
     @internal
   */
   _flushPendingSaves() {
+    const store = this._store;
     let pending = this._pendingSave.slice();
     this._pendingSave = [];
     for (let i = 0, j = pending.length; i < j; i++) {
       let pendingItem = pending[i];
-      this._flushPendingSave(pendingItem);
+      _flushPendingSave(store, pendingItem);
     }
   }
 
@@ -287,121 +235,6 @@ export default class FetchManager {
     return promise;
   }
 
-  _fetchRecord(fetchItem: PendingFetchItem) {
-    let identifier = fetchItem.identifier;
-    let modelName = identifier.type;
-    let adapter = this._store.adapterFor(modelName);
-
-    assert(`You tried to find a record but you have no adapter (for ${modelName})`, adapter);
-    assert(
-      `You tried to find a record but your adapter (for ${modelName}) does not implement 'findRecord'`,
-      typeof adapter.findRecord === 'function'
-    );
-
-    let snapshot = new Snapshot(fetchItem.options, identifier, this._store);
-    let klass = this._store.modelFor(identifier.type);
-    let id = identifier.id;
-    let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
-
-    let promise = guardDestroyedStore(
-      resolve().then(() => {
-        return adapter.findRecord(this._store, klass, identifier.id, snapshot);
-      }),
-      this._store,
-      label
-    ).then((adapterPayload) => {
-      assert(
-        `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
-        !!payloadIsNotBlank(adapterPayload)
-      );
-      let serializer = this._store.serializerFor(modelName);
-      let payload = normalizeResponseHelper(serializer, this._store, klass, adapterPayload, id, 'findRecord');
-      assert(
-        `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
-        !Array.isArray(payload.data)
-      );
-      assert(
-        `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
-        'data' in payload && payload.data !== null && typeof payload.data === 'object'
-      );
-
-      warn(
-        `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
-        coerceId(payload.data.id) === coerceId(id),
-        {
-          id: 'ds.store.findRecord.id-mismatch',
-        }
-      );
-
-      return payload;
-    });
-
-    fetchItem.resolver.resolve(promise);
-  }
-
-  _processCoalescedGroup(
-    fetchMap: Map<Snapshot, PendingFetchItem>,
-    group: Snapshot[],
-    adapter: MinimumAdapterInterface,
-    modelName: string
-  ) {
-    let store = this._store;
-    if (group.length > 1) {
-      _findMany(store, adapter, modelName, group)
-        .then((payloads: CollectionResourceDocument) => {
-          handleFoundRecords(store, fetchMap, group, payloads);
-        })
-        .catch((error) => {
-          rejectFetchedItems(fetchMap, group, error);
-        });
-    } else if (group.length === 1) {
-      this._fetchRecord(fetchMap.get(group[0])!);
-    } else {
-      assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
-    }
-  }
-
-  _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
-    let adapter = this._store.adapterFor(modelName);
-    let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    let totalItems = pendingFetchItems.length;
-
-    if (shouldCoalesce) {
-      // TODO: Improve records => snapshots => records => snapshots
-      //
-      // We want to provide records to all store methods and snapshots to all
-      // adapter methods. To make sure we're doing that we're providing an array
-      // of snapshots to adapter.groupRecordsForFindMany(), which in turn will
-      // return grouped snapshots instead of grouped records.
-      //
-      // But since the _findMany() finder is a store method we need to get the
-      // records from the grouped snapshots even though the _findMany() finder
-      // will once again convert the records to snapshots for adapter.findMany()
-      let snapshots = new Array<Snapshot>(totalItems);
-      let fetchMap = new Map();
-      for (let i = 0; i < totalItems; i++) {
-        let fetchItem = pendingFetchItems[i];
-        snapshots[i] = new Snapshot(fetchItem.options, fetchItem.identifier, this._store);
-        fetchMap.set(snapshots[i], fetchItem);
-      }
-
-      let groups: Snapshot[][];
-      if (adapter.groupRecordsForFindMany) {
-        groups = adapter.groupRecordsForFindMany(this._store, snapshots);
-      } else {
-        groups = [snapshots];
-      }
-
-      for (let i = 0, l = groups.length; i < l; i++) {
-        this._processCoalescedGroup(fetchMap, groups[i], adapter, modelName);
-      }
-    } else {
-      for (let i = 0; i < totalItems; i++) {
-        this._fetchRecord(pendingFetchItems[i]);
-      }
-    }
-  }
-
   getPendingFetch(identifier: StableRecordIdentifier, options: FindOptions) {
     let pendingFetches = this._pendingFetch.get(identifier.type);
 
@@ -419,7 +252,8 @@ export default class FetchManager {
       return;
     }
 
-    this._pendingFetch.forEach(this._flushPendingFetchForType, this);
+    const store = this._store;
+    this._pendingFetch.forEach((fetchItem, type) => _flushPendingFetchForType(store, fetchItem, type));
     this._pendingFetch.clear();
   }
 
@@ -531,4 +365,159 @@ function handleFoundRecords(
     }
   );
   rejectFetchedItems(fetchMap, [...snapshotsById.values()]);
+}
+
+function _fetchRecord(store: Store, fetchItem: PendingFetchItem) {
+  let identifier = fetchItem.identifier;
+  let modelName = identifier.type;
+  let adapter = store.adapterFor(modelName);
+
+  assert(`You tried to find a record but you have no adapter (for ${modelName})`, adapter);
+  assert(
+    `You tried to find a record but your adapter (for ${modelName}) does not implement 'findRecord'`,
+    typeof adapter.findRecord === 'function'
+  );
+
+  let snapshot = new Snapshot(fetchItem.options, identifier, store);
+  let klass = store.modelFor(identifier.type);
+  let id = identifier.id;
+  let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
+
+  let promise = guardDestroyedStore(
+    resolve().then(() => {
+      return adapter.findRecord(store, klass, identifier.id, snapshot);
+    }),
+    store,
+    label
+  ).then((adapterPayload) => {
+    assert(
+      `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
+      !!payloadIsNotBlank(adapterPayload)
+    );
+    let serializer = store.serializerFor(modelName);
+    let payload = normalizeResponseHelper(serializer, store, klass, adapterPayload, id, 'findRecord');
+    assert(
+      `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
+      !Array.isArray(payload.data)
+    );
+    assert(
+      `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
+      'data' in payload && payload.data !== null && typeof payload.data === 'object'
+    );
+
+    warn(
+      `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
+      coerceId(payload.data.id) === coerceId(id),
+      {
+        id: 'ds.store.findRecord.id-mismatch',
+      }
+    );
+
+    return payload;
+  });
+
+  fetchItem.resolver.resolve(promise);
+}
+
+function _processCoalescedGroup(
+  store: Store,
+  fetchMap: Map<Snapshot, PendingFetchItem>,
+  group: Snapshot[],
+  adapter: MinimumAdapterInterface,
+  modelName: string
+) {
+  if (group.length > 1) {
+    _findMany(store, adapter, modelName, group)
+      .then((payloads: CollectionResourceDocument) => {
+        handleFoundRecords(store, fetchMap, group, payloads);
+      })
+      .catch((error) => {
+        rejectFetchedItems(fetchMap, group, error);
+      });
+  } else if (group.length === 1) {
+    _fetchRecord(store, fetchMap.get(group[0])!);
+  } else {
+    assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
+  }
+}
+
+function _flushPendingFetchForType(store: Store, pendingFetchItems: PendingFetchItem[], modelName: string) {
+  let adapter = store.adapterFor(modelName);
+  let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
+  let totalItems = pendingFetchItems.length;
+
+  if (shouldCoalesce) {
+    let snapshots = new Array<Snapshot>(totalItems);
+    let fetchMap = new Map();
+    for (let i = 0; i < totalItems; i++) {
+      let fetchItem = pendingFetchItems[i];
+      snapshots[i] = new Snapshot(fetchItem.options, fetchItem.identifier, store);
+      fetchMap.set(snapshots[i], fetchItem);
+    }
+
+    let groups: Snapshot[][];
+    if (adapter.groupRecordsForFindMany) {
+      groups = adapter.groupRecordsForFindMany(store, snapshots);
+    } else {
+      groups = [snapshots];
+    }
+
+    for (let i = 0, l = groups.length; i < l; i++) {
+      _processCoalescedGroup(store, fetchMap, groups[i], adapter, modelName);
+    }
+  } else {
+    for (let i = 0; i < totalItems; i++) {
+      _fetchRecord(store, pendingFetchItems[i]);
+    }
+  }
+}
+
+function _flushPendingSave(store: Store, pending: PendingSaveItem) {
+  const { snapshot, resolver, identifier, options } = pending;
+  const adapter = store.adapterFor(identifier.type);
+  const operation = options[SaveOp];
+
+  let modelName = snapshot.modelName;
+  let modelClass = store.modelFor(modelName);
+  const record = store._instanceCache.getRecord(identifier);
+
+  assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
+  assert(
+    `You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`,
+    typeof adapter[operation] === 'function'
+  );
+
+  let promise = resolve().then(() => adapter[operation](store, modelClass, snapshot));
+  let serializer: SerializerWithParseErrors | null = store.serializerFor(modelName);
+  let label = `DS: Extract and notify about ${operation} completion of ${identifier}`;
+
+  assert(
+    `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
+    promise !== undefined
+  );
+
+  promise = _guard(guardDestroyedStore(promise, store, label), _bind(_objectIsAlive, record)).then((adapterPayload) => {
+    if (!_objectIsAlive(record)) {
+      if (DEPRECATE_RSVP_PROMISE) {
+        deprecate(
+          `A Promise while saving ${modelName} did not resolve by the time your model was destroyed. This will error in a future release.`,
+          false,
+          {
+            id: 'ember-data:rsvp-unresolved-async',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.5',
+              enabled: '4.5',
+            },
+          }
+        );
+      }
+    }
+
+    if (adapterPayload) {
+      return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
+    }
+  });
+  resolver.resolve(promise);
 }

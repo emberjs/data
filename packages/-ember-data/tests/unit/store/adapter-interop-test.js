@@ -830,7 +830,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
   });
 
   testInDebug(
-    'store._fetchRecord reject records that were not found, even when those requests were coalesced with records that were found',
+    'store.findRecord reject records that were not found, even when those requests were coalesced with records that were found',
     function (assert) {
       assert.expect(3);
 
@@ -862,7 +862,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     }
   );
 
-  testInDebug('store._fetchRecord warns when records are missing', function (assert) {
+  testInDebug('store.findRecord warns when records are missing', function (assert) {
     const ApplicationAdapter = Adapter.extend({
       findMany(store, type, ids, snapshots) {
         let records = ids.map((id) => ({ id, type: 'test' })).filter(({ id }) => id === 'david');
