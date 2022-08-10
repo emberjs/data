@@ -37,7 +37,10 @@ export function unsubscribe(token: UnsubscribeToken) {
   Currently only support a single callback per identifier
 */
 export default class NotificationManager {
-  constructor(private store: Store) {}
+  declare store: Store;
+  constructor(store: Store) {
+    this.store = store;
+  }
 
   subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     assert(`Expected to receive a stable Identifier to subscribe to`, isStableIdentifier(identifier));

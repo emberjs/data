@@ -74,8 +74,10 @@ export default class FetchManager {
   declare _pendingSave: PendingSaveItem[];
   // fetches pending in the runloop, waiting to be coalesced
   declare _pendingFetch: Map<string, PendingFetchItem[]>;
+  declare _store: Store;
 
-  constructor(private _store: Store) {
+  constructor(store: Store) {
+    this._store = store;
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
