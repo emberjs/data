@@ -5,7 +5,7 @@ import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas
 import type { Dict } from '@ember-data/types/q/utils';
 
 import type { Graph } from '.';
-import { expandingGet, expandingSet } from './-utils';
+import { expandingGet, expandingSet, getStore } from './-utils';
 
 export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
 
@@ -140,7 +140,7 @@ export function upgradeDefinition(
     !isImplicit
   );
 
-  let relationships = storeWrapper.relationshipsDefinitionFor(type);
+  let relationships = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
   assert(`Expected to have a relationship definition for ${type} but none was found.`, relationships);
   let meta = relationships[propertyName];
 
@@ -171,17 +171,19 @@ export function upgradeDefinition(
 
   // CASE: Inverse is explicitly null
   if (definition.inverseKey === null) {
-    assert(`Expected the inverse model to exist`, storeWrapper._store.modelFor(inverseType));
+    assert(`Expected the inverse model to exist`, getStore(storeWrapper).modelFor(inverseType));
     inverseDefinition = null;
   } else {
-    inverseKey = storeWrapper.inverseForRelationship(type, propertyName);
+    inverseKey = storeWrapper.inverseForRelationship(identifier, propertyName);
 
     // CASE: Inverse resolves to null
     if (!inverseKey) {
       inverseDefinition = null;
     } else {
       // CASE: We have an explicit inverse or were able to resolve one
-      let inverseDefinitions = storeWrapper.relationshipsDefinitionFor(inverseType);
+      let inverseDefinitions = storeWrapper
+        .getSchemaDefinitionService()
+        .relationshipsDefinitionFor({ type: inverseType });
       assert(`Expected to have a relationship definition for ${inverseType} but none was found.`, inverseDefinitions);
       let meta = inverseDefinitions[inverseKey];
       assert(`Expected to find a relationship definition for ${inverseType}.${inverseKey} but none was found.`, meta);

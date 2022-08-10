@@ -16,23 +16,11 @@ const Cache = new WeakCache<StableRecordIdentifier, Map<UnsubscribeToken, Notifi
 Cache._generator = () => new Map();
 const Tokens = new WeakCache<UnsubscribeToken, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
 
-export type NotificationType =
-  | 'attributes'
-  | 'relationships'
-  | 'identity'
-  | 'errors'
-  | 'meta'
-  | 'unload'
-  | 'state'
-  | 'property'; // 'property' is an internal EmberData only transition period concept.
+export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state';
 
 export interface NotificationCallback {
-  (
-    identifier: StableRecordIdentifier,
-    notificationType: 'attributes' | 'relationships' | 'property',
-    key?: string
-  ): void;
-  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
+  (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
   (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
 }
 
@@ -64,8 +52,8 @@ export default class NotificationManager {
     unsubscribe(token);
   }
 
-  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): boolean;
-  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
+  // notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
+  // notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
   notify(identifier: StableRecordIdentifier, value: NotificationType, key?: string): boolean {
     if (!isStableIdentifier(identifier)) {
       if (LOG_NOTIFICATIONS) {

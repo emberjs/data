@@ -1,4 +1,4 @@
-import { assert, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { importSync } from '@embroider/macros';
@@ -6,6 +6,7 @@ import { resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
+import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
 import type { Graph, peekGraph } from '@ember-data/record-data/-private/graph/index';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
@@ -16,12 +17,13 @@ import type {
 import type { RecordData } from '@ember-data/types/q/record-data';
 import { JsonApiRelationship, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import type { RecordDataStoreWrapper as StoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import { Dict } from '@ember-data/types/q/utils';
 
 import RecordReference from '../legacy-model-support/record-reference';
-import RecordDataStoreWrapper from '../managers/record-data-store-wrapper';
+import { RecordDataStoreWrapper } from '../managers/record-data-store-wrapper';
 import Snapshot from '../network/snapshot';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
@@ -35,7 +37,7 @@ import recordDataFor, { removeRecordDataFor, setRecordDataFor } from './record-d
 let _peekGraph: peekGraph;
 if (HAS_RECORD_DATA_PACKAGE) {
   let __peekGraph: peekGraph;
-  _peekGraph = (wrapper: Store | RecordDataStoreWrapper): Graph | undefined => {
+  _peekGraph = (wrapper: Store | StoreWrapper): Graph | undefined => {
     let a = (importSync('@ember-data/record-data/-private') as { peekGraph: peekGraph }).peekGraph;
     __peekGraph = __peekGraph || a;
     return __peekGraph(wrapper);
@@ -307,7 +309,22 @@ export class InstanceCache {
     let recordData = this.peek({ identifier, bucket: 'recordData' });
 
     if (!recordData) {
-      recordData = this.store.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
+      if (DEPRECATE_V1CACHE_STORE_APIS && this.store.createRecordDataFor.length > 2) {
+        deprecate(
+          `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
+          false,
+          {
+            id: 'ember-data:deprecate-v1cache-store-apis',
+            for: 'ember-data',
+            until: '5.0',
+            since: { enabled: '4.8', available: '4.8' },
+          }
+        );
+        // @ts-expect-error
+        recordData = this.store.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
+      } else {
+        recordData = this.store.createRecordDataFor(identifier, this._storeWrapper);
+      }
       setRecordDataFor(identifier, recordData);
       // TODO this is invalid for v2 recordData but required
       // for v1 recordData. Remember to remove this once the
@@ -462,57 +479,52 @@ export class InstanceCache {
   }
 
   // TODO this should move into something coordinating operations
-  setRecordId(modelName: string, id: string, lid: string) {
-    const type = normalizeModelName(modelName);
-    const resource = constructResource(type, null, coerceId(lid));
-    const identifier = this.store.identifierCache.peekRecordIdentifier(resource);
+  setRecordId(identifier: StableRecordIdentifier, id: string) {
+    const { type, lid } = identifier;
+    let oldId = identifier.id;
 
-    if (identifier) {
-      let oldId = identifier.id;
+    // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
+    assert(
+      `'${type}' was saved to the server, but the response does not have an id and your record does not either.`,
+      !(id === null && oldId === null)
+    );
 
-      // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
-      assert(
-        `'${type}' was saved to the server, but the response does not have an id and your record does not either.`,
-        !(id === null && oldId === null)
+    // ID absolutely can't be different than oldID if oldID is not null
+    // TODO this assertion and restriction may not strictly be needed in the identifiers world
+    assert(
+      `Cannot update the id for '${type}:${lid}' from '${String(oldId)}' to '${id}'.`,
+      !(oldId !== null && id !== oldId)
+    );
+
+    // ID can be null if oldID is not null (altered ID in response for a record)
+    // however, this is more than likely a developer error.
+    if (oldId !== null && id === null) {
+      warn(
+        `Your ${type} record was saved to the server, but the response does not have an id.`,
+        !(oldId !== null && id === null)
       );
-
-      // ID absolutely can't be different than oldID if oldID is not null
-      // TODO this assertion and restriction may not strictly be needed in the identifiers world
-      assert(
-        `Cannot update the id for '${type}:${lid}' from '${String(oldId)}' to '${id}'.`,
-        !(oldId !== null && id !== oldId)
-      );
-
-      // ID can be null if oldID is not null (altered ID in response for a record)
-      // however, this is more than likely a developer error.
-      if (oldId !== null && id === null) {
-        warn(
-          `Your ${type} record was saved to the server, but the response does not have an id.`,
-          !(oldId !== null && id === null)
-        );
-        return;
-      }
-
-      if (LOG_INSTANCE_CACHE) {
-        // eslint-disable-next-line no-console
-        console.log(`InstanceCache: updating id to '${id}' for record ${String(identifier)}`);
-      }
-
-      let existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type, id });
-      assert(
-        `'${type}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
-        !existingIdentifier || existingIdentifier === identifier
-      );
-
-      if (identifier.id === null) {
-        // TODO potentially this needs to handle merged result
-        this.store.identifierCache.updateRecordIdentifier(identifier, { type, id });
-      }
-
-      // TODO update recordData if needed ?
-      // TODO handle consequences of identifier merge for notifications
-      this.store._notificationManager.notify(identifier, 'identity');
+      return;
     }
+
+    if (LOG_INSTANCE_CACHE) {
+      // eslint-disable-next-line no-console
+      console.log(`InstanceCache: updating id to '${id}' for record ${String(identifier)}`);
+    }
+
+    let existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type, id });
+    assert(
+      `'${type}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
+      !existingIdentifier || existingIdentifier === identifier
+    );
+
+    if (identifier.id === null) {
+      // TODO potentially this needs to handle merged result
+      this.store.identifierCache.updateRecordIdentifier(identifier, { type, id });
+    }
+
+    // TODO update recordData if needed ?
+    // TODO handle consequences of identifier merge for notifications
+    this.store._notificationManager.notify(identifier, 'identity');
   }
 
   // TODO this should move into something coordinating operations

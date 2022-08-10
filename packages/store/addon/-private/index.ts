@@ -37,6 +37,8 @@ export function normalizeModelName(modelName: string) {
   assert(`normalizeModelName support has been removed`);
 }
 
+// TODO this should be a deprecated helper but we have so much usage of it
+// to also eliminate
 export { default as coerceId } from './utils/coerce-id';
 
 export { PromiseArray, PromiseObject, deprecatedPromiseObject } from './proxies/promise-proxies';
@@ -49,8 +51,6 @@ export { default as RecordArrayManager } from './managers/record-array-manager';
 // // Used by tests
 export { default as SnapshotRecordArray } from './network/snapshot-record-array';
 
-// New
+// leaked for private use / test use, should investigate removing
 export { default as recordDataFor, removeRecordDataFor } from './caches/record-data-for';
-export { default as RecordDataStoreWrapper } from './managers/record-data-store-wrapper';
-
 export { default as WeakCache } from './utils/weak-cache';

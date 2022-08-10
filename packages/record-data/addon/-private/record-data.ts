@@ -3,12 +3,12 @@
  */
 import { isEqual } from '@ember/utils';
 
-import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
-import { recordIdentifierFor } from '@ember-data/store/-private';
+import { recordIdentifierFor, Store } from '@ember-data/store/-private';
 import type { CollectionResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import { V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type {
   DefaultSingleResourceRelationship,
   RelationshipRecordData,
@@ -49,9 +49,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
   declare __data: any;
   declare _isDeleted: boolean;
   declare _isDeletionCommited: boolean;
-  declare storeWrapper: RecordDataStoreWrapper;
+  declare storeWrapper: V2RecordDataStoreWrapper;
 
-  constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+  constructor(identifier: RecordIdentifier, storeWrapper: V2RecordDataStoreWrapper) {
     this.modelName = identifier.type;
     this.lid = identifier.lid;
     this.identifier = identifier;
@@ -115,7 +115,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   _clearErrors() {
     if (this._errors) {
       this._errors = undefined;
-      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.lid);
+      this.storeWrapper.notifyChange(this.identifier, 'errors');
     }
   }
 
@@ -159,7 +159,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     // allows relationship payloads to be ignored silently if no relationship
     // definition exists. Ensure there's a test for this and then consider
     // moving this to an assertion. This check should possibly live in the graph.
-    let relationships = this.storeWrapper.relationshipsDefinitionFor(this.modelName);
+    let relationships = this.storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier);
     let keys = Object.keys(relationships);
     for (let i = 0; i < keys.length; i++) {
       let relationshipName = keys[i];
@@ -209,16 +209,16 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   _notifyAttributes(keys?: string[]) {
-    const { type, id, lid } = this.identifier;
+    const { identifier } = this;
     const manager = this.storeWrapper;
 
     if (!keys) {
-      manager.notifyPropertyChange(type, id, lid);
+      manager.notifyChange(identifier, 'attributes');
       return;
     }
 
     for (let i = 0; i < keys.length; i++) {
-      manager.notifyPropertyChange(type, id, lid, keys[i]);
+      manager.notifyChange(identifier, 'attributes', keys[i]);
     }
   }
 
@@ -291,7 +291,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (data) {
       if (data.id) {
         // didCommit provided an ID, notify the store of it
-        this.storeWrapper.setRecordId(this.modelName, data.id, this.lid);
+        this.storeWrapper.setRecordId(this.identifier, data.id);
       }
       if (data.relationships) {
         this._setupRelationships(data);
@@ -313,7 +313,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   notifyStateChange() {
-    this.storeWrapper.notifyStateChange(this.modelName, this.id, this.lid);
+    this.storeWrapper.notifyChange(this.identifier, 'state');
   }
 
   // get ResourceIdentifiers for "current state"
@@ -366,7 +366,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (errors) {
       this._errors = errors;
     }
-    this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.lid);
+    this.storeWrapper.notifyChange(this.identifier, 'errors');
   }
 
   getBelongsTo(key: string): DefaultSingleResourceRelationship {
@@ -383,9 +383,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   setDirtyAttribute(key: string, value: any) {
-    const { type, id, lid } = this.identifier;
-
-    this.storeWrapper.notifyPropertyChange(type, id, lid, key);
+    this.storeWrapper.notifyChange(this.identifier, 'attributes', key);
     let originalValue;
     // Add the new value to the changed attributes hash
     this._attributes[key] = value;
@@ -429,10 +427,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
       // we scheduled this into ember's destroy
       // disconnectRecord called from destroy will teardown
       // relationships. We do this to queue that.
-      this.storeWrapper._store._backburner.join(() => {
+      (this.storeWrapper as unknown as { _store: Store })._store._backburner.join(() => {
         for (let i = 0; i < relatedIdentifiers.length; ++i) {
           let identifier = relatedIdentifiers[i];
-          storeWrapper.disconnectRecord(identifier.type, identifier.id, identifier.lid);
+          storeWrapper.disconnectRecord(identifier);
         }
       });
     }
@@ -441,7 +439,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   isRecordInUse() {
-    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.lid);
+    return this.storeWrapper.hasRecord(this.identifier);
   }
 
   /*
@@ -579,8 +577,8 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
     if (options !== undefined) {
       const { storeWrapper, identifier } = this;
-      let attributeDefs = storeWrapper.attributesDefinitionFor(identifier.type);
-      let relationshipDefs = storeWrapper.relationshipsDefinitionFor(identifier.type);
+      let attributeDefs = storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+      let relationshipDefs = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
       const graph = graphFor(storeWrapper);
       let propertyNames = Object.keys(options);
 
@@ -721,10 +719,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 }
 
-function areAllModelsUnloaded(wrapper: RecordDataStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
+function areAllModelsUnloaded(wrapper: V2RecordDataStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
-    let identifer = identifiers[i];
-    if (wrapper.isRecordInUse(identifer.type, identifer.id, identifer.lid)) {
+    let identifier = identifiers[i];
+    if (wrapper.hasRecord(identifier)) {
       return false;
     }
   }

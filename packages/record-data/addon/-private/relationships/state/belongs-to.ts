@@ -1,7 +1,7 @@
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
-import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type { Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { DefaultSingleResourceRelationship } from '@ember-data/types/q/relationship-record-data';
 
 import type { ManyRelationship } from '../..';
@@ -165,7 +165,7 @@ export default class BelongsToRelationship {
       console.log(`Graph: notifying belongsToChange for ${String(identifier)} ${this.definition.key}`);
     }
 
-    this.store.notifyBelongsToChange(identifier.type, identifier.id, identifier.lid, this.definition.key);
+    this.store.notifyChange(identifier, 'relationships', this.definition.key);
   }
 
   clear() {

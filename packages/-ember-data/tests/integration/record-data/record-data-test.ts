@@ -10,8 +10,9 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -24,10 +25,10 @@ class House extends Model {
   @attr('string', {})
   name;
 
-  @belongsTo('person', { async: false })
+  @belongsTo('person', { async: false, inverse: null })
   landlord;
 
-  @hasMany('person', { async: false })
+  @hasMany('person', { async: false, inverse: null })
   tenants;
 }
 
@@ -99,8 +100,8 @@ class TestRecordData {
   }
 }
 
-let CustomStore = Store.extend({
-  createRecordDataFor(modelName, id, clientId, storeWrapper) {
+const CustomStore = Store.extend({
+  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     return new TestRecordData();
   },
 });
@@ -258,7 +259,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         return new LifecycleRecordData();
       },
     });
@@ -388,7 +389,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         return new AttributeRecordData();
       },
     });
@@ -443,11 +444,11 @@ module('integration/record-data - Custom RecordData Implementations', function (
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, storeWrapper);
         }
       },
     });
@@ -479,8 +480,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let belongsToReturnValue = { data: { id: '1', type: 'person' } };
 
     class RelationshipRecordData extends TestRecordData {
-      constructor(storeWrapper) {
+      declare identifier: StableRecordIdentifier;
+      constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         super();
+        this.identifier = identifier;
         this._storeWrapper = storeWrapper;
       }
 
@@ -491,16 +494,16 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
       setDirtyBelongsTo(key: string, recordData: this | null) {
         belongsToReturnValue = { data: { id: '3', type: 'person' } };
-        this._storeWrapper.notifyBelongsToChange('house', '1', null, 'landlord');
+        this._storeWrapper.notifyChange(this.identifier, 'relationships', 'landlord');
       }
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
-          return new RelationshipRecordData(storeWrapper);
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
+          return new RelationshipRecordData(identifier, storeWrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, storeWrapper);
         }
       },
     });
@@ -575,11 +578,11 @@ module('integration/record-data - Custom RecordData Implementations', function (
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, storeWrapper);
         }
       },
     });
@@ -623,8 +626,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
 
     class RelationshipRecordData extends TestRecordData {
-      constructor(storeWrapper) {
+      declare identifier: StableRecordIdentifier;
+      constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         super();
+        this.identifier = identifier;
         this._storeWrapper = storeWrapper;
       }
 
@@ -648,7 +653,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
             { id: '2', type: 'person' },
           ],
         };
-        this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
+        this._storeWrapper.notifyChange(this.identifier, 'relationships', 'tenants');
       }
 
       removeFromHasMany(key: string, recordDatas: any[]) {
@@ -660,7 +665,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to removeFromHasMany');
         calledRemoveFromHasMany++;
         hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
-        this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
+        this._storeWrapper.notifyChange(this.identifier, 'relationships', 'tenants');
       }
 
       setDirtyHasMany(key: string, recordDatas: any[]) {
@@ -672,16 +677,16 @@ module('integration/record-data - Custom RecordData Implementations', function (
             { id: '2', type: 'person' },
           ],
         };
-        this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
+        this._storeWrapper.notifyChange(this.identifier, 'relationships', 'tenants');
       }
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
-          return new RelationshipRecordData(storeWrapper);
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
+          return new RelationshipRecordData(identifier, storeWrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, storeWrapper);
         }
       },
     });

@@ -3,9 +3,9 @@ import { DEBUG } from '@glimmer/env';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type Store from '@ember-data/store';
-import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { WeakCache } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
@@ -19,7 +19,7 @@ import type {
   RemoteRelationshipOperation,
   UnknownOperation,
 } from './-operations';
-import { assertValidRelationshipPayload, isBelongsTo, isHasMany, isImplicit } from './-utils';
+import { assertValidRelationshipPayload, getStore, isBelongsTo, isHasMany, isImplicit } from './-utils';
 import addToRelatedRecords from './operations/add-to-related-records';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
@@ -34,7 +34,7 @@ Graphs._generator = (wrapper: RecordDataStoreWrapper) => {
 
   // in DEBUG we attach the graph to the main store for improved debuggability
   if (DEBUG) {
-    Graphs.set(wrapper._store as unknown as RecordDataStoreWrapper, graph);
+    Graphs.set(getStore(wrapper) as unknown as RecordDataStoreWrapper, graph);
   }
 
   return graph;
@@ -261,7 +261,7 @@ export class Graph {
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
-      const backburner = this.store._store._backburner;
+      const backburner = getStore(this.store)._backburner;
       backburner.schedule('coalesce', this, this._flushRemoteQueue);
     }
   }
@@ -331,7 +331,7 @@ export class Graph {
     this._updatedRelationships.add(relationship);
     if (!this._willSyncLocal) {
       this._willSyncLocal = true;
-      const backburner = this.store._store._backburner;
+      const backburner = getStore(this.store)._backburner;
       backburner.schedule('sync', this, this._flushLocalQueue);
     }
   }
@@ -407,7 +407,7 @@ export class Graph {
     Graphs.delete(this.store);
 
     if (DEBUG) {
-      Graphs.delete(this.store._store as unknown as RecordDataStoreWrapper);
+      Graphs.delete(getStore(this.store) as unknown as RecordDataStoreWrapper);
     }
   }
 }

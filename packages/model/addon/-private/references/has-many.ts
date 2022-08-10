@@ -80,7 +80,7 @@ export default class HasManyReference {
     this.#token = store._notificationManager.subscribe(
       parentIdentifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-        if ((bucket === 'relationships' || bucket === 'property') && notifiedKey === key) {
+        if (bucket === 'relationships' && notifiedKey === key) {
           this._ref++;
         }
       }
@@ -115,7 +115,7 @@ export default class HasManyReference {
         const token = this.store._notificationManager.subscribe(
           identifier,
           (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-            if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
+            if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
               this._ref++;
             }
           }

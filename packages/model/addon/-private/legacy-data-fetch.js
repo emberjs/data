@@ -238,12 +238,15 @@ function getInverse(store, parentIdentifier, parentRelationship, type) {
 function recordDataFindInverseRelationshipInfo(store, parentIdentifier, parentRelationship, type) {
   let { name: lhs_relationshipName } = parentRelationship;
   let { type: parentType } = parentIdentifier;
-  let inverseKey = store._instanceCache._storeWrapper.inverseForRelationship(parentType, lhs_relationshipName);
+  let inverseKey = store._instanceCache._storeWrapper.inverseForRelationship(
+    { type: parentType },
+    lhs_relationshipName
+  );
 
   if (inverseKey) {
     let {
       meta: { kind },
-    } = store._instanceCache._storeWrapper.relationshipsDefinitionFor(type)[inverseKey];
+    } = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type })[inverseKey];
     return {
       inverseKey,
       kind,

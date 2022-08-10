@@ -38,7 +38,7 @@ export default class RecordReference {
     this.#token = store._notificationManager.subscribe(
       identifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-        if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
+        if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
           this._ref++;
         }
       }

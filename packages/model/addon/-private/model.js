@@ -487,7 +487,7 @@ class Model extends EmberObject {
     );
 
     if (normalizedId !== null && didChange) {
-      this.store._instanceCache.setRecordId(identifier.type, normalizedId, identifier.lid);
+      this.store._instanceCache.setRecordId(identifier, normalizedId);
       this.store._notificationManager.notify(identifier, 'identity');
     }
   }

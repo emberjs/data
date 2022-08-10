@@ -1,8 +1,10 @@
 import { assert, inspect, warn } from '@ember/debug';
 
+import type { Store } from '@ember-data/store/-private';
 import { recordDataFor as peekRecordData } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RelationshipRecordData } from '@ember-data/types/q/relationship-record-data';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -12,6 +14,11 @@ import type ManyRelationship from '../relationships/state/has-many';
 import type ImplicitRelationship from '../relationships/state/implicit';
 import type { UpdateRelationshipOperation } from './-operations';
 import type { Graph } from './index';
+
+export function getStore(wrapper: RecordDataStoreWrapper | { _store: Store }): Store {
+  assert(`expected a private _store property`, '_store' in wrapper);
+  return wrapper._store;
+}
 
 export function expandingGet<T>(cache: Dict<Dict<T>>, key1: string, key2: string): T | undefined {
   let mainCache = (cache[key1] = cache[key1] || Object.create(null));
@@ -48,7 +55,7 @@ export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelations
         )}, but ${field} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
         !Array.isArray(payload.data)
       );
-      assertRelationshipData(graph.store._store, identifier, payload.data, definition);
+      assertRelationshipData(getStore(graph.store), identifier, payload.data, definition);
     } else if (kind === 'hasMany') {
       assert(
         `A ${type} record was pushed into the store with the value of ${field} being '${inspect(
@@ -58,7 +65,7 @@ export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelations
       );
       if (Array.isArray(payload.data)) {
         for (let i = 0; i < payload.data.length; i++) {
-          assertRelationshipData(graph.store._store, identifier, payload.data[i], definition);
+          assertRelationshipData(getStore(graph.store), identifier, payload.data[i], definition);
         }
       }
     }

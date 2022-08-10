@@ -18,6 +18,7 @@ import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_STORE_FIND,
+  DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
 import type { RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 import type { DSModel } from '@ember-data/types/q/ds-model';
@@ -34,6 +35,7 @@ import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-ser
 import type { RecordData } from '@ember-data/types/q/record-data';
 import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordDataWrapper } from '@ember-data/types/q/record-data-record-wrapper';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
 import type { FindOptions } from '@ember-data/types/q/store';
@@ -56,7 +58,6 @@ import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import RecordArrayManager from './managers/record-array-manager';
-import RecordDataStoreWrapper from './managers/record-data-store-wrapper';
 import NotificationManager from './managers/record-notification-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
 import { _findAll, _query, _queryRecord } from './network/finders';
@@ -2191,17 +2192,10 @@ class Store extends Service {
    *
    * @method createRecordDataFor
    * @public
-   * @param modelName
-   * @param id
-   * @param lid
+   * @param identifier
    * @param storeWrapper
    */
-  createRecordDataFor(
-    modelName: string,
-    id: string | null,
-    lid: string,
-    storeWrapper: RecordDataStoreWrapper
-  ): RecordData {
+  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper): RecordData {
     if (HAS_RECORD_DATA_PACKAGE) {
       // we can't greedily use require as this causes
       // a cycle we can't easily fix (or clearly pin point) at present.
@@ -2214,11 +2208,25 @@ class Store extends Service {
         ).RecordData;
       }
 
-      let identifier = this.identifierCache.getOrCreateRecordIdentifier({
-        type: modelName,
-        id,
-        lid,
-      });
+      if (DEPRECATE_V1CACHE_STORE_APIS && arguments.length === 4) {
+        deprecate(
+          `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
+          false,
+          {
+            id: 'ember-data:deprecate-v1cache-store-apis',
+            for: 'ember-data',
+            until: '5.0',
+            since: { enabled: '4.8', available: '4.8' },
+          }
+        );
+        identifier = this.identifierCache.getOrCreateRecordIdentifier({
+          type: arguments[0],
+          id: arguments[1],
+          lid: arguments[2],
+        });
+        storeWrapper = arguments[3];
+      }
+
       return new _RecordData(identifier, storeWrapper);
     }
 
