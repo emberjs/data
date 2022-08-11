@@ -3,7 +3,7 @@ import type BelongsToRelationship from '@ember-data/record-data/-private/relatio
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
 import type { RecordData } from './record-data';
-import { RecordDataStoreWrapper } from './record-data-store-wrapper';
+import type { RecordDataStoreWrapper } from './record-data-store-wrapper';
 
 export interface DefaultSingleResourceRelationship extends SingleResourceRelationship {
   _relationship: BelongsToRelationship;
