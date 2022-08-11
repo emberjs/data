@@ -1703,88 +1703,43 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
   });
 
-  test('Type can be inferred from the key of a hasMany relationship', async function (assert) {
-    assert.expect(1);
+  deprecatedTest(
+    'Type can be inferred from the key of a hasMany relationship',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    async function (assert) {
+      assert.expect(1);
 
-    const User = Model.extend({
-      name: attr(),
-      contacts: hasMany({ inverse: null, async: false }),
-    });
+      const User = Model.extend({
+        name: attr(),
+        contacts: hasMany({ inverse: null, async: false }),
+      });
 
-    const Contact = Model.extend({
-      name: attr(),
-      user: belongsTo('user', { async: false }),
-    });
+      const Contact = Model.extend({
+        name: attr(),
+        user: belongsTo('user', { async: false }),
+      });
 
-    this.owner.register('model:user', User);
-    this.owner.register('model:contact', Contact);
+      this.owner.register('model:user', User);
+      this.owner.register('model:contact', Contact);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.findRecord = function () {
-      return {
-        data: {
-          id: '1',
-          type: 'user',
-          relationships: {
-            contacts: {
-              data: [{ id: '1', type: 'contact' }],
+      adapter.findRecord = function () {
+        return {
+          data: {
+            id: '1',
+            type: 'user',
+            relationships: {
+              contacts: {
+                data: [{ id: '1', type: 'contact' }],
+              },
             },
           },
-        },
+        };
       };
-    };
 
-    const user = store.push({
-      data: {
-        type: 'user',
-        id: '1',
-        relationships: {
-          contacts: {
-            data: [{ type: 'contact', id: '1' }],
-          },
-        },
-      },
-      included: [
-        {
-          type: 'contact',
-          id: '1',
-        },
-      ],
-    });
-    const contacts = await user.contacts;
-    assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
-  });
-
-  test('Type can be inferred from the key of an async hasMany relationship', function (assert) {
-    assert.expect(1);
-    class User extends Model {
-      @attr name;
-      @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
-      @hasMany({ async: true, inverse: null }) contacts;
-    }
-    this.owner.register('model:user', User);
-
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-
-    adapter.findRecord = function (store, type, ids, snapshots) {
-      return {
-        data: {
-          id: '1',
-          type: 'user',
-          relationships: {
-            contacts: {
-              data: [{ id: '1', type: 'contact' }],
-            },
-          },
-        },
-      };
-    };
-
-    run(function () {
-      store.push({
+      const user = store.push({
         data: {
           type: 'user',
           id: '1',
@@ -1801,72 +1756,129 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           },
         ],
       });
-    });
-    run(function () {
-      store
-        .findRecord('user', 1)
-        .then(function (user) {
-          return user.contacts;
-        })
-        .then(function (contacts) {
-          assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
-        });
-    });
-  });
-
-  test('Polymorphic relationships work with a hasMany whose type is inferred', function (assert) {
-    assert.expect(1);
-    class User extends Model {
-      @attr name;
-      @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
-      @hasMany({ async: false, polymorphic: true, inverse: null }) contacts;
+      const contacts = await user.contacts;
+      assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
     }
-    this.owner.register('model:user', User);
+  );
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  deprecatedTest(
+    'Type can be inferred from the key of an async hasMany relationship',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    function (assert) {
+      assert.expect(1);
+      class User extends Model {
+        @attr name;
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+        @hasMany({ async: true, inverse: null }) contacts;
+      }
+      this.owner.register('model:user', User);
 
-    adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: { id: '1', type: 'user' } };
-    };
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            contacts: {
-              data: [
-                { type: 'email', id: '1' },
-                { type: 'phone', id: '2' },
-              ],
+      adapter.findRecord = function (store, type, ids, snapshots) {
+        return {
+          data: {
+            id: '1',
+            type: 'user',
+            relationships: {
+              contacts: {
+                data: [{ id: '1', type: 'contact' }],
+              },
             },
           },
-        },
-        included: [
-          {
-            type: 'email',
+        };
+      };
+
+      run(function () {
+        store.push({
+          data: {
+            type: 'user',
             id: '1',
+            relationships: {
+              contacts: {
+                data: [{ type: 'contact', id: '1' }],
+              },
+            },
           },
-          {
-            type: 'phone',
-            id: '2',
-          },
-        ],
-      });
-    });
-    run(function () {
-      store
-        .findRecord('user', 1)
-        .then(function (user) {
-          return user.contacts;
-        })
-        .then(function (contacts) {
-          assert.strictEqual(contacts.length, 2, 'The contacts relationship is correctly set up');
+          included: [
+            {
+              type: 'contact',
+              id: '1',
+            },
+          ],
         });
-    });
-  });
+      });
+      run(function () {
+        store
+          .findRecord('user', 1)
+          .then(function (user) {
+            return user.contacts;
+          })
+          .then(function (contacts) {
+            assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
+          });
+      });
+    }
+  );
+
+  deprecatedTest(
+    'Polymorphic relationships work with a hasMany whose type is inferred',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    function (assert) {
+      assert.expect(1);
+      class User extends Model {
+        @attr name;
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+        @hasMany({ async: false, polymorphic: true, inverse: null }) contacts;
+      }
+      this.owner.register('model:user', User);
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
+
+      adapter.findRecord = function (store, type, ids, snapshots) {
+        return { data: { id: '1', type: 'user' } };
+      };
+
+      run(function () {
+        store.push({
+          data: {
+            type: 'user',
+            id: '1',
+            relationships: {
+              contacts: {
+                data: [
+                  { type: 'email', id: '1' },
+                  { type: 'phone', id: '2' },
+                ],
+              },
+            },
+          },
+          included: [
+            {
+              type: 'email',
+              id: '1',
+            },
+            {
+              type: 'phone',
+              id: '2',
+            },
+          ],
+        });
+      });
+      run(function () {
+        store
+          .findRecord('user', 1)
+          .then(function (user) {
+            return user.contacts;
+          })
+          .then(function (contacts) {
+            assert.strictEqual(contacts.length, 2, 'The contacts relationship is correctly set up');
+          });
+      });
+    }
+  );
 
   test('Polymorphic relationships with a hasMany is set up correctly on both sides', function (assert) {
     assert.expect(2);
@@ -2897,7 +2909,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   }
 
   testInDebug('Passing a model as type to hasMany should not work', function (assert) {
-    assert.expect(2);
+    assert.expect(3);
 
     assert.expectAssertion(() => {
       const User = Model.extend();
@@ -2908,6 +2920,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }, /The first argument to hasMany must be a string/);
 
     assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
+    assert.expectDeprecation({ id: 'ember-data:deprecate-non-strict-relationships' });
   });
 
   test('Relationship.clear removes all records correctly', async function (assert) {

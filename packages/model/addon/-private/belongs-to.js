@@ -1,6 +1,8 @@
-import { assert, inspect, warn } from '@ember/debug';
+import { assert, deprecate, inspect, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
+
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE } from '@ember-data/private-build-infra/deprecations';
 
 import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
@@ -111,21 +113,31 @@ import { computedMacroWithOptionalParams } from './util';
   @return {Ember.computed} relationship
 */
 function belongsTo(modelName, options) {
-  let opts, userEnteredModelName;
-  if (typeof modelName === 'object') {
-    opts = modelName;
-    userEnteredModelName = undefined;
-  } else {
-    opts = options;
-    userEnteredModelName = modelName;
-  }
+  let opts = options;
+  let userEnteredModelName = modelName;
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && (typeof modelName !== 'string' || !modelName.length)) {
+    deprecate('belongsTo() must specify the string type of the related resource as the first parameter', false, {
+      id: 'ember-data:deprecate-non-strict-relationships',
+      for: 'ember-data',
+      until: '5.0',
+      since: { enabled: '4.8', available: '4.8' },
+    });
 
-  assert(
-    'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
-      inspect(userEnteredModelName) +
-      ". E.g., to define a relation to the Person model, use belongsTo('person')",
-    typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
-  );
+    if (typeof modelName === 'object') {
+      opts = modelName;
+      userEnteredModelName = undefined;
+    } else {
+      opts = options;
+      userEnteredModelName = modelName;
+    }
+
+    assert(
+      'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
+        inspect(userEnteredModelName) +
+        ". E.g., to define a relation to the Person model, use belongsTo('person')",
+      typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
+    );
+  }
 
   opts = opts || {};
   if (!('async' in opts)) {

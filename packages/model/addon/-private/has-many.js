@@ -2,9 +2,11 @@
   @module @ember-data/model
 */
 import { A } from '@ember/array';
-import { assert, inspect } from '@ember/debug';
+import { assert, deprecate, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
+
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE } from '@ember-data/private-build-infra/deprecations';
 
 import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
@@ -151,17 +153,25 @@ import { computedMacroWithOptionalParams } from './util';
   @return {Ember.computed} relationship
 */
 function hasMany(type, options) {
-  if (typeof type === 'object') {
-    options = type;
-    type = undefined;
-  }
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && (typeof type !== 'string' || !type.length)) {
+    deprecate('hasMany() must specify the string type of the related resource as the first parameter', false, {
+      id: 'ember-data:deprecate-non-strict-relationships',
+      for: 'ember-data',
+      until: '5.0',
+      since: { enabled: '4.8', available: '4.8' },
+    });
+    if (typeof type === 'object') {
+      options = type;
+      type = undefined;
+    }
 
-  assert(
-    `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
-      type
-    )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
-    typeof type === 'string' || typeof type === 'undefined'
-  );
+    assert(
+      `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
+        type
+      )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
+      typeof type === 'string' || typeof type === 'undefined'
+    );
+  }
 
   options = options || {};
   if (!('async' in options)) {
