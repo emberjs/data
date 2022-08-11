@@ -52,10 +52,14 @@ export default class NotificationManager {
     unsubscribe(token);
   }
 
+  // deactivated type signature overloads because pass-through was failing to match any. Bring back if possible.
   // notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
   // notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
   notify(identifier: StableRecordIdentifier, value: NotificationType, key?: string): boolean {
-    // TODO assert key not defined if value is not attributes or relationships
+    assert(
+      `Notify does not accept a key argument for the namespace ${value}. Received ${key}.`,
+      !key || value === 'attributes' || value === 'relationships'
+    );
     if (!isStableIdentifier(identifier)) {
       if (LOG_NOTIFICATIONS) {
         // eslint-disable-next-line no-console
