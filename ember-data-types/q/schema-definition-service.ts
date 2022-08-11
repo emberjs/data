@@ -1,5 +1,5 @@
 /**
-  @module @ember-data/interfaces
+  @module @ember-data/store
 */
 
 import type { RecordIdentifier } from './identifier';
@@ -60,6 +60,7 @@ export interface SchemaDefinitionService {
    * Queries whether the schema-definition-service recognizes `type` as a resource type
    *
    * @method doesTypeExist
+   * @public
    * @param {string} type
    * @returns {boolean}
    */
@@ -102,6 +103,7 @@ export interface SchemaDefinitionService {
    * ```
    *
    * @method attributesDefinitionFor
+   * @public
    * @param {RecordIdentifier|{ type: string }} identifier
    * @returns {AttributesSchema}
    */
@@ -181,6 +183,7 @@ export interface SchemaDefinitionService {
    * ```
    *
    * @method relationshipsDefinitionFor
+   * @public
    * @param {RecordIdentifier|{ type: string }} identifier
    * @returns {RelationshipsSchema}
    */

@@ -279,10 +279,38 @@ class Store extends Service {
     }
   }
 
+  /**
+   * Retrieve the RequestStateService instance
+   * associated with this Store.
+   *
+   * This can be used to query the status of requests
+   * that have been initiated for a given identifier.
+   *
+   * @method getRequestStateService
+   * @returns {RequestStateService}
+   * @public
+   */
   getRequestStateService(): RequestCache {
     return this._fetchManager.requestCache;
   }
 
+  /**
+   * A hook which an app or addon may implement. Called when
+   * the Store is attempting to create a Record Instance for
+   * a resource.
+   *
+   * This hook can be used to select or instantiate any desired
+   * mechanism of presentating cache data to the ui for access
+   * mutation, and interaction.
+   *
+   * @method instantiateRecord (hook)
+   * @param identifier
+   * @param createRecordArgs
+   * @param recordDataFor
+   * @param notificationManager
+   * @returns A record instance
+   * @public
+   */
   instantiateRecord(
     identifier: StableRecordIdentifier,
     createRecordArgs: { [key: string]: unknown },
@@ -314,6 +342,16 @@ class Store extends Service {
     assert(`You must implement the store's instantiateRecord hook for your custom model class.`);
   }
 
+  /**
+   * A hook which an app or addon may implement. Called when
+   * the Store is destroying a Record Instance. This hook should
+   * be used to teardown any custom record instances instantiated
+   * with `instantiateRecord`.
+   *
+   * @method teardownRecord (hook)
+   * @public
+   * @param record
+   */
   teardownRecord(record: DSModel | RecordInstance): void {
     if (HAS_MODEL_PACKAGE) {
       assert(
@@ -326,6 +364,16 @@ class Store extends Service {
     }
   }
 
+  /**
+   * Provides access to the SchemaDefinitionService instance
+   * for this Store instance.
+   *
+   * The SchemaDefinitionService can be used to query for
+   * information about the schema of a resource.
+   *
+   * @method getSchemaDefinitionService
+   * @public
+   */
   getSchemaDefinitionService(): SchemaDefinitionService {
     if (HAS_MODEL_PACKAGE && !this._schemaDefinitionService) {
       // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
@@ -339,7 +387,20 @@ class Store extends Service {
     return this._schemaDefinitionService;
   }
 
+  /**
+   * Allows an app to register a custom SchemaDefinitionService
+   * for use when information about a resource's schema needs
+   * to be queried.
+   *
+   * This method can only be called once and needs to be called before
+   * `getSchemaDefinitionService` is called when using `@ember-data/model`.
+   *
+   * @method registerSchemaDefinitionService
+   * @param {SchemaDefinitionService} schema
+   * @public
+   */
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {
+    assert(`Cannot register a schema definition service when one already exists`, !this._schemaDefinitionService);
     this._schemaDefinitionService = schema;
   }
 
@@ -348,6 +409,12 @@ class Store extends Service {
 
     When used with Model from @ember-data/model the return is the model class,
     but this is not guaranteed.
+
+    If looking to query attribute or relationship information it is
+    recommended to use `getSchemaDefinitionService` instead. This method
+    should be considered legacy and exists primarily to continue to support
+    Adapter/Serializer APIs which expect it's return value in their method
+    signatures.
 
     The class of a model might be useful if you want to get a list of all the
     relationship names of the model, see
@@ -1202,6 +1269,7 @@ class Store extends Service {
    ```
 
     @method hasRecordForId
+    @deprecated
     @public
     @param {String} modelName
     @param {(String|Integer)} id
@@ -2091,7 +2159,15 @@ class Store extends Service {
     return this._instanceCache.createSnapshot(recordIdentifierFor(record)).serialize(options);
   }
 
-  // todo @runspired this should likely be publicly @documented for custom records
+  /**
+   * Trigger a save for a Record.
+   *
+   * @method saveRecord
+   * @public
+   * @param {RecordInstance} record
+   * @param options
+   * @returns {Promise<RecordInstance>}
+   */
   saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
@@ -2190,7 +2266,7 @@ class Store extends Service {
    * Instantiation hook allowing applications or addons to configure the store
    * to utilize a custom RecordData implementation.
    *
-   * @method createRecordDataFor
+   * @method createRecordDataFor (hook)
    * @public
    * @param identifier
    * @param storeWrapper
