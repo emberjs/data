@@ -120,14 +120,14 @@ module('unit/model/relationships - belongsTo', function (hooks) {
         data: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
           },
           {
             type: 'person',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'David J. Hamilton',
             },
@@ -182,16 +182,16 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
         return {
           data: {
-            id: 1,
+            id: '1',
             type: 'person',
             attributes: { name: 'Tom Dale' },
-            relationships: { tag: { data: { id: 2, type: 'tag' } } },
+            relationships: { tag: { data: { id: '2', type: 'tag' } } },
           },
         };
       } else if (type === Tag) {
         assert.strictEqual(id, '2', 'id should be 2');
 
-        return { data: { id: 2, type: 'tag', attributes: { name: 'friendly' } } };
+        return { data: { id: '2', type: 'tag', attributes: { name: 'friendly' } } };
       }
     };
 
@@ -547,8 +547,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       assert.strictEqual(snapshots[0].belongsTo('person').id, '1');
       return {
         data: [
-          { id: 5, type: 'occupation', attributes: { description: 'fifth' } },
-          { id: 2, type: 'occupation', attributes: { description: 'second' } },
+          { id: '5', type: 'occupation', attributes: { description: 'fifth' } },
+          { id: '2', type: 'occupation', attributes: { description: 'second' } },
         ],
       };
     };
@@ -614,7 +614,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(snapshot.belongsTo('person').id, '1');
-      return { data: { id: 5, type: 'occupation', attributes: { description: 'fifth' } } };
+      return { data: { id: '5', type: 'occupation', attributes: { description: 'fifth' } } };
     };
 
     run(() => {

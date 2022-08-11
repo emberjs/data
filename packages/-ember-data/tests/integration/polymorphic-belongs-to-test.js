@@ -41,20 +41,20 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     let payload = {
       data: {
         type: 'book',
-        id: 1,
+        id: '1',
         title: 'Yes, Please',
         relationships: {
           author: {
             data: {
               type: 'author',
-              id: 1,
+              id: '1',
             },
           },
         },
       },
       included: [
         {
-          id: 1,
+          id: '1',
           name: 'Amy Poehler',
           type: 'author',
         },
@@ -68,7 +68,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     let payloadThatResetsBelongToRelationship = {
       data: {
         type: 'book',
-        id: 1,
+        id: '1',
         title: 'Yes, Please',
         relationships: {
           author: {
@@ -86,20 +86,20 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     let payload = {
       data: {
         type: 'async-book',
-        id: 1,
+        id: '1',
         title: 'Yes, Please',
         relationships: {
           author: {
             data: {
               type: 'author',
-              id: 1,
+              id: '1',
             },
           },
         },
       },
       included: [
         {
-          id: 1,
+          id: '1',
           name: 'Amy Poehler',
           type: 'author',
         },
@@ -112,7 +112,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     let payloadThatResetsBelongToRelationship = {
       data: {
         type: 'async-book',
-        id: 1,
+        id: '1',
         title: 'Yes, Please',
         relationships: {
           author: {

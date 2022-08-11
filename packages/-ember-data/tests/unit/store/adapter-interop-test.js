@@ -35,7 +35,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
         return resolve({
           data: {
-            id: 1,
+            id: '1',
             type: 'test',
           },
         });
@@ -61,8 +61,8 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         assert.deepEqual(ids, ['1', '2'], 'Correct ids were passed in to findMany');
         return resolve({
           data: [
-            { id: 1, type: 'test' },
-            { id: 2, type: 'test' },
+            { id: '1', type: 'test' },
+            { id: '2', type: 'test' },
           ],
         });
       },
@@ -149,7 +149,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        return resolve({ data: { id: 1, type: 'test', attributes: { name: 'Scumbag Dale' } } });
+        return resolve({ data: { id: '1', type: 'test', attributes: { name: 'Scumbag Dale' } } });
       },
     });
 
@@ -392,10 +392,10 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
       let store = this.owner.lookup('service:store');
 
-      store.createRecord('person', { id: 5 });
+      store.createRecord('person', { id: '5' });
 
       assert.expectAssertion(() => {
-        store.createRecord('person', { id: 5 });
+        store.createRecord('person', { id: '5' });
       }, /The id 5 has already been used with another 'person' record./);
     }
   );
@@ -434,7 +434,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     let store = this.owner.lookup('service:store');
 
     return run(() => {
-      let person = store.createRecord('person', { id: 1, name: 'Brohuda Katz' });
+      let person = store.createRecord('person', { id: '1', name: 'Brohuda Katz' });
 
       return store.findRecord('person', 1).then((again) => {
         assert.strictEqual(person, again, 'the store returns the loaded object');
@@ -913,7 +913,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
       findRecord() {
         assert.ok(true, 'find is always called when the record is not in the store');
-        return { data: { id: 1, type: 'person' } };
+        return { data: { id: '1', type: 'person' } };
       },
     });
 
@@ -970,7 +970,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
       findRecord() {
         assert.ok(true, 'find should not be called when shouldReloadRecord returns false');
-        return { data: { id: 1, type: 'person', attributes: { name: 'Tom' } } };
+        return { data: { id: '1', type: 'person', attributes: { name: 'Tom' } } };
       },
     });
 
@@ -1010,7 +1010,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
       findRecord() {
         assert.ok(true, 'find should be called');
-        return { data: { id: 1, type: 'person', attributes: { name: 'Tom' } } };
+        return { data: { id: '1', type: 'person', attributes: { name: 'Tom' } } };
       },
     });
 
@@ -1044,7 +1044,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
       findRecord() {
         assert.ok(false, 'find should not be called');
-        return { data: { id: 1, type: 'person', attributes: { name: 'Tom' } } };
+        return { data: { id: '1', type: 'person', attributes: { name: 'Tom' } } };
       },
     });
 
@@ -1078,7 +1078,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
       findRecord() {
         assert.ok(true, 'find should not be called');
-        return { data: { id: 1, type: 'person', attributes: { name: 'Tom' } } };
+        return { data: { id: '1', type: 'person', attributes: { name: 'Tom' } } };
       },
     });
 
@@ -1145,7 +1145,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
       findAll() {
         assert.ok(true, 'findAll should be called when shouldReloadAll returns true');
-        return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }] };
+        return { data: [{ id: '1', type: 'person', attributes: { name: 'Tom' } }] };
       },
     });
 
@@ -1178,7 +1178,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
       findAll() {
         assert.ok(true, 'find should be called');
-        return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }] };
+        return { data: [{ id: '1', type: 'person', attributes: { name: 'Tom' } }] };
       },
     });
 
@@ -1209,7 +1209,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
       findAll() {
         assert.ok(false, 'findAll should not be called');
-        return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }] };
+        return { data: [{ id: '1', type: 'person', attributes: { name: 'Tom' } }] };
       },
     });
 
@@ -1246,7 +1246,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         assert.ok(true, 'findAll should be called');
         return new Promise((resolve) => setTimeout(resolve, 1)).then(() => {
           return {
-            data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }],
+            data: [{ id: '1', type: 'person', attributes: { name: 'Tom' } }],
           };
         });
       },

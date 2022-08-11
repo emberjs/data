@@ -238,7 +238,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
 
     test(`new record's attributes can be rollbacked`, function (assert) {
       let store = this.owner.lookup('service:store');
-      let person = store.createRecord('person', { id: 1 });
+      let person = store.createRecord('person', { id: '1' });
 
       assert.true(person.isNew, 'must be new');
       assert.true(person.hasDirtyAttributes, 'must be dirty');
@@ -268,7 +268,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       this.owner.register('serializer:application', RESTSerializer.extend());
 
       let store = this.owner.lookup('service:store');
-      let person = store.createRecord('person', { id: 1 });
+      let person = store.createRecord('person', { id: '1' });
 
       assert.true(person.isNew, 'must be new');
       assert.true(person.hasDirtyAttributes, 'must be dirty');
@@ -305,7 +305,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         person = store.push({
           data: {
             type: 'person',
-            id: 1,
+            id: '1',
             attributes: {
               firstName: 'original name',
             },

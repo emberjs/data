@@ -313,7 +313,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.ok(!user.contacts.initialState || !user.contacts.initialState.find((model) => model.id === '2'));
 
     run(() => {
-      contacts.addObject(store.createRecord('user', { id: 8 }));
+      contacts.addObject(store.createRecord('user', { id: '8' }));
     });
 
     assert.deepEqual(
@@ -340,15 +340,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           data: [
             {
               type: 'user',
-              id: 2,
+              id: '2',
             },
             {
               type: 'user',
-              id: 3,
+              id: '3',
             },
             {
               type: 'user',
-              id: 4,
+              id: '4',
             },
           ],
         },
@@ -360,22 +360,22 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       included: [
         {
           type: 'user',
-          id: 2,
+          id: '2',
         },
         {
           type: 'user',
-          id: 3,
+          id: '3',
         },
         {
           type: 'user',
-          id: 4,
+          id: '4',
         },
       ],
     });
     let contacts = user.contacts;
 
     store.adapterFor('user').deleteRecord = function () {
-      return { data: { type: 'user', id: 2 } };
+      return { data: { type: 'user', id: '2' } };
     };
 
     assert.deepEqual(
@@ -385,9 +385,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     );
 
     run(() => {
-      contacts.addObject(store.createRecord('user', { id: 5 }));
-      contacts.addObject(store.createRecord('user', { id: 6 }));
-      contacts.addObject(store.createRecord('user', { id: 7 }));
+      contacts.addObject(store.createRecord('user', { id: '5' }));
+      contacts.addObject(store.createRecord('user', { id: '6' }));
+      contacts.addObject(store.createRecord('user', { id: '7' }));
     });
 
     assert.deepEqual(
@@ -406,7 +406,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     );
     assert.strictEqual(contacts, user.contacts);
 
-    contacts.addObject(store.createRecord('user', { id: 8 }));
+    contacts.addObject(store.createRecord('user', { id: '8' }));
     assert.deepEqual(
       contacts.map((c) => c.id),
       ['3', '4', '5', '7', '8'],
@@ -442,8 +442,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 2, type: 'chapter', attributes: { title: 'Chapter One' } },
-          { id: 3, type: 'chapter', attributes: { title: 'Chapter Two' } },
+          { id: '2', type: 'chapter', attributes: { title: 'Chapter One' } },
+          { id: '3', type: 'chapter', attributes: { title: 'Chapter Two' } },
         ],
       });
     };
@@ -497,7 +497,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -509,7 +509,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         },
       });
     };
-    //({ id: 1, links: { comments: "/posts/1/comments" } });
+    //({ id: '1', links: { comments: "/posts/1/comments" } });
 
     adapter.findMany = function (store, type, ids, snapshots) {
       throw new Error("Adapter's findMany should not be called");
@@ -521,8 +521,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -586,8 +586,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         setTimeout(() => {
           let value = {
             data: [
-              { id: 1, type: 'comment', attributes: { body: 'First' } },
-              { id: 2, type: 'comment', attributes: { body: 'Second' } },
+              { id: '1', type: 'comment', attributes: { body: 'First' } },
+              { id: '2', type: 'comment', attributes: { body: 'Second' } },
             ],
           };
           resolve(value);
@@ -642,8 +642,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -715,7 +715,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.createRecord = function (store, snapshot, link, relationship) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -767,14 +767,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       return resolve({
-        data: [{ id: 5, type: 'comment', attributes: { body: 'hello' } }],
+        data: [{ id: '5', type: 'comment', attributes: { body: 'hello' } }],
       });
     };
 
     adapter.createRecord = function (store, snapshot, link, relationship) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -824,7 +824,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, snapshot, link, relationship) {
-      return resolve({ data: { id: 1, type: 'post' } });
+      return resolve({ data: { id: '1', type: 'post' } });
     };
 
     return run(() => {
@@ -857,7 +857,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           store.push({
             data: {
               type: 'post',
-              id: 1,
+              id: '1',
               relationships: {
                 comments: {
                   data: [{ id: 'local', type: 'comment' }],
@@ -902,7 +902,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -920,8 +920,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -938,9 +938,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
-          { id: 3, type: 'comment', attributes: { body: 'Thirds' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
+          { id: '3', type: 'comment', attributes: { body: 'Thirds' } },
         ],
       });
     };
@@ -960,13 +960,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
               data: [
-                { id: 1, type: 'comment' },
-                { id: 2, type: 'comment' },
+                { id: '1', type: 'comment' },
+                { id: '2', type: 'comment' },
               ],
             },
           },
@@ -1004,8 +1004,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           adapter.findMany = function (store, type, ids, snapshots) {
             return resolve({
               data: [
-                { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-                { id: 2, type: 'comment', attributes: { body: 'Second' } },
+                { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+                { id: '2', type: 'comment', attributes: { body: 'Second' } },
               ],
             });
           };
@@ -1046,13 +1046,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
               data: [
-                { id: 1, type: 'comment' },
-                { id: 2, type: 'comment' },
+                { id: '1', type: 'comment' },
+                { id: '2', type: 'comment' },
               ],
             },
           },
@@ -1063,8 +1063,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findMany = function (store, type, ids, snapshots) {
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1082,8 +1082,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           adapter.findMany = function (store, type, ids, snapshots) {
             return resolve({
               data: [
-                { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-                { id: 2, type: 'comment', attributes: { body: 'Second' } },
+                { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+                { id: '2', type: 'comment', attributes: { body: 'Second' } },
               ],
             });
           };
@@ -1141,8 +1141,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       } else {
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       }
@@ -1207,7 +1207,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -1223,8 +1223,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1267,7 +1267,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -1283,8 +1283,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       count++;
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1332,13 +1332,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
               data: [
-                { id: 1, type: 'comment' },
-                { id: 2, type: 'comment' },
+                { id: '1', type: 'comment' },
+                { id: '2', type: 'comment' },
               ],
             },
           },
@@ -1349,8 +1349,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findMany = function (store, type, ids, snapshots) {
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1394,13 +1394,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
               data: [
-                { id: 1, type: 'comment' },
-                { id: 2, type: 'comment' },
+                { id: '1', type: 'comment' },
+                { id: '2', type: 'comment' },
               ],
             },
           },
@@ -1413,8 +1413,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       count++;
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1464,8 +1464,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       adapter.findHasMany = function (store, snapshot, link, relationship) {
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       };
@@ -1530,16 +1530,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       if (link === '/first') {
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       } else if (link === '/second') {
         return resolve({
           data: [
-            { id: 3, type: 'comment', attributes: { body: 'Third' } },
-            { id: 4, type: 'comment', attributes: { body: 'Fourth' } },
-            { id: 5, type: 'comment', attributes: { body: 'Fifth' } },
+            { id: '3', type: 'comment', attributes: { body: 'Third' } },
+            { id: '4', type: 'comment', attributes: { body: 'Fourth' } },
+            { id: '5', type: 'comment', attributes: { body: 'Fifth' } },
           ],
         });
       }
@@ -1651,9 +1651,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === store.modelFor('post')) {
-        return resolve({ data: { id: 1, type: 'post' } });
+        return resolve({ data: { id: '1', type: 'post' } });
       } else if (type === store.modelFor('comment')) {
-        return resolve({ data: { id: 3, type: 'comment' } });
+        return resolve({ data: { id: '3', type: 'comment' } });
       }
     };
 
@@ -1772,11 +1772,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, ids, snapshots) {
       return {
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           relationships: {
             contacts: {
-              data: [{ id: 1, type: 'contact' }],
+              data: [{ id: '1', type: 'contact' }],
             },
           },
         },
@@ -1827,7 +1827,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: { id: 1, type: 'user' } };
+      return { data: { id: '1', type: 'user' } };
     };
 
     run(function () {
@@ -2197,7 +2197,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
-      return resolve({ data: { id: 1, type: snapshot.modelName } });
+      return resolve({ data: { id: '1', type: snapshot.modelName } });
     };
 
     let post, comment;
@@ -2306,8 +2306,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.ok(true, `findMany called ${++findManyCalls}x`);
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'first' } },
-          { id: 2, type: 'comment', attributes: { body: 'second' } },
+          { id: '1', type: 'comment', attributes: { body: 'first' } },
+          { id: '2', type: 'comment', attributes: { body: 'second' } },
         ],
       });
     };
@@ -2315,7 +2315,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.ok(true, `findRecord called ${++findRecordCalls}x`);
 
-      return resolve({ data: { id: 3, type: 'comment', attributes: { body: 'third' } } });
+      return resolve({ data: { id: '3', type: 'comment', attributes: { body: 'third' } } });
     };
 
     let post = store.push({
@@ -3181,14 +3181,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           attributes: { title: 'The Story Begins' },
           relationships: {
             pages: {
               data: [
-                { id: 2, type: 'page' },
-                { id: 3, type: 'page' },
+                { id: '2', type: 'page' },
+                { id: '3', type: 'page' },
               ],
             },
           },
@@ -3213,14 +3213,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           attributes: { title: 'The Story Begins' },
           relationships: {
             pages: {
               data: [
-                { id: 2, type: 'page' },
-                { id: 3, type: 'page' },
+                { id: '2', type: 'page' },
+                { id: '3', type: 'page' },
               ],
             },
           },
@@ -3250,7 +3250,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           attributes: { title: 'The Story Begins' },
           relationships: {
@@ -3279,7 +3279,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           attributes: { title: 'The Story Begins' },
         },
@@ -3858,7 +3858,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.strictEqual(url, 'comments-updated-link', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
       return resolve({
-        data: [{ id: 1, type: 'comment', attributes: { body: 'This is updated comment' } }],
+        data: [{ id: '1', type: 'comment', attributes: { body: 'This is updated comment' } }],
       });
     };
 
@@ -3931,8 +3931,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       adapter.findHasMany = function (store, record, link, relationship) {
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       };
@@ -3941,7 +3941,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         let post = store.push({
           data: {
             type: 'post',
-            id: 1,
+            id: '1',
             relationships: {
               comments: {
                 links: {
@@ -4292,8 +4292,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       };

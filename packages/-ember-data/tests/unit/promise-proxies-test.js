@@ -135,7 +135,7 @@ module('unit/PromiseBelongsTo', function (hooks) {
           relationships: {
             parent: {
               data: {
-                id: 1,
+                id: '1',
                 type: 'parent',
               },
             },

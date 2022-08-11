@@ -1921,17 +1921,17 @@ module('integration/embedded-records-mixin', function (hooks) {
         );
 
         let superVillain = store.createRecord('super-villain', {
-          id: 1,
+          id: '1',
           firstName: 'Super',
           lastName: 'Villian',
         });
         let evilMinion = store.createRecord('evil-minion', {
-          id: 1,
+          id: '1',
           name: 'Evil Minion',
           superVillain,
         });
         let secretWeapon = store.createRecord('secret-weapon', {
-          id: 1,
+          id: '1',
           name: 'Secret Weapon',
           superVillain,
         });
@@ -1984,15 +1984,15 @@ module('integration/embedded-records-mixin', function (hooks) {
         );
 
         let yellowMinion = store.createRecord('yellow-minion', {
-          id: 1,
+          id: '1',
           name: 'Yellowy',
         });
         let redMinion = store.createRecord('red-minion', {
-          id: 1,
+          id: '1',
           name: 'Reddy',
         });
         let commanderVillain = store.createRecord('commander-villain', {
-          id: 1,
+          id: '1',
           name: 'Jeff',
           minions: [yellowMinion, redMinion],
         });

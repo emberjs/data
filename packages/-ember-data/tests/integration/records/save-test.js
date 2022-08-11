@@ -42,7 +42,7 @@ module('integration/records/save - Save Record', function (hooks) {
       assert.strictEqual(saved.id, undefined);
     }
 
-    deferred.resolve({ data: { id: 123, type: 'post' } });
+    deferred.resolve({ data: { id: '123', type: 'post' } });
     let model = await saved;
     assert.ok(true, 'save operation was resolved');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
@@ -96,7 +96,7 @@ module('integration/records/save - Save Record', function (hooks) {
       if (count++ === 0) {
         return reject(error);
       } else {
-        return resolve({ data: { id: 123, type: 'post' } });
+        return resolve({ data: { id: '123', type: 'post' } });
       }
     };
 

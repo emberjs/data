@@ -23,7 +23,7 @@ module('unit/transform - CustomTransform', function (hooks) {
     this.owner.register('serializer:user', JSONSerializer);
 
     assert.throws(
-      () => store.normalize('user', { id: 1, name: 'Chris' }),
+      () => store.normalize('user', { id: '1', name: 'Chris' }),
       TypeError,
       'throws with missing deserialize method'
     );

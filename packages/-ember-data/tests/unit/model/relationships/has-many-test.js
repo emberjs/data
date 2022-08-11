@@ -50,7 +50,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Tag && id === '12') {
-        return { id: 12, name: 'oohlala' };
+        return { id: '12', name: 'oohlala' };
       } else {
         assert.ok(false, 'findRecord() should not be called with these values');
       }
@@ -267,7 +267,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         data: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -275,7 +275,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
               people: {
                 data: [
                   {
-                    id: 2,
+                    id: '2',
                     type: 'person',
                   },
                 ],
@@ -284,7 +284,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           },
           {
             type: 'person',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'David J. Hamilton',
             },
@@ -331,7 +331,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'tag',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'whatever',
           },
@@ -377,7 +377,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'David J. Hamilton',
           },
@@ -385,7 +385,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
             tag: {
               data: {
                 type: 'tag',
-                id: 1,
+                id: '1',
               },
             },
           },
@@ -393,7 +393,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         included: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -402,7 +402,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                 ],
               },
@@ -415,7 +415,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'tag',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'whatever',
           },
@@ -468,7 +468,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'David J. Hamilton',
           },
@@ -476,7 +476,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
             tag: {
               data: {
                 type: 'tag',
-                id: 1,
+                id: '1',
               },
             },
           },
@@ -484,7 +484,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         included: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -493,11 +493,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                 ],
               },
@@ -545,7 +545,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         data: [
           {
             type: 'person',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'David J. Hamilton',
             },
@@ -554,13 +554,13 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 {
                   data: {
                     type: 'tag',
-                    id: 1,
+                    id: '1',
                   },
                 },
                 {
                   data: {
                     type: 'tag',
-                    id: 2,
+                    id: '2',
                   },
                 },
               ],
@@ -568,7 +568,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           },
           {
             type: 'person',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'Gerald Dempsey Posey',
             },
@@ -577,13 +577,13 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 {
                   data: {
                     type: 'tag',
-                    id: 1,
+                    id: '1',
                   },
                 },
                 {
                   data: {
                     type: 'tag',
-                    id: 2,
+                    id: '2',
                   },
                 },
               ],
@@ -591,7 +591,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           },
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -600,11 +600,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                   {
                     type: 'person',
-                    id: 2,
+                    id: '2',
                   },
                 ],
               },
@@ -612,7 +612,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           },
           {
             type: 'tag',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'nothing',
             },
@@ -621,11 +621,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                   {
                     type: 'person',
-                    id: 2,
+                    id: '2',
                   },
                 ],
               },
@@ -671,7 +671,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'David J. Hamilton',
           },
@@ -679,7 +679,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
             tag: {
               data: {
                 type: 'tag',
-                id: 1,
+                id: '1',
               },
             },
           },
@@ -687,7 +687,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         included: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -696,7 +696,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                 ],
               },
@@ -718,7 +718,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'tag',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'whatever',
           },
@@ -809,7 +809,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Tag && id === '12') {
-        return { data: { id: 12, type: 'tag', attributes: { name: 'oohlala' } } };
+        return { data: { id: '12', type: 'tag', attributes: { name: 'oohlala' } } };
       } else {
         assert.ok(false, 'findRecord() should not be called with these values');
       }
@@ -1095,8 +1095,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
       return {
         data: [
-          { id: 5, type: 'tag', attributes: { name: 'friendly' } },
-          { id: 2, type: 'tag', attributes: { name: 'smarmy' } },
+          { id: '5', type: 'tag', attributes: { name: 'friendly' } },
+          { id: '2', type: 'tag', attributes: { name: 'smarmy' } },
         ],
       };
     };
@@ -1107,14 +1107,14 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
       return {
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: { name: 'Tom Dale' },
           relationships: {
             tags: {
               data: [
-                { id: 5, type: 'tag' },
-                { id: 2, type: 'tag' },
+                { id: '5', type: 'tag' },
+                { id: '2', type: 'tag' },
               ],
             },
           },
@@ -1901,21 +1901,21 @@ module('unit/model/relationships - hasMany', function (hooks) {
         data: [
           {
             type: 'person',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'marvin',
             },
             relationships: {
               cars: {
                 data: [
-                  { type: 'car', id: 1 },
-                  { type: 'car', id: 2 },
+                  { type: 'car', id: '1' },
+                  { type: 'car', id: '2' },
                 ],
               },
             },
           },
-          { type: 'car', id: 1, attributes: { name: 'a' } },
-          { type: 'car', id: 2, attributes: { name: 'b' } },
+          { type: 'car', id: '1', attributes: { name: 'a' } },
+          { type: 'car', id: '2', attributes: { name: 'b' } },
         ],
       });
     });
@@ -2680,9 +2680,9 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
       return {
         data: [
-          { id: 1, type: 'tag', attributes: { name: 'first' } },
-          { id: 2, type: 'tag', attributes: { name: 'second' } },
-          { id: 3, type: 'tag', attributes: { name: 'third' } },
+          { id: '1', type: 'tag', attributes: { name: 'first' } },
+          { id: '2', type: 'tag', attributes: { name: 'second' } },
+          { id: '3', type: 'tag', attributes: { name: 'third' } },
         ],
       };
     };
@@ -2691,7 +2691,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       if (type === Person) {
         return {
           data: {
-            id: 1,
+            id: '1',
             type: 'person',
             attributes: { name: 'Watson' },
             relationships: {
@@ -2702,12 +2702,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
       } else if (type === Tag) {
         return {
           data: {
-            id: 2,
+            id: '2',
             type: 'tag',
             attributes: { name: 'second' },
             relationships: {
               person: {
-                data: { id: 1, type: 'person' },
+                data: { id: '1', type: 'person' },
               },
             },
           },
@@ -2771,7 +2771,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       return {
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
         },
       };
     };

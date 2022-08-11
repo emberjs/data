@@ -38,14 +38,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -124,14 +124,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -210,14 +210,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -297,14 +297,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -389,14 +389,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -468,7 +468,7 @@ module('inverse relationship load test', function (hooks) {
         findBelongsTo() {
           return resolve({
             data: {
-              id: 1,
+              id: '1',
               type: 'dog',
               attributes: {
                 name: 'Scooby',
@@ -540,7 +540,7 @@ module('inverse relationship load test', function (hooks) {
         findBelongsTo() {
           return resolve({
             data: {
-              id: 1,
+              id: '1',
               type: 'dog',
               attributes: {
                 name: 'Scooby',
@@ -612,7 +612,7 @@ module('inverse relationship load test', function (hooks) {
         findBelongsTo() {
           return resolve({
             data: {
-              id: 1,
+              id: '1',
               type: 'dog',
               attributes: {
                 name: 'Scooby',
@@ -684,7 +684,7 @@ module('inverse relationship load test', function (hooks) {
         findBelongsTo() {
           return resolve({
             data: {
-              id: 1,
+              id: '1',
               type: 'dog',
               attributes: {
                 name: 'Scooby',
@@ -756,7 +756,7 @@ module('inverse relationship load test', function (hooks) {
         findBelongsTo() {
           return resolve({
             data: {
-              id: 1,
+              id: '1',
               type: 'dog',
               attributes: {
                 name: 'Scooby',
@@ -817,14 +817,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -898,14 +898,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -979,14 +979,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -1061,14 +1061,14 @@ module('inverse relationship load test', function (hooks) {
           return resolve({
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'dog',
                 attributes: {
                   name: 'Scooby',
                 },
               },
               {
-                id: 2,
+                id: '2',
                 type: 'dog',
                 attributes: {
                   name: 'Scrappy',
@@ -1435,7 +1435,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -1450,7 +1450,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -1522,7 +1522,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -1537,7 +1537,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -1609,7 +1609,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -1621,7 +1621,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -1690,7 +1690,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -1702,7 +1702,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -2323,7 +2323,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -2340,7 +2340,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -2414,7 +2414,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -2431,7 +2431,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -2505,7 +2505,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -2517,7 +2517,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -2586,7 +2586,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -2598,7 +2598,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -2667,7 +2667,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -2679,7 +2679,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -2748,7 +2748,7 @@ module('inverse relationship load test', function (hooks) {
             return resolve({
               data: [
                 {
-                  id: 1,
+                  id: '1',
                   type: 'dog',
                   attributes: {
                     name: 'Scooby',
@@ -2760,7 +2760,7 @@ module('inverse relationship load test', function (hooks) {
                   },
                 },
                 {
-                  id: 2,
+                  id: '2',
                   type: 'dog',
                   attributes: {
                     name: 'Scrappy',
@@ -2820,7 +2820,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -2828,7 +2828,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -2915,7 +2915,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -2923,7 +2923,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3010,7 +3010,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3018,7 +3018,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3106,7 +3106,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3114,7 +3114,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3202,7 +3202,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3210,7 +3210,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3281,7 +3281,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3297,7 +3297,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3404,7 +3404,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3420,7 +3420,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3527,7 +3527,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3540,7 +3540,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3627,7 +3627,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3640,7 +3640,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3727,7 +3727,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3743,7 +3743,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',
@@ -3850,7 +3850,7 @@ module('inverse relationship load test', function (hooks) {
     let { owner } = this;
 
     const scooby = {
-      id: 1,
+      id: '1',
       type: 'dog',
       attributes: {
         name: 'Scooby',
@@ -3866,7 +3866,7 @@ module('inverse relationship load test', function (hooks) {
     };
 
     const scrappy = {
-      id: 2,
+      id: '2',
       type: 'dog',
       attributes: {
         name: 'Scrappy',

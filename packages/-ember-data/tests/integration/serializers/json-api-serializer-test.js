@@ -431,7 +431,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       serializer.pushPayload(store, {
         data: {
           type: 'handles',
-          id: 1,
+          id: '1',
         },
       });
 
@@ -454,7 +454,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     serializer.pushPayload(store, {
       data: {
         type: 'handles',
-        id: 1,
+        id: '1',
       },
     });
 
@@ -483,7 +483,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       serializer.pushPayload(store, {
         data: {
           type: 'handles',
-          id: 1,
+          id: '1',
         },
       });
 
@@ -517,19 +517,19 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       store.serializerFor('user').pushPayload(store, {
         data: {
           type: 'users',
-          id: 1,
+          id: '1',
           relationships: {
             handles: {
               data: [
-                { type: 'handles', id: 1 },
-                { type: 'handles', id: 2 },
+                { type: 'handles', id: '1' },
+                { type: 'handles', id: '2' },
               ],
             },
           },
         },
         included: [
-          { type: 'handles', id: 1 },
-          { type: 'handles', id: 2 },
+          { type: 'handles', id: '1' },
+          { type: 'handles', id: '2' },
         ],
       });
 
@@ -575,19 +575,19 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       store.serializerFor('user').pushPayload(store, {
         data: {
           type: 'users',
-          id: 1,
+          id: '1',
           relationships: {
             handles: {
               data: [
-                { type: 'handles', id: 1 },
-                { type: 'handles', id: 2 },
+                { type: 'handles', id: '1' },
+                { type: 'handles', id: '2' },
               ],
             },
           },
         },
         included: [
-          { type: 'handles', id: 1 },
-          { type: 'handles', id: 2 },
+          { type: 'handles', id: '1' },
+          { type: 'handles', id: '2' },
         ],
       });
 
@@ -634,7 +634,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       store.serializerFor('user').pushPayload(store, {
         data: {
           type: 'users',
-          id: 1,
+          id: '1',
         },
       });
 

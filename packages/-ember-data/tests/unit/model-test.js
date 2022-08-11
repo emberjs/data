@@ -368,7 +368,7 @@ module('unit/model - Model', function (hooks) {
       store.push({
         data: {
           type: 'person',
-          id: 0, // explicit number 0 to make this as risky as possible
+          id: '0', // explicit number 0 to make this as risky as possible
           attributes: {
             name: 'Tom Dale',
           },
@@ -482,8 +482,8 @@ module('unit/model - Model', function (hooks) {
 
         owner.register('model:model', TestModel);
         owner.register('serializer:model', JSONSerializer);
-        store.push(store.normalize('model', { id: 1, name: provided }));
-        store.push(store.normalize('model', { id: 2 }));
+        store.push(store.normalize('model', { id: '1', name: provided }));
+        store.push(store.normalize('model', { id: '2' }));
 
         let record = store.peekRecord('model', 1);
 
@@ -665,7 +665,7 @@ module('unit/model - Model', function (hooks) {
       adapter.findRecord = () =>
         resolve({
           data: {
-            id: 1,
+            id: '1',
             type: 'person',
             attributes: { name: 'John' },
           },
@@ -678,7 +678,7 @@ module('unit/model - Model', function (hooks) {
     });
 
     test('Pushing a record into the store should transition new records to the loaded state', async function (assert) {
-      let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
+      let person = store.createRecord('person', { id: '1', name: 'TomHuda' });
 
       assert.true(person.isNew, 'createRecord should put records into the new state');
 
@@ -1169,7 +1169,7 @@ module('unit/model - Model', function (hooks) {
           likes: [undefined, 'Cheese'],
         });
 
-        return resolve({ data: { id: 1, type: 'mascot' } });
+        return resolve({ data: { id: '1', type: 'mascot' } });
       };
 
       let cat;
@@ -1264,7 +1264,7 @@ module('unit/model - Model', function (hooks) {
 
   module('Misc', function () {
     testInDebug('Calling record.attr() asserts', async function (assert) {
-      let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
+      let person = store.createRecord('person', { id: '1', name: 'TomHuda' });
 
       assert.expectAssertion(() => {
         person.attr();

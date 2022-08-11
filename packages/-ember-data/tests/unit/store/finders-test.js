@@ -57,7 +57,7 @@ module('unit/store/finders', function (hooks) {
     assert.false(serializerLoaded, 'serializer is not eagerly loaded');
 
     deferedFind.resolve({
-      data: { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
+      data: { id: '1', type: 'person', attributes: { name: 'John Churchill' } },
     });
 
     await storePromise;
@@ -93,8 +93,8 @@ module('unit/store/finders', function (hooks) {
 
     deferedFind.resolve({
       data: [
-        { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
-        { id: 2, type: 'person', attributes: { name: 'Louis Joseph' } },
+        { id: '1', type: 'person', attributes: { name: 'John Churchill' } },
+        { id: '2', type: 'person', attributes: { name: 'Louis Joseph' } },
       ],
     });
 
@@ -146,8 +146,8 @@ module('unit/store/finders', function (hooks) {
 
     deferedFind.resolve({
       data: [
-        { id: 1, type: 'dog', attributes: { name: 'Scooby' } },
-        { id: 2, type: 'dog', attributes: { name: 'Scrappy' } },
+        { id: '1', type: 'dog', attributes: { name: 'Scooby' } },
+        { id: '2', type: 'dog', attributes: { name: 'Scrappy' } },
       ],
     });
 
@@ -198,7 +198,7 @@ module('unit/store/finders', function (hooks) {
 
     assert.false(serializerLoaded, 'serializer is not eagerly loaded');
 
-    deferedFind.resolve({ data: { id: 1, type: 'dog', attributes: { name: 'Scooby' } } });
+    deferedFind.resolve({ data: { id: '1', type: 'dog', attributes: { name: 'Scooby' } } });
 
     await storePromise;
 
@@ -230,7 +230,7 @@ module('unit/store/finders', function (hooks) {
     assert.false(serializerLoaded, 'serializer is not eagerly loaded');
 
     deferedFind.resolve({
-      data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }],
+      data: [{ id: '1', type: 'person', attributes: { name: 'John Churchill' } }],
     });
 
     await storePromise;
@@ -263,7 +263,7 @@ module('unit/store/finders', function (hooks) {
     assert.false(serializerLoaded, 'serializer is not eagerly loaded');
 
     deferedFind.resolve({
-      data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }],
+      data: [{ id: '1', type: 'person', attributes: { name: 'John Churchill' } }],
     });
 
     await storePromise;
@@ -296,7 +296,7 @@ module('unit/store/finders', function (hooks) {
     assert.false(serializerLoaded, 'serializer is not eagerly loaded');
 
     deferedFind.resolve({
-      data: { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
+      data: { id: '1', type: 'person', attributes: { name: 'John Churchill' } },
     });
 
     await storePromise;

@@ -49,7 +49,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
         queryRecord(store, type, query) {
           assert.strictEqual(type, Person, 'the query method is called with the correct type');
           return resolve({
-            data: { id: 1, type: 'person', attributes: { name: 'Peter Wagenet' } },
+            data: { id: '1', type: 'person', attributes: { name: 'Peter Wagenet' } },
           });
         },
       })

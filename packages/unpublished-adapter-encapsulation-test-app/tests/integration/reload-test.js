@@ -119,7 +119,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
 
       this.store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: {
             firstName: 'Gaurav',

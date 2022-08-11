@@ -268,7 +268,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       assert.ok(true, 'save operation resolves');
       return EmberPromise.resolve({
         data: {
-          id: 123,
+          id: '123',
           type: 'person',
         },
       });

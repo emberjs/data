@@ -433,7 +433,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     );
 
     let store = this.owner.lookup('service:store');
-    let post = store.createRecord('post', { title: 'Rails is omakase', id: 1 });
+    let post = store.createRecord('post', { title: 'Rails is omakase', id: '1' });
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: post });
 
     store
@@ -465,7 +465,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     );
 
     let store = this.owner.lookup('service:store');
-    let post = store.createRecord('post', { title: 'Rails is omakase', id: 1 });
+    let post = store.createRecord('post', { title: 'Rails is omakase', id: '1' });
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: post });
 
     store
@@ -654,9 +654,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     );
 
     var jsonHash = {
-      id: 1,
+      id: '1',
       child: {
-        id: 1,
+        id: '1',
         type: 'first_type',
       },
     };
@@ -701,9 +701,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     this.owner.register('model:le-type', Model.extend());
 
     var jsonHash = {
-      id: 1,
+      id: '1',
       child: {
-        id: 1,
+        id: '1',
         type: 'my_type_id',
       },
     };
@@ -1095,7 +1095,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
       })
     );
 
-    let jsonHash = { id: 1, TITLE: 'Rails is omakase' };
+    let jsonHash = { id: '1', TITLE: 'Rails is omakase' };
     let store = this.owner.lookup('service:store');
     let post = store.serializerFor('post').normalize(store.modelFor('post'), jsonHash);
 
@@ -1126,7 +1126,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
       })
     );
 
-    let jsonHash = { id: 1, title: 'Rails is omakase', COMMENTS: ['1'] };
+    let jsonHash = { id: '1', title: 'Rails is omakase', COMMENTS: ['1'] };
     let store = this.owner.lookup('service:store');
     let post = store.serializerFor('post').normalize(store.modelFor('post'), jsonHash);
 

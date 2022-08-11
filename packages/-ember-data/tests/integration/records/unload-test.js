@@ -156,7 +156,7 @@ module('integration/unload - Unloading Records', function (hooks) {
           cars: {
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'car',
               },
             ],
@@ -164,7 +164,7 @@ module('integration/unload - Unloading Records', function (hooks) {
           boats: {
             data: [
               {
-                id: 2,
+                id: '2',
                 type: 'boat',
               },
             ],
@@ -242,7 +242,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(function () {
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: {
             name: 'Richard II',
@@ -642,7 +642,7 @@ module('integration/unload - Unloading Records', function (hooks) {
           cars: {
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'car',
               },
             ],
@@ -652,7 +652,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       included: [
         {
           type: 'car',
-          id: 1,
+          id: '1',
           attributes: {
             make: 'jeep',
             model: 'wrangler',
@@ -949,12 +949,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             house: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'house',
               },
             },
@@ -962,7 +962,7 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
         included: [
           {
-            id: 2,
+            id: '2',
             type: 'house',
           },
         ],
@@ -983,7 +983,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     house = run(() =>
       store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'house',
         },
       })
@@ -996,12 +996,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'house',
           relationships: {
             person: {
               data: {
-                id: 1,
+                id: '1',
                 type: 'person',
               },
             },
@@ -1018,17 +1018,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             cars: {
               data: [
                 {
-                  id: 2,
+                  id: '2',
                   type: 'car',
                 },
                 {
-                  id: 3,
+                  id: '3',
                   type: 'car',
                 },
               ],
@@ -1037,11 +1037,11 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
         included: [
           {
-            id: 2,
+            id: '2',
             type: 'car',
           },
           {
-            id: 3,
+            id: '3',
             type: 'car',
           },
         ],
@@ -1069,7 +1069,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     person = run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
         },
       })
@@ -1083,17 +1083,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             cars: {
               data: [
                 {
-                  id: 2,
+                  id: '2',
                   type: 'car',
                 },
                 {
-                  id: 3,
+                  id: '3',
                   type: 'car',
                 },
               ],
@@ -1112,17 +1112,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             cars: {
               data: [
                 {
-                  id: 2,
+                  id: '2',
                   type: 'car',
                 },
                 {
-                  id: 3,
+                  id: '3',
                   type: 'car',
                 },
               ],
@@ -1131,11 +1131,11 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
         included: [
           {
-            id: 2,
+            id: '2',
             type: 'car',
           },
           {
-            id: 3,
+            id: '3',
             type: 'car',
           },
         ],
@@ -1163,7 +1163,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     car2 = run(() =>
       store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'car',
         },
       })
@@ -1176,17 +1176,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             cars: {
               data: [
                 {
-                  id: 2,
+                  id: '2',
                   type: 'car',
                 },
                 {
-                  id: 3,
+                  id: '3',
                   type: 'car',
                 },
               ],
@@ -1205,17 +1205,17 @@ module('integration/unload - Unloading Records', function (hooks) {
       store.push({
         data: [
           {
-            id: 1,
+            id: '1',
             type: 'person',
             relationships: {
               groups: {
                 data: [
                   {
-                    id: 3,
+                    id: '3',
                     type: 'group',
                   },
                   {
-                    id: 4,
+                    id: '4',
                     type: 'group',
                   },
                 ],
@@ -1223,17 +1223,17 @@ module('integration/unload - Unloading Records', function (hooks) {
             },
           },
           {
-            id: 2,
+            id: '2',
             type: 'person',
             relationships: {
               groups: {
                 data: [
                   {
-                    id: 3,
+                    id: '3',
                     type: 'group',
                   },
                   {
-                    id: 4,
+                    id: '4',
                     type: 'group',
                   },
                 ],
@@ -1243,11 +1243,11 @@ module('integration/unload - Unloading Records', function (hooks) {
         ],
         included: [
           {
-            id: 3,
+            id: '3',
             type: 'group',
           },
           {
-            id: 4,
+            id: '4',
             type: 'group',
           },
         ],
@@ -1287,7 +1287,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     person2 = run(() =>
       store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'person',
         },
       })
@@ -1301,17 +1301,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'person',
           relationships: {
             groups: {
               data: [
                 {
-                  id: 3,
+                  id: '3',
                   type: 'group',
                 },
                 {
-                  id: 4,
+                  id: '4',
                   type: 'group',
                 },
               ],
@@ -1336,7 +1336,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
       return {
         data: {
-          id: 2,
+          id: '2',
           type: 'mortgage',
         },
       };
@@ -1345,12 +1345,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     let person = run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             mortgage: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'mortgage',
               },
             },
@@ -1399,7 +1399,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
       return {
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
         },
       };
@@ -1413,11 +1413,11 @@ module('integration/unload - Unloading Records', function (hooks) {
       return {
         data: [
           {
-            id: 2,
+            id: '2',
             type: 'boat',
           },
           {
-            id: 3,
+            id: '3',
             type: 'boat',
           },
         ],
@@ -1427,17 +1427,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     let person = run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             boats: {
               data: [
                 {
-                  id: 2,
+                  id: '2',
                   type: 'boat',
                 },
                 {
-                  id: 3,
+                  id: '3',
                   type: 'boat',
                 },
               ],
@@ -1496,11 +1496,11 @@ module('integration/unload - Unloading Records', function (hooks) {
       return {
         data: [
           {
-            id: 2,
+            id: '2',
             type: 'boat',
           },
           {
-            id: 3,
+            id: '3',
             type: 'boat',
           },
         ],
@@ -1509,17 +1509,17 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     let person = store.push({
       data: {
-        id: 1,
+        id: '1',
         type: 'person',
         relationships: {
           boats: {
             data: [
               {
-                id: 2,
+                id: '2',
                 type: 'boat',
               },
               {
-                id: 3,
+                id: '3',
                 type: 'boat',
               },
             ],
@@ -1570,11 +1570,11 @@ module('integration/unload - Unloading Records', function (hooks) {
       return {
         data: [
           {
-            id: 3,
+            id: '3',
             type: 'person',
           },
           {
-            id: 4,
+            id: '4',
             type: 'person',
           },
         ],
@@ -1584,17 +1584,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     let [person1, person2] = store.push({
       data: [
         {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             friends: {
               data: [
                 {
-                  id: 3,
+                  id: '3',
                   type: 'person',
                 },
                 {
-                  id: 4,
+                  id: '4',
                   type: 'person',
                 },
               ],
@@ -1602,17 +1602,17 @@ module('integration/unload - Unloading Records', function (hooks) {
           },
         },
         {
-          id: 2,
+          id: '2',
           type: 'person',
           relationships: {
             friends: {
               data: [
                 {
-                  id: 3,
+                  id: '3',
                   type: 'person',
                 },
                 {
-                  id: 4,
+                  id: '4',
                   type: 'person',
                 },
               ],
@@ -1712,7 +1712,7 @@ module('integration/unload - Unloading Records', function (hooks) {
         relationships: {
           person: {
             data: {
-              id: 1,
+              id: '1',
               type: 'person',
             },
           },
@@ -1735,7 +1735,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
       return {
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
         },
       };
@@ -1744,12 +1744,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             favoriteBook: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'book',
               },
             },
@@ -1757,7 +1757,7 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
         included: [
           {
-            id: 2,
+            id: '2',
             type: 'book',
           },
         ],
@@ -1793,17 +1793,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             favoriteSpoons: {
               data: [
                 {
-                  id: 2,
+                  id: '2',
                   type: 'spoon',
                 },
                 {
-                  id: 3,
+                  id: '3',
                   type: 'spoon',
                 },
               ],
@@ -1812,11 +1812,11 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
         included: [
           {
-            id: 2,
+            id: '2',
             type: 'spoon',
           },
           {
-            id: 3,
+            id: '3',
             type: 'spoon',
           },
         ],
@@ -1848,7 +1848,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     spoon2 = run(() =>
       store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'spoon',
         },
       })
@@ -1869,17 +1869,17 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             favoriteSpoons: {
               data: [
                 {
-                  id: 2,
+                  id: '2',
                   type: 'spoon',
                 },
                 {
-                  id: 3,
+                  id: '3',
                   type: 'spoon',
                 },
               ],
@@ -1913,7 +1913,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     let person = store.push({
       data: {
-        id: 1,
+        id: '1',
         type: 'person',
         relationships: {
           favoriteSpoons: {
@@ -1982,11 +1982,11 @@ module('integration/unload - Unloading Records', function (hooks) {
       return {
         data: [
           {
-            id: 2,
+            id: '2',
             type: 'show',
           },
           {
-            id: 3,
+            id: '3',
             type: 'show',
           },
         ],
@@ -1995,17 +1995,17 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     let person = store.push({
       data: {
-        id: 1,
+        id: '1',
         type: 'person',
         relationships: {
           favoriteShows: {
             data: [
               {
-                id: 2,
+                id: '2',
                 type: 'show',
               },
               {
-                id: 3,
+                id: '3',
                 type: 'show',
               },
             ],
@@ -2053,11 +2053,11 @@ module('integration/unload - Unloading Records', function (hooks) {
       return {
         data: [
           {
-            id: 2,
+            id: '2',
             type: 'show',
           },
           {
-            id: 3,
+            id: '3',
             type: 'show',
           },
         ],
@@ -2167,14 +2167,14 @@ module('integration/unload - Unloading Records', function (hooks) {
         person: {
           data: {
             type: 'person',
-            id: 1,
+            id: '1',
           },
         },
       };
 
       let data = [
         {
-          id: 3,
+          id: '3',
           type: 'boat',
           relationships,
         },
@@ -2182,7 +2182,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
       if (!isUnloaded) {
         data.unshift({
-          id: 2,
+          id: '2',
           type: 'boat',
           relationships,
         });
@@ -2196,7 +2196,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     let person = run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           relationships: {
             boats: {
@@ -2243,7 +2243,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
       return {
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
         },
       };
@@ -2252,7 +2252,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() =>
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
         },
       })

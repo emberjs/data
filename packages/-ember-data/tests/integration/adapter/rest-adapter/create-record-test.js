@@ -593,7 +593,7 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     const post = store.createRecord('post', { name: 'Tomtomhuda' });
-    const comment = store.createRecord('comment', { id: 2, name: 'Comment title' });
+    const comment = store.createRecord('comment', { id: '2', name: 'Comment title' });
 
     ajaxResponse(adapter, { post: [{ id: '1', name: 'Rails is omakase', comments: [] }] });
 

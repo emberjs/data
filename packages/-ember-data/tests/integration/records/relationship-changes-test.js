@@ -916,7 +916,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
           },
           included: [
             {
-              id: 2,
+              id: '2',
               type: 'author',
             },
           ],

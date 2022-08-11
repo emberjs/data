@@ -109,13 +109,13 @@ module('unit/store/unload - Store unloading records', function (hooks) {
   });
 
   test('unload followed by create of the same type + id', function (assert) {
-    let record = store.createRecord('record', { id: 1 });
+    let record = store.createRecord('record', { id: '1' });
 
     assert.strictEqual(store.peekRecord('record', 1), record, 'record should exactly equal');
 
     return run(() => {
       record.unloadRecord();
-      let createdRecord = store.createRecord('record', { id: 1 });
+      let createdRecord = store.createRecord('record', { id: '1' });
       assert.notStrictEqual(record, createdRecord, 'newly created record is fresh (and was created)');
     });
   });
@@ -156,7 +156,7 @@ module('Store - unload record with relationships', function (hooks) {
         findRecord(store, type, id, snapshot) {
           return resolve({
             data: {
-              id: 1,
+              id: '1',
               type: snapshot.modelName,
               attributes: {
                 description: 'cuisinart',
@@ -200,7 +200,7 @@ module('Store - unload record with relationships', function (hooks) {
       });
 
       let product = store.peekRecord('product', 1);
-      let like = store.createRecord('like', { id: 1, product: product });
+      let like = store.createRecord('like', { id: '1', product: product });
 
       return like.save();
     })

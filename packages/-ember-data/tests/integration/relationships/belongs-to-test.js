@@ -743,11 +743,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'group',
           relationships: {
             people: {
-              data: [{ id: 1, type: 'person' }],
+              data: [{ id: '1', type: 'person' }],
             },
           },
         },
@@ -805,7 +805,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({ data: { id: 1, type: 'seat' } });
+      return resolve({ data: { id: '1', type: 'seat' } });
     };
 
     return run(() => {
@@ -895,7 +895,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     run(() => {
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'group',
         },
       });
@@ -929,8 +929,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
-    let message = store.createRecord('message', { id: 1 });
-    let comment = store.createRecord('comment', { id: 2, message: message });
+    let message = store.createRecord('message', { id: '1' });
+    let comment = store.createRecord('comment', { id: '2', message: message });
     const Message = store.modelFor('message');
 
     assert.ok(comment instanceof Message, 'a comment is an instance of a message');
@@ -1251,11 +1251,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'The Greatest Book' },
           relationships: {
-            author: { data: { id: 2, type: 'author' } },
+            author: { data: { id: '2', type: 'author' } },
           },
         },
       });
@@ -1278,11 +1278,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'The Greatest Book' },
           relationships: {
-            author: { data: { id: 2, type: 'author' } },
+            author: { data: { id: '2', type: 'author' } },
           },
         },
       });
@@ -1310,7 +1310,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'The Greatest Book' },
           relationships: {
@@ -1337,7 +1337,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'The Greatest Book' },
         },
@@ -1528,7 +1528,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(true, "The adapter's findBelongsTo method should be called");
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'author',
           attributes: { name: 'This is author' },
         },
@@ -1630,7 +1630,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(true, "The adapter's findBelongsTo method should be called");
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'author',
           attributes: { name: 'This is author' },
         },
@@ -1844,7 +1844,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function () {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           relationships: {
             book: {
@@ -1858,7 +1858,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findBelongsTo = function () {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'book title' },
         },
@@ -1881,7 +1881,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
           adapter.findBelongsTo = function () {
             return resolve({
               data: {
-                id: 1,
+                id: '1',
                 type: 'book',
                 attributes: { name: 'updated book title' },
               },
@@ -1962,10 +1962,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       chapter = store.push({
         data: {
           type: 'chapter',
-          id: 1,
+          id: '1',
           relationships: {
             book: {
-              data: { type: 'book', id: 1 },
+              data: { type: 'book', id: '1' },
             },
           },
         },
@@ -1975,7 +1975,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function () {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'book title' },
         },
@@ -1990,7 +1990,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
           adapter.findRecord = function () {
             return resolve({
               data: {
-                id: 1,
+                id: '1',
                 type: 'book',
                 attributes: { name: 'updated book title' },
               },
@@ -2013,10 +2013,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         let chapter = store.push({
           data: {
             type: 'chapter',
-            id: 1,
+            id: '1',
             relationships: {
               book: {
-                data: { id: 1, name: 'The Gallic Wars' },
+                data: { id: '1', name: 'The Gallic Wars' },
               },
             },
           },

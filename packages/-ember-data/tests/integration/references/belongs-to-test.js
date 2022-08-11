@@ -39,7 +39,7 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
         },
       });
     });
@@ -61,7 +61,7 @@ module('integration/references/belongs-to', function (hooks) {
         family = store.push({
           data: {
             type: 'family',
-            id: 1,
+            id: '1',
           },
         });
       });
@@ -82,10 +82,10 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
-              data: { type: 'family', id: 1 },
+              data: { type: 'family', id: '1' },
             },
           },
         },
@@ -107,7 +107,7 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
               links: { related: '/families/1' },
@@ -132,7 +132,7 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
               links: {
@@ -162,10 +162,10 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
-              data: { type: 'family', id: 1 },
+              data: { type: 'family', id: '1' },
             },
           },
         },
@@ -178,7 +178,7 @@ module('integration/references/belongs-to', function (hooks) {
       var data = {
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'Coreleone',
           },
@@ -207,10 +207,10 @@ module('integration/references/belongs-to', function (hooks) {
       var person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
-              data: { type: 'family', id: 1 },
+              data: { type: 'family', id: '1' },
             },
           },
         },
@@ -225,7 +225,7 @@ module('integration/references/belongs-to', function (hooks) {
       deferred.resolve({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'Coreleone',
           },
@@ -249,10 +249,10 @@ module('integration/references/belongs-to', function (hooks) {
     let person = store.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
         relationships: {
           family: {
-            data: { type: 'family', id: 1 },
+            data: { type: 'family', id: '1' },
           },
         },
       },
@@ -260,7 +260,7 @@ module('integration/references/belongs-to', function (hooks) {
     let anotherPerson = {
       data: {
         type: 'person',
-        id: 2,
+        id: '2',
       },
     };
 
@@ -305,10 +305,10 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
-              data: { type: 'family', id: 1 },
+              data: { type: 'family', id: '1' },
             },
           },
         },
@@ -327,10 +327,10 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
-              data: { type: 'family', id: 1 },
+              data: { type: 'family', id: '1' },
             },
           },
         },
@@ -338,7 +338,7 @@ module('integration/references/belongs-to', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
         },
       });
     });
@@ -352,10 +352,10 @@ module('integration/references/belongs-to', function (hooks) {
     let person = store.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
         relationships: {
           family: {
-            data: { type: 'family', id: 1 },
+            data: { type: 'family', id: '1' },
           },
         },
       },
@@ -363,7 +363,7 @@ module('integration/references/belongs-to', function (hooks) {
     let family = store.push({
       data: {
         type: 'family',
-        id: 1,
+        id: '1',
         relationships: {
           persons: {
             links: {
@@ -390,7 +390,7 @@ module('integration/references/belongs-to', function (hooks) {
       assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'family',
           attributes: { name: 'Coreleone' },
         },
@@ -402,10 +402,10 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
-              data: { type: 'family', id: 1 },
+              data: { type: 'family', id: '1' },
             },
           },
         },
@@ -437,7 +437,7 @@ module('integration/references/belongs-to', function (hooks) {
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'family',
           attributes: { name: 'Coreleone' },
         },
@@ -449,7 +449,7 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
               links: { related: '/families/1' },
@@ -490,7 +490,7 @@ module('integration/references/belongs-to', function (hooks) {
     const person = store.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
         relationships: {
           family: {
             links: { related: '/families/1' },
@@ -525,7 +525,7 @@ module('integration/references/belongs-to', function (hooks) {
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'family',
           attributes: { name: 'Coreleone' },
         },
@@ -537,10 +537,10 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
-              data: { type: 'family', id: 1 },
+              data: { type: 'family', id: '1' },
             },
           },
         },
@@ -575,7 +575,7 @@ module('integration/references/belongs-to', function (hooks) {
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'family',
           attributes: { name: 'Coreleone' },
         },
@@ -587,10 +587,10 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
-              data: { type: 'family', id: 1 },
+              data: { type: 'family', id: '1' },
             },
           },
         },
@@ -598,7 +598,7 @@ module('integration/references/belongs-to', function (hooks) {
       store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
         },
       });
     });
@@ -629,7 +629,7 @@ module('integration/references/belongs-to', function (hooks) {
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'family',
           attributes: { name: 'Coreleone' },
         },
@@ -641,7 +641,7 @@ module('integration/references/belongs-to', function (hooks) {
       person = store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           relationships: {
             family: {
               links: { related: '/families/1' },

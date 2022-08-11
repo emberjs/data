@@ -547,9 +547,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     let json = {};
     let expected = { evilMinion: '1', evilMinionType: 'evilMinion' };
-    let evilMinion = store.createRecord('evil-minion', { id: 1, name: 'Tomster' });
+    let evilMinion = store.createRecord('evil-minion', { id: '1', name: 'Tomster' });
     let doomsdayDevice = store.createRecord('doomsday-device', {
-      id: 2,
+      id: '2',
       name: 'Yehuda',
       evilMinion: evilMinion,
     });
@@ -573,9 +573,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       return 'typeForEvilMinion';
     };
 
-    let evilMinion = store.createRecord('evil-minion', { id: 1, name: 'Tomster' });
+    let evilMinion = store.createRecord('evil-minion', { id: '1', name: 'Tomster' });
     let doomsdayDevice = store.createRecord('doomsday-device', {
-      id: 2,
+      id: '2',
       name: 'Yehuda',
       evilMinion: evilMinion,
     });
@@ -659,7 +659,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       if (type.modelName === 'doomsday-device') {
         return {
           doomsdayDevice: {
-            id: 1,
+            id: '1',
             name: 'DeathRay',
             evilMinion: 1,
             evilMinionType: 'yellowMinion',
@@ -671,7 +671,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
       return {
         yellowMinion: {
-          id: 1,
+          id: '1',
           type: 'yellowMinion',
           name: 'Alex',
           eyes: 3,
@@ -699,7 +699,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       return {
         doomsdayDevices: [
           {
-            id: 1,
+            id: '1',
             name: 'DeathRay',
             links: {
               evilMinion: '/doomsday-device/1/evil-minion',
@@ -712,7 +712,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     adapter.findBelongsTo = () => {
       return {
         evilMinion: {
-          id: 1,
+          id: '1',
           type: 'yellowMinion',
           name: 'Alex',
           eyes: 3,
@@ -778,7 +778,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       return {
         evilMinion2: [
           {
-            id: 1,
+            id: '1',
             type: 'yellowMinion2',
             name: 'Alex',
             eyes: 3,
@@ -913,8 +913,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     adapter.findRecord = () => {
       return {
-        containers: [{ id: 42, volume: '10 liters', type: 1 }],
-        baskets: [{ id: 1, size: 4 }],
+        containers: [{ id: '42', volume: '10 liters', type: 1 }],
+        baskets: [{ id: '1', size: 4 }],
       };
     };
 
@@ -968,11 +968,11 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     let payload = {
       doomsdayDevice: {
-        id: 1,
+        id: '1',
         evilMinion: 2,
       },
       evilMinion: {
-        id: 2,
+        id: '2',
         doomsdayDevice: 1,
       },
     };
@@ -1004,11 +1004,11 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     let payload = {
       homePlanet: {
-        id: 1,
+        id: '1',
         superVillains: [2],
       },
       superVillain: {
-        id: 2,
+        id: '2',
         homePlanet: 1,
       },
     };

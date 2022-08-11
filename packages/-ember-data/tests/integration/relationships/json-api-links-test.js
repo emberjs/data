@@ -42,7 +42,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
               type: 'user',
               relationships: {
                 organisation: {
-                  data: { id: 1, type: 'organisation' },
+                  data: { id: '1', type: 'organisation' },
                 },
               },
             },

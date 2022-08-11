@@ -1210,13 +1210,13 @@ module('integration/store - queryRecord', function (hooks) {
 
       adapter.queryRecord = function () {
         return {
-          cars: [{ id: 1 }],
+          cars: [{ id: '1' }],
         };
       };
 
       serializer.normalizeQueryRecordResponse = function () {
         return {
-          data: [{ id: 1, type: 'car' }],
+          data: [{ id: '1', type: 'car' }],
         };
       };
 
