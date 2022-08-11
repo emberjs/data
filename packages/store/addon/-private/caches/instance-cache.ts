@@ -166,6 +166,7 @@ export class InstanceCache {
 
     this._storeWrapper = new RecordDataStoreWrapper(this.store);
     this.__recordDataFor = (resource: RecordIdentifier) => {
+      // TODO enforce strict
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
       return this.getRecordData(identifier);
     };
