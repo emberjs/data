@@ -8,6 +8,7 @@ import { gte } from 'ember-compatibility-helpers';
 import DS from 'ember-data';
 import { setupRenderingTest } from 'ember-qunit';
 
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -17,18 +18,18 @@ module('integration/references/has-many', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    const Family = DS.Model.extend({
-      persons: DS.hasMany({ async: true }),
+    const Family = Model.extend({
+      persons: hasMany('person', { async: true, inverse: 'family' }),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr(),
-      family: DS.belongsTo(),
-      pets: DS.hasMany({ async: true }),
+    const Person = Model.extend({
+      name: attr(),
+      family: belongsTo('family', { async: true, inverse: 'persons' }),
+      pets: hasMany('pet', { async: true, inverse: null }),
     });
 
-    const Pet = DS.Model.extend({
-      name: DS.attr(),
+    const Pet = Model.extend({
+      name: attr(),
     });
 
     this.owner.register('model:family', Family);

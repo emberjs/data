@@ -1019,7 +1019,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     class Person extends Model {
-      @hasMany({ async: true }) dogs;
+      @hasMany('dog', { async: true, inverse: null }) dogs;
     }
 
     this.owner.register('model:person', Person);
@@ -1083,7 +1083,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     class Person extends Model {
-      @hasMany({ async: true }) dogs;
+      @hasMany('dog', { async: true, inverse: null }) dogs;
     }
 
     this.owner.register('model:person', Person);
@@ -1203,7 +1203,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     class Person extends Model {
-      @hasMany({ async: true }) dogs;
+      @hasMany('dog', { async: true, inverse: null }) dogs;
     }
 
     this.owner.register('model:person', Person);
@@ -1247,7 +1247,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     class Person extends Model {
-      @hasMany({ async: true }) dogs;
+      @hasMany('dog', { async: true, inverse: null }) dogs;
     }
 
     this.owner.register('model:person', Person);

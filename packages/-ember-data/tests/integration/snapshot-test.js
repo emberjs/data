@@ -21,7 +21,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       @attr()
       title;
 
-      @hasMany({ async: true })
+      @hasMany('comment', { async: true })
       comments;
     }
 
@@ -29,7 +29,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       @attr()
       body;
 
-      @belongsTo({ async: true })
+      @belongsTo('post', { async: true })
       post;
     }
     _Post = Post;

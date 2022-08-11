@@ -17,7 +17,7 @@ const Author = Model.extend({
 });
 
 const Post = Model.extend({
-  author: belongsTo(),
+  author: belongsTo('author', { async: true, inverse: null }),
 });
 
 const Person = Model.extend({

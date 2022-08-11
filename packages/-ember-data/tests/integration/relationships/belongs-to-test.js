@@ -706,11 +706,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     let Group = Model.extend({
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'group' }),
     });
 
     let Person = Model.extend({
-      group: belongsTo({ async: true }),
+      group: belongsTo('group', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:group', Group);
@@ -829,11 +829,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     let Group = Model.extend({
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'group' }),
     });
 
     let Person = Model.extend({
-      group: belongsTo({ async: true }),
+      group: belongsTo('group', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:group', Group);
@@ -882,11 +882,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     let Group = Model.extend({
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'group' }),
     });
 
     let Person = Model.extend({
-      group: belongsTo({ async: true }),
+      group: belongsTo('group', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:group', Group);

@@ -4,10 +4,10 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -15,13 +15,13 @@ module('integration/references/belongs-to', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Family = DS.Model.extend({
-      persons: DS.hasMany(),
-      name: DS.attr(),
+    const Family = Model.extend({
+      persons: hasMany('person', { async: true, inverse: 'family' }),
+      name: attr(),
     });
 
-    const Person = DS.Model.extend({
-      family: DS.belongsTo({ async: true }),
+    const Person = Model.extend({
+      family: belongsTo('family', { async: true, inverse: 'persons' }),
     });
 
     this.owner.register('model:family', Family);
