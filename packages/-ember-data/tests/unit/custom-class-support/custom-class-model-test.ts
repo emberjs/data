@@ -110,8 +110,8 @@ module('unit/model - Custom Class Model', function (hooks) {
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
     recordData.storeWrapper.notifyChange(identifier, 'relationships', 'key');
     recordData.storeWrapper.notifyChange(identifier, 'relationships', 'key');
-    recordData.storeWrapper.notifyChange(identifier, 'state', 'key');
-    recordData.storeWrapper.notifyChange(identifier, 'errors', 'key');
+    recordData.storeWrapper.notifyChange(identifier, 'state');
+    recordData.storeWrapper.notifyChange(identifier, 'errors');
     await settled();
 
     assert.strictEqual(notificationCount, 3, 'called notification callback');

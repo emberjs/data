@@ -57,7 +57,7 @@ export default class NotificationManager {
   // notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
   notify(identifier: StableRecordIdentifier, value: NotificationType, key?: string): boolean {
     assert(
-      `Notify does not accept a key argument for the namespace ${value}. Received ${key}.`,
+      `Notify does not accept a key argument for the namespace '${value}'. Received key '${key}'.`,
       !key || value === 'attributes' || value === 'relationships'
     );
     if (!isStableIdentifier(identifier)) {
