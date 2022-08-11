@@ -242,8 +242,10 @@ export default class FetchManager {
 
     // We already have a pending fetch for this
     if (pendingFetches) {
-      let matchingPendingFetch = pendingFetches.find((fetch) => fetch.identifier === identifier);
-      if (matchingPendingFetch && isSameRequest(options, matchingPendingFetch.options)) {
+      let matchingPendingFetch = pendingFetches.find(
+        (fetch) => fetch.identifier === identifier && isSameRequest(options, fetch.options)
+      );
+      if (matchingPendingFetch) {
         return matchingPendingFetch.promise;
       }
     }
@@ -265,9 +267,11 @@ export default class FetchManager {
 }
 
 // this function helps resolve whether we have a pending request that we should use instead
-// TODO @runspired @needsTest removing this did not cause any test failures
-function isSameRequest(options: FindOptions = {}, reqOptions: FindOptions = {}) {
-  return options.include === reqOptions.include;
+function isSameRequest(options: FindOptions = {}, existingOptions: FindOptions = {}) {
+  let includedMatches = !options.include || options.include === existingOptions.include;
+  let adapterOptionsMatches = options.adapterOptions === existingOptions.adapterOptions;
+
+  return includedMatches && adapterOptionsMatches;
 }
 
 function _findMany(
@@ -325,9 +329,25 @@ function handleFoundRecords(
   snapshots: Snapshot[],
   coalescedPayload: CollectionResourceDocument
 ) {
-  let snapshotsById = new Map<string, Snapshot>();
+  /*
+    It is possible that the same ID is included multiple times
+    via multiple snapshots. This happens when more than one
+    options hash was supplied, each of which must be uniquely
+    accounted for.
+
+    However, since we can't map from response to a specific
+    options object, we resolve all snapshots by id with
+    the first response we see.
+  */
+  let snapshotsById = new Map<string, Snapshot[]>();
   for (let i = 0; i < snapshots.length; i++) {
-    snapshotsById.set(snapshots[i].id!, snapshots[i]);
+    let id = snapshots[i].id!;
+    let snapshotGroup = snapshotsById.get(id);
+    if (!snapshotGroup) {
+      snapshotGroup = [];
+      snapshotsById.set(id, snapshotGroup);
+    }
+    snapshotGroup.push(snapshots[i]);
   }
 
   const included = Array.isArray(coalescedPayload.included) ? coalescedPayload.included : [];
@@ -336,16 +356,18 @@ function handleFoundRecords(
   let resources = coalescedPayload.data;
   for (let i = 0, l = resources.length; i < l; i++) {
     let resource = resources[i];
-    let snapshot = snapshotsById.get(resource.id);
+    let snapshotGroup = snapshotsById.get(resource.id);
     snapshotsById.delete(resource.id);
 
-    if (!snapshot) {
+    if (!snapshotGroup) {
       // TODO consider whether this should be a deprecation/assertion
       included.push(resource);
     } else {
-      let pair = fetchMap.get(snapshot)!;
-      let resolver = pair.resolver;
-      resolver.resolve({ data: resource });
+      snapshotGroup.forEach((snapshot) => {
+        let pair = fetchMap.get(snapshot)!;
+        let resolver = pair.resolver;
+        resolver.resolve({ data: resource });
+      });
     }
   }
 
@@ -358,15 +380,20 @@ function handleFoundRecords(
   }
 
   // reject missing records
+  let rejected: Snapshot[] = [];
+  snapshotsById.forEach((snapshots) => {
+    rejected.push(...snapshots);
+  });
   warn(
     'Ember Data expected to find records with the following ids in the adapter response from findMany but they were missing: [ "' +
-      [...snapshotsById.values()].map((r) => r.id).join('", "') +
+      [...snapshotsById.values()].map((r) => r[0].id).join('", "') +
       '" ]',
     {
       id: 'ds.store.missing-records-from-adapter',
     }
   );
-  rejectFetchedItems(fetchMap, [...snapshotsById.values()]);
+
+  rejectFetchedItems(fetchMap, rejected);
 }
 
 function _fetchRecord(store: Store, fetchItem: PendingFetchItem) {

@@ -318,7 +318,7 @@ jobs:
             ember-observer,
             # ember-resource-metadata,
             factory-guy,
-            # ilios-frontend,
+            ilios-frontend,
             model-fragments,
             storefront,
             travis-web,
