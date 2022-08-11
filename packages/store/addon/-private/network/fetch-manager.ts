@@ -330,9 +330,7 @@ function handleFoundRecords(
     snapshotsById.set(snapshots[i].id!, snapshots[i]);
   }
 
-  if (Array.isArray(coalescedPayload.included) && coalescedPayload.included.length > 0) {
-    store._push({ data: null, included: coalescedPayload.included });
-  }
+  const included = Array.isArray(coalescedPayload.included) ? coalescedPayload.included : [];
 
   // resolve found records
   let resources = coalescedPayload.data;
@@ -340,16 +338,19 @@ function handleFoundRecords(
     let resource = resources[i];
     let snapshot = snapshotsById.get(resource.id);
     snapshotsById.delete(resource.id);
-    assert(
-      `Expected to have a matching request for the primary record ${resource.type} ${resource.id} returned in the findMany request`,
-      snapshot
-    );
-    let pair = fetchMap.get(snapshot)!;
 
-    if (pair) {
+    if (!snapshot) {
+      // TODO consider whether this should be a deprecation/assertion
+      included.push(resource);
+    } else {
+      let pair = fetchMap.get(snapshot)!;
       let resolver = pair.resolver;
       resolver.resolve({ data: resource });
     }
+  }
+
+  if (included.length > 0) {
+    store._push({ data: null, included });
   }
 
   if (snapshotsById.size === 0) {
@@ -361,7 +362,6 @@ function handleFoundRecords(
     'Ember Data expected to find records with the following ids in the adapter response from findMany but they were missing: [ "' +
       [...snapshotsById.values()].map((r) => r.id).join('", "') +
       '" ]',
-    false,
     {
       id: 'ds.store.missing-records-from-adapter',
     }

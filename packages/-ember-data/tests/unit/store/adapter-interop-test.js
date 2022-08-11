@@ -880,20 +880,23 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     let wait = [];
     let igorDidReject = true;
 
-    assert.expectWarning(() => {
-      run(() => {
-        wait.push(store.findRecord('test', 'david'));
-        wait.push(
-          store.findRecord('test', 'igor').catch((e) => {
-            igorDidReject = true;
-            assert.strictEqual(
-              e.message,
-              `Expected: '<test:igor>' to be present in the adapter provided payload, but it was not found.`
-            );
-          })
-        );
-      });
-    }, /expected to find records with the following ids in the adapter response but they were missing/);
+    assert.expectWarning(
+      () => {
+        run(() => {
+          wait.push(store.findRecord('test', 'david'));
+          wait.push(
+            store.findRecord('test', 'igor').catch((e) => {
+              igorDidReject = true;
+              assert.strictEqual(
+                e.message,
+                `Expected: '<test:igor>' to be present in the adapter provided payload, but it was not found.`
+              );
+            })
+          );
+        });
+      },
+      { id: 'ds.store.missing-records-from-adapter' }
+    );
 
     return EmberPromise.all(wait).then(() => {
       assert.ok(

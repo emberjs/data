@@ -827,7 +827,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     await store.findAll('post');
 
-    let comment = store.peekRecord('comment', 1);
+    let comment = store.peekRecord('comment', '1');
     assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
   });
 
@@ -1509,7 +1509,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
     adapter.coalesceFindRequests = true;
 
-    store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -1528,7 +1528,6 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
     ajaxResponse({
       comments: [
         { id: '1', name: 'FIRST' },
@@ -1541,11 +1540,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     let comments = await post.comments;
 
-    let comment1 = store.peekRecord('comment', 1);
-    let comment2 = store.peekRecord('comment', 2);
-    let comment3 = store.peekRecord('comment', 3);
-    let comment4 = store.peekRecord('comment', 4);
-    let post2 = store.peekRecord('post', 2);
+    let comment1 = store.peekRecord('comment', '1');
+    let comment2 = store.peekRecord('comment', '2');
+    let comment3 = store.peekRecord('comment', '3');
+    let comment4 = store.peekRecord('comment', '4');
+    let post2 = store.peekRecord('post', '2');
 
     assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
 
@@ -1948,16 +1947,19 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         },
       });
 
-      assert.expectWarning(async () => {
-        try {
-          await post.comments;
-        } catch (e) {
-          assert.strictEqual(
-            e.message,
-            `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`
-          );
-        }
-      }, /expected to find records with the following ids in the adapter response but they were missing: \[ "2", "3" \]/);
+      assert.expectWarning(
+        async () => {
+          try {
+            await post.comments;
+          } catch (e) {
+            assert.strictEqual(
+              e.message,
+              `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`
+            );
+          }
+        },
+        { id: 'ds.store.missing-records-from-adapter' }
+      );
     }
   );
 
