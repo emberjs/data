@@ -296,31 +296,30 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
 
   disconnectRecord(type: string, id: string | null, lid: string): void;
   disconnectRecord(type: string, id: string, lid?: string | null): void;
-  disconnectRecord(type: RecordIdentifier): void;
-  disconnectRecord(type: string | RecordIdentifier, id?: string | null, lid?: string | null): void {
-    let resource = type;
-    if (DEPRECATE_V1CACHE_STORE_APIS) {
-      if (typeof type === 'string') {
-        deprecate(
-          `StoreWrapper.disconnectRecord(<type>) has been deprecated in favor of StoreWrapper.disconnectRecord(<identifier>)`,
-          false,
-          {
-            id: 'ember-data:deprecate-v1cache-store-apis',
-            for: 'ember-data',
-            until: '5.0',
-            since: { enabled: '4.8', available: '4.8' },
-          }
-        );
-        resource = constructResource(type, id, lid) as RecordIdentifier;
-      }
+  disconnectRecord(type: StableRecordIdentifier): void;
+  disconnectRecord(type: string | StableRecordIdentifier, id?: string | null, lid?: string | null): void {
+    let identifier: StableRecordIdentifier;
+    if (DEPRECATE_V1CACHE_STORE_APIS && typeof type === 'string') {
+      deprecate(
+        `StoreWrapper.disconnectRecord(<type>) has been deprecated in favor of StoreWrapper.disconnectRecord(<identifier>)`,
+        false,
+        {
+          id: 'ember-data:deprecate-v1cache-store-apis',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+        }
+      );
+      let resource = constructResource(type, id, lid) as RecordIdentifier;
+      identifier = this.identifierCache.peekRecordIdentifier(resource)!;
+    } else {
+      identifier = type as StableRecordIdentifier;
     }
-    assert(`type guard`, typeof resource !== 'string');
-    const identifier = this.identifierCache.peekRecordIdentifier(resource);
 
-    if (identifier) {
-      this._store._instanceCache.disconnect(identifier);
-      this._pendingNotifies.delete(identifier);
-    }
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+
+    this._store._instanceCache.disconnect(identifier);
+    this._pendingNotifies.delete(identifier);
   }
 }
 

@@ -34,6 +34,8 @@ export interface AttributeSchema {
    */
   name: string;
 
+  kind?: 'attribute';
+
   // TODO @runspired update RFC to make options optional
   options: {
     [key: string]: unknown;

@@ -439,10 +439,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this.isDestroyed = true;
   }
 
-  isRecordInUse() {
-    return this.storeWrapper.hasRecord(this.identifier);
-  }
-
   /*
     Iterates over the set of internal models reachable from `this` across exactly one
     relationship.
@@ -593,7 +589,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
         const fieldType: AttributeSchema | RelationshipSchema | undefined =
           relationshipDefs[name] || attributeDefs[name];
-        //@ts-expect-error because fieldType is not resolving appropriately
         let kind = fieldType !== undefined ? ('kind' in fieldType ? fieldType.kind : 'attribute') : null;
         let relationship;
 

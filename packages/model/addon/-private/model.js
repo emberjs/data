@@ -1865,6 +1865,7 @@ class Model extends EmberObject {
     let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
+      // TODO end reliance on these booleans and stop leaking them in the spec
       if (meta.isRelationship) {
         map.set(name, meta.kind);
       } else if (meta.isAttribute) {

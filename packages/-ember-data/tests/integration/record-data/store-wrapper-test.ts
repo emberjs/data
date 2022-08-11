@@ -130,7 +130,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
   });
 
   test('Relationship definitions', async function (assert) {
-    assert.expect(5);
+    assert.expect(3);
     let { owner } = this;
 
     class RelationshipRD extends TestRecordData {
@@ -140,7 +140,6 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
           name: {
             type: 'string',
             isAttribute: true,
-            kind: 'attribute' as const,
             options: {},
             name: 'name',
           },
@@ -156,7 +155,6 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
           make: {
             type: 'string',
             isAttribute: true,
-            kind: 'attribute' as const,
             options: {},
             name: 'make',
           },
@@ -197,16 +195,6 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         // Retrive only public values from the result
         // This should go away once we put private things in symbols/weakmaps
         assert.deepEqual(houseRelationships, result, 'can lookup relationship definitions');
-        assert.strictEqual(
-          storeWrapper.inverseForRelationship({ type: 'house' }, 'car'),
-          'garage',
-          'can lookup inverses on self'
-        );
-        assert.strictEqual(
-          storeWrapper.inverseForRelationship({ type: 'car' }, 'garage'),
-          'car',
-          'can lookup inverses on other models'
-        );
       }
     }
 

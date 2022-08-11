@@ -141,12 +141,13 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('recordData lookup', function (assert) {
     assert.expect(1);
     let rd;
-    class CreationStore extends CustomStore {
+    class CreationStore extends Store {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         rd = recordDataFor(identifier);
         assert.strictEqual(rd.getAttr('name'), 'chris', 'Can look up record data from recordDataFor');
         return {};
       }
+      teardownRecord(record) {}
     }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
@@ -230,6 +231,12 @@ module('unit/model - Custom Class Model', function (hooks) {
         },
       })
     );
+    class CustomStore extends Store {
+      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+        return new Person(this);
+      }
+      teardownRecord(record) {}
+    }
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {
@@ -355,6 +362,12 @@ module('unit/model - Custom Class Model', function (hooks) {
         },
       })
     );
+    class CustomStore extends Store {
+      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+        return new Person(this);
+      }
+      teardownRecord(record) {}
+    }
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {

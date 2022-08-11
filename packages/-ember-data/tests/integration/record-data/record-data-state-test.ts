@@ -239,7 +239,7 @@ module('integration/record-data - Record Data State', function (hooks) {
       }
 
       isEmpty(): boolean {
-        return !isNew && isDeleted;
+        return !isNew && isDeletionCommitted;
       }
 
       isNew(): boolean {
@@ -280,15 +280,14 @@ module('integration/record-data - Record Data State', function (hooks) {
     assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = true;
-    storeWrapper.notifyChange(personIdentifier, 'state', 'isNew');
+    storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.true(person.isNew, 'person is new');
     assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = false;
     isDeleted = true;
-    storeWrapper.notifyChange(personIdentifier, 'state', 'isDeleted');
-    storeWrapper.notifyChange(personIdentifier, 'state', 'isNew');
+    storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.false(person.isNew, 'person is not new');
     assert.true(person.isDeleted, 'person is deleted');
@@ -296,7 +295,7 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     isNew = false;
     isDeleted = false;
-    storeWrapper.notifyChange(personIdentifier, 'state', 'isDeleted');
+    storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.false(person.isNew, 'person is not new');
     assert.false(person.isDeleted, 'person is not deleted');
@@ -311,7 +310,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isDeletionCommitted = true;
-    storeWrapper.notifyChange(personIdentifier, 'state', 'isDeletionCommitted');
+    storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
   });
