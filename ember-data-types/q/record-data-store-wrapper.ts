@@ -11,86 +11,229 @@ import { SchemaDefinitionService } from './schema-definition-service';
 */
 
 /**
- * Provides encapsulated API access to a minimal subset of store service's
- * functionality for RecordData implementations.
+ * RecordDataStoreWrapper provides encapsulated API access to the minimal
+ * subset of the Store's functionality that cache (RecordData) implementations
+ * should interact with. It is provided to the Store's `createRecordDataFor`
+ * hook.
+ *
+ * Cache implementations should not need more than this API provides.
+ *
+ * This class cannot be directly instantiated.
  *
  * @class RecordDataStoreWrapper
  * @public
  */
 export interface LegacyRecordDataStoreWrapper {
+  /**
+   * Provides access to the IdentifierCache instance
+   * for this Store instance.
+   *
+   * The IdentifierCache can be used to peek, generate or
+   * retrieve a stable unique identifier for any resource.
+   *
+   * @property {IdentifierCache} identifierCache
+   * @public
+   */
   identifierCache: IdentifierCache;
+
+  /**
+   * Provides access to the SchemaDefinitionService instance
+   * for this Store instance.
+   *
+   * The SchemaDefinitionService can be used to query for
+   * information about the schema of a resource.
+   *
+   * @method getSchemaDefinitionService
+   * @public
+   */
   getSchemaDefinitionService(): SchemaDefinitionService;
 
-  /** @deprecated */
+  /**
+   * Proxies to the schema service's `relationshipsDefinitionFor`
+   * method.
+   *
+   * Use `wrapper.getSchemaDefinitionService().relationshipsDefinitionFor()`
+   * instead.
+   *
+   * @method relationshipsDefinitionFor
+   * @param {string} modelName
+   * @returns {RelationshipsSchema}
+   * @public
+   * @deprecated
+   */
   relationshipsDefinitionFor(modelName: string): RelationshipsSchema;
 
-  /** @deprecated */
+  /**
+   * Proxies to the schema service's `attributesDefinitionFor`
+   * method.
+   *
+   * Use `wrapper.getSchemaDefinitionService().attributesDefinitionFor()`
+   * instead.
+   *
+   * @method attributesDefinitionFor
+   * @param {string} modelName
+   * @returns {AttributesSchema}
+   * @public
+   * @deprecated
+   */
   attributesDefinitionFor(modelName: string): AttributesSchema;
 
   /**
-   * update the `id` for the record of type `modelName` with the corresponding `clientId`
+   * Update the `id` for the record corresponding to the identifier
    * This operation can only be done for records whose `id` is `null`.
    *
    * @method setRecordId
+   * @param {StableRecordIdentifier} identifier;
+   * @param {string} id;
    * @public
    */
-  /** @deprecated */
   setRecordId(modelName: string, id: string, clientId: string): void;
   setRecordId(identifier: StableRecordIdentifier, id: string): void;
 
-  /** @deprecated */
+  /**
+   * Signal to the store that the specified record may be considered fully
+   * removed from the cache. Generally this means that not only does no
+   * data exist for the identified resource, no known relationships still
+   * point to it either.
+   *
+   * @method disconnectRecord
+   * @param {StableRecordIdentifier} identifier
+   * @public
+   */
   disconnectRecord(modelName: string, id: string | null, clientId: string): void;
-  /** @deprecated */
   disconnectRecord(modelName: string, id: string, clientId?: string | null): void;
-  /** @deprecated */
   disconnectRecord(modelName: string, id: string | null, clientId?: string | null): void;
   disconnectRecord(identifier: StableRecordIdentifier): void;
 
-  /** @deprecated */
+  /**
+   * Use hasRecord instead.
+   *
+   * @method isRecordInUse
+   * @param modelName
+   * @param id
+   * @param clientId
+   * @public
+   * @deprecated
+   */
   isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
-  /** @deprecated */
   isRecordInUse(modelName: string, id: string, clientId?: string | null): boolean;
-  /** @deprecated */
   isRecordInUse(modelName: string, id: string | null, clientId?: string | null): boolean;
 
+  /**
+   * Use this method to determine if the Store has an instantiated record associated
+   * with an identifier.
+   *
+   * @method hasRecord
+   * @param identifier
+   * @returns {boolean}
+   * @public
+   */
   hasRecord(identifier: StableRecordIdentifier): boolean;
 
-  /** @deprecated */
+  /**
+   * Use notifyChange
+   *
+   * @method notifyPropertyChange
+   * @param modelName
+   * @param id
+   * @param clientId
+   * @param key
+   * @deprecated
+   * @public
+   */
   notifyPropertyChange(modelName: string, id: string | null, clientId: string | null, key: string): void;
 
-  /** @deprecated */
+  /**
+   * Use notifyChange
+   *
+   * @method notifyHasManyChange
+   * @param modelName
+   * @param id
+   * @param clientId
+   * @param key
+   * @public
+   * @deprecated
+   */
   notifyHasManyChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  /** @deprecated */
   notifyHasManyChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  /** @deprecated */
   notifyHasManyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
 
-  /** @deprecated */
+  /**
+   * Used to retrieve the associated RecordData for a given identifier.
+   *
+   * To generate a RecordData for a new client-side resource that does not
+   * yet have an ID and place it in the new state, first create an identifier
+   * via `identifierCache.createIdentifierForNewRecord`
+   *
+   * Then once you have obtained the RecordData instance you should invoke
+   * `recordData.clientDidCreate` to ensure the cache entry is put into the
+   * correct "newly created" state.
+   *
+   * @method recordDataFor
+   * @param {StableRecordIdentifier} identifier
+   * @return {RecordData} the RecordData cache instance associated with the identifier
+   * @public
+   */
   recordDataFor(type: string, id: string, lid?: string | null): RecordData;
-  /** @deprecated */
   recordDataFor(type: string, id: string | null, lid: string): RecordData;
-  /** @deprecated */
   recordDataFor(type: string): RecordData;
-  /** @deprecated */
   recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData;
   recordDataFor(identifier: StableRecordIdentifier): RecordData;
 
-  /** @deprecated */
+  /**
+   * Use notifyChange
+   *
+   * @method notifyBelongsToChange
+   * @param modelName
+   * @param id
+   * @param clientId
+   * @param key
+   * @public
+   * @deprecated
+   */
   notifyBelongsToChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  /** @deprecated */
   notifyBelongsToChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  /** @deprecated */
   notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
 
-  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType): void;
+  /**
+   * Notify subscribers of the RecordNotificationManager that cache state has changed.
+   *
+   * `attributes` and `relationships` do not require a key, but if one is specified it
+   * is assumed to be the name of the attribute or relationship that has been updated.
+   *
+   * No other namespaces currently expect the `key` argument.
+   *
+   * @method notifyChange
+   * @param {StableRecordIdentifier} identifier
+   * @param {'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state'} namespace
+   * @param {string|undefined} key
+   * @public
+   */
+  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
 
-  /** @deprecated */
-  inverseForRelationship(modelName: string, key: string): string | null;
-  inverseForRelationship(identifier: StableRecordIdentifier | { type: string }, key: string): string | null;
-
-  /** @deprecated */
+  /**
+   * Use notifyChange
+   *
+   * @method notifyErrorsChange
+   * @param modelName
+   * @param id
+   * @param clientId
+   * @public
+   * @deprecated
+   */
   notifyErrorsChange(modelName: string, id: string | null, clientId: string | null): void;
-  /** @deprecated */
+
+  /**
+   * Use notifyChange
+   *
+   * @method notifyStateChange
+   * @param modelName
+   * @param id
+   * @param clientId
+   * @param key
+   * @public
+   * @deprecated
+   */
   notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void;
 }
 
@@ -98,14 +241,6 @@ export interface V2RecordDataStoreWrapper {
   identifierCache: IdentifierCache;
   getSchemaDefinitionService(): SchemaDefinitionService;
 
-  /**
-   * update the `id` for the record corresponding to the identifier
-   * This operation can only be done for records whose `id` is `null`.
-   *
-   * @method setRecordId
-   * @public
-   */
-  // TODO do we actually still need this?
   setRecordId(identifier: StableRecordIdentifier, id: string): void;
 
   disconnectRecord(identifier: StableRecordIdentifier): void;
@@ -115,8 +250,6 @@ export interface V2RecordDataStoreWrapper {
   recordDataFor(identifier: StableRecordIdentifier): RecordData;
 
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
-
-  inverseForRelationship(identifier: StableRecordIdentifier | { type: string }, key: string): string | null;
 }
 
 export type RecordDataStoreWrapper = LegacyRecordDataStoreWrapper | V2RecordDataStoreWrapper;

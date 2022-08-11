@@ -8,6 +8,7 @@ import type { CollectionResourceRelationship } from '@ember-data/types/q/ember-d
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import { V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type {
   DefaultSingleResourceRelationship,
@@ -590,8 +591,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
           continue;
         }
 
-        let fieldType = relationshipDefs[name] || attributeDefs[name];
-        let kind = fieldType !== undefined ? fieldType.kind : null;
+        const fieldType: AttributeSchema | RelationshipSchema | undefined =
+          relationshipDefs[name] || attributeDefs[name];
+        //@ts-expect-error because fieldType is not resolving appropriately
+        let kind = fieldType !== undefined ? ('kind' in fieldType ? fieldType.kind : 'attribute') : null;
         let relationship;
 
         switch (kind) {

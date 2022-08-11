@@ -1,5 +1,7 @@
 import { assert } from '@ember/debug';
 
+import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
+import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -174,7 +176,7 @@ export function upgradeDefinition(
     assert(`Expected the inverse model to exist`, getStore(storeWrapper).modelFor(inverseType));
     inverseDefinition = null;
   } else {
-    inverseKey = storeWrapper.inverseForRelationship(identifier, propertyName);
+    inverseKey = inverseForRelationship(getStore(storeWrapper), identifier, propertyName);
 
     // CASE: Inverse resolves to null
     if (!inverseKey) {
@@ -301,4 +303,24 @@ export function upgradeDefinition(
   expandingSet<EdgeDefinition | null>(cache, inverseType, inverseKey, info);
 
   return info;
+}
+
+function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
+  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
+}
+
+function inverseForRelationship(store: Store, identifier: StableRecordIdentifier | { type: string }, key: string) {
+  const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
+  if (!definition) {
+    return null;
+  }
+
+  if (metaIsRelationshipDefinition(definition)) {
+    const modelClass = store.modelFor(identifier.type);
+    return definition._inverseKey(store, modelClass);
+  } else if (definition.options && definition.options.inverse !== undefined) {
+    return definition.options.inverse;
+  } else {
+    return null;
+  }
 }

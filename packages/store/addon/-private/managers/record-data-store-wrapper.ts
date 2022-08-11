@@ -1,14 +1,9 @@
 import { assert, deprecate } from '@ember/debug';
 
-import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
 import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
-import type {
-  AttributesSchema,
-  RelationshipSchema,
-  RelationshipsSchema,
-} from '@ember-data/types/q/record-data-schemas';
+import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 import type {
   LegacyRecordDataStoreWrapper,
   V2RecordDataStoreWrapper as StoreWrapper,
@@ -25,10 +20,6 @@ import { NotificationType } from './record-notification-manager';
 /**
   @module @ember-data/store
 */
-
-function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
-  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
-}
 
 class LegacyWrapper implements LegacyRecordDataStoreWrapper {
   declare _willNotify: boolean;
@@ -91,7 +82,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
 
     this._store._notificationManager.notify(identifier, namespace, key);
 
-    if (namespace === 'state' && (!key || key === 'isDeletionCommitted')) {
+    if (namespace === 'state') {
       this._store.recordArrayManager.recordDidChange(identifier);
     }
   }
@@ -147,38 +138,6 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
 
   getSchemaDefinitionService(): SchemaDefinitionService {
     return this._store.getSchemaDefinitionService();
-  }
-
-  inverseForRelationship(identifier: StableRecordIdentifier | { type: string } | string, key: string): string | null {
-    if (DEPRECATE_V1CACHE_STORE_APIS) {
-      if (typeof identifier === 'string') {
-        identifier = { type: identifier };
-        deprecate(
-          `StoreWrapper.inverseForRelationship(<type>, key) has been deprecated in favor of StoreWrapper.inverseForRelationship(<identifier>, key)`,
-          false,
-          {
-            id: 'ember-data:deprecate-v1cache-store-apis',
-            for: 'ember-data',
-            until: '5.0',
-            since: { enabled: '4.8', available: '4.8' },
-          }
-        );
-      }
-    }
-    assert(`type guard`, typeof identifier !== 'string');
-    const definition = this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
-    if (!definition) {
-      return null;
-    }
-
-    if (metaIsRelationshipDefinition(definition)) {
-      const modelClass = this._store.modelFor(identifier.type);
-      return definition._inverseKey(this._store, modelClass);
-    } else if (definition.options && definition.options.inverse !== undefined) {
-      return definition.options.inverse;
-    } else {
-      return null;
-    }
   }
 
   notifyPropertyChange(type: string, id: string | null, lid: string, key?: string): void;
@@ -246,10 +205,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     this._store._notificationManager.notify(identifier, 'state');
-
-    if (!key || key === 'isDeletionCommitted') {
-      this._store.recordArrayManager.recordDidChange(identifier);
-    }
+    this._store.recordArrayManager.recordDidChange(identifier);
   }
 
   recordDataFor(type: string, id: string, lid?: string | null): RecordData;
@@ -429,29 +385,13 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
 
     this._store._notificationManager.notify(identifier, namespace, key);
 
-    if (namespace === 'state' && (!key || key === 'isDeletionCommitted')) {
+    if (namespace === 'state') {
       this._store.recordArrayManager.recordDidChange(identifier);
     }
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
     return this._store.getSchemaDefinitionService();
-  }
-
-  inverseForRelationship(identifier: StableRecordIdentifier | { type: string }, key: string): string | null {
-    const definition = this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
-    if (!definition) {
-      return null;
-    }
-
-    if (metaIsRelationshipDefinition(definition)) {
-      const modelClass = this._store.modelFor(identifier.type);
-      return definition._inverseKey(this._store, modelClass);
-    } else if (definition.options && definition.options.inverse !== undefined) {
-      return definition.options.inverse;
-    } else {
-      return null;
-    }
   }
 
   recordDataFor(identifier: StableRecordIdentifier): RecordData {

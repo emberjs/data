@@ -55,6 +55,7 @@ export default class NotificationManager {
   // notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
   // notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
   notify(identifier: StableRecordIdentifier, value: NotificationType, key?: string): boolean {
+    // TODO assert key not defined if value is not attributes or relationships
     if (!isStableIdentifier(identifier)) {
       if (LOG_NOTIFICATIONS) {
         // eslint-disable-next-line no-console

@@ -235,13 +235,30 @@ function getInverse(store, parentIdentifier, parentRelationship, type) {
   return recordDataFindInverseRelationshipInfo(store, parentIdentifier, parentRelationship, type);
 }
 
+function metaIsRelationshipDefinition(meta) {
+  return typeof meta._inverseKey === 'function';
+}
+
+function inverseForRelationship(store, identifier, key) {
+  const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
+  if (!definition) {
+    return null;
+  }
+
+  if (metaIsRelationshipDefinition(definition)) {
+    const modelClass = store.modelFor(identifier.type);
+    return definition._inverseKey(store, modelClass);
+  } else if (definition.options && definition.options.inverse !== undefined) {
+    return definition.options.inverse;
+  } else {
+    return null;
+  }
+}
+
 function recordDataFindInverseRelationshipInfo(store, parentIdentifier, parentRelationship, type) {
   let { name: lhs_relationshipName } = parentRelationship;
   let { type: parentType } = parentIdentifier;
-  let inverseKey = store._instanceCache._storeWrapper.inverseForRelationship(
-    { type: parentType },
-    lhs_relationshipName
-  );
+  let inverseKey = inverseForRelationship(store, { type: parentType }, lhs_relationshipName);
 
   if (inverseKey) {
     let {

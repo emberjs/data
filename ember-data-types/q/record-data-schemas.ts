@@ -32,7 +32,6 @@ export interface AttributeSchema {
   /**
    * @internal
    */
-  kind: 'attribute'; // TODO @runspired remove usage or guard internally
   name: string;
 
   // TODO @runspired update RFC to make options optional
