@@ -4,6 +4,8 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import publicProps from '@ember-data/unpublished-test-infra/test-support/public-props';
 
 class Person extends Model {
@@ -89,8 +91,8 @@ class TestRecordData {
   _initRecordCreateOptions(options) {}
 }
 
-let CustomStore = Store.extend({
-  createRecordDataFor(modelName, id, clientId, storeWrapper) {
+const CustomStore = Store.extend({
+  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
     return new TestRecordData();
   },
 });
@@ -128,24 +130,23 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
   });
 
   test('Relationship definitions', async function (assert) {
-    assert.expect(7);
+    assert.expect(3);
     let { owner } = this;
 
     class RelationshipRD extends TestRecordData {
-      constructor(storeWrapper) {
+      constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         super();
         let houseAttrs = {
           name: {
             type: 'string',
             isAttribute: true,
-            kind: 'attribute',
             options: {},
             name: 'name',
           },
         };
 
         assert.deepEqual(
-          storeWrapper.attributesDefinitionFor('house'),
+          storeWrapper.getSchemaDefinitionService().attributesDefinitionFor({ type: 'house' }),
           houseAttrs,
           'can lookup attribute definitions for self'
         );
@@ -154,14 +155,13 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
           make: {
             type: 'string',
             isAttribute: true,
-            kind: 'attribute',
             options: {},
             name: 'make',
           },
         };
 
         assert.deepEqual(
-          storeWrapper.attributesDefinitionFor('car'),
+          storeWrapper.getSchemaDefinitionService().attributesDefinitionFor({ type: 'car' }),
           carAttrs,
           'can lookup attribute definitions for other models'
         );
@@ -189,36 +189,21 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
             type: 'person',
           },
         };
-        let schema = storeWrapper.relationshipsDefinitionFor('house');
+        let schema = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor({ type: 'house' });
         let result = publicProps(['key', 'kind', 'name', 'type', 'options'], schema);
 
         // Retrive only public values from the result
         // This should go away once we put private things in symbols/weakmaps
         assert.deepEqual(houseRelationships, result, 'can lookup relationship definitions');
-        assert.strictEqual(
-          storeWrapper.inverseForRelationship('house', 'car'),
-          'garage',
-          'can lookup inverses on self'
-        );
-        assert.strictEqual(
-          storeWrapper.inverseForRelationship('car', 'garage'),
-          'car',
-          'can lookup inverses on other models'
-        );
-        assert.true(storeWrapper.inverseIsAsyncForRelationship('house', 'car'), 'can lookup async inverse on self');
-        assert.false(
-          storeWrapper.inverseIsAsyncForRelationship('car', 'garage'),
-          'can lookup async inverse on other models'
-        );
       }
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
-          return new RelationshipRD(storeWrapper);
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
+          return new RelationshipRD(identifier, wrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, wrapper);
         }
       },
     });
@@ -239,19 +224,23 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     class RecordDataForTest extends TestRecordData {
       id: string;
 
-      constructor(storeWrapper, id) {
+      constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         super();
         count++;
-        this.id = id;
+        this.id = identifier.id!;
 
+        // TODO figure out testing this in a way that is not broken
+        // for singletons
         if (count === 1) {
+          const identifier = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '2' });
           assert.strictEqual(
-            storeWrapper.recordDataFor('house', 2).id,
+            (storeWrapper.recordDataFor(identifier) as unknown as RecordDataForTest).id,
             '2',
             'Can lookup another RecordData that has been loaded'
           );
+          const identifier2 = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
           assert.strictEqual(
-            storeWrapper.recordDataFor('person', 1).id,
+            (storeWrapper.recordDataFor(identifier2) as unknown as RecordDataForTest).id,
             '1',
             'Can lookup another RecordData which hasnt been loaded'
           );
@@ -260,11 +249,11 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
-          return new RecordDataForTest(storeWrapper, id);
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
+          return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, wrapper);
         }
       },
     });
@@ -290,13 +279,15 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       id: string;
       _isNew: boolean = false;
 
-      constructor(storeWrapper, id, lid) {
+      constructor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         super();
         count++;
-        this.id = id;
+        this.id = identifier.id!;
 
         if (count === 1) {
-          recordData = storeWrapper.recordDataFor('house');
+          const newIdentifier = wrapper.identifierCache.createIdentifierForNewRecord({ type: 'house' });
+          recordData = wrapper.recordDataFor(newIdentifier);
+          recordData.clientDidCreate();
         } else if (count === 2) {
           newRecordData = this;
         }
@@ -312,11 +303,11 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     }
 
     const TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
-          return new RecordDataForTest(storeWrapper, id, clientId);
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
+          return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, wrapper);
         }
       },
     });
@@ -350,19 +341,19 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     class RecordDataForTest extends TestRecordData {
       id: string;
 
-      constructor(storeWrapper, id, clientId) {
+      constructor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         super();
-        storeWrapper.setRecordId('house', '17', clientId);
+        wrapper.setRecordId(identifier, '17');
         this.id = '17';
       }
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
-          return new RecordDataForTest(storeWrapper, id, clientId);
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
+          return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, wrapper);
         }
       },
     });
@@ -373,32 +364,36 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     let house = store.createRecord('house');
     assert.strictEqual(house.id, '17', 'setRecordId correctly set the id');
     assert.strictEqual(
-      store.peekRecord('house', 17),
+      store.peekRecord('house', '17'),
       house,
       'can lookup the record from the identify map based on the new id'
     );
   });
 
-  test('isRecordInUse', async function (assert) {
-    assert.expect(2);
+  test('hasRecord', async function (assert) {
+    assert.expect(4);
     let { owner } = this;
 
     class RecordDataForTest extends TestRecordData {
-      constructor(storeWrapper, id, clientId) {
+      constructor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         super();
-        if (!id) {
-          assert.true(storeWrapper.isRecordInUse('house', '1'), 'house 1 is in use');
-          assert.false(storeWrapper.isRecordInUse('house', '2'), 'house 2 is not in use');
+        if (!identifier.id) {
+          const id1 = wrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '1' });
+          const id2 = wrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '2' });
+          assert.true(wrapper.hasRecord(id1), 'house 1 is in use');
+          assert.false(wrapper.hasRecord(id2), 'house 2 is not in use');
+        } else {
+          assert.ok(true, 'we created a recordData');
         }
       }
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
-          return new RecordDataForTest(storeWrapper, id, clientId);
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
+          return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, wrapper);
         }
       },
     });
@@ -422,20 +417,22 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     assert.expect(1);
     let { owner } = this;
     let wrapper;
+    let identifier;
 
     class RecordDataForTest extends TestRecordData {
-      constructor(storeWrapper, id, clientId) {
+      constructor(stableIdentifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         super();
         wrapper = storeWrapper;
+        identifier = stableIdentifier;
       }
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        if (modelName === 'house') {
-          return new RecordDataForTest(storeWrapper, id, clientId);
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+        if (identifier.type === 'house') {
+          return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(modelName, id, clientId, storeWrapper);
+          return this._super(identifier, wrapper);
         }
       },
     });
@@ -447,7 +444,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       data: [],
       included: [houseHash],
     });
-    wrapper.disconnectRecord('house', '1');
+    wrapper.disconnectRecord(identifier);
     assert.strictEqual(store.peekRecord('house', '1'), null, 'record was removed from id map');
   });
 });

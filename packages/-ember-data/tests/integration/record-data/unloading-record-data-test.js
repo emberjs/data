@@ -35,10 +35,10 @@ module('RecordData Compatibility', function (hooks) {
   });
 
   class CustomRecordData {
-    constructor(modelName, id, clientId, storeWrapper) {
-      this.type = modelName;
-      this.id = id || null;
-      this.clientId = clientId;
+    constructor(identifier, storeWrapper) {
+      this.type = identifier.type;
+      this.id = identifier.id || null;
+      this.clientId = identifier.lid;
       this.storeWrapper = storeWrapper;
       this.attributes = null;
       this.relationships = null;
@@ -108,11 +108,11 @@ module('RecordData Compatibility', function (hooks) {
 
   test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function (assert) {
     const originalCreateRecordDataFor = store.createRecordDataFor;
-    store.createRecordDataFor = function provideCustomRecordData(modelName, id, lid, storeWrapper) {
-      if (modelName === 'pet') {
-        return new CustomRecordData(modelName, id, lid, storeWrapper);
+    store.createRecordDataFor = function provideCustomRecordData(identifier, storeWrapper) {
+      if (identifier.type === 'pet') {
+        return new CustomRecordData(identifier, storeWrapper);
       } else {
-        return originalCreateRecordDataFor.call(this, modelName, id, lid, storeWrapper);
+        return originalCreateRecordDataFor.call(this, identifier, storeWrapper);
       }
     };
 
@@ -166,11 +166,11 @@ module('RecordData Compatibility', function (hooks) {
 
   test(`store.unloadRecord on a record with custom RecordData with relationship to a record with default RecordData does not error`, async function (assert) {
     const originalCreateRecordDataFor = store.createModelDataFor;
-    store.createModelDataFor = function provideCustomRecordData(modelName, id, lid, storeWrapper) {
-      if (modelName === 'pet') {
-        return new CustomRecordData(modelName, id, lid, storeWrapper);
+    store.createModelDataFor = function provideCustomRecordData(identifier, storeWrapper) {
+      if (identifier.type === 'pet') {
+        return new CustomRecordData(identifier, storeWrapper);
       } else {
-        return originalCreateRecordDataFor.call(this, modelName, id, lid, storeWrapper);
+        return originalCreateRecordDataFor.call(this, identifier, storeWrapper);
       }
     };
 
@@ -229,8 +229,8 @@ module('RecordData Compatibility', function (hooks) {
       }
     }
 
-    store.createRecordDataFor = function (modelName, id, lid, storeWrapper) {
-      return new TestRecordData(modelName, id, lid, storeWrapper);
+    store.createRecordDataFor = function (identifier, storeWrapper) {
+      return new TestRecordData(identifier, storeWrapper);
     };
     this.owner.register(
       'adapter:pet',

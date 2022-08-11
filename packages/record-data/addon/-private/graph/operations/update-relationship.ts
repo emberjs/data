@@ -35,6 +35,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
         payload.data = [];
       }
       assert(`Expected an array`, Array.isArray(payload.data));
+      // TODO may not need to cast to stable identifiers here since update likely does this too
       graph.update(
         {
           op: 'replaceRelatedRecords',
@@ -45,6 +46,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
         true
       );
     } else {
+      // TODO may not need to cast to stable identifiers here since update likely does this too
       graph.update(
         {
           op: 'replaceRelatedRecord',

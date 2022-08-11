@@ -1,7 +1,6 @@
 import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
-import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type {
   CollectionResourceRelationship,
   Links,
@@ -9,6 +8,7 @@ import type {
   PaginationLinks,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
 import type { BelongsToRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -177,7 +177,7 @@ export default class ManyRelationship {
       // eslint-disable-next-line no-console
       console.log(`Graph: notifying hasManyChange for ${String(identifier)} ${this.definition.key}`);
     }
-    store.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, this.definition.key);
+    store.notifyChange(identifier, 'relationships', this.definition.key);
   }
 
   getData(): CollectionResourceRelationship {

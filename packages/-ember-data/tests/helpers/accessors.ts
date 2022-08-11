@@ -6,8 +6,8 @@ import type {
 import { graphFor } from '@ember-data/record-data/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { ConfidentDict as RelationshipDict } from '@ember-data/types/q/utils';
 
 export function getRelationshipStateForRecord(

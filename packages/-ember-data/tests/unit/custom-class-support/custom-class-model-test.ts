@@ -8,11 +8,12 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import type { RecordDataStoreWrapper, Snapshot } from '@ember-data/store/-private';
+import type { Snapshot } from '@ember-data/store/-private';
 import type NotificationManager from '@ember-data/store/-private/managers/record-notification-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordDataWrapper } from '@ember-data/types/q/record-data-record-wrapper';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
 
@@ -78,13 +79,8 @@ module('unit/model - Custom Class Model', function (hooks) {
     let identifier;
     let recordData;
     class CreationStore extends CustomStore {
-      createRecordDataFor(
-        modelName: string,
-        id: string | null,
-        clientId: string,
-        storeWrapper: RecordDataStoreWrapper
-      ) {
-        let rd = super.createRecordDataFor(modelName, id, clientId, storeWrapper);
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+        let rd = super.createRecordDataFor(identifier, storeWrapper);
         recordData = rd;
         return rd;
       }
@@ -112,10 +108,10 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
-    recordData.storeWrapper.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, 'key');
-    recordData.storeWrapper.notifyBelongsToChange(identifier.type, identifier.id, identifier.lid, 'key');
-    recordData.storeWrapper.notifyStateChange(identifier.type, identifier.id, identifier.lid, 'key');
-    recordData.storeWrapper.notifyErrorsChange(identifier.type, identifier.id, identifier.lid, 'key');
+    recordData.storeWrapper.notifyChange(identifier, 'relationships', 'key');
+    recordData.storeWrapper.notifyChange(identifier, 'relationships', 'key');
+    recordData.storeWrapper.notifyChange(identifier, 'state');
+    recordData.storeWrapper.notifyChange(identifier, 'errors');
     await settled();
 
     assert.strictEqual(notificationCount, 3, 'called notification callback');
@@ -145,12 +141,13 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('recordData lookup', function (assert) {
     assert.expect(1);
     let rd;
-    class CreationStore extends CustomStore {
+    class CreationStore extends Store {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         rd = recordDataFor(identifier);
         assert.strictEqual(rd.getAttr('name'), 'chris', 'Can look up record data from recordDataFor');
         return {};
       }
+      teardownRecord(record) {}
     }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
@@ -234,6 +231,12 @@ module('unit/model - Custom Class Model', function (hooks) {
         },
       })
     );
+    class CustomStore extends Store {
+      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+        return new Person(this);
+      }
+      teardownRecord(record) {}
+    }
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {
@@ -359,6 +362,12 @@ module('unit/model - Custom Class Model', function (hooks) {
         },
       })
     );
+    class CustomStore extends Store {
+      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+        return new Person(this);
+      }
+      teardownRecord(record) {}
+    }
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
     let schema: SchemaDefinitionService = {

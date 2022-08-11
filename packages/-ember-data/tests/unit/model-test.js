@@ -356,7 +356,7 @@ module('unit/model - Model', function (hooks) {
       assert.strictEqual(person.id, null, 'initial created model id should be null');
 
       const identifier = recordIdentifierFor(person);
-      store._instanceCache.setRecordId('odd-person', 'john', identifier.lid);
+      store._instanceCache.setRecordId(identifier, 'john');
 
       oddId = person.idComputed;
       assert.strictEqual(oddId, 'john', 'computed get is correct');

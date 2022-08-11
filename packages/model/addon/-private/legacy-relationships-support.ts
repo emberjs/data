@@ -368,9 +368,9 @@ export class LegacySupport {
       if (shouldFindViaLink) {
         // findHasMany, although not public, does not need to care about our upgrade relationship definitions
         // and can stick with the public definition API for now.
-        const relationshipMeta = this.store._instanceCache._storeWrapper.relationshipsDefinitionFor(
-          definition.inverseType
-        )[definition.key];
+        const relationshipMeta = this.store
+          .getSchemaDefinitionService()
+          .relationshipsDefinitionFor({ type: definition.inverseType })[definition.key];
         let adapter = this.store.adapterFor(parentIdentifier.type);
 
         /*

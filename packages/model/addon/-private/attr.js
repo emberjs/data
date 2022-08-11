@@ -123,7 +123,6 @@ function attr(type, options) {
   let meta = {
     type: type,
     isAttribute: true,
-    kind: 'attribute',
     options: options,
   };
 

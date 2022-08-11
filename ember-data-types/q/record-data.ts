@@ -46,8 +46,6 @@ export interface RecordData {
 
   // ----- unspecced
   hasAttr(key: string): boolean;
-
-  isRecordInUse(): boolean;
   _initRecordCreateOptions(options: any): { [key: string]: unknown };
 
   // new

@@ -247,10 +247,6 @@ export default class RecordState {
             this.notify('isEmpty');
             this.notify('isDirty');
             break;
-          case 'unload':
-            this.notify('isNew');
-            this.notify('isDeleted');
-            break;
           case 'errors':
             this.updateInvalidErrors(this.record.errors);
             this.notify('isValid');

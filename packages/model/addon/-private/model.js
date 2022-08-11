@@ -487,7 +487,7 @@ class Model extends EmberObject {
     );
 
     if (normalizedId !== null && didChange) {
-      this.store._instanceCache.setRecordId(identifier.type, normalizedId, identifier.lid);
+      this.store._instanceCache.setRecordId(identifier, normalizedId);
       this.store._notificationManager.notify(identifier, 'identity');
     }
   }
@@ -1865,6 +1865,7 @@ class Model extends EmberObject {
     let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
+      // TODO end reliance on these booleans and stop leaking them in the spec
       if (meta.isRelationship) {
         map.set(name, meta.kind);
       } else if (meta.isAttribute) {

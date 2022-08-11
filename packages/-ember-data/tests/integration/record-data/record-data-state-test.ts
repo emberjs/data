@@ -8,10 +8,11 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
+import Store, { recordIdentifierFor } from '@ember-data/store';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
-import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -112,8 +113,8 @@ class TestRecordData implements RecordData {
   }
 }
 
-let CustomStore = Store.extend({
-  createRecordDataFor(modelName, id, clientId, storeWrapper) {
+const CustomStore = Store.extend({
+  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
     return new TestRecordData();
   },
 });
@@ -168,7 +169,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         return new LifecycleRecordData();
       },
     });
@@ -238,7 +239,7 @@ module('integration/record-data - Record Data State', function (hooks) {
       }
 
       isEmpty(): boolean {
-        return !isNew && isDeleted;
+        return !isNew && isDeletionCommitted;
       }
 
       isNew(): boolean {
@@ -260,8 +261,8 @@ module('integration/record-data - Record Data State', function (hooks) {
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        return new LifecycleRecordData(storeWrapper);
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+        return new LifecycleRecordData(wrapper);
       },
     });
 
@@ -274,19 +275,19 @@ module('integration/record-data - Record Data State', function (hooks) {
     });
 
     let person = store.peekRecord('person', '1');
+    let personIdentifier = recordIdentifierFor(person);
     let people = store.peekAll('person');
     assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = true;
-    storeWrapper.notifyStateChange('person', '1', null, 'isNew');
+    storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.true(person.isNew, 'person is new');
     assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = false;
     isDeleted = true;
-    storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
-    storeWrapper.notifyStateChange('person', '1', null, 'isNew');
+    storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.false(person.isNew, 'person is not new');
     assert.true(person.isDeleted, 'person is deleted');
@@ -294,7 +295,7 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     isNew = false;
     isDeleted = false;
-    storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
+    storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.false(person.isNew, 'person is not new');
     assert.false(person.isDeleted, 'person is not deleted');
@@ -305,11 +306,11 @@ module('integration/record-data - Record Data State', function (hooks) {
     assert.false(person.isDeleted, 'calling deleteRecord does not automatically set isDeleted flag to true');
     assert.true(calledSetIsDeleted, 'called setIsDeleted');
 
-    storeWrapper.notifyStateChange('person', '1', null);
+    storeWrapper.notifyChange(personIdentifier, 'state');
     assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isDeletionCommitted = true;
-    storeWrapper.notifyStateChange('person', '1', null, 'isDeletionCommitted');
+    storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
   });

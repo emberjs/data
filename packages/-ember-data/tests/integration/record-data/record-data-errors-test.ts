@@ -8,10 +8,11 @@ import { setupTest } from 'ember-qunit';
 import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
+import Store, { recordIdentifierFor } from '@ember-data/store';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -115,7 +116,7 @@ class TestRecordData implements RecordData {
 }
 
 let CustomStore = Store.extend({
-  createRecordDataFor(modelName, id, clientId, storeWrapper) {
+  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
     return new TestRecordData();
   },
 });
@@ -155,7 +156,7 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         return new LifecycleRecordData();
       },
     });
@@ -214,7 +215,7 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         return new LifecycleRecordData();
       },
     });
@@ -274,8 +275,8 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
     }
 
     let TestStore = Store.extend({
-      createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        return new LifecycleRecordData(storeWrapper);
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+        return new LifecycleRecordData(wrapper);
       },
     });
 
@@ -286,11 +287,12 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
+    const identifier = recordIdentifierFor(person);
     let nameError = person.errors.errorsFor('name').firstObject;
     assert.strictEqual(nameError.attribute, 'name', 'error shows up on name');
     assert.false(person.isValid, 'person is not valid');
     errorsToReturn = [];
-    storeWrapper.notifyErrorsChange('person', '1');
+    storeWrapper.notifyChange(identifier, 'errors');
     assert.true(person.isValid, 'person is valid');
     assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
     errorsToReturn = [
@@ -302,7 +304,7 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
         },
       },
     ];
-    storeWrapper.notifyErrorsChange('person', '1');
+    storeWrapper.notifyChange(identifier, 'errors');
     assert.false(person.isValid, 'person is valid');
     assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
     let lastNameError = person.errors.errorsFor('lastName').firstObject;

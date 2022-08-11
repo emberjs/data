@@ -1,28 +1,29 @@
-import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
-import type {
-  AttributesSchema,
-  RelationshipSchema,
-  RelationshipsSchema,
-} from '@ember-data/types/q/record-data-schemas';
-import type { RecordDataStoreWrapper as StoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
+import { assert, deprecate } from '@ember/debug';
 
-import type { IdentifierCache } from '../caches/identifier-cache';
+import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordData } from '@ember-data/types/q/record-data';
+import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type {
+  LegacyRecordDataStoreWrapper,
+  V2RecordDataStoreWrapper as StoreWrapper,
+} from '@ember-data/types/q/record-data-store-wrapper';
+import { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
+
+import { IdentifierCache, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
+import coerceId from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
+import normalizeModelName from '../utils/normalize-model-name';
+import { NotificationType } from './record-notification-manager';
 
 /**
   @module @ember-data/store
 */
 
-function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
-  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
-}
-
-export default class RecordDataStoreWrapper implements StoreWrapper {
+class LegacyWrapper implements LegacyRecordDataStoreWrapper {
   declare _willNotify: boolean;
-  declare _pendingNotifies: Map<StableRecordIdentifier, Map<string, string>>;
+  declare _pendingNotifies: Map<StableRecordIdentifier, Set<string>>;
   declare _store: Store;
 
   constructor(_store: Store) {
@@ -35,14 +36,14 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     return this._store.identifierCache;
   }
 
-  _scheduleNotification(identifier: StableRecordIdentifier, key: string, kind: 'belongsTo' | 'hasMany') {
+  _scheduleNotification(identifier: StableRecordIdentifier, key: string) {
     let pending = this._pendingNotifies.get(identifier);
 
     if (!pending) {
-      pending = new Map();
+      pending = new Set();
       this._pendingNotifies.set(identifier, pending);
     }
-    pending.set(key, kind);
+    pending.add(key);
 
     if (this._willNotify === true) {
       return;
@@ -54,15 +55,6 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     backburner.schedule('notify', this, this._flushNotifications);
   }
 
-  notifyErrorsChange(type: string, id: string, lid: string | null): void;
-  notifyErrorsChange(type: string, id: string | null, lid: string): void;
-  notifyErrorsChange(type: string, id: string | null, lid: string | null): void {
-    const resource = constructResource(type, id, lid);
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-
-    this._store._notificationManager.notify(identifier, 'errors');
-  }
-
   _flushNotifications(): void {
     if (this._willNotify === false) {
       return;
@@ -72,61 +64,93 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     this._pendingNotifies = new Map();
     this._willNotify = false;
 
-    pending.forEach((map, identifier) => {
-      map.forEach((kind, key) => {
+    pending.forEach((set, identifier) => {
+      set.forEach((key) => {
         this._store._notificationManager.notify(identifier, 'relationships', key);
       });
     });
   }
 
+  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void {
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+
+    // TODO do we still get value from this?
+    if (namespace === 'relationships' && key) {
+      this._scheduleNotification(identifier, key);
+      return;
+    }
+
+    this._store._notificationManager.notify(identifier, namespace, key);
+
+    if (namespace === 'state') {
+      this._store.recordArrayManager.recordDidChange(identifier);
+    }
+  }
+
+  notifyErrorsChange(type: string, id: string, lid: string | null): void;
+  notifyErrorsChange(type: string, id: string | null, lid: string): void;
+  notifyErrorsChange(type: string, id: string | null, lid: string | null): void {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      deprecate(`StoreWrapper.notifyErrorsChange has been deprecated in favor of StoreWrapper.notifyChange`, false, {
+        id: 'ember-data:deprecate-v1cache-store-apis',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      });
+    }
+    const resource = constructResource(type, id, lid);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+
+    this._store._notificationManager.notify(identifier, 'errors');
+  }
+
   attributesDefinitionFor(type: string): AttributesSchema {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      deprecate(
+        `StoreWrapper.attributesDefinitionFor has been deprecated in favor of StoreWrapper.getSchemaDefinitionService().attributesDefinitionFor`,
+        false,
+        {
+          id: 'ember-data:deprecate-v1cache-store-apis',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+        }
+      );
+    }
     return this._store.getSchemaDefinitionService().attributesDefinitionFor({ type });
   }
 
   relationshipsDefinitionFor(type: string): RelationshipsSchema {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      deprecate(
+        `StoreWrapper.relationshipsDefinitionFor has been deprecated in favor of StoreWrapper.getSchemaDefinitionService().relationshipsDefinitionFor`,
+        false,
+        {
+          id: 'ember-data:deprecate-v1cache-store-apis',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+        }
+      );
+    }
     return this._store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
   }
 
-  inverseForRelationship(type: string, key: string): string | null {
-    const modelClass = this._store.modelFor(type);
-    const definition = this.relationshipsDefinitionFor(type)[key];
-    if (!definition) {
-      return null;
-    }
-
-    if (metaIsRelationshipDefinition(definition)) {
-      return definition._inverseKey(this._store, modelClass);
-    } else if (definition.options && definition.options.inverse !== undefined) {
-      return definition.options.inverse;
-    } else {
-      return null;
-    }
-  }
-
-  inverseIsAsyncForRelationship(type: string, key: string): boolean {
-    const modelClass = this._store.modelFor(type);
-    const definition = this.relationshipsDefinitionFor(type)[key];
-    if (!definition) {
-      return false;
-    }
-
-    if (definition.options && definition.options.inverse === null) {
-      return false;
-    }
-    if ((definition as unknown as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {
-      // TODO do we need to amend the RFC for this prop?
-      // else we should add it to the TS interface and document.
-      return !!(definition as unknown as { inverseIsAsync: boolean }).inverseIsAsync;
-    } else if (metaIsRelationshipDefinition(definition)) {
-      return definition._inverseIsAsync(this._store, modelClass);
-    } else {
-      return false;
-    }
+  getSchemaDefinitionService(): SchemaDefinitionService {
+    return this._store.getSchemaDefinitionService();
   }
 
   notifyPropertyChange(type: string, id: string | null, lid: string, key?: string): void;
   notifyPropertyChange(type: string, id: string, lid: string | null | undefined, key?: string): void;
   notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key?: string): void {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      deprecate(`StoreWrapper.notifyPropertyChange has been deprecated in favor of StoreWrapper.notifyChange`, false, {
+        id: 'ember-data:deprecate-v1cache-store-apis',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      });
+    }
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
@@ -136,47 +160,80 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyHasManyChange(type: string, id: string | null, lid: string, key: string): void;
   notifyHasManyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
   notifyHasManyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      deprecate(`StoreWrapper.notifyHasManyChange has been deprecated in favor of StoreWrapper.notifyChange`, false, {
+        id: 'ember-data:deprecate-v1cache-store-apis',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      });
+    }
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    this._scheduleNotification(identifier, key, 'hasMany');
+    this._scheduleNotification(identifier, key);
   }
 
   notifyBelongsToChange(type: string, id: string | null, lid: string, key: string): void;
   notifyBelongsToChange(type: string, id: string, lid: string | null | undefined, key: string): void;
   notifyBelongsToChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      deprecate(`StoreWrapper.notifyBelongsToChange has been deprecated in favor of StoreWrapper.notifyChange`, false, {
+        id: 'ember-data:deprecate-v1cache-store-apis',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      });
+    }
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
-    this._scheduleNotification(identifier, key, 'belongsTo');
+    this._scheduleNotification(identifier, key);
   }
 
   notifyStateChange(type: string, id: string, lid: string | null, key?: string): void;
   notifyStateChange(type: string, id: string | null, lid: string, key?: string): void;
   notifyStateChange(type: string, id: string | null, lid: string | null, key?: string): void {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      deprecate(`StoreWrapper.notifyStateChange has been deprecated in favor of StoreWrapper.notifyChange`, false, {
+        id: 'ember-data:deprecate-v1cache-store-apis',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      });
+    }
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     this._store._notificationManager.notify(identifier, 'state');
-
-    if (!key || key === 'isDeletionCommitted') {
-      this._store.recordArrayManager.recordDidChange(identifier);
-    }
+    this._store.recordArrayManager.recordDidChange(identifier);
   }
 
   recordDataFor(type: string, id: string, lid?: string | null): RecordData;
   recordDataFor(type: string, id: string | null, lid: string): RecordData;
   recordDataFor(type: string): RecordData;
-  recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData {
-    // TODO @deprecate create capability. This is problematic because there's
-    // no outside association between this RecordData and an Identifier. It's
-    // likely a mistake but we said in an RFC we'd allow this. We should RFC
-    // enforcing someone to use the record-data and identifier-cache APIs to
-    // create a new identifier and then call clientDidCreate on the RecordData
-    // instead.
-    const identifier =
-      !id && !lid
-        ? this.identifierCache.createIdentifierForNewRecord({ type: type })
-        : this.identifierCache.getOrCreateRecordIdentifier(constructResource(type, id, lid));
+  recordDataFor(type: StableRecordIdentifier): RecordData;
+  recordDataFor(type: string | StableRecordIdentifier, id?: string | null, lid?: string | null): RecordData {
+    let identifier: StableRecordIdentifier;
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      if (!isStableIdentifier(type)) {
+        // we also deprecate create capability. This behavior was problematic because
+        // there's no outside association between this RecordData and an Identifier.
+        // It's likely a mistake when we hit this codepath, but we said in an early
+        // RFC we'd allow this.
+        // With V2 we are enforcing someone to use the record-data and identifier-cache APIs to
+        // create a new identifier and then call clientDidCreate on the RecordData
+        // instead.
+        identifier =
+          !id && !lid
+            ? this.identifierCache.createIdentifierForNewRecord({ type: type })
+            : this.identifierCache.getOrCreateRecordIdentifier(constructResource(type, id, lid));
+      } else {
+        identifier = type;
+      }
+    } else {
+      assert(`Expected a stable identifier`, isStableIdentifier(type));
+      identifier = type;
+    }
 
     const recordData = this._store._instanceCache.getRecordData(identifier);
 
@@ -188,13 +245,37 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     return recordData;
   }
 
-  setRecordId(type: string, id: string, lid: string) {
-    this._store._instanceCache.setRecordId(type, id, lid);
+  setRecordId(type: string | StableRecordIdentifier, id: string, lid?: string) {
+    let identifier: StableRecordIdentifier | undefined;
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      if (!isStableIdentifier(type)) {
+        const modelName = normalizeModelName(type);
+        const resource = constructResource(modelName, null, coerceId(lid));
+        identifier = this.identifierCache.peekRecordIdentifier(resource);
+      } else {
+        identifier = type;
+      }
+    } else {
+      assert(`Expected a stable identifier`, isStableIdentifier(type));
+      identifier = type;
+    }
+
+    assert(`Unable to find an identifier to update the ID for for ${lid}`, identifier);
+
+    this._store._instanceCache.setRecordId(identifier, id);
   }
 
   isRecordInUse(type: string, id: string | null, lid: string): boolean;
   isRecordInUse(type: string, id: string, lid?: string | null): boolean;
   isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      deprecate(`StoreWrapper.isRecordInUSe has been deprecated in favor of StoreWrapper.hasRecord`, false, {
+        id: 'ember-data:deprecate-v1cache-store-apis',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      });
+    }
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.peekRecordIdentifier(resource);
 
@@ -203,15 +284,130 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     return record ? !(record.isDestroyed || record.isDestroying) : false;
   }
 
+  hasRecord(identifier: StableRecordIdentifier): boolean {
+    return Boolean(this._store._instanceCache.peek({ identifier, bucket: 'record' }));
+  }
+
   disconnectRecord(type: string, id: string | null, lid: string): void;
   disconnectRecord(type: string, id: string, lid?: string | null): void;
-  disconnectRecord(type: string, id: string | null, lid?: string | null): void {
-    const resource = constructResource(type, id, lid);
-    const identifier = this.identifierCache.peekRecordIdentifier(resource);
-
-    if (identifier) {
-      this._store._instanceCache.disconnect(identifier);
-      this._pendingNotifies.delete(identifier);
+  disconnectRecord(type: StableRecordIdentifier): void;
+  disconnectRecord(type: string | StableRecordIdentifier, id?: string | null, lid?: string | null): void {
+    let identifier: StableRecordIdentifier;
+    if (DEPRECATE_V1CACHE_STORE_APIS && typeof type === 'string') {
+      deprecate(
+        `StoreWrapper.disconnectRecord(<type>) has been deprecated in favor of StoreWrapper.disconnectRecord(<identifier>)`,
+        false,
+        {
+          id: 'ember-data:deprecate-v1cache-store-apis',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+        }
+      );
+      let resource = constructResource(type, id, lid) as RecordIdentifier;
+      identifier = this.identifierCache.peekRecordIdentifier(resource)!;
+    } else {
+      identifier = type as StableRecordIdentifier;
     }
+
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+
+    this._store._instanceCache.disconnect(identifier);
+    this._pendingNotifies.delete(identifier);
   }
 }
+
+class V2RecordDataStoreWrapper implements StoreWrapper {
+  declare _willNotify: boolean;
+  declare _pendingNotifies: Map<StableRecordIdentifier, Set<string>>;
+  declare _store: Store;
+
+  constructor(_store: Store) {
+    this._store = _store;
+    this._willNotify = false;
+    this._pendingNotifies = new Map();
+  }
+
+  get identifierCache(): IdentifierCache {
+    return this._store.identifierCache;
+  }
+
+  _scheduleNotification(identifier: StableRecordIdentifier, key: string) {
+    let pending = this._pendingNotifies.get(identifier);
+
+    if (!pending) {
+      pending = new Set();
+      this._pendingNotifies.set(identifier, pending);
+    }
+    pending.add(key);
+
+    if (this._willNotify === true) {
+      return;
+    }
+
+    this._willNotify = true;
+    let backburner: any = this._store._backburner;
+
+    backburner.schedule('notify', this, this._flushNotifications);
+  }
+
+  _flushNotifications(): void {
+    if (this._willNotify === false) {
+      return;
+    }
+
+    let pending = this._pendingNotifies;
+    this._pendingNotifies = new Map();
+    this._willNotify = false;
+
+    pending.forEach((set, identifier) => {
+      set.forEach((key) => {
+        this._store._notificationManager.notify(identifier, 'relationships', key);
+      });
+    });
+  }
+
+  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void {
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+
+    // TODO do we still get value from this?
+    if (namespace === 'relationships' && key) {
+      this._scheduleNotification(identifier, key);
+      return;
+    }
+
+    this._store._notificationManager.notify(identifier, namespace, key);
+
+    if (namespace === 'state') {
+      this._store.recordArrayManager.recordDidChange(identifier);
+    }
+  }
+
+  getSchemaDefinitionService(): SchemaDefinitionService {
+    return this._store.getSchemaDefinitionService();
+  }
+
+  recordDataFor(identifier: StableRecordIdentifier): RecordData {
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+
+    return this._store._instanceCache.getRecordData(identifier);
+  }
+
+  setRecordId(identifier: StableRecordIdentifier, id: string) {
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+    this._store._instanceCache.setRecordId(identifier, id);
+  }
+
+  hasRecord(identifier: StableRecordIdentifier): boolean {
+    return Boolean(this._store._instanceCache.peek({ identifier, bucket: 'record' }));
+  }
+
+  disconnectRecord(identifier: StableRecordIdentifier): void {
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+    this._store._instanceCache.disconnect(identifier);
+    this._pendingNotifies.delete(identifier);
+  }
+}
+export type RecordDataStoreWrapper = LegacyWrapper | V2RecordDataStoreWrapper;
+
+export const RecordDataStoreWrapper = DEPRECATE_V1CACHE_STORE_APIS ? LegacyWrapper : V2RecordDataStoreWrapper;
