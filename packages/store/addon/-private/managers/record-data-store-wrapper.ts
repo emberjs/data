@@ -284,14 +284,8 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     return record ? !(record.isDestroyed || record.isDestroying) : false;
   }
 
-  // TODO the non-stable case here is likely a bug
-  hasRecord(recordIdentifier: RecordIdentifier): boolean {
-    const identifier = this.identifierCache.peekRecordIdentifier(recordIdentifier);
-
-    const record = identifier && this._store._instanceCache.peek({ identifier, bucket: 'record' });
-
-    // TODO dont check destroy for non DSModel
-    return record ? !(record.isDestroyed || record.isDestroying) : false;
+  hasRecord(identifier: StableRecordIdentifier): boolean {
+    return Boolean(this._store._instanceCache.peek({ identifier, bucket: 'record' }));
   }
 
   disconnectRecord(type: string, id: string | null, lid: string): void;
@@ -404,24 +398,14 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
     this._store._instanceCache.setRecordId(identifier, id);
   }
 
-  // TODO the non-stable case here is likely a bug
-  hasRecord(recordIdentifier: RecordIdentifier): boolean {
-    const identifier = this.identifierCache.peekRecordIdentifier(recordIdentifier);
-
-    const record = identifier && this._store._instanceCache.peek({ identifier, bucket: 'record' });
-
-    // TODO dont check destroy for non DSModel
-    return record ? !(record.isDestroyed || record.isDestroying) : false;
+  hasRecord(identifier: StableRecordIdentifier): boolean {
+    return Boolean(this._store._instanceCache.peek({ identifier, bucket: 'record' }));
   }
 
-  // TODO the non-stable case here is likely a bug
-  disconnectRecord(recordIdentifier: RecordIdentifier): void {
-    const identifier = this.identifierCache.peekRecordIdentifier(recordIdentifier);
-
-    if (identifier) {
-      this._store._instanceCache.disconnect(identifier);
-      this._pendingNotifies.delete(identifier);
-    }
+  disconnectRecord(identifier: StableRecordIdentifier): void {
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+    this._store._instanceCache.disconnect(identifier);
+    this._pendingNotifies.delete(identifier);
   }
 }
 export type RecordDataStoreWrapper = LegacyWrapper | V2RecordDataStoreWrapper;
