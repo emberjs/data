@@ -9,7 +9,7 @@ import type Store from '../store-service';
 import WeakCache from '../utils/weak-cache';
 
 type UnsubscribeToken = object;
-
+let tokenId = 0;
 const Cache = new WeakCache<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>(
   DEBUG ? 'subscribers' : ''
 );
@@ -42,7 +42,7 @@ export default class NotificationManager {
   subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     assert(`Expected to receive a stable Identifier to subscribe to`, isStableIdentifier(identifier));
     let map = Cache.lookup(identifier);
-    let unsubToken = {};
+    let unsubToken = DEBUG ? { _tokenRef: tokenId++ } : {};
     map.set(unsubToken, callback);
     Tokens.set(unsubToken, identifier);
     return unsubToken;

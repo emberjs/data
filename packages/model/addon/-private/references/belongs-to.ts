@@ -56,8 +56,8 @@ export default class BelongsToReference {
   declare store: Store;
 
   // unsubscribe tokens given to us by the notification manager
-  #token!: Object;
-  #relatedToken: Object | null = null;
+  #token!: object;
+  #relatedToken: object | null = null;
 
   @tracked _ref = 0;
 
@@ -89,8 +89,10 @@ export default class BelongsToReference {
     // TODO @feature we need the notification manager often enough
     // we should potentially just expose it fully public
     this.store._notificationManager.unsubscribe(this.#token);
+    this.#token = null as unknown as object;
     if (this.#relatedToken) {
       this.store._notificationManager.unsubscribe(this.#relatedToken);
+      this.#relatedToken = null;
     }
   }
 
