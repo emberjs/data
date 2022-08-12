@@ -356,5 +356,5 @@ jobs:
         run: yarn test-external:${{ matrix.partner }}
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
       - name: Check on failures
-        if: ${{ matrix['continue-on-error'] == true && success() }}
+        if: ${{ matrix['continue-on-error'] == true && steps.test-partner.outcome == 'success' }}
         run: exit 1
