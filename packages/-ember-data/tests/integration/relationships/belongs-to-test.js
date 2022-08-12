@@ -1225,7 +1225,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   testInDebug('Passing a model as type to belongsTo should not work', function (assert) {
-    assert.expect(3);
+    assert.expect(2);
 
     assert.expectAssertion(() => {
       const User = Model.extend();
@@ -1234,7 +1234,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         user: belongsTo(User, { async: false, inverse: null }),
       });
     }, /The first argument to belongsTo must be a string/);
-    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
     assert.expectDeprecation({ id: 'ember-data:deprecate-non-strict-relationships' });
   });
 
