@@ -73,7 +73,7 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
 
     const Storage = Model.extend({
       name: attr('name'),
-      records: hasMany('record', { async: false }),
+      records: hasMany('record', { async: false, inverse: null }),
     });
 
     this.owner.register('model:record', Record);

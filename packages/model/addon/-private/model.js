@@ -19,6 +19,7 @@ import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EARLY_STATIC,
   DEPRECATE_MODEL_REOPEN,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
@@ -980,7 +981,7 @@ class Model extends EmberObject {
     import Model, { belongsTo } from '@ember-data/model';
 
     export default class BlogModel extends Model {
-      @belongsTo({ async: true }) user;
+      @belongsTo('user', { async: true, inverse: null }) user;
     }
     ```
 
@@ -1048,7 +1049,7 @@ class Model extends EmberObject {
     import Model, { hasMany } from '@ember-data/model';
 
     export default class BlogModel extends Model {
-      @hasMany({ async: true }) comments;
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
 
     let blog = store.push({
@@ -1795,7 +1796,7 @@ class Model extends EmberObject {
         meta.key = name;
         meta.name = name;
         meta.parentModelName = modelName;
-        relationships[name] = relationshipFromMeta(meta);
+        relationships[name] = DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE ? relationshipFromMeta(meta) : meta;
       }
     });
     return relationships;

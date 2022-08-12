@@ -42,7 +42,7 @@ class MinimalSerializer extends EmberObject {
 
   // minimal implementation, not json-api compliant
   serializeBelongsTo(snapshot, json, relationship) {
-    let key = relationship.key;
+    let key = relationship.name;
     let belongsTo = snapshot.belongsTo(key);
 
     if (belongsTo) {
@@ -77,7 +77,7 @@ class Post extends Model {
   @attr
   text;
 
-  @hasMany('comments')
+  @hasMany('comments', { async: true, inverse: 'post' })
   comments;
 }
 
@@ -85,7 +85,7 @@ class Comment extends Model {
   @attr
   text;
 
-  @belongsTo('post')
+  @belongsTo('post', { async: true, inverse: 'comments' })
   post;
 }
 
@@ -160,7 +160,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
         let expectedURL = initialRecord.data.relationships.post.links.related;
         assert.strictEqual(url, expectedURL, 'url is passed to findBelongsTo');
-        assert.strictEqual(relationship.meta.key, 'post', 'relationship is passed to findBelongsTo');
+        assert.strictEqual(relationship.key, 'post', 'relationship is passed to findBelongsTo');
 
         assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
         assert.strictEqual(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
@@ -434,7 +434,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
         let expectedURL = initialRecord.data.relationships.post.links.related;
         assert.strictEqual(url, expectedURL, 'url is passed to findBelongsTo');
-        assert.strictEqual(relationship.meta.key, 'post', 'relationship is passed to findBelongsTo');
+        assert.strictEqual(relationship.name, 'post', 'relationship is passed to findBelongsTo');
 
         assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
         assert.strictEqual(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');

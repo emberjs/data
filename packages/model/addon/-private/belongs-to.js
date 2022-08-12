@@ -1,10 +1,24 @@
-import { assert, inspect, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
+import { dasherize } from '@ember/string';
 import { DEBUG } from '@glimmer/env';
+
+import {
+  DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
+} from '@ember-data/private-build-infra/deprecations';
 
 import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
+function normalizeType(type) {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && !type) {
+    return;
+  }
+
+  return dasherize(type);
+}
 /**
   @module @ember-data/model
 */
@@ -111,29 +125,71 @@ import { computedMacroWithOptionalParams } from './util';
   @return {Ember.computed} relationship
 */
 function belongsTo(modelName, options) {
-  let opts, userEnteredModelName;
-  if (typeof modelName === 'object') {
-    opts = modelName;
-    userEnteredModelName = undefined;
-  } else {
-    opts = options;
-    userEnteredModelName = modelName;
+  let opts = options;
+  let userEnteredModelName = modelName;
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && (typeof modelName !== 'string' || !modelName.length)) {
+    deprecate('belongsTo() must specify the string type of the related resource as the first parameter', false, {
+      id: 'ember-data:deprecate-non-strict-relationships',
+      for: 'ember-data',
+      until: '5.0',
+      since: { enabled: '4.8', available: '4.8' },
+    });
+
+    if (typeof modelName === 'object') {
+      opts = modelName;
+      userEnteredModelName = undefined;
+    } else {
+      opts = options;
+      userEnteredModelName = modelName;
+    }
+
+    assert(
+      'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
+        typeof userEnteredModelName +
+        ". E.g., to define a relation to the Person model, use belongsTo('person')",
+      typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
+    );
   }
 
-  assert(
-    'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
-      inspect(userEnteredModelName) +
-      ". E.g., to define a relation to the Person model, use belongsTo('person')",
-    typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
-  );
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC && (!opts || typeof opts.async !== 'boolean')) {
+    opts = opts || {};
+    if (!('async' in opts)) {
+      opts.async = true;
+    }
+    deprecate('belongsTo(<type>, <options>) must specify options.async as either `true` or `false`.', false, {
+      id: 'ember-data:deprecate-non-strict-relationships',
+      for: 'ember-data',
+      until: '5.0',
+      since: { enabled: '4.8', available: '4.8' },
+    });
+  } else {
+    assert(`Expected belongsTo options.async to be a boolean`, opts && typeof opts.async === 'boolean');
+  }
 
-  opts = opts || {};
-  if (!('async' in opts)) {
-    opts.async = true;
+  if (
+    DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE &&
+    opts.inverse !== null &&
+    (typeof opts.inverse !== 'string' || opts.inverse.length === 0)
+  ) {
+    deprecate(
+      'belongsTo(<type>, <options>) must specify options.inverse as either `null` or string type of the related resource.',
+      false,
+      {
+        id: 'ember-data:deprecate-non-strict-relationships',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      }
+    );
+  } else {
+    assert(
+      `Expected belongsTo options.inverse to be either null or the string type of the related resource.`,
+      opts.inverse === null || (typeof opts.inverse === 'string' && opts.inverse.length > 0)
+    );
   }
 
   let meta = {
-    type: userEnteredModelName,
+    type: normalizeType(userEnteredModelName),
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',

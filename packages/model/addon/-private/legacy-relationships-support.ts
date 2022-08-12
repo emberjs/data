@@ -139,7 +139,7 @@ export class LegacySupport {
         assert(
           `You looked up the '${key}' relationship on a '${identifier.type}' with id ${
             identifier.id || 'null'
-          } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`belongsTo({ async: true })\`)`,
+          } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`belongsTo(<type>, { async: true, inverse: <inverse> })\`)`,
           toReturn === null || store._instanceCache.recordIsLoaded(relatedIdentifier, true)
         );
         return toReturn;
@@ -250,7 +250,7 @@ export class LegacySupport {
         assert(
           `You looked up the '${key}' relationship on a '${this.identifier.type}' with id ${
             this.identifier.id || 'null'
-          } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany({ async: true })')`,
+          } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany(<type>, { async: true, inverse: <inverse> })')`,
           !anyUnloaded(this.store, relationship)
         );
 

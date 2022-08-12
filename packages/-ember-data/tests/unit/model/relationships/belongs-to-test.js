@@ -25,12 +25,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -97,13 +97,13 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
     Tag.toString = () => 'Tag';
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
     Person.toString = () => 'Person';
 
@@ -120,14 +120,14 @@ module('unit/model/relationships - belongsTo', function (hooks) {
         data: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
           },
           {
             type: 'person',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'David J. Hamilton',
             },
@@ -167,7 +167,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: true }),
+      tag: belongsTo('tag', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -182,16 +182,16 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
         return {
           data: {
-            id: 1,
+            id: '1',
             type: 'person',
             attributes: { name: 'Tom Dale' },
-            relationships: { tag: { data: { id: 2, type: 'tag' } } },
+            relationships: { tag: { data: { id: '2', type: 'tag' } } },
           },
         };
       } else if (type === Tag) {
         assert.strictEqual(id, '2', 'id should be 2');
 
-        return { data: { id: 2, type: 'tag', attributes: { name: 'friendly' } } };
+        return { data: { id: '2', type: 'tag', attributes: { name: 'friendly' } } };
       }
     };
 
@@ -221,7 +221,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: true }),
+      tag: belongsTo('tag', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -306,7 +306,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: true }),
+      tag: belongsTo('tag', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -389,7 +389,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: true }),
+      tag: belongsTo('tag', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -499,12 +499,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -527,12 +527,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
   test('When finding a hasMany relationship the inverse belongsTo relationship is available immediately', function (assert) {
     const Occupation = Model.extend({
       description: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'occupations' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      occupations: hasMany('occupation', { async: true }),
+      occupations: hasMany('occupation', { async: true, inverse: 'person' }),
     });
 
     this.owner.register('model:occupation', Occupation);
@@ -547,8 +547,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       assert.strictEqual(snapshots[0].belongsTo('person').id, '1');
       return {
         data: [
-          { id: 5, type: 'occupation', attributes: { description: 'fifth' } },
-          { id: 2, type: 'occupation', attributes: { description: 'second' } },
+          { id: '5', type: 'occupation', attributes: { description: 'fifth' } },
+          { id: '2', type: 'occupation', attributes: { description: 'second' } },
         ],
       };
     };
@@ -598,12 +598,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Occupation = Model.extend({
       description: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'occupation' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      occupation: belongsTo('occupation', { async: true }),
+      occupation: belongsTo('occupation', { async: true, inverse: 'person' }),
     });
 
     this.owner.register('model:occupation', Occupation);
@@ -614,7 +614,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(snapshot.belongsTo('person').id, '1');
-      return { data: { id: 5, type: 'occupation', attributes: { description: 'fifth' } } };
+      return { data: { id: '5', type: 'occupation', attributes: { description: 'fifth' } } };
     };
 
     run(() => {
@@ -642,12 +642,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -717,7 +717,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      hobby: belongsTo('hobby', { serialize: true, async: true }),
+      hobby: belongsTo('hobby', { serialize: true, async: true, inverse: null }),
     });
 
     this.owner.register('model:hobby', Hobby);
@@ -777,7 +777,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      hobby: belongsTo('hobby', { embedded: true, async: true }),
+      hobby: belongsTo('hobby', { embedded: true, inverse: null, async: true }),
     });
 
     this.owner.register('model:hobby', Hobby);
@@ -833,12 +833,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
   test('belongsTo should be async by default', function (assert) {
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag'),
+      tag: belongsTo('tag', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);

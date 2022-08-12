@@ -268,7 +268,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       assert.ok(true, 'save operation resolves');
       return EmberPromise.resolve({
         data: {
-          id: 123,
+          id: '123',
           type: 'person',
         },
       });
@@ -357,7 +357,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       }
     }
     class Group extends Model {
-      @belongsTo('company', { async: true }) company;
+      @belongsTo('company', { async: true, inverse: null }) company;
       @hasMany('employee', { inverse: 'groups', async: true }) employees;
       toString() {
         return 'Group';

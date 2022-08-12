@@ -31,7 +31,7 @@ class Pet extends Model {
   @belongsTo('person', { inverse: 'bestDog', async: false })
   bestHuman;
   // inverse is an implicit hasMany relationship
-  @belongsTo('person', { async: true })
+  @belongsTo('person', { async: true, inverse: null })
   petOwner;
   @attr()
   name;

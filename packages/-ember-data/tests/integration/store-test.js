@@ -18,7 +18,7 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 class Person extends Model {
   @attr('string') name;
-  @hasMany('car', { async: false }) cars;
+  @hasMany('car', { async: false, inverse: 'person' }) cars;
 
   static toString() {
     return 'Person';
@@ -28,7 +28,7 @@ class Person extends Model {
 class Car extends Model {
   @attr('string') make;
   @attr('string') model;
-  @belongsTo('person', { async: false }) person;
+  @belongsTo('person', { async: false, inverse: 'cars' }) person;
 
   static toString() {
     return 'Car';
@@ -1210,13 +1210,13 @@ module('integration/store - queryRecord', function (hooks) {
 
       adapter.queryRecord = function () {
         return {
-          cars: [{ id: 1 }],
+          cars: [{ id: '1' }],
         };
       };
 
       serializer.normalizeQueryRecordResponse = function () {
         return {
-          data: [{ id: 1, type: 'car' }],
+          data: [{ id: '1', type: 'car' }],
         };
       };
 

@@ -21,7 +21,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       @attr()
       title;
 
-      @hasMany({ async: true })
+      @hasMany('comment', { async: true, inverse: 'post' })
       comments;
     }
 
@@ -29,7 +29,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       @attr()
       body;
 
-      @belongsTo({ async: true })
+      @belongsTo('post', { async: true, inverse: 'comments' })
       post;
     }
     _Post = Post;
@@ -540,7 +540,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.expect(4);
 
     store.adapterFor('application').findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({ data: { id: 1, type: 'post', attributes: { title: 'Hello World' } } });
+      return resolve({ data: { id: '1', type: 'post', attributes: { title: 'Hello World' } } });
     };
 
     store.push({
@@ -1013,7 +1013,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
 
     store.adapterFor('application').findHasMany = function (store, snapshot, link, relationship) {
       return resolve({
-        data: [{ id: 2, type: 'comment', attributes: { body: 'This is comment' } }],
+        data: [{ id: '2', type: 'comment', attributes: { body: 'This is comment' } }],
       });
     };
 

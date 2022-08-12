@@ -24,8 +24,8 @@ if (has('@ember-data/debug')) {
       const User = Model.extend({
         name: attr('string'),
         isDrugAddict: attr('boolean'),
-        maritalStatus: belongsTo('marital-status', { async: false }),
-        posts: hasMany('post', { async: false }),
+        maritalStatus: belongsTo('marital-status', { async: false, inverse: null }),
+        posts: hasMany('post', { async: false, inverse: null }),
       });
 
       this.owner.register('model:marital-status', MaritalStatus);
@@ -57,7 +57,7 @@ if (has('@ember-data/debug')) {
       const User = Model.extend({
         name: attr('string'),
         isDrugAddict: attr('boolean'),
-        maritalStatus: belongsTo('marital-status', { async: false }),
+        maritalStatus: belongsTo('marital-status', { async: false, inverse: null }),
         posts: computed(() => [1, 2, 3])
           .readOnly()
           .meta({

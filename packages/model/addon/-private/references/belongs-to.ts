@@ -134,7 +134,7 @@ export default class BelongsToReference {
    import Model, { belongsTo } from '@ember-data/model';
 
    export default class BlogModel extends Model {
-    @belongsTo({ async: true }) user;
+    @belongsTo('user', { async: true, inverse: null }) user;
    }
 
    let blog = store.push({
@@ -174,7 +174,7 @@ export default class BelongsToReference {
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
    export default Model.extend({
-      user: belongsTo({ async: true })
+      user: belongsTo('user', { async: true, inverse: null })
     });
 
    let blog = store.push({
@@ -236,7 +236,7 @@ export default class BelongsToReference {
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
    export default Model.extend({
-      user: belongsTo({ async: true })
+      user: belongsTo('user', { async: true, inverse: null })
     });
 
    let blog = store.push({
@@ -291,7 +291,7 @@ export default class BelongsToReference {
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
-     @hasMany({ async: true }) comments;
+     @hasMany('comment', { async: true, inverse: null }) comments;
    }
    ```
 
@@ -341,7 +341,7 @@ export default class BelongsToReference {
    import Model, { belongsTo } from '@ember-data/model';
 
    export default class BlogModel extends Model {
-      @belongsTo({ async: true }) user;
+      @belongsTo('user', { async: true, inverse: null }) user;
     }
 
    let blog = store.push({
@@ -416,7 +416,7 @@ export default class BelongsToReference {
    import Model, { belongsTo } from '@ember-data/model';
 
    export default class BlogModel extends Model {
-     @belongsTo({ async: true }) user;
+     @belongsTo('user', { async: true, inverse: null }) user;
    }
 
    let blog = store.push({
@@ -469,7 +469,7 @@ export default class BelongsToReference {
    import Model, { belongsTo } from '@ember-data/model';
 
    export default class BlogModel extends Model {
-     @belongsTo({ async: true }) user;
+     @belongsTo('user', { async: true, inverse: null }) user;
    }
 
    let blog = store.push({
@@ -539,7 +539,7 @@ export default class BelongsToReference {
    import Model, { belongsTo } from '@ember-data/model';
 
    export default class BlogModel extends Model {
-     @belongsTo({ async: true }) user;
+     @belongsTo('user', { async: true, inverse: null }) user;
    }
 
    let blog = store.push({

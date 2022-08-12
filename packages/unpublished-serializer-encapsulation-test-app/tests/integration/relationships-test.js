@@ -45,7 +45,7 @@ module('integration/relationships - running requests for async relatonships with
         return {
           data: [
             {
-              id: 1,
+              id: '1',
               type: 'comment',
               attributes: {
                 message: 'Message 1',
@@ -53,14 +53,14 @@ module('integration/relationships - running requests for async relatonships with
               relationships: {
                 post: {
                   data: {
-                    id: 1,
+                    id: '1',
                     type: 'post',
                   },
                 },
               },
             },
             {
-              id: 2,
+              id: '2',
               type: 'comment',
               attributes: {
                 message: 'Message 2',
@@ -68,7 +68,7 @@ module('integration/relationships - running requests for async relatonships with
               relationships: {
                 post: {
                   data: {
-                    id: 1,
+                    id: '1',
                     type: 'post',
                   },
                 },
@@ -93,7 +93,7 @@ module('integration/relationships - running requests for async relatonships with
 
     let post = store.push({
       data: {
-        id: 1,
+        id: '1',
         type: 'post',
         attributes: {
           title: 'Post 1',
@@ -102,11 +102,11 @@ module('integration/relationships - running requests for async relatonships with
           comments: {
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'comment',
               },
               {
-                id: 2,
+                id: '2',
                 type: 'comment',
               },
             ],
@@ -131,14 +131,14 @@ module('integration/relationships - running requests for async relatonships with
         return {
           data: [
             {
-              id: 1,
+              id: '1',
               type: 'comment',
               attributes: {
                 message: 'Message 1',
               },
             },
             {
-              id: 2,
+              id: '2',
               type: 'comment',
               attributes: {
                 message: 'Message 2',
@@ -163,7 +163,7 @@ module('integration/relationships - running requests for async relatonships with
 
     let post = store.push({
       data: {
-        id: 1,
+        id: '1',
         type: 'post',
         attributes: {
           title: 'Post 1',
@@ -192,7 +192,7 @@ module('integration/relationships - running requests for async relatonships with
         assert.strictEqual(requestType, 'findBelongsTo', 'expected method name is correct');
         assert.deepEqual(rawPayload, {
           data: {
-            id: 1,
+            id: '1',
             type: 'post',
             attributes: {
               title: 'John',
@@ -201,7 +201,7 @@ module('integration/relationships - running requests for async relatonships with
         });
         return {
           data: {
-            id: 1,
+            id: '1',
             type: 'post',
             attributes: {
               title: 'Chris',
@@ -218,7 +218,7 @@ module('integration/relationships - running requests for async relatonships with
       ajax(url, type) {
         return resolve({
           data: {
-            id: 1,
+            id: '1',
             type: 'post',
             attributes: {
               title: 'John',
@@ -233,7 +233,7 @@ module('integration/relationships - running requests for async relatonships with
 
     let comment = store.push({
       data: {
-        id: 1,
+        id: '1',
         type: 'comment',
         attributes: {
           message: 'Message 1',

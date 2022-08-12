@@ -119,7 +119,7 @@ module('integration/reload - Reloading Records', function (hooks) {
             return reject();
           } else {
             return resolve({
-              data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale' } },
+              data: { id: '1', type: 'person', attributes: { name: 'Thomas Dale' } },
             });
           }
         },

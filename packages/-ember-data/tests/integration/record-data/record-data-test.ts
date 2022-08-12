@@ -321,7 +321,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     calledRollbackAttributes = 0;
     calledDidCommit = 0;
 
-    let clientPerson = store.createRecord('person', { id: 2 });
+    let clientPerson = store.createRecord('person', { id: '2' });
     assert.strictEqual(calledClientDidCreate, 1, 'Called clientDidCreate');
 
     clientPerson.save();

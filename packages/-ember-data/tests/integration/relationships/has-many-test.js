@@ -59,7 +59,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     const Book = Model.extend({
       title: attr(),
-      chapters: hasMany('chapter', { async: true }),
+      chapters: hasMany('chapter', { async: true, inverse: null }),
       toString: () => 'Book',
     });
 
@@ -313,7 +313,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.ok(!user.contacts.initialState || !user.contacts.initialState.find((model) => model.id === '2'));
 
     run(() => {
-      contacts.addObject(store.createRecord('user', { id: 8 }));
+      contacts.addObject(store.createRecord('user', { id: '8' }));
     });
 
     assert.deepEqual(
@@ -340,15 +340,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           data: [
             {
               type: 'user',
-              id: 2,
+              id: '2',
             },
             {
               type: 'user',
-              id: 3,
+              id: '3',
             },
             {
               type: 'user',
-              id: 4,
+              id: '4',
             },
           ],
         },
@@ -360,22 +360,22 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       included: [
         {
           type: 'user',
-          id: 2,
+          id: '2',
         },
         {
           type: 'user',
-          id: 3,
+          id: '3',
         },
         {
           type: 'user',
-          id: 4,
+          id: '4',
         },
       ],
     });
     let contacts = user.contacts;
 
     store.adapterFor('user').deleteRecord = function () {
-      return { data: { type: 'user', id: 2 } };
+      return { data: { type: 'user', id: '2' } };
     };
 
     assert.deepEqual(
@@ -385,9 +385,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     );
 
     run(() => {
-      contacts.addObject(store.createRecord('user', { id: 5 }));
-      contacts.addObject(store.createRecord('user', { id: 6 }));
-      contacts.addObject(store.createRecord('user', { id: 7 }));
+      contacts.addObject(store.createRecord('user', { id: '5' }));
+      contacts.addObject(store.createRecord('user', { id: '6' }));
+      contacts.addObject(store.createRecord('user', { id: '7' }));
     });
 
     assert.deepEqual(
@@ -406,7 +406,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     );
     assert.strictEqual(contacts, user.contacts);
 
-    contacts.addObject(store.createRecord('user', { id: 8 }));
+    contacts.addObject(store.createRecord('user', { id: '8' }));
     assert.deepEqual(
       contacts.map((c) => c.id),
       ['3', '4', '5', '7', '8'],
@@ -442,8 +442,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 2, type: 'chapter', attributes: { title: 'Chapter One' } },
-          { id: 3, type: 'chapter', attributes: { title: 'Chapter Two' } },
+          { id: '2', type: 'chapter', attributes: { title: 'Chapter One' } },
+          { id: '3', type: 'chapter', attributes: { title: 'Chapter Two' } },
         ],
       });
     };
@@ -470,7 +470,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -497,7 +497,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -509,7 +509,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         },
       });
     };
-    //({ id: 1, links: { comments: "/posts/1/comments" } });
+    //({ id: '1', links: { comments: "/posts/1/comments" } });
 
     adapter.findMany = function (store, type, ids, snapshots) {
       throw new Error("Adapter's findMany should not be called");
@@ -521,8 +521,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -545,7 +545,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(2);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -586,8 +586,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         setTimeout(() => {
           let value = {
             data: [
-              { id: 1, type: 'comment', attributes: { body: 'First' } },
-              { id: 2, type: 'comment', attributes: { body: 'Second' } },
+              { id: '1', type: 'comment', attributes: { body: 'First' } },
+              { id: '2', type: 'comment', attributes: { body: 'Second' } },
             ],
           };
           resolve(value);
@@ -620,7 +620,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -642,8 +642,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -690,7 +690,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany updated link should not remove new children', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -715,7 +715,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.createRecord = function (store, snapshot, link, relationship) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -746,7 +746,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany updated link should not remove new children when the parent record has children already', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -767,14 +767,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       return resolve({
-        data: [{ id: 5, type: 'comment', attributes: { body: 'hello' } }],
+        data: [{ id: '5', type: 'comment', attributes: { body: 'hello' } }],
       });
     };
 
     adapter.createRecord = function (store, snapshot, link, relationship) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -804,7 +804,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test("A hasMany relationship doesn't contain duplicate children, after the canonical state of the relationship is updated via store#push", function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -824,7 +824,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, snapshot, link, relationship) {
-      return resolve({ data: { id: 1, type: 'post' } });
+      return resolve({ data: { id: '1', type: 'post' } });
     };
 
     return run(() => {
@@ -857,7 +857,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           store.push({
             data: {
               type: 'post',
-              id: 1,
+              id: '1',
               relationships: {
                 comments: {
                   data: [{ id: 'local', type: 'comment' }],
@@ -877,7 +877,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany relationship can be reloaded if it was fetched via a link', async function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -902,7 +902,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -920,8 +920,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -938,9 +938,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
-          { id: 3, type: 'comment', attributes: { body: 'Thirds' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
+          { id: '3', type: 'comment', attributes: { body: 'Thirds' } },
         ],
       });
     };
@@ -960,13 +960,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
               data: [
-                { id: 1, type: 'comment' },
-                { id: 2, type: 'comment' },
+                { id: '1', type: 'comment' },
+                { id: '2', type: 'comment' },
               ],
             },
           },
@@ -1004,8 +1004,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           adapter.findMany = function (store, type, ids, snapshots) {
             return resolve({
               data: [
-                { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-                { id: 2, type: 'comment', attributes: { body: 'Second' } },
+                { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+                { id: '2', type: 'comment', attributes: { body: 'Second' } },
               ],
             });
           };
@@ -1021,7 +1021,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany relationship can be reloaded if it was fetched via ids', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1046,13 +1046,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
               data: [
-                { id: 1, type: 'comment' },
-                { id: 2, type: 'comment' },
+                { id: '1', type: 'comment' },
+                { id: '2', type: 'comment' },
               ],
             },
           },
@@ -1063,8 +1063,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findMany = function (store, type, ids, snapshots) {
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1082,8 +1082,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           adapter.findMany = function (store, type, ids, snapshots) {
             return resolve({
               data: [
-                { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-                { id: 2, type: 'comment', attributes: { body: 'Second' } },
+                { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+                { id: '2', type: 'comment', attributes: { body: 'Second' } },
               ],
             });
           };
@@ -1100,7 +1100,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(7);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1141,8 +1141,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       } else {
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       }
@@ -1182,7 +1182,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(6);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1207,7 +1207,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -1223,8 +1223,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1243,7 +1243,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1267,7 +1267,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
@@ -1283,8 +1283,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       count++;
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1307,7 +1307,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany relationship can be directly reloaded if it was fetched via ids', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1332,13 +1332,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
               data: [
-                { id: 1, type: 'comment' },
-                { id: 2, type: 'comment' },
+                { id: '1', type: 'comment' },
+                { id: '2', type: 'comment' },
               ],
             },
           },
@@ -1349,8 +1349,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findMany = function (store, type, ids, snapshots) {
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1370,7 +1370,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1394,13 +1394,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'post',
           relationships: {
             comments: {
               data: [
-                { id: 1, type: 'comment' },
-                { id: 2, type: 'comment' },
+                { id: '1', type: 'comment' },
+                { id: '2', type: 'comment' },
               ],
             },
           },
@@ -1413,8 +1413,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       count++;
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
         ],
       });
     };
@@ -1442,7 +1442,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.expect(4);
       class Message extends Model {
         @attr('date') created_at;
-        @belongsTo('user', { async: false }) iser;
+        @belongsTo('user', { async: false, inverse: 'messages' }) user;
       }
 
       class Post extends Message {
@@ -1464,8 +1464,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       adapter.findHasMany = function (store, snapshot, link, relationship) {
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       };
@@ -1505,7 +1505,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(8);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1530,16 +1530,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       if (link === '/first') {
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       } else if (link === '/second') {
         return resolve({
           data: [
-            { id: 3, type: 'comment', attributes: { body: 'Third' } },
-            { id: 4, type: 'comment', attributes: { body: 'Fourth' } },
-            { id: 5, type: 'comment', attributes: { body: 'Fifth' } },
+            { id: '3', type: 'comment', attributes: { body: 'Third' } },
+            { id: '4', type: 'comment', attributes: { body: 'Fourth' } },
+            { id: '5', type: 'comment', attributes: { body: 'Fifth' } },
           ],
         });
       }
@@ -1651,9 +1651,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === store.modelFor('post')) {
-        return resolve({ data: { id: 1, type: 'post' } });
+        return resolve({ data: { id: '1', type: 'post' } });
       } else if (type === store.modelFor('comment')) {
-        return resolve({ data: { id: 3, type: 'comment' } });
+        return resolve({ data: { id: '3', type: 'comment' } });
       }
     };
 
@@ -1703,88 +1703,43 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
   });
 
-  test('Type can be inferred from the key of a hasMany relationship', async function (assert) {
-    assert.expect(1);
+  deprecatedTest(
+    'Type can be inferred from the key of a hasMany relationship',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    async function (assert) {
+      assert.expect(1);
 
-    const User = Model.extend({
-      name: attr(),
-      contacts: hasMany({ inverse: null, async: false }),
-    });
+      const User = Model.extend({
+        name: attr(),
+        contacts: hasMany({ inverse: null, async: false }),
+      });
 
-    const Contact = Model.extend({
-      name: attr(),
-      user: belongsTo('user', { async: false }),
-    });
+      const Contact = Model.extend({
+        name: attr(),
+        user: belongsTo('user', { async: false, inverse: null }),
+      });
 
-    this.owner.register('model:user', User);
-    this.owner.register('model:contact', Contact);
+      this.owner.register('model:user', User);
+      this.owner.register('model:contact', Contact);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.findRecord = function () {
-      return {
-        data: {
-          id: '1',
-          type: 'user',
-          relationships: {
-            contacts: {
-              data: [{ id: '1', type: 'contact' }],
+      adapter.findRecord = function () {
+        return {
+          data: {
+            id: '1',
+            type: 'user',
+            relationships: {
+              contacts: {
+                data: [{ id: '1', type: 'contact' }],
+              },
             },
           },
-        },
+        };
       };
-    };
 
-    const user = store.push({
-      data: {
-        type: 'user',
-        id: '1',
-        relationships: {
-          contacts: {
-            data: [{ type: 'contact', id: '1' }],
-          },
-        },
-      },
-      included: [
-        {
-          type: 'contact',
-          id: '1',
-        },
-      ],
-    });
-    const contacts = await user.contacts;
-    assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
-  });
-
-  test('Type can be inferred from the key of an async hasMany relationship', function (assert) {
-    assert.expect(1);
-    class User extends Model {
-      @attr name;
-      @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
-      @hasMany({ async: true, inverse: null }) contacts;
-    }
-    this.owner.register('model:user', User);
-
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-
-    adapter.findRecord = function (store, type, ids, snapshots) {
-      return {
-        data: {
-          id: 1,
-          type: 'user',
-          relationships: {
-            contacts: {
-              data: [{ id: 1, type: 'contact' }],
-            },
-          },
-        },
-      };
-    };
-
-    run(function () {
-      store.push({
+      const user = store.push({
         data: {
           type: 'user',
           id: '1',
@@ -1801,72 +1756,129 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           },
         ],
       });
-    });
-    run(function () {
-      store
-        .findRecord('user', 1)
-        .then(function (user) {
-          return user.contacts;
-        })
-        .then(function (contacts) {
-          assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
-        });
-    });
-  });
-
-  test('Polymorphic relationships work with a hasMany whose type is inferred', function (assert) {
-    assert.expect(1);
-    class User extends Model {
-      @attr name;
-      @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
-      @hasMany({ async: false, polymorphic: true, inverse: null }) contacts;
+      const contacts = await user.contacts;
+      assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
     }
-    this.owner.register('model:user', User);
+  );
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  deprecatedTest(
+    'Type can be inferred from the key of an async hasMany relationship',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    function (assert) {
+      assert.expect(1);
+      class User extends Model {
+        @attr name;
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+        @hasMany({ async: true, inverse: null }) contacts;
+      }
+      this.owner.register('model:user', User);
 
-    adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: { id: 1, type: 'user' } };
-    };
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            contacts: {
-              data: [
-                { type: 'email', id: '1' },
-                { type: 'phone', id: '2' },
-              ],
+      adapter.findRecord = function (store, type, ids, snapshots) {
+        return {
+          data: {
+            id: '1',
+            type: 'user',
+            relationships: {
+              contacts: {
+                data: [{ id: '1', type: 'contact' }],
+              },
             },
           },
-        },
-        included: [
-          {
-            type: 'email',
+        };
+      };
+
+      run(function () {
+        store.push({
+          data: {
+            type: 'user',
             id: '1',
+            relationships: {
+              contacts: {
+                data: [{ type: 'contact', id: '1' }],
+              },
+            },
           },
-          {
-            type: 'phone',
-            id: '2',
-          },
-        ],
-      });
-    });
-    run(function () {
-      store
-        .findRecord('user', 1)
-        .then(function (user) {
-          return user.contacts;
-        })
-        .then(function (contacts) {
-          assert.strictEqual(contacts.length, 2, 'The contacts relationship is correctly set up');
+          included: [
+            {
+              type: 'contact',
+              id: '1',
+            },
+          ],
         });
-    });
-  });
+      });
+      run(function () {
+        store
+          .findRecord('user', 1)
+          .then(function (user) {
+            return user.contacts;
+          })
+          .then(function (contacts) {
+            assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
+          });
+      });
+    }
+  );
+
+  deprecatedTest(
+    'Polymorphic relationships work with a hasMany whose type is inferred',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    function (assert) {
+      assert.expect(1);
+      class User extends Model {
+        @attr name;
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+        @hasMany({ async: false, polymorphic: true, inverse: null }) contacts;
+      }
+      this.owner.register('model:user', User);
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
+
+      adapter.findRecord = function (store, type, ids, snapshots) {
+        return { data: { id: '1', type: 'user' } };
+      };
+
+      run(function () {
+        store.push({
+          data: {
+            type: 'user',
+            id: '1',
+            relationships: {
+              contacts: {
+                data: [
+                  { type: 'email', id: '1' },
+                  { type: 'phone', id: '2' },
+                ],
+              },
+            },
+          },
+          included: [
+            {
+              type: 'email',
+              id: '1',
+            },
+            {
+              type: 'phone',
+              id: '2',
+            },
+          ],
+        });
+      });
+      run(function () {
+        store
+          .findRecord('user', 1)
+          .then(function (user) {
+            return user.contacts;
+          })
+          .then(function (contacts) {
+            assert.strictEqual(contacts.length, 2, 'The contacts relationship is correctly set up');
+          });
+      });
+    }
+  );
 
   test('Polymorphic relationships with a hasMany is set up correctly on both sides', function (assert) {
     assert.expect(2);
@@ -2079,7 +2091,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(4);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2144,7 +2156,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2197,7 +2209,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
-      return resolve({ data: { id: 1, type: snapshot.modelName } });
+      return resolve({ data: { id: '1', type: snapshot.modelName } });
     };
 
     let post, comment;
@@ -2214,7 +2226,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('dual non-async HM <-> BT', async function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2280,7 +2292,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(6);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2306,8 +2318,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.ok(true, `findMany called ${++findManyCalls}x`);
       return resolve({
         data: [
-          { id: 1, type: 'comment', attributes: { body: 'first' } },
-          { id: 2, type: 'comment', attributes: { body: 'second' } },
+          { id: '1', type: 'comment', attributes: { body: 'first' } },
+          { id: '2', type: 'comment', attributes: { body: 'second' } },
         ],
       });
     };
@@ -2315,7 +2327,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.ok(true, `findRecord called ${++findRecordCalls}x`);
 
-      return resolve({ data: { id: 3, type: 'comment', attributes: { body: 'third' } } });
+      return resolve({ data: { id: '3', type: 'comment', attributes: { body: 'third' } } });
     };
 
     let post = store.push({
@@ -2401,7 +2413,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     const Post = Model.extend({
       title: attr('string'),
-      comments: hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true, inverse: 'message' }),
       toString: () => 'Post',
     });
     this.owner.register('model:post', Post);
@@ -2897,23 +2909,24 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   }
 
   testInDebug('Passing a model as type to hasMany should not work', function (assert) {
-    assert.expect(2);
+    assert.expect(3);
 
     assert.expectAssertion(() => {
       const User = Model.extend();
 
       Model.extend({
-        users: hasMany(User, { async: false }),
+        users: hasMany(User, { async: false, inverse: null }),
       });
     }, /The first argument to hasMany must be a string/);
 
     assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
+    assert.expectDeprecation({ id: 'ember-data:deprecate-non-strict-relationships' });
   });
 
   test('Relationship.clear removes all records correctly', async function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2990,7 +3003,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('unloading a record with associated records does not prevent the store from tearing down', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3072,12 +3085,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(4);
 
     const Post = Model.extend({
-      comments: hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true, inverse: 'post' }),
       toString: () => 'Post',
     });
 
     const Comment = Model.extend({
-      post: belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
       toString: () => 'Comment',
     });
 
@@ -3181,14 +3194,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           attributes: { title: 'The Story Begins' },
           relationships: {
             pages: {
               data: [
-                { id: 2, type: 'page' },
-                { id: 3, type: 'page' },
+                { id: '2', type: 'page' },
+                { id: '3', type: 'page' },
               ],
             },
           },
@@ -3213,14 +3226,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           attributes: { title: 'The Story Begins' },
           relationships: {
             pages: {
               data: [
-                { id: 2, type: 'page' },
-                { id: 3, type: 'page' },
+                { id: '2', type: 'page' },
+                { id: '3', type: 'page' },
               ],
             },
           },
@@ -3250,7 +3263,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           attributes: { title: 'The Story Begins' },
           relationships: {
@@ -3279,7 +3292,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           attributes: { title: 'The Story Begins' },
         },
@@ -3539,7 +3552,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(3);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3609,7 +3622,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(3);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3680,7 +3693,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3748,7 +3761,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(3);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3835,7 +3848,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(3);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3858,7 +3871,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.strictEqual(url, 'comments-updated-link', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
       return resolve({
-        data: [{ id: 1, type: 'comment', attributes: { body: 'This is updated comment' } }],
+        data: [{ id: '1', type: 'comment', attributes: { body: 'This is updated comment' } }],
       });
     };
 
@@ -3909,7 +3922,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.expect(1);
       class Message extends Model {
         @attr('date') created_at;
-        @belongsTo('user', { async: false }) iser;
+        @belongsTo('user', { async: false, inverse: 'messages' }) user;
       }
 
       class Post extends Message {
@@ -3931,8 +3944,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       adapter.findHasMany = function (store, record, link, relationship) {
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       };
@@ -3941,7 +3954,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         let post = store.push({
           data: {
             type: 'post',
-            id: 1,
+            id: '1',
             relationships: {
               comments: {
                 links: {
@@ -4225,7 +4238,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany relationship with a link will trigger the link request even if a inverse related object is pushed to the store', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -4292,8 +4305,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
         return resolve({
           data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       };

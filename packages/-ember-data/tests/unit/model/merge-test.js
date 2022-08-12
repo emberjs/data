@@ -30,7 +30,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     const ApplicationAdapter = Adapter.extend({
       createRecord(store, type, snapshot) {
-        return { data: { id: 1, type: 'person', attributes: { name: 'Tom Dale' } } };
+        return { data: { id: '1', type: 'person', attributes: { name: 'Tom Dale' } } };
       },
     });
 
@@ -105,7 +105,7 @@ module('unit/model/merge - Merging', function (hooks) {
         return new EmberPromise((resolve) => {
           next(null, resolve, {
             data: {
-              id: 1,
+              id: '1',
               type: 'person',
               attributes: { name: 'Senor Thomas Dale, Esq.', city: 'Portland' },
             },
@@ -260,7 +260,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     const ApplicationAdapter = Adapter.extend({
       updateRecord(store, type, snapshot) {
-        return { data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale' } } };
+        return { data: { id: '1', type: 'person', attributes: { name: 'Thomas Dale' } } };
       },
     });
 
@@ -291,7 +291,7 @@ module('unit/model/merge - Merging', function (hooks) {
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return {
-          data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale', city: 'Portland' } },
+          data: { id: '1', type: 'person', attributes: { name: 'Thomas Dale', city: 'Portland' } },
         };
       },
     });

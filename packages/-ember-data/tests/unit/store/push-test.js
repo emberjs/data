@@ -38,7 +38,7 @@ module('unit/store/push - Store#push', function (hooks) {
     let person = store.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
         attributes: {
           firstName: 'original first name',
         },
@@ -66,7 +66,7 @@ module('unit/store/push - Store#push', function (hooks) {
     store.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
         attributes: {
           firstName: 'updated first name',
         },
@@ -208,7 +208,7 @@ module('unit/store/push - Store#push', function (hooks) {
       if (id === '1') {
         return resolve({
           data: {
-            id: 1,
+            id: '1',
             type: 'phone-number',
             attributes: { number: '5551212' },
             relationships: {
@@ -223,7 +223,7 @@ module('unit/store/push - Store#push', function (hooks) {
       if (id === '2') {
         return resolve({
           data: {
-            id: 2,
+            id: '2',
             type: 'phone-number',
             attributes: { number: '5552121' },
             relationships: {
@@ -247,8 +247,8 @@ module('unit/store/push - Store#push', function (hooks) {
         relationships: {
           'phone-numbers': {
             data: [
-              { id: 1, type: 'phone-number' },
-              { id: 2, type: 'phone-number' },
+              { id: '1', type: 'phone-number' },
+              { id: '2', type: 'phone-number' },
             ],
           },
         },
@@ -545,7 +545,7 @@ module('unit/store/push - Store#push', function (hooks) {
     const store = this.owner.lookup('service:store');
     let pushResult = store._push({
       data: {
-        id: 1,
+        id: '1',
         type: 'person',
       },
     });
@@ -564,7 +564,7 @@ module('unit/store/push - Store#push', function (hooks) {
     run(() => {
       store._push({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
         },
       });
@@ -582,7 +582,7 @@ module('unit/store/push - Store#push', function (hooks) {
       pushResult = store._push({
         data: [
           {
-            id: 1,
+            id: '1',
             type: 'person',
           },
         ],
@@ -711,13 +711,13 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
       store.pushPayload('post', {
         posts: [
           {
-            id: 1,
+            id: '1',
             postTitle: 'Ember rocks',
           },
         ],
         people: [
           {
-            id: 2,
+            id: '2',
             firstName: 'Yehuda',
           },
         ],
@@ -937,13 +937,13 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
   hooks.beforeEach(function () {
     const Person = Model.extend({
       name: attr('string'),
-      cars: hasMany('car', { async: false }),
+      cars: hasMany('car', { async: false, inverse: 'person' }),
     });
 
     const Car = Model.extend({
       make: attr('string'),
       model: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'cars' }),
     });
 
     this.owner.register('model:person', Person);
@@ -962,14 +962,14 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
         data: [
           {
             type: 'person',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'Tom Dale',
             },
           },
           {
             type: 'person',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'Tomster',
             },
@@ -994,7 +994,7 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
         data: [
           {
             type: 'person',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'Tomster',
             },
@@ -1003,7 +1003,7 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
                 {
                   data: {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                 },
               ],
@@ -1013,7 +1013,7 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
         included: [
           {
             type: 'car',
-            id: 1,
+            id: '1',
             attributes: {
               make: 'Dodge',
               model: 'Neon',
@@ -1021,7 +1021,7 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
             relationships: {
               person: {
                 data: {
-                  id: 1,
+                  id: '1',
                   type: 'person',
                 },
               },

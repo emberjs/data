@@ -282,7 +282,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let store = this.owner.lookup('service:store');
 
     let model1 = {
-      id: 1,
+      id: '1',
       type: 'tag',
     };
     let record = store.push({
@@ -343,12 +343,12 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let store = this.owner.lookup('service:store');
 
     let model1 = {
-      id: 1,
+      id: '1',
       type: 'tag',
     };
 
     let model2 = {
-      id: 2,
+      id: '2',
       type: 'tag',
     };
     let records = store.push({
@@ -383,7 +383,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let store = this.owner.lookup('service:store');
 
     let model1 = {
-      id: 1,
+      id: '1',
       type: 'tag',
     };
     let record = store.push({

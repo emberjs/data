@@ -17,12 +17,12 @@ module('unit/many_array - ManyArray', function (hooks) {
 
     class Post extends Model {
       @attr('string') title;
-      @hasMany('tag', { async: false }) tags;
+      @hasMany('tag', { async: false, inverse: 'post' }) tags;
     }
 
     class Tag extends Model {
       @attr('string') name;
-      @belongsTo('post', { async: false }) post;
+      @belongsTo('post', { async: false, inverse: 'tags' }) post;
 
       save() {
         assert.ok(true, 'record.save() was called');
@@ -82,12 +82,12 @@ module('unit/many_array - ManyArray', function (hooks) {
       assert.expect(6);
       class Post extends Model {
         @attr('string') title;
-        @hasMany('tag', { async: false }) tags;
+        @hasMany('tag', { async: false, inverse: 'post' }) tags;
       }
 
       class Tag extends Model {
         @attr('string') name;
-        @belongsTo('post', { async: false }) post;
+        @belongsTo('post', { async: false, inverse: 'tags' }) post;
       }
 
       this.owner.register('model:post', Post);

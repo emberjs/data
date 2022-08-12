@@ -17,13 +17,13 @@ const Author = Model.extend({
 });
 
 const Post = Model.extend({
-  author: belongsTo(),
+  author: belongsTo('author', { async: true, inverse: null }),
 });
 
 const Person = Model.extend({
   firstName: attr('string'),
   lastName: attr('string'),
-  siblings: hasMany('person'),
+  siblings: hasMany('person', { async: true, inverse: 'siblings' }),
 });
 
 const sibling1 = {
@@ -916,7 +916,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
           },
           included: [
             {
-              id: 2,
+              id: '2',
               type: 'author',
             },
           ],

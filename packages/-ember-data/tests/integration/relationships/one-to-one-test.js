@@ -18,13 +18,13 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     const User = Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: 'bestFriend' }),
-      job: belongsTo('job', { async: false }),
+      job: belongsTo('job', { async: false, inverse: 'user' }),
     });
 
     const Job = Model.extend({
       name: attr(),
       isGood: attr(),
-      user: belongsTo('user', { async: false }),
+      user: belongsTo('user', { async: false, inverse: 'job' }),
     });
 
     const ApplicationAdapter = Adapter.extend({
@@ -51,7 +51,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanley = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -59,7 +59,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'user',
               },
             },
@@ -68,7 +68,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       stanleysFriend = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'user',
           attributes: {
             name: "Stanley's friend",
@@ -89,7 +89,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       job = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'job',
           attributes: {
             isGood: true,
@@ -98,7 +98,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       user = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -106,7 +106,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             job: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'job',
               },
             },
@@ -124,7 +124,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanleysFriend = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'user',
           attributes: {
             name: "Stanley's friend",
@@ -132,7 +132,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 1,
+                id: '1',
                 type: 'user',
               },
             },
@@ -141,7 +141,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -166,7 +166,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       job = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'job',
           attributes: {
             isGood: true,
@@ -175,7 +175,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -183,7 +183,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             job: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'job',
               },
             },
@@ -194,7 +194,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       job = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'job',
           attributes: {
             isGood: true,
@@ -393,7 +393,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanley = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -402,7 +402,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       stanleysFriend = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'user',
           attributes: {
             name: "Stanley's friend",
@@ -425,7 +425,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       job = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'job',
           attributes: {
             isGood: true,
@@ -434,7 +434,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       user = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -455,7 +455,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanley = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -463,7 +463,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'user',
               },
             },
@@ -472,7 +472,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       stanleysFriend = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'user',
           attributes: {
             name: "Stanley's friend",
@@ -481,7 +481,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       newFriend = store.push({
         data: {
-          id: 3,
+          id: '3',
           type: 'user',
           attributes: {
             name: 'New friend',
@@ -515,7 +515,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -524,7 +524,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       igor = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'user',
           attributes: {
             name: 'Igor',
@@ -533,7 +533,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       newFriend = store.push({
         data: {
-          id: 3,
+          id: '3',
           type: 'user',
           attributes: {
             name: 'New friend',
@@ -541,7 +541,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 1,
+                id: '1',
                 type: 'user',
               },
             },
@@ -564,7 +564,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanley = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -572,7 +572,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'user',
               },
             },
@@ -581,7 +581,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       igor = store.push({
         data: {
-          id: 3,
+          id: '3',
           type: 'user',
           attributes: {
             name: 'Igor',
@@ -607,7 +607,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanley = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -615,7 +615,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'user',
               },
             },
@@ -624,7 +624,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       igor = store.push({
         data: {
-          id: 3,
+          id: '3',
           type: 'user',
           attributes: {
             name: 'Igor',
@@ -632,7 +632,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 5,
+                id: '5',
                 type: 'user',
               },
             },
@@ -641,7 +641,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       newFriend = store.push({
         data: {
-          id: 7,
+          id: '7',
           type: 'user',
           attributes: {
             name: 'New friend',
@@ -652,13 +652,13 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (id === '5') {
-        return resolve({ data: { id: 5, type: 'user', attributes: { name: "Igor's friend" } } });
+        return resolve({ data: { id: '5', type: 'user', attributes: { name: "Igor's friend" } } });
       } else if (id === '2') {
         let done = assert.async();
         return new EmberPromise(function (resolve, reject) {
           setTimeout(function () {
             done();
-            resolve({ data: { id: 2, type: 'user', attributes: { name: "Stanley's friend" } } });
+            resolve({ data: { id: '2', type: 'user', attributes: { name: "Stanley's friend" } } });
           }, 1);
         });
       }
@@ -680,7 +680,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanley = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -688,7 +688,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'user',
               },
             },
@@ -697,7 +697,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       stanleysFriend = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'user',
           attributes: {
             name: "Stanley's friend",
@@ -705,7 +705,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 1,
+                id: '1',
                 type: 'user',
               },
             },
@@ -729,7 +729,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       job = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'job',
           attributes: {
             isGood: false,
@@ -737,7 +737,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             user: {
               data: {
-                id: 1,
+                id: '1',
                 type: 'user',
               },
             },
@@ -746,7 +746,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       user = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -754,7 +754,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             job: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'job',
               },
             },
@@ -778,7 +778,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanley = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -786,7 +786,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'user',
               },
             },
@@ -795,7 +795,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       stanleysFriend = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'user',
           attributes: {
             name: "Stanley's friend",
@@ -803,7 +803,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 1,
+                id: '1',
                 type: 'user',
               },
             },
@@ -815,7 +815,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
         assert.strictEqual(fetchedUser, stanley, 'User relationship was initally setup correctly');
         var stanleysNewFriend = store.push({
           data: {
-            id: 3,
+            id: '3',
             type: 'user',
             attributes: {
               name: "Stanley's New friend",
@@ -845,7 +845,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       job = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'job',
           attributes: {
             isGood: false,
@@ -854,7 +854,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       user = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -862,7 +862,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             job: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'job',
               },
             },
@@ -876,7 +876,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       newBetterJob = store.push({
         data: {
-          id: 3,
+          id: '3',
           type: 'job',
           attributes: {
             isGood: true,
@@ -903,7 +903,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       stanley = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -911,7 +911,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             bestFriend: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'user',
               },
             },
@@ -920,7 +920,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       stanleysFriend = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'user',
           attributes: {
             name: "Stanley's friend",
@@ -949,7 +949,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function () {
       job = store.push({
         data: {
-          id: 2,
+          id: '2',
           type: 'job',
           attributes: {
             isGood: true,
@@ -958,7 +958,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
       user = store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           attributes: {
             name: 'Stanley',
@@ -966,7 +966,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           relationships: {
             job: {
               data: {
-                id: 2,
+                id: '2',
                 type: 'job',
               },
             },
@@ -987,7 +987,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     const stanleysFriend = store.push({
       data: {
-        id: 2,
+        id: '2',
         type: 'user',
         attributes: {
           name: "Stanley's friend",
@@ -1010,7 +1010,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     const user = store.push({
       data: {
-        id: 1,
+        id: '1',
         type: 'user',
         attributes: {
           name: 'Stanley',

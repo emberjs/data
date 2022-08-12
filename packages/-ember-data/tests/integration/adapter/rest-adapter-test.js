@@ -217,7 +217,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     let post = await store.findRecord('post', 1);
-    ajaxResponse({ posts: [{ id: 1, name: 'Dat Parley Letter' }] });
+    ajaxResponse({ posts: [{ id: '1', name: 'Dat Parley Letter' }] });
 
     post.set('name', 'The Parley Letter');
     await post.save();
@@ -252,7 +252,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     let post = await store.findRecord('post', 1);
-    ajaxResponse({ post: { id: 1, name: 'Dat Parley Letter' } });
+    ajaxResponse({ post: { id: '1', name: 'Dat Parley Letter' } });
 
     post.set('name', 'The Parley Letter');
     await post.save();
@@ -277,8 +277,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     let post;
     ajaxResponse({
-      posts: [{ id: 1, name: 'Dat Parley Letter' }],
-      comments: [{ id: 1, name: 'FIRST' }],
+      posts: [{ id: '1', name: 'Dat Parley Letter' }],
+      comments: [{ id: '1', name: 'FIRST' }],
     });
 
     post = store.createRecord('post', { name: 'The Parley Letter' });
@@ -319,8 +319,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     let post = await store.findRecord('post', 1);
     ajaxResponse({
-      posts: [{ id: 1, name: 'Dat Parley Letter' }],
-      comments: [{ id: 1, name: 'FIRST' }],
+      posts: [{ id: '1', name: 'Dat Parley Letter' }],
+      comments: [{ id: '1', name: 'FIRST' }],
     });
 
     post.set('name', 'The Parley Letter');
@@ -423,7 +423,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     ajaxResponse({
-      posts: { id: 1, name: 'Not everyone uses Rails', comments: [2] },
+      posts: { id: '1', name: 'Not everyone uses Rails', comments: [2] },
     });
 
     await store.findRecord('comment', 2);
@@ -478,7 +478,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     ajaxResponse({
-      posts: { id: 1, name: 'Everyone uses Rails', comments: [] },
+      posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
     });
 
     let post = await store.peekRecord('post', 1);
@@ -524,7 +524,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     ajaxResponse({
-      posts: { id: 1, name: 'Everyone uses Rails', comments: [] },
+      posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
     });
 
     let post = await store.peekRecord('post', 1);
@@ -635,7 +635,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     let post = await store.findRecord('post', 1);
-    ajaxResponse({ comments: [{ id: 1, name: 'FIRST' }] });
+    ajaxResponse({ comments: [{ id: '1', name: 'FIRST' }] });
 
     post.deleteRecord();
     await post.save();
@@ -675,7 +675,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     let post = await store.findRecord('post', 1);
-    ajaxResponse({ posts: [{ id: 2, name: 'The Parley Letter' }] });
+    ajaxResponse({ posts: [{ id: '2', name: 'The Parley Letter' }] });
 
     post.deleteRecord();
     await post.save();
@@ -733,8 +733,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       posts: [
-        { id: 1, name: 'Rails is omakase' },
-        { id: 2, name: 'The Parley Letter' },
+        { id: '1', name: 'Rails is omakase' },
+        { id: '2', name: 'The Parley Letter' },
       ],
     });
 
@@ -776,8 +776,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       posts: [
-        { id: 1, name: 'Rails is omakase' },
-        { id: 2, name: 'The Parley Letter' },
+        { id: '1', name: 'Rails is omakase' },
+        { id: '2', name: 'The Parley Letter' },
       ],
     });
 
@@ -798,7 +798,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
 
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
+      posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
     await store.findAll('post', { include: 'comments' });
@@ -819,10 +819,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       posts: [
-        { id: 1, name: 'Rails is omakase' },
-        { id: 2, name: 'The Parley Letter' },
+        { id: '1', name: 'Rails is omakase' },
+        { id: '2', name: 'The Parley Letter' },
       ],
-      comments: [{ id: 1, name: 'FIRST' }],
+      comments: [{ id: '1', name: 'FIRST' }],
     });
 
     await store.findAll('post');
@@ -883,7 +883,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
 
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
+      posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
     await store.query('post', { params: 1, in: 2, wrong: 3, order: 4 });
@@ -911,7 +911,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     };
 
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
+      posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
     await store.query('post', { params: 1, in: 2, wrong: 3, order: 4 });
@@ -931,7 +931,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
 
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
+      posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
     adapter.sortQueryParams = null;
@@ -957,7 +957,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
 
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
+      posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
     adapter.sortQueryParams = function (obj) {
@@ -993,7 +993,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       meta: { offset: 5 },
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
+      posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
     let posts = await store.query('post', { page: 2 });
@@ -1014,14 +1014,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       meta: { offset: 5 },
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
+      posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
     let posts = await store.query('post', { page: 2 });
     assert.strictEqual(posts.meta.offset, 5, 'Reponse metadata can be accessed with recordArray.meta');
     ajaxResponse({
       meta: { offset: 1 },
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
+      posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
     let newPosts = await store.query('post', { page: 1 });
@@ -1043,8 +1043,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       posts: [
-        { id: 1, name: 'Rails is omakase' },
-        { id: 2, name: 'The Parley Letter' },
+        { id: '1', name: 'Rails is omakase' },
+        { id: '2', name: 'The Parley Letter' },
       ],
     });
 
@@ -1078,10 +1078,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       posts: [
-        { id: 1, name: 'Rails is omakase' },
-        { id: 2, name: 'The Parley Letter' },
+        { id: '1', name: 'Rails is omakase' },
+        { id: '2', name: 'The Parley Letter' },
       ],
-      comments: [{ id: 1, name: 'FIRST' }],
+      comments: [{ id: '1', name: 'FIRST' }],
     });
 
     await store.query('post', { page: 1 });
@@ -1204,8 +1204,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
 
     ajaxResponse({
-      post: { id: 1, name: 'Rails is omakase' },
-      comments: [{ id: 1, name: 'FIRST' }],
+      post: { id: '1', name: 'Rails is omakase' },
+      comments: [{ id: '1', name: 'FIRST' }],
     });
 
     await store.queryRecord('post', { slug: 'rails-is-omakaze' });
@@ -1228,8 +1228,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       post: [
-        { id: 1, name: 'Rails is omakase' },
-        { id: 2, name: 'Ember is js' },
+        { id: '1', name: 'Rails is omakase' },
+        { id: '2', name: 'Ember is js' },
       ],
     });
 
@@ -1252,7 +1252,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
 
     ajaxResponse({
-      post: { id: 1, name: 'Rails is omakase' },
+      post: { id: '1', name: 'Rails is omakase' },
     });
 
     assert.expectNoDeprecation();
@@ -1329,9 +1329,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let post = store.peekRecord('post', 1);
     ajaxResponse({
       comments: [
-        { id: 1, name: 'FIRST' },
-        { id: 2, name: 'Rails is unagi' },
-        { id: 3, name: 'What is omakase?' },
+        { id: '1', name: 'FIRST' },
+        { id: '2', name: 'Rails is unagi' },
+        { id: '3', name: 'What is omakase?' },
       ],
     });
 
@@ -1381,9 +1381,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let post = store.peekRecord('post', 1);
     ajaxResponse({
       comments: [
-        { id: 1, name: 'FIRST' },
-        { id: 2, name: 'Rails is unagi' },
-        { id: 3, name: 'What is omakase?' },
+        { id: '1', name: 'FIRST' },
+        { id: '2', name: 'Rails is unagi' },
+        { id: '3', name: 'What is omakase?' },
       ],
     });
 
@@ -1426,9 +1426,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     //It's still ok to return this even without coalescing  because RESTSerializer supports sideloading
     ajaxResponse({
       comments: [
-        { id: 1, name: 'FIRST' },
-        { id: 2, name: 'Rails is unagi' },
-        { id: 3, name: 'What is omakase?' },
+        { id: '1', name: 'FIRST' },
+        { id: '2', name: 'Rails is unagi' },
+        { id: '3', name: 'What is omakase?' },
       ],
     });
 
@@ -1474,9 +1474,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let post = await store.findRecord('post', 1);
     ajaxResponse({
       comments: [
-        { id: 1, name: 'FIRST' },
-        { id: 2, name: 'Rails is unagi' },
-        { id: 3, name: 'What is omakase?' },
+        { id: '1', name: 'FIRST' },
+        { id: '2', name: 'Rails is unagi' },
+        { id: '3', name: 'What is omakase?' },
       ],
     });
 
@@ -1531,12 +1531,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let post = await store.findRecord('post', 1);
     ajaxResponse({
       comments: [
-        { id: 1, name: 'FIRST' },
-        { id: 2, name: 'Rails is unagi' },
-        { id: 3, name: 'What is omakase?' },
-        { id: 4, name: 'Unrelated comment' },
+        { id: '1', name: 'FIRST' },
+        { id: '2', name: 'Rails is unagi' },
+        { id: '3', name: 'What is omakase?' },
+        { id: '4', name: 'Unrelated comment' },
       ],
-      posts: [{ id: 2, name: 'The Parley Letter' }],
+      posts: [{ id: '2', name: 'The Parley Letter' }],
     });
 
     let comments = await post.comments;
@@ -1665,9 +1665,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       comments: [
-        { id: 1, name: 'FIRST' },
-        { id: 2, name: 'Rails is unagi' },
-        { id: 3, name: 'What is omakase?' },
+        { id: '1', name: 'FIRST' },
+        { id: '2', name: 'Rails is unagi' },
+        { id: '3', name: 'What is omakase?' },
       ],
     });
 
@@ -1733,9 +1733,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       comments: [
-        { id: 1, name: 'FIRST' },
-        { id: 2, name: 'Rails is unagi' },
-        { id: 3, name: 'What is omakase?' },
+        { id: '1', name: 'FIRST' },
+        { id: '2', name: 'Rails is unagi' },
+        { id: '3', name: 'What is omakase?' },
       ],
     });
 
@@ -1778,11 +1778,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       comments: [
-        { id: 1, name: 'FIRST' },
-        { id: 2, name: 'Rails is unagi' },
-        { id: 3, name: 'What is omakase?' },
+        { id: '1', name: 'FIRST' },
+        { id: '2', name: 'Rails is unagi' },
+        { id: '3', name: 'What is omakase?' },
       ],
-      posts: [{ id: 2, name: 'The Parley Letter' }],
+      posts: [{ id: '2', name: 'The Parley Letter' }],
     });
 
     let comments = await post.comments;
@@ -1907,7 +1907,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     let comment = await store.findRecord('comment', '1');
-    ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
+    ajaxResponse({ post: { id: '1', name: 'Rails is omakase' } });
     await comment.post;
   });
 
@@ -1984,12 +1984,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(id, '1');
-      return resolve({ comments: { id: 1 } });
+      return resolve({ comments: { id: '1' } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.deepEqual(ids, ['2', '3']);
-      return resolve({ comments: [{ id: 2 }, { id: 3 }] });
+      return resolve({ comments: [{ id: '2' }, { id: '3' }] });
     };
 
     store.push({
@@ -2036,12 +2036,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(id, '1');
-      return resolve({ comments: { id: 1 } });
+      return resolve({ comments: { id: '1' } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.deepEqual(ids, ['2', '3']);
-      return resolve({ comments: [{ id: 2 }, { id: 3 }] });
+      return resolve({ comments: [{ id: '2' }, { id: '3' }] });
     };
 
     store.push({
@@ -2655,15 +2655,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     ajaxResponse({
       posts: [
         {
-          id: 1,
+          id: '1',
           name: 'dhh lol',
         },
         {
-          id: 2,
+          id: '2',
           name: 'james mickens is rad',
         },
         {
-          id: 3,
+          id: '3',
           name: 'in the name of love',
         },
       ],
@@ -2688,17 +2688,17 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({
       post: {
-        id: 1,
+        id: '1',
         name: 'The Parley Letter',
         comments: [2, 3],
       },
       comments: [
         {
-          id: 2,
+          id: '2',
           name: 'First comment',
         },
         {
-          id: 3,
+          id: '3',
           name: 'Second comment',
         },
       ],

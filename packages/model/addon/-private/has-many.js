@@ -2,12 +2,29 @@
   @module @ember-data/model
 */
 import { A } from '@ember/array';
-import { assert, inspect } from '@ember/debug';
+import { assert, deprecate, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
+import { dasherize } from '@ember/string';
 import { DEBUG } from '@glimmer/env';
+
+import { singularize } from 'ember-inflector';
+
+import {
+  DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
+} from '@ember-data/private-build-infra/deprecations';
 
 import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
+
+function normalizeType(type) {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && !type) {
+    return;
+  }
+
+  return singularize(dasherize(type));
+}
 
 /**
   `hasMany` is used to define One-To-Many and Many-To-Many
@@ -151,21 +168,60 @@ import { computedMacroWithOptionalParams } from './util';
   @return {Ember.computed} relationship
 */
 function hasMany(type, options) {
-  if (typeof type === 'object') {
-    options = type;
-    type = undefined;
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && (typeof type !== 'string' || !type.length)) {
+    deprecate(
+      'hasMany(<type>, <options>) must specify the string type of the related resource as the first parameter',
+      false,
+      {
+        id: 'ember-data:deprecate-non-strict-relationships',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      }
+    );
+    if (typeof type === 'object') {
+      options = type;
+      type = undefined;
+    }
+
+    assert(
+      `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
+        type
+      )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
+      typeof type === 'string' || typeof type === 'undefined'
+    );
   }
 
-  assert(
-    `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
-      type
-    )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
-    typeof type === 'string' || typeof type === 'undefined'
-  );
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC && (!options || typeof options.async !== 'boolean')) {
+    options = options || {};
+    if (!('async' in options)) {
+      options.async = true;
+    }
+    deprecate('hasMany(<type>, <options>) must specify options.async as either `true` or `false`.', false, {
+      id: 'ember-data:deprecate-non-strict-relationships',
+      for: 'ember-data',
+      until: '5.0',
+      since: { enabled: '4.8', available: '4.8' },
+    });
+  } else {
+    assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
+  }
 
-  options = options || {};
-  if (!('async' in options)) {
-    options.async = true;
+  if (
+    DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE &&
+    options.inverse !== null &&
+    (typeof options.inverse !== 'string' || options.inverse.length === 0)
+  ) {
+    deprecate(
+      'hasMany(<type>, <options>) must specify options.inverse as either `null` or string type of the related resource.',
+      false,
+      {
+        id: 'ember-data:deprecate-non-strict-relationships',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      }
+    );
   }
 
   // Metadata about relationships is stored on the meta of
@@ -173,7 +229,7 @@ function hasMany(type, options) {
   // serialization. Note that `key` is populated lazily
   // the first time the CP is called.
   let meta = {
-    type,
+    type: normalizeType(type),
     options,
     isRelationship: true,
     kind: 'hasMany',

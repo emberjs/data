@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 
 import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
@@ -73,7 +74,8 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
   niceMeta.kind = meta.kind;
   niceMeta.key = meta.name;
   niceMeta.type = meta.type;
-  niceMeta.isAsync = options && options.async !== undefined ? !!options.async : true;
+  assert(`Expected relationship definition to specify async`, typeof options?.async === 'boolean');
+  niceMeta.isAsync = options.async;
   niceMeta.isImplicit = false;
   niceMeta.isCollection = meta.kind === 'hasMany';
   niceMeta.isPolymorphic = options && !!options.polymorphic;
@@ -315,12 +317,15 @@ function inverseForRelationship(store: Store, identifier: StableRecordIdentifier
     return null;
   }
 
-  if (metaIsRelationshipDefinition(definition)) {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE && metaIsRelationshipDefinition(definition)) {
     const modelClass = store.modelFor(identifier.type);
     return definition._inverseKey(store, modelClass);
-  } else if (definition.options && definition.options.inverse !== undefined) {
-    return definition.options.inverse;
-  } else {
-    return null;
   }
+
+  assert(
+    `Expected the relationship defintion to specify the inverse type or null.`,
+    definition.options?.inverse === null ||
+      (typeof definition.options?.inverse === 'string' && definition.options.inverse.length > 0)
+  );
+  return definition.options.inverse;
 }

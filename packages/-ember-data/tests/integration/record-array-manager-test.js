@@ -16,7 +16,7 @@ class Person extends Model {
   @attr()
   name;
 
-  @hasMany('car', { async: false })
+  @hasMany('car', { async: false, inverse: 'person' })
   cars;
 }
 
@@ -27,7 +27,7 @@ class Car extends Model {
   @attr()
   model;
 
-  @belongsTo('person', { async: false })
+  @belongsTo('person', { async: false, inverse: 'cars' })
   person;
 }
 
@@ -189,7 +189,7 @@ module('integration/record_array_manager', function (hooks) {
         data: [
           {
             type: 'car',
-            id: 2, // this ID is already present, array wont need to change
+            id: '2', // this ID is already present, array wont need to change
             attributes: {
               make: 'Tesla',
               model: 'S',
@@ -205,7 +205,7 @@ module('integration/record_array_manager', function (hooks) {
         data: [
           {
             type: 'car',
-            id: 3,
+            id: '3',
             attributes: {
               make: 'Tesla',
               model: 'S',

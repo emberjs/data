@@ -6,19 +6,20 @@ import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import Model, { belongsTo, hasMany } from '@ember-data/model';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class Person extends Model {
-  @hasMany('occupation', { async: false }) occupations;
+  @hasMany('occupation', { async: false, inverse: null }) occupations;
   @hasMany('person', { inverse: 'parent', async: false }) people;
   @belongsTo('person', { inverse: 'people', async: false }) parent;
 }
 
 class UserProfile extends Model {
-  @belongsTo() user;
+  @belongsTo('user', { async: true, inverse: 'userProfile' }) user;
 }
 
 class User extends Model {
-  @belongsTo() userProfile;
+  @belongsTo('user-profile', { async: true, inverse: 'user' }) userProfile;
 }
 
 class Occupation extends Model {}
@@ -64,7 +65,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
     );
     assert.deepEqual(
       extractDetails('occupation'),
-      [{ name: 'occupations', kind: 'hasMany', options: { async: false } }],
+      [{ name: 'occupations', kind: 'hasMany', options: { async: false, inverse: null } }],
       'occupation relationships contains the expected meta information'
     );
   });
@@ -97,7 +98,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
 
     const relationship = relationships.get('user-profile')[0];
 
-    assert.strictEqual(relationship.meta.name, 'userProfile', 'relationship name has not been changed');
+    assert.strictEqual(relationship.name, 'userProfile', 'relationship name has not been changed');
   });
 
   test('normalizing hasMany relationship names', function (assert) {
@@ -105,11 +106,11 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
     let { owner } = this;
 
     class StreamItem extends Model {
-      @belongsTo() user;
+      @belongsTo('user', { async: true, inverse: 'streamItems' }) user;
     }
 
     class User extends Model {
-      @hasMany() streamItems;
+      @hasMany('stream-item', { async: true, inverse: 'user' }) streamItems;
     }
 
     owner.unregister('model:user');
@@ -126,37 +127,41 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
 
     const relationship = relationships.get('stream-item')[0];
 
-    assert.strictEqual(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
+    assert.strictEqual(relationship.name, 'streamItems', 'relationship name has not been changed');
   });
 
   if (gte('3.10.0')) {
-    test('decorators works without parens', function (assert) {
-      let store;
-      let { owner } = this;
+    deprecatedTest(
+      'decorators works without parens',
+      { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 6 },
+      function (assert) {
+        let store;
+        let { owner } = this;
 
-      class StreamItem extends Model {
-        @belongsTo user;
+        class StreamItem extends Model {
+          @belongsTo user;
+        }
+
+        class User extends Model {
+          @hasMany streamItems;
+        }
+
+        owner.unregister('model:user');
+        owner.register('model:stream-item', StreamItem);
+        owner.register('model:user', User);
+
+        store = owner.lookup('service:store');
+
+        let user = store.modelFor('user');
+
+        const relationships = get(user, 'relationships');
+
+        assert.ok(relationships.has('stream-item'), 'relationship key has been normalized');
+
+        const relationship = relationships.get('stream-item')[0];
+
+        assert.strictEqual(relationship.name, 'streamItems', 'relationship name has not been changed');
       }
-
-      class User extends Model {
-        @hasMany streamItems;
-      }
-
-      owner.unregister('model:user');
-      owner.register('model:stream-item', StreamItem);
-      owner.register('model:user', User);
-
-      store = owner.lookup('service:store');
-
-      let user = store.modelFor('user');
-
-      const relationships = get(user, 'relationships');
-
-      assert.ok(relationships.has('stream-item'), 'relationship key has been normalized');
-
-      const relationship = relationships.get('stream-item')[0];
-
-      assert.strictEqual(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
-    });
+    );
   }
 });

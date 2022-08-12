@@ -8,6 +8,7 @@ import { gte } from 'ember-compatibility-helpers';
 import DS from 'ember-data';
 import { setupRenderingTest } from 'ember-qunit';
 
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -17,18 +18,18 @@ module('integration/references/has-many', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    const Family = DS.Model.extend({
-      persons: DS.hasMany({ async: true }),
+    const Family = Model.extend({
+      persons: hasMany('person', { async: true, inverse: 'family' }),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr(),
-      family: DS.belongsTo(),
-      pets: DS.hasMany({ async: true }),
+    const Person = Model.extend({
+      name: attr(),
+      family: belongsTo('family', { async: true, inverse: 'persons' }),
+      pets: hasMany('pet', { async: true, inverse: null }),
     });
 
-    const Pet = DS.Model.extend({
-      name: DS.attr(),
+    const Pet = Model.extend({
+      name: attr(),
     });
 
     this.owner.register('model:family', Family);
@@ -47,7 +48,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
         },
       });
     });
@@ -69,7 +70,7 @@ module('integration/references/has-many', function (hooks) {
         person = store.push({
           data: {
             type: 'person',
-            id: 1,
+            id: '1',
           },
         });
       });
@@ -90,12 +91,12 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
               ],
             },
           },
@@ -118,7 +119,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               links: { related: '/families/1/persons' },
@@ -143,7 +144,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               links: { related: '/families/1/persons' },
@@ -268,12 +269,12 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
               ],
             },
           },
@@ -285,8 +286,8 @@ module('integration/references/has-many', function (hooks) {
 
     run(function () {
       var data = [
-        { data: { type: 'person', id: 1, attributes: { name: 'Vito' } } },
-        { data: { type: 'person', id: 2, attributes: { name: 'Michael' } } },
+        { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
+        { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
       ];
 
       personsReference.push(data).then(function (records) {
@@ -313,7 +314,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
         },
       });
     });
@@ -321,7 +322,7 @@ module('integration/references/has-many', function (hooks) {
     var personsReference = family.hasMany('persons');
 
     run(() => {
-      var data = [{ data: { type: 'mafia-boss', id: 1, attributes: { name: 'Vito' } } }];
+      var data = [{ data: { type: 'mafia-boss', id: '1', attributes: { name: 'Vito' } } }];
 
       personsReference.push(data).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
@@ -338,7 +339,7 @@ module('integration/references/has-many', function (hooks) {
     let family = store.push({
       data: {
         type: 'family',
-        id: 1,
+        id: '1',
       },
     });
     let personsReference = family.hasMany('persons');
@@ -358,12 +359,12 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
               ],
             },
           },
@@ -376,8 +377,8 @@ module('integration/references/has-many', function (hooks) {
     run(function () {
       var payload = {
         data: [
-          { data: { type: 'person', id: 1, attributes: { name: 'Vito' } } },
-          { data: { type: 'person', id: 2, attributes: { name: 'Michael' } } },
+          { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
+          { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
         ],
       };
 
@@ -399,12 +400,12 @@ module('integration/references/has-many', function (hooks) {
     const family = store.push({
       data: {
         type: 'family',
-        id: 1,
+        id: '1',
         relationships: {
           persons: {
             data: [
-              { type: 'person', id: 1 },
-              { type: 'person', id: 2 },
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
             ],
           },
         },
@@ -417,8 +418,8 @@ module('integration/references/has-many', function (hooks) {
 
     const payload = {
       data: [
-        { data: { type: 'person', id: 1, attributes: { name: 'Vito' } } },
-        { data: { type: 'person', id: 2, attributes: { name: 'Michael' } } },
+        { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
+        { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
       ],
     };
 
@@ -437,12 +438,12 @@ module('integration/references/has-many', function (hooks) {
     const family = store.push({
       data: {
         type: 'family',
-        id: 1,
+        id: '1',
         relationships: {
           persons: {
             data: [
-              { type: 'person', id: 1 },
-              { type: 'person', id: 2 },
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
             ],
           },
         },
@@ -451,8 +452,8 @@ module('integration/references/has-many', function (hooks) {
     const personsReference = family.hasMany('persons');
     const payload = {
       data: [
-        { type: 'person', id: 1, attributes: { name: 'Vito' } },
-        { type: 'person', id: 2, attributes: { name: 'Michael' } },
+        { type: 'person', id: '1', attributes: { name: 'Vito' } },
+        { type: 'person', id: '2', attributes: { name: 'Michael' } },
       ],
     };
     const pushResult = personsReference.push(payload);
@@ -473,12 +474,12 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
               ],
             },
           },
@@ -498,19 +499,19 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
               ],
             },
           },
         },
       });
-      store.push({ data: { type: 'person', id: 1, attributes: { name: 'Vito' } } });
-      store.push({ data: { type: 'person', id: 2, attributes: { name: 'Michael' } } });
+      store.push({ data: { type: 'person', id: '1', attributes: { name: 'Vito' } } });
+      store.push({ data: { type: 'person', id: '2', attributes: { name: 'Michael' } } });
     });
 
     run(function () {
@@ -529,7 +530,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [],
@@ -554,7 +555,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [],
@@ -583,8 +584,8 @@ module('integration/references/has-many', function (hooks) {
       assert.strictEqual(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
       return resolve({
         data: [
-          { id: 1, type: 'person', attributes: { name: 'Vito' } },
-          { id: 2, type: 'person', attributes: { name: 'Michael' } },
+          { id: '1', type: 'person', attributes: { name: 'Vito' } },
+          { id: '2', type: 'person', attributes: { name: 'Michael' } },
         ],
       });
     };
@@ -594,12 +595,12 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
               ],
             },
           },
@@ -635,8 +636,8 @@ module('integration/references/has-many', function (hooks) {
 
       return resolve({
         data: [
-          { id: 1, type: 'person', attributes: { name: 'Vito' } },
-          { id: 2, type: 'person', attributes: { name: 'Michael' } },
+          { id: '1', type: 'person', attributes: { name: 'Vito' } },
+          { id: '2', type: 'person', attributes: { name: 'Michael' } },
         ],
       });
     };
@@ -646,7 +647,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               links: { related: '/families/1/persons' },
@@ -689,7 +690,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               links: { related: '/families/1/persons' },
@@ -730,12 +731,12 @@ module('integration/references/has-many', function (hooks) {
     const family = store.push({
       data: {
         type: 'family',
-        id: 1,
+        id: '1',
         relationships: {
           persons: {
             data: [
-              { type: 'person', id: 1 },
-              { type: 'person', id: 2 },
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
             ],
           },
         },
@@ -749,8 +750,8 @@ module('integration/references/has-many', function (hooks) {
 
     resolveRequest({
       data: [
-        { id: 1, type: 'person', attributes: { name: 'Vito' } },
-        { id: 2, type: 'person', attributes: { name: 'Michael' } },
+        { id: '1', type: 'person', attributes: { name: 'Vito' } },
+        { id: '2', type: 'person', attributes: { name: 'Michael' } },
       ],
     });
 
@@ -774,8 +775,8 @@ module('integration/references/has-many', function (hooks) {
       assert.strictEqual(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
       return resolve({
         data: [
-          { id: 1, type: 'person', attributes: { name: 'Vito Coreleone' } },
-          { id: 2, type: 'person', attributes: { name: 'Michael Coreleone' } },
+          { id: '1', type: 'person', attributes: { name: 'Vito Coreleone' } },
+          { id: '2', type: 'person', attributes: { name: 'Michael Coreleone' } },
         ],
       });
     };
@@ -785,19 +786,19 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
               ],
             },
           },
         },
       });
-      store.push({ data: { type: 'person', id: 1, attributes: { name: 'Vito' } } });
-      store.push({ data: { type: 'person', id: 2, attributes: { name: 'Michael' } } });
+      store.push({ data: { type: 'person', id: '1', attributes: { name: 'Vito' } } });
+      store.push({ data: { type: 'person', id: '2', attributes: { name: 'Michael' } } });
     });
 
     var personsReference = family.hasMany('persons');
@@ -831,15 +832,15 @@ module('integration/references/has-many', function (hooks) {
       if (count === 1) {
         return resolve({
           data: [
-            { id: 1, type: 'person', attributes: { name: 'Vito' } },
-            { id: 2, type: 'person', attributes: { name: 'Michael' } },
+            { id: '1', type: 'person', attributes: { name: 'Vito' } },
+            { id: '2', type: 'person', attributes: { name: 'Michael' } },
           ],
         });
       } else {
         return resolve({
           data: [
-            { id: 1, type: 'person', attributes: { name: 'Vito Coreleone' } },
-            { id: 2, type: 'person', attributes: { name: 'Michael Coreleone' } },
+            { id: '1', type: 'person', attributes: { name: 'Vito Coreleone' } },
+            { id: '2', type: 'person', attributes: { name: 'Michael Coreleone' } },
           ],
         });
       }
@@ -850,7 +851,7 @@ module('integration/references/has-many', function (hooks) {
       family = store.push({
         data: {
           type: 'family',
-          id: 1,
+          id: '1',
           relationships: {
             persons: {
               links: { related: '/families/1/persons' },

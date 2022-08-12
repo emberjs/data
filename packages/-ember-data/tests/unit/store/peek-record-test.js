@@ -42,7 +42,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
     });
     assert.strictEqual(
       person,
-      store.peekRecord({ type: 'person', id: 1 }),
+      store.peekRecord({ type: 'person', id: '1' }),
       'peekRecord only return the corresponding record in the store'
     );
   });

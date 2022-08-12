@@ -27,18 +27,18 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Pet = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'pets' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: false }),
-      pets: hasMany('pet', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: 'person' }),
+      pets: hasMany('pet', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -50,7 +50,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Tag && id === '12') {
-        return { id: 12, name: 'oohlala' };
+        return { id: '12', name: 'oohlala' };
       } else {
         assert.ok(false, 'findRecord() should not be called with these values');
       }
@@ -244,13 +244,13 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
     Tag.toString = () => 'Tag';
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
     Person.toString = () => 'Person';
 
@@ -267,7 +267,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         data: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -275,7 +275,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
               people: {
                 data: [
                   {
-                    id: 2,
+                    id: '2',
                     type: 'person',
                   },
                 ],
@@ -284,7 +284,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           },
           {
             type: 'person',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'David J. Hamilton',
             },
@@ -311,12 +311,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -331,7 +331,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'tag',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'whatever',
           },
@@ -356,12 +356,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -377,7 +377,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'David J. Hamilton',
           },
@@ -385,7 +385,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
             tag: {
               data: {
                 type: 'tag',
-                id: 1,
+                id: '1',
               },
             },
           },
@@ -393,7 +393,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         included: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -402,7 +402,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                 ],
               },
@@ -415,7 +415,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'tag',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'whatever',
           },
@@ -442,7 +442,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     Tag.toString = () => {
@@ -451,7 +451,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     Person.toString = () => {
@@ -468,7 +468,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'David J. Hamilton',
           },
@@ -476,7 +476,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
             tag: {
               data: {
                 type: 'tag',
-                id: 1,
+                id: '1',
               },
             },
           },
@@ -484,7 +484,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         included: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -493,11 +493,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                 ],
               },
@@ -518,7 +518,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tags' }),
     });
 
     Tag.toString = () => {
@@ -527,7 +527,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tags', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: 'people' }),
     });
 
     Person.toString = () => {
@@ -545,7 +545,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         data: [
           {
             type: 'person',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'David J. Hamilton',
             },
@@ -554,13 +554,13 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 {
                   data: {
                     type: 'tag',
-                    id: 1,
+                    id: '1',
                   },
                 },
                 {
                   data: {
                     type: 'tag',
-                    id: 2,
+                    id: '2',
                   },
                 },
               ],
@@ -568,7 +568,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           },
           {
             type: 'person',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'Gerald Dempsey Posey',
             },
@@ -577,13 +577,13 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 {
                   data: {
                     type: 'tag',
-                    id: 1,
+                    id: '1',
                   },
                 },
                 {
                   data: {
                     type: 'tag',
-                    id: 2,
+                    id: '2',
                   },
                 },
               ],
@@ -591,7 +591,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           },
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -600,11 +600,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                   {
                     type: 'person',
-                    id: 2,
+                    id: '2',
                   },
                 ],
               },
@@ -612,7 +612,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           },
           {
             type: 'tag',
-            id: 2,
+            id: '2',
             attributes: {
               name: 'nothing',
             },
@@ -621,11 +621,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                   {
                     type: 'person',
-                    id: 2,
+                    id: '2',
                   },
                 ],
               },
@@ -650,12 +650,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -671,7 +671,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'David J. Hamilton',
           },
@@ -679,7 +679,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
             tag: {
               data: {
                 type: 'tag',
-                id: 1,
+                id: '1',
               },
             },
           },
@@ -687,7 +687,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         included: [
           {
             type: 'tag',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'whatever',
             },
@@ -696,7 +696,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
                 data: [
                   {
                     type: 'person',
-                    id: 1,
+                    id: '1',
                   },
                 ],
               },
@@ -718,7 +718,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       store.push({
         data: {
           type: 'tag',
-          id: 1,
+          id: '1',
           attributes: {
             name: 'whatever',
           },
@@ -745,7 +745,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Person = Model.extend({
       name: attr(),
-      trueFriends: hasMany('person', { async: false }),
+      trueFriends: hasMany('person', { async: false, inverse: 'trueFriends' }),
     });
 
     this.owner.register('model:person', Person);
@@ -786,18 +786,18 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Pet = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'pets' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: true }),
-      pets: hasMany('pet', { async: false }),
+      tags: hasMany('tag', { async: true, inverse: 'person' }),
+      pets: hasMany('pet', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -809,7 +809,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Tag && id === '12') {
-        return { data: { id: 12, type: 'tag', attributes: { name: 'oohlala' } } };
+        return { data: { id: '12', type: 'tag', attributes: { name: 'oohlala' } } };
       } else {
         assert.ok(false, 'findRecord() should not be called with these values');
       }
@@ -924,7 +924,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     const Tag = Model.extend({});
 
     const Person = Model.extend({
-      tags: hasMany('tag', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -943,7 +943,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     const Tag = Model.extend({});
 
     const Person = Model.extend({
-      tags: hasMany('tag', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -962,7 +962,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     const Tag = Model.extend({});
 
     const Person = Model.extend({
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -983,7 +983,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     });
 
     const Person = Model.extend({
-      tags: belongsTo('tag', { async: false }),
+      tags: belongsTo('tag', { async: false, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -1003,7 +1003,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: null }),
     });
 
     const Tag = Model.extend({
@@ -1074,12 +1074,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: true }),
+      tags: hasMany('tag', { async: true, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -1095,8 +1095,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
       return {
         data: [
-          { id: 5, type: 'tag', attributes: { name: 'friendly' } },
-          { id: 2, type: 'tag', attributes: { name: 'smarmy' } },
+          { id: '5', type: 'tag', attributes: { name: 'friendly' } },
+          { id: '2', type: 'tag', attributes: { name: 'smarmy' } },
         ],
       };
     };
@@ -1107,14 +1107,14 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
       return {
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: { name: 'Tom Dale' },
           relationships: {
             tags: {
               data: [
-                { id: 5, type: 'tag' },
-                { id: 2, type: 'tag' },
+                { id: '5', type: 'tag' },
+                { id: '2', type: 'tag' },
               ],
             },
           },
@@ -1143,12 +1143,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: belongsTo('person', { async: false }),
+      people: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -1875,7 +1875,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
   test('hasMany.firstObject.unloadRecord should not break that hasMany', function (assert) {
     const Person = Model.extend({
-      cars: hasMany('car', { async: false }),
+      cars: hasMany('car', { async: false, inverse: null }),
       name: attr(),
     });
 
@@ -1901,21 +1901,21 @@ module('unit/model/relationships - hasMany', function (hooks) {
         data: [
           {
             type: 'person',
-            id: 1,
+            id: '1',
             attributes: {
               name: 'marvin',
             },
             relationships: {
               cars: {
                 data: [
-                  { type: 'car', id: 1 },
-                  { type: 'car', id: 2 },
+                  { type: 'car', id: '1' },
+                  { type: 'car', id: '2' },
                 ],
               },
             },
           },
-          { type: 'car', id: 1, attributes: { name: 'a' } },
-          { type: 'car', id: 2, attributes: { name: 'b' } },
+          { type: 'car', id: '1', attributes: { name: 'a' } },
+          { type: 'car', id: '2', attributes: { name: 'b' } },
         ],
       });
     });
@@ -2067,12 +2067,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2144,12 +2144,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2205,12 +2205,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2263,12 +2263,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
   test('it is possible to add an item to a relationship, remove it, then add it again', function (assert) {
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2304,12 +2304,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
   test('hasMany is async by default', function (assert) {
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person'),
+      people: hasMany('person', { async: true, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2324,12 +2324,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
   test('hasMany is stable', function (assert) {
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person'),
+      people: hasMany('person', { async: true, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2353,12 +2353,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
   test('hasMany proxy is destroyed', async function (assert) {
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person'),
+      people: hasMany('person', { async: true, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2614,7 +2614,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     let peopleDidChange = 0;
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person'),
+      people: hasMany('person', { async: true, inverse: 'tag' }),
       peopleDidChange: observer('people.@each', function () {
         peopleDidChange++;
       }),
@@ -2622,7 +2622,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2680,9 +2680,9 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
       return {
         data: [
-          { id: 1, type: 'tag', attributes: { name: 'first' } },
-          { id: 2, type: 'tag', attributes: { name: 'second' } },
-          { id: 3, type: 'tag', attributes: { name: 'third' } },
+          { id: '1', type: 'tag', attributes: { name: 'first' } },
+          { id: '2', type: 'tag', attributes: { name: 'second' } },
+          { id: '3', type: 'tag', attributes: { name: 'third' } },
         ],
       };
     };
@@ -2691,7 +2691,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       if (type === Person) {
         return {
           data: {
-            id: 1,
+            id: '1',
             type: 'person',
             attributes: { name: 'Watson' },
             relationships: {
@@ -2702,12 +2702,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
       } else if (type === Tag) {
         return {
           data: {
-            id: 2,
+            id: '2',
             type: 'tag',
             attributes: { name: 'second' },
             relationships: {
               person: {
-                data: { id: 1, type: 'person' },
+                data: { id: '1', type: 'person' },
               },
             },
           },
@@ -2738,7 +2738,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
   testInDebug('throws assertion if of not set with an array', function (assert) {
     const Person = Model.extend();
     const Tag = Model.extend({
-      people: hasMany('person'),
+      people: hasMany('person', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2758,7 +2758,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
   testInDebug('checks if passed array only contains instances of Model', function (assert) {
     const Person = Model.extend();
     const Tag = Model.extend({
-      people: hasMany('person'),
+      people: hasMany('person', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -2771,7 +2771,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       return {
         data: {
           type: 'person',
-          id: 1,
+          id: '1',
         },
       };
     };

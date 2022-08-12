@@ -145,7 +145,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
   test('hasMany() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function (assert) {
     class Ingredient extends Model {
       @attr name;
-      @belongsTo('cake') cake;
+      @belongsTo('cake', { async: true, inverse: null }) cake;
     }
 
     class Cake extends Model {

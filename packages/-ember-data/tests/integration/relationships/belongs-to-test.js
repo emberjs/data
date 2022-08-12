@@ -306,7 +306,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     const Author = Model.extend({
       name: attr('string'),
-      books: hasMany('books', { async: false, inverse: 'author' }),
+      books: hasMany('book', { async: false, inverse: 'author' }),
     });
 
     const Section = Model.extend({
@@ -341,13 +341,13 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       'model:app',
       Model.extend({
         name: attr('string'),
-        team: belongsTo('team', { async: true }),
+        team: belongsTo('team', { async: true, inverse: 'apps' }),
       })
     );
     this.owner.register(
       'model:team',
       Model.extend({
-        apps: hasMany('app', { async: true }),
+        apps: hasMany('app', { async: true, inverse: 'team' }),
       })
     );
 
@@ -706,11 +706,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     let Group = Model.extend({
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'group' }),
     });
 
     let Person = Model.extend({
-      group: belongsTo({ async: true }),
+      group: belongsTo('group', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:group', Group);
@@ -743,11 +743,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'group',
           relationships: {
             people: {
-              data: [{ id: 1, type: 'person' }],
+              data: [{ id: '1', type: 'person' }],
             },
           },
         },
@@ -774,11 +774,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     let Seat = Model.extend({
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'seat' }),
     });
 
     let Person = Model.extend({
-      seat: belongsTo('seat', { async: true }),
+      seat: belongsTo('seat', { async: true, inverse: 'person' }),
     });
 
     this.owner.register('model:seat', Seat);
@@ -805,7 +805,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({ data: { id: 1, type: 'seat' } });
+      return resolve({ data: { id: '1', type: 'seat' } });
     };
 
     return run(() => {
@@ -829,11 +829,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     let Group = Model.extend({
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'group' }),
     });
 
     let Person = Model.extend({
-      group: belongsTo({ async: true }),
+      group: belongsTo('group', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:group', Group);
@@ -882,11 +882,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     let Group = Model.extend({
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'group' }),
     });
 
     let Person = Model.extend({
-      group: belongsTo({ async: true }),
+      group: belongsTo('group', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:group', Group);
@@ -895,7 +895,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     run(() => {
       store.push({
         data: {
-          id: 1,
+          id: '1',
           type: 'group',
         },
       });
@@ -929,8 +929,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
-    let message = store.createRecord('message', { id: 1 });
-    let comment = store.createRecord('comment', { id: 2, message: message });
+    let message = store.createRecord('message', { id: '1' });
+    let comment = store.createRecord('comment', { id: '2', message: message });
     const Message = store.modelFor('message');
 
     assert.ok(comment instanceof Message, 'a comment is an instance of a message');
@@ -1131,7 +1131,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     assert.expectAssertion(() => {
       message.user;
-    }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`belongsTo\({ async: true }\)`\)/);
+    }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`belongsTo\(<type>, { async: true, inverse: <inverse> }\)`\)/);
   });
 
   test('Rollbacking attributes for a deleted record restores implicit relationship - async', function (assert) {
@@ -1231,10 +1231,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       const User = Model.extend();
 
       Model.extend({
-        user: belongsTo(User, { async: false }),
+        user: belongsTo(User, { async: false, inverse: null }),
       });
     }, /The first argument to belongsTo must be a string/);
-    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
+    assert.expectDeprecation({ id: 'ember-data:deprecate-non-strict-relationships' });
   });
 
   test('belongsTo hasAnyRelationshipData async loaded', function (assert) {
@@ -1251,11 +1251,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'The Greatest Book' },
           relationships: {
-            author: { data: { id: 2, type: 'author' } },
+            author: { data: { id: '2', type: 'author' } },
           },
         },
       });
@@ -1278,11 +1278,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'The Greatest Book' },
           relationships: {
-            author: { data: { id: 2, type: 'author' } },
+            author: { data: { id: '2', type: 'author' } },
           },
         },
       });
@@ -1310,7 +1310,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'The Greatest Book' },
           relationships: {
@@ -1337,7 +1337,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'The Greatest Book' },
         },
@@ -1528,7 +1528,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(true, "The adapter's findBelongsTo method should be called");
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'author',
           attributes: { name: 'This is author' },
         },
@@ -1630,7 +1630,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(true, "The adapter's findBelongsTo method should be called");
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'author',
           attributes: { name: 'This is author' },
         },
@@ -1844,7 +1844,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function () {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'chapter',
           relationships: {
             book: {
@@ -1858,7 +1858,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findBelongsTo = function () {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'book title' },
         },
@@ -1881,7 +1881,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
           adapter.findBelongsTo = function () {
             return resolve({
               data: {
-                id: 1,
+                id: '1',
                 type: 'book',
                 attributes: { name: 'updated book title' },
               },
@@ -1962,10 +1962,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       chapter = store.push({
         data: {
           type: 'chapter',
-          id: 1,
+          id: '1',
           relationships: {
             book: {
-              data: { type: 'book', id: 1 },
+              data: { type: 'book', id: '1' },
             },
           },
         },
@@ -1975,7 +1975,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.findRecord = function () {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'book',
           attributes: { name: 'book title' },
         },
@@ -1990,7 +1990,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
           adapter.findRecord = function () {
             return resolve({
               data: {
-                id: 1,
+                id: '1',
                 type: 'book',
                 attributes: { name: 'updated book title' },
               },
@@ -2013,10 +2013,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         let chapter = store.push({
           data: {
             type: 'chapter',
-            id: 1,
+            id: '1',
             relationships: {
               book: {
-                data: { id: 1, name: 'The Gallic Wars' },
+                data: { id: '1', name: 'The Gallic Wars' },
               },
             },
           },

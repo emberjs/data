@@ -92,7 +92,7 @@ module('integration/references/record', function (hooks) {
     const pushed = recordReference.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
         attributes: {
           name: 'le name',
         },
@@ -120,7 +120,7 @@ module('integration/references/record', function (hooks) {
     deferred.resolve({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
         attributes: {
           name: 'le name',
         },
@@ -144,7 +144,7 @@ module('integration/references/record', function (hooks) {
     let person = store.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
       },
     });
 
@@ -159,7 +159,7 @@ module('integration/references/record', function (hooks) {
     adapter.findRecord = function (store, type, id) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: {
             name: 'Vito',
@@ -204,7 +204,7 @@ module('integration/references/record', function (hooks) {
     let recordPromise = recordReference.load(); // second trigger
     resolveRequest({
       data: {
-        id: 1,
+        id: '1',
         type: 'person',
         attributes: {
           name: 'Vito',
@@ -229,7 +229,7 @@ module('integration/references/record', function (hooks) {
 
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: {
             name: 'Vito Coreleone',
@@ -251,7 +251,7 @@ module('integration/references/record', function (hooks) {
     adapter.findRecord = function (store, type, id) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: {
             name: 'Vito Coreleone',
@@ -263,7 +263,7 @@ module('integration/references/record', function (hooks) {
     store.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
         attributes: {
           name: 'Vito',
         },

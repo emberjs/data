@@ -145,7 +145,7 @@ export default class HasManyReference {
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
-     @hasMany({ async: true }) comments;
+     @hasMany('comment', { async: true, inverse: null }) comments;
    }
    ```
 
@@ -194,7 +194,7 @@ export default class HasManyReference {
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
-     @hasMany({ async: true }) comments;
+     @hasMany('comment', { async: true, inverse: null }) comments;
    }
    ```
 
@@ -234,7 +234,7 @@ export default class HasManyReference {
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
    export default Model.extend({
-      user: belongsTo({ async: true })
+      user: belongsTo('user', { async: true, inverse: null })
     });
 
    let blog = store.push({
@@ -296,7 +296,7 @@ export default class HasManyReference {
    // models/blog.js
    import Model, { hasMany } from '@ember-data/model';
    export default Model.extend({
-      users: hasMany({ async: true })
+      users: hasMany('user', { async: true, inverse: null })
     });
 
    let blog = store.push({
@@ -347,7 +347,7 @@ export default class HasManyReference {
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
-     @hasMany({ async: true }) comments;
+     @hasMany('comment', { async: true, inverse: null }) comments;
    }
    ```
 
@@ -453,7 +453,7 @@ export default class HasManyReference {
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
-     @hasMany({ async: true }) comments;
+     @hasMany('comment', { async: true, inverse: null }) comments;
    }
    ```
 
@@ -501,7 +501,7 @@ export default class HasManyReference {
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
-     @hasMany({ async: true }) comments;
+     @hasMany('comment', { async: true, inverse: null }) comments;
    }
    ```
 
@@ -570,7 +570,7 @@ export default class HasManyReference {
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
-     @hasMany({ async: true }) comments;
+     @hasMany('comment', { async: true, inverse: null }) comments;
    }
    ```
 

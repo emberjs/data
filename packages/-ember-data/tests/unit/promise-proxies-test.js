@@ -119,11 +119,11 @@ module('unit/PromiseBelongsTo', function (hooks) {
   setupTest(hooks);
 
   class Parent extends Model {
-    @belongsTo('child', { async: true })
+    @belongsTo('child', { async: true, inverse: 'parent' })
     child;
   }
   class Child extends Model {
-    @belongsTo('parent', { async: false })
+    @belongsTo('parent', { async: false, inverse: 'child' })
     parent;
   }
   class ChildAdapter extends Adapter {
@@ -135,7 +135,7 @@ module('unit/PromiseBelongsTo', function (hooks) {
           relationships: {
             parent: {
               data: {
-                id: 1,
+                id: '1',
                 type: 'parent',
               },
             },

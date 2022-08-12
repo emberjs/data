@@ -316,8 +316,8 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     const ajaxCallback = ajaxResponse(adapter, {
-      posts: [{ id: 1, name: 'Rails is omakase' }],
-      comments: [{ id: 1, name: 'FIRST' }],
+      posts: [{ id: '1', name: 'Rails is omakase' }],
+      comments: [{ id: '1', name: 'FIRST' }],
     });
 
     const post = await store.findRecord('post', '1');
