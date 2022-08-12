@@ -410,7 +410,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
       return this._data[key];
     } else {
       const attr = this.storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(this.identifier)[key];
-      return getDefaultValue(undefined, attr?.options, key);
+      return getDefaultValue(attr?.options);
     }
   }
 
@@ -740,14 +740,15 @@ function getRemoteState(rel) {
   return rel.canonicalState;
 }
 
-// If anyone opens an issue for _record not working right, we'll deprecate it via a Proxy
-// that lazily instantiates the record.
-function getDefaultValue(_record: undefined, options: { defaultValue?: unknown } | undefined, _key: string) {
+function getDefaultValue(options: { defaultValue?: unknown } | undefined) {
   if (!options) {
     return;
   }
   if (typeof options.defaultValue === 'function') {
-    return options.defaultValue.apply(null, arguments);
+    // If anyone opens an issue for args not working right, we'll restore + deprecate it via a Proxy
+    // that lazily instantiates the record. We don't want to provide any args here
+    // because in a non @ember-data/model world they don't make sense.
+    return options.defaultValue();
   } else {
     let defaultValue = options.defaultValue;
     assert(

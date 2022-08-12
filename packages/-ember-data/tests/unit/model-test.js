@@ -443,7 +443,7 @@ module('unit/model - Model', function (hooks) {
         @attr('string', {
           defaultValue(record, options, key) {
             assert.deepEqual(record, undefined, 'the record is passed in properly');
-            assert.strictEqual(key, 'createdAt', 'the attribute being defaulted is passed in properly');
+            assert.strictEqual(key, undefined, 'the attribute being defaulted is passed in properly');
             return 'le default value';
           },
         })
