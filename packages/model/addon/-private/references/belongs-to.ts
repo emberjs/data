@@ -100,6 +100,7 @@ export default class BelongsToReference {
     this._ref; // consume the tracked prop
     if (this.#relatedToken) {
       this.store._notificationManager.unsubscribe(this.#relatedToken);
+      this.#relatedToken = null;
     }
 
     let resource = this._resource();
