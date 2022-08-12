@@ -4,7 +4,10 @@
 import { A } from '@ember/array';
 import { assert, deprecate, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
+import { dasherize } from '@ember/string';
 import { DEBUG } from '@glimmer/env';
+
+import { singularize } from 'ember-inflector';
 
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
@@ -14,6 +17,14 @@ import {
 
 import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
+
+function normalizeType(type) {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && !type) {
+    return;
+  }
+
+  return singularize(dasherize(type));
+}
 
 /**
   `hasMany` is used to define One-To-Many and Many-To-Many
@@ -218,7 +229,7 @@ function hasMany(type, options) {
   // serialization. Note that `key` is populated lazily
   // the first time the CP is called.
   let meta = {
-    type,
+    type: normalizeType(type),
     options,
     isRelationship: true,
     kind: 'hasMany',

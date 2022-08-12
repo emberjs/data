@@ -180,7 +180,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
         let expectedURL = initialRecord.data.relationships.comments.links.related;
         assert.strictEqual(url, expectedURL, 'url is passed to findHasMany');
-        assert.strictEqual(relationship.meta.key, 'comments', 'relationship is passed to findHasMany');
+        assert.strictEqual(relationship.name, 'comments', 'relationship is passed to findHasMany');
 
         assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
         assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');
@@ -602,7 +602,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
         let expectedURL = initialRecord.data.relationships.comments.links.related;
         assert.strictEqual(url, expectedURL, 'url is passed to findHasMany');
-        assert.strictEqual(relationship.meta.key, 'comments', 'relationship is passed to findHasMany');
+        assert.strictEqual(relationship.name, 'comments', 'relationship is passed to findHasMany');
 
         assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
         assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');

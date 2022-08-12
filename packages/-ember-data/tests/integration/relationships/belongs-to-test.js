@@ -306,7 +306,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     const Author = Model.extend({
       name: attr('string'),
-      books: hasMany('books', { async: false, inverse: 'author' }),
+      books: hasMany('book', { async: false, inverse: 'author' }),
     });
 
     const Section = Model.extend({

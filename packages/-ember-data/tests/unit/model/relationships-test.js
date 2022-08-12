@@ -98,7 +98,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
 
     const relationship = relationships.get('user-profile')[0];
 
-    assert.strictEqual(relationship.meta.name, 'userProfile', 'relationship name has not been changed');
+    assert.strictEqual(relationship.name, 'userProfile', 'relationship name has not been changed');
   });
 
   test('normalizing hasMany relationship names', function (assert) {
@@ -127,7 +127,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
 
     const relationship = relationships.get('stream-item')[0];
 
-    assert.strictEqual(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
+    assert.strictEqual(relationship.name, 'streamItems', 'relationship name has not been changed');
   });
 
   if (gte('3.10.0')) {
@@ -160,7 +160,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
 
         const relationship = relationships.get('stream-item')[0];
 
-        assert.strictEqual(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
+        assert.strictEqual(relationship.name, 'streamItems', 'relationship name has not been changed');
       }
     );
   }

@@ -527,7 +527,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tags', { async: false, inverse: 'people' }),
+      tags: hasMany('tag', { async: false, inverse: 'people' }),
     });
 
     Person.toString = () => {

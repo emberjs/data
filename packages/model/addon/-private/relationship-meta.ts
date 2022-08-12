@@ -10,7 +10,7 @@ import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas
   @module @ember-data/store
 */
 
-function typeForRelationshipMeta(meta) {
+export function typeForRelationshipMeta(meta) {
   let modelName = dasherize(meta.type || meta.key);
 
   if (meta.kind === 'hasMany') {

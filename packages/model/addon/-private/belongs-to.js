@@ -1,5 +1,6 @@
-import { assert, deprecate, inspect, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
+import { dasherize } from '@ember/string';
 import { DEBUG } from '@glimmer/env';
 
 import {
@@ -11,6 +12,13 @@ import {
 import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
+function normalizeType(type) {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && !type) {
+    return;
+  }
+
+  return dasherize(type);
+}
 /**
   @module @ember-data/model
 */
@@ -137,7 +145,7 @@ function belongsTo(modelName, options) {
 
     assert(
       'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
-        inspect(userEnteredModelName) +
+        typeof userEnteredModelName +
         ". E.g., to define a relation to the Person model, use belongsTo('person')",
       typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
     );
@@ -181,7 +189,7 @@ function belongsTo(modelName, options) {
   }
 
   let meta = {
-    type: userEnteredModelName,
+    type: normalizeType(userEnteredModelName),
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',

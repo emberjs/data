@@ -234,10 +234,6 @@ function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, paren
   }
 }
 
-function getInverse(store, parentIdentifier, parentRelationship, type) {
-  return recordDataFindInverseRelationshipInfo(store, parentIdentifier, parentRelationship, type);
-}
-
 function metaIsRelationshipDefinition(meta) {
   return typeof meta._inverseKey === 'function';
 }
@@ -260,15 +256,14 @@ function inverseForRelationship(store, identifier, key) {
   return definition.options.inverse;
 }
 
-function recordDataFindInverseRelationshipInfo(store, parentIdentifier, parentRelationship, type) {
+function getInverse(store, parentIdentifier, parentRelationship, type) {
   let { name: lhs_relationshipName } = parentRelationship;
   let { type: parentType } = parentIdentifier;
   let inverseKey = inverseForRelationship(store, { type: parentType }, lhs_relationshipName);
 
   if (inverseKey) {
-    let {
-      meta: { kind },
-    } = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type })[inverseKey];
+    const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
+    let { kind } = definition[inverseKey];
     return {
       inverseKey,
       kind,
