@@ -25,10 +25,9 @@ function shouldFindInverse(relationshipMeta) {
   return !(options && options.inverse === null);
 }
 
-export class RelationshipDefinition implements RelationshipSchema {
+class RelationshipDefinition implements RelationshipSchema {
   declare _type: string;
   declare __inverseKey: string;
-  declare __inverseIsAsync: boolean;
   declare __hasCalculatedInverse: boolean;
   declare parentModelName: string;
   declare inverseIsAsync: string | null;
@@ -37,7 +36,6 @@ export class RelationshipDefinition implements RelationshipSchema {
   constructor(meta: any) {
     this._type = '';
     this.__inverseKey = '';
-    this.__inverseIsAsync = true;
     this.__hasCalculatedInverse = false;
     this.parentModelName = meta.parentModelName;
     this.meta = meta;
@@ -74,16 +72,9 @@ export class RelationshipDefinition implements RelationshipSchema {
     return this.__inverseKey;
   }
 
-  _inverseIsAsync(store: Store, modelClass): boolean {
-    if (this.__hasCalculatedInverse === false) {
-      this._calculateInverse(store, modelClass);
-    }
-    return this.__inverseIsAsync;
-  }
-
   _calculateInverse(store: Store, modelClass): void {
     this.__hasCalculatedInverse = true;
-    let inverseKey, inverseIsAsync;
+    let inverseKey;
     let inverse: any = null;
 
     if (shouldFindInverse(this.meta)) {
@@ -94,20 +85,13 @@ export class RelationshipDefinition implements RelationshipSchema {
 
     if (inverse) {
       inverseKey = inverse.name;
-      inverseIsAsync = isRelationshipAsync(inverse);
     } else {
       inverseKey = null;
-      inverseIsAsync = false;
     }
     this.__inverseKey = inverseKey;
-    this.__inverseIsAsync = inverseIsAsync;
   }
 }
-
-function isRelationshipAsync(meta: RelationshipSchema): boolean {
-  let inverseAsync = meta.options && meta.options.async;
-  return typeof inverseAsync === 'undefined' ? true : inverseAsync;
-}
+export type { RelationshipDefinition };
 
 export function relationshipFromMeta(meta: RelationshipSchema): RelationshipDefinition {
   return new RelationshipDefinition(meta);

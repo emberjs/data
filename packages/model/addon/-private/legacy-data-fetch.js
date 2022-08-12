@@ -3,7 +3,10 @@ import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
-import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
+import {
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
+  DEPRECATE_RSVP_PROMISE,
+} from '@ember-data/private-build-infra/deprecations';
 
 import { iterateData, normalizeResponseHelper } from './legacy-data-utils';
 
@@ -245,14 +248,15 @@ function inverseForRelationship(store, identifier, key) {
     return null;
   }
 
-  if (metaIsRelationshipDefinition(definition)) {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE && metaIsRelationshipDefinition(definition)) {
     const modelClass = store.modelFor(identifier.type);
     return definition._inverseKey(store, modelClass);
-  } else if (definition.options && definition.options.inverse !== undefined) {
-    return definition.options.inverse;
-  } else {
-    return null;
   }
+  assert(
+    `Expected the relationship defintion to specify the inverse type or null.`,
+    typeof definition.options?.inverse === 'string' && definition.options.inverse.length > 0
+  );
+  return definition.options.inverse;
 }
 
 function recordDataFindInverseRelationshipInfo(store, parentIdentifier, parentRelationship, type) {

@@ -8,6 +8,7 @@ import { DEBUG } from '@glimmer/env';
 
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
 } from '@ember-data/private-build-infra/deprecations';
 
@@ -193,6 +194,23 @@ function hasMany(type, options) {
     });
   } else {
     assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
+  }
+
+  if (
+    DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE &&
+    options.inverse !== null &&
+    (typeof options.inverse !== 'string' || options.inverse.length === 0)
+  ) {
+    deprecate(
+      'hasMany(<type>, <options>) must specify options.inverse as either `null` or string type of the related resource.',
+      false,
+      {
+        id: 'ember-data:deprecate-non-strict-relationships',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      }
+    );
   }
 
   // Metadata about relationships is stored on the meta of

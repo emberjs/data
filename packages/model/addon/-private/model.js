@@ -19,6 +19,7 @@ import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EARLY_STATIC,
   DEPRECATE_MODEL_REOPEN,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
@@ -1795,7 +1796,7 @@ class Model extends EmberObject {
         meta.key = name;
         meta.name = name;
         meta.parentModelName = modelName;
-        relationships[name] = relationshipFromMeta(meta);
+        relationships[name] = DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE ? relationshipFromMeta(meta) : meta;
       }
     });
     return relationships;
