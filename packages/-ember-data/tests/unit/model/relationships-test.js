@@ -133,7 +133,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
   if (gte('3.10.0')) {
     deprecatedTest(
       'decorators works without parens',
-      { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
+      { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 4 },
       function (assert) {
         let store;
         let { owner } = this;

@@ -14,7 +14,7 @@ class Person extends Model {
 }
 
 class Car extends Model {
-  @belongsTo('house')
+  @belongsTo('house', { async: true, inverse: 'car' })
   garage;
 
   @attr('string', {})
@@ -25,13 +25,13 @@ class House extends Model {
   @attr('string', {})
   name;
 
-  @belongsTo('person', { async: false })
+  @belongsTo('person', { async: false, inverse: null })
   landlord;
 
-  @belongsTo('car', { async: false })
+  @belongsTo('car', { async: false, inverse: 'garage' })
   car;
 
-  @hasMany('person', { async: false })
+  @hasMany('person', { async: false, inverse: null })
   tenants;
 }
 
@@ -172,20 +172,20 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
             kind: 'belongsTo',
             name: 'landlord',
             type: 'person',
-            options: { async: false },
+            options: { async: false, inverse: null },
           },
           car: {
             key: 'car',
             kind: 'belongsTo',
             name: 'car',
             type: 'car',
-            options: { async: false },
+            options: { async: false, inverse: 'garage' },
           },
           tenants: {
             key: 'tenants',
             kind: 'hasMany',
             name: 'tenants',
-            options: { async: false },
+            options: { async: false, inverse: null },
             type: 'person',
           },
         };

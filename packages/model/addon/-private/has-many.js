@@ -6,7 +6,10 @@ import { assert, deprecate, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
-import { DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE } from '@ember-data/private-build-infra/deprecations';
+import {
+  DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
+} from '@ember-data/private-build-infra/deprecations';
 
 import { LEGACY_SUPPORT } from './model';
 import { computedMacroWithOptionalParams } from './util';
@@ -154,12 +157,16 @@ import { computedMacroWithOptionalParams } from './util';
 */
 function hasMany(type, options) {
   if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && (typeof type !== 'string' || !type.length)) {
-    deprecate('hasMany() must specify the string type of the related resource as the first parameter', false, {
-      id: 'ember-data:deprecate-non-strict-relationships',
-      for: 'ember-data',
-      until: '5.0',
-      since: { enabled: '4.8', available: '4.8' },
-    });
+    deprecate(
+      'hasMany(<type>, <options>) must specify the string type of the related resource as the first parameter',
+      false,
+      {
+        id: 'ember-data:deprecate-non-strict-relationships',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.8', available: '4.8' },
+      }
+    );
     if (typeof type === 'object') {
       options = type;
       type = undefined;
@@ -173,9 +180,19 @@ function hasMany(type, options) {
     );
   }
 
-  options = options || {};
-  if (!('async' in options)) {
-    options.async = true;
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC && (!options || typeof options.async !== 'boolean')) {
+    options = options || {};
+    if (!('async' in options)) {
+      options.async = true;
+    }
+    deprecate('hasMany(<type>, <options>) must specify options.async as either `true` or `false`.', false, {
+      id: 'ember-data:deprecate-non-strict-relationships',
+      for: 'ember-data',
+      until: '5.0',
+      since: { enabled: '4.8', available: '4.8' },
+    });
+  } else {
+    assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
   }
 
   // Metadata about relationships is stored on the meta of

@@ -11,18 +11,18 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
   hooks.beforeEach(function () {
     const Elder = Model.extend({
       name: attr('string'),
-      middleAgers: hasMany('middle-ager'),
+      middleAgers: hasMany('middle-ager', { async: true, inverse: 'elder' }),
     });
 
     const MiddleAger = Model.extend({
       name: attr('string'),
-      elder: belongsTo('elder'),
-      kids: hasMany('kid'),
+      elder: belongsTo('elder', { async: true, inverse: 'middleAgers' }),
+      kids: hasMany('kid', { async: true, inverse: 'middleAger' }),
     });
 
     const Kid = Model.extend({
       name: attr('string'),
-      middleAger: belongsTo('middle-ager'),
+      middleAger: belongsTo('middle-ager', { async: true, inverse: 'kids' }),
     });
 
     this.owner.register('model:elder', Elder);

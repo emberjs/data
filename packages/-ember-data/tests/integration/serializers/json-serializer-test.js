@@ -643,7 +643,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     this.owner.register(
       'model:parent',
       Model.extend({
-        child: belongsTo('child'),
+        child: belongsTo('child', { async: true, inverse: null }),
       })
     );
     this.owner.register(
@@ -689,13 +689,13 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     this.owner.register(
       'model:parent',
       Model.extend({
-        child: belongsTo('child'),
+        child: belongsTo('child', { async: true, inverse: null }),
       })
     );
     this.owner.register(
       'model:child',
       Model.extend({
-        type: belongsTo('le-type'),
+        type: belongsTo('le-type', { async: true, inverse: null }),
       })
     );
     this.owner.register('model:le-type', Model.extend());

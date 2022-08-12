@@ -87,7 +87,7 @@ module(
 
     hooks.beforeEach(function () {
       const PostNote = Model.extend({
-        notePost: belongsTo('note-post', { async: false }),
+        notePost: belongsTo('note-post', { async: false, inverse: null }),
 
         name: attr('string'),
       });
@@ -97,7 +97,7 @@ module(
       });
 
       const LongModelName = Model.extend({
-        postNotes: hasMany('post_note'),
+        postNotes: hasMany('post_note', { async: true, inverse: null }),
       });
 
       const ApplicationAdapter = JSONAPIAdapter.extend({

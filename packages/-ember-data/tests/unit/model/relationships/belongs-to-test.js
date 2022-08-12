@@ -833,12 +833,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
   test('belongsTo should be async by default', function (assert) {
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag'),
+      tag: belongsTo('tag', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);

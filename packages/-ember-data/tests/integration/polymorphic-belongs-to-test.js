@@ -14,7 +14,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
       @attr()
       title;
 
-      @belongsTo('author', { polymorphic: true, async: false })
+      @belongsTo('author', { polymorphic: true, async: false, inverse: null })
       author;
     }
 
@@ -26,7 +26,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     class Person extends Model {}
 
     class AsyncBook extends Model {
-      @belongsTo('author', { polymorphic: true })
+      @belongsTo('author', { polymorphic: true, async: true, inverse: null })
       author;
     }
     owner.register('model:book', Book);

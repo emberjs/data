@@ -77,7 +77,7 @@ class Post extends Model {
   @attr
   text;
 
-  @hasMany('comments')
+  @hasMany('comments', { async: true, inverse: 'post' })
   comments;
 }
 
@@ -85,7 +85,7 @@ class Comment extends Model {
   @attr
   text;
 
-  @belongsTo('post')
+  @belongsTo('post', { async: true, inverse: 'comments' })
   post;
 }
 

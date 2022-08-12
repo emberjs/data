@@ -623,7 +623,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     "Inverse null relationships with models that don't exist throw a nice error if trying to use that relationship",
     function (assert) {
       class User extends Model {
-        @belongsTo('post', { inverse: null })
+        @belongsTo('post', { async: true, inverse: null })
         post;
       }
 
@@ -641,7 +641,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     class User extends Model {}
 
     class Comment extends Model {
-      @belongsTo('user')
+      @belongsTo('user', { async: true, inverse: null })
       user;
     }
 
@@ -657,12 +657,12 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.expect(2);
 
     class Post extends Model {
-      @hasMany('comment', { async: true })
+      @hasMany('comment', { async: true, inverse: 'post' })
       comments;
     }
 
     class Comment extends Model {
-      @belongsTo('post', { async: true })
+      @belongsTo('post', { async: true, inverse: 'comments' })
       post;
     }
 

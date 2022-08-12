@@ -23,7 +23,7 @@ const Post = Model.extend({
 const Person = Model.extend({
   firstName: attr('string'),
   lastName: attr('string'),
-  siblings: hasMany('person'),
+  siblings: hasMany('person', { async: true, inverse: 'siblings' }),
 });
 
 const sibling1 = {

@@ -4,30 +4,29 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
-
-const { Model, attr, hasMany, belongsTo } = DS;
 
 module('integration/relationship/json-api-links | Relationship state updates', function (hooks) {
   setupTest(hooks);
 
   test('Loading link with inverse:null on other model caches the two ends separately', function (assert) {
-    const User = DS.Model.extend({
-      organisation: belongsTo('organisation', { inverse: null }),
+    const User = Model.extend({
+      organisation: belongsTo('organisation', { async: true, inverse: null }),
     });
 
-    const Organisation = DS.Model.extend({
-      adminUsers: hasMany('user', { inverse: null }),
+    const Organisation = Model.extend({
+      adminUsers: hasMany('user', { async: true, inverse: null }),
     });
 
     this.owner.register('model:user', User);
     this.owner.register('model:organisation', Organisation);
-    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
@@ -95,17 +94,17 @@ module('integration/relationship/json-api-links | Relationship state updates', f
   });
 
   test('Pushing child record should not mark parent:children as loaded', function (assert) {
-    const Child = DS.Model.extend({
-      parent: belongsTo('parent', { inverse: 'children' }),
+    const Child = Model.extend({
+      parent: belongsTo('parent', { async: true, inverse: 'children' }),
     });
 
-    const Parent = DS.Model.extend({
-      children: hasMany('child', { inverse: 'parent' }),
+    const Parent = Model.extend({
+      children: hasMany('child', { async: true, inverse: 'parent' }),
     });
 
     this.owner.register('model:child', Child);
     this.owner.register('model:parent', Parent);
-    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
