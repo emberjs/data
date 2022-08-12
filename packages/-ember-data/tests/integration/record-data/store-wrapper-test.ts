@@ -48,6 +48,13 @@ class TestRecordData {
 
   commitWasRejected() {}
 
+  isDeletionCommitted() {
+    return false;
+  }
+  isDeleted() {
+    return false;
+  }
+
   unloadRecord() {}
   rollbackAttributes() {}
   changedAttributes(): any {}

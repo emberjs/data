@@ -82,6 +82,10 @@ class TestRecordData {
 
   didCommit(data) {}
 
+  isDeletionCommitted() {
+    return false;
+  }
+
   _initRecordCreateOptions(options) {}
   isNew() {
     return false;

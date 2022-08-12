@@ -30,7 +30,7 @@ class TestRecordIdentifier implements NewRecordIdentifier {
 class TestRecordData implements RecordData {
   version?: '1' | undefined;
   isDeletionCommitted(): boolean {
-    throw new Error('Method not implemented.');
+    return false;
   }
   id: string | null = '1';
   clientId: string | null = 'test-record-data-1';
