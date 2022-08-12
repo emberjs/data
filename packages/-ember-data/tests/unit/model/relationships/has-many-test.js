@@ -27,18 +27,18 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Pet = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'pets' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tags: hasMany('tag', { async: false }),
-      pets: hasMany('pet', { async: false }),
+      tags: hasMany('tag', { async: false, inverse: 'person' }),
+      pets: hasMany('pet', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);

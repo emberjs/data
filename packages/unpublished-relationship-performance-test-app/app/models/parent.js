@@ -4,5 +4,5 @@ const { Model, attr, hasMany } = DS;
 
 export default Model.extend({
   parentName: attr('string'),
-  children: hasMany('child', { async: true }),
+  children: hasMany('child', { async: true, inverse: 'parent' }),
 });

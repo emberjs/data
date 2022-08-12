@@ -66,12 +66,12 @@ module('unit/model/relationships - RecordArray', function (hooks) {
 
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
-      person: DS.belongsTo('person', { async: false }),
+      person: DS.belongsTo('person', { async: false, inverse: 'tags' }),
     });
 
     const Person = DS.Model.extend({
       name: DS.attr('string'),
-      tags: DS.hasMany('tag', { async: false }),
+      tags: DS.hasMany('tag', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);

@@ -937,13 +937,13 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
   hooks.beforeEach(function () {
     const Person = Model.extend({
       name: attr('string'),
-      cars: hasMany('car', { async: false }),
+      cars: hasMany('car', { async: false, inverse: 'person' }),
     });
 
     const Car = Model.extend({
       make: attr('string'),
       model: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'cars' }),
     });
 
     this.owner.register('model:person', Person);

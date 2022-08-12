@@ -981,7 +981,7 @@ class Model extends EmberObject {
     import Model, { belongsTo } from '@ember-data/model';
 
     export default class BlogModel extends Model {
-      @belongsTo({ async: true }) user;
+      @belongsTo('user', { async: true, inverse: null }) user;
     }
     ```
 
@@ -1049,7 +1049,7 @@ class Model extends EmberObject {
     import Model, { hasMany } from '@ember-data/model';
 
     export default class BlogModel extends Model {
-      @hasMany({ async: true }) comments;
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
 
     let blog = store.push({

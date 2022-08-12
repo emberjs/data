@@ -25,12 +25,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -97,13 +97,13 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
     Tag.toString = () => 'Tag';
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
     Person.toString = () => 'Person';
 
@@ -167,7 +167,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: true }),
+      tag: belongsTo('tag', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -221,7 +221,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: true }),
+      tag: belongsTo('tag', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -306,7 +306,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: true }),
+      tag: belongsTo('tag', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -389,7 +389,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: true }),
+      tag: belongsTo('tag', { async: true, inverse: null }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -499,12 +499,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'person' }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -527,12 +527,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
   test('When finding a hasMany relationship the inverse belongsTo relationship is available immediately', function (assert) {
     const Occupation = Model.extend({
       description: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'occupations' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      occupations: hasMany('occupation', { async: true }),
+      occupations: hasMany('occupation', { async: true, inverse: 'person' }),
     });
 
     this.owner.register('model:occupation', Occupation);
@@ -598,12 +598,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Occupation = Model.extend({
       description: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'occupation' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      occupation: belongsTo('occupation', { async: true }),
+      occupation: belongsTo('occupation', { async: true, inverse: 'person' }),
     });
 
     this.owner.register('model:occupation', Occupation);
@@ -642,12 +642,12 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Tag = Model.extend({
       name: attr('string'),
-      people: hasMany('person', { async: false }),
+      people: hasMany('person', { async: false, inverse: 'tag' }),
     });
 
     const Person = Model.extend({
       name: attr('string'),
-      tag: belongsTo('tag', { async: false }),
+      tag: belongsTo('tag', { async: false, inverse: 'people' }),
     });
 
     this.owner.register('model:tag', Tag);

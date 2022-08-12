@@ -15,12 +15,12 @@ module('unit/utils', function (hooks) {
   hooks.beforeEach(function () {
     const Person = Model.extend();
     const User = Model.extend({
-      messages: hasMany('message', { async: false }),
+      messages: hasMany('message', { async: false, inverse: null }),
     });
 
     const Message = Model.extend();
     const Post = Message.extend({
-      medias: hasMany('medium', { async: false }),
+      medias: hasMany('medium', { async: false, inverse: null, polymorphic: true }),
     });
 
     const Medium = Mixin.create();

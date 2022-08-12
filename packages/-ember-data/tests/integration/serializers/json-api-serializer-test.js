@@ -18,13 +18,13 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
       title: DS.attr('string'),
-      handles: DS.hasMany('handle', { async: true, polymorphic: true }),
-      company: DS.belongsTo('company', { async: true }),
+      handles: DS.hasMany('handle', { async: true, polymorphic: true, inverse: 'user' }),
+      company: DS.belongsTo('company', { async: true, inverse: 'employees' }),
       reportsTo: DS.belongsTo('user', { async: true, inverse: null }),
     });
 
     const Handle = DS.Model.extend({
-      user: DS.belongsTo('user', { async: true }),
+      user: DS.belongsTo('user', { async: true, inverse: 'handles' }),
     });
 
     const GithubHandle = Handle.extend({
@@ -37,7 +37,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     const Company = DS.Model.extend({
       name: DS.attr('string'),
-      employees: DS.hasMany('user', { async: true }),
+      employees: DS.hasMany('user', { async: true, inverse: 'company' }),
     });
 
     const Project = DS.Model.extend({
@@ -390,8 +390,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
       title: DS.attr('string'),
-      handles: DS.hasMany('handle', { async: true, polymorphic: true }),
-      company: DS.belongsTo('company', { async: true }),
+      handles: DS.hasMany('handle', { async: true, polymorphic: true, inverse: 'user' }),
+      company: DS.belongsTo('company', { async: true, inverse: 'employees' }),
       reportsTo: DS.belongsTo('user', { async: true, inverse: null }),
       myCustomField: DS.attr('custom', {
         custom: 'config',

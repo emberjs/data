@@ -19,25 +19,25 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   hooks.beforeEach(function () {
     HomePlanet = Model.extend({
       name: attr('string'),
-      superVillains: hasMany('super-villain', { async: false }),
+      superVillains: hasMany('super-villain', { async: false, inverse: 'homePlanet' }),
     });
     SuperVillain = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
-      homePlanet: belongsTo('home-planet', { async: false }),
-      evilMinions: hasMany('evil-minion', { async: false }),
+      homePlanet: belongsTo('home-planet', { async: false, inverse: 'superVillains' }),
+      evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
     });
     EvilMinion = Model.extend({
-      superVillain: belongsTo('super-villain', { async: false }),
+      superVillain: belongsTo('super-villain', { async: false, inverse: 'evilMinions' }),
       name: attr('string'),
-      doomsdayDevice: belongsTo('doomsday-device', { async: false }),
+      doomsdayDevice: belongsTo('doomsday-device', { async: false, inverse: 'evilMinion' }),
     });
     YellowMinion = EvilMinion.extend({
       eyes: attr('number'),
     });
     DoomsdayDevice = Model.extend({
       name: attr('string'),
-      evilMinion: belongsTo('evil-minion', { polymorphic: true, async: true }),
+      evilMinion: belongsTo('evil-minion', { polymorphic: true, async: true, inverse: 'doomsdayDevice' }),
     });
     Comment = Model.extend({
       body: attr('string'),
@@ -49,7 +49,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       size: attr('number'),
     });
     Container = Model.extend({
-      type: belongsTo('basket', { async: true }),
+      type: belongsTo('basket', { async: true, inverse: null }),
       volume: attr('string'),
     });
 
@@ -735,16 +735,16 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('normalizeResponse with async polymorphic hasMany', function (assert) {
     const HomePlanet = Model.extend({
       name: attr('string'),
-      superVillains: hasMany('super-villain2', { async: false }),
+      superVillains: hasMany('super-villain2', { async: false, inverse: 'homePlanet' }),
     });
     const SuperVillain = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
-      homePlanet: belongsTo('home-planet2', { async: false }),
-      evilMinions: hasMany('evil-minion2', { async: true, polymorphic: true }),
+      homePlanet: belongsTo('home-planet2', { async: false, inverse: 'superVillains' }),
+      evilMinions: hasMany('evil-minion2', { async: true, polymorphic: true, inverse: 'superVillain' }),
     });
     const EvilMinion = Model.extend({
-      superVillain: belongsTo('super-villain2', { async: false }),
+      superVillain: belongsTo('super-villain2', { async: false, inverse: 'evilMinions' }),
       name: attr('string'),
     });
     const YellowMinion = EvilMinion.extend({

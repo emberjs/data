@@ -12,8 +12,8 @@ class Person extends Model {
   @attr('string') name;
   @attr('string') firstName;
   @attr('string') lastName;
-  @hasMany('dog', { async: true }) dogs;
-  @belongsTo('dog', { async: true }) favoriteDog;
+  @hasMany('dog', { async: true, inverse: null }) dogs;
+  @belongsTo('dog', { async: true, inverse: null }) favoriteDog;
 }
 
 class Dog extends Model {
