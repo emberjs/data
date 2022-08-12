@@ -6,11 +6,7 @@ import { singularize } from 'ember-inflector';
 import type Store from '@ember-data/store';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
-/**
-  @module @ember-data/store
-*/
-
-export function typeForRelationshipMeta(meta) {
+function typeForRelationshipMeta(meta) {
   let modelName = dasherize(meta.type || meta.key);
 
   if (meta.kind === 'hasMany') {
