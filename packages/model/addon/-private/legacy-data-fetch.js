@@ -254,7 +254,8 @@ function inverseForRelationship(store, identifier, key) {
   }
   assert(
     `Expected the relationship defintion to specify the inverse type or null.`,
-    typeof definition.options?.inverse === 'string' && definition.options.inverse.length > 0
+    definition.options?.inverse === null ||
+      (typeof definition.options?.inverse === 'string' && definition.options.inverse.length > 0)
   );
   return definition.options.inverse;
 }

@@ -717,7 +717,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      hobby: belongsTo('hobby', { serialize: true, async: true }),
+      hobby: belongsTo('hobby', { serialize: true, async: true, inverse: null }),
     });
 
     this.owner.register('model:hobby', Hobby);
@@ -777,7 +777,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     const Person = Model.extend({
       name: attr('string'),
-      hobby: belongsTo('hobby', { embedded: true, async: true }),
+      hobby: belongsTo('hobby', { embedded: true, inverse: null, async: true }),
     });
 
     this.owner.register('model:hobby', Hobby);

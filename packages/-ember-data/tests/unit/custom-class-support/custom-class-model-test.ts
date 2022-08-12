@@ -404,6 +404,7 @@ module('unit/model - Custom Class Model', function (hooks) {
               kind: 'belongsTo',
               options: {
                 inverse: null,
+                async: true,
               },
               key: 'house',
               name: 'house',

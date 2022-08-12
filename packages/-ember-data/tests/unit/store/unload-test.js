@@ -135,12 +135,14 @@ module('Store - unload record with relationships', function (hooks) {
       description: attr('string'),
       brand: belongsTo('brand', {
         async: false,
+        inverse: null,
       }),
     });
 
     const Like = Model.extend({
       product: belongsTo('product', {
         async: false,
+        inverse: null,
       }),
     });
 
