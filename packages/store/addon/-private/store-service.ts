@@ -569,29 +569,17 @@ class Store extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'deleteRecord');
     }
-    // TODO eliminate this interleaving
-    // it is unlikely we need both an outer join and the inner run
-    // of our own queue
-    this._backburner.join(() => {
-      const identifier = peekRecordIdentifier(record);
-      if (identifier) {
-        run(() => {
-          const backburner = this._backburner;
-          backburner.run(() => {
-            const recordData = this._instanceCache.peek({ identifier, bucket: 'recordData' });
 
-            if (recordData) {
-              if (recordData?.setIsDeleted) {
-                recordData.setIsDeleted(true);
-              }
-              if (recordData.isNew()) {
-                this._instanceCache.unloadRecord(identifier);
-              }
-            }
-          });
-        });
-      }
-    });
+    const identifier = peekRecordIdentifier(record);
+    const recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
+    assert(`expected a recordData instance to exist for the record`, recordData);
+    recordData.setIsDeleted?.(identifier, true);
+
+    if (recordData.isNew()) {
+      run(() => {
+        this._instanceCache.unloadRecord(identifier);
+      });
+    }
   }
 
   /**

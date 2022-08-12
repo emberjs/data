@@ -8,7 +8,11 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
 import type { Graph, peekGraph } from '@ember-data/record-data/-private/graph/index';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type {
+  ExistingResourceIdentifierObject,
+  ExistingResourceObject,
+  NewResourceIdentifierObject,
+} from '@ember-data/types/q/ember-data-json-api';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
@@ -734,7 +738,10 @@ function preloadRelationship(
   findRecord('user', '1', { preload: { friends: ['1'] }});
   findRecord('user', '1', { preload: { friends: [record] }});
 */
-function _convertPreloadRelationshipToJSON(value: RecordInstance | string, type: string): ResourceIdentifierObject {
+function _convertPreloadRelationshipToJSON(
+  value: RecordInstance | string,
+  type: string
+): ExistingResourceIdentifierObject | NewResourceIdentifierObject {
   if (typeof value === 'string' || typeof value === 'number') {
     return { type, id: value };
   }

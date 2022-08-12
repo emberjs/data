@@ -7,21 +7,20 @@ import { all, resolve } from 'rsvp';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type { BelongsToRelationship, ManyRelationship } from '@ember-data/record-data/-private';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
-import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
+import ImplicitRelationship from '@ember-data/record-data/-private/relationships/state/implicit';
 import type Store from '@ember-data/store';
 import { recordDataFor, recordIdentifierFor, storeFor } from '@ember-data/store/-private';
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { DSModel } from '@ember-data/types/q/ds-model';
-import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import {
+  CollectionResourceRelationship,
+  ResourceIdentifierObject,
+  SingleResourceRelationship,
+} from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
-import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type {
-  DefaultSingleResourceRelationship,
-  RelationshipRecordData,
-} from '@ember-data/types/q/relationship-record-data';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -42,7 +41,7 @@ type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): Promise
 export class LegacySupport {
   declare record: DSModel;
   declare store: Store;
-  declare recordData: RelationshipRecordData;
+  declare recordData: RecordData;
   declare references: Dict<BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
   declare _manyArrayCache: Dict<ManyArray>;
@@ -56,7 +55,7 @@ export class LegacySupport {
     this.record = record;
     this.store = storeFor(record)!;
     this.identifier = recordIdentifierFor(record);
-    this.recordData = this.store._instanceCache.getRecordData(this.identifier) as RelationshipRecordData;
+    this.recordData = this.store._instanceCache.getRecordData(this.identifier);
 
     this._manyArrayCache = Object.create(null) as Dict<ManyArray>;
     this._relationshipPromisesCache = Object.create(null) as Dict<Promise<ManyArray | RecordInstance>>;
@@ -66,16 +65,16 @@ export class LegacySupport {
 
   _findBelongsTo(
     key: string,
-    resource: DefaultSingleResourceRelationship,
-    relationshipMeta: RelationshipSchema,
+    resource: SingleResourceRelationship,
+    relationship: BelongsToRelationship,
     options?: FindOptions
   ): Promise<RecordInstance | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
-    return this._findBelongsToByJsonApiResource(resource, this.identifier, relationshipMeta, options).then(
+    return this._findBelongsToByJsonApiResource(resource, this.identifier, relationship, options).then(
       (identifier: StableRecordIdentifier | null) =>
-        handleCompletedRelationshipRequest(this, key, resource._relationship, identifier),
-      (e: Error) => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
+        handleCompletedRelationshipRequest(this, key, relationship, identifier),
+      (e: Error) => handleCompletedRelationshipRequest(this, key, relationship, null, e)
     );
   }
 
@@ -85,15 +84,16 @@ export class LegacySupport {
       return loadingPromise;
     }
 
+    const graphFor = (
+      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+    ).graphFor;
+    const relationship = graphFor(this.store).get(this.identifier, key);
+    assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
+
     let resource = this.recordData.getBelongsTo(key);
-    // TODO move this to a public api
-    if (resource._relationship) {
-      resource._relationship.state.hasFailedLoadAttempt = false;
-      resource._relationship.state.shouldForceReload = true;
-    }
-    let relationshipMeta = this.store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier)[key];
-    assert(`Attempted to reload a belongsTo relationship but no definition exists for it`, relationshipMeta);
-    let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
+    relationship.state.hasFailedLoadAttempt = false;
+    relationship.state.shouldForceReload = true;
+    let promise = this._findBelongsTo(key, resource, relationship, options);
     if (this._relationshipProxyCache[key]) {
       return this._updatePromiseProxyFor('belongsTo', key, { promise });
     }
@@ -105,25 +105,28 @@ export class LegacySupport {
     let resource = recordData.getBelongsTo(key);
     let relatedIdentifier =
       resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
-    let relationshipMeta = this.store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
-    assert(`Attempted to access a belongsTo relationship but no definition exists for it`, relationshipMeta);
 
-    let store = this.store;
-    let async = relationshipMeta.options.async;
-    let isAsync = typeof async === 'undefined' ? true : async;
+    const store = this.store;
+    const graphFor = (
+      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+    ).graphFor;
+    const relationship = graphFor(store).get(this.identifier, key);
+    assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
+
+    let isAsync = relationship.definition.isAsync;
     let _belongsToState: BelongsToProxyMeta = {
       key,
       store,
       legacySupport: this,
-      modelName: relationshipMeta.type,
+      modelName: relationship.definition.type,
     };
 
     if (isAsync) {
-      if (resource._relationship.state.hasFailedLoadAttempt) {
+      if (relationship.state.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key] as PromiseBelongsTo;
       }
 
-      let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
+      let promise = this._findBelongsTo(key, resource, relationship, options);
 
       return this._updatePromiseProxyFor('belongsTo', key, {
         promise,
@@ -342,7 +345,7 @@ export class LegacySupport {
   }
 
   _findHasManyByJsonApiResource(
-    resource,
+    resource: CollectionResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
     relationship: ManyRelationship,
     options: FindOptions = {}
@@ -352,12 +355,10 @@ export class LegacySupport {
         return resolve();
       }
       const { definition, state } = relationship;
-      let adapter = this.store.adapterFor(definition.type);
-
-      let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = state;
+      const adapter = this.store.adapterFor(definition.type);
+      const { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = state;
       const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
-
-      let shouldFindViaLink =
+      const shouldFindViaLink =
         resource.links &&
         resource.links.related &&
         (typeof adapter.findHasMany === 'function' || typeof resource.data === 'undefined') &&
@@ -392,16 +393,16 @@ export class LegacySupport {
           typeof adapter.findHasMany === 'function'
         );
 
-        return _findHasMany(adapter, this.store, parentIdentifier, resource.links.related, relationshipMeta, options);
+        return _findHasMany(adapter, this.store, parentIdentifier, resource.links!.related, relationshipMeta, options);
       }
 
-      let preferLocalCache = hasReceivedData && !isEmpty;
-
-      let hasLocalPartialData =
+      const preferLocalCache = hasReceivedData && !isEmpty;
+      const hasLocalPartialData =
         hasDematerializedInverse || (isEmpty && Array.isArray(resource.data) && resource.data.length > 0);
 
       // fetch using data, pulling from local cache if possible
       if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
+        assert(`Expected collection to be an array`, Array.isArray(resource.data));
         let finds = new Array(resource.data.length);
         for (let i = 0; i < resource.data.length; i++) {
           let identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data[i]);
@@ -415,6 +416,7 @@ export class LegacySupport {
 
       // fetch by data
       if (hasData || hasLocalPartialData) {
+        assert(`Expected collection to be an array`, Array.isArray(resource.data));
         let identifiers = resource.data.map((json) => this.store.identifierCache.getOrCreateRecordIdentifier(json));
         let fetches = new Array(identifiers.length);
         const manager = this.store._fetchManager;
@@ -436,9 +438,9 @@ export class LegacySupport {
   }
 
   _findBelongsToByJsonApiResource(
-    resource,
+    resource: SingleResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
-    relationshipMeta,
+    relationship: BelongsToRelationship,
     options: FindOptions = {}
   ): Promise<StableRecordIdentifier | null> {
     if (!resource) {
@@ -447,32 +449,33 @@ export class LegacySupport {
 
     const identifier = resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
 
-    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
-      .state as RelationshipState;
-    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
+    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = relationship.state;
 
-    let shouldFindViaLink =
-      resource.links &&
-      resource.links.related &&
-      (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
-
-    if (identifier) {
-      // short circuit if we are already loading
-      let pendingRequest = this.store._fetchManager.getPendingFetch(identifier, options);
-      if (pendingRequest) {
-        return pendingRequest;
-      }
+    // short circuit if we are already loading
+    let pendingRequest = identifier && this.store._fetchManager.getPendingFetch(identifier, options);
+    if (pendingRequest) {
+      return pendingRequest;
     }
+
+    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
+    const shouldFindViaLink =
+      resource.links?.related &&
+      (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
 
     // fetch via link
     if (shouldFindViaLink) {
-      return _findBelongsTo(this.store, parentIdentifier, resource.links.related, relationshipMeta, options);
+      const relationshipMeta = this.store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier)[
+        relationship.definition.key
+      ];
+      assert(`Attempted to access a belongsTo relationship but no definition exists for it`, relationshipMeta);
+
+      return _findBelongsTo(this.store, parentIdentifier, resource.links!.related, relationshipMeta, options);
     }
 
     let preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
     let hasLocalPartialData = hasDematerializedInverse || (isEmpty && resource.data);
     // null is explicit empty, undefined is "we don't know anything"
-    let localDataIsEmpty = resource.data === undefined || resource.data === null;
+    const localDataIsEmpty = resource.data === undefined || resource.data === null;
 
     // fetch using data, pulling from local cache if possible
     if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
@@ -484,13 +487,13 @@ export class LegacySupport {
       }
 
       if (!identifier) {
-        assert(`No Information found for ${resource.lid}`, identifier);
+        assert(`No Information found for ${resource.data!.lid}`, identifier);
       }
 
       return this.store._instanceCache._fetchDataIfNeededForIdentifier(identifier, options);
     }
 
-    let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
+    let resourceIsLocal = !localDataIsEmpty && resource.data!.id === null;
 
     if (identifier && resourceIsLocal) {
       return resolve(identifier);
@@ -696,4 +699,10 @@ function isEmpty(store: Store, cache: IdentifierCache, resource: ResourceIdentif
   const identifier = cache.getOrCreateRecordIdentifier(resource);
   const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
   return !recordData || !!recordData.isEmpty?.();
+}
+
+function isBelongsTo(
+  relationship: BelongsToRelationship | ImplicitRelationship | ManyRelationship
+): relationship is BelongsToRelationship {
+  return relationship.definition.kind === 'belongsTo';
 }

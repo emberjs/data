@@ -100,13 +100,13 @@ export type ResourceIdentifierObject =
 
 // TODO disallow NewResource, make narrowable
 export interface SingleResourceRelationship {
-  data?: ResourceIdentifierObject | null;
+  data?: ExistingResourceIdentifierObject | NewResourceIdentifierObject | null;
   meta?: Dict<JSONValue>;
   links?: Links;
 }
 
 export interface CollectionResourceRelationship {
-  data?: ResourceIdentifierObject[];
+  data?: Array<ExistingResourceIdentifierObject | NewResourceIdentifierObject>;
   meta?: Dict<JSONValue>;
   links?: PaginationLinks;
 }

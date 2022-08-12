@@ -50,7 +50,7 @@ export interface RecordData {
 
   // State
   // =============
-  setIsDeleted?(isDeleted: boolean): void;
+  setIsDeleted?(identifier: StableRecordIdentifier, isDeleted: boolean): void;
   getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
   isEmpty?(): boolean; // needs rfc
   isNew(): boolean;

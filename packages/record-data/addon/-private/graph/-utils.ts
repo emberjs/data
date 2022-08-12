@@ -3,9 +3,7 @@ import { assert, inspect, warn } from '@ember/debug';
 import type { Store } from '@ember-data/store/-private';
 import { recordDataFor as peekRecordData } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
-import type { RelationshipRecordData } from '@ember-data/types/q/relationship-record-data';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { coerceId } from '../coerce-id';
@@ -77,13 +75,7 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
     return true;
   }
   const recordData = peekRecordData(identifier);
-  return recordData ? isRelationshipRecordData(recordData) && recordData.isNew() : false;
-}
-
-function isRelationshipRecordData(
-  recordData: RecordData | RelationshipRecordData
-): recordData is RelationshipRecordData {
-  return typeof (recordData as RelationshipRecordData).isNew === 'function';
+  return Boolean(recordData?.isNew());
 }
 
 export function isBelongsTo(
