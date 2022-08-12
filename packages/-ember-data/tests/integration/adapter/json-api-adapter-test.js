@@ -18,24 +18,24 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     class User extends Model {
       @attr('string') firstName;
       @attr('string') lastName;
-      @hasMany('post', { async: true }) posts;
-      @hasMany('handle', { async: true, polymorphic: true }) handles;
-      @belongsTo('company', { async: true, polymorphic: true }) company;
+      @hasMany('post', { async: true, inverse: 'author' }) posts;
+      @hasMany('handle', { async: true, inverse: 'user', polymorphic: true }) handles;
+      @belongsTo('company', { async: true, inverse: 'employees', polymorphic: true }) company;
     }
 
     class Post extends Model {
       @attr('string') title;
-      @belongsTo('user', { async: true }) author;
-      @hasMany('comment', { async: true }) comments;
+      @belongsTo('user', { async: true, inverse: 'posts' }) author;
+      @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
 
     class Comment extends Model {
       @attr('string') text;
-      @belongsTo('post', { async: true }) post;
+      @belongsTo('post', { async: true, inverse: 'comments' }) post;
     }
 
     class Handle extends Model {
-      @belongsTo('user', { async: true }) user;
+      @belongsTo('user', { async: true, inverse: 'handles' }) user;
     }
 
     class GithubHandle extends Handle {
@@ -48,7 +48,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
 
     class Company extends Model {
       @attr('string') name;
-      @hasMany('user', { async: true }) employees;
+      @hasMany('user', { async: true, inverse: 'company' }) employees;
     }
 
     class DevelopmentShop extends Company {

@@ -59,7 +59,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     const Book = Model.extend({
       title: attr(),
-      chapters: hasMany('chapter', { async: true }),
+      chapters: hasMany('chapter', { async: true, inverse: null }),
       toString: () => 'Book',
     });
 
@@ -470,7 +470,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -545,7 +545,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(2);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -620,7 +620,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -690,7 +690,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany updated link should not remove new children', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -746,7 +746,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany updated link should not remove new children when the parent record has children already', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -804,7 +804,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test("A hasMany relationship doesn't contain duplicate children, after the canonical state of the relationship is updated via store#push", function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -877,7 +877,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany relationship can be reloaded if it was fetched via a link', async function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1021,7 +1021,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany relationship can be reloaded if it was fetched via ids', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1100,7 +1100,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(7);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1182,7 +1182,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(6);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1243,7 +1243,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1307,7 +1307,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany relationship can be directly reloaded if it was fetched via ids', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1370,7 +1370,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1442,7 +1442,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.expect(4);
       class Message extends Model {
         @attr('date') created_at;
-        @belongsTo('user', { async: false }) iser;
+        @belongsTo('user', { async: false, inverse: 'messages' }) user;
       }
 
       class Post extends Message {
@@ -1505,7 +1505,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(8);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -1716,7 +1716,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
       const Contact = Model.extend({
         name: attr(),
-        user: belongsTo('user', { async: false }),
+        user: belongsTo('user', { async: false, inverse: null }),
       });
 
       this.owner.register('model:user', User);
@@ -2091,7 +2091,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(4);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2156,7 +2156,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2226,7 +2226,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('dual non-async HM <-> BT', async function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2292,7 +2292,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(6);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -2413,7 +2413,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     const Post = Model.extend({
       title: attr('string'),
-      comments: hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true, inverse: 'message' }),
       toString: () => 'Post',
     });
     this.owner.register('model:post', Post);
@@ -2926,7 +2926,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('Relationship.clear removes all records correctly', async function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3003,7 +3003,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('unloading a record with associated records does not prevent the store from tearing down', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3085,12 +3085,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(4);
 
     const Post = Model.extend({
-      comments: hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true, inverse: 'post' }),
       toString: () => 'Post',
     });
 
     const Comment = Model.extend({
-      post: belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
       toString: () => 'Comment',
     });
 
@@ -3552,7 +3552,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(3);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3622,7 +3622,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(3);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3693,7 +3693,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(1);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3761,7 +3761,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(3);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3848,7 +3848,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.expect(3);
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {
@@ -3922,7 +3922,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.expect(1);
       class Message extends Model {
         @attr('date') created_at;
-        @belongsTo('user', { async: false }) iser;
+        @belongsTo('user', { async: false, inverse: 'messages' }) user;
       }
 
       class Post extends Message {
@@ -4238,7 +4238,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('A hasMany relationship with a link will trigger the link request even if a inverse related object is pushed to the store', function (assert) {
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false }) iser;
+      @belongsTo('user', { async: false, inverse: 'messages' }) user;
     }
 
     class Post extends Message {

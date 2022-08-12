@@ -150,11 +150,11 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
   test("createRecord - findMany doesn't overwrite owner", async function (assert) {
     const Post = Model.extend({
       name: attr('string'),
-      comments: hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true, inverse: 'post' }),
     });
     const Comment = Model.extend({
       name: attr('string'),
-      post: belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
 
     this.owner.register('model:post', Post);
@@ -317,7 +317,7 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     });
     const Comment = Model.extend({
       name: attr('string'),
-      post: belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false, inverse: null }),
     });
 
     this.owner.register('model:post', Post);
@@ -360,7 +360,7 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
   test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", async function (assert) {
     const Post = Model.extend({
       name: attr('string'),
-      comments: hasMany('comment', { async: false }),
+      comments: hasMany('comment', { async: false, inverse: null }),
     });
     const Comment = Model.extend({
       name: attr('string'),
@@ -408,11 +408,11 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
 
     const Post = Model.extend({
       name: attr('string'),
-      comments: hasMany('comment', { async: false }),
+      comments: hasMany('comment', { async: false, inverse: 'post' }),
     });
     const Comment = Model.extend({
       name: attr('string'),
-      post: belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
 
     this.owner.register('model:post', Post);
@@ -490,11 +490,11 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
 
     const Post = Model.extend({
       name: attr('string'),
-      comment: belongsTo('comment', { async: false }),
+      comment: belongsTo('comment', { async: false, inverse: 'post' }),
     });
     const Comment = Model.extend({
       name: attr('string'),
-      post: belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false, inverse: 'comment' }),
     });
 
     this.owner.register('model:post', Post);
@@ -524,11 +524,11 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
 
     const Post = Model.extend({
       name: attr('string'),
-      comments: hasMany('comment', { async: false }),
+      comments: hasMany('comment', { async: false, inverse: 'post' }),
     });
     const Comment = Model.extend({
       name: attr('string'),
-      post: belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
 
     this.owner.register('model:post', Post);
@@ -578,11 +578,11 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
   test('createRecord - relationships are not duplicated', async function (assert) {
     const Post = Model.extend({
       name: attr('string'),
-      comments: hasMany('comment', { async: false }),
+      comments: hasMany('comment', { async: false, inverse: 'post' }),
     });
     const Comment = Model.extend({
       name: attr('string'),
-      post: belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
 
     this.owner.register('model:post', Post);

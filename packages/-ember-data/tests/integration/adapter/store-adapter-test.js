@@ -937,7 +937,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     class Person extends Model {
-      @hasMany('dog', { async: false }) dogs;
+      @hasMany('dog', { async: false, inverse: null }) dogs;
     }
 
     this.owner.register('model:person', Person);
@@ -1289,7 +1289,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     class Person extends Model {
-      @belongsTo('dog', { async: true }) dog;
+      @belongsTo('dog', { async: true, inverse: null }) dog;
     }
 
     this.owner.register('model:person', Person);
@@ -1471,7 +1471,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord', async function (assert) {
     class Post extends Model {
       @attr('string') name;
-      @hasMany('comment', { async: true }) comments;
+      @hasMany('comment', { async: true, inverse: null }) comments;
     }
 
     class Comment extends Model {
