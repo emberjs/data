@@ -33,7 +33,6 @@ module('integration/references/autotracking', function (hooks) {
           return { data: { id: '6', type: 'user' } };
         }
         deleteRecord() {
-          console.log('delete record called');
           return { data: null };
         }
       }
