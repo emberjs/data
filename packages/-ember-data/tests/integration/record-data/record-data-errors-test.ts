@@ -28,6 +28,10 @@ class TestRecordIdentifier implements NewRecordIdentifier {
 }
 
 class TestRecordData implements RecordData {
+  version?: '1' | undefined;
+  isDeletionCommitted(): boolean {
+    throw new Error('Method not implemented.');
+  }
   id: string | null = '1';
   clientId: string | null = 'test-record-data-1';
   modelName = 'tst';
@@ -100,8 +104,6 @@ class TestRecordData implements RecordData {
   setDirtyBelongsTo(name: string, recordData: RecordData | null) {}
 
   didCommit(data) {}
-
-  removeFromInverseRelationships() {}
 
   _initRecordCreateOptions(options) {
     return {};

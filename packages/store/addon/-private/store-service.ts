@@ -34,7 +34,6 @@ import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapte
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import type { RecordDataWrapper } from '@ember-data/types/q/record-data-record-wrapper';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
@@ -314,7 +313,7 @@ class Store extends Service {
   instantiateRecord(
     identifier: StableRecordIdentifier,
     createRecordArgs: { [key: string]: unknown },
-    recordDataFor: (identifier: StableRecordIdentifier) => RecordDataWrapper,
+    recordDataFor: (identifier: StableRecordIdentifier) => RecordData,
     notificationManager: NotificationManager
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
@@ -585,7 +584,7 @@ class Store extends Service {
               if (recordData?.setIsDeleted) {
                 recordData.setIsDeleted(true);
               }
-              if (recordData.isNew?.()) {
+              if (recordData.isNew()) {
                 this._instanceCache.unloadRecord(identifier);
               }
             }
@@ -2197,9 +2196,9 @@ class Store extends Service {
     }
     let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
 
-    if (recordData.isNew?.()) {
+    if (recordData.isNew()) {
       operation = 'createRecord';
-    } else if (recordData.isDeleted?.()) {
+    } else if (recordData.isDeleted()) {
       operation = 'deleteRecord';
     }
 

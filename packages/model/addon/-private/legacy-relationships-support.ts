@@ -5,11 +5,7 @@ import { importSync } from '@embroider/macros';
 import { all, resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
-import type {
-  BelongsToRelationship,
-  ManyRelationship,
-  RecordData as DefaultRecordData,
-} from '@ember-data/record-data/-private';
+import type { BelongsToRelationship, ManyRelationship } from '@ember-data/record-data/-private';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 import type Store from '@ember-data/store';
@@ -22,7 +18,10 @@ import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { DefaultSingleResourceRelationship } from '@ember-data/types/q/relationship-record-data';
+import type {
+  DefaultSingleResourceRelationship,
+  RelationshipRecordData,
+} from '@ember-data/types/q/relationship-record-data';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -43,7 +42,7 @@ type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): Promise
 export class LegacySupport {
   declare record: DSModel;
   declare store: Store;
-  declare recordData: DefaultRecordData;
+  declare recordData: RelationshipRecordData;
   declare references: Dict<BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
   declare _manyArrayCache: Dict<ManyArray>;
@@ -57,7 +56,7 @@ export class LegacySupport {
     this.record = record;
     this.store = storeFor(record)!;
     this.identifier = recordIdentifierFor(record);
-    this.recordData = this.store._instanceCache.getRecordData(this.identifier) as DefaultRecordData;
+    this.recordData = this.store._instanceCache.getRecordData(this.identifier) as RelationshipRecordData;
 
     this._manyArrayCache = Object.create(null) as Dict<ManyArray>;
     this._relationshipPromisesCache = Object.create(null) as Dict<Promise<ManyArray | RecordInstance>>;

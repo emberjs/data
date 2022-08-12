@@ -82,8 +82,6 @@ class TestRecordData {
 
   didCommit(data) {}
 
-  removeFromInverseRelationships() {}
-
   _initRecordCreateOptions(options) {}
   isNew() {
     return false;

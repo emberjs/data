@@ -132,7 +132,7 @@ export class InstanceCache {
     if (!recordData) {
       return false;
     }
-    const isNew = recordData.isNew?.() || false;
+    const isNew = recordData.isNew();
     const isEmpty = recordData.isEmpty?.() || false;
 
     // if we are new we must consider ourselves loaded
@@ -153,7 +153,7 @@ export class InstanceCache {
     const isLoading =
       fulfilled !== null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
 
-    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted?.()) || isLoading) {
+    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted()) || isLoading) {
       return false;
     }
 
@@ -561,7 +561,7 @@ export class InstanceCache {
     }
 
     const recordData = this.getRecordData(identifier);
-    if (recordData.isNew?.()) {
+    if (recordData.isNew()) {
       this.store._notificationManager.notify(identifier, 'identity');
     }
 
@@ -623,11 +623,7 @@ function normalizeProperties(
 }
 
 function _recordDataIsFullDeleted(recordData: RecordData): boolean {
-  if (recordData.isDeletionCommitted?.() || (recordData.isNew?.() && recordData.isDeleted?.())) {
-    return true;
-  } else {
-    return false;
-  }
+  return recordData.isDeletionCommitted() || (recordData.isNew() && recordData.isDeleted());
 }
 
 export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
@@ -752,8 +748,8 @@ function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boo
   if (!recordData) {
     return true;
   }
-  const isNew = recordData.isNew?.() || false;
-  const isDeleted = recordData.isDeleted?.() || false;
+  const isNew = recordData.isNew();
+  const isDeleted = recordData.isDeleted();
   const isEmpty = recordData.isEmpty?.() || false;
 
   return (!isNew || isDeleted) && isEmpty;

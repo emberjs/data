@@ -79,7 +79,6 @@ class TestRecordData {
   isNew() {
     return this._isNew;
   }
-  removeFromInverseRelationships() {}
 
   _initRecordCreateOptions(options) {}
 }

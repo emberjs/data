@@ -261,7 +261,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
 
     if (this.isNew()) {
-      this.removeFromInverseRelationships();
+      this._removeFromInverseRelationships();
       this._isDeleted = true;
       this._isNew = false;
     }
@@ -279,7 +279,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   _deletionConfirmed() {
-    this.removeFromInverseRelationships();
+    this._removeFromInverseRelationships();
   }
 
   didCommit(data: JsonApiResource | null) {
@@ -618,7 +618,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return createOptions;
   }
 
-  removeFromInverseRelationships() {
+  _removeFromInverseRelationships() {
     graphFor(this.storeWrapper).push({
       op: 'deleteRecord',
       record: this.identifier,

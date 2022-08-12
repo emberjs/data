@@ -175,7 +175,7 @@ export default class Snapshot implements Snapshot {
 
   get isNew(): boolean {
     const recordData = this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'recordData' });
-    return recordData?.isNew?.() || false;
+    return recordData?.isNew() || false;
   }
 
   /**
@@ -339,7 +339,7 @@ export default class Snapshot implements Snapshot {
     let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted?.()) {
+      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted()) {
         if (returnModeIsId) {
           result = inverseIdentifier.id;
         } else {
@@ -441,7 +441,7 @@ export default class Snapshot implements Snapshot {
       results = [];
       value.data.forEach((member) => {
         let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
-        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted?.()) {
+        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted()) {
           if (returnModeIsIds) {
             (results as RecordId[]).push(inverseIdentifier.id);
           } else {
