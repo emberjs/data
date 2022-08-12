@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
@@ -6,7 +6,12 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { graphFor } from '@ember-data/record-data/-private';
 import { recordIdentifierFor } from '@ember-data/store';
 import { recordDataFor } from '@ember-data/store/-private';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+
+function test(label, callback) {
+  deprecatedTest(label, { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 'ALL' }, callback);
+}
 
 module('integration/relationships/inverse_relationships - Inverse Relationships', function (hooks) {
   setupTest(hooks);
@@ -641,7 +646,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     class User extends Model {}
 
     class Comment extends Model {
-      @belongsTo('user', { async: true, inverse: null })
+      @belongsTo('user', { async: true })
       user;
     }
 

@@ -17,18 +17,18 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   hooks.beforeEach(function () {
     const User = Model.extend({
       name: attr('string'),
-      messages: hasMany('message', { async: true }),
-      accounts: hasMany('account', { async: false }),
+      messages: hasMany('message', { async: true, inverse: 'user' }),
+      accounts: hasMany('account', { async: false, inverse: 'user' }),
     });
 
     const Account = Model.extend({
       state: attr(),
-      user: belongsTo('user', { async: false }),
+      user: belongsTo('user', { async: false, inverse: 'accounts' }),
     });
 
     const Message = Model.extend({
       title: attr('string'),
-      user: belongsTo('user', { async: true }),
+      user: belongsTo('user', { async: true, inverse: 'messages' }),
     });
 
     const ApplicationAdapter = Adapter.extend({

@@ -18,7 +18,7 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 class Person extends Model {
   @attr('string') name;
-  @hasMany('car', { async: false }) cars;
+  @hasMany('car', { async: false, inverse: 'person' }) cars;
 
   static toString() {
     return 'Person';
@@ -28,7 +28,7 @@ class Person extends Model {
 class Car extends Model {
   @attr('string') make;
   @attr('string') model;
-  @belongsTo('person', { async: false }) person;
+  @belongsTo('person', { async: false, inverse: 'cars' }) person;
 
   static toString() {
     return 'Car';

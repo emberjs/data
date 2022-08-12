@@ -22,14 +22,14 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
   test('a sync belongs to relationship to an unloaded record can restore that record', function (assert) {
     const Person = Model.extend({
       name: attr('string'),
-      cars: hasMany('car', { async: false }),
+      cars: hasMany('car', { async: false, inverse: 'person' }),
       toString: () => 'Person',
     });
 
     const Car = Model.extend({
       make: attr('string'),
       model: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'cars' }),
       toString: () => 'Car',
     });
 
@@ -127,13 +127,13 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     const Person = Model.extend({
       name: attr('string'),
-      boats: hasMany('boat', { async: true }),
+      boats: hasMany('boat', { async: true, inverse: 'person' }),
       toString: () => 'Person',
     });
 
     const Boat = Model.extend({
       name: attr('string'),
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'boats' }),
       toString: () => 'Boat',
     });
 

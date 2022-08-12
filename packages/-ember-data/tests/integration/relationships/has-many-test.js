@@ -2915,7 +2915,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       const User = Model.extend();
 
       Model.extend({
-        users: hasMany(User, { async: false }),
+        users: hasMany(User, { async: false, inverse: null }),
       });
     }, /The first argument to hasMany must be a string/);
 

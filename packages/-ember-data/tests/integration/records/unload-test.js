@@ -21,29 +21,29 @@ function idsFromArr(arr) {
 class Person extends Model {
   @attr('string') name;
   // 1:many sync
-  @hasMany('car', { async: false }) cars;
+  @hasMany('car', { async: false, inverse: 'person' }) cars;
   // 1:many async
-  @hasMany('boat', { async: true }) boats;
+  @hasMany('boat', { async: true, inverse: 'person' }) boats;
   // many:many sync
-  @hasMany('group', { async: false }) groups;
+  @hasMany('group', { async: false, inverse: 'people' }) groups;
   // many:many async
-  @hasMany('people', { async: true }) friends;
+  @hasMany('person', { async: true, inverse: 'friends' }) friends;
   // 1:1 sync inverse null
   @belongsTo('bike', { async: false, inverse: null }) bike;
   // 1:1 sync
-  @belongsTo('house', { async: false }) house;
+  @belongsTo('house', { async: false, inverse: 'person' }) house;
   // 1:1 async
-  @belongsTo('mortgage', { async: true }) mortgage;
+  @belongsTo('mortgage', { async: true, inverse: 'person' }) mortgage;
   // 1 async : 1 sync
-  @belongsTo('book', { async: false }) favoriteBook;
+  @belongsTo('book', { async: false, inverse: 'person' }) favoriteBook;
   // 1 async : many sync
-  @hasMany('spoon', { async: false }) favoriteSpoons;
+  @hasMany('spoon', { async: false, inverse: 'person' }) favoriteSpoons;
   // 1 sync: many async
-  @hasMany('show', { async: true }) favoriteShows;
+  @hasMany('show', { async: true, inverse: 'person' }) favoriteShows;
   // many sync : many async
-  @hasMany('people', { async: true, inverse: 'favoriteAsyncFriends' }) favoriteFriends;
+  @hasMany('person', { async: true, inverse: 'favoriteAsyncFriends' }) favoriteFriends;
   // many async : many sync
-  @hasMany('people', { async: false, inverse: 'favoriteFriends' }) favoriteAsyncFriends;
+  @hasMany('person', { async: false, inverse: 'favoriteFriends' }) favoriteAsyncFriends;
 
   static toString() {
     return 'Person';
@@ -51,7 +51,7 @@ class Person extends Model {
 }
 
 class House extends Model {
-  @belongsTo('person', { async: false }) person;
+  @belongsTo('person', { async: false, inverse: 'house' }) person;
 
   static toString() {
     return 'House';
@@ -59,7 +59,7 @@ class House extends Model {
 }
 
 class Mortgage extends Model {
-  @belongsTo('person', { async: true }) person;
+  @belongsTo('person', { async: true, inverse: 'mortgage' }) person;
 
   static toString() {
     return 'Mortgage';
@@ -67,7 +67,7 @@ class Mortgage extends Model {
 }
 
 class Group extends Model {
-  @hasMany('person', { async: false }) people;
+  @hasMany('person', { async: false, inverse: 'groups' }) people;
 
   static toString() {
     return 'Group';
@@ -77,7 +77,7 @@ class Group extends Model {
 class Car extends Model {
   @attr('string') make;
   @attr('string') model;
-  @belongsTo('person', { async: false }) person;
+  @belongsTo('person', { async: false, inverse: 'cars' }) person;
 
   static toString() {
     return 'Car';
@@ -86,7 +86,7 @@ class Car extends Model {
 
 const Boat = Model.extend({
   name: attr('string'),
-  person: belongsTo('person', { async: true }),
+  person: belongsTo('person', { async: true, inverse: 'boats' }),
 });
 Boat.toString = function () {
   return 'Boat';
@@ -100,21 +100,21 @@ Bike.toString = function () {
 };
 
 const Book = Model.extend({
-  person: belongsTo('person', { async: true }),
+  person: belongsTo('person', { async: true, inverse: 'favoriteBook' }),
 });
 Book.toString = function () {
   return 'Book';
 };
 
 const Spoon = Model.extend({
-  person: belongsTo('person', { async: true }),
+  person: belongsTo('person', { async: true, inverse: 'favoriteSpoons' }),
 });
 Spoon.toString = function () {
   return 'Spoon';
 };
 
 const Show = Model.extend({
-  person: belongsTo('person', { async: false }),
+  person: belongsTo('person', { async: false, inverse: 'favoriteShows' }),
 });
 Show.toString = function () {
   return 'Show';

@@ -19,18 +19,18 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   hooks.beforeEach(function () {
     const User = Model.extend({
       name: attr('string'),
-      topics: hasMany('topic', { async: true }),
-      accounts: hasMany('account', { async: false }),
+      topics: hasMany('topic', { async: true, inverse: 'users' }),
+      accounts: hasMany('account', { async: false, inverse: 'users' }),
     });
 
     const Account = Model.extend({
       state: attr(),
-      users: hasMany('user', { async: false }),
+      users: hasMany('user', { async: false, inverse: 'accounts' }),
     });
 
     const Topic = Model.extend({
       title: attr('string'),
-      users: hasMany('user', { async: true }),
+      users: hasMany('user', { async: true, inverse: 'topics' }),
     });
 
     this.owner.register('model:topic', Topic);

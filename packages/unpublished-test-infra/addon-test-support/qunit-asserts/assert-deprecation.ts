@@ -80,13 +80,15 @@ function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSom
   });
   HANDLED_DEPRECATIONS_FOR_TEST.push(...matchedDeprecations);
 
-  let expectedCount = typeof config.count === 'number' ? config.count : 1;
-  let passed = matchedDeprecations.length === expectedCount;
+  const expectedCount: number | 'ALL' = typeof config.count === 'number' || config.count === 'ALL' ? config.count : 1;
+  //@ts-expect-error TS having trouble realizing expectedCount can be 'ALL'
+  let passed = expectedCount === 'ALL' ? true : matchedDeprecations.length === expectedCount;
 
   return {
     result: passed,
     actual: { id: config.id, count: matchedDeprecations.length },
-    expected: { id: config.id, count: expectedCount },
+    //@ts-expect-error TS having trouble realizing expectedCount can be 'ALL'
+    expected: { id: config.id, count: expectedCount === 'ALL' ? matchedDeprecations.length : expectedCount },
     message:
       label ||
       `Expected ${expectedCount} deprecation${expectedCount === 1 ? '' : 's'} for ${config.id} during test, ${

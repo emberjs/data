@@ -16,7 +16,7 @@ class Person extends Model {
   @attr()
   name;
 
-  @hasMany('car', { async: false })
+  @hasMany('car', { async: false, inverse: 'person' })
   cars;
 }
 
@@ -27,7 +27,7 @@ class Car extends Model {
   @attr()
   model;
 
-  @belongsTo('person', { async: false })
+  @belongsTo('person', { async: false, inverse: 'cars' })
   person;
 }
 

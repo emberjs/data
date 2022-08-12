@@ -18,13 +18,13 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     const User = Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: 'bestFriend' }),
-      job: belongsTo('job', { async: false }),
+      job: belongsTo('job', { async: false, inverse: 'user' }),
     });
 
     const Job = Model.extend({
       name: attr(),
       isGood: attr(),
-      user: belongsTo('user', { async: false }),
+      user: belongsTo('user', { async: false, inverse: 'job' }),
     });
 
     const ApplicationAdapter = Adapter.extend({

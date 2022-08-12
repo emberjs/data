@@ -341,13 +341,13 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       'model:app',
       Model.extend({
         name: attr('string'),
-        team: belongsTo('team', { async: true }),
+        team: belongsTo('team', { async: true, inverse: 'apps' }),
       })
     );
     this.owner.register(
       'model:team',
       Model.extend({
-        apps: hasMany('app', { async: true }),
+        apps: hasMany('app', { async: true, inverse: 'team' }),
       })
     );
 
@@ -774,11 +774,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     let Seat = Model.extend({
-      person: belongsTo('person', { async: false }),
+      person: belongsTo('person', { async: false, inverse: 'seat' }),
     });
 
     let Person = Model.extend({
-      seat: belongsTo('seat', { async: true }),
+      seat: belongsTo('seat', { async: true, inverse: 'person' }),
     });
 
     this.owner.register('model:seat', Seat);
@@ -1231,7 +1231,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       const User = Model.extend();
 
       Model.extend({
-        user: belongsTo(User, { async: false }),
+        user: belongsTo(User, { async: false, inverse: null }),
       });
     }, /The first argument to belongsTo must be a string/);
     assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });

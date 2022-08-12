@@ -593,9 +593,9 @@ module('integration/embedded-records-mixin', function (hooks) {
         firstName: attr('string'),
         lastName: attr('string'),
         homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-        secretLab: belongsTo('secret-lab', { async: false }),
-        secretWeapons: hasMany('secretWeapon', { polymorphic: true, async: false }),
-        evilMinions: hasMany('evil-minion', { async: false }),
+        secretLab: belongsTo('secret-lab', { async: false, inverse: 'superVillain' }),
+        secretWeapons: hasMany('secretWeapon', { polymorphic: true, async: false, inverse: 'superVillain' }),
+        evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
       });
 
       owner.register(
@@ -689,9 +689,9 @@ module('integration/embedded-records-mixin', function (hooks) {
         firstName: attr('string'),
         lastName: attr('string'),
         homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-        secretLab: belongsTo('secretLab', { polymorphic: true, async: true }),
-        secretWeapons: hasMany('secret-weapon', { async: false }),
-        evilMinions: hasMany('evil-minion', { async: false }),
+        secretLab: belongsTo('secretLab', { polymorphic: true, async: true, inverse: 'superVillain' }),
+        secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
+        evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
       });
 
       owner.register(
@@ -759,9 +759,9 @@ module('integration/embedded-records-mixin', function (hooks) {
         firstName: attr('string'),
         lastName: attr('string'),
         homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-        secretLab: belongsTo('secretLab', { polymorphic: true, async: true }),
-        secretWeapons: hasMany('secret-weapon', { async: false }),
-        evilMinions: hasMany('evil-minion', { async: false }),
+        secretLab: belongsTo('secretLab', { polymorphic: true, async: true, inverse: 'superVillain' }),
+        secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
+        evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
       });
 
       owner.register(
@@ -1191,7 +1191,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       const HomePlanetClass = Model.extend({
         name: attr('string'),
         villains: hasMany('super-villain', { inverse: 'homePlanet', async: false }),
-        reformedVillains: hasMany('superVillain', { async: false }),
+        reformedVillains: hasMany('superVillain', { async: false, inverse: null }),
       });
       owner.unregister('model:home-planet');
       owner.register('model:home-planet', HomePlanetClass);
@@ -1460,9 +1460,9 @@ module('integration/embedded-records-mixin', function (hooks) {
         firstName: attr('string'),
         lastName: attr('string'),
         homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-        secretLab: belongsTo('secret-lab', { async: false }),
-        secretWeapons: hasMany('secretWeapon', { polymorphic: true, async: false }),
-        evilMinions: hasMany('evil-minion', { async: false }),
+        secretLab: belongsTo('secret-lab', { async: false, inverse: 'superVillain' }),
+        secretWeapons: hasMany('secretWeapon', { polymorphic: true, async: false, inverse: 'superVillain' }),
+        evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
       });
 
       owner.register(
@@ -2643,7 +2643,7 @@ module('integration/embedded-records-mixin', function (hooks) {
           name: attr('string'),
         });
         const EvilMinionClass = Model.extend({
-          secretWeapon: belongsTo('secret-weapon', { async: false }),
+          secretWeapon: belongsTo('secret-weapon', { async: false, inverse: null }),
           name: attr('string'),
         });
 

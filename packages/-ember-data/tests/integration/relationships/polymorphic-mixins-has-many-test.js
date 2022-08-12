@@ -20,12 +20,12 @@ module(
     hooks.beforeEach(function () {
       const User = Model.extend({
         name: attr('string'),
-        messages: hasMany('message', { async: true, polymorphic: true }),
+        messages: hasMany('message', { async: true, inverse: 'user', polymorphic: true }),
       });
 
       Message = Mixin.create({
         title: attr('string'),
-        user: belongsTo('user', { async: true }),
+        user: belongsTo('user', { async: true, inverse: 'messages' }),
       });
 
       const Video = Model.extend(Message, { video: attr() });
