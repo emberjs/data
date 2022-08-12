@@ -442,8 +442,8 @@ module('unit/model - Model', function (hooks) {
       class Tag extends Model {
         @attr('string', {
           defaultValue(record, options, key) {
-            assert.deepEqual(record, tag, 'the record is passed in properly');
-            assert.strictEqual(key, 'createdAt', 'the attribute being defaulted is passed in properly');
+            assert.deepEqual(record, undefined, 'the record is passed in properly');
+            assert.strictEqual(key, undefined, 'the attribute being defaulted is passed in properly');
             return 'le default value';
           },
         })

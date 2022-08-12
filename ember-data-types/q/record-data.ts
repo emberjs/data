@@ -45,7 +45,6 @@ export interface RecordData {
   didCommit(data: JsonApiResource | null): void;
 
   // ----- unspecced
-  hasAttr(key: string): boolean;
   _initRecordCreateOptions(options: any): { [key: string]: unknown };
 
   // new
