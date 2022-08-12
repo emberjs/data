@@ -129,11 +129,11 @@ export class IdentifierCache {
     lids: Object.create(null) as IdentifierMap,
     types: Object.create(null) as TypeMap,
   };
-  private _generate: GenerationMethod;
-  private _update: UpdateMethod;
-  private _forget: ForgetMethod;
-  private _reset: ResetMethod;
-  private _merge: MergeMethod;
+  declare _generate: GenerationMethod;
+  declare _update: UpdateMethod;
+  declare _forget: ForgetMethod;
+  declare _reset: ResetMethod;
+  declare _merge: MergeMethod;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
@@ -162,12 +162,9 @@ export class IdentifierCache {
    * @method _getRecordIdentifier
    * @private
    */
-  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
-  private _getRecordIdentifier(
-    resource: ResourceIdentifierObject,
-    shouldGenerate: false
-  ): StableRecordIdentifier | undefined;
-  private _getRecordIdentifier(
+  _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
+  _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: false): StableRecordIdentifier | undefined;
+  _getRecordIdentifier(
     resource: ResourceIdentifierObject,
     shouldGenerate: boolean = false
   ): StableRecordIdentifier | undefined {

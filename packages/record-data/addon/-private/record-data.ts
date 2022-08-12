@@ -672,7 +672,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     @private
   */
   /*
-      TODO IGOR DAVID
+      TODO @deprecate IGOR DAVID
       There seems to be a potential bug here, where we will return keys that are not
       in the schema
   */

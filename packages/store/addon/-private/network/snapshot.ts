@@ -35,11 +35,11 @@ function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModel
   @public
 */
 export default class Snapshot implements Snapshot {
-  private __attributes: Dict<unknown> | null = null;
-  private _belongsToRelationships: Dict<Snapshot> = Object.create(null);
-  private _belongsToIds: Dict<RecordId> = Object.create(null);
-  private _hasManyRelationships: Dict<Snapshot[]> = Object.create(null);
-  private _hasManyIds: Dict<RecordId[]> = Object.create(null);
+  declare __attributes: Dict<unknown> | null;
+  declare _belongsToRelationships: Dict<Snapshot>;
+  declare _belongsToIds: Dict<RecordId>;
+  declare _hasManyRelationships: Dict<Snapshot[]>;
+  declare _hasManyIds: Dict<RecordId[]>;
   declare _changedAttributes: ChangedAttributesHash;
 
   declare identifier: StableRecordIdentifier;
@@ -47,6 +47,7 @@ export default class Snapshot implements Snapshot {
   declare id: string | null;
   declare include?: unknown;
   declare adapterOptions?: Dict<unknown>;
+  declare _store: Store;
 
   /**
    * @method constructor
@@ -56,8 +57,16 @@ export default class Snapshot implements Snapshot {
    * @param identifier
    * @param _store
    */
-  constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store) {
-    const hasRecord = !!_store._instanceCache.peek({ identifier, bucket: 'record' });
+  constructor(options: FindOptions, identifier: StableRecordIdentifier, store: Store) {
+    this._store = store;
+
+    this.__attributes = null;
+    this._belongsToRelationships = Object.create(null);
+    this._belongsToIds = Object.create(null);
+    this._hasManyRelationships = Object.create(null);
+    this._hasManyIds = Object.create(null);
+
+    const hasRecord = !!store._instanceCache.peek({ identifier, bucket: 'record' });
     this.modelName = identifier.type;
 
     /**

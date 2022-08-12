@@ -374,7 +374,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  // TODO @deprecated Use payloadTypeFromModelName instead
   payloadKeyFromModelName(modelName) {
     return pluralize(modelName);
   },

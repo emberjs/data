@@ -33,8 +33,12 @@ function mapFromHash<T>(hash: Dict<T>): Map<string, T> {
 
 // Mimics the static apis of DSModel
 export default class ShimModelClass implements ModelSchema {
-  // TODO Maybe expose the class here?
-  constructor(private __store: Store, public modelName: string) {}
+  declare __store: Store;
+  declare modelName: string;
+  constructor(store: Store, modelName: string) {
+    this.__store = store;
+    this.modelName = modelName;
+  }
 
   get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
     let attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
