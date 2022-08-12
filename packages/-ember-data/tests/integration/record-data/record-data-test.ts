@@ -68,10 +68,6 @@ class TestRecordData {
     return 'test';
   }
 
-  hasAttr(key: string): boolean {
-    return false;
-  }
-
   getHasMany(key: string) {
     return {};
   }
@@ -86,9 +82,6 @@ class TestRecordData {
 
   didCommit(data) {}
 
-  isAttrDirty(key: string) {
-    return false;
-  }
   removeFromInverseRelationships() {}
 
   _initRecordCreateOptions(options) {}
@@ -345,7 +338,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
   });
 
   test('Record Data attribute setting', async function (assert) {
-    let expectedCount = 15;
+    let expectedCount = 13;
     assert.expect(expectedCount);
     const personHash = {
       type: 'person',
@@ -376,15 +369,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledGet++;
         assert.strictEqual(key, 'name', 'key passed to getAttr');
         return 'new attribute';
-      }
-
-      hasAttr(key: string): boolean {
-        assert.strictEqual(key, 'name', 'key passed to hasAttr');
-        return true;
-      }
-
-      isAttrDirty(key: string) {
-        return false;
       }
     }
 

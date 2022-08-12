@@ -24,9 +24,6 @@ export interface RecordDataWrapper {
 
   setDirtyBelongsTo(name: string, recordData: RecordDataWrapper | null): void;
 
-  // ----- unspecced
-  hasAttr(key: string): boolean;
-
   // new
   getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
 

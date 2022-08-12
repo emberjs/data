@@ -175,7 +175,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   });
 
   test('attribute and relationship with custom schema definition', async function (assert) {
-    assert.expect(17);
+    assert.expect(18);
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({

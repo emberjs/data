@@ -1,6 +1,7 @@
 /**
  * @module @ember-data/record-data
  */
+import { assert } from '@ember/debug';
 import { isEqual } from '@ember/utils';
 
 import { recordIdentifierFor, Store } from '@ember-data/store/-private';
@@ -405,13 +406,12 @@ export default class RecordDataDefault implements RelationshipRecordData {
       return this._attributes[key];
     } else if (key in this._inFlightAttributes) {
       return this._inFlightAttributes[key];
-    } else {
+    } else if (key in this._data) {
       return this._data[key];
+    } else {
+      const attr = this.storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(this.identifier)[key];
+      return getDefaultValue(undefined, attr?.options, key);
     }
-  }
-
-  hasAttr(key: string): boolean {
-    return key in this._attributes || key in this._inFlightAttributes || key in this._data;
   }
 
   unloadRecord() {
@@ -738,4 +738,22 @@ function getRemoteState(rel) {
     return rel.remoteState ? [rel.remoteState] : [];
   }
   return rel.canonicalState;
+}
+
+// If anyone opens an issue for _record not working right, we'll deprecate it via a Proxy
+// that lazily instantiates the record.
+function getDefaultValue(_record: undefined, options: { defaultValue?: unknown } | undefined, _key: string) {
+  if (!options) {
+    return;
+  }
+  if (typeof options.defaultValue === 'function') {
+    return options.defaultValue.apply(null, arguments);
+  } else {
+    let defaultValue = options.defaultValue;
+    assert(
+      `Non primitive defaultValues are not supported because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
+      typeof defaultValue !== 'object' || defaultValue === null
+    );
+    return defaultValue;
+  }
 }

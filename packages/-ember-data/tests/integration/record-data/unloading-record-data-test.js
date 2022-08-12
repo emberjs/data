@@ -61,10 +61,6 @@ module('RecordData Compatibility', function (hooks) {
       return this.attributes !== null ? this.attributes[member] : undefined;
     }
 
-    hasAttr(key) {
-      return key in this.attributes;
-    }
-
     // TODO missing from RFC but required to implement
     _initRecordCreateOptions(options) {
       return options !== undefined ? options : {};

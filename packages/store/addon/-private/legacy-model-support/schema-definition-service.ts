@@ -26,10 +26,15 @@ if (HAS_MODEL_PACKAGE) {
 }
 
 export class DSModelSchemaDefinitionService {
-  private _relationshipsDefCache = Object.create(null);
-  private _attributesDefCache = Object.create(null);
+  declare store: Store;
+  declare _relationshipsDefCache;
+  declare _attributesDefCache;
 
-  constructor(public store: Store) {}
+  constructor(store: Store) {
+    this.store = store;
+    this._relationshipsDefCache = Object.create(null);
+    this._attributesDefCache = Object.create(null);
+  }
 
   // Following the existing RD implementation
   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {

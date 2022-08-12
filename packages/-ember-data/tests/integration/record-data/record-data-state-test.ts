@@ -75,10 +75,6 @@ class TestRecordData implements RecordData {
     return 'test';
   }
 
-  hasAttr(key: string): boolean {
-    return false;
-  }
-
   getHasMany(key: string) {
     return {};
   }
@@ -103,9 +99,6 @@ class TestRecordData implements RecordData {
 
   didCommit(data) {}
 
-  isAttrDirty(key: string) {
-    return false;
-  }
   removeFromInverseRelationships() {}
 
   _initRecordCreateOptions(options) {

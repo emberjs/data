@@ -11,19 +11,6 @@ import { computedMacroWithOptionalParams } from './util';
   @module @ember-data/model
 */
 
-function getDefaultValue(record, options, key) {
-  if (typeof options.defaultValue === 'function') {
-    return options.defaultValue.apply(null, arguments);
-  } else {
-    let defaultValue = options.defaultValue;
-    assert(
-      `Non primitive defaultValues are not supported because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
-      typeof defaultValue !== 'object' || defaultValue === null
-    );
-    return defaultValue;
-  }
-}
-
 /**
   `attr` defines an attribute on a [Model](/ember-data/release/classes/Model).
   By default, attributes are passed through as-is, however you can specify an
@@ -138,20 +125,7 @@ function attr(type, options) {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
-      let recordData = recordDataFor(this);
-      // TODO hasAttr is not spec'd
-      // essentially this is needed because
-      // there is a difference between "undefined" meaning never set
-      // and "undefined" meaning set to "undefined". In the "key present"
-      // case we want to return undefined. In the "key absent" case
-      // we want to return getDefaultValue. RecordDataV2 can fix this
-      // by providing the attributes blob such that we can make our
-      // own determination.
-      if (recordData.hasAttr(key)) {
-        return recordData.getAttr(key);
-      } else {
-        return getDefaultValue(this, options, key);
-      }
+      return recordDataFor(this).getAttr(key);
     },
     set(key, value) {
       if (DEBUG) {

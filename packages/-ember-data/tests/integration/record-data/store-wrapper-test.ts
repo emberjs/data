@@ -62,10 +62,6 @@ class TestRecordData {
     return 'test';
   }
 
-  hasAttr(key: string): boolean {
-    return false;
-  }
-
   getHasMany(key: string) {
     return {};
   }
@@ -80,9 +76,6 @@ class TestRecordData {
 
   didCommit(data) {}
 
-  isAttrDirty(key: string) {
-    return false;
-  }
   isNew() {
     return this._isNew;
   }

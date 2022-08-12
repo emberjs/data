@@ -9,7 +9,6 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
-import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { ChangedAttributesHash } from '@ember-data/types/q/record-data';
@@ -21,10 +20,6 @@ import type { Dict } from '@ember-data/types/q/utils';
 import type Store from '../store-service';
 
 type RecordId = string | null;
-
-function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModelSchema {
-  return (schema as DSModelSchema).isModel === true;
-}
 
 /**
   Snapshot is not directly instantiable.
@@ -158,19 +153,12 @@ export default class Snapshot implements Snapshot {
     if (this.__attributes !== null) {
       return this.__attributes;
     }
-    let record = this.record;
     let attributes = (this.__attributes = Object.create(null));
     let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier));
     let recordData = this._store._instanceCache.getRecordData(this.identifier);
-    const modelClass = this._store.modelFor(this.identifier.type);
-    const isDSModel = schemaIsDSModel(modelClass);
+
     attrs.forEach((keyName) => {
-      if (isDSModel) {
-        // if the schema is for a DSModel then the instance is too
-        attributes[keyName] = record[keyName];
-      } else {
-        attributes[keyName] = recordData.getAttr(keyName);
-      }
+      attributes[keyName] = recordData.getAttr(keyName);
     });
 
     return attributes;
