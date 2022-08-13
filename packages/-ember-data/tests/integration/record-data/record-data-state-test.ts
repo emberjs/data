@@ -28,6 +28,9 @@ class TestRecordIdentifier implements NewRecordIdentifier {
 }
 
 class TestRecordData implements RecordData {
+  setIsDeleted(isDeleted: boolean): void {
+    throw new Error('Method not implemented.');
+  }
   version?: '1' | undefined;
   isDeletionCommitted(): boolean {
     throw new Error('Method not implemented.');
@@ -249,7 +252,7 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(identifier, value: boolean): void {
+      setIsDeleted(value: boolean): void {
         isDeleted = true;
         calledSetIsDeleted = true;
       }

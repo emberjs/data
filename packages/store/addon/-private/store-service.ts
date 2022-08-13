@@ -573,9 +573,9 @@ class Store extends Service {
     const identifier = peekRecordIdentifier(record);
     const recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
     assert(`expected a recordData instance to exist for the record`, recordData);
-    recordData.setIsDeleted?.(identifier, true);
+    recordData.setIsDeleted(true);
 
-    if (recordData.isNew()) {
+    if (recordData.isNew(identifier)) {
       run(() => {
         this._instanceCache.unloadRecord(identifier);
       });
@@ -2184,9 +2184,9 @@ class Store extends Service {
     }
     let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
 
-    if (recordData.isNew()) {
+    if (recordData.isNew(identifier)) {
       operation = 'createRecord';
-    } else if (recordData.isDeleted()) {
+    } else if (recordData.isDeleted(identifier)) {
       operation = 'deleteRecord';
     }
 

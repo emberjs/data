@@ -322,7 +322,7 @@ export default class RecordState {
     let rd = this.recordData;
     if (this.isDeleted) {
       assert(`Expected RecordData to implement isDeletionCommitted()`, rd.isDeletionCommitted);
-      return rd.isDeletionCommitted();
+      return rd.isDeletionCommitted(this.identifier);
     }
     if (this.isNew || this.isEmpty || !this.isValid || this.isDirty || this.isLoading) {
       return false;
@@ -336,21 +336,21 @@ export default class RecordState {
     // TODO this is not actually an RFC'd concept. Determine the
     // correct heuristic to replace this with.
     assert(`Expected RecordData to implement isEmpty()`, rd.isEmpty);
-    return !this.isNew && rd.isEmpty();
+    return !this.isNew && rd.isEmpty(this.identifier);
   }
 
   @tagged
   get isNew() {
     let rd = this.recordData;
     assert(`Expected RecordData to implement isNew()`, rd.isNew);
-    return rd.isNew();
+    return rd.isNew(this.identifier);
   }
 
   @tagged
   get isDeleted() {
     let rd = this.recordData;
     assert(`Expected RecordData to implement isDeleted()`, rd.isDeleted);
-    return rd.isDeleted();
+    return rd.isDeleted(this.identifier);
   }
 
   @tagged
@@ -363,7 +363,7 @@ export default class RecordState {
     let rd = this.recordData;
     assert(`Expected RecordData to implement hasChangedAttributes()`, rd.hasChangedAttributes);
     assert(`Expected RecordData to implement isDeletionCommitted()`, rd.isDeletionCommitted);
-    if (rd.isDeletionCommitted() || (this.isDeleted && this.isNew)) {
+    if (rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
     }
     return this.isNew || rd.hasChangedAttributes();

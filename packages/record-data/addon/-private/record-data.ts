@@ -136,7 +136,7 @@ export default class RecordDataDefault implements RecordData {
     return this._isDeleted;
   }
 
-  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+  setIsDeleted(isDeleted: boolean): void {
     this._isDeleted = isDeleted;
     if (this._isNew) {
       this._deletionConfirmed();

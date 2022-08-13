@@ -317,6 +317,7 @@ module('unit/model - Custom Class Model', function (hooks) {
 
   test('store.deleteRecord', async function (assert) {
     let rd: RecordData;
+    let ident: StableRecordIdentifier;
     assert.expect(9);
     this.owner.register(
       'adapter:application',
@@ -330,8 +331,9 @@ module('unit/model - Custom Class Model', function (hooks) {
     );
     let CreationStore = CustomStore.extend({
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
+        ident = identifier;
         rd = recordDataFor(identifier);
-        assert.false(rd.isDeleted!(), 'we are not deleted when we start');
+        assert.false(rd.isDeleted(identifier), 'we are not deleted when we start');
         notificationManager.subscribe(identifier, (passedId, key) => {
           assert.strictEqual(key, 'state', 'state change to deleted has been notified');
           assert.true(recordDataFor(identifier).isDeleted(), 'we have been marked as deleted');
@@ -346,9 +348,9 @@ module('unit/model - Custom Class Model', function (hooks) {
     store = this.owner.lookup('service:store') as Store;
     let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
-    assert.true(rd!.isDeleted!(), 'record has been marked as deleted');
+    assert.true(rd!.isDeleted(ident!), 'record has been marked as deleted');
     await store.saveRecord(person);
-    assert.true(rd!.isDeletionCommitted!(), 'deletion has been commited');
+    assert.true(rd!.isDeletionCommitted(ident!), 'deletion has been commited');
   });
 
   test('record serialize', function (assert) {

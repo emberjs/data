@@ -50,12 +50,12 @@ export interface RecordData {
 
   // State
   // =============
-  setIsDeleted?(identifier: StableRecordIdentifier, isDeleted: boolean): void;
-  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
-  isEmpty?(): boolean; // needs rfc
-  isNew(): boolean;
-  isDeleted(): boolean;
-  isDeletionCommitted(): boolean;
+  setIsDeleted(isDeleted: boolean): void;
+  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[];
+  isEmpty?(identifier: StableRecordIdentifier): boolean; // needs rfc
+  isNew(identifier: StableRecordIdentifier): boolean;
+  isDeleted(identifier: StableRecordIdentifier): boolean;
+  isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
 }
 
 export interface RecordDataV2 {
@@ -65,7 +65,7 @@ export interface RecordDataV2 {
   // =====
 
   pushData(identifier: StableRecordIdentifier, data: JsonApiResource, calculateChanges?: boolean): void | string[];
-  clientDidCreate(identifier: StableRecordIdentifier, options: object): void;
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): void;
 
   willCommit(identifier: StableRecordIdentifier): void;
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void;

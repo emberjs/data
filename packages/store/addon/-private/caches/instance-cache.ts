@@ -136,8 +136,8 @@ export class InstanceCache {
     if (!recordData) {
       return false;
     }
-    const isNew = recordData.isNew();
-    const isEmpty = recordData.isEmpty?.() || false;
+    const isNew = recordData.isNew(identifier);
+    const isEmpty = recordData.isEmpty?.(identifier) || false;
 
     // if we are new we must consider ourselves loaded
     if (isNew) {
@@ -157,7 +157,7 @@ export class InstanceCache {
     const isLoading =
       fulfilled !== null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
 
-    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted()) || isLoading) {
+    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted(identifier)) || isLoading) {
       return false;
     }
 
@@ -565,7 +565,7 @@ export class InstanceCache {
     }
 
     const recordData = this.getRecordData(identifier);
-    if (recordData.isNew()) {
+    if (recordData.isNew(identifier)) {
       this.store._notificationManager.notify(identifier, 'identity');
     }
 
@@ -626,13 +626,15 @@ function normalizeProperties(
   return properties;
 }
 
-function _recordDataIsFullDeleted(recordData: RecordData): boolean {
-  return recordData.isDeletionCommitted() || (recordData.isNew() && recordData.isDeleted());
+function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData: RecordData): boolean {
+  return (
+    recordData.isDeletionCommitted(identifier) || (recordData.isNew(identifier) && recordData.isDeleted(identifier))
+  );
 }
 
 export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
   let recordData = cache.peek({ identifier, bucket: 'recordData' });
-  return !recordData || _recordDataIsFullDeleted(recordData);
+  return !recordData || _recordDataIsFullDeleted(identifier, recordData);
 }
 
 function assertRecordsPassedToHasMany(records: RecordInstance[]) {
@@ -755,9 +757,9 @@ function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boo
   if (!recordData) {
     return true;
   }
-  const isNew = recordData.isNew();
-  const isDeleted = recordData.isDeleted();
-  const isEmpty = recordData.isEmpty?.() || false;
+  const isNew = recordData.isNew(identifier);
+  const isDeleted = recordData.isDeleted(identifier);
+  const isEmpty = recordData.isEmpty?.(identifier) || false;
 
   return (!isNew || isDeleted) && isEmpty;
 }

@@ -28,6 +28,9 @@ class TestRecordIdentifier implements NewRecordIdentifier {
 }
 
 class TestRecordData implements RecordData {
+  setIsDeleted(isDeleted: boolean): void {
+    throw new Error('Method not implemented.');
+  }
   version?: '1' | undefined;
   isDeletionCommitted(): boolean {
     return false;
