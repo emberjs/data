@@ -51,12 +51,13 @@ import {
   storeFor,
   StoreMap,
 } from './caches/instance-cache';
-import { setRecordDataFor } from './caches/record-data-for';
+import recordDataFor, { setRecordDataFor } from './caches/record-data-for';
 import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import RecordArrayManager from './managers/record-array-manager';
+import type { NonSingletonRecordDataManager } from './managers/record-data-manager';
 import NotificationManager from './managers/record-notification-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
 import { _findAll, _query, _queryRecord } from './network/finders';
@@ -541,11 +542,16 @@ class Store extends Service {
         const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
         const recordData = this._instanceCache.getRecordData(identifier);
 
-        const createOptions = normalizeProperties(this, identifier, properties);
-        recordData.clientDidCreate(identifier, createOptions);
+        const createOptions = normalizeProperties(
+          this,
+          identifier,
+          properties,
+          (recordData as NonSingletonRecordDataManager).managedVersion === '1'
+        );
+        const resultProps = recordData.clientDidCreate(identifier, createOptions);
         this.recordArrayManager.recordDidChange(identifier);
 
-        return this._instanceCache.getRecord(identifier, properties);
+        return this._instanceCache.getRecord(identifier, resultProps);
       });
     });
   }
@@ -2654,7 +2660,8 @@ function errorsHashToArray(errors): JsonApiValidationError[] {
 function normalizeProperties(
   store: Store,
   identifier: StableRecordIdentifier,
-  properties?: { [key: string]: unknown }
+  properties?: { [key: string]: unknown },
+  isForV1: boolean = false
 ): { [key: string]: unknown } | undefined {
   // assert here
   if (properties !== undefined) {
@@ -2684,9 +2691,9 @@ function normalizeProperties(
             if (DEBUG) {
               assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
             }
-            relationshipValue = extractIdentifiersFromRecords(properties[prop] as RecordInstance[]);
+            relationshipValue = extractIdentifiersFromRecords(properties[prop] as RecordInstance[], isForV1);
           } else {
-            relationshipValue = extractIdentifierFromRecord(properties[prop] as RecordInstance);
+            relationshipValue = extractIdentifierFromRecord(properties[prop] as RecordInstance, isForV1);
           }
 
           properties[prop] = relationshipValue;
@@ -2716,16 +2723,20 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
   );
 }
 
-function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
-  return records.map(extractIdentifierFromRecord) as StableRecordIdentifier[];
+function extractIdentifiersFromRecords(records: RecordInstance[], isForV1: boolean = false): StableRecordIdentifier[] {
+  return records.map((record) => extractIdentifierFromRecord(record, isForV1)) as StableRecordIdentifier[];
 }
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
+function extractIdentifierFromRecord(
+  recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null,
+  isForV1: boolean = false
+) {
   if (!recordOrPromiseRecord) {
     return null;
   }
+  const extract = isForV1 ? recordDataFor : recordIdentifierFor;
 
   if (isPromiseRecord(recordOrPromiseRecord)) {
     let content = recordOrPromiseRecord.content;
@@ -2733,10 +2744,10 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
       content !== undefined
     );
-    return content ? recordIdentifierFor(content) : null;
+    return content ? extract(content) : null;
   }
 
-  return recordIdentifierFor(recordOrPromiseRecord);
+  return extract(recordOrPromiseRecord);
 }
 
 function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {

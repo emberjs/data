@@ -60,6 +60,10 @@ export class NonSingletonRecordDataManager implements RecordData {
   #recordData: RecordData | RecordDataV1;
   #identifier: StableRecordIdentifier;
 
+  get managedVersion() {
+    return this.#recordData.version || '1';
+  }
+
   constructor(store: Store, recordData: RecordData | RecordDataV1, identifier: StableRecordIdentifier) {
     this.#store = store;
     this.#recordData = recordData;
@@ -114,29 +118,29 @@ export class NonSingletonRecordDataManager implements RecordData {
   /**
    * [LIFECYLCE] Signal to the cache that a new record has been instantiated on the client
    *
+   * It returns properties from options that should be set on the record during the create
+   * process. This return value behavior is deprecated.
+   *
    * @method clientDidCreate
    * @public
    * @param identifier
    * @param options
    */
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): void {
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown> {
     // called by something V1
-    let calledByV1 = false;
     if (!isStableIdentifier(identifier)) {
-      calledByV1 = true;
       options = identifier;
       identifier = this.#identifier;
     }
     let recordData = this.#recordData;
 
+    // TODO deprecate return value
     if (this.#isDeprecated(recordData)) {
       recordData.clientDidCreate();
       // if a V2 is calling a V1 we need to call both methods
-      if (calledByV1 === false) {
-        recordData._initRecordCreateOptions(options);
-      }
+      return recordData._initRecordCreateOptions(options);
     } else {
-      recordData.clientDidCreate(identifier, options);
+      return recordData.clientDidCreate(identifier, options);
     }
   }
 

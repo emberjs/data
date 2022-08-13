@@ -637,10 +637,7 @@ function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordI
   return records.map(extractIdentifierFromRecord) as StableRecordIdentifier[];
 }
 
-type PromiseProxyRecord = {
-  then(): void;
-  content: RecordInstance | null | undefined;
-};
+type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 
 function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
   if (!recordOrPromiseRecord) {

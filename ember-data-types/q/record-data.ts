@@ -65,7 +65,7 @@ export interface RecordData {
   // =====
 
   pushData(identifier: StableRecordIdentifier, data: JsonApiResource, calculateChanges?: boolean): void | string[];
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): void;
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown>;
 
   willCommit(identifier: StableRecordIdentifier): void;
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void;
