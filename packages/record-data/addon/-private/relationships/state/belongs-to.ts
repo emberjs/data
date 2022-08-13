@@ -1,8 +1,7 @@
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
-import type { Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import type { Links, Meta, PaginationLinks, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
-import type { DefaultSingleResourceRelationship } from '@ember-data/types/q/relationship-record-data';
 
 import type { ManyRelationship } from '../..';
 import type { Graph } from '../../graph';
@@ -106,7 +105,7 @@ export default class BelongsToRelationship {
     this.notifyBelongsToChange();
   }
 
-  getData(): DefaultSingleResourceRelationship {
+  getData(): SingleResourceRelationship {
     let data;
     let payload: any = {};
     if (this.localState) {
@@ -125,7 +124,6 @@ export default class BelongsToRelationship {
       payload.meta = this.meta;
     }
 
-    payload._relationship = this;
     return payload;
   }
 

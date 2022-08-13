@@ -5,16 +5,15 @@ import { assert } from '@ember/debug';
 import { isEqual } from '@ember/utils';
 
 import { recordIdentifierFor, Store } from '@ember-data/store/-private';
-import type { CollectionResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import type {
+  CollectionResourceRelationship,
+  SingleResourceRelationship,
+} from '@ember-data/types/q/ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import { V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
-import type {
-  DefaultSingleResourceRelationship,
-  RelationshipRecordData,
-} from '@ember-data/types/q/relationship-record-data';
 
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
@@ -39,7 +38,7 @@ const EMPTY_ITERATOR = {
   @class RecordDataDefault
   @public
  */
-export default class RecordDataDefault implements RelationshipRecordData {
+export default class RecordDataDefault implements RecordData {
   declare _errors?: JsonApiValidationError[];
   declare modelName: string;
   declare lid: string;
@@ -137,7 +136,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return this._isDeleted;
   }
 
-  setIsDeleted(isDeleted: boolean): void {
+  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
     this._isDeleted = isDeleted;
     if (this._isNew) {
       this._deletionConfirmed();
@@ -261,7 +260,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
 
     if (this.isNew()) {
-      this.removeFromInverseRelationships();
+      this._removeFromInverseRelationships();
       this._isDeleted = true;
       this._isNew = false;
     }
@@ -279,7 +278,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   _deletionConfirmed() {
-    this.removeFromInverseRelationships();
+    this._removeFromInverseRelationships();
   }
 
   didCommit(data: JsonApiResource | null) {
@@ -371,7 +370,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this.storeWrapper.notifyChange(this.identifier, 'errors');
   }
 
-  getBelongsTo(key: string): DefaultSingleResourceRelationship {
+  getBelongsTo(key: string): SingleResourceRelationship {
     return (graphFor(this.storeWrapper).get(this.identifier, key) as BelongsToRelationship).getData();
   }
 
@@ -618,7 +617,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return createOptions;
   }
 
-  removeFromInverseRelationships() {
+  _removeFromInverseRelationships() {
     graphFor(this.storeWrapper).push({
       op: 'deleteRecord',
       record: this.identifier,

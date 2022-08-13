@@ -15,8 +15,8 @@ import type { CreateRecordProperties } from '@ember-data/store/-private/store-se
 import type { DSModelSchema } from '@ember-data/types/q/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { RelationshipRecordData } from '@ember-data/types/q/relationship-record-data';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -32,7 +32,7 @@ const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as ne
 export interface ManyArrayCreateArgs {
   store: Store;
   type: ShimModelClass;
-  recordData: RelationshipRecordData;
+  recordData: RecordData;
   key: string;
   isPolymorphic: boolean;
   isAsync: boolean;
@@ -98,7 +98,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
   declare _meta: Dict<unknown> | null;
   declare _links: Links | PaginationLinks | null;
   declare currentState: StableRecordIdentifier[];
-  declare recordData: RelationshipRecordData;
+  declare recordData: RecordData;
   declare legacySupport: LegacySupport;
   declare store: Store;
   declare key: string;

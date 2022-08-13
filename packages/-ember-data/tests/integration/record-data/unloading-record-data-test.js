@@ -82,6 +82,12 @@ module('RecordData Compatibility', function (hooks) {
     isNew() {
       return this.id === null;
     }
+    isDeleted() {
+      return false;
+    }
+    isDeletionCommitted() {
+      return false;
+    }
 
     adapterDidCommit() {}
     didCreateLocally() {}

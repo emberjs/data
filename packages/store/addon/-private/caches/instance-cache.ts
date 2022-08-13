@@ -8,7 +8,11 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
 import type { Graph, peekGraph } from '@ember-data/record-data/-private/graph/index';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type {
+  ExistingResourceIdentifierObject,
+  ExistingResourceObject,
+  NewResourceIdentifierObject,
+} from '@ember-data/types/q/ember-data-json-api';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
@@ -132,7 +136,7 @@ export class InstanceCache {
     if (!recordData) {
       return false;
     }
-    const isNew = recordData.isNew?.() || false;
+    const isNew = recordData.isNew();
     const isEmpty = recordData.isEmpty?.() || false;
 
     // if we are new we must consider ourselves loaded
@@ -153,7 +157,7 @@ export class InstanceCache {
     const isLoading =
       fulfilled !== null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
 
-    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted?.()) || isLoading) {
+    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted()) || isLoading) {
       return false;
     }
 
@@ -561,7 +565,7 @@ export class InstanceCache {
     }
 
     const recordData = this.getRecordData(identifier);
-    if (recordData.isNew?.()) {
+    if (recordData.isNew()) {
       this.store._notificationManager.notify(identifier, 'identity');
     }
 
@@ -623,11 +627,7 @@ function normalizeProperties(
 }
 
 function _recordDataIsFullDeleted(recordData: RecordData): boolean {
-  if (recordData.isDeletionCommitted?.() || (recordData.isNew?.() && recordData.isDeleted?.())) {
-    return true;
-  } else {
-    return false;
-  }
+  return recordData.isDeletionCommitted() || (recordData.isNew() && recordData.isDeleted());
 }
 
 export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
@@ -738,7 +738,10 @@ function preloadRelationship(
   findRecord('user', '1', { preload: { friends: ['1'] }});
   findRecord('user', '1', { preload: { friends: [record] }});
 */
-function _convertPreloadRelationshipToJSON(value: RecordInstance | string, type: string): ResourceIdentifierObject {
+function _convertPreloadRelationshipToJSON(
+  value: RecordInstance | string,
+  type: string
+): ExistingResourceIdentifierObject | NewResourceIdentifierObject {
   if (typeof value === 'string' || typeof value === 'number') {
     return { type, id: value };
   }
@@ -752,8 +755,8 @@ function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boo
   if (!recordData) {
     return true;
   }
-  const isNew = recordData.isNew?.() || false;
-  const isDeleted = recordData.isDeleted?.() || false;
+  const isNew = recordData.isNew();
+  const isDeleted = recordData.isDeleted();
   const isEmpty = recordData.isEmpty?.() || false;
 
   return (!isNew || isDeleted) && isEmpty;

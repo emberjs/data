@@ -11,7 +11,7 @@ import Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
 import type NotificationManager from '@ember-data/store/-private/managers/record-notification-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordDataWrapper } from '@ember-data/types/q/record-data-record-wrapper';
+import { RecordData } from '@ember-data/types/q/record-data';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -316,7 +316,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   });
 
   test('store.deleteRecord', async function (assert) {
-    let rd: RecordDataWrapper;
+    let rd: RecordData;
     assert.expect(9);
     this.owner.register(
       'adapter:application',

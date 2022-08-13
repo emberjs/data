@@ -48,6 +48,13 @@ class TestRecordData {
 
   commitWasRejected() {}
 
+  isDeletionCommitted() {
+    return false;
+  }
+  isDeleted() {
+    return false;
+  }
+
   unloadRecord() {}
   rollbackAttributes() {}
   changedAttributes(): any {}
@@ -79,7 +86,6 @@ class TestRecordData {
   isNew() {
     return this._isNew;
   }
-  removeFromInverseRelationships() {}
 
   _initRecordCreateOptions(options) {}
 }

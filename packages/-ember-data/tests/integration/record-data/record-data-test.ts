@@ -82,7 +82,9 @@ class TestRecordData {
 
   didCommit(data) {}
 
-  removeFromInverseRelationships() {}
+  isDeletionCommitted() {
+    return false;
+  }
 
   _initRecordCreateOptions(options) {}
   isNew() {
