@@ -7,38 +7,15 @@ It was designed for robustly managing data in applications built with [Ember](ht
 
 It provides many of the facilities you'd find in server-side `ORM`s like `ActiveRecord`, but is designed specifically for the unique environment of `JavaScript` in the browser.
 
-- [Usage Guide](https://guides.emberjs.com/release/models/)
-- [API Documentation](https://api.emberjs.com/ember-data/release)
-- [Contributing Guide](./CONTRIBUTING.md)
-- [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data)
-- [Community](https://emberjs.com/community)
-- [Team](https://emberjs.com/team)
-- [Blog](https://emberjs.com/blog)
-
-## Basic Installation
-
-Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
-
-```no-highlight
-pnpm add -D ember-data
-```
-
-`ember-data` is installed by default for new applications generated with `ember-cli`. You can check what version is installed by looking in the `devDependencies` hash of your project's [package.json](https://docs.npmjs.com/cli/v8/configuring-npm/package-json) file.
-
-If you have generated a new `Ember` application using `ember-cli` but do
-not wish to use `ember-data`, remove `ember-data` from your project's `package.json` file and run your package manager's install command to update your lockfile.
-
-## Advanced Installation
-
 EmberData is organized into primitives that compose together via public APIs.
 
-- [@ember-data/store](./packages/store) is the core and handles coordination
-- [@ember-data/record-data](./packages/record-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
-- [@ember-data/model](./packages/model) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
-- [@ember-data/adapter](./packages/adapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
-- [@ember-data/serializer](./packages/serializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/record-data`.
-- [@ember-data/debug](./packages/debug) provides debugging support for the `ember-inspector`.
-- [ember-data](./packages/-ember-data) is a "meta" package which bundles all of these together for convenience
+- [@ember-data/store](/ember-data/release/modules/@ember-data%2Fstore is the core and handles coordination
+- [@ember-data/record-data](/ember-data/release/modules/@ember-data%2Frecord-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
+- [@ember-data/model](/ember-data/release/modules/@ember-data%2Fmodel) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
+- [@ember-data/adapter](/ember-data/release/modules/@ember-data%2Fadapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
+- [@ember-data/serializer](/ember-data/release/modules/@ember-data%2Fserializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/record-data`.
+- [@ember-data/debug](/ember-data/release/modules/@ember-data%2Fdebug) provides debugging support for the `ember-inspector`.
+- **ember-data** is a "meta" package which bundles all of these together for convenience
 
 The packages interop with each other through well defined public API boundaries. The core
 of the library is the store provided by `@ember-data/store`, while each of the other libraries plugs into the store when installed. Because these packages interop via fully
