@@ -1,6 +1,6 @@
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { ChangedAttributesHash, RecordData, RecordDataV2 } from '@ember-data/types/q/record-data';
+import { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { Dict } from '@ember-data/types/q/utils';
 
@@ -8,8 +8,8 @@ import { isStableIdentifier } from '../caches/identifier-cache';
 import Store from '../store-service';
 
 export function isVersion2RecordData(
-  recordData: RecordData | RecordDataV2 | NonSingletonRecordDataManager | StableRecordIdentifier
-): recordData is RecordDataV2 {
+  recordData: RecordData | RecordDataV1 | NonSingletonRecordDataManager | StableRecordIdentifier
+): recordData is RecordDataV1 {
   if (recordData instanceof NonSingletonRecordDataManager) {
     return false;
   }
@@ -53,20 +53,20 @@ export function isVersion2RecordData(
  *
  * @class RecordDataManager
  */
-export class NonSingletonRecordDataManager implements RecordDataV2 {
+export class NonSingletonRecordDataManager implements RecordData {
   version: '2' = '2';
 
   #store: Store;
-  #recordData: RecordData | RecordDataV2;
+  #recordData: RecordData | RecordDataV1;
   #identifier: StableRecordIdentifier;
 
-  constructor(store: Store, recordData: RecordData, identifier: StableRecordIdentifier) {
+  constructor(store: Store, recordData: RecordData | RecordDataV1, identifier: StableRecordIdentifier) {
     this.#store = store;
     this.#recordData = recordData;
     this.#identifier = identifier;
   }
 
-  #isDeprecated(recordData: RecordData | RecordDataV2): recordData is RecordData {
+  #isDeprecated(recordData: RecordData | RecordDataV1): recordData is RecordDataV1 {
     let version = recordData.version || '1';
     return version !== this.version;
   }
@@ -198,8 +198,8 @@ export class NonSingletonRecordDataManager implements RecordDataV2 {
    * @public
    * @param identifier
    */
-  commitWasRejected(identifier: StableRecordIdentifier) {
-    this.#recordData.commitWasRejected(identifier || this.#identifier);
+  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]) {
+    this.#recordData.commitWasRejected(identifier || this.#identifier, errors);
   }
 
   /**

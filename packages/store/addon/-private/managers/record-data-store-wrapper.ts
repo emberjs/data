@@ -238,7 +238,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     const recordData = this._store._instanceCache.getRecordData(identifier);
 
     if (!id && !lid) {
-      recordData.clientDidCreate();
+      recordData.clientDidCreate(identifier);
       this._store.recordArrayManager.recordDidChange(identifier);
     }
 

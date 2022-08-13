@@ -361,12 +361,10 @@ export default class RecordState {
   @tagged
   get isDirty() {
     let rd = this.recordData;
-    assert(`Expected RecordData to implement hasChangedAttributes()`, rd.hasChangedAttributes);
-    assert(`Expected RecordData to implement isDeletionCommitted()`, rd.isDeletionCommitted);
     if (rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
     }
-    return this.isNew || rd.hasChangedAttributes();
+    return this.isNew || rd.hasChangedAttrs(this.identifier);
   }
 
   @tagged

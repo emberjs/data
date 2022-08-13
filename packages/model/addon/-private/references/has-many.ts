@@ -139,7 +139,9 @@ export default class HasManyReference {
   }
 
   _resource() {
-    return this.store._instanceCache.getRecordData(this.#identifier).getHasMany(this.key);
+    return this.store._instanceCache
+      .getRecordData(this.#identifier)
+      .getRelationship(this.#identifier, this.key) as CollectionResourceRelationship;
   }
 
   /**

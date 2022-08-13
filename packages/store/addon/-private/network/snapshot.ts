@@ -127,7 +127,7 @@ export default class Snapshot implements Snapshot {
      */
     this.modelName = identifier.type;
     if (hasRecord) {
-      this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttributes();
+      this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttrs(identifier);
     }
   }
 
@@ -154,11 +154,12 @@ export default class Snapshot implements Snapshot {
       return this.__attributes;
     }
     let attributes = (this.__attributes = Object.create(null));
-    let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier));
-    let recordData = this._store._instanceCache.getRecordData(this.identifier);
+    const { identifier } = this;
+    let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
+    let recordData = this._store._instanceCache.getRecordData(identifier);
 
     attrs.forEach((keyName) => {
-      attributes[keyName] = recordData.getAttr(keyName);
+      attributes[keyName] = recordData.getAttr(identifier, keyName);
     });
 
     return attributes;

@@ -32,7 +32,7 @@ import type {
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { RecordData } from '@ember-data/types/q/record-data';
+import type { RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -540,7 +540,9 @@ class Store extends Service {
 
         const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
         const recordData = this._instanceCache.getRecordData(identifier);
-        recordData.clientDidCreate();
+
+        const createOptions = normalizeProperties(this, identifier, properties);
+        recordData.clientDidCreate(identifier, createOptions);
         this.recordArrayManager.recordDidChange(identifier);
 
         return this._instanceCache.getRecord(identifier, properties);
@@ -573,7 +575,7 @@ class Store extends Service {
     const identifier = peekRecordIdentifier(record);
     const recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
     assert(`expected a recordData instance to exist for the record`, recordData);
-    recordData.setIsDeleted(true);
+    recordData.setIsDeleted(identifier, true);
 
     if (recordData.isNew(identifier)) {
       run(() => {
@@ -2174,7 +2176,7 @@ class Store extends Service {
       return resolve(record);
     }
 
-    recordData.willCommit();
+    recordData.willCommit(identifier);
     if (isDSModel(record)) {
       record.errors.clear();
     }
@@ -2227,7 +2229,7 @@ class Store extends Service {
 
           //We first make sure the primary data has been updated
           const recordData = this._instanceCache.getRecordData(actualIdentifier);
-          recordData.didCommit(data);
+          recordData.didCommit(identifier, data);
           this.recordArrayManager.recordDidChange(actualIdentifier);
 
           if (payload && payload.included) {
@@ -2258,7 +2260,10 @@ class Store extends Service {
    * @param identifier
    * @param storeWrapper
    */
-  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper): RecordData {
+  createRecordDataFor(
+    identifier: StableRecordIdentifier,
+    storeWrapper: RecordDataStoreWrapper
+  ): RecordData | RecordDataV1 {
     if (HAS_RECORD_DATA_PACKAGE) {
       // we can't greedily use require as this causes
       // a cycle we can't easily fix (or clearly pin point) at present.
@@ -2609,7 +2614,7 @@ function adapterDidInvalidate(
     }
     recordData.commitWasRejected(identifier, jsonApiErrors);
   } else {
-    recordData.commitWasRejected(identifier);
+    recordData.commitWasRejected(identifier, []);
   }
 }
 
@@ -2644,4 +2649,96 @@ function errorsHashToArray(errors): JsonApiValidationError[] {
   }
 
   return out;
+}
+
+function normalizeProperties(
+  store: Store,
+  identifier: StableRecordIdentifier,
+  properties?: { [key: string]: unknown }
+): { [key: string]: unknown } | undefined {
+  // assert here
+  if (properties !== undefined) {
+    if ('id' in properties) {
+      assert(`expected id to be a string or null`, properties.id !== undefined);
+    }
+    assert(
+      `You passed '${typeof properties}' as properties for record creation instead of an object.`,
+      typeof properties === 'object' && properties !== null
+    );
+
+    const { type } = identifier;
+
+    // convert relationship Records to RecordDatas before passing to RecordData
+    let defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
+
+    if (defs !== null) {
+      let keys = Object.keys(properties);
+      let relationshipValue;
+
+      for (let i = 0; i < keys.length; i++) {
+        let prop = keys[i];
+        let def = defs[prop];
+
+        if (def !== undefined) {
+          if (def.kind === 'hasMany') {
+            if (DEBUG) {
+              assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
+            }
+            relationshipValue = extractIdentifiersFromRecords(properties[prop] as RecordInstance[]);
+          } else {
+            relationshipValue = extractIdentifierFromRecord(properties[prop] as RecordInstance);
+          }
+
+          properties[prop] = relationshipValue;
+        }
+      }
+    }
+  }
+  return properties;
+}
+
+function assertRecordsPassedToHasMany(records: RecordInstance[]) {
+  assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
+  assert(
+    `All elements of a hasMany relationship must be instances of Model, you passed ${records
+      .map((r) => `${typeof r}`)
+      .join(', ')}`,
+    (function () {
+      return records.every((record) => {
+        try {
+          recordIdentifierFor(record);
+          return true;
+        } catch {
+          return false;
+        }
+      });
+    })()
+  );
+}
+
+function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
+  return records.map(extractIdentifierFromRecord) as StableRecordIdentifier[];
+}
+
+type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
+  if (!recordOrPromiseRecord) {
+    return null;
+  }
+
+  if (isPromiseRecord(recordOrPromiseRecord)) {
+    let content = recordOrPromiseRecord.content;
+    assert(
+      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
+      content !== undefined
+    );
+    return content ? recordIdentifierFor(content) : null;
+  }
+
+  return recordIdentifierFor(recordOrPromiseRecord);
+}
+
+function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
+  return !!record.then;
 }

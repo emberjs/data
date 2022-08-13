@@ -10,7 +10,7 @@ import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
+import type { RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
@@ -27,7 +27,7 @@ class TestRecordIdentifier implements NewRecordIdentifier {
   constructor(public id: string | null, public lid: string, public type: string) {}
 }
 
-class TestRecordData implements RecordData {
+class TestRecordData implements RecordDataV1 {
   setIsDeleted(isDeleted: boolean): void {
     throw new Error('Method not implemented.');
   }

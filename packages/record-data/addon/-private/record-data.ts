@@ -4,13 +4,14 @@
 import { assert } from '@ember/debug';
 import { isEqual } from '@ember/utils';
 
-import { recordIdentifierFor, Store } from '@ember-data/store/-private';
+import type { Store } from '@ember-data/store/-private';
+import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import type {
   CollectionResourceRelationship,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
+import type { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import { V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
@@ -38,7 +39,7 @@ const EMPTY_ITERATOR = {
   @class RecordDataDefault
   @public
  */
-export default class RecordDataDefault implements RecordData {
+export default class RecordDataDefault implements RecordDataV1 {
   declare _errors?: JsonApiValidationError[];
   declare modelName: string;
   declare lid: string;
@@ -328,7 +329,7 @@ export default class RecordDataDefault implements RecordData {
       op: 'replaceRelatedRecords',
       record: this.identifier,
       field: key,
-      value: recordDatas.map(recordIdentifierFor),
+      value: recordDatas.map((rd) => (rd as NonSingletonRecordDataManager).getResourceIdentifier()),
     });
   }
 
@@ -338,7 +339,7 @@ export default class RecordDataDefault implements RecordData {
       op: 'addToRelatedRecords',
       record: this.identifier,
       field: key,
-      value: recordDatas.map(recordIdentifierFor),
+      value: recordDatas.map((rd) => (rd as NonSingletonRecordDataManager).getResourceIdentifier()),
       index: idx,
     });
   }
@@ -349,7 +350,7 @@ export default class RecordDataDefault implements RecordData {
       op: 'removeFromRelatedRecords',
       record: this.identifier,
       field: key,
-      value: recordDatas.map(recordIdentifierFor),
+      value: recordDatas.map((rd) => (rd as NonSingletonRecordDataManager).getResourceIdentifier()),
     });
   }
 
@@ -379,7 +380,7 @@ export default class RecordDataDefault implements RecordData {
       op: 'replaceRelatedRecord',
       record: this.identifier,
       field: key,
-      value: recordData ? recordIdentifierFor(recordData) : null,
+      value: recordData ? (recordData as NonSingletonRecordDataManager).getResourceIdentifier() : null,
     });
   }
 

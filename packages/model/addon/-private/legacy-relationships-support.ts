@@ -9,7 +9,7 @@ import type { BelongsToRelationship, ManyRelationship } from '@ember-data/record
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import ImplicitRelationship from '@ember-data/record-data/-private/relationships/state/implicit';
 import type Store from '@ember-data/store';
-import { recordDataFor, recordIdentifierFor, storeFor } from '@ember-data/store/-private';
+import { recordIdentifierFor, storeFor } from '@ember-data/store/-private';
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import {
@@ -90,7 +90,7 @@ export class LegacySupport {
     const relationship = graphFor(this.store).get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
 
-    let resource = this.recordData.getBelongsTo(key);
+    let resource = this.recordData.getRelationship(this.identifier, key) as SingleResourceRelationship;
     relationship.state.hasFailedLoadAttempt = false;
     relationship.state.shouldForceReload = true;
     let promise = this._findBelongsTo(key, resource, relationship, options);
@@ -102,7 +102,7 @@ export class LegacySupport {
 
   getBelongsTo(key: string, options?: FindOptions): PromiseBelongsTo | RecordInstance | null {
     const { identifier, recordData } = this;
-    let resource = recordData.getBelongsTo(key);
+    let resource = recordData.getRelationship(this.identifier, key) as SingleResourceRelationship;
     let relatedIdentifier =
       resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
 
@@ -150,7 +150,7 @@ export class LegacySupport {
   }
 
   setDirtyBelongsTo(key: string, value: RecordInstance | null) {
-    return this.recordData.setDirtyBelongsTo(key, extractRecordDataFromRecord(value));
+    return this.recordData.setBelongsTo(this.identifier, key, extractIdentifierFromRecord(value));
   }
 
   getManyArray(key: string, definition?: UpgradedMeta): ManyArray {
@@ -193,7 +193,7 @@ export class LegacySupport {
         return loadingPromise;
       }
 
-      const jsonApi = this.recordData.getHasMany(key);
+      const jsonApi = this.recordData.getRelationship(this.identifier, key) as CollectionResourceRelationship;
 
       loadingPromise = this._findHasManyByJsonApiResource(jsonApi, this.identifier, relationship, options).then(
         () => handleCompletedRelationshipRequest(this, key, relationship, manyArray),
@@ -264,7 +264,7 @@ export class LegacySupport {
 
   setDirtyHasMany(key: string, records: RecordInstance[]) {
     assertRecordsPassedToHasMany(records);
-    return this.recordData.setDirtyHasMany(key, extractRecordDatasFromRecords(records));
+    return this.recordData.setHasMany(this.identifier, key, extractIdentifiersFromRecords(records));
   }
 
   _updatePromiseProxyFor(kind: 'hasMany', key: string, args: HasManyProxyCreateArgs): PromiseManyArray;
@@ -633,8 +633,8 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
   );
 }
 
-function extractRecordDatasFromRecords(records: RecordInstance[]): RecordData[] {
-  return records.map(extractRecordDataFromRecord) as RecordData[];
+function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
+  return records.map(extractIdentifierFromRecord) as StableRecordIdentifier[];
 }
 
 type PromiseProxyRecord = {
@@ -642,7 +642,7 @@ type PromiseProxyRecord = {
   content: RecordInstance | null | undefined;
 };
 
-function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
   if (!recordOrPromiseRecord) {
     return null;
   }
@@ -653,10 +653,10 @@ function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
       content !== undefined
     );
-    return content ? recordDataFor(content) : null;
+    return content ? recordIdentifierFor(content) : null;
   }
 
-  return recordDataFor(recordOrPromiseRecord);
+  return recordIdentifierFor(recordOrPromiseRecord);
 }
 
 function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {

@@ -11,7 +11,7 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
-export interface RecordData {
+export interface RecordDataV1 {
   version?: '1';
 
   // Cache
@@ -58,7 +58,7 @@ export interface RecordData {
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
 }
 
-export interface RecordDataV2 {
+export interface RecordData {
   version: '2';
 
   // Cache
@@ -69,7 +69,7 @@ export interface RecordDataV2 {
 
   willCommit(identifier: StableRecordIdentifier): void;
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void;
-  commitWasRejected(identifier: StableRecordIdentifier): void;
+  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void;
 
   unloadRecord(identifier: StableRecordIdentifier): void;
 

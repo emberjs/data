@@ -280,7 +280,9 @@ export default class BelongsToReference {
   }
 
   _resource() {
-    return this.store._instanceCache.getRecordData(this.#identifier).getBelongsTo(this.key);
+    return this.store._instanceCache
+      .getRecordData(this.#identifier)
+      .getRelationship(this.#identifier, this.key) as SingleResourceRelationship;
   }
 
   /**

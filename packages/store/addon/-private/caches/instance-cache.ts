@@ -27,6 +27,7 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import { Dict } from '@ember-data/types/q/utils';
 
 import RecordReference from '../legacy-model-support/record-reference';
+import { NonSingletonRecordDataManager } from '../managers/record-data-manager';
 import { RecordDataStoreWrapper } from '../managers/record-data-store-wrapper';
 import Snapshot from '../network/snapshot';
 import type { CreateRecordProperties } from '../store-service';
@@ -36,7 +37,7 @@ import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
 import WeakCache, { DebugWeakCache } from '../utils/weak-cache';
-import recordDataFor, { removeRecordDataFor, setRecordDataFor } from './record-data-for';
+import { removeRecordDataFor, setRecordDataFor } from './record-data-for';
 
 let _peekGraph: peekGraph;
 if (HAS_RECORD_DATA_PACKAGE) {
@@ -52,13 +53,12 @@ if (HAS_RECORD_DATA_PACKAGE) {
   @module @ember-data/store
 */
 
-const RecordCache = new WeakCache<RecordInstance | RecordData, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
+const RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
 if (DEBUG) {
-  RecordCache._expectMsg = (key: RecordInstance | RecordData) =>
-    `${String(key)} is not a record instantiated by @ember-data/store`;
+  RecordCache._expectMsg = (key: RecordInstance) => `${String(key)} is not a record instantiated by @ember-data/store`;
 }
 
-export function peekRecordIdentifier(record: RecordInstance | RecordData): StableRecordIdentifier | undefined {
+export function peekRecordIdentifier(record: RecordInstance): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
 }
 
@@ -81,11 +81,11 @@ export function peekRecordIdentifier(record: RecordInstance | RecordData): Stabl
   @param {Object} record a record instance previously obstained from the store.
   @returns {StableRecordIdentifier}
  */
-export function recordIdentifierFor(record: RecordInstance | RecordData): StableRecordIdentifier {
+export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   return RecordCache.getWithError(record);
 }
 
-export function setRecordIdentifier(record: RecordInstance | RecordData, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
   if (DEBUG && RecordCache.has(record) && RecordCache.get(record) !== identifier) {
     throw new Error(`${String(record)} was already assigned an identifier`);
   }
@@ -287,12 +287,10 @@ export class InstanceCache {
 
     if (!record) {
       const recordData = this.getRecordData(identifier);
-      const createOptions = recordData._initRecordCreateOptions(
-        normalizeProperties(this.store, identifier, properties)
-      );
+
       record = this.store.instantiateRecord(
         identifier,
-        createOptions,
+        properties || {},
         this.__recordDataFor,
         this.store._notificationManager
       );
@@ -310,7 +308,7 @@ export class InstanceCache {
     return record;
   }
 
-  getRecordData(identifier: StableRecordIdentifier) {
+  getRecordData(identifier: StableRecordIdentifier): RecordData {
     let recordData = this.peek({ identifier, bucket: 'recordData' });
 
     if (!recordData) {
@@ -325,16 +323,19 @@ export class InstanceCache {
             since: { enabled: '4.8', available: '4.8' },
           }
         );
-        // @ts-expect-error
-        recordData = this.store.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
+        let recordDataInstance = this.store.createRecordDataFor(
+          identifier.type,
+          identifier.id,
+          // @ts-expect-error
+          identifier.lid,
+          this._storeWrapper
+        );
+        recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
       } else {
-        recordData = this.store.createRecordDataFor(identifier, this._storeWrapper);
+        let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
+        recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
       }
       setRecordDataFor(identifier, recordData);
-      // TODO this is invalid for v2 recordData but required
-      // for v1 recordData. Remember to remove this once the
-      // RecordData manager handles converting recordData to identifier
-      setRecordIdentifier(recordData, identifier);
 
       this.#instances.recordData.set(identifier, recordData);
       this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
@@ -413,10 +414,9 @@ export class InstanceCache {
       }
 
       if (recordData) {
-        recordData.unloadRecord();
+        recordData.unloadRecord(identifier);
         this.#instances.recordData.delete(identifier);
         removeRecordDataFor(identifier);
-        RecordCache.delete(recordData);
       } else {
         this.disconnect(identifier);
       }
@@ -570,7 +570,7 @@ export class InstanceCache {
     }
 
     const hasRecord = this.#instances.record.has(identifier);
-    recordData.pushData(data, hasRecord);
+    recordData.pushData(identifier, data, hasRecord);
 
     if (!isUpdate) {
       this.store.recordArrayManager.recordDidChange(identifier);
@@ -578,52 +578,6 @@ export class InstanceCache {
 
     return identifier as StableExistingRecordIdentifier;
   }
-}
-
-function normalizeProperties(
-  store: Store,
-  identifier: StableRecordIdentifier,
-  properties?: { [key: string]: unknown }
-): { [key: string]: unknown } | undefined {
-  // assert here
-  if (properties !== undefined) {
-    if ('id' in properties) {
-      assert(`expected id to be a string or null`, properties.id !== undefined);
-    }
-    assert(
-      `You passed '${typeof properties}' as properties for record creation instead of an object.`,
-      typeof properties === 'object' && properties !== null
-    );
-
-    const { type } = identifier;
-
-    // convert relationship Records to RecordDatas before passing to RecordData
-    let defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
-
-    if (defs !== null) {
-      let keys = Object.keys(properties);
-      let relationshipValue;
-
-      for (let i = 0; i < keys.length; i++) {
-        let prop = keys[i];
-        let def = defs[prop];
-
-        if (def !== undefined) {
-          if (def.kind === 'hasMany') {
-            if (DEBUG) {
-              assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
-            }
-            relationshipValue = extractRecordDatasFromRecords(properties[prop] as RecordInstance[]);
-          } else {
-            relationshipValue = extractRecordDataFromRecord(properties[prop] as RecordInstance);
-          }
-
-          properties[prop] = relationshipValue;
-        }
-      }
-    }
-  }
-  return properties;
 }
 
 function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData: RecordData): boolean {
@@ -635,51 +589,6 @@ function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData
 export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
   let recordData = cache.peek({ identifier, bucket: 'recordData' });
   return !recordData || _recordDataIsFullDeleted(identifier, recordData);
-}
-
-function assertRecordsPassedToHasMany(records: RecordInstance[]) {
-  assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
-  assert(
-    `All elements of a hasMany relationship must be instances of Model, you passed ${records
-      .map((r) => `${typeof r}`)
-      .join(', ')}`,
-    (function () {
-      return records.every((record) => {
-        try {
-          recordIdentifierFor(record);
-          return true;
-        } catch {
-          return false;
-        }
-      });
-    })()
-  );
-}
-
-function extractRecordDatasFromRecords(records: RecordInstance[]): RecordData[] {
-  return records.map(extractRecordDataFromRecord) as RecordData[];
-}
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
-
-function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
-  if (!recordOrPromiseRecord) {
-    return null;
-  }
-
-  if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.content;
-    assert(
-      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
-      content !== undefined
-    );
-    return content ? recordDataFor(content) : null;
-  }
-
-  return recordDataFor(recordOrPromiseRecord);
-}
-
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
 }
 
 /*
@@ -718,7 +627,7 @@ function preloadData(store: Store, identifier: StableRecordIdentifier, preload: 
       jsonPayload.attributes[key] = preloadValue;
     }
   });
-  store._instanceCache.getRecordData(identifier).pushData(jsonPayload);
+  store._instanceCache.getRecordData(identifier).pushData(identifier, jsonPayload);
 }
 
 function preloadRelationship(
