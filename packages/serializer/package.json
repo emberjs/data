@@ -1,11 +1,15 @@
 {
   "name": "@ember-data/serializer",
   "version": "4.8.0-alpha.3",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Provides reference Serializer implementations for use with @ember-data/store",
   "keywords": [
     "ember-addon"
   ],
-  "repository": "https://github.com/emberjs/data/tree/master/packages/serializer",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/serializer"
+  },
   "license": "MIT",
   "author": "",
   "directories": {

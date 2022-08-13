@@ -1,11 +1,15 @@
 {
   "name": "@ember-data/adapter",
   "version": "4.8.0-alpha.3",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Reference Adapter Implementations for use with @ember-data/store",
   "keywords": [
     "ember-addon"
   ],
-  "repository": "https://github.com/emberjs/data/tree/master/packages/adapter",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/adapter"
+  },
   "license": "MIT",
   "author": "",
   "directories": {
