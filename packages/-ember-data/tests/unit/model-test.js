@@ -841,7 +841,7 @@ module('unit/model - Model', function (hooks) {
       assert.strictEqual(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
     });
 
-    test('setting a property back to its original value removes the property from the `_attributes` hash', async function (assert) {
+    test('setting a property back to its original value cleans the mutated state', async function (assert) {
       let person = store.push({
         data: {
           type: 'person',
@@ -852,20 +852,20 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
+      const identifier = recordIdentifierFor(person);
       let recordData = recordDataFor(person);
-      assert.strictEqual(recordData._attributes.name, undefined, 'the `_attributes` hash is clean');
+      assert.strictEqual(recordData.getAttr(identifier, 'name'), 'Scumbag Dale', 'name is correct');
+      assert.false(recordData.hasChangedAttrs(identifier), 'name is clean');
 
       set(person, 'name', 'Niceguy Dale');
 
-      assert.strictEqual(
-        recordData._attributes.name,
-        'Niceguy Dale',
-        'the `_attributes` hash contains the changed value'
-      );
+      assert.strictEqual(recordData.getAttr(identifier, 'name'), 'Niceguy Dale', 'dirtied name is correct');
+      assert.true(recordData.hasChangedAttrs(identifier), 'name is dirty');
 
       set(person, 'name', 'Scumbag Dale');
 
-      assert.strictEqual(recordData._attributes.name, undefined, 'the `_attributes` hash is reset');
+      assert.strictEqual(recordData.getAttr(identifier, 'name'), 'Scumbag Dale', 'name is correct');
+      assert.false(recordData.hasChangedAttrs(identifier), 'name is clean');
     });
   });
 

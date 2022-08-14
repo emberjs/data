@@ -5,7 +5,6 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { graphFor } from '@ember-data/record-data/-private';
 import { recordIdentifierFor } from '@ember-data/store';
-import { recordDataFor } from '@ember-data/store/-private';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -675,7 +674,6 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     register('model:comment', Comment);
 
     const comment = store.createRecord('comment');
-    const recordData = recordDataFor(comment);
     const post = store.createRecord('post');
     const comments = await post.comments;
     comments.pushObject(comment);
@@ -689,6 +687,5 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
       undefined,
       'The recordData is destroyed'
     );
-    assert.ok(recordData.isDestroyed, 'recordData is destroyed');
   });
 });

@@ -561,7 +561,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { pluralize } from 'ember-inflector';
+    import { pluralize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {

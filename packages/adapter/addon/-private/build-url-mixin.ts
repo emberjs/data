@@ -655,8 +655,7 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
 
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
-    import { decamelize } from '<app-name>/utils/string-utils';
-    import { pluralize } from 'ember-inflector';
+    import { decamelize, pluralize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationAdapter extends RESTAdapter {
       pathForType(modelName) {

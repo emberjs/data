@@ -1031,7 +1031,7 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import JSONSerializer from '@ember-data/serializer/json';
-    import { singularize } from 'ember-inflector';
+    import { singularize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends JSONSerializer {
       serialize(snapshot, options) {
