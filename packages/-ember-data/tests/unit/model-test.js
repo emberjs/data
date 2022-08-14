@@ -13,7 +13,6 @@ import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
-import { recordDataFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model - Model', function (hooks) {
@@ -852,20 +851,18 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      const identifier = recordIdentifierFor(person);
-      let recordData = recordDataFor(person);
-      assert.strictEqual(recordData.getAttr(identifier, 'name'), 'Scumbag Dale', 'name is correct');
-      assert.false(recordData.hasChangedAttrs(identifier), 'name is clean');
+      assert.strictEqual(person.name, 'Scumbag Dale', 'name is correct');
+      assert.false(person.hasDirtyAttributes, 'name is clean');
 
       set(person, 'name', 'Niceguy Dale');
 
-      assert.strictEqual(recordData.getAttr(identifier, 'name'), 'Niceguy Dale', 'dirtied name is correct');
-      assert.true(recordData.hasChangedAttrs(identifier), 'name is dirty');
+      assert.strictEqual(person.name, 'Niceguy Dale', 'dirtied name is correct');
+      assert.true(person.hasDirtyAttributes, 'name is dirty');
 
       set(person, 'name', 'Scumbag Dale');
 
-      assert.strictEqual(recordData.getAttr(identifier, 'name'), 'Scumbag Dale', 'name is correct');
-      assert.false(recordData.hasChangedAttrs(identifier), 'name is clean');
+      assert.strictEqual(person.name, 'Scumbag Dale', 'name is correct');
+      assert.false(person.hasDirtyAttributes, 'name is clean');
     });
   });
 

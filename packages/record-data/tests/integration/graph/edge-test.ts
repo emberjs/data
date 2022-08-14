@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { graphFor, RecordData } from '@ember-data/record-data/-private';
+import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
 import { recordDataFor } from '@ember-data/store/-private';
 
@@ -85,8 +85,9 @@ module('Integration | Graph | Edges', function (hooks) {
         },
       });
 
-      assert.true(
-        recordDataFor(identifier) instanceof RecordData,
+      assert.strictEqual(
+        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        'Chris',
         'We lazily associate the correct record data instance'
       );
     });
@@ -167,8 +168,9 @@ module('Integration | Graph | Edges', function (hooks) {
         },
       });
 
-      assert.true(
-        recordDataFor(identifier) instanceof RecordData,
+      assert.strictEqual(
+        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        'Chris',
         'We lazily associate the correct record data instance'
       );
     });
@@ -250,8 +252,9 @@ module('Integration | Graph | Edges', function (hooks) {
         },
       });
 
-      assert.true(
-        recordDataFor(identifier) instanceof RecordData,
+      assert.strictEqual(
+        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        'Chris',
         'We lazily associate the correct record data instance'
       );
     });
@@ -345,8 +348,9 @@ module('Integration | Graph | Edges', function (hooks) {
         },
       });
 
-      assert.true(
-        recordDataFor(identifier) instanceof RecordData,
+      assert.strictEqual(
+        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        'Chris',
         'We lazily associate the correct record data instance'
       );
     });
@@ -440,8 +444,9 @@ module('Integration | Graph | Edges', function (hooks) {
         },
       });
 
-      assert.true(
-        recordDataFor(identifier) instanceof RecordData,
+      assert.strictEqual(
+        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        'Chris',
         'We lazily associate the correct record data instance'
       );
     });
