@@ -25,6 +25,12 @@ export function isVersion2RecordData(
  * enforcing that only the public API surface area
  * is exposed.
  *
+ * This class is the the return value of both the
+ * `recordDataFor` function supplied to the store
+ * hook `instantiateRecord`, and the `recordDataFor`
+ * method on the `RecordDataStoreWrapper`. It is not
+ * directly instantiatable.
+ *
  * It handles translating between cache versions when
  * necessary, for instance when a Store is configured
  * to use both a v1 and a v2 cache depending on some
@@ -52,6 +58,7 @@ export function isVersion2RecordData(
  * ```
  *
  * @class RecordDataManager
+ * @public
  */
 export class NonSingletonRecordDataManager implements RecordData {
   version: '2' = '2';
