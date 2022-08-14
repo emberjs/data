@@ -2413,7 +2413,7 @@ if (DEBUG) {
         until: '5.0',
         since: { available: '4.8', enabled: '4.8' },
       });
-      return originalReopen.call(this, arguments);
+      return originalReopen.call(this, ...arguments);
     };
 
     Model.reopenClass = function deprecatedReopenClass() {
@@ -2427,7 +2427,7 @@ if (DEBUG) {
           since: { available: '4.8', enabled: '4.8' },
         }
       );
-      return originalReopenClass.call(this, arguments);
+      return originalReopenClass.call(this, ...arguments);
     };
   }
 }
