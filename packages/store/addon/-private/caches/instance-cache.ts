@@ -28,7 +28,7 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import { Dict } from '@ember-data/types/q/utils';
 
 import RecordReference from '../legacy-model-support/record-reference';
-import { NonSingletonRecordDataManager } from '../managers/record-data-manager';
+import { NonSingletonRecordDataManager, SingletonRecordDataManager } from '../managers/record-data-manager';
 import { RecordDataStoreWrapper } from '../managers/record-data-store-wrapper';
 import Snapshot from '../network/snapshot';
 import type { CreateRecordProperties } from '../store-service';
@@ -341,8 +341,12 @@ export class InstanceCache {
       } else {
         let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
         if (V2CACHE_SINGLETON_MANAGER) {
-          recordData = this.#cacheManager =
-            this.#cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+          if (DEBUG) {
+            recordData = this.#cacheManager = this.#cacheManager || new SingletonRecordDataManager(this.store);
+            (recordData as SingletonRecordDataManager)._addRecordData(identifier, recordDataInstance as RecordData);
+          } else {
+            recordData = recordDataInstance as RecordData;
+          }
         } else {
           recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
         }
