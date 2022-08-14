@@ -15,7 +15,7 @@ import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types
 import type { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import { V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
+import { RecordDataStoreWrapper, V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import { Dict } from '@ember-data/types/q/utils';
 
 import { isImplicit } from './graph/-utils';
@@ -142,7 +142,7 @@ class RecordDataDefault implements RecordDataV1 {
   setIsDeleted(isDeleted: boolean): void {
     this._isDeleted = isDeleted;
     if (this._isNew) {
-      this._deletionConfirmed();
+      this._removeFromInverseRelationships();
     }
     this.notifyStateChange();
   }
@@ -280,13 +280,9 @@ class RecordDataDefault implements RecordDataV1 {
     return dirtyKeys;
   }
 
-  _deletionConfirmed() {
-    this._removeFromInverseRelationships();
-  }
-
-  didCommit(data: JsonApiResource | null) {
+  didCommit(data: JsonApiResource | null): void {
     if (this._isDeleted) {
-      this._deletionConfirmed();
+      this._removeFromInverseRelationships();
       this._isDeletionCommited = true;
     }
 
@@ -313,7 +309,6 @@ class RecordDataDefault implements RecordDataV1 {
     this._clearErrors();
 
     this.notifyStateChange();
-    return changedKeys;
   }
 
   notifyStateChange() {
@@ -719,11 +714,46 @@ class RecordDataDefault implements RecordDataV1 {
   }
 }
 
+interface CachedResource {
+  remoteAttrs: Dict<unknown> | null;
+  localAttrs: Dict<unknown> | null;
+  inflightAttrs: Dict<unknown> | null;
+  changes: Dict<unknown[]> | null;
+  errors: JsonApiValidationError[] | null;
+  isNew: boolean;
+  isDeleted: boolean;
+  isDeletionCommitted: boolean;
+}
+
+function makeCache(): CachedResource {
+  return {
+    remoteAttrs: null,
+    localAttrs: null,
+    inflightAttrs: null,
+    changes: null,
+    errors: null,
+    isNew: false,
+    isDeleted: false,
+    isDeletionCommitted: false,
+  };
+}
+
+function getCache(
+  cache: Map<StableRecordIdentifier, CachedResource>,
+  identifier: StableRecordIdentifier
+): CachedResource {
+  let cached = cache.get(identifier);
+  if (!cached) {
+    cached = makeCache();
+    cache.set(identifier, cached);
+  }
+  return cached;
+}
 class SingletonRecordData implements RecordData {
   version: '2' = '2';
 
   #storeWrapper: V2RecordDataStoreWrapper;
-  #cache = new Map();
+  #cache: Map<StableRecordIdentifier, CachedResource> = new Map();
 
   constructor(storeWrapper: V2RecordDataStoreWrapper) {
     this.#storeWrapper = storeWrapper;
@@ -734,78 +764,327 @@ class SingletonRecordData implements RecordData {
     data: JsonApiResource,
     calculateChanges?: boolean | undefined
   ): void | string[] {
-    throw new Error('Method not implemented.');
+    let changedKeys: string[] | undefined;
+    const cached = getCache(this.#cache, identifier);
+
+    if (cached.isNew) {
+      cached.isNew = false;
+      this.#storeWrapper.notifyChange(identifier, 'state');
+    }
+
+    if (calculateChanges) {
+      changedKeys = calculateChangedKeys(cached, data.attributes);
+    }
+
+    cached.remoteAttrs = Object.assign(cached.remoteAttrs || Object.create(null), data.attributes);
+    if (cached.localAttrs) {
+      patchLocalAttributes(cached);
+    }
+
+    if (data.relationships) {
+      setupRelationships(this.#storeWrapper, identifier, data);
+    }
+
+    if (changedKeys && changedKeys.length) {
+      notifyAttributes(this.#storeWrapper, identifier, changedKeys);
+    }
+
+    return changedKeys;
   }
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
-    throw new Error('Method not implemented.');
+    const cached = getCache(this.#cache, identifier);
+    cached.isNew = true;
+    let createOptions = {};
+
+    if (options !== undefined) {
+      const storeWrapper = this.#storeWrapper;
+      let attributeDefs = storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+      let relationshipDefs = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+      const graph = graphFor(storeWrapper);
+      let propertyNames = Object.keys(options);
+
+      for (let i = 0; i < propertyNames.length; i++) {
+        let name = propertyNames[i];
+        let propertyValue = options[name];
+
+        if (name === 'id') {
+          continue;
+        }
+
+        const fieldType: AttributeSchema | RelationshipSchema | undefined =
+          relationshipDefs[name] || attributeDefs[name];
+        let kind = fieldType !== undefined ? ('kind' in fieldType ? fieldType.kind : 'attribute') : null;
+        let relationship;
+
+        switch (kind) {
+          case 'attribute':
+            this.setAttr(identifier, name, propertyValue);
+            break;
+          case 'belongsTo':
+            this.setBelongsTo(identifier, name, propertyValue as StableRecordIdentifier | null);
+            relationship = graph.get(identifier, name);
+            relationship.state.hasReceivedData = true;
+            relationship.state.isEmpty = false;
+            break;
+          case 'hasMany':
+            this.setHasMany(identifier, name, propertyValue as StableRecordIdentifier[]);
+            relationship = graph.get(identifier, name);
+            relationship.state.hasReceivedData = true;
+            relationship.state.isEmpty = false;
+            break;
+          default:
+            // reflect back (pass-thru) unknown properties
+            createOptions[name] = propertyValue;
+        }
+      }
+    }
+
+    return createOptions;
   }
   willCommit(identifier: StableRecordIdentifier): void {
-    throw new Error('Method not implemented.');
+    const cached = getCache(this.#cache, identifier);
+    cached.inflightAttrs = cached.localAttrs;
+    cached.localAttrs = null;
   }
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    throw new Error('Method not implemented.');
+    const cached = getCache(this.#cache, identifier);
+    if (cached.isDeleted) {
+      graphFor(this.#storeWrapper).push({
+        op: 'deleteRecord',
+        record: identifier,
+        isNew: false,
+      });
+      cached.isDeletionCommitted = true;
+    }
+
+    cached.isNew = false;
+    let newCanonicalAttributes: AttributesHash | undefined;
+    if (data) {
+      if (data.id) {
+        // didCommit provided an ID, notify the store of it
+        this.#storeWrapper.setRecordId(identifier, data.id);
+      }
+      if (data.relationships) {
+        setupRelationships(this.#storeWrapper, identifier, data);
+      }
+      newCanonicalAttributes = data.attributes;
+    }
+    let changedKeys = calculateChangedKeys(cached, newCanonicalAttributes);
+
+    cached.remoteAttrs = Object.assign(
+      cached.remoteAttrs || Object.create(null),
+      cached.inflightAttrs,
+      newCanonicalAttributes
+    );
+    cached.inflightAttrs = null;
+    patchLocalAttributes(cached);
+
+    if (cached.errors) {
+      cached.errors = null;
+      this.#storeWrapper.notifyChange(identifier, 'errors');
+    }
+
+    notifyAttributes(this.#storeWrapper, identifier, changedKeys);
+    this.#storeWrapper.notifyChange(identifier, 'state');
   }
+
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
-    throw new Error('Method not implemented.');
+    const cached = getCache(this.#cache, identifier);
+    if (!cached.inflightAttrs) {
+      return;
+    }
+    let keys = Object.keys(cached.inflightAttrs);
+    if (keys.length > 0) {
+      let attrs = (cached.localAttrs = cached.localAttrs || Object.create(null));
+      for (let i = 0; i < keys.length; i++) {
+        if (attrs[keys[i]] === undefined) {
+          attrs[keys[i]] = cached.inflightAttrs[keys[i]];
+        }
+      }
+    }
+    cached.inflightAttrs = null;
+    if (errors) {
+      cached.errors = errors;
+    }
+    this.#storeWrapper.notifyChange(identifier, 'errors');
   }
+
   unloadRecord(identifier: StableRecordIdentifier): void {
-    throw new Error('Method not implemented.');
+    const cached = this.#cache.get(identifier);
+    if (!cached) {
+      return;
+    }
+    const storeWrapper = this.#storeWrapper;
+    graphFor(storeWrapper).unload(identifier);
+
+    // TODO trick graph into thinking we are unloaded before
+    // iterating?
+
+    let relatedIdentifiers = _allRelatedRecordDatas(storeWrapper, identifier);
+    if (areAllModelsUnloaded(storeWrapper, relatedIdentifiers)) {
+      // we don't have a backburner queue yet since
+      // we scheduled this into ember's destroy
+      // disconnectRecord called from destroy will teardown
+      // relationships. We do this to queue that.
+      (storeWrapper as unknown as { _store: Store })._store._backburner.join(() => {
+        for (let i = 0; i < relatedIdentifiers.length; ++i) {
+          let identifier = relatedIdentifiers[i];
+          storeWrapper.disconnectRecord(identifier);
+        }
+      });
+    }
+
+    this.#cache.delete(identifier);
   }
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
-    throw new Error('Method not implemented.');
+
+  getAttr(identifier: StableRecordIdentifier, attr: string): unknown {
+    const cached = getCache(this.#cache, identifier);
+    if (cached.localAttrs && attr in cached.localAttrs) {
+      return cached.localAttrs[attr];
+    } else if (cached.inflightAttrs && attr in cached.inflightAttrs) {
+      return cached.inflightAttrs[attr];
+    } else if (cached.remoteAttrs && attr in cached.remoteAttrs) {
+      return cached.remoteAttrs[attr];
+    } else {
+      const attrSchema = this.#storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier)[attr];
+      return getDefaultValue(attrSchema?.options);
+    }
   }
-  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
-    throw new Error('Method not implemented.');
+  setAttr(identifier: StableRecordIdentifier, attr: string, value: unknown): void {
+    const cached = getCache(this.#cache, identifier);
+    const existing =
+      cached.inflightAttrs && attr in cached.inflightAttrs
+        ? cached.inflightAttrs[attr]
+        : cached.remoteAttrs && attr in cached.remoteAttrs
+        ? cached.remoteAttrs[attr]
+        : undefined;
+    if (existing !== value) {
+      cached.localAttrs = cached.localAttrs || Object.create(null);
+      cached.localAttrs![attr] = value;
+      cached.changes = cached.changes || Object.create(null);
+      cached.changes![attr] = [existing, value];
+    } else if (cached.localAttrs) {
+      delete cached.localAttrs[attr];
+      delete cached.changes![attr];
+    }
   }
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
-    throw new Error('Method not implemented.');
+    // TODO freeze in dev
+    return getCache(this.#cache, identifier).changes || Object.create(null);
   }
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
-    throw new Error('Method not implemented.');
+    const cached = getCache(this.#cache, identifier);
+    return cached.localAttrs !== null && Object.keys(cached.localAttrs).length > 0;
   }
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
-    throw new Error('Method not implemented.');
+    const cached = getCache(this.#cache, identifier);
+    let dirtyKeys: string[] | undefined;
+    cached.isDeleted = false;
+
+    if (cached.localAttrs !== null) {
+      dirtyKeys = Object.keys(cached.localAttrs);
+      cached.localAttrs = null;
+    }
+
+    if (cached.isNew) {
+      graphFor(this.#storeWrapper).push({
+        op: 'deleteRecord',
+        record: identifier,
+        isNew: true,
+      });
+      cached.isDeleted = true;
+      cached.isNew = false;
+    }
+
+    cached.inflightAttrs = null;
+
+    if (cached.errors) {
+      cached.errors = null;
+      this.#storeWrapper.notifyChange(identifier, 'errors');
+    }
+
+    this.#storeWrapper.notifyChange(identifier, 'state');
+
+    if (dirtyKeys && dirtyKeys.length) {
+      notifyAttributes(this.#storeWrapper, identifier, dirtyKeys);
+    }
+
+    return dirtyKeys || [];
   }
+
   getRelationship(
     identifier: StableRecordIdentifier,
-    propertyName: string
+    field: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
-    throw new Error('Method not implemented.');
+    return (graphFor(this.#storeWrapper).get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
   }
-  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void {
-    throw new Error('Method not implemented.');
+  setBelongsTo(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier | null): void {
+    graphFor(this.#storeWrapper).update({
+      op: 'replaceRelatedRecord',
+      record,
+      field,
+      value,
+    });
   }
-  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    throw new Error('Method not implemented.');
+  setHasMany(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier[]): void {
+    graphFor(this.#storeWrapper).update({
+      op: 'replaceRelatedRecords',
+      record,
+      field,
+      value,
+    });
   }
   addToHasMany(
-    identifier: StableRecordIdentifier,
-    propertyName: string,
+    record: StableRecordIdentifier,
+    field: string,
     value: StableRecordIdentifier[],
-    idx?: number | undefined
+    index?: number | undefined
   ): void {
-    throw new Error('Method not implemented.');
+    graphFor(this.#storeWrapper).update({
+      op: 'addToRelatedRecords',
+      record,
+      field,
+      value,
+      index,
+    });
   }
-  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    throw new Error('Method not implemented.');
+  removeFromHasMany(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier[]): void {
+    graphFor(this.#storeWrapper).update({
+      op: 'removeFromRelatedRecords',
+      record,
+      field,
+      value,
+    });
   }
+
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
-    throw new Error('Method not implemented.');
+    const cached = getCache(this.#cache, identifier);
+    cached.isDeleted = isDeleted;
+    if (cached.isNew) {
+      // TODO can we delete this since we will do this in unload?
+      graphFor(this.#storeWrapper).push({
+        op: 'deleteRecord',
+        record: identifier,
+        isNew: true,
+      });
+    }
+    this.#storeWrapper.notifyChange(identifier, 'state');
   }
   getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
-    throw new Error('Method not implemented.');
+    return getCache(this.#cache, identifier).errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {
-    throw new Error('Method not implemented.');
+    const cached = getCache(this.#cache, identifier);
+    return cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null;
   }
   isNew(identifier: StableRecordIdentifier): boolean {
-    throw new Error('Method not implemented.');
+    return getCache(this.#cache, identifier).isNew;
   }
   isDeleted(identifier: StableRecordIdentifier): boolean {
-    throw new Error('Method not implemented.');
+    return getCache(this.#cache, identifier).isDeleted;
   }
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
-    throw new Error('Method not implemented.');
+    return getCache(this.#cache, identifier).isDeletionCommitted;
   }
 }
 
@@ -851,4 +1130,195 @@ function getDefaultValue(options: { defaultValue?: unknown } | undefined) {
     );
     return defaultValue;
   }
+}
+
+function notifyAttributes(storeWrapper: RecordDataStoreWrapper, identifier: StableRecordIdentifier, keys?: string[]) {
+  if (!keys) {
+    storeWrapper.notifyChange(identifier, 'attributes');
+    return;
+  }
+
+  for (let i = 0; i < keys.length; i++) {
+    storeWrapper.notifyChange(identifier, 'attributes', keys[i]);
+  }
+}
+
+/*
+      TODO @deprecate IGOR DAVID
+      There seems to be a potential bug here, where we will return keys that are not
+      in the schema
+  */
+function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash) {
+  let changedKeys: string[] = [];
+
+  if (updates) {
+    const keys = Object.keys(updates);
+    const length = keys.length;
+    const localAttrs = cached.localAttrs;
+
+    const original = Object.assign(Object.create(null), cached.remoteAttrs, cached.inflightAttrs);
+
+    for (let i = 0; i < length; i++) {
+      let key = keys[i];
+      let value = updates[key];
+
+      // A value in localAttrs means the user has a local change to
+      // this attribute. We never override this value when merging
+      // updates from the backend so we should not sent a change
+      // notification if the server value differs from the original.
+      if (localAttrs && localAttrs[key] !== undefined) {
+        continue;
+      }
+
+      if (!isEqual(original[key], value)) {
+        changedKeys.push(key);
+      }
+    }
+  }
+
+  return changedKeys;
+}
+
+function setupRelationships(
+  storeWrapper: RecordDataStoreWrapper,
+  identifier: StableRecordIdentifier,
+  data: JsonApiResource
+) {
+  // TODO @runspired iterating by definitions instead of by payload keys
+  // allows relationship payloads to be ignored silently if no relationship
+  // definition exists. Ensure there's a test for this and then consider
+  // moving this to an assertion. This check should possibly live in the graph.
+  const relationships = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+  const keys = Object.keys(relationships);
+  for (let i = 0; i < keys.length; i++) {
+    const relationshipName = keys[i];
+    const relationshipData = data.relationships![relationshipName];
+
+    if (!relationshipData) {
+      continue;
+    }
+
+    graphFor(storeWrapper).push({
+      op: 'updateRelationship',
+      record: identifier,
+      field: relationshipName,
+      value: relationshipData,
+    });
+  }
+}
+
+function patchLocalAttributes(cached: CachedResource) {
+  const { localAttrs, remoteAttrs, inflightAttrs, changes } = cached;
+  if (!localAttrs) {
+    return;
+  }
+  let mutatedKeys = Object.keys(localAttrs);
+
+  for (let i = 0, length = mutatedKeys.length; i < length; i++) {
+    let attr = mutatedKeys[i];
+    const existing =
+      inflightAttrs && attr in inflightAttrs
+        ? inflightAttrs[attr]
+        : remoteAttrs && attr in remoteAttrs
+        ? remoteAttrs[attr]
+        : undefined;
+
+    if (existing === localAttrs[attr]) {
+      delete localAttrs[attr];
+      delete changes![attr];
+    }
+  }
+}
+
+/*
+    Iterates over the set of internal models reachable from `this` across exactly one
+    relationship.
+  */
+function _directlyRelatedRecordDatasIterable(
+  storeWrapper: RecordDataStoreWrapper,
+  originating: StableRecordIdentifier
+) {
+  const graph = graphFor(storeWrapper);
+  const initializedRelationships = graph.identifiers.get(originating);
+
+  if (!initializedRelationships) {
+    return EMPTY_ITERATOR;
+  }
+
+  const initializedRelationshipsArr = Object.keys(initializedRelationships)
+    .map((key) => initializedRelationships[key]!)
+    .filter((rel) => {
+      return !isImplicit(rel);
+    });
+
+  let i = 0;
+  let j = 0;
+  let k = 0;
+
+  const findNext = () => {
+    while (i < initializedRelationshipsArr.length) {
+      while (j < 2) {
+        let members =
+          j === 0 ? getLocalState(initializedRelationshipsArr[i]) : getRemoteState(initializedRelationshipsArr[i]);
+        while (k < members.length) {
+          let member = members[k++];
+          if (member !== null) {
+            return member;
+          }
+        }
+        k = 0;
+        j++;
+      }
+      j = 0;
+      i++;
+    }
+    return undefined;
+  };
+
+  return {
+    iterator() {
+      return {
+        next: () => {
+          const value = findNext();
+          return { value, done: value === undefined };
+        },
+      };
+    },
+  };
+}
+
+/*
+      Computes the set of Identifiers reachable from this Identifier.
+
+      Reachability is determined over the relationship graph (ie a graph where
+      nodes are identifiers and edges are belongs to or has many
+      relationships).
+
+      Returns an array including `this` and all identifiers reachable
+      from `this.identifier`.
+    */
+function _allRelatedRecordDatas(
+  storeWrapper: RecordDataStoreWrapper,
+  originating: StableRecordIdentifier
+): StableRecordIdentifier[] {
+  let array: StableRecordIdentifier[] = [];
+  let queue: StableRecordIdentifier[] = [];
+  let seen = new Set();
+  queue.push(originating);
+  while (queue.length > 0) {
+    let identifier = queue.shift()!;
+    array.push(identifier);
+    seen.add(identifier);
+
+    const iterator = _directlyRelatedRecordDatasIterable(storeWrapper, originating).iterator();
+    for (let obj = iterator.next(); !obj.done; obj = iterator.next()) {
+      const identifier = obj.value;
+      if (identifier && !seen.has(identifier)) {
+        seen.add(identifier);
+        queue.push(identifier);
+      }
+    }
+  }
+
+  return array;
 }

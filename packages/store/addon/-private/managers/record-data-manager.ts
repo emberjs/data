@@ -198,7 +198,7 @@ export class NonSingletonRecordDataManager implements RecordData {
       identifier = this.#identifier;
     }
     let recordData = this.#recordData;
-    return this.#isDeprecated(recordData) ? recordData.didCommit(data) : recordData.didCommit(identifier, data);
+    this.#isDeprecated(recordData) ? recordData.didCommit(data) : recordData.didCommit(identifier, data);
   }
 
   /**

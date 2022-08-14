@@ -12,6 +12,7 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { reject, resolve } from 'rsvp';
 
+import { V2CACHE_SINGLETON_RECORD_DATA } from '@ember-data/canary-features';
 import type DSModelClass from '@ember-data/model';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import {
@@ -165,6 +166,7 @@ export interface CreateRecordProperties {
 */
 
 class Store extends Service {
+  #recordData!: RecordData;
   /**
    * Ember Data uses several specialized micro-queues for organizing
     and coalescing similar async work.
@@ -2301,6 +2303,13 @@ class Store extends Service {
         storeWrapper = arguments[3];
       }
 
+      if (V2CACHE_SINGLETON_RECORD_DATA) {
+        // @ts-expect-error
+        this.#recordData = this.#recordData || new _RecordData(storeWrapper);
+        return this.#recordData;
+      }
+
+      // @ts-expect-error
       return new _RecordData(identifier, storeWrapper);
     }
 
