@@ -4,6 +4,7 @@
 import { assert } from '@ember/debug';
 import { isEqual } from '@ember/utils';
 
+import { V2CACHE_SINGLETON_RECORD_DATA } from '@ember-data/canary-features';
 import type { Store } from '@ember-data/store/-private';
 import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import type {
@@ -15,6 +16,7 @@ import type { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-dat
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import { V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
+import { Dict } from '@ember-data/types/q/utils';
 
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
@@ -39,7 +41,7 @@ const EMPTY_ITERATOR = {
   @class RecordDataDefault
   @public
  */
-export default class RecordDataDefault implements RecordDataV1 {
+class RecordDataDefault implements RecordDataV1 {
   declare _errors?: JsonApiValidationError[];
   declare modelName: string;
   declare lid: string;
@@ -716,6 +718,98 @@ export default class RecordDataDefault implements RecordDataV1 {
     return `<${this.modelName}:${this.id}>`;
   }
 }
+
+class SingletonRecordData implements RecordData {
+  version: '2' = '2';
+
+  #storeWrapper: V2RecordDataStoreWrapper;
+  #cache = new Map();
+
+  constructor(storeWrapper: V2RecordDataStoreWrapper) {
+    this.#storeWrapper = storeWrapper;
+  }
+
+  pushData(
+    identifier: StableRecordIdentifier,
+    data: JsonApiResource,
+    calculateChanges?: boolean | undefined
+  ): void | string[] {
+    throw new Error('Method not implemented.');
+  }
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+    throw new Error('Method not implemented.');
+  }
+  willCommit(identifier: StableRecordIdentifier): void {
+    throw new Error('Method not implemented.');
+  }
+  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
+    throw new Error('Method not implemented.');
+  }
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
+    throw new Error('Method not implemented.');
+  }
+  unloadRecord(identifier: StableRecordIdentifier): void {
+    throw new Error('Method not implemented.');
+  }
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+    throw new Error('Method not implemented.');
+  }
+  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+    throw new Error('Method not implemented.');
+  }
+  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+    throw new Error('Method not implemented.');
+  }
+  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+    throw new Error('Method not implemented.');
+  }
+  getRelationship(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): SingleResourceRelationship | CollectionResourceRelationship {
+    throw new Error('Method not implemented.');
+  }
+  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void {
+    throw new Error('Method not implemented.');
+  }
+  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    throw new Error('Method not implemented.');
+  }
+  addToHasMany(
+    identifier: StableRecordIdentifier,
+    propertyName: string,
+    value: StableRecordIdentifier[],
+    idx?: number | undefined
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    throw new Error('Method not implemented.');
+  }
+  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+    throw new Error('Method not implemented.');
+  }
+  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+    throw new Error('Method not implemented.');
+  }
+  isEmpty(identifier: StableRecordIdentifier): boolean {
+    throw new Error('Method not implemented.');
+  }
+  isNew(identifier: StableRecordIdentifier): boolean {
+    throw new Error('Method not implemented.');
+  }
+  isDeleted(identifier: StableRecordIdentifier): boolean {
+    throw new Error('Method not implemented.');
+  }
+  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+    throw new Error('Method not implemented.');
+  }
+}
+
+export default V2CACHE_SINGLETON_RECORD_DATA ? SingletonRecordData : RecordDataDefault;
 
 function areAllModelsUnloaded(wrapper: V2RecordDataStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
