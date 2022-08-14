@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
+import { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import publicProps from '@ember-data/unpublished-test-infra/test-support/public-props';
@@ -233,13 +234,13 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (count === 1) {
           const identifier = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '2' });
           assert.strictEqual(
-            (storeWrapper.recordDataFor(identifier) as unknown as RecordDataForTest).id,
+            (storeWrapper.recordDataFor(identifier) as NonSingletonRecordDataManager).getResourceIdentifier().id,
             '2',
             'Can lookup another RecordData that has been loaded'
           );
           const identifier2 = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
           assert.strictEqual(
-            (storeWrapper.recordDataFor(identifier2) as unknown as RecordDataForTest).id,
+            (storeWrapper.recordDataFor(identifier2) as NonSingletonRecordDataManager).getResourceIdentifier().id,
             '1',
             'Can lookup another RecordData which hasnt been loaded'
           );
@@ -324,7 +325,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       },
     });
 
-    assert.ok(recordData._isNew, 'Our RecordData is new');
+    assert.ok(recordData.isNew(), 'Our RecordData is new');
     assert.ok(
       newRecordData.isNew(),
       'The recordData for a RecordData created via Wrapper.recordDataFor(type) is in the "new" state'

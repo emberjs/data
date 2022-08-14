@@ -2620,7 +2620,7 @@ function adapterDidInvalidate(
     }
     recordData.commitWasRejected(identifier, jsonApiErrors);
   } else {
-    recordData.commitWasRejected(identifier, []);
+    recordData.commitWasRejected(identifier);
   }
 }
 

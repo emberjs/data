@@ -153,7 +153,6 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @method clientDidCreate
    * @public
    * @deprecated
-   * @param identifier
    * @param options
    */
   _initRecordCreateOptions(options?: Dict<unknown>) {
@@ -183,6 +182,7 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @method didCommit
    * @public
    * @param identifier
+   * @param data
    */
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
     // called by something V1
@@ -201,8 +201,9 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @method commitWasRejected
    * @public
    * @param identifier
+   * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]) {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]) {
     this.#recordData.commitWasRejected(identifier || this.#identifier, errors);
   }
 

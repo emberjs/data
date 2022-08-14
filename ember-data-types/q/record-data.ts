@@ -69,7 +69,7 @@ export interface RecordData {
 
   willCommit(identifier: StableRecordIdentifier): void;
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void;
-  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void;
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]): void;
 
   unloadRecord(identifier: StableRecordIdentifier): void;
 

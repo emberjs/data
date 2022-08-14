@@ -6,8 +6,6 @@ import { resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { RecordData } from '@ember-data/record-data/-private';
-import { recordDataFor } from '@ember-data/store/-private';
 
 class Person extends Model {
   @hasMany('pet', { inverse: null, async: false })
@@ -110,10 +108,18 @@ module('RecordData Compatibility', function (hooks) {
 
   test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function (assert) {
     const originalCreateRecordDataFor = store.createRecordDataFor;
+    let customCalled = 0,
+      customCalledFor = [],
+      originalCalled = 0,
+      originalCalledFor = [];
     store.createRecordDataFor = function provideCustomRecordData(identifier, storeWrapper) {
       if (identifier.type === 'pet') {
+        customCalled++;
+        customCalledFor.push(identifier);
         return new CustomRecordData(identifier, storeWrapper);
       } else {
+        originalCalled++;
+        originalCalledFor.push(identifier);
         return originalCreateRecordDataFor.call(this, identifier, storeWrapper);
       }
     };
@@ -155,8 +161,25 @@ module('RecordData Compatibility', function (hooks) {
     let shen = pets.objectAt(0);
 
     assert.strictEqual(shen.name, 'Shen', 'We found Shen');
-    assert.ok(recordDataFor(chris) instanceof RecordData, 'We used the default record-data for person');
-    assert.ok(recordDataFor(shen) instanceof CustomRecordData, 'We used the custom record-data for pets');
+    assert.strictEqual(customCalled, 2, 'we used the custom record-data for pet');
+    assert.deepEqual(
+      customCalledFor.map((i) => {
+        return { type: i.type, id: i.id };
+      }),
+      [
+        { id: '1', type: 'pet' },
+        { id: '2', type: 'pet' },
+      ],
+      'we used the cutom record-data for the correct pets'
+    );
+    assert.strictEqual(originalCalled, 1, 'we used the default record-data for person');
+    assert.deepEqual(
+      originalCalledFor.map((i) => {
+        return { type: i.type, id: i.id };
+      }),
+      [{ id: '1', type: 'person' }],
+      'we used the default record-data for the correct person'
+    );
 
     try {
       run(() => chris.unloadRecord());

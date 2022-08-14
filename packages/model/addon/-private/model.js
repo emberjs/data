@@ -1202,7 +1202,7 @@ class Model extends EmberObject {
 
    ```javascript
    import RESTSerializer from '@ember-data/serializer/rest';
-   import { underscore } from '@ember/string';
+   import { underscore } from '<app-name>/utils/string-utils';
 
    export default const PostSerializer = RESTSerializer.extend({
      payloadKeyFromModelName(modelName) {

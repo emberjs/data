@@ -425,7 +425,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       // Use correct interface once imports have been fix
       setDirtyBelongsTo(key: string, recordData: any) {
         assert.strictEqual(key, 'landlord', 'Passed correct key to setBelongsTo');
-        assert.strictEqual(recordData.id, '2', 'Passed correct RD to setBelongsTo');
+        assert.strictEqual(recordData.getResourceIdentifier().id, '2', 'Passed correct RD to setBelongsTo');
       }
     }
 
@@ -543,7 +543,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
           return;
         }
         assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to addToHasMany');
         calledAddToHasMany++;
       }
 
@@ -553,13 +553,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
           return;
         }
         assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
-        assert.strictEqual(recordDatas[0].id, '1', 'Passed correct RD to removeFromHasMany');
+        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '1', 'Passed correct RD to removeFromHasMany');
         calledRemoveFromHasMany++;
       }
 
       setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '3', 'Passed correct RD to addToHasMany');
       }
     }
 
@@ -630,7 +630,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
           return;
         }
         assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to addToHasMany');
         calledAddToHasMany++;
 
         hasManyReturnValue = {
@@ -648,7 +648,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
           return;
         }
         assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
-        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to removeFromHasMany');
+        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to removeFromHasMany');
         calledRemoveFromHasMany++;
         hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
         this._storeWrapper.notifyChange(this.identifier, 'relationships', 'tenants');
@@ -656,7 +656,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
       setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '3', 'Passed correct RD to addToHasMany');
         hasManyReturnValue = {
           data: [
             { id: '1', type: 'person' },

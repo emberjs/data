@@ -568,7 +568,7 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import JSONSerializer from '@ember-data/serializer/json';
-    import { underscore } from '@ember/string';
+    import { underscore } from '<app-name>/utils/string-utils';
     import { get } from '@ember/object';
 
     export default class ApplicationSerializer extends JSONSerializer {
@@ -1138,7 +1138,7 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { decamelize } from '@ember/string';
+    import { decamelize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, snapshot, options) {
@@ -1523,7 +1523,7 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import JSONSerializer from '@ember-data/serializer/json';
-    import { underscore } from '@ember/string';
+    import { underscore } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends JSONSerializer {
       keyForAttribute(attr, method) {
@@ -1551,7 +1551,7 @@ const JSONSerializer = Serializer.extend({
 
       ```app/serializers/post.js
       import JSONSerializer from '@ember-data/serializer/json';
-      import { underscore } from '@ember/string';
+      import { underscore } from '<app-name>/utils/string-utils';
 
       export default class PostSerializer extends JSONSerializer {
         keyForRelationship(key, relationship, method) {

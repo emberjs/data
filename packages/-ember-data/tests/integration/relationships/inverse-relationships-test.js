@@ -684,6 +684,11 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     await comment.destroyRecord();
 
     assert.false(graphFor(store).identifiers.has(identifier), 'relationships are cleared');
+    assert.strictEqual(
+      store._instanceCache.peek({ identifier, bucket: 'recordData' }),
+      undefined,
+      'The recordData is destroyed'
+    );
     assert.ok(recordData.isDestroyed, 'recordData is destroyed');
   });
 });
