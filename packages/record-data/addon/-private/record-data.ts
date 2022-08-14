@@ -778,7 +778,9 @@ class SingletonRecordData implements RecordData {
 
     cached.remoteAttrs = Object.assign(cached.remoteAttrs || Object.create(null), data.attributes);
     if (cached.localAttrs) {
-      patchLocalAttributes(cached);
+      if (patchLocalAttributes(cached)) {
+        this.#storeWrapper.notifyChange(identifier, 'state');
+      }
     }
 
     if (data.relationships) {
@@ -890,19 +892,18 @@ class SingletonRecordData implements RecordData {
 
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
     const cached = getCache(this.#cache, identifier);
-    if (!cached.inflightAttrs) {
-      return;
-    }
-    let keys = Object.keys(cached.inflightAttrs);
-    if (keys.length > 0) {
-      let attrs = (cached.localAttrs = cached.localAttrs || Object.create(null));
-      for (let i = 0; i < keys.length; i++) {
-        if (attrs[keys[i]] === undefined) {
-          attrs[keys[i]] = cached.inflightAttrs[keys[i]];
+    if (cached.inflightAttrs) {
+      let keys = Object.keys(cached.inflightAttrs);
+      if (keys.length > 0) {
+        let attrs = (cached.localAttrs = cached.localAttrs || Object.create(null));
+        for (let i = 0; i < keys.length; i++) {
+          if (attrs[keys[i]] === undefined) {
+            attrs[keys[i]] = cached.inflightAttrs[keys[i]];
+          }
         }
       }
+      cached.inflightAttrs = null;
     }
-    cached.inflightAttrs = null;
     if (errors) {
       cached.errors = errors;
     }
@@ -917,8 +918,11 @@ class SingletonRecordData implements RecordData {
     const storeWrapper = this.#storeWrapper;
     graphFor(storeWrapper).unload(identifier);
 
-    // TODO trick graph into thinking we are unloaded before
+    // trick graph into thinking we are unloaded before
     // iterating?
+    cached.localAttrs = null;
+    cached.remoteAttrs = null;
+    cached.inflightAttrs = null;
 
     let relatedIdentifiers = _allRelatedRecordDatas(storeWrapper, identifier);
     if (areAllModelsUnloaded(storeWrapper, relatedIdentifiers)) {
@@ -967,6 +971,8 @@ class SingletonRecordData implements RecordData {
       delete cached.localAttrs[attr];
       delete cached.changes![attr];
     }
+
+    this.#storeWrapper.notifyChange(identifier, 'attributes', attr);
   }
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     // TODO freeze in dev
@@ -984,6 +990,7 @@ class SingletonRecordData implements RecordData {
     if (cached.localAttrs !== null) {
       dirtyKeys = Object.keys(cached.localAttrs);
       cached.localAttrs = null;
+      cached.changes = null;
     }
 
     if (cached.isNew) {
@@ -1207,11 +1214,12 @@ function setupRelationships(
   }
 }
 
-function patchLocalAttributes(cached: CachedResource) {
+function patchLocalAttributes(cached: CachedResource): boolean {
   const { localAttrs, remoteAttrs, inflightAttrs, changes } = cached;
   if (!localAttrs) {
-    return;
+    return false;
   }
+  let hasAppliedPatch = false;
   let mutatedKeys = Object.keys(localAttrs);
 
   for (let i = 0, length = mutatedKeys.length; i < length; i++) {
@@ -1224,10 +1232,12 @@ function patchLocalAttributes(cached: CachedResource) {
         : undefined;
 
     if (existing === localAttrs[attr]) {
+      hasAppliedPatch = true;
       delete localAttrs[attr];
       delete changes![attr];
     }
   }
+  return hasAppliedPatch;
 }
 
 /*

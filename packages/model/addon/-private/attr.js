@@ -125,7 +125,7 @@ function attr(type, options) {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
-      return recordDataFor(this).getAttr(key);
+      return recordDataFor(this).getAttr(recordIdentifierFor(this), key);
     },
     set(key, value) {
       if (DEBUG) {
@@ -139,10 +139,11 @@ function attr(type, options) {
         `Attempted to set '${key}' on the deleted record ${recordIdentifierFor(this)}`,
         !this.currentState.isDeleted
       );
-      const recordData = storeFor(this)._instanceCache.getRecordData(recordIdentifierFor(this));
-      let currentValue = recordData.getAttr(key);
+      const identifier = recordIdentifierFor(this);
+      const recordData = storeFor(this)._instanceCache.getRecordData(identifier);
+      let currentValue = recordData.getAttr(identifier, key);
       if (currentValue !== value) {
-        recordData.setDirtyAttribute(key, value);
+        recordData.setAttr(identifier, key, value);
 
         if (!this.isValid) {
           const { errors } = this;

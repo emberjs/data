@@ -33,6 +33,7 @@ const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as ne
 export interface ManyArrayCreateArgs {
   store: Store;
   type: ShimModelClass;
+  identifier: StableRecordIdentifier;
   recordData: RecordData;
   key: string;
   isPolymorphic: boolean;
@@ -99,6 +100,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
   declare _meta: Dict<unknown> | null;
   declare _links: Links | PaginationLinks | null;
   declare currentState: StableRecordIdentifier[];
+  declare identifier: StableRecordIdentifier;
   declare recordData: RecordData;
   declare legacySupport: LegacySupport;
   declare store: Store;
@@ -273,9 +275,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
 
   replace(idx: number, amt: number, objects?: RecordInstance[]) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
-    const { store } = this;
-    // TODO get this somewhere else
-    const identifier = (this.recordData as NonSingletonRecordDataManager).getResourceIdentifier();
+    const { store, identifier } = this;
     store._backburner.join(() => {
       let identifiers: StableRecordIdentifier[];
       if (amt > 0) {
@@ -305,8 +305,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     }
     this._isDirty = false;
     this._isUpdating = true;
-    // TODO get this somewhere else
-    const identifier = (this.recordData as NonSingletonRecordDataManager).getResourceIdentifier();
+    const identifier = this.identifier;
 
     let jsonApi = (this.recordData as NonSingletonRecordDataManager).getRelationship(
       identifier,

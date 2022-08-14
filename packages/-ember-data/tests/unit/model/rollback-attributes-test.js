@@ -25,10 +25,6 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       const Person = DS.Model.extend({
         firstName: DS.attr(),
         lastName: DS.attr(),
-        rolledBackCount: 0,
-        rolledBack() {
-          this.incrementProperty('rolledBackCount');
-        },
       });
 
       this.owner.register('model:person', Person);
@@ -38,27 +34,21 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
 
     test('changes to attributes can be rolled back', function (assert) {
       let store = this.owner.lookup('service:store');
-      let person;
-
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              firstName: 'Tom',
-              lastName: 'Dale',
-            },
+      let person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            firstName: 'Tom',
+            lastName: 'Dale',
           },
-        });
-        person = store.peekRecord('person', 1);
-        person.set('firstName', 'Thomas');
-        return person;
+        },
       });
+      person.set('firstName', 'Thomas');
 
       assert.strictEqual(person.firstName, 'Thomas', 'PreCond: we mutated firstName');
 
-      run(() => person.rollbackAttributes());
+      person.rollbackAttributes();
 
       assert.strictEqual(person.firstName, 'Tom', 'We rolled back firstName');
       assert.false(person.hasDirtyAttributes, 'We expect the record to be clean');
@@ -140,7 +130,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       });
     });
 
-    test("a record's changes can be made if it fails to save", function (assert) {
+    test("a record's changes can be made if it fails to save", async function (assert) {
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');
 
@@ -148,39 +138,33 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         return reject();
       };
 
-      let person = run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              firstName: 'Tom',
-              lastName: 'Dale',
-            },
+      let person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            firstName: 'Tom',
+            lastName: 'Dale',
           },
-        });
-
-        let person = store.peekRecord('person', 1);
-        person.set('firstName', 'Thomas');
-
-        return person;
+        },
       });
+      person.set('firstName', 'Thomas');
 
       assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas']);
 
-      run(function () {
-        person.save().then(null, function () {
-          assert.true(person.isError);
-          assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas']);
-          run(function () {
-            person.rollbackAttributes();
-          });
+      try {
+        await person.save();
+        assert.ok(false, 'expected reject');
+      } catch {
+        assert.true(person.isError, 'person is in error');
+        assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas'], 'changed attrs are correct');
 
-          assert.strictEqual(person.firstName, 'Tom');
-          assert.false(person.isError);
-          assert.strictEqual(Object.keys(person.changedAttributes()).length, 0);
-        });
-      });
+        person.rollbackAttributes();
+
+        assert.strictEqual(person.firstName, 'Tom', 'name is correct after rollback');
+        assert.false(person.isError, 'error is removed');
+        assert.strictEqual(Object.keys(person.changedAttributes()).length, 0, 'no more changed attrs');
+      }
     });
 
     test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function (assert) {
@@ -506,7 +490,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     }
   });
 
-  test(`when destroying a record setup the record state to invalid, the record's attributes can be rollbacked`, function (assert) {
+  test(`when destroying a record setup the record state to invalid, the record's attributes can be rollbacked`, async function (assert) {
     const Dog = DS.Model.extend({
       name: DS.attr(),
     });
@@ -529,36 +513,33 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     this.owner.register('serializer:application', RESTSerializer.extend());
 
     let store = this.owner.lookup('service:store');
-
-    let dog = run(() => {
-      store.push({
-        data: {
-          type: 'dog',
-          id: '1',
-          attributes: {
-            name: 'Pluto',
-          },
+    let dog = store.push({
+      data: {
+        type: 'dog',
+        id: '1',
+        attributes: {
+          name: 'Pluto',
         },
-      });
-      return store.peekRecord('dog', 1);
+      },
     });
 
-    return run(() => {
-      return dog.destroyRecord().catch((reason) => {
-        assert.strictEqual(reason, error);
+    try {
+      await dog.destroyRecord();
+      assert.ok(false, 'expected reject');
+    } catch (reason) {
+      assert.strictEqual(reason, error);
 
-        assert.false(dog.isError, 'must not be error');
-        assert.true(dog.isDeleted, 'must be deleted');
-        assert.false(dog.isValid, 'must not be valid');
-        assert.ok(dog.errors.length > 0, 'must have errors');
+      assert.false(dog.isError, 'must not be error');
+      assert.true(dog.isDeleted, 'must be deleted');
+      assert.false(dog.isValid, 'must not be valid');
+      assert.ok(dog.errors.length > 0, 'must have errors');
 
-        dog.rollbackAttributes();
+      dog.rollbackAttributes();
 
-        assert.false(dog.isError, 'must not be error after `rollbackAttributes`');
-        assert.false(dog.isDeleted, 'must not be deleted after `rollbackAttributes`');
-        assert.true(dog.isValid, 'must be valid after `rollbackAttributes`');
-        assert.strictEqual(dog.errors.length, 0, 'must not have errors');
-      });
-    });
+      assert.false(dog.isError, 'must not be error after `rollbackAttributes`');
+      assert.false(dog.isDeleted, 'must not be deleted after `rollbackAttributes`');
+      assert.true(dog.isValid, 'must be valid after `rollbackAttributes`');
+      assert.strictEqual(dog.errors.length, 0, 'must not have errors');
+    }
   });
 });

@@ -814,7 +814,7 @@ class Model extends EmberObject {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes() {
-    return recordDataFor(this).changedAttributes();
+    return recordDataFor(this).changedAttrs(recordIdentifierFor(this));
   }
 
   /**
@@ -838,7 +838,7 @@ class Model extends EmberObject {
   rollbackAttributes() {
     const { currentState } = this;
     const { isNew } = currentState;
-    recordDataFor(this).rollbackAttributes();
+    recordDataFor(this).rollbackAttrs(recordIdentifierFor(this));
     this.errors.clear();
     currentState.cleanErrorRequests();
     if (isNew) {

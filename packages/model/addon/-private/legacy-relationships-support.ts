@@ -167,6 +167,7 @@ export class LegacySupport {
       manyArray = (ManyArray as unknown as ManyArrayFactory).create({
         store: this.store,
         type: this.store.modelFor(definition.type),
+        identifier: this.identifier,
         recordData: this.recordData,
         key,
         isPolymorphic: definition.isPolymorphic,
