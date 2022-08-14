@@ -4,6 +4,7 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { resolve } from 'rsvp';
 
+import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
@@ -125,6 +126,7 @@ export class InstanceCache {
   declare peekList: Dict<Set<StableRecordIdentifier>>;
   declare __recordDataFor: (resource: RecordIdentifier) => RecordData;
 
+  #cacheManager!: NonSingletonRecordDataManager;
   #instances: Caches = {
     record: new WeakMap<StableRecordIdentifier, RecordInstance>(),
     recordData: new WeakMap<StableRecordIdentifier, RecordData>(),
@@ -330,10 +332,20 @@ export class InstanceCache {
           identifier.lid,
           this._storeWrapper
         );
-        recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        if (V2CACHE_SINGLETON_MANAGER) {
+          recordData = this.#cacheManager =
+            this.#cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        } else {
+          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        }
       } else {
         let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
-        recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        if (V2CACHE_SINGLETON_MANAGER) {
+          recordData = this.#cacheManager =
+            this.#cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        } else {
+          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        }
       }
       setRecordDataFor(identifier, recordData);
 

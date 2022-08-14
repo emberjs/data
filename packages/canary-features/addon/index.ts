@@ -27,3 +27,4 @@ function featureValue(value: boolean | null): boolean | null {
 export const FEATURES: FeatureList = Object.assign({}, DEFAULT_FEATURES, ENV.FEATURES);
 export const SAMPLE_FEATURE_FLAG = featureValue(FEATURES.SAMPLE_FEATURE_FLAG);
 export const V2CACHE_SINGLETON_RECORD_DATA = featureValue(FEATURES.V2CACHE_SINGLETON_RECORD_DATA);
+export const V2CACHE_SINGLETON_MANAGER = featureValue(FEATURES.V2CACHE_SINGLETON_MANAGER);
