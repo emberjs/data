@@ -282,7 +282,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
         identifiers = this.currentState.slice(idx, idx + amt);
         this.recordData.removeFromHasMany(identifier, this.key, identifiers);
       }
-      if (objects) {
+      if (objects && objects.length > 0) {
         assert(
           'The third argument to replace needs to be an array.',
           Array.isArray(objects) || EmberArray.detect(objects)
