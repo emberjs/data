@@ -54,7 +54,6 @@ function freeze<T>(obj: T): T {
 interface KeyOptions {
   lid: IdentifierMap;
   id: IdentifierMap;
-  _allIdentifiers: StableRecordIdentifier[];
 }
 
 type IdentifierMap = ConfidentDict<StableRecordIdentifier>;
@@ -265,9 +264,6 @@ export class IdentifierCache {
           // TODO consider having the `lid` cache be
           // one level up
           keyOptions.lid[identifier.lid] = identifier;
-          // TODO exists temporarily to support `peekAll`
-          // but likely to move
-          keyOptions._allIdentifiers.push(identifier);
 
           if (LOG_IDENTIFIERS && shouldGenerate) {
             // eslint-disable-next-line no-console
@@ -371,9 +367,6 @@ export class IdentifierCache {
 
     // populate the type+lid cache
     keyOptions.lid[newLid] = identifier;
-    // ensure a peekAll sees our new identifier too
-    // TODO move this outta here?
-    keyOptions._allIdentifiers.push(identifier);
 
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -458,7 +451,7 @@ export class IdentifierCache {
       keyOptions.id[newId] = identifier;
 
       if (id !== null) {
-        delete keyOptions.id[id];
+        keyOptions.id[id] = undefined as unknown as StableRecordIdentifier;
       }
     } else if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -514,13 +507,10 @@ export class IdentifierCache {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
     let keyOptions = getTypeIndex(this._cache.types, identifier.type);
     if (identifier.id !== null) {
-      delete keyOptions.id[identifier.id];
+      keyOptions.id[identifier.id] = undefined as unknown as StableRecordIdentifier;
     }
-    delete this._cache.lids[identifier.lid];
-    delete keyOptions.lid[identifier.lid];
-
-    let index = keyOptions._allIdentifiers.indexOf(identifier);
-    keyOptions._allIdentifiers.splice(index, 1);
+    this._cache.lids[identifier.lid] = undefined as unknown as StableRecordIdentifier;
+    keyOptions.lid[identifier.lid] = undefined as unknown as StableRecordIdentifier;
 
     IDENTIFIERS.delete(identifierObject);
     this._forget(identifier, 'record');
@@ -542,7 +532,6 @@ function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
     typeIndex = {
       lid: Object.create(null),
       id: Object.create(null),
-      _allIdentifiers: [],
     };
     typeMap[type] = typeIndex;
   }

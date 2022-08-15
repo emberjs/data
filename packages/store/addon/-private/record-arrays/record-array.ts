@@ -284,7 +284,15 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @param {StableRecordIdentifier[]} identifiers
   */
   _removeIdentifiers(identifiers: StableRecordIdentifier[]): void {
-    this.content.removeObjects(identifiers);
+    // if we are unloading all there's no point in an expensive diff
+    // and traversal.
+    if (identifiers.length === this.content.length) {
+      this.content.clear();
+    } else {
+      // TODO This is horribly innefficient, we should refactor RecordArray
+      // to be a native class of our own.
+      this.content.removeObjects(identifiers);
+    }
   }
 
   /**
