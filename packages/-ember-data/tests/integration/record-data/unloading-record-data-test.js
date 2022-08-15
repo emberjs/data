@@ -71,6 +71,9 @@ module('RecordData Compatibility', function (hooks) {
         clientId: this.clientId,
       };
     }
+    isEmpty() {
+      return false;
+    }
     // TODO missing from RFC but required to implement
     unloadRecord() {
       this.attributes = null;

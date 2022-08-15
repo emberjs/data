@@ -208,7 +208,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     record.deleteRecord();
 
-    assert.true(recordData.isEmpty(), 'new person state is empty');
+    assert.true(recordData.isEmpty(identifier), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -251,7 +251,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     await record.destroyRecord();
 
-    assert.true(recordData.isEmpty(), 'new person state is empty');
+    assert.true(recordData.isEmpty(identifier), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -307,7 +307,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     record.deleteRecord();
 
-    assert.true(recordData.isEmpty(), 'We reached the correct persisted saved state');
+    assert.true(recordData.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
     assert.strictEqual(
       store._instanceCache.peek({ identifier, bucket: 'recordData' }),
@@ -342,7 +342,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     record.deleteRecord();
     await settled();
 
-    assert.true(recordData.isEmpty(), 'We reached the correct persisted saved state');
+    assert.true(recordData.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
     assert.strictEqual(
       store._instanceCache.peek({ identifier, bucket: 'recordData' }),

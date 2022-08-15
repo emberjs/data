@@ -2,6 +2,7 @@
  * @module @ember-data/record-data
  */
 import { assert } from '@ember/debug';
+import { schedule } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 
 import { V2CACHE_SINGLETON_RECORD_DATA } from '@ember-data/canary-features';
@@ -737,26 +738,39 @@ function makeCache(): CachedResource {
     isDeletionCommitted: false,
   };
 }
-
-function getCache(
-  cache: Map<StableRecordIdentifier, CachedResource>,
-  identifier: StableRecordIdentifier
-): CachedResource {
-  let cached = cache.get(identifier);
-  if (!cached) {
-    cached = makeCache();
-    cache.set(identifier, cached);
-  }
-  return cached;
-}
 class SingletonRecordData implements RecordData {
   version: '2' = '2';
 
   #storeWrapper: V2RecordDataStoreWrapper;
   #cache: Map<StableRecordIdentifier, CachedResource> = new Map();
+  #destroyedCache: Map<StableRecordIdentifier, CachedResource> = new Map();
 
   constructor(storeWrapper: V2RecordDataStoreWrapper) {
     this.#storeWrapper = storeWrapper;
+  }
+
+  /**
+   * Private method used when the store's `createRecordDataFor` hook is called
+   * to populate an entry for the identifier into the singleton.
+   *
+   * @method createCache
+   * @private
+   * @param identifier
+   */
+  createCache(identifier: StableRecordIdentifier): void {
+    this.#cache.set(identifier, makeCache());
+  }
+
+  #peek(identifier: StableRecordIdentifier, allowDestroyed = false): CachedResource {
+    let resource = this.#cache.get(identifier);
+    if (!resource && allowDestroyed) {
+      resource = this.#destroyedCache.get(identifier);
+    }
+    assert(
+      `Expected RecordData Cache to have a resource cache for the identifier ${String(identifier)} but none was found`,
+      resource
+    );
+    return resource;
   }
 
   pushData(
@@ -765,7 +779,7 @@ class SingletonRecordData implements RecordData {
     calculateChanges?: boolean | undefined
   ): void | string[] {
     let changedKeys: string[] | undefined;
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier);
 
     if (cached.isNew) {
       cached.isNew = false;
@@ -794,7 +808,7 @@ class SingletonRecordData implements RecordData {
     return changedKeys;
   }
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier);
     cached.isNew = true;
     let createOptions = {};
 
@@ -844,12 +858,12 @@ class SingletonRecordData implements RecordData {
     return createOptions;
   }
   willCommit(identifier: StableRecordIdentifier): void {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier);
     cached.inflightAttrs = cached.localAttrs;
     cached.localAttrs = null;
   }
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier);
     if (cached.isDeleted) {
       graphFor(this.#storeWrapper).push({
         op: 'deleteRecord',
@@ -891,7 +905,7 @@ class SingletonRecordData implements RecordData {
   }
 
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier);
     if (cached.inflightAttrs) {
       let keys = Object.keys(cached.inflightAttrs);
       if (keys.length > 0) {
@@ -911,38 +925,51 @@ class SingletonRecordData implements RecordData {
   }
 
   unloadRecord(identifier: StableRecordIdentifier): void {
-    const cached = this.#cache.get(identifier);
-    if (!cached) {
-      return;
-    }
+    const cached = this.#peek(identifier);
     const storeWrapper = this.#storeWrapper;
     graphFor(storeWrapper).unload(identifier);
 
-    // trick graph into thinking we are unloaded before
-    // iterating?
+    // effectively clearing these is ensuring that
+    // we report as `isEmpty` during teardown.
     cached.localAttrs = null;
     cached.remoteAttrs = null;
     cached.inflightAttrs = null;
 
     let relatedIdentifiers = _allRelatedRecordDatas(storeWrapper, identifier);
     if (areAllModelsUnloaded(storeWrapper, relatedIdentifiers)) {
-      // we don't have a backburner queue yet since
-      // we scheduled this into ember's destroy
-      // disconnectRecord called from destroy will teardown
-      // relationships. We do this to queue that.
-      (storeWrapper as unknown as { _store: Store })._store._backburner.join(() => {
-        for (let i = 0; i < relatedIdentifiers.length; ++i) {
-          let identifier = relatedIdentifiers[i];
-          storeWrapper.disconnectRecord(identifier);
-        }
-      });
+      for (let i = 0; i < relatedIdentifiers.length; ++i) {
+        let identifier = relatedIdentifiers[i];
+        storeWrapper.disconnectRecord(identifier);
+      }
     }
 
     this.#cache.delete(identifier);
+    this.#destroyedCache.set(identifier, cached);
+
+    /*
+     * The destroy cache is a hack to prevent applications
+     * from blowing up during teardown. Accessing state
+     * on a destroyed record is not safe, but historically
+     * was possible due to a combination of teardown timing
+     * and retention of a RecordData instance directly on the
+     * record itself.
+     *
+     * Once we have deprecated accessing state on a destroyed
+     * instance we may remove this. The timing isn't a huge deal
+     * as momentarily retaining the objects outside the bounds
+     * of a test won't cause issues.
+     */
+    if (this.#destroyedCache.size === 1) {
+      schedule('destroy', () => {
+        setTimeout(() => {
+          this.#destroyedCache.clear();
+        }, 100);
+      });
+    }
   }
 
   getAttr(identifier: StableRecordIdentifier, attr: string): unknown {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier, true);
     if (cached.localAttrs && attr in cached.localAttrs) {
       return cached.localAttrs[attr];
     } else if (cached.inflightAttrs && attr in cached.inflightAttrs) {
@@ -955,7 +982,7 @@ class SingletonRecordData implements RecordData {
     }
   }
   setAttr(identifier: StableRecordIdentifier, attr: string, value: unknown): void {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier);
     const existing =
       cached.inflightAttrs && attr in cached.inflightAttrs
         ? cached.inflightAttrs[attr]
@@ -976,14 +1003,14 @@ class SingletonRecordData implements RecordData {
   }
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     // TODO freeze in dev
-    return getCache(this.#cache, identifier).changes || Object.create(null);
+    return this.#peek(identifier).changes || Object.create(null);
   }
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier, true);
     return cached.localAttrs !== null && Object.keys(cached.localAttrs).length > 0;
   }
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier);
     let dirtyKeys: string[] | undefined;
     cached.isDeleted = false;
 
@@ -1065,7 +1092,7 @@ class SingletonRecordData implements RecordData {
   }
 
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier);
     cached.isDeleted = isDeleted;
     if (cached.isNew) {
       // TODO can we delete this since we will do this in unload?
@@ -1078,20 +1105,20 @@ class SingletonRecordData implements RecordData {
     this.#storeWrapper.notifyChange(identifier, 'state');
   }
   getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
-    return getCache(this.#cache, identifier).errors || [];
+    return this.#peek(identifier, true).errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {
-    const cached = getCache(this.#cache, identifier);
+    const cached = this.#peek(identifier, true);
     return cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null;
   }
   isNew(identifier: StableRecordIdentifier): boolean {
-    return getCache(this.#cache, identifier).isNew;
+    return this.#peek(identifier, true).isNew;
   }
   isDeleted(identifier: StableRecordIdentifier): boolean {
-    return getCache(this.#cache, identifier).isDeleted;
+    return this.#peek(identifier, true).isDeleted;
   }
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
-    return getCache(this.#cache, identifier).isDeletionCommitted;
+    return this.#peek(identifier, true).isDeletionCommitted;
   }
 }
 

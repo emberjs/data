@@ -234,7 +234,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       assert.true(person.isDeleted, 'must be deleted');
     });
 
-    test(`invalid new record's attributes can be rollbacked`, function (assert) {
+    test(`invalid new record's attributes can be rollbacked`, async function (assert) {
       let error = new DS.InvalidError([
         {
           detail: 'is invalid',
@@ -257,18 +257,18 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       assert.true(person.isNew, 'must be new');
       assert.true(person.hasDirtyAttributes, 'must be dirty');
 
-      return run(() => {
-        return person.save().catch((reason) => {
-          assert.strictEqual(error, reason);
-          assert.false(person.isValid);
+      try {
+        await person.save();
+      } catch (reason) {
+        assert.strictEqual(error, reason);
+        assert.false(person.isValid);
 
-          run(() => person.rollbackAttributes());
+        person.rollbackAttributes();
 
-          assert.false(person.isNew, 'must not be new');
-          assert.false(person.hasDirtyAttributes, 'must not be dirty');
-          assert.true(person.isDeleted, 'must be deleted');
-        });
-      });
+        assert.false(person.isNew, 'must not be new');
+        assert.false(person.hasDirtyAttributes, 'must not be dirty');
+        assert.true(person.isDeleted, 'must be deleted');
+      }
     });
 
     test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function (assert) {
