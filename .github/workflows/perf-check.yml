@@ -48,6 +48,11 @@ jobs:
                 "experiment": "http://localhost:4201/unload",
                 "markers": "start-push-payload,start-unload-records,end-unload-records"
               },
+              "unload-all": {
+                "control": "http://localhost:4200/unload-all",
+                "experiment": "http://localhost:4201/unload-all",
+                "markers": "start-push-payload,start-materialization,start-unload-all,end-unload-all"
+              },
               "destroy": {
                 "control": "http://localhost:4200/destroy",
                 "experiment": "http://localhost:4201/destroy",
