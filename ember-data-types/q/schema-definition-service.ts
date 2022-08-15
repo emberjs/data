@@ -6,7 +6,7 @@ import type { RecordIdentifier } from './identifier';
 import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
 
 /**
- * A SchemaDefinitionService implementation provides provides the ability
+ * A SchemaDefinitionService implementation provides the ability
  * to query for various information about a resource in an abstract manner.
  *
  * How an implementation determines this information is left up to the implementation,
