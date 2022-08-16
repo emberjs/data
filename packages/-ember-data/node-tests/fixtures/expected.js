@@ -42,6 +42,7 @@ module.exports = {
     '(private) @ember-data/model Model#_notifyProperties',
     '(private) @ember-data/model Model#create',
     '(private) @ember-data/model Model#currentState',
+    '(private) @ember-data/record-data RecordDataDefault#createCache',
     '(private) @ember-data/record-data RecordDataDefault#_initRecordCreateOptions',
     '(private) @ember-data/record-data RecordDataDefault#changedAttributes',
     '(private) @ember-data/record-data RecordDataDefault#updateChangedAttributes',
