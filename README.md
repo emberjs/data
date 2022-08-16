@@ -8,7 +8,7 @@ EmberData
 
 # Overview
 
-`EmberData` is a lightweight reactive data library for javascript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation that you can plug-and-play as desired for any api  structure and format.
+`EmberData` is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation. You can plug-and-play as desired for any api  structure and format.
 
 It was designed for robustly managing data in applications built with [Ember](https://github.com/emberjs/ember.js/) and is agnostic to the underlying persistence mechanism, so it works just as well with [JSON:API](https://jsonapi.org/) or [GraphQL](https://graphql.org/) over `HTTPS` as it does with streaming `WebSockets` or local `IndexedDB` storage.
 
