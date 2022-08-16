@@ -29,15 +29,15 @@ import type Store from '../store-service';
 export default class RecordReference {
   declare store: Store;
   // unsubscribe token given to us by the notification manager
-  #token!: Object;
-  #identifier: StableRecordIdentifier;
+  ___token!: Object;
+  ___identifier: StableRecordIdentifier;
 
   @tracked _ref = 0;
 
   constructor(store: Store, identifier: StableRecordIdentifier) {
     this.store = store;
-    this.#identifier = identifier;
-    this.#token = store._notificationManager.subscribe(
+    this.___identifier = identifier;
+    this.___token = store._notificationManager.subscribe(
       identifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
@@ -48,7 +48,7 @@ export default class RecordReference {
   }
 
   destroy() {
-    unsubscribe(this.#token);
+    unsubscribe(this.___token);
   }
 
   get type(): string {
@@ -75,7 +75,7 @@ export default class RecordReference {
   */
   id() {
     this._ref; // consume the tracked prop
-    return this.#identifier.id;
+    return this.___identifier.id;
   }
 
   /**
@@ -97,7 +97,7 @@ export default class RecordReference {
      @return {String} The identifier of the record.
   */
   identifier(): StableRecordIdentifier {
-    return this.#identifier;
+    return this.___identifier;
   }
 
   /**
@@ -185,7 +185,7 @@ export default class RecordReference {
      @return {Model} the record for this RecordReference
   */
   value(): RecordInstance | null {
-    return this.store.peekRecord(this.#identifier);
+    return this.store.peekRecord(this.___identifier);
   }
 
   /**
