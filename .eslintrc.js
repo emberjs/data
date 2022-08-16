@@ -316,6 +316,7 @@ module.exports = {
         '.eslintrc.js',
         '.prettierrc.js',
         'scripts/**',
+        'packages/unpublished-relationship-performance-test-app/server/**/*.js',
         'packages/-ember-data/lib/*.js',
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',

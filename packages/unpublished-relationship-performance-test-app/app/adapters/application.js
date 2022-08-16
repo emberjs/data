@@ -4,7 +4,7 @@ import { resolve } from 'rsvp';
 
 export default class ApplicationMockAdapter extends EmberObject {
   findAll() {
-    return fetch('./fixtures/materialization.json').then((response) => response.json());
+    return fetch('./fixtures/relationship-materialization-simple.json').then((response) => response.json());
   }
   shouldReloadAll() {
     return false;

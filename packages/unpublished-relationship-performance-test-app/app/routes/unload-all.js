@@ -7,7 +7,7 @@ export default Route.extend({
 
   async model() {
     performance.mark('start-data-generation');
-    const payload = await fetch('./fixtures/unload.json').then((r) => r.json());
+    const payload = await fetch('./fixtures/unload-all.json').then((r) => r.json());
     performance.mark('start-push-payload');
     this.store.push(payload);
     performance.mark('start-materialization');

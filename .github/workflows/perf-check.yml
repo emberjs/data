@@ -38,10 +38,20 @@ jobs:
           use-yarn: true
           scenarios: |
             {
-              "materialization": {
-                "control": "http://localhost:4200/materialization",
-                "experiment": "http://localhost:4201/materialization",
+              "basic-record-materialization": {
+                "control": "http://localhost:4200/basic-record-materialization",
+                "experiment": "http://localhost:4201/basic-record-materialization",
+                "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,end-record-materialization"
+              },
+              "relationship-materialization-simple": {
+                "control": "http://localhost:4200/relationship-materialization-simple",
+                "experiment": "http://localhost:4201/relationship-materialization-simple",
                 "markers": "start-find-all,start-materialization,end-materialization"
+              },
+              "relationship-materialization-complex": {
+                "control": "http://localhost:4200/relationship-materialization-complex",
+                "experiment": "http://localhost:4201/relationship-materialization-complex",
+                "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,start-relationship-materialization,end-relationship-materialization"
               },
               "unload": {
                 "control": "http://localhost:4200/unload",
