@@ -171,7 +171,7 @@ export class IdentifierCache {
     if (isStableIdentifier(resource)) {
       if (DEBUG) {
         // TODO should we instead just treat this case as a new generation skipping the short circuit?
-        if (!(resource.lid in this._cache.lids) || this._cache.lids[resource.lid] !== resource) {
+        if (!(this._cache.lids[resource.lid] !== undefined) || this._cache.lids[resource.lid] !== resource) {
           throw new Error(`The supplied identifier ${resource} does not belong to this store instance`);
         }
       }
@@ -199,7 +199,7 @@ export class IdentifierCache {
     }
 
     if (shouldGenerate === false) {
-      if (!('type' in resource) || !('id' in resource) || !resource.type || !resource.id) {
+      if (!(resource as ExistingResourceObject).type || !(resource as ExistingResourceObject).id) {
         return;
       }
     }
@@ -254,7 +254,7 @@ export class IdentifierCache {
           if (DEBUG) {
             // realistically if you hit this it means you changed `type` :/
             // TODO consider how to handle type change assertions more gracefully
-            if (identifier.lid in this._cache.lids) {
+            if (this._cache.lids[identifier.lid] !== undefined) {
               throw new Error(`You should not change the <type> of a RecordIdentifier`);
             }
           }
@@ -359,7 +359,7 @@ export class IdentifierCache {
 
     // populate our unique table
     if (DEBUG) {
-      if (identifier.lid in this._cache.lids) {
+      if (this._cache.lids[identifier.lid] !== undefined) {
         throw new Error(`The lid generated for the new record is not unique as it matches an existing identifier`);
       }
     }
@@ -401,13 +401,17 @@ export class IdentifierCache {
   updateRecordIdentifier(identifierObject: RecordIdentifier, data: ResourceData): StableRecordIdentifier {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
-    let newId = 'id' in data ? coerceId(data.id) : null;
+    let newId =
+      (data as ExistingResourceObject).id !== undefined ? coerceId((data as ExistingResourceObject).id) : null;
     let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
 
     if (!existingIdentifier) {
       // If the incoming type does not match the identifier type, we need to create an identifier for the incoming
       // data so we can merge the incoming data with the existing identifier, see #7325 and #7363
-      if ('type' in data && data.type && identifier.type !== normalizeModelName(data.type)) {
+      if (
+        (data as ExistingResourceObject).type &&
+        identifier.type !== normalizeModelName((data as ExistingResourceObject).type)
+      ) {
         let incomingDataResource = { ...data };
         // Need to strip the lid from the incomingData in order force a new identifier creation
         delete incomingDataResource.lid;
@@ -635,8 +639,8 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
   // for the multiple-cache-key scenario we "could"
   // use a heuristic to guess the best id for display
   // (usually when `data.id` is available and `data.attributes` is not)
-  if ('id' in data && data.id !== undefined) {
-    identifier.id = coerceId(data.id);
+  if ((data as ExistingResourceObject).id !== undefined) {
+    identifier.id = coerceId((data as ExistingResourceObject).id);
   }
 }
 
@@ -654,7 +658,7 @@ function detectMerge(
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
-    let newType = 'type' in data && data.type && normalizeModelName(data.type);
+    let newType = (data as ExistingResourceObject).type && normalizeModelName((data as ExistingResourceObject).type);
 
     // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {

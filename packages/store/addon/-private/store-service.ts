@@ -2532,8 +2532,6 @@ class Store extends Service {
     this.recordArrayManager.destroy();
     this.identifierCache.destroy();
 
-    this.unloadAll();
-
     if (HAS_RECORD_DATA_PACKAGE) {
       const peekGraph = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
@@ -2543,6 +2541,8 @@ class Store extends Service {
         graph.willDestroy();
       }
     }
+
+    this.unloadAll();
 
     if (DEBUG) {
       unregisterWaiter(this.__asyncWaiter);
