@@ -453,7 +453,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     ```app/adapters/application.js
     import Adapter from '@ember-data/adapter';
-    import { run } from '@ember/runloop';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -468,10 +467,10 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
             dataType: 'json',
             data: data
           }).then(function (data) {
-            run(null, resolve, data);
+            resolve(data);
           }, function (jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
-            run(null, reject, jqXHR);
+            reject(jqXHR);
           });
         });
       }
@@ -511,7 +510,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     ```app/adapters/application.js
     import Adapter from '@ember-data/adapter';
-    import { run } from '@ember/runloop';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -527,10 +525,10 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
             dataType: 'json',
             data: data
           }).then(function(data) {
-            run(null, resolve, data);
+            resolve(data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
-            run(null, reject, jqXHR);
+            reject(jqXHR);
           });
         });
       }
@@ -562,7 +560,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     ```app/adapters/application.js
     import Adapter from '@ember-data/adapter';
-    import { run } from '@ember/runloop';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -578,10 +575,10 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
             dataType: 'json',
             data: data
           }).then(function(data) {
-            run(null, resolve, data);
+            resolve(data)
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
-            run(null, reject, jqXHR);
+            reject(jqXHR);
           });
         });
       }
@@ -632,7 +629,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     ```app/adapters/application.js
     import Adapter from '@ember-data/adapter';
-    import { run } from '@ember/runloop';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -645,10 +641,10 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
             dataType: 'json',
             data: { filter: { id: ids.join(',') } }
           }).then(function(data) {
-            run(null, resolve, data);
+            resolve(data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
-            run(null, reject, jqXHR);
+            reject(jqXHR);
           });
         });
       }
