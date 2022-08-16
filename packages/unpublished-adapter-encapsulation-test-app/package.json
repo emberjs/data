@@ -62,7 +62,7 @@
     "edition": "octane"
   },
   "volta": {
-    "node": "16.16.0",
+    "node": "16.17.0",
     "yarn": "1.22.19"
   }
 }
