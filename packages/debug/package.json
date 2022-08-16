@@ -5,7 +5,11 @@
   "keywords": [
     "ember-addon"
   ],
-  "repository": "https://github.com/emberjs/data/tree/master/packages/adapter",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/debug"
+  },
   "license": "MIT",
   "author": "",
   "directories": {

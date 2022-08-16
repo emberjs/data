@@ -2,7 +2,11 @@
   "name": "ember-data",
   "version": "4.8.0-alpha.3",
   "description": "A data layer for your Ember applications.",
-  "repository": "git://github.com/emberjs/data.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/-ember-data"
+  },
   "directories": {
     "doc": "docs",
     "test": "tests"

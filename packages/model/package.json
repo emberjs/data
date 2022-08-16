@@ -1,11 +1,15 @@
 {
   "name": "@ember-data/model",
   "version": "4.8.0-alpha.3",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "A presentation layer for apps built with @ember-data/store",
   "keywords": [
     "ember-addon"
   ],
-  "repository": "https://github.com/emberjs/data/tree/master/packages/model",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/model"
+  },
   "license": "MIT",
   "author": "",
   "directories": {
