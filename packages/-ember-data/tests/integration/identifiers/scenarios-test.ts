@@ -457,7 +457,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = Object.keys(lidCache).filter((lid) => lidCache[lid] !== undefined);
       assert.strictEqual(
         lids.length,
         1,

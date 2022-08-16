@@ -77,12 +77,10 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.expect(7);
     let notificationCount = 0;
     let identifier;
-    let recordData;
     let storeWrapper;
     class CreationStore extends CustomStore {
       createRecordDataFor(identifier: StableRecordIdentifier, sw: RecordDataStoreWrapper) {
         let rd = super.createRecordDataFor(identifier, sw);
-        recordData = rd;
         storeWrapper = sw;
         return rd;
       }

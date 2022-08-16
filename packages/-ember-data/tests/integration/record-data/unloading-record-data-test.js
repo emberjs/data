@@ -5,6 +5,7 @@ import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
+import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 class Person extends Model {
@@ -32,7 +33,7 @@ module('RecordData Compatibility', function (hooks) {
     store = owner.lookup('service:store');
   });
 
-  class CustomRecordData {
+  class V1CustomRecordData {
     constructor(identifier, storeWrapper) {
       this.type = identifier.type;
       this.id = identifier.id || null;
@@ -108,6 +109,74 @@ module('RecordData Compatibility', function (hooks) {
     setBelongsTo() {}
     getBelongsTo() {}
   }
+  class V2CustomRecordData {
+    version = '2';
+    constructor(identifier, storeWrapper) {
+      this.type = identifier.type;
+      this.id = identifier.id || null;
+      this.clientId = identifier.lid;
+      this.storeWrapper = storeWrapper;
+      this.attributes = null;
+      this.relationships = null;
+    }
+
+    pushData(identifier, jsonApiResource, shouldCalculateChanges) {
+      let oldAttrs = this.attributes;
+      let changedKeys;
+
+      this.attributes = jsonApiResource.attributes || null;
+
+      if (shouldCalculateChanges) {
+        changedKeys = Object.keys(Object.assign({}, oldAttrs, this.attributes));
+      }
+
+      return changedKeys || [];
+    }
+
+    getAttr(identifier, member) {
+      return this.attributes !== null ? this.attributes[member] : undefined;
+    }
+
+    clientDidCreate(options) {
+      return options !== undefined ? options : {};
+    }
+    isEmpty() {
+      return false;
+    }
+    unloadRecord() {
+      this.attributes = null;
+      this.relationships = null;
+    }
+    isNew() {
+      return this.id === null;
+    }
+    isDeleted() {
+      return false;
+    }
+    isDeletionCommitted() {
+      return false;
+    }
+
+    adapterDidCommit() {}
+    didCreateLocally() {}
+    adapterWillCommit() {}
+    saveWasRejected() {}
+    adapterDidDelete() {}
+    recordUnloaded() {}
+    rollbackAttributes() {}
+    rollbackAttribute() {}
+    changedAttributes() {}
+    hasChangedAttributes() {}
+    setAttr() {}
+    setHasMany() {}
+    getHasMany() {}
+    addToHasMany() {}
+    removeFromHasMany() {}
+    setBelongsTo() {}
+    getBelongsTo() {}
+  }
+
+  const CustomRecordData = V2CACHE_SINGLETON_MANAGER ? V2CustomRecordData : V1CustomRecordData;
 
   test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function (assert) {
     const originalCreateRecordDataFor = store.createRecordDataFor;

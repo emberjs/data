@@ -275,6 +275,10 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
 
   replace(idx: number, amt: number, objects?: RecordInstance[]) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
+    assert(
+      'The third argument to replace needs to be an array.',
+      !objects || Array.isArray(objects) || EmberArray.detect(objects)
+    );
     const { store, identifier } = this;
     store._backburner.join(() => {
       let identifiers: StableRecordIdentifier[];
@@ -283,10 +287,6 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
         this.recordData.removeFromHasMany(identifier, this.key, identifiers);
       }
       if (objects && objects.length > 0) {
-        assert(
-          'The third argument to replace needs to be an array.',
-          Array.isArray(objects) || EmberArray.detect(objects)
-        );
         this.recordData.addToHasMany(
           identifier,
           this.key,
