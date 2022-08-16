@@ -166,7 +166,7 @@ export interface CreateRecordProperties {
 */
 
 class Store extends Service {
-  #recordData!: RecordData;
+  __private_singleton_recordData!: RecordData;
   /**
    * Ember Data uses several specialized micro-queues for organizing
     and coalescing similar async work.
@@ -2317,11 +2317,11 @@ class Store extends Service {
 
       if (V2CACHE_SINGLETON_RECORD_DATA) {
         // @ts-expect-error
-        this.#recordData = this.#recordData || new _RecordData(storeWrapper);
-        (this.#recordData as RecordData & { createCache(identifier: StableRecordIdentifier): void }).createCache(
-          identifier
-        );
-        return this.#recordData;
+        this.__private_singleton_recordData = this.__private_singleton_recordData || new _RecordData(storeWrapper);
+        (
+          this.__private_singleton_recordData as RecordData & { createCache(identifier: StableRecordIdentifier): void }
+        ).createCache(identifier);
+        return this.__private_singleton_recordData;
       }
 
       // @ts-expect-error

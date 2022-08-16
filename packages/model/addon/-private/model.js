@@ -120,7 +120,7 @@ function computeOnce(target, key, desc) {
 */
 class Model extends EmberObject {
   @service store;
-  #notifications;
+  ___private_notifications;
 
   init(options = {}) {
     if (DEBUG && !options._secretInit && !options._createProps) {
@@ -143,7 +143,7 @@ class Model extends EmberObject {
     let notifications = store._notificationManager;
     let identity = recordIdentifierFor(this);
 
-    this.#notifications = notifications.subscribe(identity, (identifier, type, key) => {
+    this.___private_notifications = notifications.subscribe(identity, (identifier, type, key) => {
       notifyChanges(identifier, type, key, this, store);
     });
   }
@@ -153,7 +153,7 @@ class Model extends EmberObject {
     this.___recordState?.destroy();
     const store = storeFor(this);
     const identifier = recordIdentifierFor(this);
-    store._notificationManager.unsubscribe(this.#notifications);
+    store._notificationManager.unsubscribe(this.___private_notifications);
     // Legacy behavior is to notify the relationships on destroy
     // such that they "clear". It's uncertain this behavior would
     // be good for a new model paradigm, likely cheaper and safer
