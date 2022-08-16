@@ -449,11 +449,13 @@ class RecordDataDefault implements RecordDataV1 {
       return EMPTY_ITERATOR;
     }
 
-    const initializedRelationshipsArr = Object.keys(initializedRelationships)
-      .map((key) => initializedRelationships[key]!)
-      .filter((rel) => {
-        return !isImplicit(rel);
-      });
+    const initializedRelationshipsArr: Array<ManyRelationship | BelongsToRelationship> = [];
+    Object.keys(initializedRelationships).forEach((key) => {
+      const rel = initializedRelationships[key];
+      if (rel && !isImplicit(rel)) {
+        initializedRelationshipsArr.push(rel);
+      }
+    });
 
     let i = 0;
     let j = 0;
@@ -1282,11 +1284,13 @@ function _directlyRelatedRecordDatasIterable(
     return EMPTY_ITERATOR;
   }
 
-  const initializedRelationshipsArr = Object.keys(initializedRelationships)
-    .map((key) => initializedRelationships[key]!)
-    .filter((rel) => {
-      return !isImplicit(rel);
-    });
+  const initializedRelationshipsArr: Array<ManyRelationship | BelongsToRelationship> = [];
+  Object.keys(initializedRelationships).forEach((key) => {
+    const rel = initializedRelationships[key];
+    if (rel && !isImplicit(rel)) {
+      initializedRelationshipsArr.push(rel);
+    }
+  });
 
   let i = 0;
   let j = 0;

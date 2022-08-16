@@ -515,26 +515,26 @@ export class LegacySupport {
   destroy() {
     this.isDestroying = true;
 
-    const cache = this._manyArrayCache;
+    let cache: Dict<{ destroy(): void }> = this._manyArrayCache;
+    this._manyArrayCache = Object.create(null);
     Object.keys(cache).forEach((key) => {
       cache[key]!.destroy();
-      delete cache[key];
     });
-    const keys = Object.keys(this._relationshipProxyCache);
-    keys.forEach((key) => {
-      const proxy = this._relationshipProxyCache[key]!;
+
+    cache = this._relationshipProxyCache;
+    this._relationshipProxyCache = Object.create(null);
+    Object.keys(cache).forEach((key) => {
+      const proxy = cache[key]!;
       if (proxy.destroy) {
         proxy.destroy();
       }
-      delete this._relationshipProxyCache[key];
     });
-    if (this.references) {
-      const refs = this.references;
-      Object.keys(refs).forEach((key) => {
-        refs[key]!.destroy();
-        delete refs[key];
-      });
-    }
+
+    cache = this.references;
+    this.references = Object.create(null);
+    Object.keys(cache).forEach((key) => {
+      cache[key]!.destroy();
+    });
     this.isDestroyed = true;
   }
 }

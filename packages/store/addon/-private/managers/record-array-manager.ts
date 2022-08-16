@@ -120,6 +120,11 @@ class RecordArrayManager {
     }
 
     this._flushPendingIdentifiersForModelName(modelName, pending);
+    // TODO make this a map
+    // TODO we probably do way too much work here, probably can just take
+    // current all-known state and filter visible.
+    // We can then provide this directly to the RecordArray instance.
+    // If we deprecate RecordArray being an ArrayProxy this will be stellar.
     delete this._pendingIdentifiers[modelName];
 
     let identifiers = this._visibleIdentifiersByType(modelName);
