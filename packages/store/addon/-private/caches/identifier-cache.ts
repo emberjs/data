@@ -120,10 +120,6 @@ if (DEBUG) {
    @public
  */
 export class IdentifierCache {
-  // Typescript still leaks private properties in the final
-  // compiled class, so we may want to move these from _underscore
-  // to a WeakMap to avoid leaking
-  // currently we leak this for test purposes
   _cache = {
     lids: Object.create(null) as IdentifierMap,
     types: Object.create(null) as TypeMap,

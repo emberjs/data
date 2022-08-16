@@ -236,7 +236,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
           const identifier = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '2' });
           assert.strictEqual(
             storeWrapper.recordDataFor(identifier).getAttr(identifier, 'name'),
-            'key-name:2',
+            'ours name',
             'Can lookup another RecordData that has been loaded'
           );
           const identifier2 = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
@@ -247,7 +247,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       }
 
       getAttr(identifier: StableRecordIdentifier, key: string): unknown {
-        return `key-${key}:` + identifier.id;
+        return 'ours name';
       }
     }
 

@@ -228,7 +228,7 @@ module('integration/load - Loading Records', function (hooks) {
       // to state and we now have state
       assert.false(recordData.isEmpty(identifier), 'after second find: Our original recordData is no longer empty');
     } else {
-      assert.ftrue(recordData.isEmpty(identifier), 'after second find: Our original recordData is still empty');
+      assert.true(recordData.isEmpty(identifier), 'after second find: Our original recordData is still empty');
     }
     assert.false(newRecordData.isEmpty(identifier), 'after second find: We are no longer empty');
     assert.false(_isLoading(cache, identifier), 'after second find: We have loaded');
