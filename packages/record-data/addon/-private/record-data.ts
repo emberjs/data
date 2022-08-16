@@ -743,12 +743,12 @@ function makeCache(): CachedResource {
 class SingletonRecordData implements RecordData {
   version: '2' = '2';
 
-  #storeWrapper: V2RecordDataStoreWrapper;
-  #cache: Map<StableRecordIdentifier, CachedResource> = new Map();
-  #destroyedCache: Map<StableRecordIdentifier, CachedResource> = new Map();
+  __storeWrapper: V2RecordDataStoreWrapper;
+  __cache: Map<StableRecordIdentifier, CachedResource> = new Map();
+  __destroyedCache: Map<StableRecordIdentifier, CachedResource> = new Map();
 
   constructor(storeWrapper: V2RecordDataStoreWrapper) {
-    this.#storeWrapper = storeWrapper;
+    this.__storeWrapper = storeWrapper;
   }
 
   /**
@@ -760,13 +760,13 @@ class SingletonRecordData implements RecordData {
    * @param identifier
    */
   createCache(identifier: StableRecordIdentifier): void {
-    this.#cache.set(identifier, makeCache());
+    this.__cache.set(identifier, makeCache());
   }
 
-  #peek(identifier: StableRecordIdentifier, allowDestroyed = false): CachedResource {
-    let resource = this.#cache.get(identifier);
+  __peek(identifier: StableRecordIdentifier, allowDestroyed = false): CachedResource {
+    let resource = this.__cache.get(identifier);
     if (!resource && allowDestroyed) {
-      resource = this.#destroyedCache.get(identifier);
+      resource = this.__destroyedCache.get(identifier);
     }
     assert(
       `Expected RecordData Cache to have a resource cache for the identifier ${String(identifier)} but none was found`,
@@ -781,11 +781,11 @@ class SingletonRecordData implements RecordData {
     calculateChanges?: boolean | undefined
   ): void | string[] {
     let changedKeys: string[] | undefined;
-    const cached = this.#peek(identifier);
+    const cached = this.__peek(identifier);
 
     if (cached.isNew) {
       cached.isNew = false;
-      this.#storeWrapper.notifyChange(identifier, 'state');
+      this.__storeWrapper.notifyChange(identifier, 'state');
     }
 
     if (calculateChanges) {
@@ -795,27 +795,27 @@ class SingletonRecordData implements RecordData {
     cached.remoteAttrs = Object.assign(cached.remoteAttrs || Object.create(null), data.attributes);
     if (cached.localAttrs) {
       if (patchLocalAttributes(cached)) {
-        this.#storeWrapper.notifyChange(identifier, 'state');
+        this.__storeWrapper.notifyChange(identifier, 'state');
       }
     }
 
     if (data.relationships) {
-      setupRelationships(this.#storeWrapper, identifier, data);
+      setupRelationships(this.__storeWrapper, identifier, data);
     }
 
     if (changedKeys && changedKeys.length) {
-      notifyAttributes(this.#storeWrapper, identifier, changedKeys);
+      notifyAttributes(this.__storeWrapper, identifier, changedKeys);
     }
 
     return changedKeys;
   }
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
-    const cached = this.#peek(identifier);
+    const cached = this.__peek(identifier);
     cached.isNew = true;
     let createOptions = {};
 
     if (options !== undefined) {
-      const storeWrapper = this.#storeWrapper;
+      const storeWrapper = this.__storeWrapper;
       let attributeDefs = storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
       let relationshipDefs = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
       const graph = graphFor(storeWrapper);
@@ -860,14 +860,14 @@ class SingletonRecordData implements RecordData {
     return createOptions;
   }
   willCommit(identifier: StableRecordIdentifier): void {
-    const cached = this.#peek(identifier);
+    const cached = this.__peek(identifier);
     cached.inflightAttrs = cached.localAttrs;
     cached.localAttrs = null;
   }
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    const cached = this.#peek(identifier);
+    const cached = this.__peek(identifier);
     if (cached.isDeleted) {
-      graphFor(this.#storeWrapper).push({
+      graphFor(this.__storeWrapper).push({
         op: 'deleteRecord',
         record: identifier,
         isNew: false,
@@ -880,10 +880,10 @@ class SingletonRecordData implements RecordData {
     if (data) {
       if (data.id) {
         // didCommit provided an ID, notify the store of it
-        this.#storeWrapper.setRecordId(identifier, data.id);
+        this.__storeWrapper.setRecordId(identifier, data.id);
       }
       if (data.relationships) {
-        setupRelationships(this.#storeWrapper, identifier, data);
+        setupRelationships(this.__storeWrapper, identifier, data);
       }
       newCanonicalAttributes = data.attributes;
     }
@@ -899,15 +899,15 @@ class SingletonRecordData implements RecordData {
 
     if (cached.errors) {
       cached.errors = null;
-      this.#storeWrapper.notifyChange(identifier, 'errors');
+      this.__storeWrapper.notifyChange(identifier, 'errors');
     }
 
-    notifyAttributes(this.#storeWrapper, identifier, changedKeys);
-    this.#storeWrapper.notifyChange(identifier, 'state');
+    notifyAttributes(this.__storeWrapper, identifier, changedKeys);
+    this.__storeWrapper.notifyChange(identifier, 'state');
   }
 
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
-    const cached = this.#peek(identifier);
+    const cached = this.__peek(identifier);
     if (cached.inflightAttrs) {
       let keys = Object.keys(cached.inflightAttrs);
       if (keys.length > 0) {
@@ -923,12 +923,12 @@ class SingletonRecordData implements RecordData {
     if (errors) {
       cached.errors = errors;
     }
-    this.#storeWrapper.notifyChange(identifier, 'errors');
+    this.__storeWrapper.notifyChange(identifier, 'errors');
   }
 
   unloadRecord(identifier: StableRecordIdentifier): void {
-    const cached = this.#peek(identifier);
-    const storeWrapper = this.#storeWrapper;
+    const cached = this.__peek(identifier);
+    const storeWrapper = this.__storeWrapper;
     graphFor(storeWrapper).unload(identifier);
 
     // effectively clearing these is ensuring that
@@ -945,8 +945,8 @@ class SingletonRecordData implements RecordData {
       }
     }
 
-    this.#cache.delete(identifier);
-    this.#destroyedCache.set(identifier, cached);
+    this.__cache.delete(identifier);
+    this.__destroyedCache.set(identifier, cached);
 
     /*
      * The destroy cache is a hack to prevent applications
@@ -961,17 +961,17 @@ class SingletonRecordData implements RecordData {
      * as momentarily retaining the objects outside the bounds
      * of a test won't cause issues.
      */
-    if (this.#destroyedCache.size === 1) {
+    if (this.__destroyedCache.size === 1) {
       schedule('destroy', () => {
         setTimeout(() => {
-          this.#destroyedCache.clear();
+          this.__destroyedCache.clear();
         }, 100);
       });
     }
   }
 
   getAttr(identifier: StableRecordIdentifier, attr: string): unknown {
-    const cached = this.#peek(identifier, true);
+    const cached = this.__peek(identifier, true);
     if (cached.localAttrs && attr in cached.localAttrs) {
       return cached.localAttrs[attr];
     } else if (cached.inflightAttrs && attr in cached.inflightAttrs) {
@@ -979,12 +979,12 @@ class SingletonRecordData implements RecordData {
     } else if (cached.remoteAttrs && attr in cached.remoteAttrs) {
       return cached.remoteAttrs[attr];
     } else {
-      const attrSchema = this.#storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier)[attr];
+      const attrSchema = this.__storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier)[attr];
       return getDefaultValue(attrSchema?.options);
     }
   }
   setAttr(identifier: StableRecordIdentifier, attr: string, value: unknown): void {
-    const cached = this.#peek(identifier);
+    const cached = this.__peek(identifier);
     const existing =
       cached.inflightAttrs && attr in cached.inflightAttrs
         ? cached.inflightAttrs[attr]
@@ -1001,18 +1001,18 @@ class SingletonRecordData implements RecordData {
       delete cached.changes![attr];
     }
 
-    this.#storeWrapper.notifyChange(identifier, 'attributes', attr);
+    this.__storeWrapper.notifyChange(identifier, 'attributes', attr);
   }
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     // TODO freeze in dev
-    return this.#peek(identifier).changes || Object.create(null);
+    return this.__peek(identifier).changes || Object.create(null);
   }
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
-    const cached = this.#peek(identifier, true);
+    const cached = this.__peek(identifier, true);
     return cached.localAttrs !== null && Object.keys(cached.localAttrs).length > 0;
   }
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
-    const cached = this.#peek(identifier);
+    const cached = this.__peek(identifier);
     let dirtyKeys: string[] | undefined;
     cached.isDeleted = false;
 
@@ -1023,7 +1023,7 @@ class SingletonRecordData implements RecordData {
     }
 
     if (cached.isNew) {
-      graphFor(this.#storeWrapper).push({
+      graphFor(this.__storeWrapper).push({
         op: 'deleteRecord',
         record: identifier,
         isNew: true,
@@ -1036,13 +1036,13 @@ class SingletonRecordData implements RecordData {
 
     if (cached.errors) {
       cached.errors = null;
-      this.#storeWrapper.notifyChange(identifier, 'errors');
+      this.__storeWrapper.notifyChange(identifier, 'errors');
     }
 
-    this.#storeWrapper.notifyChange(identifier, 'state');
+    this.__storeWrapper.notifyChange(identifier, 'state');
 
     if (dirtyKeys && dirtyKeys.length) {
-      notifyAttributes(this.#storeWrapper, identifier, dirtyKeys);
+      notifyAttributes(this.__storeWrapper, identifier, dirtyKeys);
     }
 
     return dirtyKeys || [];
@@ -1052,10 +1052,10 @@ class SingletonRecordData implements RecordData {
     identifier: StableRecordIdentifier,
     field: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
-    return (graphFor(this.#storeWrapper).get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
+    return (graphFor(this.__storeWrapper).get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
   }
   setBelongsTo(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier | null): void {
-    graphFor(this.#storeWrapper).update({
+    graphFor(this.__storeWrapper).update({
       op: 'replaceRelatedRecord',
       record,
       field,
@@ -1063,7 +1063,7 @@ class SingletonRecordData implements RecordData {
     });
   }
   setHasMany(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier[]): void {
-    graphFor(this.#storeWrapper).update({
+    graphFor(this.__storeWrapper).update({
       op: 'replaceRelatedRecords',
       record,
       field,
@@ -1076,7 +1076,7 @@ class SingletonRecordData implements RecordData {
     value: StableRecordIdentifier[],
     index?: number | undefined
   ): void {
-    graphFor(this.#storeWrapper).update({
+    graphFor(this.__storeWrapper).update({
       op: 'addToRelatedRecords',
       record,
       field,
@@ -1085,7 +1085,7 @@ class SingletonRecordData implements RecordData {
     });
   }
   removeFromHasMany(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier[]): void {
-    graphFor(this.#storeWrapper).update({
+    graphFor(this.__storeWrapper).update({
       op: 'removeFromRelatedRecords',
       record,
       field,
@@ -1094,33 +1094,33 @@ class SingletonRecordData implements RecordData {
   }
 
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
-    const cached = this.#peek(identifier);
+    const cached = this.__peek(identifier);
     cached.isDeleted = isDeleted;
     if (cached.isNew) {
       // TODO can we delete this since we will do this in unload?
-      graphFor(this.#storeWrapper).push({
+      graphFor(this.__storeWrapper).push({
         op: 'deleteRecord',
         record: identifier,
         isNew: true,
       });
     }
-    this.#storeWrapper.notifyChange(identifier, 'state');
+    this.__storeWrapper.notifyChange(identifier, 'state');
   }
   getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
-    return this.#peek(identifier, true).errors || [];
+    return this.__peek(identifier, true).errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {
-    const cached = this.#peek(identifier, true);
+    const cached = this.__peek(identifier, true);
     return cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null;
   }
   isNew(identifier: StableRecordIdentifier): boolean {
-    return this.#peek(identifier, true).isNew;
+    return this.__peek(identifier, true).isNew;
   }
   isDeleted(identifier: StableRecordIdentifier): boolean {
-    return this.#peek(identifier, true).isDeleted;
+    return this.__peek(identifier, true).isDeleted;
   }
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
-    return this.#peek(identifier, true).isDeletionCommitted;
+    return this.__peek(identifier, true).isDeletionCommitted;
   }
 }
 

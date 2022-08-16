@@ -115,8 +115,8 @@ export function storeFor(record: RecordInstance): Store | undefined {
 }
 
 type Caches = {
-  record: WeakMap<StableRecordIdentifier, RecordInstance>;
-  recordData: WeakMap<StableRecordIdentifier, RecordData>;
+  record: Map<StableRecordIdentifier, RecordInstance>;
+  recordData: Map<StableRecordIdentifier, RecordData>;
   reference: DebugWeakCache<StableRecordIdentifier, RecordReference>;
 };
 
@@ -126,10 +126,10 @@ export class InstanceCache {
   declare peekList: Dict<Set<StableRecordIdentifier>>;
   declare __recordDataFor: (resource: RecordIdentifier) => RecordData;
 
-  #cacheManager!: NonSingletonRecordDataManager;
-  #instances: Caches = {
-    record: new WeakMap<StableRecordIdentifier, RecordInstance>(),
-    recordData: new WeakMap<StableRecordIdentifier, RecordData>(),
+  declare __cacheManager: NonSingletonRecordDataManager;
+  __instances: Caches = {
+    record: new Map<StableRecordIdentifier, RecordInstance>(),
+    recordData: new Map<StableRecordIdentifier, RecordData>(),
     reference: new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : ''),
   };
 
@@ -177,7 +177,7 @@ export class InstanceCache {
       return this.getRecordData(identifier);
     };
 
-    this.#instances.reference._generator = (identifier) => {
+    this.__instances.reference._generator = (identifier) => {
       return new RecordReference(this.store, identifier);
     };
 
@@ -194,10 +194,10 @@ export class InstanceCache {
         let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
 
         // check for duplicate entities
-        let imHasRecord = this.#instances.record.has(intendedIdentifier);
-        let otherHasRecord = this.#instances.record.has(altIdentifier);
-        let imRecordData = this.#instances.recordData.get(intendedIdentifier) || null;
-        let otherRecordData = this.#instances.recordData.get(altIdentifier) || null;
+        let imHasRecord = this.__instances.record.has(intendedIdentifier);
+        let otherHasRecord = this.__instances.record.has(altIdentifier);
+        let imRecordData = this.__instances.recordData.get(intendedIdentifier) || null;
+        let otherRecordData = this.__instances.recordData.get(altIdentifier) || null;
 
         // we cannot merge entities when both have records
         // (this may not be strictly true, we could probably swap the recordData the record points at)
@@ -281,7 +281,7 @@ export class InstanceCache {
     identifier: StableRecordIdentifier;
     bucket: 'record' | 'recordData';
   }): RecordData | RecordInstance | undefined {
-    return this.#instances[bucket]?.get(identifier);
+    return this.__instances[bucket]?.get(identifier);
   }
 
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
@@ -299,7 +299,7 @@ export class InstanceCache {
       setRecordIdentifier(record, identifier);
       setRecordDataFor(record, recordData);
       StoreMap.set(record, this.store);
-      this.#instances.record.set(identifier, record);
+      this.__instances.record.set(identifier, record);
 
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
@@ -333,8 +333,8 @@ export class InstanceCache {
           this._storeWrapper
         );
         if (V2CACHE_SINGLETON_MANAGER) {
-          recordData = this.#cacheManager =
-            this.#cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+          recordData = this.__cacheManager =
+            this.__cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
         } else {
           recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
         }
@@ -342,7 +342,7 @@ export class InstanceCache {
         let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
         if (V2CACHE_SINGLETON_MANAGER) {
           if (DEBUG) {
-            recordData = this.#cacheManager = this.#cacheManager || new SingletonRecordDataManager(this.store);
+            recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager(this.store);
             (recordData as SingletonRecordDataManager)._addRecordData(identifier, recordDataInstance as RecordData);
           } else {
             recordData = recordDataInstance as RecordData;
@@ -353,7 +353,7 @@ export class InstanceCache {
       }
       setRecordDataFor(identifier, recordData);
 
-      this.#instances.recordData.set(identifier, recordData);
+      this.__instances.recordData.set(identifier, recordData);
       this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
       this.peekList[identifier.type]!.add(identifier);
       if (LOG_INSTANCE_CACHE) {
@@ -366,7 +366,7 @@ export class InstanceCache {
   }
 
   getReference(identifier: StableRecordIdentifier) {
-    return this.#instances.reference.lookup(identifier);
+    return this.__instances.reference.lookup(identifier);
   }
 
   createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
@@ -374,7 +374,7 @@ export class InstanceCache {
   }
 
   disconnect(identifier: StableRecordIdentifier) {
-    const record = this.#instances.record.get(identifier);
+    const record = this.__instances.record.get(identifier);
     assert(
       'Cannot destroy record while it is still materialized',
       !record || record.isDestroyed || record.isDestroying
@@ -418,7 +418,7 @@ export class InstanceCache {
 
       if (record) {
         this.store.teardownRecord(record);
-        this.#instances.record.delete(identifier);
+        this.__instances.record.delete(identifier);
         StoreMap.delete(record);
         RecordCache.delete(record);
         removeRecordDataFor(record);
@@ -431,7 +431,7 @@ export class InstanceCache {
 
       if (recordData) {
         recordData.unloadRecord(identifier);
-        this.#instances.recordData.delete(identifier);
+        this.__instances.recordData.delete(identifier);
         removeRecordDataFor(identifier);
       } else {
         this.disconnect(identifier);
@@ -585,7 +585,7 @@ export class InstanceCache {
       this.store._notificationManager.notify(identifier, 'identity');
     }
 
-    const hasRecord = this.#instances.record.has(identifier);
+    const hasRecord = this.__instances.record.has(identifier);
     recordData.pushData(identifier, data, hasRecord);
 
     if (!isUpdate) {
