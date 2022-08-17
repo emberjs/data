@@ -1,5 +1,6 @@
 import { assert, inspect, warn } from '@ember/debug';
 
+import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { recordDataFor as peekRecordData } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -94,6 +95,22 @@ export function isHasMany(
   relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
 ): relationship is ManyRelationship {
   return relationship.definition.kind === 'hasMany';
+}
+
+export function notifyChange(graph: Graph, identifier: StableRecordIdentifier, key: string) {
+  if (identifier === graph._removing) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: ignoring relationship change for removed identifier ${String(identifier)} ${key}`);
+    }
+    return;
+  }
+  if (LOG_GRAPH) {
+    // eslint-disable-next-line no-console
+    console.log(`Graph: notifying relationship change for ${String(identifier)} ${key}`);
+  }
+
+  graph.store.notifyChange(identifier, 'relationships', key);
 }
 
 export function assertRelationshipData(store, identifier, data, meta) {

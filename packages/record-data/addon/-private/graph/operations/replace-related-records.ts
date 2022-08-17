@@ -5,7 +5,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { ManyRelationship } from '../..';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
-import { isBelongsTo, isHasMany, isNew } from '../-utils';
+import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import type { Graph } from '../index';
 
 /*
@@ -137,7 +137,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   }
 
   if (changed) {
-    relationship.notifyHasManyChange();
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }
 
@@ -264,7 +264,7 @@ export function addToInverse(
         removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, identifier, isRemote);
       }
       relationship.localState = value;
-      relationship.notifyBelongsToChange();
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
@@ -280,7 +280,7 @@ export function addToInverse(
         relationship.currentState.push(value);
         relationship.members.add(value);
         relationship.state.hasReceivedData = true;
-        relationship.notifyHasManyChange();
+        notifyChange(graph, relationship.identifier, relationship.definition.key);
       }
     }
   } else {
@@ -301,7 +301,7 @@ export function notifyInverseOfPotentialMaterialization(
 ) {
   const relationship = graph.get(identifier, key);
   if (isHasMany(relationship) && isRemote && relationship.canonicalMembers.has(value)) {
-    relationship.notifyHasManyChange();
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }
 
@@ -322,7 +322,8 @@ export function removeFromInverse(
     }
     if (relationship.localState === value) {
       relationship.localState = null;
-      relationship.notifyBelongsToChange();
+
+      notifyChange(graph, identifier, key);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
@@ -338,7 +339,7 @@ export function removeFromInverse(
       relationship.members.delete(value);
       relationship.currentState.splice(index, 1);
     }
-    relationship.notifyHasManyChange();
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
     if (isRemote) {
       relationship.removeCompletelyFromOwn(value);
@@ -362,11 +363,11 @@ export function syncRemoteToLocal(rel: ManyRelationship) {
 
   // TODO always notifying fails only one test and we should probably do away with it
   if (existingState.length !== rel.currentState.length) {
-    rel.notifyHasManyChange();
+    notifyChange(rel.graph, rel.identifier, rel.definition.key);
   } else {
     for (let i = 0; i < existingState.length; i++) {
       if (existingState[i] !== rel.currentState[i]) {
-        rel.notifyHasManyChange();
+        notifyChange(rel.graph, rel.identifier, rel.definition.key);
         break;
       }
     }

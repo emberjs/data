@@ -8,7 +8,7 @@ import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
-import { isNew } from '../../graph/-utils';
+import { isNew, notifyChange } from '../../graph/-utils';
 
 export default class BelongsToRelationship {
   declare localState: StableRecordIdentifier | null;
@@ -102,7 +102,8 @@ export default class BelongsToRelationship {
     } else {
       this.state.hasDematerializedInverse = true;
     }
-    this.notifyBelongsToChange();
+
+    notifyChange(this.graph, this.identifier, this.definition.key);
   }
 
   getData(): SingleResourceRelationship {
@@ -143,27 +144,8 @@ export default class BelongsToRelationship {
       // This allows dematerialized inverses to be rematerialized
       // we shouldn't be notifying here though, figure out where
       // a notification was missed elsewhere.
-      this.notifyBelongsToChange();
+      notifyChange(this.graph, this.identifier, this.definition.key);
     }
-  }
-
-  notifyBelongsToChange() {
-    const identifier = this.identifier;
-    if (identifier === this.graph._removing) {
-      if (LOG_GRAPH) {
-        // eslint-disable-next-line no-console
-        console.log(
-          `Graph: ignoring belongsToChange for removed identifier ${String(identifier)} ${this.definition.key}`
-        );
-      }
-      return;
-    }
-    if (LOG_GRAPH) {
-      // eslint-disable-next-line no-console
-      console.log(`Graph: notifying belongsToChange for ${String(identifier)} ${this.definition.key}`);
-    }
-
-    this.store.notifyChange(identifier, 'relationships', this.definition.key);
   }
 
   clear() {

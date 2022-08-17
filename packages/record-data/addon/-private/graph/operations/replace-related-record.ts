@@ -4,7 +4,7 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { ReplaceRelatedRecordOperation } from '../-operations';
-import { isBelongsTo, isNew } from '../-utils';
+import { isBelongsTo, isNew, notifyChange } from '../-utils';
 import type { Graph } from '../index';
 import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records';
 
@@ -82,7 +82,8 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
         notifyInverseOfPotentialMaterialization(graph, existingState, definition.inverseKey, op.record, isRemote);
       } else {
         relationship.localState = existingState;
-        relationship.notifyBelongsToChange();
+
+        notifyChange(graph, relationship.identifier, relationship.definition.key);
       }
     }
     return;
@@ -115,9 +116,9 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
     }
     if (localState !== remoteState) {
       relationship.localState = remoteState;
-      relationship.notifyBelongsToChange();
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
-    relationship.notifyBelongsToChange();
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }

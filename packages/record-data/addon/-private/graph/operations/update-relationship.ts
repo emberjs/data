@@ -4,7 +4,7 @@ import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember
 
 import _normalizeLink from '../../normalize-link';
 import type { UpdateRelationshipOperation } from '../-operations';
-import { isBelongsTo, isHasMany } from '../-utils';
+import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { Graph } from '../index';
 
 /*
@@ -146,11 +146,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
     if (isCollection || !relationship.state.hasReceivedData || relationship.transactionRef === 0) {
       relationship.state.isStale = true;
 
-      if (isHasMany(relationship)) {
-        relationship.notifyHasManyChange();
-      } else {
-        relationship.notifyBelongsToChange();
-      }
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     } else {
       relationship.state.isStale = false;
     }

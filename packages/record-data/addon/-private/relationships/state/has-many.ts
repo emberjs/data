@@ -15,7 +15,7 @@ import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
-import { isImplicit, isNew } from '../../graph/-utils';
+import { isImplicit, isNew, notifyChange } from '../../graph/-utils';
 
 export default class ManyRelationship {
   declare graph: Graph;
@@ -134,7 +134,7 @@ export default class ManyRelationship {
       this.state.hasDematerializedInverse = true;
     }
 
-    this.notifyHasManyChange();
+    notifyChange(this.graph, this.identifier, this.definition.key);
   }
 
   /*
@@ -158,26 +158,9 @@ export default class ManyRelationship {
       // This allows dematerialized inverses to be rematerialized
       // we shouldn't be notifying here though, figure out where
       // a notification was missed elsewhere.
-      this.notifyHasManyChange();
-    }
-  }
 
-  notifyHasManyChange() {
-    const { store, identifier } = this;
-    if (identifier === this.graph._removing) {
-      if (LOG_GRAPH) {
-        // eslint-disable-next-line no-console
-        console.log(
-          `Graph: ignoring hasManyChange for removed identifier ${String(identifier)} ${this.definition.key}`
-        );
-      }
-      return;
+      notifyChange(this.graph, this.identifier, this.definition.key);
     }
-    if (LOG_GRAPH) {
-      // eslint-disable-next-line no-console
-      console.log(`Graph: notifying hasManyChange for ${String(identifier)} ${this.definition.key}`);
-    }
-    store.notifyChange(identifier, 'relationships', this.definition.key);
   }
 
   getData(): CollectionResourceRelationship {

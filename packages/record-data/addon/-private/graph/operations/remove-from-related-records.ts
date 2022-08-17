@@ -4,7 +4,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type ManyRelationship from '../../relationships/state/has-many';
 import type { RemoveFromRelatedRecordsOperation } from '../-operations';
-import { isHasMany } from '../-utils';
+import { isHasMany, notifyChange } from '../-utils';
 import type { Graph } from '../index';
 import { removeFromInverse } from './replace-related-records';
 
@@ -26,7 +26,7 @@ export default function removeFromRelatedRecords(
   } else {
     removeRelatedRecord(graph, relationship, record, value, isRemote);
   }
-  relationship.notifyHasManyChange();
+  notifyChange(graph, relationship.identifier, relationship.definition.key);
 }
 
 function removeRelatedRecord(

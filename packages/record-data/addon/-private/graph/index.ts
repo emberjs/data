@@ -19,7 +19,7 @@ import type {
   RemoteRelationshipOperation,
   UnknownOperation,
 } from './-operations';
-import { assertValidRelationshipPayload, getStore, isBelongsTo, isHasMany, isImplicit } from './-utils';
+import { assertValidRelationshipPayload, getStore, isBelongsTo, isHasMany, isImplicit, notifyChange } from './-utils';
 import addToRelatedRecords from './operations/add-to-related-records';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
@@ -449,11 +449,7 @@ function destroyRelationship(rel) {
     // leave the ui relationship populated since the record is destroyed and
     // internally we've fully cleaned up.
     if (!rel.definition.isAsync) {
-      if (isBelongsTo(rel)) {
-        rel.notifyBelongsToChange();
-      } else {
-        rel.notifyHasManyChange();
-      }
+      notifyChange(rel.graph, rel.identifier, rel.definition.key);
     }
   }
 }
@@ -495,7 +491,8 @@ function removeCompletelyFromInverse(relationship: ImplicitRelationship | ManyRe
 
     if (!relationship.definition.isAsync) {
       relationship.clear();
-      relationship.notifyHasManyChange();
+
+      notifyChange(relationship.graph, relationship.identifier, relationship.definition.key);
     }
   } else {
     relationship.members.forEach(unload);
