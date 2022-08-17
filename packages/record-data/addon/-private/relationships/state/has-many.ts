@@ -1,5 +1,3 @@
-import { assert } from '@ember/debug';
-
 import type {
   CollectionResourceRelationship,
   Links,
@@ -9,12 +7,11 @@ import type {
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
-import type { BelongsToRelationship } from '../..';
 import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
-import { isImplicit, isNew, notifyChange, removeCompletelyFromOwn } from '../../graph/-utils';
+import { isNew, notifyChange, removeCompletelyFromOwn } from '../../graph/-utils';
 
 export default class ManyRelationship {
   declare graph: Graph;
@@ -62,32 +59,6 @@ export default class ManyRelationship {
       _state = this._state = createState();
     }
     return _state;
-  }
-
-  recordDataDidDematerialize() {
-    if (this.definition.inverseIsImplicit) {
-      return;
-    }
-
-    const inverseKey = this.definition.inverseKey;
-    this.forAllMembers((inverseIdentifier) => {
-      inverseIdentifier;
-      if (!inverseIdentifier || !this.graph.has(inverseIdentifier, inverseKey)) {
-        return;
-      }
-      let relationship = this.graph.get(inverseIdentifier, inverseKey);
-      assert(`expected no implicit`, !isImplicit(relationship));
-
-      // For canonical members, it is possible that inverseRecordData has already been associated to
-      // to another record. For such cases, do not dematerialize the inverseRecordData
-      if (
-        relationship.definition.kind !== 'belongsTo' ||
-        !(relationship as BelongsToRelationship).localState ||
-        this.identifier === (relationship as BelongsToRelationship).localState
-      ) {
-        (relationship as ManyRelationship | BelongsToRelationship).inverseDidDematerialize(this.identifier);
-      }
-    });
   }
 
   forAllMembers(callback: (identifier: StableRecordIdentifier | null) => void) {

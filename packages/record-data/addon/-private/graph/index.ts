@@ -453,7 +453,7 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
     return;
   }
 
-  rel.recordDataDidDematerialize();
+  recordDataDematerialize(graph, rel);
 
   if (!rel.definition.inverseIsImplicit && !rel.definition.inverseIsAsync) {
     rel.state.isStale = true;
@@ -470,6 +470,64 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
     if (!rel.definition.isAsync) {
       notifyChange(graph, rel.identifier, rel.definition.key);
     }
+  }
+}
+
+function recordDataDematerialize(graph: Graph, relationship: ManyRelationship | BelongsToRelationship): void {
+  if (isBelongsTo(relationship)) {
+    if (relationship.definition.inverseIsImplicit) {
+      return;
+    }
+
+    const inverseKey = relationship.definition.inverseKey;
+    const callback = (inverseIdentifier) => {
+      if (!inverseIdentifier || !graph.has(inverseIdentifier, inverseKey)) {
+        return;
+      }
+
+      let relationship = graph.get(inverseIdentifier, inverseKey);
+
+      // For canonical members, it is possible that inverseRecordData has already been associated to
+      // to another record. For such cases, do not dematerialize the inverseRecordData
+      if (
+        relationship.definition.kind !== 'belongsTo' ||
+        !(relationship as BelongsToRelationship).localState ||
+        relationship.identifier === (relationship as BelongsToRelationship).localState
+      ) {
+        (relationship as BelongsToRelationship | ManyRelationship).inverseDidDematerialize(relationship.identifier);
+      }
+    };
+
+    if (relationship.remoteState) {
+      callback(relationship.remoteState);
+    }
+    if (relationship.localState && relationship.localState !== relationship.remoteState) {
+      callback(relationship.localState);
+    }
+  } else {
+    if (relationship.definition.inverseIsImplicit) {
+      return;
+    }
+
+    const inverseKey = relationship.definition.inverseKey;
+    relationship.forAllMembers((inverseIdentifier) => {
+      inverseIdentifier;
+      if (!inverseIdentifier || !graph.has(inverseIdentifier, inverseKey)) {
+        return;
+      }
+      let relationship = graph.get(inverseIdentifier, inverseKey);
+      assert(`expected no implicit`, !isImplicit(relationship));
+
+      // For canonical members, it is possible that inverseRecordData has already been associated to
+      // to another record. For such cases, do not dematerialize the inverseRecordData
+      if (
+        relationship.definition.kind !== 'belongsTo' ||
+        !(relationship as BelongsToRelationship).localState ||
+        relationship.identifier === (relationship as BelongsToRelationship).localState
+      ) {
+        (relationship as ManyRelationship | BelongsToRelationship).inverseDidDematerialize(relationship.identifier);
+      }
+    });
   }
 }
 

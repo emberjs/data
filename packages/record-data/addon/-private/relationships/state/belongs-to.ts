@@ -2,7 +2,6 @@ import type { Links, Meta, PaginationLinks, SingleResourceRelationship } from '@
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
-import type { ManyRelationship } from '../..';
 import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
@@ -44,38 +43,6 @@ export default class BelongsToRelationship {
       _state = this._state = createState();
     }
     return _state;
-  }
-
-  recordDataDidDematerialize() {
-    if (this.definition.inverseIsImplicit) {
-      return;
-    }
-
-    const inverseKey = this.definition.inverseKey;
-    const callback = (inverseIdentifier) => {
-      if (!inverseIdentifier || !this.graph.has(inverseIdentifier, inverseKey)) {
-        return;
-      }
-
-      let relationship = this.graph.get(inverseIdentifier, inverseKey);
-
-      // For canonical members, it is possible that inverseRecordData has already been associated to
-      // to another record. For such cases, do not dematerialize the inverseRecordData
-      if (
-        relationship.definition.kind !== 'belongsTo' ||
-        !(relationship as BelongsToRelationship).localState ||
-        this.identifier === (relationship as BelongsToRelationship).localState
-      ) {
-        (relationship as BelongsToRelationship | ManyRelationship).inverseDidDematerialize(this.identifier);
-      }
-    };
-
-    if (this.remoteState) {
-      callback(this.remoteState);
-    }
-    if (this.localState && this.localState !== this.remoteState) {
-      callback(this.localState);
-    }
   }
 
   inverseDidDematerialize() {
