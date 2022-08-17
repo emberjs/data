@@ -1,4 +1,3 @@
-import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { Links, Meta, PaginationLinks, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';

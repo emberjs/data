@@ -1,6 +1,5 @@
 import { assert } from '@ember/debug';
 
-import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type {
   CollectionResourceRelationship,
   Links,

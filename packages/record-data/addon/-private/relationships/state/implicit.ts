@@ -23,25 +23,6 @@ export default class ImplicitRelationship {
     this.canonicalMembers = new Set<StableRecordIdentifier>();
   }
 
-  addCanonicalRecordData(recordData: StableRecordIdentifier, idx?: number) {
-    if (!this.canonicalMembers.has(recordData)) {
-      this.canonicalMembers.add(recordData);
-      this.members.add(recordData);
-    }
-  }
-
-  addRecordData(recordData: StableRecordIdentifier, idx?: number) {
-    if (!this.members.has(recordData)) {
-      this.members.add(recordData);
-    }
-  }
-
-  removeRecordData(recordData: StableRecordIdentifier | null) {
-    if (recordData && this.members.has(recordData)) {
-      this.members.delete(recordData);
-    }
-  }
-
   removeCompletelyFromOwn(recordData: StableRecordIdentifier) {
     this.canonicalMembers.delete(recordData);
     this.members.delete(recordData);
