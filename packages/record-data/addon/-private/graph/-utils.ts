@@ -96,13 +96,65 @@ export function isHasMany(
   return relationship.definition.kind === 'hasMany';
 }
 
-/*
-      Removes the given identifier from BOTH remote AND local state.
+export function forAllRelatedIdentifiers(
+  rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship,
+  cb: (identifier: StableRecordIdentifier) => void
+): void {
+  if (isBelongsTo(rel)) {
+    if (rel.remoteState) {
+      cb(rel.remoteState);
+    }
+    if (rel.localState && rel.localState !== rel.remoteState) {
+      cb(rel.localState);
+    }
+  } else if (isHasMany(rel)) {
+    // ensure we don't walk anything twice if an entry is
+    // in both members and canonicalMembers
+    let seen = Object.create(null);
 
-      This method is useful when either a deletion or a rollback on a new record
-      needs to entirely purge itself from an inverse relationship.
-     */
-export function removeCompletelyFromOwn(
+    for (let i = 0; i < rel.currentState.length; i++) {
+      const inverseIdentifier = rel.currentState[i];
+      const id = inverseIdentifier.lid;
+      if (!seen[id]) {
+        seen[id] = true;
+        cb(inverseIdentifier);
+      }
+    }
+
+    for (let i = 0; i < rel.canonicalState.length; i++) {
+      const inverseIdentifier = rel.canonicalState[i];
+      const id = inverseIdentifier.lid;
+      if (!seen[id]) {
+        seen[id] = true;
+        cb(inverseIdentifier);
+      }
+    }
+  } else {
+    let seen = Object.create(null);
+    rel.members.forEach((inverseIdentifier) => {
+      const id = inverseIdentifier.lid;
+      if (!seen[id]) {
+        seen[id] = true;
+        cb(inverseIdentifier);
+      }
+    });
+    rel.canonicalMembers.forEach((inverseIdentifier) => {
+      const id = inverseIdentifier.lid;
+      if (!seen[id]) {
+        seen[id] = true;
+        cb(inverseIdentifier);
+      }
+    });
+  }
+}
+
+/*
+  Removes the given identifier from BOTH remote AND local state.
+
+  This method is useful when either a deletion or a rollback on a new record
+  needs to entirely purge itself from an inverse relationship.
+  */
+export function removeIdentifierCompletelyFromRelationship(
   graph: Graph,
   relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship,
   value: StableRecordIdentifier
@@ -137,9 +189,30 @@ export function removeCompletelyFromOwn(
 
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
-  } else if (isImplicit(relationship)) {
+  } else {
     relationship.canonicalMembers.delete(value);
     relationship.members.delete(value);
+  }
+}
+
+export function removeDematerializedInverse(
+  graph: Graph,
+  relationship: ManyRelationship,
+  inverseIdentifier: StableRecordIdentifier
+) {
+  if (isHasMany(relationship)) {
+    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
+      // unloading inverse of a sync relationship is treated as a client-side
+      // delete, so actually remove the models don't merely invalidate the cp
+      // cache.
+      // if the record being unloaded only exists on the client, we similarly
+      // treat it as a client side delete
+      removeIdentifierCompletelyFromRelationship(graph, relationship, inverseIdentifier);
+    } else {
+      relationship.state.hasDematerializedInverse = true;
+    }
+
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }
 

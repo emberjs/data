@@ -11,7 +11,6 @@ import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
-import { isNew, notifyChange, removeCompletelyFromOwn } from '../../graph/-utils';
 
 export default class ManyRelationship {
   declare graph: Graph;
@@ -59,52 +58,6 @@ export default class ManyRelationship {
       _state = this._state = createState();
     }
     return _state;
-  }
-
-  forAllMembers(callback: (identifier: StableRecordIdentifier | null) => void) {
-    // ensure we don't walk anything twice if an entry is
-    // in both members and canonicalMembers
-    let seen = Object.create(null);
-
-    for (let i = 0; i < this.currentState.length; i++) {
-      const inverseIdentifier = this.currentState[i];
-      const id = inverseIdentifier.lid;
-      if (!seen[id]) {
-        seen[id] = true;
-        callback(inverseIdentifier);
-      }
-    }
-
-    for (let i = 0; i < this.canonicalState.length; i++) {
-      const inverseIdentifier = this.canonicalState[i];
-      const id = inverseIdentifier.lid;
-      if (!seen[id]) {
-        seen[id] = true;
-        callback(inverseIdentifier);
-      }
-    }
-  }
-
-  clear() {
-    this.members.clear();
-    this.canonicalMembers.clear();
-    this.currentState = [];
-    this.canonicalState = [];
-  }
-
-  inverseDidDematerialize(inverseIdentifier: StableRecordIdentifier) {
-    if (!this.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
-      // unloading inverse of a sync relationship is treated as a client-side
-      // delete, so actually remove the models don't merely invalidate the cp
-      // cache.
-      // if the record being unloaded only exists on the client, we similarly
-      // treat it as a client side delete
-      removeCompletelyFromOwn(this.graph, this, inverseIdentifier);
-    } else {
-      this.state.hasDematerializedInverse = true;
-    }
-
-    notifyChange(this.graph, this.identifier, this.definition.key);
   }
 
   getData(): CollectionResourceRelationship {

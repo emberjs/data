@@ -24,8 +24,9 @@ import {
   isBelongsTo,
   isHasMany,
   isImplicit,
+  isNew,
   notifyChange,
-  removeCompletelyFromOwn,
+  removeIdentifierCompletelyFromRelationship,
 } from './-utils';
 import addToRelatedRecords from './operations/add-to-related-records';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
@@ -457,7 +458,7 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
 
   if (!rel.definition.inverseIsImplicit && !rel.definition.inverseIsAsync) {
     rel.state.isStale = true;
-    rel.clear();
+    clearRelationship(rel);
 
     // necessary to clear relationships in the ui from dematerialized records
     // hasMany is managed by Model which calls `retreiveLatest` after
@@ -470,6 +471,20 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
     if (!rel.definition.isAsync) {
       notifyChange(graph, rel.identifier, rel.definition.key);
     }
+  }
+}
+
+function clearRelationship(relationship: ManyRelationship | BelongsToRelationship) {
+  if (isBelongsTo(relationship)) {
+    relationship.localState = null;
+    relationship.remoteState = null;
+    relationship.state.hasReceivedData = false;
+    relationship.state.isEmpty = true;
+  } else {
+    relationship.members.clear();
+    relationship.canonicalMembers.clear();
+    relationship.currentState = [];
+    relationship.canonicalState = [];
   }
 }
 
@@ -494,7 +509,7 @@ function recordDataDematerialize(graph: Graph, relationship: ManyRelationship | 
         !(relationship as BelongsToRelationship).localState ||
         relationship.identifier === (relationship as BelongsToRelationship).localState
       ) {
-        (relationship as BelongsToRelationship | ManyRelationship).inverseDidDematerialize(relationship.identifier);
+        inverseDidDematerialize(graph, relationship as BelongsToRelationship | ManyRelationship);
       }
     };
 
@@ -510,7 +525,7 @@ function recordDataDematerialize(graph: Graph, relationship: ManyRelationship | 
     }
 
     const inverseKey = relationship.definition.inverseKey;
-    relationship.forAllMembers((inverseIdentifier) => {
+    forAllMembers(relationship, (inverseIdentifier) => {
       inverseIdentifier;
       if (!inverseIdentifier || !graph.has(inverseIdentifier, inverseKey)) {
         return;
@@ -525,9 +540,76 @@ function recordDataDematerialize(graph: Graph, relationship: ManyRelationship | 
         !(relationship as BelongsToRelationship).localState ||
         relationship.identifier === (relationship as BelongsToRelationship).localState
       ) {
-        (relationship as ManyRelationship | BelongsToRelationship).inverseDidDematerialize(relationship.identifier);
+        inverseDidDematerialize(graph, relationship as ManyRelationship | BelongsToRelationship);
       }
     });
+  }
+}
+
+function forAllMembers(relationship: ManyRelationship, callback: (identifier: StableRecordIdentifier | null) => void) {
+  // ensure we don't walk anything twice if an entry is
+  // in both members and canonicalMembers
+  let seen = Object.create(null);
+
+  for (let i = 0; i < relationship.currentState.length; i++) {
+    const inverseIdentifier = relationship.currentState[i];
+    const id = inverseIdentifier.lid;
+    if (!seen[id]) {
+      seen[id] = true;
+      callback(inverseIdentifier);
+    }
+  }
+
+  for (let i = 0; i < relationship.canonicalState.length; i++) {
+    const inverseIdentifier = relationship.canonicalState[i];
+    const id = inverseIdentifier.lid;
+    if (!seen[id]) {
+      seen[id] = true;
+      callback(inverseIdentifier);
+    }
+  }
+}
+
+function inverseDidDematerialize(graph: Graph, relationship: ManyRelationship | BelongsToRelationship) {
+  if (isBelongsTo(relationship)) {
+    const inverseIdentifier = relationship.localState;
+    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
+      // unloading inverse of a sync relationship is treated as a client-side
+      // delete, so actually remove the models don't merely invalidate the cp
+      // cache.
+      // if the record being unloaded only exists on the client, we similarly
+      // treat it as a client side delete
+      if (relationship.localState === inverseIdentifier && inverseIdentifier !== null) {
+        relationship.localState = null;
+      }
+
+      if (relationship.remoteState === inverseIdentifier && inverseIdentifier !== null) {
+        relationship.remoteState = null;
+        relationship.state.hasReceivedData = true;
+        relationship.state.isEmpty = true;
+        if (relationship.localState && !isNew(relationship.localState)) {
+          relationship.localState = null;
+        }
+      }
+    } else {
+      relationship.state.hasDematerializedInverse = true;
+    }
+
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
+  } else {
+    const inverseIdentifier = relationship.identifier;
+    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
+      // unloading inverse of a sync relationship is treated as a client-side
+      // delete, so actually remove the models don't merely invalidate the cp
+      // cache.
+      // if the record being unloaded only exists on the client, we similarly
+      // treat it as a client side delete
+      removeIdentifierCompletelyFromRelationship(graph, relationship, inverseIdentifier);
+    } else {
+      relationship.state.hasDematerializedInverse = true;
+    }
+
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }
 
@@ -546,7 +628,7 @@ function removeCompletelyFromInverse(
 
     if (seen[id] === undefined) {
       if (graph.has(inverseIdentifier, inverseKey)) {
-        removeCompletelyFromOwn(graph, graph.get(inverseIdentifier, inverseKey), identifier);
+        removeIdentifierCompletelyFromRelationship(graph, graph.get(inverseIdentifier, inverseKey), identifier);
       }
       seen[id] = true;
     }
@@ -561,7 +643,7 @@ function removeCompletelyFromInverse(
     }
 
     if (!relationship.definition.isAsync) {
-      relationship.clear();
+      clearRelationship(relationship);
     }
 
     relationship.localState = null;
@@ -570,7 +652,7 @@ function removeCompletelyFromInverse(
     relationship.canonicalMembers.forEach(unload);
 
     if (!relationship.definition.isAsync) {
-      relationship.clear();
+      clearRelationship(relationship);
 
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }

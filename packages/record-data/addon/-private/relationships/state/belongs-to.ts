@@ -6,7 +6,6 @@ import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
-import { isNew, notifyChange } from '../../graph/-utils';
 
 export default class BelongsToRelationship {
   declare localState: StableRecordIdentifier | null;
@@ -45,33 +44,6 @@ export default class BelongsToRelationship {
     return _state;
   }
 
-  inverseDidDematerialize() {
-    const inverseRecordData = this.localState;
-    if (!this.definition.isAsync || (inverseRecordData && isNew(inverseRecordData))) {
-      // unloading inverse of a sync relationship is treated as a client-side
-      // delete, so actually remove the models don't merely invalidate the cp
-      // cache.
-      // if the record being unloaded only exists on the client, we similarly
-      // treat it as a client side delete
-      if (this.localState === inverseRecordData && inverseRecordData !== null) {
-        this.localState = null;
-      }
-
-      if (this.remoteState === inverseRecordData && inverseRecordData !== null) {
-        this.remoteState = null;
-        this.state.hasReceivedData = true;
-        this.state.isEmpty = true;
-        if (this.localState && !isNew(this.localState)) {
-          this.localState = null;
-        }
-      }
-    } else {
-      this.state.hasDematerializedInverse = true;
-    }
-
-    notifyChange(this.graph, this.identifier, this.definition.key);
-  }
-
   getData(): SingleResourceRelationship {
     let data;
     let payload: any = {};
@@ -92,12 +64,5 @@ export default class BelongsToRelationship {
     }
 
     return payload;
-  }
-
-  clear() {
-    this.localState = null;
-    this.remoteState = null;
-    this.state.hasReceivedData = false;
-    this.state.isEmpty = true;
   }
 }
