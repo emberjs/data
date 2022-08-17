@@ -7,12 +7,19 @@ import { Promise } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import type {
+  CollectionResourceRelationship,
+  SingleResourceRelationship,
+} from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
+import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
+import type { Dict } from '@ember-data/types/q/utils';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -33,10 +40,15 @@ class House extends Model {
 }
 
 // TODO: this should work
-// class TestRecordData implements RecordData
-class TestRecordData {
-  // Use correct interface once imports have been fix
-  _storeWrapper: any;
+// class TestRecordData implements RecordDatav1
+class V1TestRecordData {
+  _storeWrapper: RecordDataStoreWrapper;
+  _identifier: StableRecordIdentifier;
+
+  constructor(wrapper: RecordDataStoreWrapper, identifier: StableRecordIdentifier) {
+    this._storeWrapper = wrapper;
+    this._identifier = identifier;
+  }
 
   pushData(data: object, calculateChange: true): string[];
   pushData(data: object, calculateChange?: false): void;
@@ -95,9 +107,100 @@ class TestRecordData {
   }
 }
 
+class V2TestRecordData implements RecordData {
+  version: '2' = '2';
+
+  _errors?: JsonApiValidationError[];
+  _isNew: boolean = false;
+  _storeWrapper: RecordDataStoreWrapper;
+  _identifier: StableRecordIdentifier;
+
+  constructor(wrapper: RecordDataStoreWrapper, identifier: StableRecordIdentifier) {
+    this._storeWrapper = wrapper;
+    this._identifier = identifier;
+  }
+
+  pushData(
+    identifier: StableRecordIdentifier,
+    data: JsonApiResource,
+    calculateChanges?: boolean | undefined
+  ): void | string[] {}
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+    this._isNew = true;
+    return {};
+  }
+  willCommit(identifier: StableRecordIdentifier): void {}
+  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {}
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
+    this._errors = errors;
+  }
+  unloadRecord(identifier: StableRecordIdentifier): void {}
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+    return '';
+  }
+  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+    return {};
+  }
+  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+    return false;
+  }
+  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+    return [];
+  }
+  getRelationship(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): SingleResourceRelationship | CollectionResourceRelationship {
+    throw new Error('Method not implemented.');
+  }
+  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void {
+    throw new Error('Method not implemented.');
+  }
+  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    throw new Error('Method not implemented.');
+  }
+  addToHasMany(
+    identifier: StableRecordIdentifier,
+    propertyName: string,
+    value: StableRecordIdentifier[],
+    idx?: number | undefined
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    throw new Error('Method not implemented.');
+  }
+  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+    throw new Error('Method not implemented.');
+  }
+
+  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+    return this._errors || [];
+  }
+  isEmpty(identifier: StableRecordIdentifier): boolean {
+    return false;
+  }
+  isNew(identifier: StableRecordIdentifier): boolean {
+    return this._isNew;
+  }
+  isDeleted(identifier: StableRecordIdentifier): boolean {
+    return false;
+  }
+  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+    return false;
+  }
+}
+
+const TestRecordData: typeof V2TestRecordData | typeof V1TestRecordData = V2CACHE_SINGLETON_MANAGER
+  ? V2TestRecordData
+  : V1TestRecordData;
+
 const CustomStore = Store.extend({
   createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
-    return new TestRecordData();
+    return new TestRecordData(storeWrapper, identifier);
   },
 });
 
@@ -239,6 +342,9 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledUnloadRecord++;
       }
 
+      rollbackAttrs() {
+        calledRollbackAttributes++;
+      }
       rollbackAttributes() {
         calledRollbackAttributes++;
       }
@@ -255,7 +361,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     let TestStore = Store.extend({
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
-        return new LifecycleRecordData();
+        return new LifecycleRecordData(storeWrapper, identifier);
       },
     });
 
@@ -362,21 +468,38 @@ module('integration/record-data - Custom RecordData Implementations', function (
         return false;
       }
 
+      changedAttrs(): any {
+        return { name: ['old', 'new'] };
+      }
+
+      hasChangedAttrs(): boolean {
+        return false;
+      }
+
+      setAttr(identifier: StableRecordIdentifier, key: string, value: any) {
+        assert.strictEqual(key, 'name', 'key passed to setDirtyAttribute');
+        assert.strictEqual(value, 'new value', 'value passed to setDirtyAttribute');
+      }
+
       setDirtyAttribute(key: string, value: any) {
         assert.strictEqual(key, 'name', 'key passed to setDirtyAttribute');
         assert.strictEqual(value, 'new value', 'value passed to setDirtyAttribute');
       }
 
-      getAttr(key: string): string {
+      getAttr(identifier: StableRecordIdentifier, key: string): string {
         calledGet++;
-        assert.strictEqual(key, 'name', 'key passed to getAttr');
+        if (V2CACHE_SINGLETON_MANAGER) {
+          assert.strictEqual(key, 'name', 'key passed to getAttr');
+        } else {
+          assert.strictEqual(identifier as unknown as string, 'name', 'key passed to getAttr');
+        }
         return 'new attribute';
       }
     }
 
     let TestStore = Store.extend({
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
-        return new AttributeRecordData();
+        return new AttributeRecordData(storeWrapper, identifier);
       },
     });
 
@@ -412,12 +535,12 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let belongsToReturnValue = { data: { id: '1', type: 'person' } };
 
     class RelationshipRecordData extends TestRecordData {
-      constructor(storeWrapper) {
-        super();
-        this._storeWrapper = storeWrapper;
+      getBelongsTo(key: string) {
+        assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
+        return belongsToReturnValue;
       }
 
-      getBelongsTo(key: string) {
+      getRelationship(identifier: StableRecordIdentifier, key: string) {
         assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
         return belongsToReturnValue;
       }
@@ -425,14 +548,19 @@ module('integration/record-data - Custom RecordData Implementations', function (
       // Use correct interface once imports have been fix
       setDirtyBelongsTo(key: string, recordData: any) {
         assert.strictEqual(key, 'landlord', 'Passed correct key to setBelongsTo');
-        assert.strictEqual(recordData.id, '2', 'Passed correct RD to setBelongsTo');
+        assert.strictEqual(recordData.getResourceIdentifier().id, '2', 'Passed correct RD to setBelongsTo');
+      }
+
+      setBelongsTo(identifier: StableRecordIdentifier, key: string, value: StableRecordIdentifier | null) {
+        assert.strictEqual(key, 'landlord', 'Passed correct key to setBelongsTo');
+        assert.strictEqual(value?.id, '2', 'Passed correct Identifier to setBelongsTo');
       }
     }
 
     let TestStore = Store.extend({
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
-          return new RelationshipRecordData(storeWrapper);
+          return new RelationshipRecordData(storeWrapper, identifier);
         } else {
           return this._super(identifier, storeWrapper);
         }
@@ -465,29 +593,42 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     let belongsToReturnValue = { data: { id: '1', type: 'person' } };
 
-    class RelationshipRecordData extends TestRecordData {
-      declare identifier: StableRecordIdentifier;
-      constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
-        super();
-        this.identifier = identifier;
-        this._storeWrapper = storeWrapper;
-      }
+    let RelationshipRecordData;
+    if (V2CACHE_SINGLETON_MANAGER) {
+      RelationshipRecordData = class extends TestRecordData {
+        getRelationship(identifier: StableRecordIdentifier, key: string) {
+          assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
+          return belongsToReturnValue;
+        }
 
-      getBelongsTo(key: string) {
-        assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
-        return belongsToReturnValue;
-      }
+        setBelongsTo(
+          this: V2TestRecordData,
+          identifier: StableRecordIdentifier,
+          key: string,
+          value: StableRecordIdentifier | null
+        ) {
+          belongsToReturnValue = { data: { id: '3', type: 'person' } };
+          this._storeWrapper.notifyChange(this._identifier, 'relationships', 'landlord');
+        }
+      };
+    } else {
+      RelationshipRecordData = class extends TestRecordData {
+        getBelongsTo(key: string) {
+          assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
+          return belongsToReturnValue;
+        }
 
-      setDirtyBelongsTo(key: string, recordData: this | null) {
-        belongsToReturnValue = { data: { id: '3', type: 'person' } };
-        this._storeWrapper.notifyChange(this.identifier, 'relationships', 'landlord');
-      }
+        setDirtyBelongsTo(this: V1TestRecordData, key: string, recordData: this | null) {
+          belongsToReturnValue = { data: { id: '3', type: 'person' } };
+          this._storeWrapper.notifyChange(this._identifier, 'relationships', 'landlord');
+        }
+      };
     }
 
     let TestStore = Store.extend({
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
-          return new RelationshipRecordData(identifier, storeWrapper);
+          return new RelationshipRecordData(storeWrapper, identifier);
         } else {
           return this._super(identifier, storeWrapper);
         }
@@ -521,52 +662,51 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     let { owner } = this;
 
-    let calledAddToHasMany = 0;
-    let calledRemoveFromHasMany = 0;
     let hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
 
     class RelationshipRecordData extends TestRecordData {
-      constructor(storeWrapper) {
-        super();
-        this._storeWrapper = storeWrapper;
-      }
-
       getHasMany(key: string) {
         return hasManyReturnValue;
       }
-
-      // TODO: investigate addToHasMany being called during unloading
-      // Use correct interface once imports have been fix
+      getRelationship() {
+        return hasManyReturnValue;
+      }
       addToHasMany(key: string, recordDatas: any[], idx?: number) {
-        // dealing with getting called during unload
-        if (calledAddToHasMany === 1) {
-          return;
+        if (V2CACHE_SINGLETON_MANAGER) {
+          const key: string = arguments[1];
+          const identifiers: StableRecordIdentifier[] = arguments[2];
+          assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+          assert.strictEqual(identifiers[0].id, '2', 'Passed correct RD to addToHasMany');
+        } else {
+          assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+          assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to addToHasMany');
         }
-        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
-        calledAddToHasMany++;
       }
-
       removeFromHasMany(key: string, recordDatas: any[]) {
-        // dealing with getting called during unload
-        if (calledRemoveFromHasMany === 1) {
-          return;
+        if (V2CACHE_SINGLETON_MANAGER) {
+          const key: string = arguments[1];
+          const identifiers: StableRecordIdentifier[] = arguments[2];
+          assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
+          assert.strictEqual(identifiers[0].id, '1', 'Passed correct RD to removeFromHasMany');
+        } else {
+          assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
+          assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '1', 'Passed correct RD to removeFromHasMany');
         }
-        assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
-        assert.strictEqual(recordDatas[0].id, '1', 'Passed correct RD to removeFromHasMany');
-        calledRemoveFromHasMany++;
       }
-
       setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '3', 'Passed correct RD to addToHasMany');
+      }
+      setHasMany(identifier: StableRecordIdentifier, key: string, values: StableRecordIdentifier[]) {
+        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+        assert.strictEqual(values[0].id, '3', 'Passed correct RD to addToHasMany');
       }
     }
 
     let TestStore = Store.extend({
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
-          return new RelationshipRecordData(storeWrapper);
+          return new RelationshipRecordData(storeWrapper, identifier);
         } else {
           return this._super(identifier, storeWrapper);
         }
@@ -607,31 +747,26 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.expect(10);
     let { owner } = this;
 
-    let calledAddToHasMany = 0;
-    let calledRemoveFromHasMany = 0;
     let hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
 
     class RelationshipRecordData extends TestRecordData {
-      declare identifier: StableRecordIdentifier;
-      constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
-        super();
-        this.identifier = identifier;
-        this._storeWrapper = storeWrapper;
-      }
-
       getHasMany(key: string) {
         return hasManyReturnValue;
       }
+      getRelationship() {
+        return hasManyReturnValue;
+      }
 
-      // TODO: investigate addToHasMany being called during unloading
-      addToHasMany(key: string, recordDatas: any[], idx?: number) {
-        // dealing with getting called during unload
-        if (calledAddToHasMany === 1) {
-          return;
+      addToHasMany(this: V1TestRecordData, key: string, recordDatas: any[], idx?: number) {
+        if (V2CACHE_SINGLETON_MANAGER) {
+          const key: string = arguments[1];
+          const identifiers: StableRecordIdentifier[] = arguments[2];
+          assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+          assert.strictEqual(identifiers[0].id, '2', 'Passed correct RD to addToHasMany');
+        } else {
+          assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+          assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to addToHasMany');
         }
-        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
-        calledAddToHasMany++;
 
         hasManyReturnValue = {
           data: [
@@ -639,38 +774,57 @@ module('integration/record-data - Custom RecordData Implementations', function (
             { id: '2', type: 'person' },
           ],
         };
-        this._storeWrapper.notifyChange(this.identifier, 'relationships', 'tenants');
+        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
       }
 
-      removeFromHasMany(key: string, recordDatas: any[]) {
-        // dealing with getting called during unload
-        if (calledRemoveFromHasMany === 1) {
-          return;
+      removeFromHasMany(this: V1TestRecordData, key: string, recordDatas: any[]) {
+        if (V2CACHE_SINGLETON_MANAGER) {
+          const key: string = arguments[1];
+          const identifiers: StableRecordIdentifier[] = arguments[2];
+          assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
+          assert.strictEqual(identifiers[0].id, '2', 'Passed correct RD to removeFromHasMany');
+        } else {
+          assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
+          assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to removeFromHasMany');
         }
-        assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
-        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to removeFromHasMany');
-        calledRemoveFromHasMany++;
         hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
-        this._storeWrapper.notifyChange(this.identifier, 'relationships', 'tenants');
+        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
       }
 
-      setDirtyHasMany(key: string, recordDatas: any[]) {
+      setDirtyHasMany(this: V1TestRecordData, key: string, recordDatas: any[]) {
         assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '3', 'Passed correct RD to addToHasMany');
         hasManyReturnValue = {
           data: [
             { id: '1', type: 'person' },
             { id: '2', type: 'person' },
           ],
         };
-        this._storeWrapper.notifyChange(this.identifier, 'relationships', 'tenants');
+        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
+      }
+
+      setHasMany(
+        this: V2TestRecordData,
+        identifier: StableRecordIdentifier,
+        key: string,
+        values: StableRecordIdentifier[]
+      ) {
+        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+        assert.strictEqual(values[0].id, '3', 'Passed correct RD to addToHasMany');
+        hasManyReturnValue = {
+          data: [
+            { id: '1', type: 'person' },
+            { id: '2', type: 'person' },
+          ],
+        };
+        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
       }
     }
 
     let TestStore = Store.extend({
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
-          return new RelationshipRecordData(identifier, storeWrapper);
+          return new RelationshipRecordData(storeWrapper, identifier);
         } else {
           return this._super(identifier, storeWrapper);
         }

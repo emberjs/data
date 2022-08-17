@@ -127,7 +127,7 @@ export default class Snapshot implements Snapshot {
      */
     this.modelName = identifier.type;
     if (hasRecord) {
-      this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttributes();
+      this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttrs(identifier);
     }
   }
 
@@ -154,11 +154,12 @@ export default class Snapshot implements Snapshot {
       return this.__attributes;
     }
     let attributes = (this.__attributes = Object.create(null));
-    let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier));
-    let recordData = this._store._instanceCache.getRecordData(this.identifier);
+    const { identifier } = this;
+    let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
+    let recordData = this._store._instanceCache.getRecordData(identifier);
 
     attrs.forEach((keyName) => {
-      attributes[keyName] = recordData.getAttr(keyName);
+      attributes[keyName] = recordData.getAttr(identifier, keyName);
     });
 
     return attributes;
@@ -175,7 +176,7 @@ export default class Snapshot implements Snapshot {
 
   get isNew(): boolean {
     const recordData = this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'recordData' });
-    return recordData?.isNew() || false;
+    return recordData?.isNew(this.identifier) || false;
   }
 
   /**
@@ -339,7 +340,7 @@ export default class Snapshot implements Snapshot {
     let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted()) {
+      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted(inverseIdentifier)) {
         if (returnModeIsId) {
           result = inverseIdentifier.id;
         } else {
@@ -441,7 +442,7 @@ export default class Snapshot implements Snapshot {
       results = [];
       value.data.forEach((member) => {
         let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
-        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted()) {
+        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted(inverseIdentifier)) {
           if (returnModeIsIds) {
             (results as RecordId[]).push(inverseIdentifier.id);
           } else {

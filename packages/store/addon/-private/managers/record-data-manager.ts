@@ -1,0 +1,830 @@
+import { assert } from '@ember/debug';
+
+import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
+import { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import { Dict } from '@ember-data/types/q/utils';
+
+import { isStableIdentifier } from '../caches/identifier-cache';
+import Store from '../store-service';
+
+/**
+ * The RecordDataManager wraps a RecordData cache
+ * enforcing that only the public API surface area
+ * is exposed.
+ *
+ * This class is the the return value of both the
+ * `recordDataFor` function supplied to the store
+ * hook `instantiateRecord`, and the `recordDataFor`
+ * method on the `RecordDataStoreWrapper`. It is not
+ * directly instantiatable.
+ *
+ * It handles translating between cache versions when
+ * necessary, for instance when a Store is configured
+ * to use both a v1 and a v2 cache depending on some
+ * heuristic.
+ *
+ * Starting with the v2 spec, the cache is designed such
+ * that it may be implemented as a singleton. However,
+ * because the v1 spec was not designed for this whenever
+ * we encounter any v1 cache we must wrap all caches, even
+ * singletons, in non-singleton managers to preserve v1
+ * compatibility.
+ *
+ * To avoid this performance penalty being paid by all
+ * applications, singleton behavior may be opted-in via
+ * the configuration supplied to your Ember application
+ * at build time. This effectively removes support for
+ * v1 caches.
+ *
+ * ```js
+ * let app = new EmberApp(defaults, {
+ *   emberData: {
+ *     useSingletonManager: true
+ *   },
+ * });
+ * ```
+ *
+ * @class RecordDataManager
+ * @public
+ */
+export class NonSingletonRecordDataManager implements RecordData {
+  version: '2' = '2';
+
+  #store: Store;
+  #recordData: RecordData | RecordDataV1;
+  #identifier: StableRecordIdentifier;
+
+  get managedVersion() {
+    return this.#recordData.version || '1';
+  }
+
+  constructor(store: Store, recordData: RecordData | RecordDataV1, identifier: StableRecordIdentifier) {
+    this.#store = store;
+    this.#recordData = recordData;
+    this.#identifier = identifier;
+  }
+
+  #isDeprecated(recordData: RecordData | RecordDataV1): recordData is RecordDataV1 {
+    let version = recordData.version || '1';
+    return version !== this.version;
+  }
+
+  // Cache
+  // =====
+
+  /**
+   * Retrieve the identifier for this v1 recordData
+   *
+   * DEPRECATED Caches should not be assumed to be 1:1 with resources
+   *
+   * @method getResourceIdentifier
+   * @public
+   * @deprecated
+   */
+  getResourceIdentifier(): StableRecordIdentifier {
+    return this.#identifier;
+  }
+
+  /**
+   * Push resource data from a remote source into the cache for this identifier
+   *
+   * @method pushData
+   * @public
+   * @param identifier
+   * @param data
+   * @param hasRecord
+   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   */
+  pushData(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
+    const recordData = this.#recordData;
+    // called by something V1
+    if (!isStableIdentifier(identifier)) {
+      data = identifier as JsonApiResource;
+      hasRecord = data as boolean;
+      identifier = this.#identifier;
+    }
+    if (this.#isDeprecated(recordData)) {
+      return recordData.pushData(data, hasRecord);
+    }
+    return recordData.pushData(identifier, data, hasRecord);
+  }
+
+  /**
+   * [LIFECYLCE] Signal to the cache that a new record has been instantiated on the client
+   *
+   * It returns properties from options that should be set on the record during the create
+   * process. This return value behavior is deprecated.
+   *
+   * @method clientDidCreate
+   * @public
+   * @param identifier
+   * @param options
+   */
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown> {
+    // called by something V1
+    if (!isStableIdentifier(identifier)) {
+      options = identifier;
+      identifier = this.#identifier;
+    }
+    let recordData = this.#recordData;
+
+    // TODO deprecate return value
+    if (this.#isDeprecated(recordData)) {
+      recordData.clientDidCreate();
+      // if a V2 is calling a V1 we need to call both methods
+      return recordData._initRecordCreateOptions(options);
+    } else {
+      return recordData.clientDidCreate(identifier, options);
+    }
+  }
+
+  /**
+   * Pass options to the cache that were supplied to a new record
+   * instantiated on the client.
+   *
+   * DEPRECATED: options are now passed via `clientDidCreate`
+   *
+   * @method clientDidCreate
+   * @public
+   * @deprecated
+   * @param options
+   */
+  _initRecordCreateOptions(options?: Dict<unknown>) {
+    let recordData = this.#recordData;
+
+    if (this.#isDeprecated(recordData)) {
+      return recordData._initRecordCreateOptions(options);
+    }
+  }
+
+  /**
+   * [LIFECYCLE] Signals to the cache that a resource
+   * will be part of a save transaction.
+   *
+   * @method willCommit
+   * @public
+   * @param identifier
+   */
+  willCommit(identifier: StableRecordIdentifier): void {
+    this.#recordData.willCommit(identifier || this.#identifier);
+  }
+
+  /**
+   * [LIFECYCLE] Signals to the cache that a resource
+   * was successfully updated as part of a save transaction.
+   *
+   * @method didCommit
+   * @public
+   * @param identifier
+   * @param data
+   */
+  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
+    // called by something V1
+    if (!isStableIdentifier(identifier)) {
+      data = identifier;
+      identifier = this.#identifier;
+    }
+    let recordData = this.#recordData;
+    this.#isDeprecated(recordData) ? recordData.didCommit(data) : recordData.didCommit(identifier, data);
+  }
+
+  /**
+   * [LIFECYCLE] Signals to the cache that a resource
+   * was update via a save transaction failed.
+   *
+   * @method commitWasRejected
+   * @public
+   * @param identifier
+   * @param errors
+   */
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]) {
+    this.#recordData.commitWasRejected(identifier || this.#identifier, errors);
+  }
+
+  /**
+   * [LIFECYCLE] Signals to the cache that all data for a resource
+   * should be cleared.
+   *
+   * @method unloadRecord
+   * @public
+   * @param identifier
+   */
+  unloadRecord(identifier: StableRecordIdentifier): void {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      recordData.unloadRecord();
+    } else {
+      recordData.unloadRecord(identifier || this.#identifier);
+    }
+  }
+
+  // Attrs
+  // =====
+
+  /**
+   * Retrieve the data for an attribute from the cache
+   *
+   * @method getAttr
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @returns {unknown}
+   */
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+    // called by something V1
+    if (!isStableIdentifier(identifier)) {
+      propertyName = identifier;
+      identifier = this.#identifier;
+    }
+    let recordData = this.#recordData;
+    return this.#isDeprecated(recordData)
+      ? recordData.getAttr(propertyName)
+      : recordData.getAttr(identifier, propertyName);
+  }
+
+  /**
+   * Mutate the data for an attribute in the cache
+   *
+   * @method setAttr
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @param value
+   */
+  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+    let recordData = this.#recordData;
+
+    this.#isDeprecated(recordData)
+      ? recordData.setDirtyAttribute(propertyName, value)
+      : recordData.setAttr(identifier, propertyName, value);
+  }
+
+  /**
+   * Mutate the data for an attribute in the cache
+   *
+   * DEPRECATED use setAttr
+   *
+   * @method setDirtyAttribute
+   * @public
+   * @deprecated
+   * @param identifier
+   * @param propertyName
+   * @param value
+   */
+  setDirtyAttribute(propertyName: string, value: unknown): void {
+    let recordData = this.#recordData;
+
+    this.#isDeprecated(recordData)
+      ? recordData.setDirtyAttribute(propertyName, value)
+      : recordData.setAttr(this.#identifier, propertyName, value);
+  }
+
+  /**
+   * Query the cache for the changed attributes of a resource.
+   *
+   * DEPRECATED use changedAttrs
+   *
+   * @method changedAttributes
+   * @public
+   * @deprecated
+   * @param identifier
+   * @returns
+   */
+  changedAttributes(): ChangedAttributesHash {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      return recordData.changedAttributes();
+    }
+    return recordData.changedAttrs(this.#identifier);
+  }
+
+  /**
+   * Query the cache for the changed attributes of a resource.
+   *
+   * @method changedAttrs
+   * @public
+   * @deprecated
+   * @param identifier
+   * @returns
+   */
+  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      return recordData.changedAttributes();
+    }
+    return recordData.changedAttrs(identifier);
+  }
+
+  /**
+   * Query the cache for whether any mutated attributes exist
+   *
+   * DEPRECATED use hasChangedAttrs
+   *
+   * @method hasChangedAttributes
+   * @public
+   * @deprecated
+   * @returns
+   */
+  hasChangedAttributes(): boolean {
+    const recordData = this.#recordData;
+    return this.#isDeprecated(recordData)
+      ? recordData.hasChangedAttributes()
+      : recordData.hasChangedAttrs(this.#identifier);
+  }
+
+  /**
+   * Query the cache for whether any mutated attributes exist
+   *
+   * @method hasChangedAttrs
+   * @public
+   * @param identifier
+   * @returns
+   */
+  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+    const recordData = this.#recordData;
+    return this.#isDeprecated(recordData) ? recordData.hasChangedAttributes() : recordData.hasChangedAttrs(identifier);
+  }
+
+  /**
+   * Tell the cache to discard any uncommitted mutations to attributes
+   *
+   * DEPRECATED use rollbackAttrs
+   *
+   * @method rollbackAttributes
+   * @public
+   * @deprecated
+   * @returns
+   */
+  rollbackAttributes() {
+    const recordData = this.#recordData;
+    return this.#isDeprecated(recordData)
+      ? recordData.rollbackAttributes()
+      : recordData.rollbackAttrs(this.#identifier);
+  }
+
+  /**
+   * Tell the cache to discard any uncommitted mutations to attributes
+   *
+   * @method rollbackAttrs
+   * @public
+   * @param identifier
+   * @returns the names of attributes that were restored
+   */
+  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+    const recordData = this.#recordData;
+    return this.#isDeprecated(recordData) ? recordData.rollbackAttributes() : recordData.rollbackAttrs(identifier);
+  }
+
+  // Relationships
+  // =============
+
+  // the third arg here is "private". In a world with only V2 it is not necessary
+  // but in one in which we must convert a call from V2 -> V1 it is required to do this
+  // or else to do nasty schema lookup things
+  // @runspired has implemented this concept in relationships spikes and is confident
+  // we do not need any signal about whether a relationship is a collection or not at this
+  // boundary
+  /**
+   * Query the cache for the current state of a relationship property
+   *
+   * @method getRelationship
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @returns resource relationship object
+   */
+  getRelationship(
+    identifier: StableRecordIdentifier,
+    propertyName: string,
+    isCollection = false
+  ): SingleResourceRelationship | CollectionResourceRelationship {
+    let recordData = this.#recordData;
+
+    if (this.#isDeprecated(recordData)) {
+      let isBelongsTo = !isCollection;
+      return isBelongsTo ? recordData.getBelongsTo(propertyName) : recordData.getHasMany(propertyName);
+    }
+
+    return recordData.getRelationship(identifier, propertyName);
+  }
+
+  /**
+   * Query the cache for the current state of a belongsTo field
+   *
+   * DEPRECATED use `getRelationship`
+   *
+   * @method getBelongsTo
+   * @public
+   * @deprecated
+   * @param propertyName
+   * @returns single resource relationship object
+   */
+  getBelongsTo(propertyName: string): SingleResourceRelationship {
+    let recordData = this.#recordData;
+
+    if (this.#isDeprecated(recordData)) {
+      return recordData.getBelongsTo(propertyName);
+    } else {
+      let identifier = this.#identifier;
+      return recordData.getRelationship(identifier, propertyName) as SingleResourceRelationship;
+    }
+  }
+
+  /**
+   * Query the cache for the current state of a hasMany field
+   *
+   * DEPRECATED use `getRelationship`
+   *
+   * @method getHasMany
+   * @public
+   * @deprecated
+   * @param propertyName
+   * @returns single resource relationship object
+   */
+  getHasMany(propertyName: string): CollectionResourceRelationship {
+    let recordData = this.#recordData;
+
+    if (this.#isDeprecated(recordData)) {
+      return recordData.getHasMany(propertyName);
+    } else {
+      let identifier = this.#identifier;
+      return recordData.getRelationship(identifier, propertyName) as CollectionResourceRelationship;
+    }
+  }
+
+  /**
+   * Mutate the current state of a belongsTo relationship
+   *
+   * @method setBelongsTo
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @param value
+   */
+  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null) {
+    const store = this.#store;
+    const recordData = this.#recordData;
+
+    this.#isDeprecated(recordData)
+      ? recordData.setDirtyBelongsTo(propertyName, value ? store._instanceCache.getRecordData(value) : null)
+      : recordData.setBelongsTo(identifier, propertyName, value);
+  }
+
+  /**
+   * Mutate the current state of a belongsTo relationship
+   *
+   * DEPRECATED use setBelongsTo
+   *
+   * @method setDirtyBelongsTo
+   * @public
+   * @deprecated
+   * @param propertyName
+   * @param value
+   */
+  setDirtyBelongsTo(propertyName: string, value: NonSingletonRecordDataManager | null) {
+    const recordData = this.#recordData;
+
+    this.#isDeprecated(recordData)
+      ? recordData.setDirtyBelongsTo(propertyName, value as unknown as RecordData)
+      : recordData.setBelongsTo(this.#identifier, propertyName, value ? value.getResourceIdentifier() : null);
+  }
+
+  /**
+   * Mutate the current state of a hasMany relationship by adding values
+   * An index may optionally be specified which the cache should use for
+   * where in the list to insert the records
+   *
+   * @method addToHasMany
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @param value
+   * @param idx
+   */
+  addToHasMany(
+    identifier: StableRecordIdentifier,
+    propertyName: string,
+    value: StableRecordIdentifier[],
+    idx?: number
+  ): void {
+    // called by something V1
+    let isFromV1 = false;
+    if (!isStableIdentifier(identifier)) {
+      isFromV1 = true;
+      idx = value as unknown as number;
+      value = propertyName as unknown as StableRecordIdentifier[];
+      propertyName = identifier as unknown as string;
+      identifier = this.#identifier;
+    }
+    const cache = this.#store._instanceCache;
+    const recordData = this.#recordData;
+
+    this.#isDeprecated(recordData)
+      ? recordData.addToHasMany(
+          propertyName,
+          isFromV1 ? (value as unknown as RecordData[]) : value.map((v) => cache.getRecordData(v)),
+          idx
+        )
+      : recordData.addToHasMany(
+          identifier,
+          propertyName,
+          isFromV1
+            ? (value as unknown as NonSingletonRecordDataManager[]).map((v) => v.getResourceIdentifier())
+            : value,
+          idx
+        );
+  }
+
+  /**
+   * Mutate the current state of a hasMany relationship by removing values.
+   *
+   * @method removeFromHasMany
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @param value
+   */
+  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    let isFromV1 = false;
+    if (!isStableIdentifier(identifier)) {
+      isFromV1 = true;
+      value = propertyName as unknown as StableRecordIdentifier[];
+      propertyName = identifier as unknown as string;
+      identifier = this.#identifier;
+    }
+    const cache = this.#store._instanceCache;
+    const recordData = this.#recordData;
+
+    this.#isDeprecated(recordData)
+      ? recordData.removeFromHasMany(
+          propertyName,
+          isFromV1 ? (value as unknown as RecordData[]) : value.map((v) => cache.getRecordData(v))
+        )
+      : recordData.removeFromHasMany(
+          identifier,
+          propertyName,
+          isFromV1 ? (value as unknown as NonSingletonRecordDataManager[]).map((v) => v.getResourceIdentifier()) : value
+        );
+  }
+
+  /**
+   * Mutate the current state of a hasMany relationship by replacing it entirely
+   *
+   * @method setHasMany
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @param value
+   */
+  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    const cache = this.#store._instanceCache;
+    const recordData = this.#recordData;
+
+    this.#isDeprecated(recordData)
+      ? recordData.setDirtyHasMany(
+          propertyName,
+          value.map((identifier) => cache.getRecordData(identifier))
+        )
+      : recordData.setHasMany(identifier, propertyName, value);
+  }
+
+  /**
+   * Mutate the current state of a hasMany relationship by replacing it entirely
+   *
+   * DEPRECATED use `setHasMany`
+   *
+   * @method setDirtyHasMany
+   * @public
+   * @deprecated
+   * @param propertyName
+   * @param value
+   */
+  setDirtyHasMany(propertyName: string, value: RecordData[]) {
+    let recordData = this.#recordData;
+
+    this.#isDeprecated(recordData)
+      ? recordData.setDirtyHasMany(propertyName, value)
+      : recordData.setHasMany(
+          this.#identifier,
+          propertyName,
+          (value as unknown as NonSingletonRecordDataManager[]).map((rd) => rd.getResourceIdentifier())
+        );
+  }
+
+  // State
+  // =============
+
+  /**
+   * Update the cache state for the given resource to be marked as locally deleted,
+   * or remove such a mark.
+   *
+   * @method setIsDeleted
+   * @public
+   * @param identifier
+   * @param isDeleted
+   */
+  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+    if (!isStableIdentifier(identifier)) {
+      isDeleted = identifier as boolean;
+      identifier = this.#identifier;
+    }
+    const recordData = this.#recordData;
+    this.#isDeprecated(recordData)
+      ? recordData.setIsDeleted(isDeleted)
+      : recordData.setIsDeleted(identifier, isDeleted);
+  }
+
+  /**
+   * Query the cache for any validation errors applicable to the given resource.
+   *
+   * @method getErrors
+   * @public
+   * @param identifier
+   * @returns
+   */
+  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+    return this.#recordData.getErrors(identifier || this.#identifier);
+  }
+
+  /**
+   * Query the cache for whether a given resource has any available data
+   *
+   * @method isEmpty
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
+  isEmpty(identifier: StableRecordIdentifier): boolean {
+    const recordData = this.#recordData;
+    return this.#isDeprecated(recordData)
+      ? recordData.isEmpty?.(identifier || this.#identifier) || false
+      : recordData.isEmpty(identifier || this.#identifier);
+  }
+
+  /**
+   * Query the cache for whether a given resource was created locally and not
+   * yet persisted.
+   *
+   * @method isNew
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
+  isNew(identifier: StableRecordIdentifier): boolean {
+    return this.#recordData.isNew(identifier || this.#identifier);
+  }
+
+  /**
+   * Query the cache for whether a given resource is marked as deleted (but not
+   * necessarily persisted yet).
+   *
+   * @method isDeleted
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
+  isDeleted(identifier: StableRecordIdentifier): boolean {
+    return this.#recordData.isDeleted(identifier || this.#identifier);
+  }
+
+  /**
+   * Query the cache for whether a given resource has been deleted and that deletion
+   * has also been persisted.
+   *
+   * @method isDeletionCommitted
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
+  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+    return this.#recordData.isDeletionCommitted(identifier || this.#identifier);
+  }
+}
+
+export class SingletonRecordDataManager implements RecordData {
+  version: '2' = '2';
+
+  #store: Store;
+  #recordDatas: Map<StableRecordIdentifier, RecordData>;
+
+  constructor(store: Store) {
+    this.#store = store;
+    this.#recordDatas = new Map();
+  }
+
+  _addRecordData(identifier: StableRecordIdentifier, recordData: RecordData) {
+    this.#recordDatas.set(identifier, recordData);
+  }
+
+  #recordData(identifier: StableRecordIdentifier): RecordData {
+    assert(`No RecordData Yet Exists!`, this.#recordDatas.has(identifier));
+    return this.#recordDatas.get(identifier)!;
+  }
+
+  // Cache
+  // =====
+
+  pushData(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
+    return this.#recordData(identifier).pushData(identifier, data, hasRecord);
+  }
+
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown> {
+    return this.#recordData(identifier).clientDidCreate(identifier, options);
+  }
+
+  willCommit(identifier: StableRecordIdentifier): void {
+    this.#recordData(identifier).willCommit(identifier);
+  }
+
+  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
+    this.#recordData(identifier).didCommit(identifier, data);
+  }
+
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]): void {
+    this.#recordData(identifier).commitWasRejected(identifier, errors);
+  }
+
+  unloadRecord(identifier: StableRecordIdentifier): void {
+    this.#recordData(identifier).unloadRecord(identifier);
+  }
+
+  // Attrs
+  // =====
+
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+    return this.#recordData(identifier).getAttr(identifier, propertyName);
+  }
+
+  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+    this.#recordData(identifier).setAttr(identifier, propertyName, value);
+  }
+
+  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+    return this.#recordData(identifier).changedAttrs(identifier);
+  }
+
+  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+    return this.#recordData(identifier).hasChangedAttrs(identifier);
+  }
+
+  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+    return this.#recordData(identifier).rollbackAttrs(identifier);
+  }
+
+  getRelationship(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): SingleResourceRelationship | CollectionResourceRelationship {
+    return this.#recordData(identifier).getRelationship(identifier, propertyName);
+  }
+
+  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null) {
+    this.#recordData(identifier).setBelongsTo(identifier, propertyName, value);
+  }
+
+  addToHasMany(
+    identifier: StableRecordIdentifier,
+    propertyName: string,
+    value: StableRecordIdentifier[],
+    idx?: number
+  ): void {
+    this.#recordData(identifier).addToHasMany(identifier, propertyName, value, idx);
+  }
+
+  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    this.#recordData(identifier).removeFromHasMany(identifier, propertyName, value);
+  }
+
+  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    this.#recordData(identifier).setHasMany(identifier, propertyName, value);
+  }
+
+  // State
+  // =============
+
+  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+    this.#recordData(identifier).setIsDeleted(identifier, isDeleted);
+  }
+
+  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+    return this.#recordData(identifier).getErrors(identifier);
+  }
+
+  isEmpty(identifier: StableRecordIdentifier): boolean {
+    return this.#recordData(identifier).isEmpty(identifier);
+  }
+
+  isNew(identifier: StableRecordIdentifier): boolean {
+    return this.#recordData(identifier).isNew(identifier);
+  }
+
+  isDeleted(identifier: StableRecordIdentifier): boolean {
+    return this.#recordData(identifier).isDeleted(identifier);
+  }
+
+  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+    return this.#recordData(identifier).isDeletionCommitted(identifier);
+  }
+}

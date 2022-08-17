@@ -412,7 +412,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import JSONAPISerializer from '@ember-data/serializer/json-api';
-    import { dasherize } from '@ember/string';
+    import { dasherize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends JSONAPISerializer {
       keyForAttribute(attr, method) {
@@ -444,7 +444,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     ```app/serializers/post.js
     import JSONAPISerializer from '@ember-data/serializer/json-api';
-    import { underscore } from '@ember/string';
+    import { underscore } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends JSONAPISerializer {
       keyForRelationship(key, relationship, method) {
@@ -562,8 +562,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import JSONAPISerializer from '@ember-data/serializer/json-api';
-    import { singularize } from 'ember-inflector';
-    import { underscore } from '@ember/string';
+    import { underscore, singularize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends JSONAPISerializer {
       serialize(snapshot, options) {

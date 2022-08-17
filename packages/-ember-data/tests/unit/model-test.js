@@ -13,7 +13,6 @@ import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
-import { recordDataFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model - Model', function (hooks) {
@@ -841,7 +840,7 @@ module('unit/model - Model', function (hooks) {
       assert.strictEqual(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
     });
 
-    test('setting a property back to its original value removes the property from the `_attributes` hash', async function (assert) {
+    test('setting a property back to its original value cleans the mutated state', async function (assert) {
       let person = store.push({
         data: {
           type: 'person',
@@ -852,20 +851,18 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let recordData = recordDataFor(person);
-      assert.strictEqual(recordData._attributes.name, undefined, 'the `_attributes` hash is clean');
+      assert.strictEqual(person.name, 'Scumbag Dale', 'name is correct');
+      assert.false(person.hasDirtyAttributes, 'name is clean');
 
       set(person, 'name', 'Niceguy Dale');
 
-      assert.strictEqual(
-        recordData._attributes.name,
-        'Niceguy Dale',
-        'the `_attributes` hash contains the changed value'
-      );
+      assert.strictEqual(person.name, 'Niceguy Dale', 'dirtied name is correct');
+      assert.true(person.hasDirtyAttributes, 'name is dirty');
 
       set(person, 'name', 'Scumbag Dale');
 
-      assert.strictEqual(recordData._attributes.name, undefined, 'the `_attributes` hash is reset');
+      assert.strictEqual(person.name, 'Scumbag Dale', 'name is correct');
+      assert.false(person.hasDirtyAttributes, 'name is clean');
     });
   });
 

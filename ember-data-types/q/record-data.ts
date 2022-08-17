@@ -11,7 +11,7 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
-export interface RecordData {
+export interface RecordDataV1 {
   version?: '1';
 
   // Cache
@@ -50,26 +50,26 @@ export interface RecordData {
 
   // State
   // =============
-  setIsDeleted?(identifier: StableRecordIdentifier, isDeleted: boolean): void;
-  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
-  isEmpty?(): boolean; // needs rfc
-  isNew(): boolean;
-  isDeleted(): boolean;
-  isDeletionCommitted(): boolean;
+  setIsDeleted(isDeleted: boolean): void;
+  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[];
+  isEmpty?(identifier: StableRecordIdentifier): boolean; // needs rfc
+  isNew(identifier: StableRecordIdentifier): boolean;
+  isDeleted(identifier: StableRecordIdentifier): boolean;
+  isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
 }
 
-export interface RecordDataV2 {
+export interface RecordData {
   version: '2';
 
   // Cache
   // =====
 
   pushData(identifier: StableRecordIdentifier, data: JsonApiResource, calculateChanges?: boolean): void | string[];
-  clientDidCreate(identifier: StableRecordIdentifier, options: object): void;
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown>;
 
   willCommit(identifier: StableRecordIdentifier): void;
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void;
-  commitWasRejected(identifier: StableRecordIdentifier): void;
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]): void;
 
   unloadRecord(identifier: StableRecordIdentifier): void;
 

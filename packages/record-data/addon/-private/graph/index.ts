@@ -222,9 +222,12 @@ export class Graph {
       // to allow for rematerialization
       Object.keys(relationships).forEach((key) => {
         let rel = relationships[key]!;
+        if (!rel) {
+          return;
+        }
         destroyRelationship(rel);
         if (isImplicit(rel)) {
-          delete relationships[key];
+          relationships[key] = undefined;
         }
       });
     }
@@ -301,9 +304,12 @@ export class Graph {
 
         if (relationships) {
           Object.keys(relationships).forEach((key) => {
-            const rel = relationships[key]!;
+            const rel = relationships[key];
+            if (!rel) {
+              return;
+            }
             // works together with the has check
-            delete relationships[key];
+            relationships[key] = undefined;
             removeCompletelyFromInverse(rel);
           });
           this.identifiers.delete(identifier);

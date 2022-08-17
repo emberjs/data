@@ -40,7 +40,7 @@ function makeArray(value) {
 
   ```app/serializers/application.js
   import RESTSerializer from '@ember-data/serializer/rest';
-  import { underscore } from '@ember/string';
+  import { underscore } from '<app-name>/utils/string-utils';
 
   export default class ApplicationSerializer extends RESTSerializer {
     keyForAttribute(attr, method) {
@@ -561,7 +561,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { pluralize } from 'ember-inflector';
+    import { pluralize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
@@ -645,7 +645,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { decamelize } from '@ember/string';
+    import { decamelize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, record, options) {
@@ -688,7 +688,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { dasherize } from '@ember/string';
+    import { dasherize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       payloadKeyFromModelName(modelName) {

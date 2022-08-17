@@ -2157,47 +2157,42 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              tags: {
-                data: [{ type: 'tag', id: '1' }],
-              },
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            tags: {
+              data: [{ type: 'tag', id: '1' }],
             },
           },
-          {
-            type: 'tag',
-            id: '1',
-            attributes: {
-              name: 'ember',
-            },
+        },
+        {
+          type: 'tag',
+          id: '1',
+          attributes: {
+            name: 'ember',
           },
-          {
-            type: 'tag',
-            id: '2',
-            attributes: {
-              name: 'ember-data',
-            },
+        },
+        {
+          type: 'tag',
+          id: '2',
+          attributes: {
+            name: 'ember-data',
           },
-        ],
-      });
+        },
+      ],
     });
 
-    let tom;
-
-    run(() => {
-      tom = store.peekRecord('person', '1');
-      assert.expectAssertion(() => {
-        tom.tags.setObjects(store.peekRecord('tag', '2'));
-      }, /The third argument to replace needs to be an array./);
-    });
+    let tom = store.peekRecord('person', '1');
+    let tag = store.peekRecord('tag', '2');
+    assert.expectAssertion(() => {
+      tom.tags.setObjects(tag);
+    }, /The third argument to replace needs to be an array./);
   });
 
   test('it is possible to remove an item from a relationship', function (assert) {

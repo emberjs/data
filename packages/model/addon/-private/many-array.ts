@@ -9,13 +9,14 @@ import EmberObject, { get } from '@ember/object';
 import { all } from 'rsvp';
 
 import type Store from '@ember-data/store';
-import { PromiseArray, recordDataFor } from '@ember-data/store/-private';
+import { PromiseArray, recordIdentifierFor } from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
+import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import type { DSModelSchema } from '@ember-data/types/q/ds-model';
-import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import type { CollectionResourceRelationship, Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { RecordData } from '@ember-data/types/q/record-data';
+import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -32,6 +33,7 @@ const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as ne
 export interface ManyArrayCreateArgs {
   store: Store;
   type: ShimModelClass;
+  identifier: StableRecordIdentifier;
   recordData: RecordData;
   key: string;
   isPolymorphic: boolean;
@@ -98,6 +100,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
   declare _meta: Dict<unknown> | null;
   declare _links: Links | PaginationLinks | null;
   declare currentState: StableRecordIdentifier[];
+  declare identifier: StableRecordIdentifier;
   declare recordData: RecordData;
   declare legacySupport: LegacySupport;
   declare store: Store;
@@ -272,25 +275,22 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
 
   replace(idx: number, amt: number, objects?: RecordInstance[]) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
-    const { store } = this;
+    assert(
+      'The third argument to replace needs to be an array.',
+      !objects || Array.isArray(objects) || EmberArray.detect(objects)
+    );
+    const { store, identifier } = this;
     store._backburner.join(() => {
       let identifiers: StableRecordIdentifier[];
       if (amt > 0) {
         identifiers = this.currentState.slice(idx, idx + amt);
-        this.recordData.removeFromHasMany(
-          this.key,
-          // TODO RecordData V2: recordData should take identifiers not RecordDatas
-          identifiers.map((identifier) => store._instanceCache.getRecordData(identifier))
-        );
+        this.recordData.removeFromHasMany(identifier, this.key, identifiers);
       }
-      if (objects) {
-        assert(
-          'The third argument to replace needs to be an array.',
-          Array.isArray(objects) || EmberArray.detect(objects)
-        );
+      if (objects && objects.length > 0) {
         this.recordData.addToHasMany(
+          identifier,
           this.key,
-          objects.map((obj: RecordInstance) => recordDataFor(obj)),
+          objects.map((obj: RecordInstance) => recordIdentifierFor(obj)),
           idx
         );
       }
@@ -305,7 +305,13 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     }
     this._isDirty = false;
     this._isUpdating = true;
-    let jsonApi = this.recordData.getHasMany(this.key);
+    const identifier = this.identifier;
+
+    let jsonApi = (this.recordData as NonSingletonRecordDataManager).getRelationship(
+      identifier,
+      this.key,
+      true
+    ) as CollectionResourceRelationship;
     const cache = this.store._instanceCache;
     const idCache = this.store.identifierCache;
 

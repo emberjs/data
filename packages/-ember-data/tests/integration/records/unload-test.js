@@ -746,7 +746,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(record.get('cars.firstObject.make'), 'jeep');
     store.unloadRecord(record);
     assert.true(record.isDestroying, 'the record is destroying');
-    assert.true(recordData.isEmpty(), 'Expected the previous data to be unloaded');
+    assert.true(recordData.isEmpty(identifier), 'Expected the previous data to be unloaded');
 
     const recordAgain = await store.findRecord('person', '1');
     assert.strictEqual(recordAgain.cars.length, 0, 'Expected relationship to be cleared by the new push');
@@ -809,7 +809,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
       assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
-      assert.true(recordData.isEmpty(), 'We are unloaded after unloadRecord');
+      assert.true(recordData.isEmpty(identifier), 'We are unloaded after unloadRecord');
 
       let wait = store.findRecord('person', '1').then((newRecord) => {
         assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
@@ -860,7 +860,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(function () {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.true(recordData.isEmpty(), 'We are unloaded after unloadRecord');
+      assert.true(recordData.isEmpty(identifier), 'We are unloaded after unloadRecord');
     });
 
     run(function () {

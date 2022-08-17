@@ -75,7 +75,7 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
     return true;
   }
   const recordData = peekRecordData(identifier);
-  return Boolean(recordData?.isNew());
+  return Boolean(recordData?.isNew(identifier));
 }
 
 export function isBelongsTo(

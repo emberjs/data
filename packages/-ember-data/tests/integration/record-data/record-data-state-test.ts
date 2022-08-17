@@ -6,13 +6,16 @@ import { Promise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
+import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
-import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
+import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
+import { Dict } from '@ember-data/types/q/utils';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -27,7 +30,10 @@ class TestRecordIdentifier implements NewRecordIdentifier {
   constructor(public id: string | null, public lid: string, public type: string) {}
 }
 
-class TestRecordData implements RecordData {
+class V1TestRecordData implements RecordDataV1 {
+  setIsDeleted(isDeleted: boolean): void {
+    throw new Error('Method not implemented.');
+  }
   version?: '1' | undefined;
   isDeletionCommitted(): boolean {
     throw new Error('Method not implemented.');
@@ -107,6 +113,86 @@ class TestRecordData implements RecordData {
     return {};
   }
 }
+class V2TestRecordData implements RecordData {
+  version: '2' = '2';
+
+  _errors?: JsonApiValidationError[];
+  _isNew: boolean = false;
+
+  pushData(
+    identifier: StableRecordIdentifier,
+    data: JsonApiResource,
+    calculateChanges?: boolean | undefined
+  ): void | string[] {}
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+    this._isNew = true;
+    return {};
+  }
+  willCommit(identifier: StableRecordIdentifier): void {}
+  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {}
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
+    this._errors = errors;
+  }
+  unloadRecord(identifier: StableRecordIdentifier): void {}
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+    return '';
+  }
+  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+    return {};
+  }
+  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+    return false;
+  }
+  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+    throw new Error('Method not implemented.');
+  }
+  getRelationship(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): SingleResourceRelationship | CollectionResourceRelationship {
+    throw new Error('Method not implemented.');
+  }
+  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void {
+    throw new Error('Method not implemented.');
+  }
+  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    throw new Error('Method not implemented.');
+  }
+  addToHasMany(
+    identifier: StableRecordIdentifier,
+    propertyName: string,
+    value: StableRecordIdentifier[],
+    idx?: number | undefined
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+    throw new Error('Method not implemented.');
+  }
+  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+    throw new Error('Method not implemented.');
+  }
+
+  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+    return this._errors || [];
+  }
+  isEmpty(identifier: StableRecordIdentifier): boolean {
+    return false;
+  }
+  isNew(identifier: StableRecordIdentifier): boolean {
+    return this._isNew;
+  }
+  isDeleted(identifier: StableRecordIdentifier): boolean {
+    return false;
+  }
+  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+    return false;
+  }
+}
+const TestRecordData = V2CACHE_SINGLETON_MANAGER ? V2TestRecordData : V1TestRecordData;
 
 const CustomStore = Store.extend({
   createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
@@ -249,7 +335,7 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(identifier, value: boolean): void {
+      setIsDeleted(value: boolean): void {
         isDeleted = true;
         calledSetIsDeleted = true;
       }

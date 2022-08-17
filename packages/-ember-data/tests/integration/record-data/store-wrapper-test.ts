@@ -65,7 +65,7 @@ class TestRecordData {
 
   setDirtyAttribute(key: string, value: any) {}
 
-  getAttr(key: string): string {
+  getAttr(identifier: StableRecordIdentifier, key: string): unknown {
     return 'test';
   }
 
@@ -85,6 +85,10 @@ class TestRecordData {
 
   isNew() {
     return this._isNew;
+  }
+
+  isEmpty() {
+    return false;
   }
 
   _initRecordCreateOptions(options) {}
@@ -228,22 +232,22 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         count++;
         this.id = identifier.id!;
 
-        // TODO figure out testing this in a way that is not broken
-        // for singletons
         if (count === 1) {
           const identifier = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '2' });
           assert.strictEqual(
-            (storeWrapper.recordDataFor(identifier) as unknown as RecordDataForTest).id,
-            '2',
+            storeWrapper.recordDataFor(identifier).getAttr(identifier, 'name'),
+            'ours name',
             'Can lookup another RecordData that has been loaded'
           );
           const identifier2 = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
-          assert.strictEqual(
-            (storeWrapper.recordDataFor(identifier2) as unknown as RecordDataForTest).id,
-            '1',
-            'Can lookup another RecordData which hasnt been loaded'
-          );
+          const recordData = storeWrapper.recordDataFor(identifier2);
+          const attrValue = recordData.getAttr(identifier2, 'name');
+          assert.strictEqual(attrValue, 'Chris', 'Can lookup another RecordData which hasnt been loaded');
         }
+      }
+
+      getAttr(identifier: StableRecordIdentifier, key: string): unknown {
+        return 'ours name';
       }
     }
 
@@ -261,7 +265,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     store = owner.lookup('service:store');
 
     store.push({
-      data: [houseHash, houseHash2],
+      data: [{ id: '1', type: 'person', attributes: { name: 'Chris' } }, houseHash, houseHash2],
     });
 
     assert.strictEqual(count, 2, 'two TestRecordDatas have been created');
@@ -273,6 +277,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     let count = 0;
     let recordData;
     let newRecordData;
+    let firstIdentifier, secondIdentifier;
 
     class RecordDataForTest extends TestRecordData {
       id: string;
@@ -286,9 +291,11 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (count === 1) {
           const newIdentifier = wrapper.identifierCache.createIdentifierForNewRecord({ type: 'house' });
           recordData = wrapper.recordDataFor(newIdentifier);
-          recordData.clientDidCreate();
+          firstIdentifier = newIdentifier;
+          recordData.clientDidCreate(newIdentifier);
         } else if (count === 2) {
           newRecordData = this;
+          secondIdentifier = identifier;
         }
       }
 
@@ -324,9 +331,9 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       },
     });
 
-    assert.ok(recordData._isNew, 'Our RecordData is new');
+    assert.ok(recordData.isNew(firstIdentifier), 'Our RecordData is new');
     assert.ok(
-      newRecordData.isNew(),
+      newRecordData.isNew(secondIdentifier),
       'The recordData for a RecordData created via Wrapper.recordDataFor(type) is in the "new" state'
     );
 

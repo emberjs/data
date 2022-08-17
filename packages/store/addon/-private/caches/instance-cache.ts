@@ -4,6 +4,7 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { resolve } from 'rsvp';
 
+import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
@@ -27,6 +28,7 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import { Dict } from '@ember-data/types/q/utils';
 
 import RecordReference from '../legacy-model-support/record-reference';
+import { NonSingletonRecordDataManager, SingletonRecordDataManager } from '../managers/record-data-manager';
 import { RecordDataStoreWrapper } from '../managers/record-data-store-wrapper';
 import Snapshot from '../network/snapshot';
 import type { CreateRecordProperties } from '../store-service';
@@ -36,7 +38,7 @@ import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
 import WeakCache, { DebugWeakCache } from '../utils/weak-cache';
-import recordDataFor, { removeRecordDataFor, setRecordDataFor } from './record-data-for';
+import { removeRecordDataFor, setRecordDataFor } from './record-data-for';
 
 let _peekGraph: peekGraph;
 if (HAS_RECORD_DATA_PACKAGE) {
@@ -52,13 +54,12 @@ if (HAS_RECORD_DATA_PACKAGE) {
   @module @ember-data/store
 */
 
-const RecordCache = new WeakCache<RecordInstance | RecordData, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
+const RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
 if (DEBUG) {
-  RecordCache._expectMsg = (key: RecordInstance | RecordData) =>
-    `${String(key)} is not a record instantiated by @ember-data/store`;
+  RecordCache._expectMsg = (key: RecordInstance) => `${String(key)} is not a record instantiated by @ember-data/store`;
 }
 
-export function peekRecordIdentifier(record: RecordInstance | RecordData): StableRecordIdentifier | undefined {
+export function peekRecordIdentifier(record: RecordInstance): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
 }
 
@@ -81,11 +82,11 @@ export function peekRecordIdentifier(record: RecordInstance | RecordData): Stabl
   @param {Object} record a record instance previously obstained from the store.
   @returns {StableRecordIdentifier}
  */
-export function recordIdentifierFor(record: RecordInstance | RecordData): StableRecordIdentifier {
+export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   return RecordCache.getWithError(record);
 }
 
-export function setRecordIdentifier(record: RecordInstance | RecordData, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
   if (DEBUG && RecordCache.has(record) && RecordCache.get(record) !== identifier) {
     throw new Error(`${String(record)} was already assigned an identifier`);
   }
@@ -114,8 +115,8 @@ export function storeFor(record: RecordInstance): Store | undefined {
 }
 
 type Caches = {
-  record: WeakMap<StableRecordIdentifier, RecordInstance>;
-  recordData: WeakMap<StableRecordIdentifier, RecordData>;
+  record: Map<StableRecordIdentifier, RecordInstance>;
+  recordData: Map<StableRecordIdentifier, RecordData>;
   reference: DebugWeakCache<StableRecordIdentifier, RecordReference>;
 };
 
@@ -125,9 +126,10 @@ export class InstanceCache {
   declare peekList: Dict<Set<StableRecordIdentifier>>;
   declare __recordDataFor: (resource: RecordIdentifier) => RecordData;
 
-  #instances: Caches = {
-    record: new WeakMap<StableRecordIdentifier, RecordInstance>(),
-    recordData: new WeakMap<StableRecordIdentifier, RecordData>(),
+  declare __cacheManager: NonSingletonRecordDataManager;
+  __instances: Caches = {
+    record: new Map<StableRecordIdentifier, RecordInstance>(),
+    recordData: new Map<StableRecordIdentifier, RecordData>(),
     reference: new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : ''),
   };
 
@@ -136,8 +138,8 @@ export class InstanceCache {
     if (!recordData) {
       return false;
     }
-    const isNew = recordData.isNew();
-    const isEmpty = recordData.isEmpty?.() || false;
+    const isNew = recordData.isNew(identifier);
+    const isEmpty = recordData.isEmpty?.(identifier) || false;
 
     // if we are new we must consider ourselves loaded
     if (isNew) {
@@ -157,7 +159,7 @@ export class InstanceCache {
     const isLoading =
       fulfilled !== null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
 
-    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted()) || isLoading) {
+    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted(identifier)) || isLoading) {
       return false;
     }
 
@@ -175,7 +177,7 @@ export class InstanceCache {
       return this.getRecordData(identifier);
     };
 
-    this.#instances.reference._generator = (identifier) => {
+    this.__instances.reference._generator = (identifier) => {
       return new RecordReference(this.store, identifier);
     };
 
@@ -192,10 +194,10 @@ export class InstanceCache {
         let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
 
         // check for duplicate entities
-        let imHasRecord = this.#instances.record.has(intendedIdentifier);
-        let otherHasRecord = this.#instances.record.has(altIdentifier);
-        let imRecordData = this.#instances.recordData.get(intendedIdentifier) || null;
-        let otherRecordData = this.#instances.recordData.get(altIdentifier) || null;
+        let imHasRecord = this.__instances.record.has(intendedIdentifier);
+        let otherHasRecord = this.__instances.record.has(altIdentifier);
+        let imRecordData = this.__instances.recordData.get(intendedIdentifier) || null;
+        let otherRecordData = this.__instances.recordData.get(altIdentifier) || null;
 
         // we cannot merge entities when both have records
         // (this may not be strictly true, we could probably swap the recordData the record points at)
@@ -279,7 +281,7 @@ export class InstanceCache {
     identifier: StableRecordIdentifier;
     bucket: 'record' | 'recordData';
   }): RecordData | RecordInstance | undefined {
-    return this.#instances[bucket]?.get(identifier);
+    return this.__instances[bucket]?.get(identifier);
   }
 
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
@@ -287,19 +289,17 @@ export class InstanceCache {
 
     if (!record) {
       const recordData = this.getRecordData(identifier);
-      const createOptions = recordData._initRecordCreateOptions(
-        normalizeProperties(this.store, identifier, properties)
-      );
+
       record = this.store.instantiateRecord(
         identifier,
-        createOptions,
+        properties || {},
         this.__recordDataFor,
         this.store._notificationManager
       );
       setRecordIdentifier(record, identifier);
       setRecordDataFor(record, recordData);
       StoreMap.set(record, this.store);
-      this.#instances.record.set(identifier, record);
+      this.__instances.record.set(identifier, record);
 
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
@@ -310,7 +310,7 @@ export class InstanceCache {
     return record;
   }
 
-  getRecordData(identifier: StableRecordIdentifier) {
+  getRecordData(identifier: StableRecordIdentifier): RecordData {
     let recordData = this.peek({ identifier, bucket: 'recordData' });
 
     if (!recordData) {
@@ -325,18 +325,35 @@ export class InstanceCache {
             since: { enabled: '4.8', available: '4.8' },
           }
         );
-        // @ts-expect-error
-        recordData = this.store.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
+        let recordDataInstance = this.store.createRecordDataFor(
+          identifier.type,
+          identifier.id,
+          // @ts-expect-error
+          identifier.lid,
+          this._storeWrapper
+        );
+        if (V2CACHE_SINGLETON_MANAGER) {
+          recordData = this.__cacheManager =
+            this.__cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        } else {
+          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        }
       } else {
-        recordData = this.store.createRecordDataFor(identifier, this._storeWrapper);
+        let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
+        if (V2CACHE_SINGLETON_MANAGER) {
+          if (DEBUG) {
+            recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager(this.store);
+            (recordData as SingletonRecordDataManager)._addRecordData(identifier, recordDataInstance as RecordData);
+          } else {
+            recordData = recordDataInstance as RecordData;
+          }
+        } else {
+          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        }
       }
       setRecordDataFor(identifier, recordData);
-      // TODO this is invalid for v2 recordData but required
-      // for v1 recordData. Remember to remove this once the
-      // RecordData manager handles converting recordData to identifier
-      setRecordIdentifier(recordData, identifier);
 
-      this.#instances.recordData.set(identifier, recordData);
+      this.__instances.recordData.set(identifier, recordData);
       this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
       this.peekList[identifier.type]!.add(identifier);
       if (LOG_INSTANCE_CACHE) {
@@ -349,7 +366,7 @@ export class InstanceCache {
   }
 
   getReference(identifier: StableRecordIdentifier) {
-    return this.#instances.reference.lookup(identifier);
+    return this.__instances.reference.lookup(identifier);
   }
 
   createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
@@ -357,7 +374,7 @@ export class InstanceCache {
   }
 
   disconnect(identifier: StableRecordIdentifier) {
-    const record = this.#instances.record.get(identifier);
+    const record = this.__instances.record.get(identifier);
     assert(
       'Cannot destroy record while it is still materialized',
       !record || record.isDestroyed || record.isDestroying
@@ -401,7 +418,7 @@ export class InstanceCache {
 
       if (record) {
         this.store.teardownRecord(record);
-        this.#instances.record.delete(identifier);
+        this.__instances.record.delete(identifier);
         StoreMap.delete(record);
         RecordCache.delete(record);
         removeRecordDataFor(record);
@@ -413,10 +430,9 @@ export class InstanceCache {
       }
 
       if (recordData) {
-        recordData.unloadRecord();
-        this.#instances.recordData.delete(identifier);
+        recordData.unloadRecord(identifier);
+        this.__instances.recordData.delete(identifier);
         removeRecordDataFor(identifier);
-        RecordCache.delete(recordData);
       } else {
         this.disconnect(identifier);
       }
@@ -565,12 +581,12 @@ export class InstanceCache {
     }
 
     const recordData = this.getRecordData(identifier);
-    if (recordData.isNew()) {
+    if (recordData.isNew(identifier)) {
       this.store._notificationManager.notify(identifier, 'identity');
     }
 
-    const hasRecord = this.#instances.record.has(identifier);
-    recordData.pushData(data, hasRecord);
+    const hasRecord = this.__instances.record.has(identifier);
+    recordData.pushData(identifier, data, hasRecord);
 
     if (!isUpdate) {
       this.store.recordArrayManager.recordDidChange(identifier);
@@ -580,104 +596,15 @@ export class InstanceCache {
   }
 }
 
-function normalizeProperties(
-  store: Store,
-  identifier: StableRecordIdentifier,
-  properties?: { [key: string]: unknown }
-): { [key: string]: unknown } | undefined {
-  // assert here
-  if (properties !== undefined) {
-    if ('id' in properties) {
-      assert(`expected id to be a string or null`, properties.id !== undefined);
-    }
-    assert(
-      `You passed '${typeof properties}' as properties for record creation instead of an object.`,
-      typeof properties === 'object' && properties !== null
-    );
-
-    const { type } = identifier;
-
-    // convert relationship Records to RecordDatas before passing to RecordData
-    let defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
-
-    if (defs !== null) {
-      let keys = Object.keys(properties);
-      let relationshipValue;
-
-      for (let i = 0; i < keys.length; i++) {
-        let prop = keys[i];
-        let def = defs[prop];
-
-        if (def !== undefined) {
-          if (def.kind === 'hasMany') {
-            if (DEBUG) {
-              assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
-            }
-            relationshipValue = extractRecordDatasFromRecords(properties[prop] as RecordInstance[]);
-          } else {
-            relationshipValue = extractRecordDataFromRecord(properties[prop] as RecordInstance);
-          }
-
-          properties[prop] = relationshipValue;
-        }
-      }
-    }
-  }
-  return properties;
-}
-
-function _recordDataIsFullDeleted(recordData: RecordData): boolean {
-  return recordData.isDeletionCommitted() || (recordData.isNew() && recordData.isDeleted());
+function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData: RecordData): boolean {
+  return (
+    recordData.isDeletionCommitted(identifier) || (recordData.isNew(identifier) && recordData.isDeleted(identifier))
+  );
 }
 
 export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
   let recordData = cache.peek({ identifier, bucket: 'recordData' });
-  return !recordData || _recordDataIsFullDeleted(recordData);
-}
-
-function assertRecordsPassedToHasMany(records: RecordInstance[]) {
-  assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
-  assert(
-    `All elements of a hasMany relationship must be instances of Model, you passed ${records
-      .map((r) => `${typeof r}`)
-      .join(', ')}`,
-    (function () {
-      return records.every((record) => {
-        try {
-          recordIdentifierFor(record);
-          return true;
-        } catch {
-          return false;
-        }
-      });
-    })()
-  );
-}
-
-function extractRecordDatasFromRecords(records: RecordInstance[]): RecordData[] {
-  return records.map(extractRecordDataFromRecord) as RecordData[];
-}
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
-
-function extractRecordDataFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
-  if (!recordOrPromiseRecord) {
-    return null;
-  }
-
-  if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.content;
-    assert(
-      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
-      content !== undefined
-    );
-    return content ? recordDataFor(content) : null;
-  }
-
-  return recordDataFor(recordOrPromiseRecord);
-}
-
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
+  return !recordData || _recordDataIsFullDeleted(identifier, recordData);
 }
 
 /*
@@ -716,7 +643,7 @@ function preloadData(store: Store, identifier: StableRecordIdentifier, preload: 
       jsonPayload.attributes[key] = preloadValue;
     }
   });
-  store._instanceCache.getRecordData(identifier).pushData(jsonPayload);
+  store._instanceCache.getRecordData(identifier).pushData(identifier, jsonPayload);
 }
 
 function preloadRelationship(
@@ -755,9 +682,9 @@ function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boo
   if (!recordData) {
     return true;
   }
-  const isNew = recordData.isNew();
-  const isDeleted = recordData.isDeleted();
-  const isEmpty = recordData.isEmpty?.() || false;
+  const isNew = recordData.isNew(identifier);
+  const isDeleted = recordData.isDeleted(identifier);
+  const isEmpty = recordData.isEmpty?.(identifier) || false;
 
   return (!isNew || isDeleted) && isEmpty;
 }

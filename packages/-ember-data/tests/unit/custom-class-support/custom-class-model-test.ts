@@ -77,11 +77,11 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.expect(7);
     let notificationCount = 0;
     let identifier;
-    let recordData;
+    let storeWrapper;
     class CreationStore extends CustomStore {
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
-        let rd = super.createRecordDataFor(identifier, storeWrapper);
-        recordData = rd;
+      createRecordDataFor(identifier: StableRecordIdentifier, sw: RecordDataStoreWrapper) {
+        let rd = super.createRecordDataFor(identifier, sw);
+        storeWrapper = sw;
         return rd;
       }
       instantiateRecord(
@@ -108,10 +108,10 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
-    recordData.storeWrapper.notifyChange(identifier, 'relationships', 'key');
-    recordData.storeWrapper.notifyChange(identifier, 'relationships', 'key');
-    recordData.storeWrapper.notifyChange(identifier, 'state');
-    recordData.storeWrapper.notifyChange(identifier, 'errors');
+    storeWrapper.notifyChange(identifier, 'relationships', 'key');
+    storeWrapper.notifyChange(identifier, 'relationships', 'key');
+    storeWrapper.notifyChange(identifier, 'state');
+    storeWrapper.notifyChange(identifier, 'errors');
     await settled();
 
     assert.strictEqual(notificationCount, 3, 'called notification callback');
@@ -144,7 +144,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     class CreationStore extends Store {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         rd = recordDataFor(identifier);
-        assert.strictEqual(rd.getAttr('name'), 'chris', 'Can look up record data from recordDataFor');
+        assert.strictEqual(rd.getAttr(identifier, 'name'), 'chris', 'Can look up record data from recordDataFor');
         return {};
       }
       teardownRecord(record) {}
@@ -317,6 +317,7 @@ module('unit/model - Custom Class Model', function (hooks) {
 
   test('store.deleteRecord', async function (assert) {
     let rd: RecordData;
+    let ident: StableRecordIdentifier;
     assert.expect(9);
     this.owner.register(
       'adapter:application',
@@ -330,11 +331,12 @@ module('unit/model - Custom Class Model', function (hooks) {
     );
     let CreationStore = CustomStore.extend({
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
+        ident = identifier;
         rd = recordDataFor(identifier);
-        assert.false(rd.isDeleted!(), 'we are not deleted when we start');
+        assert.false(rd.isDeleted(identifier), 'we are not deleted when we start');
         notificationManager.subscribe(identifier, (passedId, key) => {
           assert.strictEqual(key, 'state', 'state change to deleted has been notified');
-          assert.true(recordDataFor(identifier).isDeleted(), 'we have been marked as deleted');
+          assert.true(recordDataFor(identifier).isDeleted(identifier), 'we have been marked as deleted');
         });
         return {};
       },
@@ -346,9 +348,9 @@ module('unit/model - Custom Class Model', function (hooks) {
     store = this.owner.lookup('service:store') as Store;
     let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
-    assert.true(rd!.isDeleted!(), 'record has been marked as deleted');
+    assert.true(rd!.isDeleted(ident!), 'record has been marked as deleted');
     await store.saveRecord(person);
-    assert.true(rd!.isDeletionCommitted!(), 'deletion has been commited');
+    assert.true(rd!.isDeletionCommitted(ident!), 'deletion has been commited');
   });
 
   test('record serialize', function (assert) {

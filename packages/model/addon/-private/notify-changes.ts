@@ -66,7 +66,7 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
 function notifyAttribute(store: Store, identifier: StableRecordIdentifier, key: string, record: Model) {
   let currentValue = cacheFor(record, key);
 
-  if (currentValue !== store._instanceCache.getRecordData(identifier).getAttr(key)) {
+  if (currentValue !== store._instanceCache.getRecordData(identifier).getAttr(identifier, key)) {
     record.notifyPropertyChange(key);
   }
 }

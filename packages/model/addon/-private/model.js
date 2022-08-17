@@ -120,7 +120,7 @@ function computeOnce(target, key, desc) {
 */
 class Model extends EmberObject {
   @service store;
-  #notifications;
+  ___private_notifications;
 
   init(options = {}) {
     if (DEBUG && !options._secretInit && !options._createProps) {
@@ -143,7 +143,7 @@ class Model extends EmberObject {
     let notifications = store._notificationManager;
     let identity = recordIdentifierFor(this);
 
-    this.#notifications = notifications.subscribe(identity, (identifier, type, key) => {
+    this.___private_notifications = notifications.subscribe(identity, (identifier, type, key) => {
       notifyChanges(identifier, type, key, this, store);
     });
   }
@@ -153,7 +153,7 @@ class Model extends EmberObject {
     this.___recordState?.destroy();
     const store = storeFor(this);
     const identifier = recordIdentifierFor(this);
-    store._notificationManager.unsubscribe(this.#notifications);
+    store._notificationManager.unsubscribe(this.___private_notifications);
     // Legacy behavior is to notify the relationships on destroy
     // such that they "clear". It's uncertain this behavior would
     // be good for a new model paradigm, likely cheaper and safer
@@ -814,7 +814,7 @@ class Model extends EmberObject {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes() {
-    return recordDataFor(this).changedAttributes();
+    return recordDataFor(this).changedAttrs(recordIdentifierFor(this));
   }
 
   /**
@@ -838,7 +838,7 @@ class Model extends EmberObject {
   rollbackAttributes() {
     const { currentState } = this;
     const { isNew } = currentState;
-    recordDataFor(this).rollbackAttributes();
+    recordDataFor(this).rollbackAttrs(recordIdentifierFor(this));
     this.errors.clear();
     currentState.cleanErrorRequests();
     if (isNew) {
@@ -1202,7 +1202,7 @@ class Model extends EmberObject {
 
    ```javascript
    import RESTSerializer from '@ember-data/serializer/rest';
-   import { underscore } from '@ember/string';
+   import { underscore } from '<app-name>/utils/string-utils';
 
    export default const PostSerializer = RESTSerializer.extend({
      payloadKeyFromModelName(modelName) {

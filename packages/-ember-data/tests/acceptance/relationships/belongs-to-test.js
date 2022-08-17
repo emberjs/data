@@ -273,7 +273,7 @@ module('async belongs-to rendering tests', function (hooks) {
         1,
         `Expected only one implicit relationship, found ${implicitKeys.join(', ')}`
       );
-      assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 1);
+      assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 1, 'initial size is correct');
 
       const tweety = store.push({
         data: {
@@ -288,7 +288,7 @@ module('async belongs-to rendering tests', function (hooks) {
         },
       });
 
-      assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 2);
+      assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 2, 'size after push is correct');
 
       let petOwner = await goofy.petOwner;
       assert.strictEqual(petOwner.name, 'Pete', 'We have the expected owner for goofy');

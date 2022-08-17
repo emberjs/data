@@ -53,7 +53,7 @@ class AbstractGraph {
     if (rels) {
       Object.keys(rels).forEach((key) => {
         let rel = rels[key]!;
-        if (isImplicit(rel)) {
+        if (rel && isImplicit(rel)) {
           implicits[key] = rel;
         }
       });

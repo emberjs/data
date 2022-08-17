@@ -59,9 +59,9 @@ export default class HasManyReference {
   declare store: Store;
 
   // unsubscribe tokens given to us by the notification manager
-  #token!: Object;
-  #identifier: StableRecordIdentifier;
-  #relatedTokenMap!: Map<StableRecordIdentifier, Object>;
+  ___token!: Object;
+  ___identifier: StableRecordIdentifier;
+  ___relatedTokenMap!: Map<StableRecordIdentifier, Object>;
 
   @tracked _ref = 0;
 
@@ -76,8 +76,8 @@ export default class HasManyReference {
     this.type = hasManyRelationship.definition.type;
 
     this.store = store;
-    this.#identifier = parentIdentifier;
-    this.#token = store._notificationManager.subscribe(
+    this.___identifier = parentIdentifier;
+    this.___token = store._notificationManager.subscribe(
       parentIdentifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'relationships' && notifiedKey === key) {
@@ -85,16 +85,16 @@ export default class HasManyReference {
         }
       }
     );
-    this.#relatedTokenMap = new Map();
+    this.___relatedTokenMap = new Map();
     // TODO inverse
   }
 
   destroy() {
-    this.store._notificationManager.unsubscribe(this.#token);
-    this.#relatedTokenMap.forEach((token) => {
+    this.store._notificationManager.unsubscribe(this.___token);
+    this.___relatedTokenMap.forEach((token) => {
       this.store._notificationManager.unsubscribe(token);
     });
-    this.#relatedTokenMap.clear();
+    this.___relatedTokenMap.clear();
   }
 
   @cached
@@ -104,8 +104,8 @@ export default class HasManyReference {
 
     let resource = this._resource();
 
-    let map = this.#relatedTokenMap;
-    this.#relatedTokenMap = new Map();
+    let map = this.___relatedTokenMap;
+    this.___relatedTokenMap = new Map();
 
     if (resource && resource.data) {
       return resource.data.map((resourceIdentifier) => {
@@ -124,7 +124,7 @@ export default class HasManyReference {
             }
           );
         }
-        this.#relatedTokenMap.set(identifier, token);
+        this.___relatedTokenMap.set(identifier, token);
 
         return identifier;
       });
@@ -139,7 +139,9 @@ export default class HasManyReference {
   }
 
   _resource() {
-    return this.store._instanceCache.getRecordData(this.#identifier).getHasMany(this.key);
+    return this.store._instanceCache
+      .getRecordData(this.___identifier)
+      .getRelationship(this.___identifier, this.key) as CollectionResourceRelationship;
   }
 
   /**
@@ -492,7 +494,7 @@ export default class HasManyReference {
   value() {
     const support: LegacySupport = (
       LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.#identifier);
+    ).getWithError(this.___identifier);
 
     return this._isLoaded() ? support.getManyArray(this.key) : null;
   }
@@ -564,7 +566,7 @@ export default class HasManyReference {
   async load(options?: FindOptions): Promise<ManyArray> {
     const support: LegacySupport = (
       LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.#identifier);
+    ).getWithError(this.___identifier);
     return support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray; // this cast is necessary because typescript does not work properly with custom thenables;
   }
 
@@ -621,7 +623,7 @@ export default class HasManyReference {
   reload(options?: FindOptions) {
     const support: LegacySupport = (
       LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.#identifier);
+    ).getWithError(this.___identifier);
     return support.reloadHasMany(this.key, options);
   }
 }

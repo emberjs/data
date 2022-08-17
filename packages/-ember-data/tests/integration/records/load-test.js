@@ -6,6 +6,7 @@ import { reject, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { V2CACHE_SINGLETON_RECORD_DATA } from '@ember-data/canary-features';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
@@ -172,7 +173,7 @@ module('integration/load - Loading Records', function (hooks) {
 
     // test that after the initial load our state is correct
     recordData = cache.peek({ identifier, bucket: 'recordData' });
-    assert.false(recordData.isEmpty(), 'after first fetch: We are no longer empty');
+    assert.false(recordData.isEmpty(identifier), 'after first fetch: We are no longer empty');
     assert.false(_isLoading(cache, identifier), 'after first fetch: We have loaded');
     assert.false(record.isReloading, 'after first fetch: We are not reloading');
 
@@ -190,21 +191,21 @@ module('integration/load - Loading Records', function (hooks) {
     recordPromise = record.reload();
 
     // test that during a reload our state is correct
-    assert.false(recordData.isEmpty(), 'awaiting reload: We remain non-empty');
+    assert.false(recordData.isEmpty(identifier), 'awaiting reload: We remain non-empty');
     assert.false(_isLoading(cache, identifier), 'awaiting reload: We are not loading again');
     assert.true(record.isReloading, 'awaiting reload: We are reloading');
 
     await recordPromise;
 
     // test that after a reload our state is correct
-    assert.false(recordData.isEmpty(), 'after reload: We remain non-empty');
+    assert.false(recordData.isEmpty(identifier), 'after reload: We remain non-empty');
     assert.false(_isLoading(cache, identifier), 'after reload: We have loaded');
     assert.false(record.isReloading, 'after reload:: We are not reloading');
 
     run(() => record.unloadRecord());
 
     // test that after an unload our state is correct
-    assert.true(recordData.isEmpty(), 'after unload: We are empty again');
+    assert.true(recordData.isEmpty(identifier), 'after unload: We are empty again');
     assert.false(_isLoading(cache, identifier), 'after unload: We are not loading');
     assert.false(record.isReloading, 'after unload:: We are not reloading');
 
@@ -212,7 +213,7 @@ module('integration/load - Loading Records', function (hooks) {
 
     // test that during a reload-due-to-unload our state is correct
     //   This requires a retainer (the async bestFriend relationship)
-    assert.true(recordData.isEmpty(), 'awaiting second find: We remain empty');
+    assert.true(recordData.isEmpty(identifier), 'awaiting second find: We remain empty');
     let newRecordData = cache.peek({ identifier, bucket: 'recordData' });
     assert.strictEqual(newRecordData, undefined, 'We have no recordData during second find');
     assert.true(_isLoading(cache, identifier), 'awaiting second find: We are loading again');
@@ -222,8 +223,14 @@ module('integration/load - Loading Records', function (hooks) {
 
     // test that after the reload-due-to-unload our state is correct
     newRecordData = cache.peek({ identifier, bucket: 'recordData' });
-    assert.true(recordData.isEmpty(), 'after second find: Our original recordData is still empty');
-    assert.false(newRecordData.isEmpty(), 'after second find: We are no longer empty');
+    if (V2CACHE_SINGLETON_RECORD_DATA) {
+      // this first assertion changes based on activation of singleton cache because its a simple mapping of identifier
+      // to state and we now have state
+      assert.false(recordData.isEmpty(identifier), 'after second find: Our original recordData is no longer empty');
+    } else {
+      assert.true(recordData.isEmpty(identifier), 'after second find: Our original recordData is still empty');
+    }
+    assert.false(newRecordData.isEmpty(identifier), 'after second find: We are no longer empty');
     assert.false(_isLoading(cache, identifier), 'after second find: We have loaded');
     assert.false(record.isReloading, 'after second find: We are not reloading');
   });

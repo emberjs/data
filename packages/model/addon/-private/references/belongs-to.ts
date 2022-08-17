@@ -52,12 +52,12 @@ export default class BelongsToReference {
   declare key: string;
   declare belongsToRelationship: BelongsToRelationship;
   declare type: string;
-  #identifier: StableRecordIdentifier;
+  ___identifier: StableRecordIdentifier;
   declare store: Store;
 
   // unsubscribe tokens given to us by the notification manager
-  #token!: object;
-  #relatedToken: object | null = null;
+  ___token!: object;
+  ___relatedToken: object | null = null;
 
   @tracked _ref = 0;
 
@@ -71,9 +71,9 @@ export default class BelongsToReference {
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.definition.type;
     this.store = store;
-    this.#identifier = parentIdentifier;
+    this.___identifier = parentIdentifier;
 
-    this.#token = store._notificationManager.subscribe(
+    this.___token = store._notificationManager.subscribe(
       parentIdentifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'relationships' && notifiedKey === key) {
@@ -88,11 +88,11 @@ export default class BelongsToReference {
   destroy() {
     // TODO @feature we need the notification manager often enough
     // we should potentially just expose it fully public
-    this.store._notificationManager.unsubscribe(this.#token);
-    this.#token = null as unknown as object;
-    if (this.#relatedToken) {
-      this.store._notificationManager.unsubscribe(this.#relatedToken);
-      this.#relatedToken = null;
+    this.store._notificationManager.unsubscribe(this.___token);
+    this.___token = null as unknown as object;
+    if (this.___relatedToken) {
+      this.store._notificationManager.unsubscribe(this.___relatedToken);
+      this.___relatedToken = null;
     }
   }
 
@@ -100,15 +100,15 @@ export default class BelongsToReference {
   @dependentKeyCompat
   get _relatedIdentifier(): StableRecordIdentifier | null {
     this._ref; // consume the tracked prop
-    if (this.#relatedToken) {
-      this.store._notificationManager.unsubscribe(this.#relatedToken);
-      this.#relatedToken = null;
+    if (this.___relatedToken) {
+      this.store._notificationManager.unsubscribe(this.___relatedToken);
+      this.___relatedToken = null;
     }
 
     let resource = this._resource();
     if (resource && resource.data) {
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
-      this.#relatedToken = this.store._notificationManager.subscribe(
+      this.___relatedToken = this.store._notificationManager.subscribe(
         identifier,
         (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
           if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
@@ -280,7 +280,9 @@ export default class BelongsToReference {
   }
 
   _resource() {
-    return this.store._instanceCache.getRecordData(this.#identifier).getBelongsTo(this.key);
+    return this.store._instanceCache
+      .getRecordData(this.___identifier)
+      .getRelationship(this.___identifier, this.key) as SingleResourceRelationship;
   }
 
   /**
@@ -525,7 +527,7 @@ export default class BelongsToReference {
   load(options?: Dict<unknown>) {
     const support: LegacySupport = (
       LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.#identifier);
+    ).getWithError(this.___identifier);
     return support.getBelongsTo(this.key, options);
   }
 
@@ -582,7 +584,7 @@ export default class BelongsToReference {
   reload(options?: Dict<unknown>) {
     const support: LegacySupport = (
       LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.#identifier);
+    ).getWithError(this.___identifier);
     return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }
