@@ -19,7 +19,15 @@ import type {
   RemoteRelationshipOperation,
   UnknownOperation,
 } from './-operations';
-import { assertValidRelationshipPayload, getStore, isBelongsTo, isHasMany, isImplicit, notifyChange } from './-utils';
+import {
+  assertValidRelationshipPayload,
+  getStore,
+  isBelongsTo,
+  isHasMany,
+  isImplicit,
+  notifyChange,
+  removeCompletelyFromOwn,
+} from './-utils';
 import addToRelatedRecords from './operations/add-to-related-records';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
@@ -126,13 +134,13 @@ export class Graph {
       const info = upgradeDefinition(this, identifier, propertyName);
       assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
       const meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
-      const Klass =
-        meta.kind === 'hasMany'
-          ? ManyRelationship
-          : meta.kind === 'belongsTo'
-          ? BelongsToRelationship
-          : ImplicitRelationship;
-      relationship = relationships[propertyName] = new Klass(this, meta, identifier);
+
+      if (meta.kind !== 'implicit') {
+        const Klass = meta.kind === 'hasMany' ? ManyRelationship : BelongsToRelationship;
+        relationship = relationships[propertyName] = new Klass(this, meta, identifier);
+      } else {
+        relationship = relationships[propertyName] = new ImplicitRelationship(meta, identifier);
+      }
     }
 
     return relationship;
@@ -225,7 +233,7 @@ export class Graph {
         if (!rel) {
           return;
         }
-        destroyRelationship(rel);
+        destroyRelationship(this, rel);
         if (isImplicit(rel)) {
           relationships[key] = undefined;
         }
@@ -310,7 +318,7 @@ export class Graph {
             }
             // works together with the has check
             relationships[key] = undefined;
-            removeCompletelyFromInverse(rel);
+            removeCompletelyFromInverse(this, rel);
           });
           this.identifiers.delete(identifier);
         }
@@ -426,10 +434,10 @@ export class Graph {
 // delete, so we remove the inverse records from this relationship to
 // disconnect the graph.  Because it's not async, we don't need to keep around
 // the identifier as an id-wrapper for references
-function destroyRelationship(rel) {
+function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
   if (isImplicit(rel)) {
-    if (rel.graph.isReleasable(rel.identifier)) {
-      removeCompletelyFromInverse(rel);
+    if (graph.isReleasable(rel.identifier)) {
+      removeCompletelyFromInverse(graph, rel);
     }
     return;
   }
@@ -449,12 +457,15 @@ function destroyRelationship(rel) {
     // leave the ui relationship populated since the record is destroyed and
     // internally we've fully cleaned up.
     if (!rel.definition.isAsync) {
-      notifyChange(rel.graph, rel.identifier, rel.definition.key);
+      notifyChange(graph, rel.identifier, rel.definition.key);
     }
   }
 }
 
-function removeCompletelyFromInverse(relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship) {
+function removeCompletelyFromInverse(
+  graph: Graph,
+  relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship
+) {
   // we actually want a union of members and canonicalMembers
   // they should be disjoint but currently are not due to a bug
   const seen = Object.create(null);
@@ -465,8 +476,8 @@ function removeCompletelyFromInverse(relationship: ImplicitRelationship | ManyRe
     const id = inverseIdentifier.lid;
 
     if (seen[id] === undefined) {
-      if (relationship.graph.has(inverseIdentifier, inverseKey)) {
-        relationship.graph.get(inverseIdentifier, inverseKey).removeCompletelyFromOwn(identifier);
+      if (graph.has(inverseIdentifier, inverseKey)) {
+        removeCompletelyFromOwn(graph, graph.get(inverseIdentifier, inverseKey), identifier);
       }
       seen[id] = true;
     }
@@ -492,7 +503,7 @@ function removeCompletelyFromInverse(relationship: ImplicitRelationship | ManyRe
     if (!relationship.definition.isAsync) {
       relationship.clear();
 
-      notifyChange(relationship.graph, relationship.identifier, relationship.definition.key);
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
     relationship.members.forEach(unload);

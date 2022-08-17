@@ -97,6 +97,53 @@ export function isHasMany(
   return relationship.definition.kind === 'hasMany';
 }
 
+/*
+      Removes the given identifier from BOTH remote AND local state.
+
+      This method is useful when either a deletion or a rollback on a new record
+      needs to entirely purge itself from an inverse relationship.
+     */
+export function removeCompletelyFromOwn(
+  graph: Graph,
+  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship,
+  value: StableRecordIdentifier
+): void {
+  if (isBelongsTo(relationship)) {
+    if (relationship.remoteState === value) {
+      relationship.remoteState = null;
+    }
+
+    if (relationship.localState === value) {
+      relationship.localState = null;
+      // This allows dematerialized inverses to be rematerialized
+      // we shouldn't be notifying here though, figure out where
+      // a notification was missed elsewhere.
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
+    }
+  } else if (isHasMany(relationship)) {
+    relationship.canonicalMembers.delete(value);
+    relationship.members.delete(value);
+
+    const canonicalIndex = relationship.canonicalState.indexOf(value);
+    if (canonicalIndex !== -1) {
+      relationship.canonicalState.splice(canonicalIndex, 1);
+    }
+
+    const currentIndex = relationship.currentState.indexOf(value);
+    if (currentIndex !== -1) {
+      relationship.currentState.splice(currentIndex, 1);
+      // This allows dematerialized inverses to be rematerialized
+      // we shouldn't be notifying here though, figure out where
+      // a notification was missed elsewhere.
+
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
+    }
+  } else if (isImplicit(relationship)) {
+    relationship.canonicalMembers.delete(value);
+    relationship.members.delete(value);
+  }
+}
+
 export function notifyChange(graph: Graph, identifier: StableRecordIdentifier, key: string) {
   if (identifier === graph._removing) {
     if (LOG_GRAPH) {

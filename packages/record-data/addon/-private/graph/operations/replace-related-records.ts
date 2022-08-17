@@ -347,7 +347,8 @@ export function removeFromInverse(
     notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
     if (isRemote) {
-      relationship.removeCompletelyFromOwn(value);
+      relationship.canonicalMembers.delete(value);
+      relationship.members.delete(value);
     } else {
       if (value && relationship.members.has(value)) {
         relationship.members.delete(value);

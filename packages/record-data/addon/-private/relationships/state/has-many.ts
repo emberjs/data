@@ -14,7 +14,7 @@ import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
-import { isImplicit, isNew, notifyChange } from '../../graph/-utils';
+import { isImplicit, isNew, notifyChange, removeCompletelyFromOwn } from '../../graph/-utils';
 
 export default class ManyRelationship {
   declare graph: Graph;
@@ -128,38 +128,12 @@ export default class ManyRelationship {
       // cache.
       // if the record being unloaded only exists on the client, we similarly
       // treat it as a client side delete
-      this.removeCompletelyFromOwn(inverseIdentifier);
+      removeCompletelyFromOwn(this.graph, this, inverseIdentifier);
     } else {
       this.state.hasDematerializedInverse = true;
     }
 
     notifyChange(this.graph, this.identifier, this.definition.key);
-  }
-
-  /*
-    Removes the given RecordData from BOTH canonical AND current state.
-
-    This method is useful when either a deletion or a rollback on a new record
-    needs to entirely purge itself from an inverse relationship.
-  */
-  removeCompletelyFromOwn(identifier: StableRecordIdentifier) {
-    this.canonicalMembers.delete(identifier);
-    this.members.delete(identifier);
-
-    const canonicalIndex = this.canonicalState.indexOf(identifier);
-    if (canonicalIndex !== -1) {
-      this.canonicalState.splice(canonicalIndex, 1);
-    }
-
-    const currentIndex = this.currentState.indexOf(identifier);
-    if (currentIndex !== -1) {
-      this.currentState.splice(currentIndex, 1);
-      // This allows dematerialized inverses to be rematerialized
-      // we shouldn't be notifying here though, figure out where
-      // a notification was missed elsewhere.
-
-      notifyChange(this.graph, this.identifier, this.definition.key);
-    }
   }
 
   getData(): CollectionResourceRelationship {

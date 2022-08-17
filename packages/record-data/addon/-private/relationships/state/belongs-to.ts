@@ -127,26 +127,6 @@ export default class BelongsToRelationship {
     return payload;
   }
 
-  /*
-      Removes the given RecordData from BOTH canonical AND current state.
-
-      This method is useful when either a deletion or a rollback on a new record
-      needs to entirely purge itself from an inverse relationship.
-     */
-  removeCompletelyFromOwn(recordData: StableRecordIdentifier) {
-    if (this.remoteState === recordData) {
-      this.remoteState = null;
-    }
-
-    if (this.localState === recordData) {
-      this.localState = null;
-      // This allows dematerialized inverses to be rematerialized
-      // we shouldn't be notifying here though, figure out where
-      // a notification was missed elsewhere.
-      notifyChange(this.graph, this.identifier, this.definition.key);
-    }
-  }
-
   clear() {
     this.localState = null;
     this.remoteState = null;
