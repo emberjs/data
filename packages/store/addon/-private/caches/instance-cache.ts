@@ -157,7 +157,7 @@ export class InstanceCache {
     const req = this.store.getRequestStateService();
     const fulfilled = req.getLastRequestForRecord(identifier);
     const isLoading =
-      fulfilled !== null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
+      fulfilled === null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
 
     if (isEmpty || (filterDeleted && recordData.isDeletionCommitted(identifier)) || isLoading) {
       return false;
