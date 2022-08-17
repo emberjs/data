@@ -10,8 +10,7 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
-import ImplicitRelationship from '../relationships/state/implicit';
-import type { EdgeCache } from './-edge-definition';
+import type { EdgeCache, UpgradedMeta } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
 import type {
   DeleteRecordOperation,
@@ -33,6 +32,13 @@ import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
+
+export interface ImplicitRelationship {
+  definition: UpgradedMeta;
+  identifier: StableRecordIdentifier;
+  members: Set<StableRecordIdentifier>;
+  canonicalMembers: Set<StableRecordIdentifier>;
+}
 
 type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
@@ -139,7 +145,12 @@ export class Graph {
         const Klass = meta.kind === 'hasMany' ? ManyRelationship : BelongsToRelationship;
         relationship = relationships[propertyName] = new Klass(this, meta, identifier);
       } else {
-        relationship = relationships[propertyName] = new ImplicitRelationship(meta, identifier);
+        relationship = relationships[propertyName] = {
+          definition: meta,
+          identifier,
+          members: new Set(),
+          canonicalMembers: new Set(),
+        };
       }
     }
 
@@ -508,6 +519,7 @@ function removeCompletelyFromInverse(
   } else {
     relationship.members.forEach(unload);
     relationship.canonicalMembers.forEach(unload);
-    relationship.clear();
+    relationship.canonicalMembers.clear();
+    relationship.members.clear();
   }
 }

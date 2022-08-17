@@ -1,9 +1,6 @@
-import type {
-  BelongsToRelationship,
-  ManyRelationship,
-  Relationship as ImplicitRelationship,
-} from '@ember-data/record-data/-private';
+import type { BelongsToRelationship, ManyRelationship } from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
+import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';

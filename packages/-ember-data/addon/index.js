@@ -133,7 +133,6 @@ import {
   PromiseObject,
   RecordArray,
   RecordArrayManager,
-  Relationship,
   Snapshot,
 } from './-private';
 import setupContainer from './setup-container';
@@ -197,8 +196,6 @@ DS.EmbeddedRecordsMixin = EmbeddedRecordsMixin;
 
 DS.belongsTo = belongsTo;
 DS.hasMany = hasMany;
-
-DS.Relationship = Relationship;
 
 DS._setupContainer = setupContainer;
 

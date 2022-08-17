@@ -10,9 +10,8 @@ import type { Dict } from '@ember-data/types/q/utils';
 import { coerceId } from '../coerce-id';
 import type BelongsToRelationship from '../relationships/state/belongs-to';
 import type ManyRelationship from '../relationships/state/has-many';
-import type ImplicitRelationship from '../relationships/state/implicit';
 import type { UpdateRelationshipOperation } from './-operations';
-import type { Graph } from './index';
+import type { Graph, ImplicitRelationship } from './index';
 
 export function getStore(wrapper: RecordDataStoreWrapper | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);
