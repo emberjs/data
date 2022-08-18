@@ -5,9 +5,10 @@ import { importSync } from '@embroider/macros';
 import { all, resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
-import type { BelongsToRelationship, ManyRelationship } from '@ember-data/record-data/-private';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph/index';
+import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store/-private';
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';

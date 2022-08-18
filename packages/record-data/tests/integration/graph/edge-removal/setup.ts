@@ -1,8 +1,9 @@
 import { setupTest } from 'ember-qunit';
 
-import type { BelongsToRelationship, ManyRelationship } from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
 import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph';
+import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import Store from '@ember-data/store';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
