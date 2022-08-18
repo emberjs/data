@@ -7,8 +7,8 @@ import { resolve } from 'rsvp';
 
 import { ManyArray } from 'ember-data/-private';
 
-import type { ManyRelationship } from '@ember-data/record-data/-private';
 import type { Graph } from '@ember-data/record-data/-private/graph';
+import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';

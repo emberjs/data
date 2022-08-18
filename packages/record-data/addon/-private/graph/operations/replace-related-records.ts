@@ -3,7 +3,7 @@ import { assert } from '@ember/debug';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type { ManyRelationship } from '../..';
+import type ManyRelationship from '../../relationships/state/has-many';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import type { Graph } from '../index';
