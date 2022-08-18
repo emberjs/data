@@ -37,17 +37,17 @@ function removeRelatedRecord(
   isRemote: boolean
 ) {
   assert(`expected an identifier to add to the relationship`, value);
-  const { members, currentState } = relationship;
+  const { members, localState } = relationship;
 
   if (!members.has(value)) {
     return;
   }
 
   members.delete(value);
-  let index = currentState.indexOf(value);
+  let index = localState.indexOf(value);
 
-  assert(`expected members and currentState to be in sync`, index !== -1);
-  currentState.splice(index, 1);
+  assert(`expected members and localState to be in sync`, index !== -1);
+  localState.splice(index, 1);
 
   removeFromInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
 }

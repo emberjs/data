@@ -1,29 +1,22 @@
 import type { Links, Meta, PaginationLinks, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
-import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
 
 export default class BelongsToRelationship {
-  declare localState: StableRecordIdentifier | null;
-  declare remoteState: StableRecordIdentifier | null;
-  declare transactionRef: number;
-
-  declare graph: Graph;
-  declare store: RecordDataStoreWrapper;
   declare definition: UpgradedMeta;
   declare identifier: StableRecordIdentifier;
   declare _state: RelationshipState | null;
+  declare transactionRef: number;
 
+  declare localState: StableRecordIdentifier | null;
+  declare remoteState: StableRecordIdentifier | null;
   declare meta: Meta | null;
   declare links: Links | PaginationLinks | null;
 
-  constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier) {
-    this.graph = graph;
-    this.store = graph.store;
+  constructor(definition: UpgradedMeta, identifier: StableRecordIdentifier) {
     this.definition = definition;
     this.identifier = identifier;
     this._state = null;

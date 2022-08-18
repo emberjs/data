@@ -36,7 +36,7 @@ function addRelatedRecord(
   isRemote: boolean
 ) {
   assert(`expected an identifier to add to the relationship`, value);
-  const { members, currentState } = relationship;
+  const { members, localState } = relationship;
 
   if (members.has(value)) {
     return;
@@ -51,9 +51,9 @@ function addRelatedRecord(
   relationship.state.hasReceivedData = true;
   members.add(value);
   if (index === undefined) {
-    currentState.push(value);
+    localState.push(value);
   } else {
-    currentState.splice(index, 0, value);
+    localState.splice(index, 0, value);
   }
 
   addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);

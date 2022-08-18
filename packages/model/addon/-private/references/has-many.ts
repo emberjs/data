@@ -8,6 +8,7 @@ import { resolve } from 'rsvp';
 import { ManyArray } from 'ember-data/-private';
 
 import type { ManyRelationship } from '@ember-data/record-data/-private';
+import type { Graph } from '@ember-data/record-data/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
@@ -53,6 +54,7 @@ function isResourceIdentiferWithRelatedLinks(
  @extends Reference
  */
 export default class HasManyReference {
+  declare graph: Graph;
   declare key: string;
   declare hasManyRelationship: ManyRelationship;
   declare type: string;
@@ -67,10 +69,12 @@ export default class HasManyReference {
 
   constructor(
     store: Store,
+    graph: Graph,
     parentIdentifier: StableRecordIdentifier,
     hasManyRelationship: ManyRelationship,
     key: string
   ) {
+    this.graph = graph;
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.definition.type;
@@ -424,9 +428,9 @@ export default class HasManyReference {
       return recordIdentifierFor(record);
     });
 
-    const { graph, identifier } = this.hasManyRelationship;
+    const { identifier } = this.hasManyRelationship;
     store._backburner.join(() => {
-      graph.push({
+      this.graph.push({
         op: 'replaceRelatedRecords',
         record: identifier,
         field: this.key,
@@ -443,7 +447,7 @@ export default class HasManyReference {
       return false;
     }
 
-    let members = this.hasManyRelationship.currentState;
+    let members = this.hasManyRelationship.localState;
 
     return members.every((identifier) => {
       return this.store._instanceCache.recordIsLoaded(identifier, true) === true;

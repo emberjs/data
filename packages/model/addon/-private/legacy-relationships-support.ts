@@ -320,7 +320,8 @@ export class LegacySupport {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, name);
+      const graph = graphFor(this.store);
+      const relationship = graph.get(this.identifier, name);
 
       if (DEBUG && kind) {
         let modelName = this.identifier.type;
@@ -334,9 +335,15 @@ export class LegacySupport {
       let relationshipKind = relationship.definition.kind;
 
       if (relationshipKind === 'belongsTo') {
-        reference = new BelongsToReference(this.store, this.identifier, relationship as BelongsToRelationship, name);
+        reference = new BelongsToReference(
+          this.store,
+          graph,
+          this.identifier,
+          relationship as BelongsToRelationship,
+          name
+        );
       } else if (relationshipKind === 'hasMany') {
-        reference = new HasManyReference(this.store, this.identifier, relationship as ManyRelationship, name);
+        reference = new HasManyReference(this.store, graph, this.identifier, relationship as ManyRelationship, name);
       }
 
       this.references[name] = reference;
@@ -662,7 +669,7 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
 }
 
 function anyUnloaded(store: Store, relationship: ManyRelationship) {
-  let state = relationship.currentState;
+  let state = relationship.localState;
   const cache = store._instanceCache;
   const unloaded = state.find((s) => {
     let isLoaded = cache.recordIsLoaded(s, true);

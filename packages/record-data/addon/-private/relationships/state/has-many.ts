@@ -5,16 +5,12 @@ import type {
   PaginationLinks,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
-import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
 
 export default class ManyRelationship {
-  declare graph: Graph;
-  declare store: RecordDataStoreWrapper;
   declare definition: UpgradedMeta;
   declare identifier: StableRecordIdentifier;
   declare _state: RelationshipState | null;
@@ -26,13 +22,9 @@ export default class ManyRelationship {
   declare links: Links | PaginationLinks | null;
 
   declare canonicalState: StableRecordIdentifier[];
-  declare currentState: StableRecordIdentifier[];
-  declare _willUpdateManyArray: boolean;
-  declare _pendingManyArrayUpdates: any;
+  declare localState: StableRecordIdentifier[];
 
-  constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier) {
-    this.graph = graph;
-    this.store = graph.store;
+  constructor(definition: UpgradedMeta, identifier: StableRecordIdentifier) {
     this.definition = definition;
     this.identifier = identifier;
     this._state = null;
@@ -47,9 +39,7 @@ export default class ManyRelationship {
     // persisted state
     this.canonicalState = [];
     // local client state
-    this.currentState = [];
-    this._willUpdateManyArray = false;
-    this._pendingManyArrayUpdates = null;
+    this.localState = [];
   }
 
   get state(): RelationshipState {
@@ -63,7 +53,7 @@ export default class ManyRelationship {
   getData(): CollectionResourceRelationship {
     let payload: any = {};
     if (this.state.hasReceivedData) {
-      payload.data = this.currentState.slice();
+      payload.data = this.localState.slice();
     }
     if (this.links) {
       payload.links = this.links;

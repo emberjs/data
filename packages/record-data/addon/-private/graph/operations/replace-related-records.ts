@@ -78,7 +78,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   relationship.state.hasReceivedData = true;
 
   // cache existing state
-  const { currentState, members, definition } = relationship;
+  const { localState, members, definition } = relationship;
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
   const newState = new Array(newValues.size);
@@ -86,13 +86,13 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
 
   // wipe existing state
   relationship.members = newMembership;
-  relationship.currentState = newState;
+  relationship.localState = newState;
 
   const { type } = relationship.definition;
 
   let changed = false;
 
-  const currentLength = currentState.length;
+  const currentLength = localState.length;
   const iterationLength = currentLength > identifiersLength ? currentLength : identifiersLength;
   const equalLength = currentLength === identifiersLength;
 
@@ -117,7 +117,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
       }
     }
     if (i < currentLength) {
-      const identifier = currentState[i];
+      const identifier = localState[i];
 
       // detect reordering
       if (!newMembership.has(identifier)) {
@@ -277,7 +277,7 @@ export function addToInverse(
       }
     } else {
       if (!relationship.members.has(value)) {
-        relationship.currentState.push(value);
+        relationship.localState.push(value);
         relationship.members.add(value);
         relationship.state.hasReceivedData = true;
         notifyChange(graph, relationship.identifier, relationship.definition.key);
@@ -339,10 +339,10 @@ export function removeFromInverse(
         relationship.canonicalState.splice(index, 1);
       }
     }
-    let index = relationship.currentState.indexOf(value);
+    let index = relationship.localState.indexOf(value);
     if (index !== -1) {
       relationship.members.delete(value);
-      relationship.currentState.splice(index, 1);
+      relationship.localState.splice(index, 1);
     }
     notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
@@ -357,11 +357,11 @@ export function removeFromInverse(
   }
 }
 
-export function syncRemoteToLocal(rel: ManyRelationship) {
+export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
   let toSet = rel.canonicalState;
-  let newRecordDatas = rel.currentState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
-  let existingState = rel.currentState;
-  rel.currentState = toSet.concat(newRecordDatas);
+  let newRecordDatas = rel.localState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
+  let existingState = rel.localState;
+  rel.localState = toSet.concat(newRecordDatas);
 
   let members = (rel.members = new Set<StableRecordIdentifier>());
   rel.canonicalMembers.forEach((v) => members.add(v));
@@ -370,12 +370,12 @@ export function syncRemoteToLocal(rel: ManyRelationship) {
   }
 
   // TODO always notifying fails only one test and we should probably do away with it
-  if (existingState.length !== rel.currentState.length) {
-    notifyChange(rel.graph, rel.identifier, rel.definition.key);
+  if (existingState.length !== rel.localState.length) {
+    notifyChange(graph, rel.identifier, rel.definition.key);
   } else {
     for (let i = 0; i < existingState.length; i++) {
-      if (existingState[i] !== rel.currentState[i]) {
-        notifyChange(rel.graph, rel.identifier, rel.definition.key);
+      if (existingState[i] !== rel.localState[i]) {
+        notifyChange(graph, rel.identifier, rel.definition.key);
         break;
       }
     }

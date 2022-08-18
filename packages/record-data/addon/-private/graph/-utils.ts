@@ -112,8 +112,8 @@ export function forAllRelatedIdentifiers(
     // in both members and canonicalMembers
     let seen = new Set();
 
-    for (let i = 0; i < rel.currentState.length; i++) {
-      const inverseIdentifier = rel.currentState[i];
+    for (let i = 0; i < rel.localState.length; i++) {
+      const inverseIdentifier = rel.localState[i];
       if (!seen.has(inverseIdentifier)) {
         seen.add(inverseIdentifier);
         cb(inverseIdentifier);
@@ -176,9 +176,9 @@ export function removeIdentifierCompletelyFromRelationship(
       relationship.canonicalState.splice(canonicalIndex, 1);
     }
 
-    const currentIndex = relationship.currentState.indexOf(value);
+    const currentIndex = relationship.localState.indexOf(value);
     if (currentIndex !== -1) {
-      relationship.currentState.splice(currentIndex, 1);
+      relationship.localState.splice(currentIndex, 1);
       // This allows dematerialized inverses to be rematerialized
       // we shouldn't be notifying here though, figure out where
       // a notification was missed elsewhere.

@@ -1140,7 +1140,7 @@ function getLocalState(rel) {
   if (rel.definition.kind === 'belongsTo') {
     return rel.localState ? [rel.localState] : [];
   }
-  return rel.currentState;
+  return rel.localState;
 }
 function getRemoteState(rel) {
   if (rel.definition.kind === 'belongsTo') {

@@ -145,7 +145,7 @@ export class Graph {
 
       if (meta.kind !== 'implicit') {
         const Klass = meta.kind === 'hasMany' ? ManyRelationship : BelongsToRelationship;
-        relationship = relationships[propertyName] = new Klass(this, meta, identifier);
+        relationship = relationships[propertyName] = new Klass(meta, identifier);
       } else {
         relationship = relationships[propertyName] = {
           definition: meta,
@@ -422,7 +422,7 @@ export class Graph {
     this._willSyncLocal = false;
     let updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
-    updated.forEach(syncRemoteToLocal);
+    updated.forEach((rel) => syncRemoteToLocal(this, rel));
   }
 
   willDestroy() {
@@ -511,7 +511,7 @@ function clearRelationship(relationship: ManyRelationship | BelongsToRelationshi
   } else {
     relationship.members.clear();
     relationship.canonicalMembers.clear();
-    relationship.currentState = [];
+    relationship.localState = [];
     relationship.canonicalState = [];
   }
 }

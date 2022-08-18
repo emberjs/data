@@ -97,7 +97,7 @@ export function stateOf(rel: BelongsToRelationship | ManyRelationship | Implicit
     local = rel.localState ? [rel.localState] : [];
     remote = rel.remoteState ? [rel.remoteState] : [];
   } else if (isHasMany(rel)) {
-    local = rel.currentState.filter((m) => m !== null) as StableRecordIdentifier[];
+    local = rel.localState.filter((m) => m !== null) as StableRecordIdentifier[];
     remote = rel.canonicalState.filter((m) => m !== null) as StableRecordIdentifier[];
   } else {
     local = setToArray<StableRecordIdentifier>(rel.members);

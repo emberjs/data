@@ -550,7 +550,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     let boatPerson = run(() => boat.person.content);
 
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'members size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
     assert.strictEqual(peopleBoats.objectAt(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
@@ -559,7 +559,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     // ensure that our new state is correct
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should still be 1');
-    assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should still be 1');
+    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'members size should still be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
     run(() =>
@@ -571,7 +571,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     let reloadedBoat = store.peekRecord('boat', '1');
 
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'members size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person thas their boat');
 
     // and now the kicker, run-loop fun!
@@ -589,7 +589,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.notStrictEqual(boat, null, 'we have a boat');
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'members size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person thas their boat');
 
     // and the other way too!
