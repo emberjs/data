@@ -20,6 +20,7 @@ import type {
 } from './-operations';
 import {
   assertValidRelationshipPayload,
+  forAllRelatedIdentifiers,
   getStore,
   isBelongsTo,
   isHasMany,
@@ -454,7 +455,14 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
     return;
   }
 
-  recordDataDematerialize(graph, rel);
+  const { identifier } = rel;
+  const { inverseKey } = rel.definition;
+
+  if (!rel.definition.inverseIsImplicit) {
+    forAllRelatedIdentifiers(rel, (inverseIdentifer: StableRecordIdentifier) =>
+      notifyInverseOfDematerialization(graph, inverseIdentifer, inverseKey, identifier)
+    );
+  }
 
   if (!rel.definition.inverseIsImplicit && !rel.definition.inverseIsAsync) {
     rel.state.isStale = true;
@@ -474,6 +482,26 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
   }
 }
 
+function notifyInverseOfDematerialization(
+  graph: Graph,
+  inverseIdentifier: StableRecordIdentifier,
+  inverseKey: string,
+  identifier: StableRecordIdentifier
+) {
+  if (!graph.has(inverseIdentifier, inverseKey)) {
+    return;
+  }
+
+  let relationship = graph.get(inverseIdentifier, inverseKey);
+  assert(`expected no implicit`, !isImplicit(relationship));
+
+  // For canonical members, it is possible that inverseRecordData has already been associated to
+  // to another record. For such cases, do not dematerialize the inverseRecordData
+  if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
+    removeDematerializedInverse(graph, relationship as BelongsToRelationship | ManyRelationship, identifier);
+  }
+}
+
 function clearRelationship(relationship: ManyRelationship | BelongsToRelationship) {
   if (isBelongsTo(relationship)) {
     relationship.localState = null;
@@ -488,89 +516,11 @@ function clearRelationship(relationship: ManyRelationship | BelongsToRelationshi
   }
 }
 
-function recordDataDematerialize(graph: Graph, relationship: ManyRelationship | BelongsToRelationship): void {
-  if (isBelongsTo(relationship)) {
-    if (relationship.definition.inverseIsImplicit) {
-      return;
-    }
-
-    const inverseKey = relationship.definition.inverseKey;
-    const callback = (inverseIdentifier) => {
-      if (!inverseIdentifier || !graph.has(inverseIdentifier, inverseKey)) {
-        return;
-      }
-
-      let relationship = graph.get(inverseIdentifier, inverseKey);
-
-      // For canonical members, it is possible that inverseRecordData has already been associated to
-      // to another record. For such cases, do not dematerialize the inverseRecordData
-      if (
-        relationship.definition.kind !== 'belongsTo' ||
-        !(relationship as BelongsToRelationship).localState ||
-        relationship.identifier === (relationship as BelongsToRelationship).localState
-      ) {
-        inverseDidDematerialize(graph, relationship as BelongsToRelationship | ManyRelationship);
-      }
-    };
-
-    if (relationship.remoteState) {
-      callback(relationship.remoteState);
-    }
-    if (relationship.localState && relationship.localState !== relationship.remoteState) {
-      callback(relationship.localState);
-    }
-  } else {
-    if (relationship.definition.inverseIsImplicit) {
-      return;
-    }
-
-    const inverseKey = relationship.definition.inverseKey;
-    forAllMembers(relationship, (inverseIdentifier) => {
-      inverseIdentifier;
-      if (!inverseIdentifier || !graph.has(inverseIdentifier, inverseKey)) {
-        return;
-      }
-      let relationship = graph.get(inverseIdentifier, inverseKey);
-      assert(`expected no implicit`, !isImplicit(relationship));
-
-      // For canonical members, it is possible that inverseRecordData has already been associated to
-      // to another record. For such cases, do not dematerialize the inverseRecordData
-      if (
-        relationship.definition.kind !== 'belongsTo' ||
-        !(relationship as BelongsToRelationship).localState ||
-        relationship.identifier === (relationship as BelongsToRelationship).localState
-      ) {
-        inverseDidDematerialize(graph, relationship as ManyRelationship | BelongsToRelationship);
-      }
-    });
-  }
-}
-
-function forAllMembers(relationship: ManyRelationship, callback: (identifier: StableRecordIdentifier | null) => void) {
-  // ensure we don't walk anything twice if an entry is
-  // in both members and canonicalMembers
-  let seen = Object.create(null);
-
-  for (let i = 0; i < relationship.currentState.length; i++) {
-    const inverseIdentifier = relationship.currentState[i];
-    const id = inverseIdentifier.lid;
-    if (!seen[id]) {
-      seen[id] = true;
-      callback(inverseIdentifier);
-    }
-  }
-
-  for (let i = 0; i < relationship.canonicalState.length; i++) {
-    const inverseIdentifier = relationship.canonicalState[i];
-    const id = inverseIdentifier.lid;
-    if (!seen[id]) {
-      seen[id] = true;
-      callback(inverseIdentifier);
-    }
-  }
-}
-
-function inverseDidDematerialize(graph: Graph, relationship: ManyRelationship | BelongsToRelationship) {
+function removeDematerializedInverse(
+  graph: Graph,
+  relationship: ManyRelationship | BelongsToRelationship,
+  inverseIdentifier: StableRecordIdentifier
+) {
   if (isBelongsTo(relationship)) {
     const inverseIdentifier = relationship.localState;
     if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
@@ -597,7 +547,6 @@ function inverseDidDematerialize(graph: Graph, relationship: ManyRelationship | 
 
     notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
-    const inverseIdentifier = relationship.identifier;
     if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
@@ -617,48 +566,28 @@ function removeCompletelyFromInverse(
   graph: Graph,
   relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship
 ) {
-  // we actually want a union of members and canonicalMembers
-  // they should be disjoint but currently are not due to a bug
-  const seen = Object.create(null);
   const { identifier } = relationship;
   const { inverseKey } = relationship.definition;
 
-  const unload = (inverseIdentifier: StableRecordIdentifier) => {
-    const id = inverseIdentifier.lid;
-
-    if (seen[id] === undefined) {
-      if (graph.has(inverseIdentifier, inverseKey)) {
-        removeIdentifierCompletelyFromRelationship(graph, graph.get(inverseIdentifier, inverseKey), identifier);
-      }
-      seen[id] = true;
+  forAllRelatedIdentifiers(relationship, (inverseIdentifier: StableRecordIdentifier) => {
+    if (graph.has(inverseIdentifier, inverseKey)) {
+      removeIdentifierCompletelyFromRelationship(graph, graph.get(inverseIdentifier, inverseKey), identifier);
     }
-  };
+  });
 
   if (isBelongsTo(relationship)) {
-    if (relationship.localState) {
-      unload(relationship.localState);
-    }
-    if (relationship.remoteState) {
-      unload(relationship.remoteState);
-    }
-
     if (!relationship.definition.isAsync) {
       clearRelationship(relationship);
     }
 
     relationship.localState = null;
   } else if (isHasMany(relationship)) {
-    relationship.members.forEach(unload);
-    relationship.canonicalMembers.forEach(unload);
-
     if (!relationship.definition.isAsync) {
       clearRelationship(relationship);
 
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
-    relationship.members.forEach(unload);
-    relationship.canonicalMembers.forEach(unload);
     relationship.canonicalMembers.clear();
     relationship.members.clear();
   }

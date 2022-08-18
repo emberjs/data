@@ -110,38 +110,34 @@ export function forAllRelatedIdentifiers(
   } else if (isHasMany(rel)) {
     // ensure we don't walk anything twice if an entry is
     // in both members and canonicalMembers
-    let seen = Object.create(null);
+    let seen = new Set();
 
     for (let i = 0; i < rel.currentState.length; i++) {
       const inverseIdentifier = rel.currentState[i];
-      const id = inverseIdentifier.lid;
-      if (!seen[id]) {
-        seen[id] = true;
+      if (!seen.has(inverseIdentifier)) {
+        seen.add(inverseIdentifier);
         cb(inverseIdentifier);
       }
     }
 
     for (let i = 0; i < rel.canonicalState.length; i++) {
       const inverseIdentifier = rel.canonicalState[i];
-      const id = inverseIdentifier.lid;
-      if (!seen[id]) {
-        seen[id] = true;
+      if (!seen.has(inverseIdentifier)) {
+        seen.add(inverseIdentifier);
         cb(inverseIdentifier);
       }
     }
   } else {
-    let seen = Object.create(null);
+    let seen = new Set();
     rel.members.forEach((inverseIdentifier) => {
-      const id = inverseIdentifier.lid;
-      if (!seen[id]) {
-        seen[id] = true;
+      if (!seen.has(inverseIdentifier)) {
+        seen.add(inverseIdentifier);
         cb(inverseIdentifier);
       }
     });
     rel.canonicalMembers.forEach((inverseIdentifier) => {
-      const id = inverseIdentifier.lid;
-      if (!seen[id]) {
-        seen[id] = true;
+      if (!seen.has(inverseIdentifier)) {
+        seen.add(inverseIdentifier);
         cb(inverseIdentifier);
       }
     });
@@ -192,27 +188,6 @@ export function removeIdentifierCompletelyFromRelationship(
   } else {
     relationship.canonicalMembers.delete(value);
     relationship.members.delete(value);
-  }
-}
-
-export function removeDematerializedInverse(
-  graph: Graph,
-  relationship: ManyRelationship,
-  inverseIdentifier: StableRecordIdentifier
-) {
-  if (isHasMany(relationship)) {
-    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
-      // unloading inverse of a sync relationship is treated as a client-side
-      // delete, so actually remove the models don't merely invalidate the cp
-      // cache.
-      // if the record being unloaded only exists on the client, we similarly
-      // treat it as a client side delete
-      removeIdentifierCompletelyFromRelationship(graph, relationship, inverseIdentifier);
-    } else {
-      relationship.state.hasDematerializedInverse = true;
-    }
-
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }
 
