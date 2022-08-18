@@ -279,6 +279,7 @@ module('integration/store - findRecord', function (hooks) {
   let store;
 
   hooks.beforeEach(function () {
+    this.owner.register('model:person', Person);
     this.owner.register('model:car', Car);
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
@@ -349,6 +350,112 @@ module('integration/store - findRecord', function (hooks) {
     await settled();
 
     assert.strictEqual(car.model, 'Princess', 'Updated car record is returned');
+  });
+
+  test('multiple calls to store#findRecord return the cached record without waiting for background requests', async function (assert) {
+    assert.expect(6);
+
+    this.owner.unregister('serializer:application');
+    let adapter = store.adapterFor('application');
+    let calls = 0;
+
+    delete adapter.shouldReloadRecord;
+    adapter.shouldBackgroundReloadRecord = () => true;
+
+    adapter.findRecord = () => {
+      if (calls++ < 3) {
+        return resolve({
+          data: {
+            type: 'car',
+            id: '1',
+            attributes: {
+              make: 'BMC',
+              model: 'Mini',
+            },
+          },
+        });
+      }
+      assert.ok(false, 'should not call findRecord');
+      throw 'unexpected call';
+    };
+
+    const proxiedCar = store.findRecord('car', '1');
+    const car = await proxiedCar;
+
+    assert.strictEqual(car.model, 'Mini', 'car record is returned from cache');
+    const proxiedCar2 = store.findRecord('car', '1'); // will trigger a backgroundReload
+    const car2 = await proxiedCar2;
+
+    assert.strictEqual(car2?.model, 'Mini', 'car record is returned from cache');
+    assert.strictEqual(car, car2, 'we found the same car');
+
+    const proxiedCar3 = store.findRecord('car', '1'); // will trigger a backgroundReload
+    const car3 = await proxiedCar3;
+
+    assert.strictEqual(car3?.model, 'Mini', 'car record is returned from cache');
+    assert.strictEqual(car, car3, 'we found the same car');
+
+    await settled();
+
+    assert.strictEqual(calls, 3, 'we triggered one background reload and one load');
+  });
+
+  test('multiple parallel calls to store#findRecord return the cached record without waiting for background requests', async function (assert) {
+    assert.expect(8);
+
+    this.owner.unregister('serializer:application');
+    let adapter = store.adapterFor('application');
+    let calls = 0;
+
+    delete adapter.shouldReloadRecord;
+    adapter.shouldBackgroundReloadRecord = () => true;
+
+    function timeout(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    adapter.findRecord = async () => {
+      await timeout(1);
+      if (calls++ < 2) {
+        return resolve({
+          data: {
+            type: 'car',
+            id: '1',
+            attributes: {
+              make: 'BMC',
+              model: 'Mini',
+            },
+          },
+        });
+      }
+      assert.ok(false, 'should not call findRecord');
+      throw 'unexpected call';
+    };
+
+    const proxiedCar = store.findRecord('car', '1');
+    const car = await proxiedCar;
+
+    assert.strictEqual(car.model, 'Mini', 'car record is returned from cache');
+    const proxiedCar2 = store.findRecord('car', '1'); // will trigger a backgroundReload
+    const proxiedCar3 = store.findRecord('car', '1'); // will not trigger a backgroundReload
+    const proxiedCar4 = store.findRecord('car', '1'); // will not trigger a backgroundReload
+
+    const car2 = await proxiedCar2;
+    const car3 = await proxiedCar3;
+    const car4 = await proxiedCar4;
+
+    assert.strictEqual(car2?.model, 'Mini', 'car record is returned from cache');
+    assert.strictEqual(car, car2, 'we found the same car');
+
+    assert.strictEqual(car3?.model, 'Mini', 'car record is returned from cache');
+    assert.strictEqual(car, car3, 'we found the same car');
+
+    assert.strictEqual(car4?.model, 'Mini', 'car record is returned from cache');
+    assert.strictEqual(car, car4, 'we found the same car');
+
+    await settled();
+
+    assert.strictEqual(calls, 2, 'we triggered one background reload and one load');
   });
 
   test('store#findRecord { reload: true } ignores cached record and reloads record from server', async function (assert) {
