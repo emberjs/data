@@ -78,14 +78,14 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   relationship.state.hasReceivedData = true;
 
   // cache existing state
-  const { localState, members, definition } = relationship;
+  const { localState, localMembers, definition } = relationship;
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
   const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
-  relationship.members = newMembership;
+  relationship.localMembers = newMembership;
   relationship.localState = newState;
 
   const { type } = relationship.definition;
@@ -110,7 +110,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
         adv = true;
         newMembership.add(identifier);
 
-        if (!members.has(identifier)) {
+        if (!localMembers.has(identifier)) {
           changed = true;
           addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
         }
@@ -155,21 +155,21 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   relationship.state.hasReceivedData = true;
 
   // cache existing state
-  const { canonicalState, canonicalMembers, definition } = relationship;
+  const { remoteState, remoteMembers, definition } = relationship;
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
   const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
-  relationship.canonicalMembers = newMembership;
-  relationship.canonicalState = newState;
+  relationship.remoteMembers = newMembership;
+  relationship.remoteState = newState;
 
   const { type } = relationship.definition;
 
   let changed = false;
 
-  const canonicalLength = canonicalState.length;
+  const canonicalLength = remoteState.length;
   const iterationLength = canonicalLength > identifiersLength ? canonicalLength : identifiersLength;
   const equalLength = canonicalLength === identifiersLength;
 
@@ -186,14 +186,14 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
         newMembership.add(identifier);
         adv = true;
 
-        if (!canonicalMembers.has(identifier)) {
+        if (!remoteMembers.has(identifier)) {
           changed = true;
           addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
         }
       }
     }
     if (i < canonicalLength) {
-      const identifier = canonicalState[i];
+      const identifier = remoteState[i];
 
       if (!newMembership.has(identifier)) {
         // detect reordering
@@ -221,7 +221,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
         op: op.op,
         record: op.record,
         field: op.field,
-        value: canonicalState,
+        value: remoteState,
       },
       false
     );*/
@@ -268,30 +268,30 @@ export function addToInverse(
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
-      if (!relationship.canonicalMembers.has(value)) {
+      if (!relationship.remoteMembers.has(value)) {
         graph._addToTransaction(relationship);
-        relationship.canonicalState.push(value);
-        relationship.canonicalMembers.add(value);
+        relationship.remoteState.push(value);
+        relationship.remoteMembers.add(value);
         relationship.state.hasReceivedData = true;
         flushCanonical(graph, relationship);
       }
     } else {
-      if (!relationship.members.has(value)) {
+      if (!relationship.localMembers.has(value)) {
         relationship.localState.push(value);
-        relationship.members.add(value);
+        relationship.localMembers.add(value);
         relationship.state.hasReceivedData = true;
         notifyChange(graph, relationship.identifier, relationship.definition.key);
       }
     }
   } else {
     if (isRemote) {
-      if (!relationship.canonicalMembers.has(value)) {
-        relationship.canonicalMembers.add(value);
-        relationship.members.add(value);
+      if (!relationship.remoteMembers.has(value)) {
+        relationship.remoteMembers.add(value);
+        relationship.localMembers.add(value);
       }
     } else {
-      if (!relationship.members.has(value)) {
-        relationship.members.add(value);
+      if (!relationship.localMembers.has(value)) {
+        relationship.localMembers.add(value);
       }
     }
   }
@@ -305,7 +305,7 @@ export function notifyInverseOfPotentialMaterialization(
   isRemote: boolean
 ) {
   const relationship = graph.get(identifier, key);
-  if (isHasMany(relationship) && isRemote && relationship.canonicalMembers.has(value)) {
+  if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
     notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }
@@ -333,40 +333,40 @@ export function removeFromInverse(
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
-      let index = relationship.canonicalState.indexOf(value);
+      let index = relationship.remoteState.indexOf(value);
       if (index !== -1) {
-        relationship.canonicalMembers.delete(value);
-        relationship.canonicalState.splice(index, 1);
+        relationship.remoteMembers.delete(value);
+        relationship.remoteState.splice(index, 1);
       }
     }
     let index = relationship.localState.indexOf(value);
     if (index !== -1) {
-      relationship.members.delete(value);
+      relationship.localMembers.delete(value);
       relationship.localState.splice(index, 1);
     }
     notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
     if (isRemote) {
-      relationship.canonicalMembers.delete(value);
-      relationship.members.delete(value);
+      relationship.remoteMembers.delete(value);
+      relationship.localMembers.delete(value);
     } else {
-      if (value && relationship.members.has(value)) {
-        relationship.members.delete(value);
+      if (value && relationship.localMembers.has(value)) {
+        relationship.localMembers.delete(value);
       }
     }
   }
 }
 
 export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
-  let toSet = rel.canonicalState;
+  let toSet = rel.remoteState;
   let newRecordDatas = rel.localState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
   let existingState = rel.localState;
   rel.localState = toSet.concat(newRecordDatas);
 
-  let members = (rel.members = new Set<StableRecordIdentifier>());
-  rel.canonicalMembers.forEach((v) => members.add(v));
+  let localMembers = (rel.localMembers = new Set<StableRecordIdentifier>());
+  rel.remoteMembers.forEach((v) => localMembers.add(v));
   for (let i = 0; i < newRecordDatas.length; i++) {
-    members.add(newRecordDatas[i]);
+    localMembers.add(newRecordDatas[i]);
   }
 
   // TODO always notifying fails only one test and we should probably do away with it

@@ -74,7 +74,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
     // if this is a remote update we still sync
     if (isRemote) {
       const { localState } = relationship;
-      // don't sync if localState is a new record and our canonicalState is null
+      // don't sync if localState is a new record and our remoteState is null
       if (localState && isNew(localState) && !existingState) {
         return;
       }

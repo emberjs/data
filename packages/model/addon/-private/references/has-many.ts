@@ -447,9 +447,9 @@ export default class HasManyReference {
       return false;
     }
 
-    let members = this.hasManyRelationship.localState;
+    let localState = this.hasManyRelationship.localState;
 
-    return members.every((identifier) => {
+    return localState.every((identifier) => {
       return this.store._instanceCache.recordIsLoaded(identifier, true) === true;
     });
   }

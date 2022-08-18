@@ -374,8 +374,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     let user1JobState = user1.belongsTo('job').belongsToRelationship;
 
-    assert.strictEqual(user1JobState.canonicalState, undefined, '<user:1>.job is canonically empty');
-    assert.strictEqual(user1JobState.currentState, undefined, '<user:1>.job is locally empty');
+    assert.strictEqual(user1JobState.remoteState, null, '<user:1>.job is canonically empty');
+    assert.strictEqual(user1JobState.localState, null, '<user:1>.job is locally empty');
     assert.true(user1JobState.state.isEmpty, 'The relationship is empty');
     assert.false(user1JobState.state.isStale, 'The relationship is not stale');
     assert.false(user1JobState.state.shouldForceReload, 'The relationship does not require reload');

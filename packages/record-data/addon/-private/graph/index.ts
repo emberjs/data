@@ -38,8 +38,8 @@ import updateRelationshipOperation from './operations/update-relationship';
 export interface ImplicitRelationship {
   definition: UpgradedMeta;
   identifier: StableRecordIdentifier;
-  members: Set<StableRecordIdentifier>;
-  canonicalMembers: Set<StableRecordIdentifier>;
+  localMembers: Set<StableRecordIdentifier>;
+  remoteMembers: Set<StableRecordIdentifier>;
 }
 
 type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
@@ -150,8 +150,8 @@ export class Graph {
         relationship = relationships[propertyName] = {
           definition: meta,
           identifier,
-          members: new Set(),
-          canonicalMembers: new Set(),
+          localMembers: new Set(),
+          remoteMembers: new Set(),
         };
       }
     }
@@ -495,7 +495,7 @@ function notifyInverseOfDematerialization(
   let relationship = graph.get(inverseIdentifier, inverseKey);
   assert(`expected no implicit`, !isImplicit(relationship));
 
-  // For canonical members, it is possible that inverseRecordData has already been associated to
+  // For remote members, it is possible that inverseRecordData has already been associated to
   // to another record. For such cases, do not dematerialize the inverseRecordData
   if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
     removeDematerializedInverse(graph, relationship as BelongsToRelationship | ManyRelationship, identifier);
@@ -509,10 +509,10 @@ function clearRelationship(relationship: ManyRelationship | BelongsToRelationshi
     relationship.state.hasReceivedData = false;
     relationship.state.isEmpty = true;
   } else {
-    relationship.members.clear();
-    relationship.canonicalMembers.clear();
+    relationship.localMembers.clear();
+    relationship.remoteMembers.clear();
     relationship.localState = [];
-    relationship.canonicalState = [];
+    relationship.remoteState = [];
   }
 }
 
@@ -588,7 +588,7 @@ function removeCompletelyFromInverse(
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
-    relationship.canonicalMembers.clear();
-    relationship.members.clear();
+    relationship.remoteMembers.clear();
+    relationship.localMembers.clear();
   }
 }

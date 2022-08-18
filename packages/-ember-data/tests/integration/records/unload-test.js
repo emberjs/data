@@ -426,8 +426,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let peopleBoats = await person.boats;
     let boatPerson = await boat.person;
 
-    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
-    assert.strictEqual(relationshipState.members.size, 1, 'members size should be 1');
+    assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should be 1');
+    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
     assert.strictEqual(peopleBoats.objectAt(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
@@ -437,8 +437,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     // ensure that our new state is correct
-    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
-    assert.strictEqual(relationshipState.members.size, 1, 'members size should still be 1');
+    assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
+    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should still be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
     run(() =>
@@ -450,8 +450,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     store.peekRecord('boat', '1');
 
     // ensure that our new state is correct
-    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
-    assert.strictEqual(relationshipState.members.size, 1, 'members size should still be 1');
+    assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
+    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should still be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has their boats');
   });
 
@@ -495,8 +495,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let peopleBoats = run(() => person.boats.content);
     let boatPerson = run(() => boat.person.content);
 
-    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
-    assert.strictEqual(relationshipState.members.size, 1, 'members size should be 1');
+    assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should be 1');
+    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
     assert.strictEqual(peopleBoats.objectAt(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
@@ -506,16 +506,16 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     // ensure that our new state is correct
-    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
-    assert.strictEqual(relationshipState.members.size, 1, 'members size should still be 1');
+    assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
+    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should still be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
     run(() => person.boats);
 
     store.peekRecord('boat', '1');
 
-    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
-    assert.strictEqual(relationshipState.members.size, 1, 'members size should still be 1');
+    assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
+    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should still be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has their boats');
   });
 
@@ -549,8 +549,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let peopleBoats = run(() => person.boats.content);
     let boatPerson = run(() => boat.person.content);
 
-    assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
     assert.strictEqual(peopleBoats.objectAt(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
@@ -558,8 +558,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     run(() => boat.unloadRecord());
 
     // ensure that our new state is correct
-    assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should still be 1');
-    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'members size should still be 1');
+    assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should still be 1');
+    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should still be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
     run(() =>
@@ -570,8 +570,8 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     let reloadedBoat = store.peekRecord('boat', '1');
 
-    assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person thas their boat');
 
     // and now the kicker, run-loop fun!
@@ -588,8 +588,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     boat = store.peekRecord('boat', '1');
 
     assert.notStrictEqual(boat, null, 'we have a boat');
-    assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person thas their boat');
 
     // and the other way too!

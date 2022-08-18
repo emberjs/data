@@ -16,12 +16,12 @@ export default class ManyRelationship {
   declare _state: RelationshipState | null;
   declare transactionRef: number;
 
-  declare members: Set<StableRecordIdentifier>;
-  declare canonicalMembers: Set<StableRecordIdentifier>;
+  declare localMembers: Set<StableRecordIdentifier>;
+  declare remoteMembers: Set<StableRecordIdentifier>;
   declare meta: Meta | null;
   declare links: Links | PaginationLinks | null;
 
-  declare canonicalState: StableRecordIdentifier[];
+  declare remoteState: StableRecordIdentifier[];
   declare localState: StableRecordIdentifier[];
 
   constructor(definition: UpgradedMeta, identifier: StableRecordIdentifier) {
@@ -30,14 +30,14 @@ export default class ManyRelationship {
     this._state = null;
     this.transactionRef = 0;
 
-    this.members = new Set<StableRecordIdentifier>();
-    this.canonicalMembers = new Set<StableRecordIdentifier>();
+    this.localMembers = new Set<StableRecordIdentifier>();
+    this.remoteMembers = new Set<StableRecordIdentifier>();
 
     this.meta = null;
     this.links = null;
 
     // persisted state
-    this.canonicalState = [];
+    this.remoteState = [];
     // local client state
     this.localState = [];
   }

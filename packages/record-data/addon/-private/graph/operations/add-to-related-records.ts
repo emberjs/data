@@ -36,9 +36,9 @@ function addRelatedRecord(
   isRemote: boolean
 ) {
   assert(`expected an identifier to add to the relationship`, value);
-  const { members, localState } = relationship;
+  const { localMembers, localState } = relationship;
 
-  if (members.has(value)) {
+  if (localMembers.has(value)) {
     return;
   }
 
@@ -49,7 +49,7 @@ function addRelatedRecord(
   }
 
   relationship.state.hasReceivedData = true;
-  members.add(value);
+  localMembers.add(value);
   if (index === undefined) {
     localState.push(value);
   } else {

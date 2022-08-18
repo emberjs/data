@@ -109,7 +109,7 @@ export function forAllRelatedIdentifiers(
     }
   } else if (isHasMany(rel)) {
     // ensure we don't walk anything twice if an entry is
-    // in both members and canonicalMembers
+    // in both localMembers and remoteMembers
     let seen = new Set();
 
     for (let i = 0; i < rel.localState.length; i++) {
@@ -120,8 +120,8 @@ export function forAllRelatedIdentifiers(
       }
     }
 
-    for (let i = 0; i < rel.canonicalState.length; i++) {
-      const inverseIdentifier = rel.canonicalState[i];
+    for (let i = 0; i < rel.remoteState.length; i++) {
+      const inverseIdentifier = rel.remoteState[i];
       if (!seen.has(inverseIdentifier)) {
         seen.add(inverseIdentifier);
         cb(inverseIdentifier);
@@ -129,13 +129,13 @@ export function forAllRelatedIdentifiers(
     }
   } else {
     let seen = new Set();
-    rel.members.forEach((inverseIdentifier) => {
+    rel.localMembers.forEach((inverseIdentifier) => {
       if (!seen.has(inverseIdentifier)) {
         seen.add(inverseIdentifier);
         cb(inverseIdentifier);
       }
     });
-    rel.canonicalMembers.forEach((inverseIdentifier) => {
+    rel.remoteMembers.forEach((inverseIdentifier) => {
       if (!seen.has(inverseIdentifier)) {
         seen.add(inverseIdentifier);
         cb(inverseIdentifier);
@@ -168,12 +168,12 @@ export function removeIdentifierCompletelyFromRelationship(
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else if (isHasMany(relationship)) {
-    relationship.canonicalMembers.delete(value);
-    relationship.members.delete(value);
+    relationship.remoteMembers.delete(value);
+    relationship.localMembers.delete(value);
 
-    const canonicalIndex = relationship.canonicalState.indexOf(value);
+    const canonicalIndex = relationship.remoteState.indexOf(value);
     if (canonicalIndex !== -1) {
-      relationship.canonicalState.splice(canonicalIndex, 1);
+      relationship.remoteState.splice(canonicalIndex, 1);
     }
 
     const currentIndex = relationship.localState.indexOf(value);
@@ -186,8 +186,8 @@ export function removeIdentifierCompletelyFromRelationship(
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
-    relationship.canonicalMembers.delete(value);
-    relationship.members.delete(value);
+    relationship.remoteMembers.delete(value);
+    relationship.localMembers.delete(value);
   }
 }
 
