@@ -63,6 +63,7 @@ import NotificationManager from './managers/record-notification-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
 import { _findAll, _query, _queryRecord } from './network/finders';
 import type RequestCache from './network/request-cache';
+import type Snapshot from './network/snapshot';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import AdapterPopulatedRecordArray from './record-arrays/adapter-populated-record-array';
 import RecordArray from './record-arrays/record-array';
@@ -1079,14 +1080,14 @@ class Store extends Service {
       assertIdentifierHasId(identifier);
       promise = this._fetchManager.scheduleFetch(identifier, options);
     } else {
-      let snapshot = this._instanceCache.createSnapshot(identifier, options);
+      let snapshot: Snapshot | null = null;
       let adapter = this.adapterFor(identifier.type);
 
       // Refetch the record if the adapter thinks the record is stale
       if (
         typeof options.reload === 'undefined' &&
         adapter.shouldReloadRecord &&
-        adapter.shouldReloadRecord(this, snapshot)
+        adapter.shouldReloadRecord(this, (snapshot = this._instanceCache.createSnapshot(identifier, options)))
       ) {
         assertIdentifierHasId(identifier);
         promise = this._fetchManager.scheduleFetch(identifier, options);
@@ -1096,7 +1097,10 @@ class Store extends Service {
           options.backgroundReload !== false &&
           (options.backgroundReload ||
             !adapter.shouldBackgroundReloadRecord ||
-            adapter.shouldBackgroundReloadRecord(this, snapshot))
+            adapter.shouldBackgroundReloadRecord(
+              this,
+              (snapshot = snapshot || this._instanceCache.createSnapshot(identifier, options))
+            ))
         ) {
           assertIdentifierHasId(identifier);
           this._fetchManager.scheduleFetch(identifier, options);

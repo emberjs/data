@@ -213,7 +213,7 @@ export default class FetchManager {
       },
       (error) => {
         const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
-        if (!recordData || recordData.isEmpty?.(identifier) || isLoading) {
+        if (!recordData || recordData.isEmpty(identifier) || isLoading) {
           store._instanceCache.unloadRecord(identifier);
         }
         throw error;

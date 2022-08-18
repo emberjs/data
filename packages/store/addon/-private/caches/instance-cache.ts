@@ -139,7 +139,7 @@ export class InstanceCache {
       return false;
     }
     const isNew = recordData.isNew(identifier);
-    const isEmpty = recordData.isEmpty?.(identifier) || false;
+    const isEmpty = recordData.isEmpty(identifier);
 
     // if we are new we must consider ourselves loaded
     if (isNew) {
@@ -152,18 +152,23 @@ export class InstanceCache {
     // we should consider allowing for something to be loaded that is simply "not empty".
     // which is how RecordState currently handles this case; however, RecordState is buggy
     // in that it does not account for unloading.
-    // return !isEmpty;
+    return filterDeleted && recordData.isDeletionCommitted(identifier) ? false : !isEmpty;
 
+    /*
     const req = this.store.getRequestStateService();
     const fulfilled = req.getLastRequestForRecord(identifier);
+    const isLocallyLoaded = !isEmpty;
     const isLoading =
-      fulfilled !== null && req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
+      !isLocallyLoaded &&
+      fulfilled === null &&
+      req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
 
     if (isEmpty || (filterDeleted && recordData.isDeletionCommitted(identifier)) || isLoading) {
       return false;
     }
 
     return true;
+    */
   }
 
   constructor(store: Store) {
@@ -684,7 +689,7 @@ function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boo
   }
   const isNew = recordData.isNew(identifier);
   const isDeleted = recordData.isDeleted(identifier);
-  const isEmpty = recordData.isEmpty?.(identifier) || false;
+  const isEmpty = recordData.isEmpty(identifier);
 
   return (!isNew || isDeleted) && isEmpty;
 }
