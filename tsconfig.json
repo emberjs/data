@@ -73,7 +73,6 @@
       "packages/record-data/tests/dummy/app/resolver.ts",
       "packages/record-data/tests/dummy/app/config/environment.d.ts",
       "packages/record-data/tests/dummy/app/app.ts",
-      "packages/record-data/addon/-private/relationships/state/implicit.ts",
       "packages/record-data/addon/-private/relationships/state/has-many.ts",
       "packages/record-data/addon/-private/relationships/state/belongs-to.ts",
       "packages/record-data/addon/-private/record-data.ts",

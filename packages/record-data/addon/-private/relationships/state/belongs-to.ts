@@ -1,32 +1,22 @@
-import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { Links, Meta, PaginationLinks, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 
-import type { ManyRelationship } from '../..';
-import type { Graph } from '../../graph';
 import type { UpgradedMeta } from '../../graph/-edge-definition';
 import type { RelationshipState } from '../../graph/-state';
 import { createState } from '../../graph/-state';
-import { isNew } from '../../graph/-utils';
 
 export default class BelongsToRelationship {
-  declare localState: StableRecordIdentifier | null;
-  declare remoteState: StableRecordIdentifier | null;
-  declare transactionRef: number;
-
-  declare graph: Graph;
-  declare store: RecordDataStoreWrapper;
   declare definition: UpgradedMeta;
   declare identifier: StableRecordIdentifier;
   declare _state: RelationshipState | null;
+  declare transactionRef: number;
 
+  declare localState: StableRecordIdentifier | null;
+  declare remoteState: StableRecordIdentifier | null;
   declare meta: Meta | null;
   declare links: Links | PaginationLinks | null;
 
-  constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier) {
-    this.graph = graph;
-    this.store = graph.store;
+  constructor(definition: UpgradedMeta, identifier: StableRecordIdentifier) {
     this.definition = definition;
     this.identifier = identifier;
     this._state = null;
@@ -45,64 +35,6 @@ export default class BelongsToRelationship {
       _state = this._state = createState();
     }
     return _state;
-  }
-
-  recordDataDidDematerialize() {
-    if (this.definition.inverseIsImplicit) {
-      return;
-    }
-
-    const inverseKey = this.definition.inverseKey;
-    const callback = (inverseIdentifier) => {
-      if (!inverseIdentifier || !this.graph.has(inverseIdentifier, inverseKey)) {
-        return;
-      }
-
-      let relationship = this.graph.get(inverseIdentifier, inverseKey);
-
-      // For canonical members, it is possible that inverseRecordData has already been associated to
-      // to another record. For such cases, do not dematerialize the inverseRecordData
-      if (
-        relationship.definition.kind !== 'belongsTo' ||
-        !(relationship as BelongsToRelationship).localState ||
-        this.identifier === (relationship as BelongsToRelationship).localState
-      ) {
-        (relationship as BelongsToRelationship | ManyRelationship).inverseDidDematerialize(this.identifier);
-      }
-    };
-
-    if (this.remoteState) {
-      callback(this.remoteState);
-    }
-    if (this.localState && this.localState !== this.remoteState) {
-      callback(this.localState);
-    }
-  }
-
-  inverseDidDematerialize() {
-    const inverseRecordData = this.localState;
-    if (!this.definition.isAsync || (inverseRecordData && isNew(inverseRecordData))) {
-      // unloading inverse of a sync relationship is treated as a client-side
-      // delete, so actually remove the models don't merely invalidate the cp
-      // cache.
-      // if the record being unloaded only exists on the client, we similarly
-      // treat it as a client side delete
-      if (this.localState === inverseRecordData && inverseRecordData !== null) {
-        this.localState = null;
-      }
-
-      if (this.remoteState === inverseRecordData && inverseRecordData !== null) {
-        this.remoteState = null;
-        this.state.hasReceivedData = true;
-        this.state.isEmpty = true;
-        if (this.localState && !isNew(this.localState)) {
-          this.localState = null;
-        }
-      }
-    } else {
-      this.state.hasDematerializedInverse = true;
-    }
-    this.notifyBelongsToChange();
   }
 
   getData(): SingleResourceRelationship {
@@ -125,51 +57,5 @@ export default class BelongsToRelationship {
     }
 
     return payload;
-  }
-
-  /*
-      Removes the given RecordData from BOTH canonical AND current state.
-
-      This method is useful when either a deletion or a rollback on a new record
-      needs to entirely purge itself from an inverse relationship.
-     */
-  removeCompletelyFromOwn(recordData: StableRecordIdentifier) {
-    if (this.remoteState === recordData) {
-      this.remoteState = null;
-    }
-
-    if (this.localState === recordData) {
-      this.localState = null;
-      // This allows dematerialized inverses to be rematerialized
-      // we shouldn't be notifying here though, figure out where
-      // a notification was missed elsewhere.
-      this.notifyBelongsToChange();
-    }
-  }
-
-  notifyBelongsToChange() {
-    const identifier = this.identifier;
-    if (identifier === this.graph._removing) {
-      if (LOG_GRAPH) {
-        // eslint-disable-next-line no-console
-        console.log(
-          `Graph: ignoring belongsToChange for removed identifier ${String(identifier)} ${this.definition.key}`
-        );
-      }
-      return;
-    }
-    if (LOG_GRAPH) {
-      // eslint-disable-next-line no-console
-      console.log(`Graph: notifying belongsToChange for ${String(identifier)} ${this.definition.key}`);
-    }
-
-    this.store.notifyChange(identifier, 'relationships', this.definition.key);
-  }
-
-  clear() {
-    this.localState = null;
-    this.remoteState = null;
-    this.state.hasReceivedData = false;
-    this.state.isEmpty = true;
   }
 }

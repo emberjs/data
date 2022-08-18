@@ -4,7 +4,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type ManyRelationship from '../../relationships/state/has-many';
 import type { RemoveFromRelatedRecordsOperation } from '../-operations';
-import { isHasMany } from '../-utils';
+import { isHasMany, notifyChange } from '../-utils';
 import type { Graph } from '../index';
 import { removeFromInverse } from './replace-related-records';
 
@@ -26,7 +26,7 @@ export default function removeFromRelatedRecords(
   } else {
     removeRelatedRecord(graph, relationship, record, value, isRemote);
   }
-  relationship.notifyHasManyChange();
+  notifyChange(graph, relationship.identifier, relationship.definition.key);
 }
 
 function removeRelatedRecord(
@@ -37,17 +37,17 @@ function removeRelatedRecord(
   isRemote: boolean
 ) {
   assert(`expected an identifier to add to the relationship`, value);
-  const { members, currentState } = relationship;
+  const { localMembers, localState } = relationship;
 
-  if (!members.has(value)) {
+  if (!localMembers.has(value)) {
     return;
   }
 
-  members.delete(value);
-  let index = currentState.indexOf(value);
+  localMembers.delete(value);
+  let index = localState.indexOf(value);
 
-  assert(`expected members and currentState to be in sync`, index !== -1);
-  currentState.splice(index, 1);
+  assert(`expected localMembers and localState to be in sync`, index !== -1);
+  localState.splice(index, 1);
 
   removeFromInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
 }

@@ -10,8 +10,7 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
-import ImplicitRelationship from '../relationships/state/implicit';
-import type { EdgeCache } from './-edge-definition';
+import type { EdgeCache, UpgradedMeta } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
 import type {
   DeleteRecordOperation,
@@ -19,12 +18,29 @@ import type {
   RemoteRelationshipOperation,
   UnknownOperation,
 } from './-operations';
-import { assertValidRelationshipPayload, getStore, isBelongsTo, isHasMany, isImplicit } from './-utils';
+import {
+  assertValidRelationshipPayload,
+  forAllRelatedIdentifiers,
+  getStore,
+  isBelongsTo,
+  isHasMany,
+  isImplicit,
+  isNew,
+  notifyChange,
+  removeIdentifierCompletelyFromRelationship,
+} from './-utils';
 import addToRelatedRecords from './operations/add-to-related-records';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
+
+export interface ImplicitRelationship {
+  definition: UpgradedMeta;
+  identifier: StableRecordIdentifier;
+  localMembers: Set<StableRecordIdentifier>;
+  remoteMembers: Set<StableRecordIdentifier>;
+}
 
 type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
@@ -126,13 +142,18 @@ export class Graph {
       const info = upgradeDefinition(this, identifier, propertyName);
       assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
       const meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
-      const Klass =
-        meta.kind === 'hasMany'
-          ? ManyRelationship
-          : meta.kind === 'belongsTo'
-          ? BelongsToRelationship
-          : ImplicitRelationship;
-      relationship = relationships[propertyName] = new Klass(this, meta, identifier);
+
+      if (meta.kind !== 'implicit') {
+        const Klass = meta.kind === 'hasMany' ? ManyRelationship : BelongsToRelationship;
+        relationship = relationships[propertyName] = new Klass(meta, identifier);
+      } else {
+        relationship = relationships[propertyName] = {
+          definition: meta,
+          identifier,
+          localMembers: new Set(),
+          remoteMembers: new Set(),
+        };
+      }
     }
 
     return relationship;
@@ -225,7 +246,7 @@ export class Graph {
         if (!rel) {
           return;
         }
-        destroyRelationship(rel);
+        destroyRelationship(this, rel);
         if (isImplicit(rel)) {
           relationships[key] = undefined;
         }
@@ -310,7 +331,7 @@ export class Graph {
             }
             // works together with the has check
             relationships[key] = undefined;
-            removeCompletelyFromInverse(rel);
+            removeCompletelyFromInverse(this, rel);
           });
           this.identifiers.delete(identifier);
         }
@@ -401,7 +422,7 @@ export class Graph {
     this._willSyncLocal = false;
     let updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
-    updated.forEach(syncRemoteToLocal);
+    updated.forEach((rel) => syncRemoteToLocal(this, rel));
   }
 
   willDestroy() {
@@ -426,19 +447,26 @@ export class Graph {
 // delete, so we remove the inverse records from this relationship to
 // disconnect the graph.  Because it's not async, we don't need to keep around
 // the identifier as an id-wrapper for references
-function destroyRelationship(rel) {
+function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
   if (isImplicit(rel)) {
-    if (rel.graph.isReleasable(rel.identifier)) {
-      removeCompletelyFromInverse(rel);
+    if (graph.isReleasable(rel.identifier)) {
+      removeCompletelyFromInverse(graph, rel);
     }
     return;
   }
 
-  rel.recordDataDidDematerialize();
+  const { identifier } = rel;
+  const { inverseKey } = rel.definition;
+
+  if (!rel.definition.inverseIsImplicit) {
+    forAllRelatedIdentifiers(rel, (inverseIdentifer: StableRecordIdentifier) =>
+      notifyInverseOfDematerialization(graph, inverseIdentifer, inverseKey, identifier)
+    );
+  }
 
   if (!rel.definition.inverseIsImplicit && !rel.definition.inverseIsAsync) {
     rel.state.isStale = true;
-    rel.clear();
+    clearRelationship(rel);
 
     // necessary to clear relationships in the ui from dematerialized records
     // hasMany is managed by Model which calls `retreiveLatest` after
@@ -449,57 +477,118 @@ function destroyRelationship(rel) {
     // leave the ui relationship populated since the record is destroyed and
     // internally we've fully cleaned up.
     if (!rel.definition.isAsync) {
-      if (isBelongsTo(rel)) {
-        rel.notifyBelongsToChange();
-      } else {
-        rel.notifyHasManyChange();
-      }
+      notifyChange(graph, rel.identifier, rel.definition.key);
     }
   }
 }
 
-function removeCompletelyFromInverse(relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship) {
-  // we actually want a union of members and canonicalMembers
-  // they should be disjoint but currently are not due to a bug
-  const seen = Object.create(null);
+function notifyInverseOfDematerialization(
+  graph: Graph,
+  inverseIdentifier: StableRecordIdentifier,
+  inverseKey: string,
+  identifier: StableRecordIdentifier
+) {
+  if (!graph.has(inverseIdentifier, inverseKey)) {
+    return;
+  }
+
+  let relationship = graph.get(inverseIdentifier, inverseKey);
+  assert(`expected no implicit`, !isImplicit(relationship));
+
+  // For remote members, it is possible that inverseRecordData has already been associated to
+  // to another record. For such cases, do not dematerialize the inverseRecordData
+  if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
+    removeDematerializedInverse(graph, relationship as BelongsToRelationship | ManyRelationship, identifier);
+  }
+}
+
+function clearRelationship(relationship: ManyRelationship | BelongsToRelationship) {
+  if (isBelongsTo(relationship)) {
+    relationship.localState = null;
+    relationship.remoteState = null;
+    relationship.state.hasReceivedData = false;
+    relationship.state.isEmpty = true;
+  } else {
+    relationship.localMembers.clear();
+    relationship.remoteMembers.clear();
+    relationship.localState = [];
+    relationship.remoteState = [];
+  }
+}
+
+function removeDematerializedInverse(
+  graph: Graph,
+  relationship: ManyRelationship | BelongsToRelationship,
+  inverseIdentifier: StableRecordIdentifier
+) {
+  if (isBelongsTo(relationship)) {
+    const inverseIdentifier = relationship.localState;
+    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
+      // unloading inverse of a sync relationship is treated as a client-side
+      // delete, so actually remove the models don't merely invalidate the cp
+      // cache.
+      // if the record being unloaded only exists on the client, we similarly
+      // treat it as a client side delete
+      if (relationship.localState === inverseIdentifier && inverseIdentifier !== null) {
+        relationship.localState = null;
+      }
+
+      if (relationship.remoteState === inverseIdentifier && inverseIdentifier !== null) {
+        relationship.remoteState = null;
+        relationship.state.hasReceivedData = true;
+        relationship.state.isEmpty = true;
+        if (relationship.localState && !isNew(relationship.localState)) {
+          relationship.localState = null;
+        }
+      }
+    } else {
+      relationship.state.hasDematerializedInverse = true;
+    }
+
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
+  } else {
+    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
+      // unloading inverse of a sync relationship is treated as a client-side
+      // delete, so actually remove the models don't merely invalidate the cp
+      // cache.
+      // if the record being unloaded only exists on the client, we similarly
+      // treat it as a client side delete
+      removeIdentifierCompletelyFromRelationship(graph, relationship, inverseIdentifier);
+    } else {
+      relationship.state.hasDematerializedInverse = true;
+    }
+
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
+  }
+}
+
+function removeCompletelyFromInverse(
+  graph: Graph,
+  relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship
+) {
   const { identifier } = relationship;
   const { inverseKey } = relationship.definition;
 
-  const unload = (inverseIdentifier: StableRecordIdentifier) => {
-    const id = inverseIdentifier.lid;
-
-    if (seen[id] === undefined) {
-      if (relationship.graph.has(inverseIdentifier, inverseKey)) {
-        relationship.graph.get(inverseIdentifier, inverseKey).removeCompletelyFromOwn(identifier);
-      }
-      seen[id] = true;
+  forAllRelatedIdentifiers(relationship, (inverseIdentifier: StableRecordIdentifier) => {
+    if (graph.has(inverseIdentifier, inverseKey)) {
+      removeIdentifierCompletelyFromRelationship(graph, graph.get(inverseIdentifier, inverseKey), identifier);
     }
-  };
+  });
 
   if (isBelongsTo(relationship)) {
-    if (relationship.localState) {
-      unload(relationship.localState);
-    }
-    if (relationship.remoteState) {
-      unload(relationship.remoteState);
-    }
-
     if (!relationship.definition.isAsync) {
-      relationship.clear();
+      clearRelationship(relationship);
     }
 
     relationship.localState = null;
   } else if (isHasMany(relationship)) {
-    relationship.members.forEach(unload);
-    relationship.canonicalMembers.forEach(unload);
-
     if (!relationship.definition.isAsync) {
-      relationship.clear();
-      relationship.notifyHasManyChange();
+      clearRelationship(relationship);
+
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
-    relationship.members.forEach(unload);
-    relationship.canonicalMembers.forEach(unload);
-    relationship.clear();
+    relationship.remoteMembers.clear();
+    relationship.localMembers.clear();
   }
 }

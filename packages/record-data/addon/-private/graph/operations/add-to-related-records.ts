@@ -5,7 +5,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type ManyRelationship from '../../relationships/state/has-many';
 import type { AddToRelatedRecordsOperation } from '../-operations';
-import { isHasMany } from '../-utils';
+import { isHasMany, notifyChange } from '../-utils';
 import type { Graph } from '../index';
 import { addToInverse } from './replace-related-records';
 
@@ -24,7 +24,7 @@ export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecord
     addRelatedRecord(graph, relationship, record, value, index, isRemote);
   }
 
-  relationship.notifyHasManyChange();
+  notifyChange(graph, relationship.identifier, relationship.definition.key);
 }
 
 function addRelatedRecord(
@@ -36,9 +36,9 @@ function addRelatedRecord(
   isRemote: boolean
 ) {
   assert(`expected an identifier to add to the relationship`, value);
-  const { members, currentState } = relationship;
+  const { localMembers, localState } = relationship;
 
-  if (members.has(value)) {
+  if (localMembers.has(value)) {
     return;
   }
 
@@ -49,11 +49,11 @@ function addRelatedRecord(
   }
 
   relationship.state.hasReceivedData = true;
-  members.add(value);
+  localMembers.add(value);
   if (index === undefined) {
-    currentState.push(value);
+    localState.push(value);
   } else {
-    currentState.splice(index, 0, value);
+    localState.splice(index, 0, value);
   }
 
   addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);

@@ -105,7 +105,7 @@ export function tagged(_target, key, desc) {
 
 /**
 Historically EmberData managed a state machine
-for each record, the currentState for which
+for each record, the localState for which
 was reflected onto Model.
 
 This implements the flags and stateName for backwards compat

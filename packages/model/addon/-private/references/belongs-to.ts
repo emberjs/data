@@ -4,7 +4,8 @@ import { cached, tracked } from '@glimmer/tracking';
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { resolve } from 'rsvp';
 
-import type { BelongsToRelationship } from '@ember-data/record-data/-private';
+import type { Graph } from '@ember-data/record-data/-private/graph';
+import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
 import type Store from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { recordIdentifierFor } from '@ember-data/store/-private';
@@ -54,6 +55,7 @@ export default class BelongsToReference {
   declare type: string;
   ___identifier: StableRecordIdentifier;
   declare store: Store;
+  declare graph: Graph;
 
   // unsubscribe tokens given to us by the notification manager
   ___token!: object;
@@ -63,10 +65,12 @@ export default class BelongsToReference {
 
   constructor(
     store: Store,
+    graph: Graph,
     parentIdentifier: StableRecordIdentifier,
     belongsToRelationship: BelongsToRelationship,
     key: string
   ) {
+    this.graph = graph;
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.definition.type;
@@ -394,9 +398,9 @@ export default class BelongsToReference {
       this.store
     );
 
-    const { graph, identifier } = this.belongsToRelationship;
+    const { identifier } = this.belongsToRelationship;
     this.store._backburner.join(() => {
-      graph.push({
+      this.graph.push({
         op: 'replaceRelatedRecord',
         record: identifier,
         field: this.key,

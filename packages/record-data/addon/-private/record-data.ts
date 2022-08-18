@@ -464,12 +464,12 @@ class RecordDataDefault implements RecordDataV1 {
     const findNext = () => {
       while (i < initializedRelationshipsArr.length) {
         while (j < 2) {
-          let members =
+          let relatedIdentifiers =
             j === 0 ? getLocalState(initializedRelationshipsArr[i]) : getRemoteState(initializedRelationshipsArr[i]);
-          while (k < members.length) {
-            let member = members[k++];
-            if (member !== null) {
-              return member;
+          while (k < relatedIdentifiers.length) {
+            let relatedIdentifier = relatedIdentifiers[k++];
+            if (relatedIdentifier !== null) {
+              return relatedIdentifier;
             }
           }
           k = 0;
@@ -1140,13 +1140,13 @@ function getLocalState(rel) {
   if (rel.definition.kind === 'belongsTo') {
     return rel.localState ? [rel.localState] : [];
   }
-  return rel.currentState;
+  return rel.localState;
 }
 function getRemoteState(rel) {
   if (rel.definition.kind === 'belongsTo') {
     return rel.remoteState ? [rel.remoteState] : [];
   }
-  return rel.canonicalState;
+  return rel.remoteState;
 }
 
 function getDefaultValue(options: { defaultValue?: unknown } | undefined) {
@@ -1299,12 +1299,12 @@ function _directlyRelatedRecordDatasIterable(
   const findNext = () => {
     while (i < initializedRelationshipsArr.length) {
       while (j < 2) {
-        let members =
+        let relatedIdentifiers =
           j === 0 ? getLocalState(initializedRelationshipsArr[i]) : getRemoteState(initializedRelationshipsArr[i]);
-        while (k < members.length) {
-          let member = members[k++];
-          if (member !== null) {
-            return member;
+        while (k < relatedIdentifiers.length) {
+          let relatedIdentifier = relatedIdentifiers[k++];
+          if (relatedIdentifier !== null) {
+            return relatedIdentifier;
           }
         }
         k = 0;

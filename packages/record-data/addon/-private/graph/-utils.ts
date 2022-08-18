@@ -1,5 +1,6 @@
 import { assert, inspect, warn } from '@ember/debug';
 
+import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { recordDataFor as peekRecordData } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -9,9 +10,8 @@ import type { Dict } from '@ember-data/types/q/utils';
 import { coerceId } from '../coerce-id';
 import type BelongsToRelationship from '../relationships/state/belongs-to';
 import type ManyRelationship from '../relationships/state/has-many';
-import type ImplicitRelationship from '../relationships/state/implicit';
 import type { UpdateRelationshipOperation } from './-operations';
-import type { Graph } from './index';
+import type { Graph, ImplicitRelationship } from './index';
 
 export function getStore(wrapper: RecordDataStoreWrapper | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);
@@ -94,6 +94,117 @@ export function isHasMany(
   relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
 ): relationship is ManyRelationship {
   return relationship.definition.kind === 'hasMany';
+}
+
+export function forAllRelatedIdentifiers(
+  rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship,
+  cb: (identifier: StableRecordIdentifier) => void
+): void {
+  if (isBelongsTo(rel)) {
+    if (rel.remoteState) {
+      cb(rel.remoteState);
+    }
+    if (rel.localState && rel.localState !== rel.remoteState) {
+      cb(rel.localState);
+    }
+  } else if (isHasMany(rel)) {
+    // ensure we don't walk anything twice if an entry is
+    // in both localMembers and remoteMembers
+    let seen = new Set();
+
+    for (let i = 0; i < rel.localState.length; i++) {
+      const inverseIdentifier = rel.localState[i];
+      if (!seen.has(inverseIdentifier)) {
+        seen.add(inverseIdentifier);
+        cb(inverseIdentifier);
+      }
+    }
+
+    for (let i = 0; i < rel.remoteState.length; i++) {
+      const inverseIdentifier = rel.remoteState[i];
+      if (!seen.has(inverseIdentifier)) {
+        seen.add(inverseIdentifier);
+        cb(inverseIdentifier);
+      }
+    }
+  } else {
+    let seen = new Set();
+    rel.localMembers.forEach((inverseIdentifier) => {
+      if (!seen.has(inverseIdentifier)) {
+        seen.add(inverseIdentifier);
+        cb(inverseIdentifier);
+      }
+    });
+    rel.remoteMembers.forEach((inverseIdentifier) => {
+      if (!seen.has(inverseIdentifier)) {
+        seen.add(inverseIdentifier);
+        cb(inverseIdentifier);
+      }
+    });
+  }
+}
+
+/*
+  Removes the given identifier from BOTH remote AND local state.
+
+  This method is useful when either a deletion or a rollback on a new record
+  needs to entirely purge itself from an inverse relationship.
+  */
+export function removeIdentifierCompletelyFromRelationship(
+  graph: Graph,
+  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship,
+  value: StableRecordIdentifier
+): void {
+  if (isBelongsTo(relationship)) {
+    if (relationship.remoteState === value) {
+      relationship.remoteState = null;
+    }
+
+    if (relationship.localState === value) {
+      relationship.localState = null;
+      // This allows dematerialized inverses to be rematerialized
+      // we shouldn't be notifying here though, figure out where
+      // a notification was missed elsewhere.
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
+    }
+  } else if (isHasMany(relationship)) {
+    relationship.remoteMembers.delete(value);
+    relationship.localMembers.delete(value);
+
+    const canonicalIndex = relationship.remoteState.indexOf(value);
+    if (canonicalIndex !== -1) {
+      relationship.remoteState.splice(canonicalIndex, 1);
+    }
+
+    const currentIndex = relationship.localState.indexOf(value);
+    if (currentIndex !== -1) {
+      relationship.localState.splice(currentIndex, 1);
+      // This allows dematerialized inverses to be rematerialized
+      // we shouldn't be notifying here though, figure out where
+      // a notification was missed elsewhere.
+
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
+    }
+  } else {
+    relationship.remoteMembers.delete(value);
+    relationship.localMembers.delete(value);
+  }
+}
+
+export function notifyChange(graph: Graph, identifier: StableRecordIdentifier, key: string) {
+  if (identifier === graph._removing) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: ignoring relationship change for removed identifier ${String(identifier)} ${key}`);
+    }
+    return;
+  }
+  if (LOG_GRAPH) {
+    // eslint-disable-next-line no-console
+    console.log(`Graph: notifying relationship change for ${String(identifier)} ${key}`);
+  }
+
+  graph.store.notifyChange(identifier, 'relationships', key);
 }
 
 export function assertRelationshipData(store, identifier, data, meta) {

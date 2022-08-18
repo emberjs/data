@@ -5,9 +5,10 @@ import { importSync } from '@embroider/macros';
 import { all, resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
-import type { BelongsToRelationship, ManyRelationship } from '@ember-data/record-data/-private';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
-import ImplicitRelationship from '@ember-data/record-data/-private/relationships/state/implicit';
+import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph/index';
+import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store/-private';
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
@@ -320,7 +321,8 @@ export class LegacySupport {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, name);
+      const graph = graphFor(this.store);
+      const relationship = graph.get(this.identifier, name);
 
       if (DEBUG && kind) {
         let modelName = this.identifier.type;
@@ -334,9 +336,15 @@ export class LegacySupport {
       let relationshipKind = relationship.definition.kind;
 
       if (relationshipKind === 'belongsTo') {
-        reference = new BelongsToReference(this.store, this.identifier, relationship as BelongsToRelationship, name);
+        reference = new BelongsToReference(
+          this.store,
+          graph,
+          this.identifier,
+          relationship as BelongsToRelationship,
+          name
+        );
       } else if (relationshipKind === 'hasMany') {
-        reference = new HasManyReference(this.store, this.identifier, relationship as ManyRelationship, name);
+        reference = new HasManyReference(this.store, graph, this.identifier, relationship as ManyRelationship, name);
       }
 
       this.references[name] = reference;
@@ -662,7 +670,7 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
 }
 
 function anyUnloaded(store: Store, relationship: ManyRelationship) {
-  let state = relationship.currentState;
+  let state = relationship.localState;
   const cache = store._instanceCache;
   const unloaded = state.find((s) => {
     let isLoaded = cache.recordIsLoaded(s, true);

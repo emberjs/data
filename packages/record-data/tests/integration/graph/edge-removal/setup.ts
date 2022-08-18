@@ -1,11 +1,9 @@
 import { setupTest } from 'ember-qunit';
 
-import type {
-  BelongsToRelationship,
-  ManyRelationship,
-  Relationship as ImplicitRelationship,
-} from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
+import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph';
+import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import Store from '@ember-data/store';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
@@ -100,11 +98,11 @@ export function stateOf(rel: BelongsToRelationship | ManyRelationship | Implicit
     local = rel.localState ? [rel.localState] : [];
     remote = rel.remoteState ? [rel.remoteState] : [];
   } else if (isHasMany(rel)) {
-    local = rel.currentState.filter((m) => m !== null) as StableRecordIdentifier[];
-    remote = rel.canonicalState.filter((m) => m !== null) as StableRecordIdentifier[];
+    local = rel.localState.filter((m) => m !== null) as StableRecordIdentifier[];
+    remote = rel.remoteState.filter((m) => m !== null) as StableRecordIdentifier[];
   } else {
-    local = setToArray<StableRecordIdentifier>(rel.members);
-    remote = setToArray<StableRecordIdentifier>(rel.canonicalMembers);
+    local = setToArray<StableRecordIdentifier>(rel.localMembers);
+    remote = setToArray<StableRecordIdentifier>(rel.remoteMembers);
   }
   return {
     local,

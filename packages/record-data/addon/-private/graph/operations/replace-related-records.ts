@@ -3,9 +3,9 @@ import { assert } from '@ember/debug';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type { ManyRelationship } from '../..';
+import type ManyRelationship from '../../relationships/state/has-many';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
-import { isBelongsTo, isHasMany, isNew } from '../-utils';
+import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import type { Graph } from '../index';
 
 /*
@@ -78,21 +78,21 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   relationship.state.hasReceivedData = true;
 
   // cache existing state
-  const { currentState, members, definition } = relationship;
+  const { localState, localMembers, definition } = relationship;
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
   const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
-  relationship.members = newMembership;
-  relationship.currentState = newState;
+  relationship.localMembers = newMembership;
+  relationship.localState = newState;
 
   const { type } = relationship.definition;
 
   let changed = false;
 
-  const currentLength = currentState.length;
+  const currentLength = localState.length;
   const iterationLength = currentLength > identifiersLength ? currentLength : identifiersLength;
   const equalLength = currentLength === identifiersLength;
 
@@ -110,14 +110,14 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
         adv = true;
         newMembership.add(identifier);
 
-        if (!members.has(identifier)) {
+        if (!localMembers.has(identifier)) {
           changed = true;
           addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
         }
       }
     }
     if (i < currentLength) {
-      const identifier = currentState[i];
+      const identifier = localState[i];
 
       // detect reordering
       if (!newMembership.has(identifier)) {
@@ -137,7 +137,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   }
 
   if (changed) {
-    relationship.notifyHasManyChange();
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }
 
@@ -155,21 +155,21 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   relationship.state.hasReceivedData = true;
 
   // cache existing state
-  const { canonicalState, canonicalMembers, definition } = relationship;
+  const { remoteState, remoteMembers, definition } = relationship;
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
   const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
-  relationship.canonicalMembers = newMembership;
-  relationship.canonicalState = newState;
+  relationship.remoteMembers = newMembership;
+  relationship.remoteState = newState;
 
   const { type } = relationship.definition;
 
   let changed = false;
 
-  const canonicalLength = canonicalState.length;
+  const canonicalLength = remoteState.length;
   const iterationLength = canonicalLength > identifiersLength ? canonicalLength : identifiersLength;
   const equalLength = canonicalLength === identifiersLength;
 
@@ -186,14 +186,14 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
         newMembership.add(identifier);
         adv = true;
 
-        if (!canonicalMembers.has(identifier)) {
+        if (!remoteMembers.has(identifier)) {
           changed = true;
           addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
         }
       }
     }
     if (i < canonicalLength) {
-      const identifier = canonicalState[i];
+      const identifier = remoteState[i];
 
       if (!newMembership.has(identifier)) {
         // detect reordering
@@ -221,7 +221,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
         op: op.op,
         record: op.record,
         field: op.field,
-        value: canonicalState,
+        value: remoteState,
       },
       false
     );*/
@@ -264,30 +264,35 @@ export function addToInverse(
         removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, identifier, isRemote);
       }
       relationship.localState = value;
-      relationship.notifyBelongsToChange();
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
-      if (!relationship.canonicalMembers.has(value)) {
+      if (!relationship.remoteMembers.has(value)) {
         graph._addToTransaction(relationship);
-        relationship.canonicalState.push(value);
-        relationship.canonicalMembers.add(value);
+        relationship.remoteState.push(value);
+        relationship.remoteMembers.add(value);
         relationship.state.hasReceivedData = true;
         flushCanonical(graph, relationship);
       }
     } else {
-      if (!relationship.members.has(value)) {
-        relationship.currentState.push(value);
-        relationship.members.add(value);
+      if (!relationship.localMembers.has(value)) {
+        relationship.localState.push(value);
+        relationship.localMembers.add(value);
         relationship.state.hasReceivedData = true;
-        relationship.notifyHasManyChange();
+        notifyChange(graph, relationship.identifier, relationship.definition.key);
       }
     }
   } else {
     if (isRemote) {
-      relationship.addCanonicalRecordData(value);
+      if (!relationship.remoteMembers.has(value)) {
+        relationship.remoteMembers.add(value);
+        relationship.localMembers.add(value);
+      }
     } else {
-      relationship.addRecordData(value);
+      if (!relationship.localMembers.has(value)) {
+        relationship.localMembers.add(value);
+      }
     }
   }
 }
@@ -300,8 +305,8 @@ export function notifyInverseOfPotentialMaterialization(
   isRemote: boolean
 ) {
   const relationship = graph.get(identifier, key);
-  if (isHasMany(relationship) && isRemote && relationship.canonicalMembers.has(value)) {
-    relationship.notifyHasManyChange();
+  if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   }
 }
 
@@ -322,51 +327,55 @@ export function removeFromInverse(
     }
     if (relationship.localState === value) {
       relationship.localState = null;
-      relationship.notifyBelongsToChange();
+
+      notifyChange(graph, identifier, key);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
-      let index = relationship.canonicalState.indexOf(value);
+      let index = relationship.remoteState.indexOf(value);
       if (index !== -1) {
-        relationship.canonicalMembers.delete(value);
-        relationship.canonicalState.splice(index, 1);
+        relationship.remoteMembers.delete(value);
+        relationship.remoteState.splice(index, 1);
       }
     }
-    let index = relationship.currentState.indexOf(value);
+    let index = relationship.localState.indexOf(value);
     if (index !== -1) {
-      relationship.members.delete(value);
-      relationship.currentState.splice(index, 1);
+      relationship.localMembers.delete(value);
+      relationship.localState.splice(index, 1);
     }
-    relationship.notifyHasManyChange();
+    notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
     if (isRemote) {
-      relationship.removeCompletelyFromOwn(value);
+      relationship.remoteMembers.delete(value);
+      relationship.localMembers.delete(value);
     } else {
-      relationship.removeRecordData(value);
+      if (value && relationship.localMembers.has(value)) {
+        relationship.localMembers.delete(value);
+      }
     }
   }
 }
 
-export function syncRemoteToLocal(rel: ManyRelationship) {
-  let toSet = rel.canonicalState;
-  let newRecordDatas = rel.currentState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
-  let existingState = rel.currentState;
-  rel.currentState = toSet.concat(newRecordDatas);
+export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
+  let toSet = rel.remoteState;
+  let newRecordDatas = rel.localState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
+  let existingState = rel.localState;
+  rel.localState = toSet.concat(newRecordDatas);
 
-  let members = (rel.members = new Set<StableRecordIdentifier>());
-  rel.canonicalMembers.forEach((v) => members.add(v));
+  let localMembers = (rel.localMembers = new Set<StableRecordIdentifier>());
+  rel.remoteMembers.forEach((v) => localMembers.add(v));
   for (let i = 0; i < newRecordDatas.length; i++) {
-    members.add(newRecordDatas[i]);
+    localMembers.add(newRecordDatas[i]);
   }
 
   // TODO always notifying fails only one test and we should probably do away with it
-  if (existingState.length !== rel.currentState.length) {
-    rel.notifyHasManyChange();
+  if (existingState.length !== rel.localState.length) {
+    notifyChange(graph, rel.identifier, rel.definition.key);
   } else {
     for (let i = 0; i < existingState.length; i++) {
-      if (existingState[i] !== rel.currentState[i]) {
-        rel.notifyHasManyChange();
+      if (existingState[i] !== rel.localState[i]) {
+        notifyChange(graph, rel.identifier, rel.definition.key);
         break;
       }
     }

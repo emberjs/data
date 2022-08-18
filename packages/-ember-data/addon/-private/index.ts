@@ -16,4 +16,4 @@ export {
   coerceId,
 } from '@ember-data/store/-private';
 export { ManyArray, PromiseManyArray } from '@ember-data/model/-private';
-export { RecordData, Relationship } from '@ember-data/record-data/-private';
+export { RecordData } from '@ember-data/record-data/-private';
