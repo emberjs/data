@@ -386,13 +386,15 @@ function removeFromAdapterPopulatedRecordArrays(store: Store, identifiers: Stabl
 }
 
 function removeFromAll(store: Store, identifier: StableRecordIdentifier): void {
-  const recordArrays = recordArraysForIdentifier(identifier);
+  const recordArrays = RecordArraysCache.get(identifier);
 
-  recordArrays.forEach(function (recordArray) {
-    recordArray._removeIdentifiers([identifier]);
-  });
+  if (recordArrays) {
+    recordArrays.forEach(function (recordArray) {
+      recordArray._removeIdentifiers([identifier]);
+    });
 
-  recordArrays.clear();
+    recordArrays.clear();
+  }
 }
 
 export default RecordArrayManager;
