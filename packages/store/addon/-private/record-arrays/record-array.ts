@@ -280,7 +280,13 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
       }
     }
 
-    adds.length && content.addObjects(adds);
+    if (adds.length) {
+      if (content.length === 0) {
+        content.setObjects(adds);
+      } else {
+        content.addObjects(adds);
+      }
+    }
   }
 
   /**
