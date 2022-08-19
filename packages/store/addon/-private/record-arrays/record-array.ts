@@ -265,6 +265,17 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     });
   }
 
+  _updateState(changes: Map<StableRecordIdentifier, 'add' | 'del'>) {
+    const content = this.content;
+    const adds: StableRecordIdentifier[] = [];
+    const removes: StableRecordIdentifier[] = [];
+    changes.forEach((value, key) => {
+      value === 'add' ? adds.push(key) : removes.push(key);
+    });
+    removes.length && content.removeObjects(removes);
+    adds.length && content.addObjects(adds);
+  }
+
   /**
     Adds identifiers to the `RecordArray` without duplicates
 
@@ -274,25 +285,6 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
   */
   _pushIdentifiers(identifiers: StableRecordIdentifier[]): void {
     this.content.pushObjects(identifiers);
-  }
-
-  /**
-    Removes identifiers from the `RecordArray`.
-
-    @method _removeIdentifiers
-    @internal
-    @param {StableRecordIdentifier[]} identifiers
-  */
-  _removeIdentifiers(identifiers: StableRecordIdentifier[]): void {
-    // if we are unloading all there's no point in an expensive diff
-    // and traversal.
-    if (identifiers.length === this.content.length) {
-      this.content.clear();
-    } else {
-      // TODO This is horribly innefficient, we should refactor RecordArray
-      // to be a native class of our own.
-      this.content.removeObjects(identifiers);
-    }
   }
 
   /**
