@@ -103,8 +103,8 @@ module('integration/record_array_manager', function (hooks) {
     assert.strictEqual(adapterPopulatedSummary.called.length, 0, 'initial: no calls to adapterPopulated.willDestroy');
     assert.strictEqual(
       manager.getRecordArraysForIdentifier(identifier).size,
-      1,
-      'initial: expected the person to be a member of 1 recordArrays'
+      0,
+      'initial: expected the person to be a member of 0 AdapterPopulatedRecordArrays'
     );
     assert.true('person' in manager._liveRecordArrays, 'initial: we have a live array for person');
 

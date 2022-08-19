@@ -187,7 +187,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       'allows duplicates, because record-array-manager ensures no duplicates, this layer should not double check'
     );
 
-    recordArray._removeIdentifiers([model1]);
+    recordArray._updateState(new Map([[model1, 'del']]));
+
     recordArray._pushIdentifiers([model1]);
 
     // can add multiple models at once
@@ -206,27 +207,48 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let model3 = { lid: '@lid:model-3' };
 
     assert.strictEqual(recordArray.content.length, 0);
-    assert.strictEqual(recordArray._removeIdentifiers([model1]), undefined, '_removeIdentifiers has no return value');
+    assert.strictEqual(
+      recordArray._updateState(new Map([[model1, 'del']])),
+      undefined,
+      '_updateState has no return value'
+    );
     assert.deepEqual(recordArray.content, [], 'now contains no models');
 
     recordArray._pushIdentifiers([model1, model2]);
 
     assert.deepEqual(recordArray.content, [model1, model2], 'now contains model1, model2,');
-    assert.strictEqual(recordArray._removeIdentifiers([model1]), undefined, '_removeIdentifiers has no return value');
+    assert.strictEqual(
+      recordArray._updateState(new Map([[model1, 'del']])),
+      undefined,
+      '_removeIdentifiers has no return value'
+    );
     assert.deepEqual(recordArray.content, [model2], 'now only contains model2');
-    assert.strictEqual(recordArray._removeIdentifiers([model2]), undefined, '_removeIdentifiers has no return value');
+    assert.strictEqual(
+      recordArray._updateState(new Map([[model2, 'del']])),
+      undefined,
+      '_removeIdentifiers has no return value'
+    );
     assert.deepEqual(recordArray.content, [], 'now contains no models');
 
     recordArray._pushIdentifiers([model1, model2, model3]);
 
     assert.strictEqual(
-      recordArray._removeIdentifiers([model1, model3]),
+      recordArray._updateState(
+        new Map([
+          [model1, 'del'],
+          [model3, 'del'],
+        ])
+      ),
       undefined,
       '_removeIdentifiers has no return value'
     );
 
     assert.deepEqual(recordArray.content, [model2], 'now contains model2');
-    assert.strictEqual(recordArray._removeIdentifiers([model2]), undefined, '_removeIdentifiers has no return value');
+    assert.strictEqual(
+      recordArray._updateState(new Map([[model2, 'del']])),
+      undefined,
+      '_removeIdentifiers has no return value'
+    );
     assert.deepEqual(recordArray.content, [], 'now contains no models');
   });
 

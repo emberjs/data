@@ -272,7 +272,14 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     changes.forEach((value, key) => {
       value === 'add' ? adds.push(key) : removes.push(key);
     });
-    removes.length && content.removeObjects(removes);
+    if (removes.length) {
+      if (removes.length === content.length) {
+        content.clear();
+      } else {
+        content.removeObjects(removes);
+      }
+    }
+
     adds.length && content.addObjects(adds);
   }
 
