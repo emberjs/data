@@ -79,7 +79,8 @@ module('integration/peek-all - DS.Store#peekAll()', function (hooks) {
         },
       },
     });
-    assert.strictEqual(get(store.peekAll('person'), 'length'), 2, 'should contain two people');
+    const array = store.peekAll('person');
+    assert.strictEqual(get(array, 'length'), 2, 'should contain two people');
   });
 
   test('Calling store.peekAll() after creating a record should return correct data', async function (assert) {

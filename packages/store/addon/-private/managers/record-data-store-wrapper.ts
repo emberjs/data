@@ -83,7 +83,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     this._store._notificationManager.notify(identifier, namespace, key);
 
     if (namespace === 'state') {
-      this._store.recordArrayManager.recordDidChange(identifier);
+      this._store.recordArrayManager.identifierChanged(identifier);
     }
   }
 
@@ -205,7 +205,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     this._store._notificationManager.notify(identifier, 'state');
-    this._store.recordArrayManager.recordDidChange(identifier);
+    this._store.recordArrayManager.identifierChanged(identifier);
   }
 
   recordDataFor(type: string, id: string, lid?: string | null): RecordData;
@@ -239,7 +239,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
 
     if (!id && !lid) {
       recordData.clientDidCreate(identifier);
-      this._store.recordArrayManager.recordDidChange(identifier);
+      this._store.recordArrayManager.identifierAdded(identifier);
     }
 
     return recordData;
@@ -379,7 +379,7 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
     this._store._notificationManager.notify(identifier, namespace, key);
 
     if (namespace === 'state') {
-      this._store.recordArrayManager.recordDidChange(identifier);
+      this._store.recordArrayManager.identifierChanged(identifier);
     }
   }
 

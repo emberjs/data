@@ -16,13 +16,15 @@ import RecordArray from '../record-arrays/record-array';
 import type Store from '../store-service';
 import WeakCache from '../utils/weak-cache';
 
-const RecordArraysCache = new WeakCache<StableRecordIdentifier, Set<RecordArray>>(DEBUG ? 'record-arrays' : '');
+const RecordArraysCache = new WeakCache<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>(
+  DEBUG ? 'record-arrays' : ''
+);
 RecordArraysCache._generator = () => new Set();
-export function recordArraysForIdentifier(identifier: StableRecordIdentifier): Set<RecordArray> {
+function recordArraysForIdentifier(identifier: StableRecordIdentifier): Set<AdapterPopulatedRecordArray> {
   return RecordArraysCache.lookup(identifier);
 }
 
-const pendingForIdentifier: Set<StableRecordIdentifier> = new Set([]);
+type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del' | 'unk'>;
 
 /**
   @class RecordArrayManager
@@ -33,7 +35,7 @@ class RecordArrayManager {
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
   declare _liveRecordArrays: Dict<RecordArray>;
-  declare _pendingIdentifiers: Dict<StableRecordIdentifier[]>;
+  declare _pendingIdentifiers: Dict<ChangeSet>;
   declare _adapterPopulatedRecordArrays: RecordArray[];
 
   constructor(options: { store: Store }) {
@@ -41,7 +43,7 @@ class RecordArrayManager {
     this.isDestroying = false;
     this.isDestroyed = false;
     this._liveRecordArrays = Object.create(null) as Dict<RecordArray>;
-    this._pendingIdentifiers = Object.create(null) as Dict<StableRecordIdentifier[]>;
+    this._pendingIdentifiers = Object.create(null) as Dict<ChangeSet>;
     this._adapterPopulatedRecordArrays = [];
   }
 
@@ -55,29 +57,30 @@ class RecordArrayManager {
     return recordArraysForIdentifier(identifier);
   }
 
-  _flushPendingIdentifiersForModelName(modelName: string, identifiers: StableRecordIdentifier[]): void {
+  _flushPendingIdentifiersForModelName(modelName: string, changes: ChangeSet): void {
     if (this.isDestroying || this.isDestroyed) {
       return;
     }
     let identifiersToRemove: StableRecordIdentifier[] = [];
     let cache = this.store._instanceCache;
 
-    for (let j = 0; j < identifiers.length; j++) {
-      let i = identifiers[j];
-      // mark identifiers, so they can once again be processed by the
-      // recordArrayManager
-      pendingForIdentifier.delete(i);
-      // build up a set of models to ensure we have purged correctly;
-      if (!cache.recordIsLoaded(i, true)) {
-        identifiersToRemove.push(i);
+    changes.forEach((value, key) => {
+      if (value === 'unk') {
+        let isLoaded = cache.recordIsLoaded(key, true);
+        changes.set(key, isLoaded ? 'add' : 'del');
+        if (!isLoaded) {
+          identifiersToRemove.push(key);
+        }
+      } else if (value === 'del') {
+        identifiersToRemove.push(key);
       }
-    }
+    });
 
     let array = this._liveRecordArrays[modelName];
     if (array) {
       // TODO: skip if it only changed
       // process liveRecordArrays
-      updateLiveRecordArray(this.store, array, identifiers);
+      array._updateState(changes as Map<StableRecordIdentifier, 'add' | 'del'>);
     }
 
     // process adapterPopulatedRecordArrays
@@ -88,7 +91,7 @@ class RecordArrayManager {
 
   _flush() {
     let pending = this._pendingIdentifiers;
-    this._pendingIdentifiers = Object.create(null) as Dict<StableRecordIdentifier[]>;
+    this._pendingIdentifiers = Object.create(null) as Dict<ChangeSet>;
 
     for (let modelName in pending) {
       this._flushPendingIdentifiersForModelName(modelName, pending[modelName]!);
@@ -102,10 +105,10 @@ class RecordArrayManager {
     );
     let pending = this._pendingIdentifiers[modelName];
 
-    if (!Array.isArray(pending)) {
+    if (!pending) {
       return;
     }
-    let hasNoPotentialDeletions = pending.length === 0;
+    let hasNoPotentialDeletions = pending.size === 0;
     let listSize = this.store._instanceCache.peekList[modelName]?.size;
     let hasNoInsertionsOrRemovals = listSize === array.length;
 
@@ -120,36 +123,13 @@ class RecordArrayManager {
     }
 
     this._flushPendingIdentifiersForModelName(modelName, pending);
-    // TODO make this a map
-    // TODO we probably do way too much work here, probably can just take
-    // current all-known state and filter visible.
-    // We can then provide this directly to the RecordArray instance.
-    // If we deprecate RecordArray being an ArrayProxy this will be stellar.
     delete this._pendingIdentifiers[modelName];
-
-    let identifiers = this._visibleIdentifiersByType(modelName);
-    let identifiersToAdd: StableRecordIdentifier[] = [];
-    for (let i = 0; i < identifiers.length; i++) {
-      let identifier = identifiers[i];
-      let recordArrays = recordArraysForIdentifier(identifier);
-      if (recordArrays.has(array) === false) {
-        recordArrays.add(array);
-        identifiersToAdd.push(identifier);
-      }
-    }
-
-    if (identifiersToAdd.length) {
-      array._pushIdentifiers(identifiersToAdd);
-    }
   }
 
   _didUpdateAll(modelName: string): void {
     let recordArray = this._liveRecordArrays[modelName];
     if (recordArray) {
       recordArray.isUpdating = false;
-      // TODO potentially we should sync here, currently
-      // this occurs as a side-effect of individual records updating
-      // this._syncLiveRecordArray(recordArray, modelName);
     }
   }
 
@@ -221,10 +201,6 @@ class RecordArrayManager {
       isLoaded: true,
       manager: this,
     });
-
-    if (Array.isArray(identifiers)) {
-      this._associateWithRecordArray(identifiers, array);
-    }
 
     return array;
   }
@@ -322,31 +298,60 @@ class RecordArrayManager {
     }
   }
 
-  /**
-    @method recordDidChange
-    @internal
-  */
-  recordDidChange(identifier: StableRecordIdentifier): void {
-    if (this.isDestroying || this.isDestroyed) {
+  _getPendingForType(identifier: StableRecordIdentifier) {
+    if (
+      (!this._liveRecordArrays[identifier.type] && !RecordArraysCache.has(identifier)) ||
+      this.isDestroying ||
+      this.isDestroyed
+    ) {
       return;
     }
+
     let modelName = identifier.type;
-
-    if (pendingForIdentifier.has(identifier)) {
-      return;
-    }
-
-    pendingForIdentifier.add(identifier);
-
     let pending = this._pendingIdentifiers;
-    let models = (pending[modelName] = pending[modelName] || []);
-    if (models.push(identifier) !== 1) {
-      return;
-    }
+    return (pending[modelName] = pending[modelName] || new Map());
+  }
 
-    // TODO do we still need this schedule?
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    emberBackburner.schedule('actions', this, this._flush);
+  identifierAdded(identifier: StableRecordIdentifier): void {
+    let models = this._getPendingForType(identifier);
+    if (models) {
+      models.set(identifier, 'add');
+      if (models.size > 1) {
+        return;
+      }
+
+      // TODO do we still need this schedule?
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      emberBackburner.schedule('actions', this, this._flush);
+    }
+  }
+
+  identifierRemoved(identifier: StableRecordIdentifier): void {
+    let models = this._getPendingForType(identifier);
+    if (models) {
+      models.set(identifier, 'del');
+      if (models.size > 1) {
+        return;
+      }
+
+      // TODO do we still need this schedule?
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      emberBackburner.schedule('actions', this, this._flush);
+    }
+  }
+
+  identifierChanged(identifier: StableRecordIdentifier): void {
+    let models = this._getPendingForType(identifier);
+    if (models) {
+      models.set(identifier, 'unk');
+      if (models.size > 1) {
+        return;
+      }
+
+      // TODO do we still need this schedule?
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      emberBackburner.schedule('actions', this, this._flush);
+    }
   }
 
   willDestroy() {
@@ -374,34 +379,6 @@ function removeFromArray(array: RecordArray[], item: RecordArray): boolean {
   return false;
 }
 
-function updateLiveRecordArray(store: Store, recordArray: RecordArray, identifiers: StableRecordIdentifier[]): void {
-  let identifiersToAdd: StableRecordIdentifier[] = [];
-  let identifiersToRemove: StableRecordIdentifier[] = [];
-  const cache = store._instanceCache;
-
-  for (let i = 0; i < identifiers.length; i++) {
-    let identifier = identifiers[i];
-    let recordArrays = recordArraysForIdentifier(identifier);
-
-    if (cache.recordIsLoaded(identifier, true)) {
-      if (!recordArrays.has(recordArray)) {
-        identifiersToAdd.push(identifier);
-        recordArrays.add(recordArray);
-      }
-    } else {
-      identifiersToRemove.push(identifier);
-      recordArrays.delete(recordArray);
-    }
-  }
-
-  if (identifiersToAdd.length > 0) {
-    recordArray._pushIdentifiers(identifiersToAdd);
-  }
-  if (identifiersToRemove.length > 0) {
-    recordArray._removeIdentifiers(identifiersToRemove);
-  }
-}
-
 function removeFromAdapterPopulatedRecordArrays(store: Store, identifiers: StableRecordIdentifier[]): void {
   for (let i = 0; i < identifiers.length; i++) {
     removeFromAll(store, identifiers[i]);
@@ -409,13 +386,15 @@ function removeFromAdapterPopulatedRecordArrays(store: Store, identifiers: Stabl
 }
 
 function removeFromAll(store: Store, identifier: StableRecordIdentifier): void {
-  const recordArrays = recordArraysForIdentifier(identifier);
+  const recordArrays = RecordArraysCache.get(identifier);
 
-  recordArrays.forEach(function (recordArray) {
-    recordArray._removeIdentifiers([identifier]);
-  });
+  if (recordArrays) {
+    recordArrays.forEach(function (recordArray) {
+      recordArray._removeIdentifiers([identifier]);
+    });
 
-  recordArrays.clear();
+    recordArrays.clear();
+  }
 }
 
 export default RecordArrayManager;

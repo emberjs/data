@@ -443,7 +443,7 @@ export class InstanceCache {
       }
 
       this.store._fetchManager.clearEntries(identifier);
-      this.store.recordArrayManager.recordDidChange(identifier);
+      this.store.recordArrayManager.identifierRemoved(identifier);
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
         console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
@@ -594,7 +594,7 @@ export class InstanceCache {
     recordData.pushData(identifier, data, hasRecord);
 
     if (!isUpdate) {
-      this.store.recordArrayManager.recordDidChange(identifier);
+      this.store.recordArrayManager.identifierAdded(identifier);
     }
 
     return identifier as StableExistingRecordIdentifier;

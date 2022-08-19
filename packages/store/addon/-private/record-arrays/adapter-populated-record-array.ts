@@ -125,4 +125,23 @@ export default class AdapterPopulatedRecordArray extends RecordArray {
   _setIdentifiers(identifiers: StableRecordIdentifier[], payload: CollectionResourceDocument): void {
     this._setObjects(identifiers, payload);
   }
+
+  /**
+    Removes identifiers from the `RecordArray`.
+
+    @method _removeIdentifiers
+    @internal
+    @param {StableRecordIdentifier[]} identifiers
+  */
+  _removeIdentifiers(identifiers: StableRecordIdentifier[]): void {
+    // if we are unloading all there's no point in an expensive diff
+    // and traversal.
+    if (identifiers.length === this.content.length) {
+      this.content.clear();
+    } else {
+      // TODO This is horribly innefficient, we should refactor RecordArray
+      // to be a native class of our own.
+      this.content.removeObjects(identifiers);
+    }
+  }
 }
