@@ -137,7 +137,7 @@ export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewR
   only `type` as a key.
 
   ```ts
-  import { setIdentifierGenerationMethod } form '@ember-data/store';
+  import { setIdentifierGenerationMethod } from '@ember-data/store';
 
   export function initialize(applicationInstance) {
     // note how `count` here is now scoped to the application instance
