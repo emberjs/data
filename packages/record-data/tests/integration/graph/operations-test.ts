@@ -1,5 +1,3 @@
-import { settled } from '@ember/test-helpers';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -12,7 +10,7 @@ import Store from '@ember-data/store';
 module('Integration | Graph | Operations', function (hooks) {
   setupTest(hooks);
 
-  test('updateRelationship operation filters duplicates', async function (assert) {
+  test('updateRelationship operation filters duplicates', function (assert) {
     const { owner } = this;
 
     class App extends Model {
@@ -32,22 +30,23 @@ module('Integration | Graph | Operations', function (hooks) {
     const graph = graphFor(store);
     const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
-    graph.push({
-      op: 'updateRelationship',
-      field: 'configs',
-      record: appIdentifier,
-      value: {
-        data: [
-          { type: 'config', id: '1' },
-          { type: 'config', id: '1' },
-          { type: 'config', id: '1' },
-          { type: 'config', id: '2' },
-          { type: 'config', id: '3' },
-          { type: 'config', id: '4' },
-        ],
-      },
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        field: 'configs',
+        record: appIdentifier,
+        value: {
+          data: [
+            { type: 'config', id: '1' },
+            { type: 'config', id: '1' },
+            { type: 'config', id: '1' },
+            { type: 'config', id: '2' },
+            { type: 'config', id: '3' },
+            { type: 'config', id: '4' },
+          ],
+        },
+      });
     });
-    await settled();
 
     const data = graph.get(appIdentifier, 'configs') as ManyRelationship;
     assert.deepEqual(
@@ -64,7 +63,7 @@ module('Integration | Graph | Operations', function (hooks) {
     );
   });
 
-  test('replaceRelatedRecords operation filters duplicates in a local replace', async function (assert) {
+  test('replaceRelatedRecords operation filters duplicates in a local replace', function (assert) {
     const { owner } = this;
 
     class App extends Model {
@@ -101,7 +100,6 @@ module('Integration | Graph | Operations', function (hooks) {
         configIdentifier4,
       ],
     });
-    await settled();
 
     const data = graph.get(appIdentifier, 'configs') as ManyRelationship;
     assert.deepEqual(
