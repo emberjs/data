@@ -130,18 +130,18 @@ class Model extends EmberObject {
     }
     const createProps = options._createProps;
     const _secretInit = options._secretInit;
-    delete options._createProps;
-    delete options._secretInit;
+    options._createProps = null;
+    options._secretInit = null;
     super.init(options);
 
-    _secretInit(this);
+    let identity = _secretInit.identifier;
+    _secretInit.cb(this, _secretInit.recordData, identity, _secretInit.store);
     this.___recordState = DEBUG ? new RecordState(this) : null;
 
     this.setProperties(createProps);
 
     let store = storeFor(this);
     let notifications = store._notificationManager;
-    let identity = recordIdentifierFor(this);
 
     this.___private_notifications = notifications.subscribe(identity, (identifier, type, key) => {
       notifyChanges(identifier, type, key, this, store);
