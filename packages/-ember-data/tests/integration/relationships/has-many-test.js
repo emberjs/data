@@ -146,8 +146,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }
   );
 
-  testInDebug('Invalid hasMany relationship identifiers throw errors', function (assert) {
-    assert.expect(2);
+  testInDebug('Invalid hasMany relationship identifiers throw errors for missing id', function (assert) {
+    assert.expect(1);
 
     let store = this.owner.lookup('service:store');
 
@@ -169,6 +169,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         post.comments;
       });
     }, `Assertion Failed: Encountered a relationship identifier without an id for the hasMany relationship 'comments' on <post:1>, expected a json-api identifier but found '{"id":null,"type":"comment"}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`);
+  });
+
+  testInDebug('Invalid hasMany relationship identifiers throw errors for missing type', function (assert) {
+    assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
 
     // test missing type
     assert.expectAssertion(() => {

@@ -429,7 +429,7 @@ export default class HasManyReference {
     });
 
     const { identifier } = this.hasManyRelationship;
-    store._backburner.join(() => {
+    store._join(() => {
       this.graph.push({
         op: 'replaceRelatedRecords',
         record: identifier,

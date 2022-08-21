@@ -838,12 +838,14 @@ class Model extends EmberObject {
   rollbackAttributes() {
     const { currentState } = this;
     const { isNew } = currentState;
-    recordDataFor(this).rollbackAttrs(recordIdentifierFor(this));
-    this.errors.clear();
-    currentState.cleanErrorRequests();
-    if (isNew) {
-      this.unloadRecord();
-    }
+    storeFor(this)._join(() => {
+      recordDataFor(this).rollbackAttrs(recordIdentifierFor(this));
+      this.errors.clear();
+      currentState.cleanErrorRequests();
+      if (isNew) {
+        this.unloadRecord();
+      }
+    });
   }
 
   /**

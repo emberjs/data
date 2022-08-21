@@ -35,13 +35,14 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
         payload.data = [];
       }
       assert(`Expected an array`, Array.isArray(payload.data));
+      const cache = graph.store.identifierCache;
       // TODO may not need to cast to stable identifiers here since update likely does this too
       graph.update(
         {
           op: 'replaceRelatedRecords',
           record: identifier,
           field: op.field,
-          value: payload.data.map((i) => graph.store.identifierCache.getOrCreateRecordIdentifier(i)),
+          value: payload.data.map((i) => cache.getOrCreateRecordIdentifier(i)),
         },
         true
       );

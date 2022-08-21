@@ -4,7 +4,6 @@
 import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
 import { _backburner as emberBackburner, run } from '@ember/runloop';
-import type { Backburner } from '@ember/runloop/-private/backburner';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { DEBUG } from '@glimmer/env';
@@ -41,7 +40,6 @@ import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definit
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import edBackburner from './backburner';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -168,18 +166,7 @@ export interface CreateRecordProperties {
 
 class Store extends Service {
   __private_singleton_recordData!: RecordData;
-  /**
-   * Ember Data uses several specialized micro-queues for organizing
-    and coalescing similar async work.
 
-    These queues are currently controlled by a flush scheduled into
-    ember-data's custom backburner instance.
-   *
-   * EmberData specific backburner instance
-   * @property _backburner
-   * @private
-   */
-  declare _backburner: Backburner;
   declare recordArrayManager: RecordArrayManager;
 
   declare _notificationManager: NotificationManager;
@@ -231,10 +218,6 @@ class Store extends Service {
     this._serializerCache = Object.create(null);
     this._modelFactoryCache = Object.create(null);
 
-    // private
-    // TODO we should find a path to something simpler than backburner
-    this._backburner = edBackburner;
-
     if (DEBUG) {
       if (this.generateStackTracesForTrackedRequests === undefined) {
         this.generateStackTracesForTrackedRequests = false;
@@ -280,6 +263,36 @@ class Store extends Service {
 
       registerWaiter(this.__asyncWaiter);
     }
+  }
+
+  declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
+  _run(cb: () => void) {
+    assert(`EmberData should never encounter a nested run`, !this._cbs);
+    const _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } = (this._cbs = {});
+    cb();
+    if (_cbs.coalesce) {
+      _cbs.coalesce();
+    }
+    if (_cbs.sync) {
+      _cbs.sync();
+    }
+    if (_cbs.notify) {
+      _cbs.notify();
+    }
+    this._cbs = null;
+  }
+  _join(cb: () => void): void {
+    if (this._cbs) {
+      cb();
+    } else {
+      this._run(cb);
+    }
+  }
+
+  _schedule(name: 'coalesce' | 'sync' | 'notify', cb: () => void): void {
+    assert(`EmberData expects to schedule only when there is an active run`, !!this._cbs);
+    assert(`EmberData expects only one flush per queue name, cannot schedule ${name}`, !this._cbs[name]);
+    this._cbs[name] = cb;
   }
 
   /**
@@ -509,8 +522,9 @@ class Store extends Service {
     //   of record-arrays via ember's run loop, not our own.
     //
     //   to remove this, we would need to move to a new `async` API.
-    return emberBackburner.join(() => {
-      return this._backburner.join(() => {
+    let record!: RecordInstance;
+    emberBackburner.join(() => {
+      this._join(() => {
         let normalizedModelName = normalizeModelName(modelName);
         let properties = { ...inputProperties };
 
@@ -554,9 +568,10 @@ class Store extends Service {
         const resultProps = recordData.clientDidCreate(identifier, createOptions);
         this.recordArrayManager.identifierAdded(identifier);
 
-        return this._instanceCache.getRecord(identifier, resultProps);
+        record = this._instanceCache.getRecord(identifier, resultProps);
       });
     });
+    return record;
   }
 
   /**
@@ -584,13 +599,15 @@ class Store extends Service {
     const identifier = peekRecordIdentifier(record);
     const recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
     assert(`expected a recordData instance to exist for the record`, recordData);
-    recordData.setIsDeleted(identifier, true);
+    this._join(() => {
+      recordData.setIsDeleted(identifier, true);
 
-    if (recordData.isNew(identifier)) {
-      run(() => {
-        this._instanceCache.unloadRecord(identifier);
-      });
-    }
+      if (recordData.isNew(identifier)) {
+        run(() => {
+          this._instanceCache.unloadRecord(identifier);
+        });
+      }
+    });
   }
 
   /**
@@ -613,7 +630,7 @@ class Store extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
-    let identifier = peekRecordIdentifier(record);
+    const identifier = peekRecordIdentifier(record);
     if (identifier) {
       this._instanceCache.unloadRecord(identifier);
     }
@@ -2042,7 +2059,8 @@ class Store extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
-    let identifiers = this._backburner.join(() => {
+    let ret;
+    this._join(() => {
       let included = jsonApiDoc.included;
       let i, length;
 
@@ -2059,11 +2077,13 @@ class Store extends Service {
         for (i = 0; i < length; i++) {
           identifiers[i] = this._instanceCache.loadData(jsonApiDoc.data[i]);
         }
-        return identifiers;
+        ret = identifiers;
+        return;
       }
 
       if (jsonApiDoc.data === null) {
-        return null;
+        ret = null;
+        return;
       }
 
       assert(
@@ -2073,11 +2093,11 @@ class Store extends Service {
         typeof jsonApiDoc.data === 'object'
       );
 
-      return this._instanceCache.loadData(jsonApiDoc.data);
+      ret = this._instanceCache.loadData(jsonApiDoc.data);
+      return;
     });
 
-    // this typecast is necessary because `backburner.join` is mistyped to return void
-    return identifiers;
+    return ret;
   }
 
   /**
@@ -2232,7 +2252,7 @@ class Store extends Service {
         have an outer run loop available still from the first
         call to `store._push`;
        */
-        this._backburner.join(() => {
+        this._join(() => {
           if (DEBUG) {
             assertDestroyingStore(this, 'saveRecord');
           }

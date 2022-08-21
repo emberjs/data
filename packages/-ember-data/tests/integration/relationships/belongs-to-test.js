@@ -469,8 +469,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     });
   });
 
-  testInDebug('Invalid belongsTo relationship identifiers throw errors', function (assert) {
-    assert.expect(2);
+  testInDebug('Invalid belongsTo relationship identifiers throw errors for null id', function (assert) {
+    assert.expect(1);
 
     let store = this.owner.lookup('service:store');
 
@@ -494,6 +494,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         post.user;
       });
     }, `Assertion Failed: Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected a json-api identifier but found '{"id":null,"type":"user"}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`);
+  });
+
+  testInDebug('Invalid belongsTo relationship identifiers throw errors for null type', function (assert) {
+    assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
 
     // test missing type
     assert.expectAssertion(() => {

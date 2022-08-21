@@ -85,7 +85,6 @@ module.exports = {
     '(private) @ember-data/store SnapshotRecordArray#_recordArray',
     '(private) @ember-data/store SnapshotRecordArray#_snapshots',
     '(private) @ember-data/store SnapshotRecordArray#constructor',
-    '(private) @ember-data/store Store#_backburner',
     '(private) @ember-data/store Store#_push',
     '(private) @ember-data/store Store#find',
     '(private) @ember-data/store Store#init',

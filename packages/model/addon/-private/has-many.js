@@ -260,7 +260,7 @@ function hasMany(type, options) {
         }
       }
       const support = LEGACY_SUPPORT.lookup(this);
-      this.store._backburner.join(() => {
+      this.store._join(() => {
         support.setDirtyHasMany(key, records);
       });
 

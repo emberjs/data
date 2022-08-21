@@ -399,7 +399,7 @@ export default class BelongsToReference {
     );
 
     const { identifier } = this.belongsToRelationship;
-    this.store._backburner.join(() => {
+    this.store._join(() => {
       this.graph.push({
         op: 'replaceRelatedRecord',
         record: identifier,

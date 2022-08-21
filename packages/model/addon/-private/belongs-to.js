@@ -245,7 +245,7 @@ function belongsTo(modelName, options) {
           );
         }
       }
-      this.store._backburner.join(() => {
+      this.store._join(() => {
         support.setDirtyBelongsTo(key, value);
       });
 
