@@ -34,8 +34,10 @@ export function unsubscribe(token: UnsubscribeToken) {
 */
 export default class NotificationManager {
   declare store: Store;
+  declare isDestroyed: boolean;
   constructor(store: Store) {
     this.store = store;
+    this.isDestroyed = false;
   }
 
   subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
@@ -53,7 +55,9 @@ export default class NotificationManager {
   }
 
   unsubscribe(token: UnsubscribeToken) {
-    unsubscribe(token);
+    if (!this.isDestroyed) {
+      unsubscribe(token);
+    }
   }
 
   // deactivated type signature overloads because pass-through was failing to match any. Bring back if possible.
@@ -92,6 +96,7 @@ export default class NotificationManager {
   }
 
   destroy() {
+    this.isDestroyed = true;
     Tokens.clear();
     Cache.clear();
   }
