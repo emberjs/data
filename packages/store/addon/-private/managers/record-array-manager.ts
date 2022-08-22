@@ -18,7 +18,7 @@ import type Store from '../store-service';
 const RecordArraysCache = new Map<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>();
 const FAKE_ARR = {};
 
-type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del' | 'unk'>;
+type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del'>;
 
 /**
   @class RecordArrayManager
@@ -54,7 +54,7 @@ class RecordArrayManager {
       return;
     }
 
-    array._updateState(pending as Map<StableRecordIdentifier, 'add' | 'del'>);
+    array._updateState(pending);
     this._pending.delete(array);
   }
 
@@ -217,9 +217,10 @@ class RecordArrayManager {
           changes.delete(identifier);
         } else {
           changes.set(identifier, 'add');
-        }
-        if (changes.size === 1) {
-          this.dirtyArray(array);
+
+          if (changes.size === 1) {
+            this.dirtyArray(array);
+          }
         }
       });
     }
@@ -234,9 +235,10 @@ class RecordArrayManager {
           changes.delete(identifier);
         } else {
           changes.set(identifier, 'del');
-        }
-        if (changes.size === 1) {
-          this.dirtyArray(array);
+
+          if (changes.size === 1) {
+            this.dirtyArray(array);
+          }
         }
       });
     }
