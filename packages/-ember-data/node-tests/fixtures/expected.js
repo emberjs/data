@@ -374,7 +374,6 @@ module.exports = {
     '(public) @ember-data/store SnapshotRecordArray#adapterOptions',
     '(public) @ember-data/store SnapshotRecordArray#include',
     '(public) @ember-data/store SnapshotRecordArray#length',
-    '(public) @ember-data/store SnapshotRecordArray#meta',
     '(public) @ember-data/store SnapshotRecordArray#modelName',
     '(public) @ember-data/store SnapshotRecordArray#snapshots',
     '(public) @ember-data/store SnapshotRecordArray#type',
