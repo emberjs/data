@@ -19,6 +19,7 @@ import { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-
 import { RecordDataStoreWrapper, V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import { Dict } from '@ember-data/types/q/utils';
 
+import { LocalRelationshipOperation } from './graph/-operations';
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
 import type BelongsToRelationship from './relationships/state/belongs-to';
@@ -809,6 +810,11 @@ class SingletonRecordData implements RecordData {
 
     return changedKeys;
   }
+
+  update(operation: LocalRelationshipOperation): void {
+    graphFor(this.__storeWrapper).update(operation, false);
+  }
+
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
     const cached = this.__peek(identifier);
     cached.isNew = true;

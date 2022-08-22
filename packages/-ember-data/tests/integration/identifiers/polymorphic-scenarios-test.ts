@@ -164,7 +164,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
         ],
         'We fetched all the right cars'
       );
-      const bmw = allCars.objectAt(1);
+      const bmw = allCars.at(1);
       const foundBmw = await store.findRecord('car', '2');
       assert.strictEqual(foundBmw, bmw, 'We found the bmw by finding car 2');
 

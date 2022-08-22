@@ -60,11 +60,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
     let allRecords = await store.findAll('person');
     assert.strictEqual(allRecords.length, 1, "the record array's length is 1 after a record is loaded into it");
-    assert.strictEqual(
-      allRecords.objectAt(0).name,
-      'Braaaahm Dale',
-      'the first item in the record array is Braaaahm Dale'
-    );
+    assert.strictEqual(allRecords[0].name, 'Braaaahm Dale', 'the first item in the record array is Braaaahm Dale');
 
     let all = await store.findAll('person');
     // Only one record array per type should ever be created (identity map)
@@ -106,7 +102,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       return store.findAll('person');
     });
     assert.strictEqual(all.length, 1, "the record array's length is 1 after a record is loaded into it");
-    assert.strictEqual(all.objectAt(0).name, 'Braaaahm Dale', 'the first item in the record array is Braaaahm Dale');
+    assert.strictEqual(all[0].name, 'Braaaahm Dale', 'the first item in the record array is Braaaahm Dale');
   });
 
   test('When all records for a type are requested, records that are already loaded should be returned immediately.', async function (assert) {
@@ -129,16 +125,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     let allRecords = store.peekAll('person');
 
     assert.strictEqual(allRecords.length, 2, "the record array's length is 2");
-    assert.strictEqual(
-      allRecords.objectAt(0).name,
-      'Jeremy Ashkenas',
-      'the first item in the record array is Jeremy Ashkenas'
-    );
-    assert.strictEqual(
-      allRecords.objectAt(1).name,
-      'Alex MacCaw',
-      'the second item in the record array is Alex MacCaw'
-    );
+    assert.strictEqual(allRecords[0].name, 'Jeremy Ashkenas', 'the first item in the record array is Jeremy Ashkenas');
+    assert.strictEqual(allRecords[1].name, 'Alex MacCaw', 'the second item in the record array is Alex MacCaw');
   });
 
   test('When all records for a type are requested, records that are created on the client should be added to the record array.', async function (assert) {
@@ -156,11 +144,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     // await settled();
 
     assert.strictEqual(allRecords.length, 1, "the record array's length is 1");
-    assert.strictEqual(
-      allRecords.objectAt(0).name,
-      'Carsten Nielsen',
-      'the first item in the record array is Carsten Nielsen'
-    );
+    assert.strictEqual(allRecords[0].name, 'Carsten Nielsen', 'the first item in the record array is Carsten Nielsen');
   });
 
   testInDebug('When all records are requested, assert the payload is not blank', async function (assert) {

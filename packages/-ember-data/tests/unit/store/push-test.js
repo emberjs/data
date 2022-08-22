@@ -371,7 +371,7 @@ module('unit/store/push - Store#push', function (hooks) {
       let person = store.peekRecord('person', 1);
 
       assert.strictEqual(person.phoneNumbers.length, 1);
-      assert.strictEqual(person.get('phoneNumbers.firstObject.number'), '1-800-DATA');
+      assert.strictEqual(person.phoneNumbers.at(0).number, '1-800-DATA');
 
       // GET /persons/1
       assert.expectNoWarning(() => {
@@ -391,7 +391,7 @@ module('unit/store/push - Store#push', function (hooks) {
       });
 
       assert.strictEqual(person.phoneNumbers.length, 1);
-      assert.strictEqual(person.get('phoneNumbers.firstObject.number'), '1-800-DATA');
+      assert.strictEqual(person.phoneNumbers.at(0).number, '1-800-DATA');
     }
   );
 
@@ -925,8 +925,8 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
       let robert = store.peekRecord('person', '1');
 
       const friends = robert.friends;
-      assert.strictEqual(friends.firstObject.id, '2', 'first object is unchanged');
-      assert.strictEqual(friends.lastObject.id, '3', 'last object is unchanged');
+      assert.strictEqual(friends.at(0).id, '2', 'first object is unchanged');
+      assert.strictEqual(friends.at(-1).id, '3', 'last object is unchanged');
     }
   );
 });

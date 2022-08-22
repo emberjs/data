@@ -9,6 +9,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
@@ -390,7 +391,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     let appTeam = await app.team;
     assert.strictEqual(appTeam.id, team.id, 'sets team correctly on app');
     const apps = await team.apps;
-    assert.deepEqual(apps.toArray().mapBy('id'), ['1'], 'sets apps correctly on team');
+    assert.deepEqual(
+      apps.slice().map((r) => r.id),
+      ['1'],
+      'sets apps correctly on team'
+    );
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = (store, type, snapshot) => {
@@ -414,7 +419,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     await app.save();
     appTeam = await app.team;
     assert.strictEqual(appTeam?.id, undefined, 'team removed from app relationship');
-    assert.deepEqual(apps.toArray().mapBy('id'), [], 'app removed from team apps relationship');
+    assert.deepEqual(
+      apps.slice().map((r) => r.id),
+      [],
+      'app removed from team apps relationship'
+    );
   });
 
   test('The store can materialize a non loaded monomorphic belongsTo association', function (assert) {
@@ -879,42 +888,51 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       });
   });
 
-  test('A record can be created with a resolved belongsTo promise', function (assert) {
-    assert.expect(1);
+  deprecatedTest(
+    'A record can be created with a resolved belongsTo promise',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0' },
+    async function (assert) {
+      assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.shouldBackgroundReloadRecord = () => false;
+      adapter.shouldBackgroundReloadRecord = () => false;
 
-    let Group = Model.extend({
-      people: hasMany('person', { async: false, inverse: 'group' }),
-    });
+      let Group = Model.extend({
+        people: hasMany('person', { async: false, inverse: 'group' }),
+      });
 
-    let Person = Model.extend({
-      group: belongsTo('group', { async: true, inverse: 'people' }),
-    });
+      let Person = Model.extend({
+        group: belongsTo('group', { async: true, inverse: 'people' }),
+      });
 
-    this.owner.register('model:group', Group);
-    this.owner.register('model:person', Person);
+      this.owner.register('model:group', Group);
+      this.owner.register('model:person', Person);
 
-    run(() => {
       store.push({
         data: {
           id: '1',
           type: 'group',
         },
       });
-    });
+      const originalOwner = store.push({
+        data: {
+          id: '1',
+          type: 'person',
+          group: { data: { type: 'group', id: '1' } },
+        },
+      });
 
-    let groupPromise = store.findRecord('group', 1);
-    return groupPromise.then((group) => {
+      let groupPromise = originalOwner.group;
+      const group = await groupPromise;
       let person = store.createRecord('person', {
         group: groupPromise,
       });
-      assert.strictEqual(person.group.content, group);
-    });
-  });
+      const personGroup = await person.group;
+      assert.strictEqual(personGroup, group, 'the group matches');
+    }
+  );
 
   test('polymorphic belongsTo class-checks check the superclass', function (assert) {
     assert.expect(1);

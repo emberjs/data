@@ -124,14 +124,12 @@ import Transform from '@ember-data/serializer/transform';
 import Store, { normalizeModelName } from '@ember-data/store';
 
 import {
-  AdapterPopulatedRecordArray,
   DS,
   Errors,
   ManyArray,
   PromiseArray,
   PromiseManyArray,
   PromiseObject,
-  RecordArray,
   RecordArrayManager,
   Snapshot,
 } from './-private';
@@ -171,8 +169,6 @@ if (macroCondition(dependencySatisfies('@ember-data/debug', '*'))) {
   DS.DebugAdapter = importSync('@ember-data/debug').default;
 }
 
-DS.RecordArray = RecordArray;
-DS.AdapterPopulatedRecordArray = AdapterPopulatedRecordArray;
 DS.ManyArray = ManyArray;
 
 DS.RecordArrayManager = RecordArrayManager;

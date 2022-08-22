@@ -17,6 +17,9 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember-data/store',
       '@ember-data/model',
       '@ember-data/model/-private',
+      '@ember/array/proxy',
+      '@ember/object/promise-proxy-mixin',
+      '@ember/object/proxy',
     ];
   },
   treeForAddon(tree) {

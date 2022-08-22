@@ -1,13 +1,17 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
-import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
-import { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import { Dict } from '@ember-data/types/q/utils';
+import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
+import type {
+  CollectionResourceRelationship,
+  SingleResourceRelationship,
+} from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
+import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
-import Store from '../store-service';
+import type Store from '../store-service';
 
 /**
  * The RecordDataManager wraps a RecordData cache
@@ -109,6 +113,26 @@ export class NonSingletonRecordDataManager implements RecordData {
       return recordData.pushData(data, hasRecord);
     }
     return recordData.pushData(identifier, data, hasRecord);
+  }
+
+  update(operation: LocalRelationshipOperation): void {
+    if (this.#isDeprecated(this.#recordData)) {
+      deprecate(
+        `RecordData.update(operation) can only be used with V2 RecordData Implementations. Upgrade this RecordData to V2 to make use of this feature. This Relationship update will be ignored.`,
+        false,
+        {
+          id: 'ember-data:deprecate-v1-record-data',
+          until: '5.0',
+          since: {
+            enabled: '4.8',
+            available: '4.8',
+          },
+          for: 'ember-data',
+        }
+      );
+    } else {
+      this.#recordData.update(operation);
+    }
   }
 
   /**
@@ -712,6 +736,9 @@ export class SingletonRecordDataManager implements RecordData {
   constructor(store: Store) {
     this.#store = store;
     this.#recordDatas = new Map();
+  }
+  update(operation: LocalRelationshipOperation): void {
+    this.#recordData(operation.record).update(operation);
   }
 
   _addRecordData(identifier: StableRecordIdentifier, recordData: RecordData) {

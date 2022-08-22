@@ -83,14 +83,14 @@ module('Store.createRecord() coverage', function (hooks) {
     // check that we are properly configured
     assert.strictEqual(pet.owner, chris, 'Precondition: Our owner is Chris');
 
-    let pets = chris.pets.toArray().map((pet) => pet.name);
+    let pets = chris.pets.slice().map((pet) => pet.name);
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
     pet.unloadRecord();
     await settled();
     assert.strictEqual(pet.owner, null, 'Shen no longer has an owner');
     // check that the relationship has been dissolved
-    pets = chris.pets.toArray().map((pet) => pet.name);
+    pets = chris.pets.slice().map((pet) => pet.name);
     assert.deepEqual(pets, [], 'Chris no longer has any pets');
   });
 
@@ -118,13 +118,13 @@ module('Store.createRecord() coverage', function (hooks) {
     // check that we are properly configured
     assert.strictEqual(pet.owner, chris, 'Precondition: Our owner is Chris');
 
-    let pets = chris.pets.toArray().map((pet) => pet.name);
+    let pets = chris.pets.slice().map((pet) => pet.name);
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
     chris.unloadRecord();
     assert.strictEqual(pet.owner, null, 'Shen no longer has an owner');
 
     // check that the relationship has been dissolved
-    pets = chris.pets.toArray().map((pet) => pet.name);
+    pets = chris.pets.slice().map((pet) => pet.name);
     assert.deepEqual(pets, [], 'Chris no longer has any pets');
   });
 

@@ -8,8 +8,6 @@ import Ember from 'ember';
 
 import { resolve } from 'rsvp';
 
-import type { ManyArray } from 'ember-data/-private';
-
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
@@ -17,6 +15,8 @@ import {
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import { FindOptions } from '@ember-data/types/q/store';
+
+import type ManyArray from './many-array';
 
 export interface HasManyProxyCreateArgs {
   promise: Promise<ManyArray>;
@@ -66,6 +66,7 @@ export default class PromiseManyArray {
           since: { enabled: '4.8', available: '4.8' },
           for: 'ember-data',
         });
+        // @ts-expect-error ArrayMixin is more than a type
         if (mixin === NativeArray || mixin === ArrayMixin) {
           return true;
         }
@@ -92,7 +93,7 @@ export default class PromiseManyArray {
   get length(): number {
     // shouldn't be needed, but ends up being needed
     // for computed chains even in 4.x
-    this['[]'];
+    // this['[]'];
     return this.content ? this.content.length : 0;
   }
 
@@ -102,7 +103,8 @@ export default class PromiseManyArray {
   // to recompute. We entangle the '[]' tag from
   @dependentKeyCompat
   get '[]'() {
-    return this.content ? this.content['[]'] : this.content;
+    return this.content?.length && this.content;
+    // return this.content ? this.content['[]'] : this.content;
   }
 
   /**
@@ -116,7 +118,7 @@ export default class PromiseManyArray {
    * @private
    */
   forEach(cb) {
-    this['[]']; // needed for < 3.23 support e.g. 3.20 lts
+    // this['[]']; // needed for < 3.23 support e.g. 3.20 lts
     if (this.content && this.length) {
       this.content.forEach(cb);
     }

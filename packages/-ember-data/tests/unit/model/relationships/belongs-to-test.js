@@ -4,7 +4,6 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
@@ -587,8 +586,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
         .then((occupations) => {
           assert.strictEqual(get(occupations, 'length'), 2, 'the list of occupations should have the correct length');
 
-          assert.strictEqual(get(occupations.objectAt(0), 'description'), 'fifth', 'the occupation is the fifth');
-          assert.true(get(occupations.objectAt(0), 'isLoaded'), 'the occupation is now loaded');
+          assert.strictEqual(get(occupations.at(0), 'description'), 'fifth', 'the occupation is the fifth');
+          assert.true(get(occupations.at(0), 'isLoaded'), 'the occupation is now loaded');
         });
     });
   });
@@ -830,11 +829,11 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     });
   });
 
-  test('belongsTo should be async by default', function (assert) {
-    const Tag = Model.extend({
-      name: attr('string'),
-      people: hasMany('person', { async: false, inverse: 'tag' }),
-    });
+  test('belongsTo should be async by default', async function (assert) {
+    class Tag extends Model {
+      @attr name;
+      @hasMany('person', { async: false, inverse: 'tag' }) people;
+    }
 
     const Person = Model.extend({
       name: attr('string'),
@@ -846,8 +845,13 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person');
-
-    assert.ok(person.tag instanceof DS.PromiseObject, 'tag should be an async relationship');
+    const theTag = store.push({ data: { type: 'tag', id: '1', attributes: { name: 'ember' } } });
+    let person = store.createRecord('person', { tag: theTag });
+    const personTag = person.tag;
+    assert.ok(personTag.then, 'tag should be an async relationship');
+    const tag = await personTag;
+    assert.notStrictEqual(personTag, tag, 'we are not the proxy');
+    assert.strictEqual(theTag, tag, 'we are the instance');
+    assert.true(tag instanceof Tag, 'we are an instance of Tag');
   });
 });

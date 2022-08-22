@@ -4,11 +4,11 @@ import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
 
 import type Store from '@ember-data/store';
-import { PromiseObject } from '@ember-data/store/-private';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { LegacySupport } from './legacy-relationships-support';
+import { PromiseObject } from './promise-proxy-base';
 
 export interface BelongsToProxyMeta {
   key: string;

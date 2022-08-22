@@ -54,16 +54,16 @@ module('unit/model/errors', function (hooks) {
   });
 
   testInDebug('get error', function (assert) {
-    assert.ok(errors.firstObject === undefined, 'returns undefined');
+    assert.ok(errors.objectAt(0) === undefined, 'returns undefined');
     errors.trigger = assert.becameInvalid;
     errors.add('firstName', 'error');
     errors.trigger = assert.unexpectedSend;
     assert.ok(errors.get('firstName').length === 1, 'returns errors');
-    assert.deepEqual(errors.firstObject, { attribute: 'firstName', message: 'error' });
+    assert.deepEqual(errors.objectAt(0), { attribute: 'firstName', message: 'error' });
     errors.add('firstName', 'error2');
     assert.ok(errors.get('firstName').length === 2, 'returns errors');
     errors.add('lastName', 'error3');
-    assert.deepEqual(errors.toArray(), [
+    assert.deepEqual(errors.slice(), [
       { attribute: 'firstName', message: 'error' },
       { attribute: 'firstName', message: 'error2' },
       { attribute: 'lastName', message: 'error3' },

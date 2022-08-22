@@ -44,7 +44,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     assert.strictEqual(comment.post, null, 'no post has been set on the comment');
 
-    post.comments.pushObject(comment);
+    post.comments.push(comment);
     assert.strictEqual(comment.post, post, 'post was set on the comment');
   });
 
@@ -129,7 +129,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.strictEqual(comment.redPost, null, 'redPost has not been set on the comment');
     assert.strictEqual(comment.bluePost, null, 'bluePost has not been set on the comment');
 
-    post.comments.pushObject(comment);
+    post.comments.push(comment);
 
     assert.strictEqual(comment.onePost, null, 'onePost has not been set on the comment');
     assert.strictEqual(comment.twoPost, null, 'twoPost has not been set on the comment');
@@ -333,14 +333,14 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.strictEqual(post.redUser, null, 'redUser has not been set on the user');
     assert.strictEqual(post.blueUser, null, 'blueUser has not been set on the user');
 
-    user.messages.pushObject(post);
+    user.messages.push(post);
 
     assert.strictEqual(post.oneUser, null, 'oneUser has not been set on the user');
     assert.strictEqual(post.twoUser, null, 'twoUser has not been set on the user');
     assert.strictEqual(post.redUser, user, 'redUser has been set on the user');
     assert.strictEqual(post.blueUser, null, 'blueUser has not been set on the user');
 
-    user.messages.popObject();
+    user.messages.pop();
 
     assert.strictEqual(post.oneUser, null, 'oneUser has not been set on the user');
     assert.strictEqual(post.twoUser, null, 'twoUser has not been set on the user');
@@ -676,7 +676,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const comment = store.createRecord('comment');
     const post = store.createRecord('post');
     const comments = await post.comments;
-    comments.pushObject(comment);
+    comments.push(comment);
     const identifier = recordIdentifierFor(comment);
 
     await comment.destroyRecord();

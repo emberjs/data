@@ -91,13 +91,13 @@ export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayPr
 */
 export { PromiseObjectProxy as PromiseObject };
 
-export function promiseObject<T>(promise: Promise<T>, label?: string): PromiseObjectProxy<T> {
+function _promiseObject<T>(promise: Promise<T>, label?: string): PromiseObjectProxy<T> {
   return PromiseObjectProxy.create({
     promise: resolve(promise, label),
   }) as PromiseObjectProxy<T>;
 }
 
-export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>, label?: string): PromiseArray<I, T> {
+function _promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>, label?: string): PromiseArray<I, T> {
   return PromiseArray.create({
     promise: resolve(promise, label),
   }) as unknown as PromiseArray<I, T>;
@@ -105,35 +105,96 @@ export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>
 
 // constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
+const PROXIED_ARRAY_PROPS = [
+  'length',
+  '[]',
+  'firstObject',
+  'lastObject',
+  'meta',
+  'content',
+  'isPending',
+  'isSettled',
+  'isRejected',
+  'isFulfilled',
+  'promise',
+  'reason',
+];
+const PROXIED_OBJECT_PROPS = ['content', 'isPending', 'isSettled', 'isRejected', 'isFulfilled', 'promise', 'reason'];
 
-export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
-  const promiseObjectProxy: PromiseObjectProxy<T> = promiseObject(promise);
+export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>): PromiseArray<I, T> {
+  const promiseObjectProxy: PromiseArray<I, T> = _promiseArray(promise);
   const handler = {
     get(target: object, prop: string, receiver?: object): unknown {
+      if (typeof prop === 'symbol') {
+        return Reflect.get(target, prop, receiver);
+      }
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
-          `Accessing ${prop} is deprecated. The return type is being changed fomr PromiseObjectProxy to a Promise. The only available methods to access on this promise are .then, .catch and .finally`,
+          `Accessing ${prop} on this PromiseArray is deprecated. The return type is being changed from PromiseArray to a Promise. The only available methods to access on this promise are .then, .catch and .finally`,
           false,
           {
-            id: 'ember-data:model-save-promise',
+            id: 'ember-data:deprecate-promise-proxies',
             until: '5.0',
             for: '@ember-data/store',
             since: {
-              available: '4.4',
-              enabled: '4.4',
+              available: '4.8',
+              enabled: '4.8',
             },
           }
         );
       }
 
-      const value: unknown = Reflect.get(target, prop, receiver);
+      const value: unknown = target[prop];
       if (value && typeof value === 'function' && typeof value.bind === 'function') {
         return value.bind(target);
       }
 
-      return value;
+      if (PROXIED_ARRAY_PROPS.includes(prop)) {
+        return value;
+      }
+
+      return undefined;
     },
   };
 
-  return new Proxy(promiseObjectProxy, handler) as PromiseObjectProxy<T>;
+  return new Proxy(promiseObjectProxy, handler);
+}
+
+export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
+  const promiseObjectProxy: PromiseObjectProxy<T> = _promiseObject(promise);
+  const handler = {
+    get(target: object, prop: string, receiver?: object): unknown {
+      if (typeof prop === 'symbol') {
+        return Reflect.get(target, prop, receiver);
+      }
+      if (!ALLOWABLE_METHODS.includes(prop)) {
+        deprecate(
+          `Accessing ${prop} on this PromiseObject is deprecated. The return type is being changed from PromiseObject to a Promise. The only available methods to access on this promise are .then, .catch and .finally`,
+          false,
+          {
+            id: 'ember-data:deprecate-promise-proxies',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.8',
+              enabled: '4.8',
+            },
+          }
+        );
+      }
+
+      const value: unknown = target[prop];
+      if (value && typeof value === 'function' && typeof value.bind === 'function') {
+        return value.bind(target);
+      }
+
+      if (PROXIED_OBJECT_PROPS.includes(prop)) {
+        return value;
+      }
+
+      return undefined;
+    },
+  };
+
+  return new Proxy(promiseObjectProxy, handler);
 }

@@ -208,7 +208,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
       });
 
       run(() => {
-        let cpResult = get(obj, 'siblings').toArray();
+        let cpResult = get(obj, 'siblings').slice();
         assert.strictEqual(cpResult.length, 1, 'siblings cp should have recalculated');
         obj.destroy();
       });
@@ -219,7 +219,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
     'Calling push with relationship recalculates computed alias property to firstObject if the relationship was empty and is added to',
     { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
     function (assert) {
-      assert.expect(1);
+      assert.expect(2);
 
       let store = this.owner.lookup('service:store');
 
@@ -270,6 +270,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
         assert.strictEqual(get(cpResult, 'id'), '1', 'siblings cp should have recalculated');
         obj.destroy();
       });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
     }
   );
 

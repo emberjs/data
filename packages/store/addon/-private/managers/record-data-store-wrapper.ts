@@ -350,7 +350,13 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
     }
 
     this._willNotify = true;
-    this._store._schedule('notify', () => this._flushNotifications());
+    // it's possible a RecordData adhoc notifies us,
+    // in which case we sync flush
+    if (this._store._cbs) {
+      this._store._schedule('notify', () => this._flushNotifications());
+    } else {
+      this._flushNotifications();
+    }
   }
 
   _flushNotifications(): void {

@@ -1,48 +1,38 @@
 /**
   @module @ember-data/store
 */
-import EmberArray from '@ember/array';
-import MutableArray from '@ember/array/mutable';
-import { assert } from '@ember/debug';
-import EmberObject, { get } from '@ember/object';
+import { assert, deprecate } from '@ember/debug';
 
-import { all } from 'rsvp';
-
+import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
-import { isStableIdentifier, PromiseArray, recordIdentifierFor } from '@ember-data/store/-private';
+import { IDENTIFIER_ARRAY_TAG, MUTATE, RecordArray, recordIdentifierFor, SOURCE } from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
+import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
-import type { DSModelSchema } from '@ember-data/types/q/ds-model';
-import type { CollectionResourceRelationship, Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import diffArray from './diff-array';
 import { LegacySupport } from './legacy-relationships-support';
 
-interface MutableArrayWithObject<T, M = T> extends EmberObject, MutableArray<M> {}
-const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as new <
-  T,
-  M = T
->() => MutableArrayWithObject<T, M>;
-
 export interface ManyArrayCreateArgs {
+  identifiers: StableRecordIdentifier[];
+  type: string;
   store: Store;
-  type: ShimModelClass;
+  allowMutation: boolean;
+  manager: LegacySupport;
+
   identifier: StableRecordIdentifier;
   recordData: RecordData;
-  currentState: StableRecordIdentifier[];
   meta: Dict<unknown> | null;
   links: Links | PaginationLinks | null;
   key: string;
   isPolymorphic: boolean;
   isAsync: boolean;
   _inverseIsAsync: boolean;
-  legacySupport: LegacySupport;
   isLoaded: boolean;
 }
 /**
@@ -87,42 +77,26 @@ export interface ManyArrayCreateArgs {
 
   @class ManyArray
   @public
-  @extends Ember.EmberObject
-  @uses Ember.MutableArray
 */
-export default class ManyArray extends MutableArrayWithObject<StableRecordIdentifier, RecordInstance> {
+export default class RelatedCollection extends RecordArray {
   declare isAsync: boolean;
-  declare isLoaded: boolean;
-  declare isPolymorphic: boolean;
-  declare _isDirty: boolean;
-  declare _isUpdating: boolean;
-  declare _hasNotified: boolean;
-  declare __hasArrayObservers: boolean;
-  declare hasArrayObservers: boolean; // override the base declaration
-  declare _length: number;
-  declare _meta: Dict<unknown> | null;
-  declare _links: Links | PaginationLinks | null;
-  declare currentState: StableRecordIdentifier[];
-  declare identifier: StableRecordIdentifier;
-  declare recordData: RecordData;
-  declare legacySupport: LegacySupport;
-  declare store: Store;
-  declare key: string;
-  declare type: DSModelSchema;
-
-  init() {
-    super.init();
-
-    /**
+  /**
     The loading state of this array
 
     @property {Boolean} isLoaded
     @public
     */
-    this.isLoaded = this.isLoaded || false;
-    this.isAsync = this.isAsync || false;
 
-    /**
+  declare isLoaded: boolean;
+  /**
+    `true` if the relationship is polymorphic, `false` otherwise.
+
+    @property {Boolean} isPolymorphic
+    @private
+    */
+  declare isPolymorphic: boolean;
+  declare _inverseIsAsync: boolean;
+  /**
     Metadata associated with the request for async hasMany relationships.
 
     Example
@@ -159,205 +133,146 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     @property {Object | null} meta
     @public
     */
-    this._meta = this._meta || null;
-
-    /**
+  declare meta: Dict<unknown> | null;
+  /**
      * Retrieve the links for this relationship
      *
      @property {Object | null} links
      @public
      */
-    this._links = this._links || null;
+  declare links: Links | PaginationLinks | null;
+  declare identifier: StableRecordIdentifier;
+  declare recordData: RecordData;
+  // @ts-expect-error
+  declare _manager: LegacySupport;
+  declare store: Store;
+  declare key: string;
+  declare type: ShimModelClass;
 
-    /**
-    `true` if the relationship is polymorphic, `false` otherwise.
-
-    @property {Boolean} isPolymorphic
-    @private
-    */
-    this.isPolymorphic = this.isPolymorphic || false;
-
-    /**
-    The relationship which manages this array.
-
-    @property {ManyRelationship} relationship
-    @private
-    */
-    this.currentState = this.currentState || [];
-    this._length = this.currentState.length || 0;
-    this._isUpdating = false;
-    this._isDirty = false;
-    /*
-     * Unfortunately ArrayProxy adds it's observers lazily,
-     * so in a first-render situation we may sometimes notify
-     * prior to the ArrayProxy having installed it's observers
-     * (which occurs during _revalidate()).
-     *
-     * This leads to the flush occuring on access, the flush takes
-     * the hasObservers codepath which in code out of our control
-     * notifies again leading to a glimmer rendering invalidation error.
-     *
-     * We use this flag to detect the case where we notified without
-     * array observers but observers were installed prior to flush.
-     *
-     * We do not need to fire array observers at all in this case
-     * since it will be the first-access for those observers.
-     */
-    this._hasNotified = false;
+  constructor(options: ManyArrayCreateArgs) {
+    super(options as unknown as IdentifierArrayCreateOptions);
+    this.isLoaded = options.isLoaded || false;
+    this.isAsync = options.isAsync || false;
+    this.isPolymorphic = options.isPolymorphic || false;
+    this.identifier = options.identifier;
+    this.key = options.key;
   }
 
-  // TODO refactor away _hasArrayObservers for tests
-  get _hasArrayObservers() {
-    // cast necessary because hasArrayObservers is typed as a ComputedProperty<boolean> vs a boolean;
-    return this.hasArrayObservers || this.__hasArrayObservers;
+  [MUTATE](prop: string, args: unknown[], result?: unknown) {
+    switch (prop) {
+      case 'length 0': {
+        this._manager.updateCache({
+          op: 'replaceRelatedRecords',
+          record: this.identifier,
+          field: this.key,
+          value: [],
+        });
+        break;
+      }
+      case 'replace cell': {
+        const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
+        this._manager.updateCache({
+          op: 'replaceRelatedRecord',
+          record: this.identifier,
+          field: this.key,
+          value,
+          prior,
+          index,
+        });
+        break;
+      }
+      case 'push':
+        this._manager.updateCache({
+          op: 'addToRelatedRecords',
+          record: this.identifier,
+          field: this.key,
+          value: extractIdentifiersFromRecords(args as RecordInstance[]),
+        });
+        break;
+      case 'pop':
+        if (result) {
+          this._manager.updateCache({
+            op: 'removeFromRelatedRecords',
+            record: this.identifier,
+            field: this.key,
+            value: recordIdentifierFor(result as RecordInstance),
+          });
+        }
+        break;
+
+      case 'unshift':
+        this._manager.updateCache({
+          op: 'addToRelatedRecords',
+          record: this.identifier,
+          field: this.key,
+          value: extractIdentifiersFromRecords(args as RecordInstance[]),
+          index: 0,
+        });
+        break;
+
+      case 'shift':
+        if (result) {
+          this._manager.updateCache({
+            op: 'removeFromRelatedRecords',
+            record: this.identifier,
+            field: this.key,
+            value: recordIdentifierFor(result as RecordInstance),
+            index: 0,
+          });
+        }
+        break;
+
+      case 'sort':
+        this._manager.updateCache({
+          op: 'sortRelatedRecords',
+          record: this.identifier,
+          field: this.key,
+          value: (result as RecordInstance[]).map(recordIdentifierFor),
+        });
+        break;
+
+      case 'splice': {
+        const [start, removeCount, ...adds] = args as [number, number, RecordInstance];
+        // detect a full replace
+        if (removeCount > 0 && adds.length === this[SOURCE].length) {
+          this._manager.updateCache({
+            op: 'replaceRelatedRecords',
+            record: this.identifier,
+            field: this.key,
+            value: extractIdentifiersFromRecords(adds),
+          });
+          return;
+        }
+        if (removeCount > 0) {
+          this._manager.updateCache({
+            op: 'removeFromRelatedRecords',
+            record: this.identifier,
+            field: this.key,
+            value: (result as RecordInstance[]).map(recordIdentifierFor),
+            index: start,
+          });
+        }
+        if (adds?.length) {
+          this._manager.updateCache({
+            op: 'addToRelatedRecords',
+            record: this.identifier,
+            field: this.key,
+            value: extractIdentifiersFromRecords(adds),
+            index: start,
+          });
+        }
+
+        break;
+      }
+      default:
+        assert(`unable to convert ${prop} into a transaction that updates the cache state for this record array`);
+    }
   }
 
   notify() {
-    this._isDirty = true;
-    if (this._hasArrayObservers && !this._hasNotified) {
-      this.retrieveLatest();
-    } else {
-      this._hasNotified = true;
-      this.notifyPropertyChange('[]');
-      this.notifyPropertyChange('firstObject');
-      this.notifyPropertyChange('lastObject');
-    }
-  }
-
-  get length() {
-    if (this._isDirty) {
-      this.retrieveLatest();
-    }
-    // By using `get()`, the tracking system knows to pay attention to changes that occur.
-    get(this, '[]');
-
-    return this._length;
-  }
-
-  set length(value) {
-    this._length = value;
-  }
-
-  get links() {
-    get(this, '[]');
-    if (this._isDirty) {
-      this.retrieveLatest();
-    }
-    return this._links;
-  }
-  set links(v) {
-    this._links = v;
-  }
-
-  get meta() {
-    get(this, '[]');
-    if (this._isDirty) {
-      this.retrieveLatest();
-    }
-    return this._meta;
-  }
-  set meta(v) {
-    this._meta = v;
-  }
-
-  objectAt(index: number): RecordInstance | undefined {
-    if (this._isDirty) {
-      this.retrieveLatest();
-    }
-    let identifier = this.currentState[index];
-    if (identifier === undefined) {
-      return;
-    }
-
-    return this.store._instanceCache.getRecord(identifier);
-  }
-
-  replace(idx: number, amt: number, objects?: RecordInstance[]) {
-    assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
-    assert(
-      'The third argument to replace needs to be an array.',
-      !objects || Array.isArray(objects) || EmberArray.detect(objects)
-    );
-    const { store, identifier } = this;
-    store._join(() => {
-      let identifiers: StableRecordIdentifier[];
-      if (amt > 0) {
-        identifiers = this.currentState.slice(idx, idx + amt);
-        this.recordData.removeFromHasMany(identifier, this.key, identifiers);
-      }
-      if (objects && objects.length > 0) {
-        this.recordData.addToHasMany(
-          identifier,
-          this.key,
-          objects.map((obj: RecordInstance) => recordIdentifierFor(obj)),
-          idx
-        );
-      }
-      this.notify();
-    });
-  }
-
-  retrieveLatest() {
-    // It’s possible the parent side of the relationship may have been destroyed by this point
-    if (this.isDestroyed || this.isDestroying || this._isUpdating) {
-      return;
-    }
-    this._isDirty = false;
-    this._isUpdating = true;
-    const identifier = this.identifier;
-
-    let jsonApi = (this.recordData as NonSingletonRecordDataManager).getRelationship(
-      identifier,
-      this.key,
-      true
-    ) as CollectionResourceRelationship;
-    const cache = this.store._instanceCache;
-
-    let identifiers: StableRecordIdentifier[] = [];
-    const data = jsonApi.data;
-    if (data) {
-      for (let i = 0; i < data.length; i++) {
-        const identifier: StableRecordIdentifier = data[i] as unknown as StableRecordIdentifier;
-        assert(`expected a stable identifier`, isStableIdentifier(identifier));
-
-        if (cache.recordIsLoaded(identifier, true)) {
-          identifiers.push(identifier);
-        }
-      }
-    }
-
-    if (jsonApi.meta) {
-      this._meta = jsonApi.meta;
-    }
-
-    if (jsonApi.links) {
-      this._links = jsonApi.links;
-    }
-
-    if (this._hasArrayObservers && !this._hasNotified) {
-      // diff to find changes
-      let diff = diffArray(this.currentState, identifiers);
-      // it's null if no change found
-      if (diff.firstChangeIndex !== null) {
-        // we found a change
-        this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
-        this._length = identifiers.length;
-        this.currentState = identifiers;
-        this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
-      }
-    } else {
-      this._hasNotified = false;
-      this._length = identifiers.length;
-      this.currentState = identifiers;
-    }
-
-    this._isUpdating = false;
-  }
-
-  destroy() {
-    this._length = 0;
-    this.currentState = [];
-    return super.destroy();
+    const tag = this[IDENTIFIER_ARRAY_TAG];
+    tag.ref = null;
+    tag.shouldReset = true;
   }
 
   /**
@@ -384,7 +299,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
   */
   reload(options?: FindOptions) {
     // TODO this is odd, we don't ask the store for anything else like this?
-    return this.legacySupport.reloadHasMany(this.key, options);
+    return this._manager.reloadHasMany(this.key, options);
   }
 
   /**
@@ -405,18 +320,6 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     @public
     @return {PromiseArray} promise
   */
-  save() {
-    let manyArray = this;
-    let promiseLabel = 'DS: ManyArray#save ' + this.type.modelName;
-    let promise = all(this.invoke('save'), promiseLabel).then(
-      () => manyArray,
-      null,
-      'DS: ManyArray#save return ManyArray'
-    );
-
-    // TODO deprecate returning a promiseArray here
-    return PromiseArray.create({ promise });
-  }
 
   /**
     Create a child record within the owner
@@ -427,11 +330,70 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     @return {Model} record
   */
   createRecord(hash: CreateRecordProperties): RecordInstance {
-    const { store, type } = this;
+    const { store } = this;
 
-    const record = store.createRecord(type.modelName, hash);
-    this.pushObject(record);
+    const record = store.createRecord(this.modelName, hash);
+    this.push(record);
 
     return record;
   }
+}
+RelatedCollection.prototype.isAsync = false;
+RelatedCollection.prototype.isPolymorphic = false;
+RelatedCollection.prototype.identifier = null as unknown as StableRecordIdentifier;
+RelatedCollection.prototype.recordData = null as unknown as RecordData;
+RelatedCollection.prototype._inverseIsAsync = false;
+RelatedCollection.prototype.key = '';
+RelatedCollection.prototype.DEPRECATED_CLASS_NAME = 'ManyArray';
+
+type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+
+function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord) {
+  assert(
+    `All elements of a hasMany relationship must be instances of Model, you passed $${typeof record}`,
+    (function () {
+      try {
+        recordIdentifierFor(record);
+        return true;
+      } catch {
+        return false;
+      }
+    })()
+  );
+}
+
+function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
+  return records.map(extractIdentifierFromRecord);
+}
+
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance) {
+  if (DEPRECATE_PROMISE_PROXIES && isPromiseRecord(recordOrPromiseRecord)) {
+    let content = recordOrPromiseRecord.content;
+    assert(
+      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
+      content !== undefined && content !== null
+    );
+    deprecate(
+      `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
+      false,
+      {
+        id: 'ember-data:deprecate-promise-proxies',
+        until: '5.0',
+        since: {
+          enabled: '4.8',
+          available: '4.8',
+        },
+        for: 'ember-data',
+      }
+    );
+    assertRecordPassedToHasMany(content);
+    return recordIdentifierFor(content);
+  }
+
+  assertRecordPassedToHasMany(recordOrPromiseRecord);
+  return recordIdentifierFor(recordOrPromiseRecord);
+}
+
+function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
+  return !!record.then;
 }

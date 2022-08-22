@@ -7,10 +7,9 @@ import type Store from '../store-service';
 
 export default function promiseRecord(
   store: Store,
-  promise: Promise<StableRecordIdentifier>,
-  label?: string
+  promise: Promise<StableRecordIdentifier>
 ): PromiseObject<RecordInstance> {
   let toReturn = promise.then((identifier: StableRecordIdentifier) => store.peekRecord(identifier)!);
 
-  return promiseObject(toReturn, label);
+  return promiseObject(toReturn);
 }

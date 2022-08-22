@@ -174,7 +174,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     let promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
     let records = await all(promises);
 
-    let serializedRecords = records.toArray().map((record) => record.serialize());
+    let serializedRecords = records.slice().map((record) => record.serialize());
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
@@ -369,7 +369,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     let promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
     let records = await all(promises);
 
-    let serializedRecords = records.toArray().map((record) => record.serialize());
+    let serializedRecords = records.slice().map((record) => record.serialize());
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');

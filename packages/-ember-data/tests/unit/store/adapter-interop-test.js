@@ -343,7 +343,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     let results = store.peekAll('person');
 
     assert.strictEqual(get(results, 'length'), 1, 'record array should have the original object');
-    assert.strictEqual(get(results.objectAt(0), 'name'), 'Tom Dale', 'record has the correct information');
+    assert.strictEqual(results.at(0).name, 'Tom Dale', 'record has the correct information');
 
     run(() => {
       store.push({
@@ -357,8 +357,8 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
     });
 
-    assert.strictEqual(get(results, 'length'), 2, 'record array should have the new object');
-    assert.strictEqual(get(results.objectAt(1), 'name'), 'Yehuda Katz', 'record has the correct information');
+    assert.strictEqual(results.length, 2, 'record array should have the new object');
+    assert.strictEqual(results.at(1).name, 'Yehuda Katz', 'record has the correct information');
 
     assert.strictEqual(results, store.peekAll('person'), 'subsequent calls to peekAll return the same recordArray)');
   });
@@ -1160,7 +1160,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.firstObject.name, 'Tom');
+        assert.strictEqual(records.at(0).name, 'Tom');
       });
     });
   });
@@ -1193,7 +1193,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.firstObject.name, 'Tom');
+        assert.strictEqual(records[0].name, 'Tom');
       });
     });
   });
@@ -1224,7 +1224,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.strictEqual(records.firstObject, undefined);
+        assert.strictEqual(records.at(0), undefined);
       });
     });
   });
@@ -1265,7 +1265,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const records = await store.findAll('person');
 
-    assert.strictEqual(records.firstObject.name, 'John', 'on initial load name is stale');
+    assert.strictEqual(records.at(0).name, 'John', 'on initial load name is stale');
 
     await settled();
     assert.strictEqual(store.peekRecord('person', 1).name, 'Tom', 'after background reload name is loaded');

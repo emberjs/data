@@ -1,3 +1,5 @@
+import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
+
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
 import type { JsonApiResource, JsonApiValidationError } from './record-data-json-api';
@@ -72,6 +74,8 @@ export interface RecordData {
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]): void;
 
   unloadRecord(identifier: StableRecordIdentifier): void;
+
+  update(operation: LocalRelationshipOperation): void;
 
   // Attrs
   // =====

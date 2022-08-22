@@ -186,7 +186,7 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     const comment = store.createRecord('comment', { name: 'The Parley Letter' });
 
     const comments = await post.comments;
-    comments.pushObject(comment);
+    comments.push(comment);
 
     assert.strictEqual(comment.post, post, 'the post has been set correctly');
 
@@ -560,14 +560,10 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
 
     await post.save();
 
-    assert.strictEqual(
-      post.get('comments.firstObject.post'),
-      post,
-      'the comments are related to the correct post model'
-    );
+    assert.strictEqual(post.comments.at(0).post, post, 'the comments are related to the correct post model');
 
     assert.strictEqual(
-      post.get('comments.firstObject.post'),
+      post.comments.at(0).post,
       store.peekRecord('post', '1'),
       'The record object in the store is the same object related to the comment'
     );
@@ -601,7 +597,7 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
 
     assert.strictEqual(post.comments.length, 0, 'post has 0 comments');
 
-    post.comments.pushObject(comment);
+    post.comments.push(comment);
 
     assert.strictEqual(post.comments.length, 1, 'post has 1 comment');
 

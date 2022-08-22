@@ -31,7 +31,7 @@ jobs:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
           BANNED_LABELS: 'backport-beta,backport-lts,backport-lts-prev,backport-old-release'
-          BANNED_LABEL/s_DESCRIPTION: "The following labels should only be applied to PRs targeting other release channel branches, remove them.['backport-beta', 'backport-lts', 'backport-lts-prev', 'backport-old-release']"
+          BANNED_LABELS_DESCRIPTION: "The following labels should only be applied to PRs targeting other release channel branches, remove them.['backport-beta', 'backport-lts', 'backport-lts-prev', 'backport-old-release']"
   triage:
     runs-on: ubuntu-latest
     steps:

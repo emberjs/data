@@ -42,12 +42,15 @@ export function normalizeModelName(modelName: string) {
 // to also eliminate
 export { default as coerceId } from './utils/coerce-id';
 
-export { PromiseArray, PromiseObject, deprecatedPromiseObject } from './proxies/promise-proxies';
-
-export { default as RecordArray } from './record-arrays/record-array';
-export { default as AdapterPopulatedRecordArray } from './record-arrays/adapter-populated-record-array';
-
-export { default as RecordArrayManager } from './managers/record-array-manager';
+export {
+  default as RecordArray,
+  default as IdentifierArray,
+  Collection as AdapterPopulatedRecordArray,
+  SOURCE,
+  MUTATE,
+  IDENTIFIER_ARRAY_TAG,
+} from './record-arrays/identifier-array';
+export { default as RecordArrayManager, fastPush } from './managers/record-array-manager';
 
 // // Used by tests
 export { default as SnapshotRecordArray } from './network/snapshot-record-array';

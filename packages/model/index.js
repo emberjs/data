@@ -20,6 +20,8 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/string',
       '@embroider/macros/es-compat',
 
+      '@ember/object/proxy',
+      '@ember/object/promise-proxy-mixin',
       '@ember/application',
       '@ember/array',
       '@ember/array/mutable',

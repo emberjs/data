@@ -53,6 +53,7 @@ export default class NotificationManager {
       map = new Map();
       Cache.set(identifier, map);
     }
+
     let unsubToken = DEBUG ? { _tokenRef: tokenId++ } : {};
     map.set(unsubToken, callback);
     Tokens.set(unsubToken, identifier);

@@ -144,7 +144,7 @@ module('integration/references/autotracking', function (hooks) {
     assert.strictEqual(getRootElement().textContent, 'id: 2, ', 'the ids are initially correct');
     assert.deepEqual(testContext.friendIds, ['2'], 'the ids are initially correct');
     const bill = store.createRecord('user', { name: 'Bill' });
-    user.friends.pushObject(bill);
+    user.friends.push(bill);
     await settled();
     assert.strictEqual(getRootElement().textContent, 'id: 2, id: null, ', 'the id is added for the new record');
     assert.deepEqual(testContext.friendIds, ['2', null], 'the ids are correct when we add a new record');

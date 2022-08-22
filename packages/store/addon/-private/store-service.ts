@@ -17,6 +17,7 @@ import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
+  DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
@@ -64,8 +65,7 @@ import type RequestCache from './network/request-cache';
 import type Snapshot from './network/snapshot';
 import SnapshotRecordArray from './network/snapshot-record-array';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
-import AdapterPopulatedRecordArray from './record-arrays/adapter-populated-record-array';
-import RecordArray from './record-arrays/record-array';
+import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
@@ -293,6 +293,7 @@ class Store extends Service {
   _schedule(name: 'coalesce' | 'sync' | 'notify', cb: () => void): void {
     assert(`EmberData expects to schedule only when there is an active run`, !!this._cbs);
     assert(`EmberData expects only one flush per queue name, cannot schedule ${name}`, !this._cbs[name]);
+
     this._cbs[name] = cb;
   }
 
@@ -338,8 +339,8 @@ class Store extends Service {
       let modelName = identifier.type;
 
       let recordData = this._instanceCache.getRecordData(identifier);
+      // TODO deprecate allowing unknown args setting
       let createOptions: any = {
-        // TODO deprecate allowing unknown args setting
         _createProps: createRecordArgs,
         // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
         _secretInit: {
@@ -1127,7 +1128,11 @@ class Store extends Service {
       }
     }
 
-    return promiseRecord(this, promise, `DS: Store#findRecord ${identifier}`);
+    if (DEPRECATE_PROMISE_PROXIES) {
+      return promiseRecord(this, promise);
+    }
+
+    return promise.then((identifier: StableRecordIdentifier) => this.peekRecord(identifier));
   }
 
   /**
@@ -1358,8 +1363,8 @@ class Store extends Service {
     decoded: "/api/v1/person?ids[]=1&ids[]=2&ids[]=3"
     ```
 
-    This method returns a promise, which is resolved with an
-    [`AdapterPopulatedRecordArray`](/ember-data/release/classes/AdapterPopulatedRecordArray)
+    This method returns a promise, which is resolved with a
+    [`Collection`](/ember-data/release/classes/Collection)
     once the server returns.
 
     @since 1.13.0
@@ -1370,7 +1375,7 @@ class Store extends Service {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName: string, query, options): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
+  query(modelName: string, query, options): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1404,9 +1409,12 @@ class Store extends Service {
       query,
       recordArray,
       adapterOptionsWrapper
-    ) as unknown as Promise<AdapterPopulatedRecordArray>;
+    ) as unknown as Promise<Collection>;
 
-    return promiseArray(queryPromise);
+    if (DEPRECATE_PROMISE_PROXIES) {
+      return promiseArray(queryPromise);
+    }
+    return queryPromise;
   }
 
   /**
@@ -1507,7 +1515,11 @@ class Store extends Service {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName: string, query, options?): PromiseObject<RecordInstance | null> {
+  queryRecord(
+    modelName: string,
+    query,
+    options?
+  ): PromiseObject<RecordInstance | null> | Promise<RecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
@@ -1540,7 +1552,10 @@ class Store extends Service {
       adapterOptionsWrapper
     ) as Promise<StableRecordIdentifier | null>;
 
-    return promiseObject(promise.then((identifier) => identifier && this.peekRecord(identifier)));
+    if (DEPRECATE_PROMISE_PROXIES) {
+      return promiseObject(promise.then((identifier) => identifier && this.peekRecord(identifier)));
+    }
+    return promise.then((identifier) => identifier && this.peekRecord(identifier));
   }
 
   /**
@@ -1734,7 +1749,7 @@ class Store extends Service {
   findAll(
     modelName: string,
     options: { reload?: boolean; backgroundReload?: boolean } = {}
-  ): PromiseArray<RecordInstance, RecordArray> {
+  ): PromiseArray<RecordInstance, IdentifierArray> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findAll');
     }
@@ -1768,7 +1783,7 @@ class Store extends Service {
           (!adapter.shouldReloadAll && snapshotArray.length === 0)
         ) {
           array.isUpdating = true;
-          fetch = _findAll(adapter, this, modelName, options);
+          fetch = _findAll(adapter, this, modelName, options, snapshotArray);
         }
       }
 
@@ -1788,7 +1803,10 @@ class Store extends Service {
       }
     }
 
-    return promiseArray(fetch);
+    if (DEPRECATE_PROMISE_PROXIES) {
+      return promiseArray(fetch);
+    }
+    return fetch;
   }
 
   /**
@@ -1816,7 +1834,7 @@ class Store extends Service {
     @param {String} modelName
     @return {RecordArray}
   */
-  peekAll(modelName) {
+  peekAll(modelName: string): IdentifierArray {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekAll');
     }
@@ -1825,8 +1843,9 @@ class Store extends Service {
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
-    return this.recordArrayManager.liveArrayFor(normalizedModelName);
+
+    let type = normalizeModelName(modelName);
+    return this.recordArrayManager.liveArrayFor(type);
   }
 
   /**
@@ -1868,6 +1887,8 @@ class Store extends Service {
           }
         }
         this._notificationManager.destroy();
+
+        this.recordArrayManager.clear();
         this._instanceCache.clear();
       } else {
         let normalizedModelName = normalizeModelName(modelName);
@@ -2787,11 +2808,24 @@ function extractIdentifierFromRecord(
   }
   const extract = isForV1 ? recordDataFor : recordIdentifierFor;
 
-  if (isPromiseRecord(recordOrPromiseRecord)) {
+  if (DEPRECATE_PROMISE_PROXIES && isPromiseRecord(recordOrPromiseRecord)) {
     let content = recordOrPromiseRecord.content;
     assert(
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
       content !== undefined
+    );
+    deprecate(
+      `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
+      false,
+      {
+        id: 'ember-data:deprecate-promise-proxies',
+        until: '5.0',
+        since: {
+          enabled: '4.8',
+          available: '4.8',
+        },
+        for: 'ember-data',
+      }
     );
     return content ? extract(content) : null;
   }

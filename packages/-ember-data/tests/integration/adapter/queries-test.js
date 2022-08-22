@@ -80,8 +80,8 @@ module('integration/adapter/queries - Queries', function (hooks) {
     assert.strictEqual(queryResults.length, 2, 'the record array has a length of 2 after the results are loaded');
     assert.true(queryResults.isLoaded, "the record array's `isLoaded` property should be true");
 
-    assert.strictEqual(queryResults.objectAt(0).name, 'Peter Wagenet', "the first record is 'Peter Wagenet'");
-    assert.strictEqual(queryResults.objectAt(1).name, 'Brohuda Katz', "the second record is 'Brohuda Katz'");
+    assert.strictEqual(queryResults.at(0).name, 'Peter Wagenet', "the first record is 'Peter Wagenet'");
+    assert.strictEqual(queryResults.at(1).name, 'Brohuda Katz', "the second record is 'Brohuda Katz'");
   });
 
   test('a query can be updated via `update()`', async function (assert) {
@@ -101,7 +101,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
     let personsQuery = await store.query('person', {});
 
     assert.strictEqual(personsQuery.length, 1, 'There is one person');
-    assert.strictEqual(personsQuery.firstObject.id, 'first', 'the right person is present');
+    assert.strictEqual(personsQuery.at(0).id, 'first', 'the right person is present');
     assert.false(personsQuery.isUpdating, 'RecordArray is not updating');
 
     let resolveQueryPromise;
@@ -128,7 +128,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
     assert.false(personsQuery.isUpdating, 'RecordArray is not updating anymore');
     assert.strictEqual(personsQuery.length, 1, 'There is still one person after update resolves');
-    assert.strictEqual(personsQuery.firstObject.id, 'second', 'Now it is a different person');
+    assert.strictEqual(personsQuery.at(0).id, 'second', 'Now it is a different person');
   });
 
   testInDebug(

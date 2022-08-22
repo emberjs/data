@@ -9,6 +9,7 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/references/belongs-to', function (hooks) {
@@ -194,16 +195,16 @@ module('integration/references/belongs-to', function (hooks) {
     });
   });
 
-  test('push(promise)', function (assert) {
-    var done = assert.async();
+  deprecatedTest(
+    'push(promise)',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
+    async function (assert) {
+      let store = this.owner.lookup('service:store');
+      let Family = store.modelFor('family');
 
-    let store = this.owner.lookup('service:store');
-    let Family = store.modelFor('family');
+      var push;
+      var deferred = defer();
 
-    var push;
-    var deferred = defer();
-
-    run(function () {
       var person = store.push({
         data: {
           type: 'person',
@@ -217,11 +218,9 @@ module('integration/references/belongs-to', function (hooks) {
       });
       var familyReference = person.belongsTo('family');
       push = familyReference.push(deferred.promise);
-    });
 
-    assert.ok(push.then, 'BelongsToReference.push returns a promise');
+      assert.ok(push.then, 'BelongsToReference.push returns a promise');
 
-    run(function () {
       deferred.resolve({
         data: {
           type: 'family',
@@ -231,17 +230,13 @@ module('integration/references/belongs-to', function (hooks) {
           },
         },
       });
-    });
 
-    run(function () {
-      push.then(function (record) {
-        assert.ok(Family.detectInstance(record), 'push resolves with the record');
-        assert.strictEqual(get(record, 'name'), 'Coreleone', 'name is updated');
-
-        done();
+      await push.then(function (record) {
+        assert.ok(record instanceof Family, 'push resolves with the record');
+        assert.strictEqual(record.name, 'Coreleone', 'name is updated');
       });
-    });
-  });
+    }
+  );
 
   testInDebug('push(object) asserts for invalid modelClass', async function (assert) {
     let store = this.owner.lookup('service:store');

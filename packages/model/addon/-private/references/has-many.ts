@@ -1,3 +1,4 @@
+import { deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { DEBUG } from '@glimmer/env';
 import { cached, tracked } from '@glimmer/tracking';
@@ -7,6 +8,7 @@ import { resolve } from 'rsvp';
 
 import { ManyArray } from 'ember-data/-private';
 
+import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type { Graph } from '@ember-data/record-data/-private/graph';
 import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
@@ -397,7 +399,25 @@ export default class HasManyReference {
   async push(
     objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
   ): Promise<ManyArray> {
-    const payload = await resolve(objectOrPromise);
+    let payload = objectOrPromise;
+    if (DEPRECATE_PROMISE_PROXIES && (objectOrPromise as unknown as { then: unknown }).then) {
+      payload = await resolve(objectOrPromise);
+      if (payload !== objectOrPromise) {
+        deprecate(
+          `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
+          false,
+          {
+            id: 'ember-data:deprecate-promise-proxies',
+            until: '5.0',
+            since: {
+              enabled: '4.8',
+              available: '4.8',
+            },
+            for: 'ember-data',
+          }
+        );
+      }
+    }
     let array: Array<ExistingResourceObject | SingleResourceDocument>;
 
     if (!Array.isArray(payload) && typeof payload === 'object' && Array.isArray(payload.data)) {

@@ -37,6 +37,7 @@ module('PromiseManyArray', (hooks) => {
       if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
         group.members.replace(0, 1);
         assert.strictEqual(group.members.length, 4, 'updated length is correct');
+        assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
       }
 
       A(group.members);
@@ -48,6 +49,7 @@ module('PromiseManyArray', (hooks) => {
         assert.strictEqual(group.members.length, 3, 'updated length is correct');
         // we'll want to use a different test for this but will want to still ensure we are not side-affected
         assert.expectDeprecation({ id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 2 });
+        assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
       }
     }
   );
@@ -135,6 +137,7 @@ module('PromiseManyArray', (hooks) => {
       assert.strictEqual(johnRecords.length, 2, 'johnRecords length is correct');
       assert.strictEqual(group.members.length, 6, 'members length is correct');
       assert.expectDeprecation({ id: 'ember-data:no-a-with-array-like', count: 2 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-array-like', count: 12 });
     }
   );
 });

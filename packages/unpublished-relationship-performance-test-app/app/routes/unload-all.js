@@ -11,8 +11,8 @@ export default Route.extend({
     performance.mark('start-push-payload');
     this.store.push(payload);
     performance.mark('start-materialization');
-    this.store.peekAll('child').toArray();
-    this.store.peekAll('parent').toArray();
+    this.store.peekAll('child').slice();
+    this.store.peekAll('parent').slice();
 
     performance.mark('start-unload-all');
     run(() => {

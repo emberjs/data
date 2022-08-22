@@ -186,11 +186,11 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(passedUrl[0], '/posts');
 
     assert.strictEqual(posts.length, 2, 'Returns two post records');
-    assert.strictEqual(posts.firstObject.title, 'Ember.js rocks', 'The title for the first post is correct');
-    assert.strictEqual(posts.lastObject.title, 'Tomster rules', 'The title for the second post is correct');
+    assert.strictEqual(posts.at(0).title, 'Ember.js rocks', 'The title for the first post is correct');
+    assert.strictEqual(posts.at(-1).title, 'Tomster rules', 'The title for the second post is correct');
 
-    const firstPostAuthor = await posts.firstObject.author;
-    const lastPostAuthor = await posts.lastObject.author;
+    const firstPostAuthor = await posts.at(0).author;
+    const lastPostAuthor = await posts.at(-1).author;
 
     assert.strictEqual(
       firstPostAuthor.firstName,
@@ -203,21 +203,13 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       'The author for the last post is loaded and has the correct last name'
     );
 
-    const firstComments = await posts.firstObject.comments;
-    const lastComments = await posts.lastObject.comments;
+    const firstComments = await posts.at(0).comments;
+    const lastComments = await posts.at(-1).comments;
 
     assert.strictEqual(firstComments.length, 0, 'First post doesnt have comments');
 
-    assert.strictEqual(
-      lastComments.firstObject.text,
-      'This is the first comment',
-      'Loads first comment for second post'
-    );
-    assert.strictEqual(
-      lastComments.lastObject.text,
-      'This is the second comment',
-      'Loads second comment for second post'
-    );
+    assert.strictEqual(lastComments.at(0).text, 'This is the first comment', 'Loads first comment for second post');
+    assert.strictEqual(lastComments.at(-1).text, 'This is the second comment', 'Loads second comment for second post');
   });
 
   test('find many records', async function (assert) {
@@ -243,7 +235,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.deepEqual(passedHash[0], { data: { filter: { id: '1' } } }, 'Sends correct params to adapter');
 
     assert.strictEqual(posts.length, 1, 'Returns the correct number of records');
-    assert.strictEqual(posts.firstObject.title, 'Ember.js rocks', 'Sets correct title to record');
+    assert.strictEqual(posts.at(0).title, 'Ember.js rocks', 'Sets correct title to record');
   });
 
   test('queryRecord - primary data being a single record', async function (assert) {
@@ -544,8 +536,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       'The related records comments using correct url'
     );
     assert.strictEqual(comments.length, 2, 'Loads the correct number of comments from response');
-    assert.strictEqual(comments.firstObject.text, 'This is the first comment', 'First comment text is correct');
-    assert.strictEqual(comments.lastObject.text, 'This is the second comment', 'Second comment text is correct');
+    assert.strictEqual(comments.at(0).text, 'This is the first comment', 'First comment text is correct');
+    assert.strictEqual(comments.at(-1).text, 'This is the second comment', 'Second comment text is correct');
   });
 
   test('find a single record with hasMany link as object { data }', async function (assert) {
@@ -600,8 +592,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(passedUrl[1], '/comments/2', 'Builds correct URL to fetch related record');
     assert.strictEqual(passedUrl[2], '/comments/3', 'Builds correct URL to fetch related record');
     assert.strictEqual(comments.length, 2);
-    assert.strictEqual(comments.firstObject.text, 'This is the first comment', 'First comment text is correct');
-    assert.strictEqual(comments.lastObject.text, 'This is the second comment', 'Second comment text is correct');
+    assert.strictEqual(comments.at(0).text, 'This is the first comment', 'First comment text is correct');
+    assert.strictEqual(comments.at(-1).text, 'This is the second comment', 'Second comment text is correct');
   });
 
   test('find a single record with hasMany link as object { data } (polymorphic)', async function (assert) {
@@ -660,8 +652,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(passedUrl[2], '/twitter-handles/3', 'Builds correct URL to fetch related record');
 
     assert.strictEqual(handles.length, 2);
-    assert.strictEqual(handles.firstObject.username, 'wycats', 'First handle username is correct');
-    assert.strictEqual(handles.lastObject.nickname, '@wycats', 'Second handle nickname is correct');
+    assert.strictEqual(handles.at(0).username, 'wycats', 'First handle username is correct');
+    assert.strictEqual(handles.at(-1).nickname, '@wycats', 'Second handle nickname is correct');
   });
 
   test('find a single record with sideloaded hasMany link as object { data }', async function (assert) {
@@ -714,8 +706,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(passedUrl.length, 1, 'Do not call extra end points because related records are included');
 
     assert.strictEqual(comments.length, 2, 'Loads related records');
-    assert.strictEqual(comments.firstObject.text, 'This is the first comment', 'First comment text is correct');
-    assert.strictEqual(comments.lastObject.text, 'This is the second comment', 'Second comment text is correct');
+    assert.strictEqual(comments.at(0).text, 'This is the first comment', 'First comment text is correct');
+    assert.strictEqual(comments.at(-1).text, 'This is the second comment', 'Second comment text is correct');
   });
 
   test('find a single record with sideloaded hasMany link as object { data } (polymorphic)', async function (assert) {
@@ -771,8 +763,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(passedUrl.length, 1, 'Do not call extra end points because related records are included');
 
     assert.strictEqual(handles.length, 2);
-    assert.strictEqual(handles.firstObject.username, 'wycats');
-    assert.strictEqual(handles.lastObject.nickname, '@wycats');
+    assert.strictEqual(handles.at(0).username, 'wycats');
+    assert.strictEqual(handles.at(-1).nickname, '@wycats');
   });
 
   test('create record', async function (assert) {
@@ -815,7 +807,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
 
     let handles = await user.handles;
 
-    handles.addObject(githubHandle);
+    handles.push(githubHandle);
 
     await user.save();
 
@@ -889,7 +881,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
 
     let handles = await user.handles;
 
-    handles.addObject(githubHandle);
+    handles.push(githubHandle);
 
     await user.save();
 
@@ -971,8 +963,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
 
     let handles = await user.handles;
 
-    handles.addObject(githubHandle);
-    handles.addObject(twitterHandle);
+    handles.push(githubHandle);
+    handles.push(twitterHandle);
 
     await user.save();
 

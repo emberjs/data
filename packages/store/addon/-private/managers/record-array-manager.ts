@@ -1,22 +1,71 @@
 /**
   @module @ember-data/store
 */
-
-import { A } from '@ember/array';
-import { _backburner as emberBackburner } from '@ember/runloop';
-
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import AdapterPopulatedRecordArray, {
-  AdapterPopulatedRecordArrayCreateArgs,
-} from '../record-arrays/adapter-populated-record-array';
-import RecordArray from '../record-arrays/record-array';
+import IdentifierArray, {
+  Collection,
+  CollectionCreateOptions,
+  IDENTIFIER_ARRAY_TAG,
+  SOURCE,
+} from '../record-arrays/identifier-array';
 import type Store from '../store-service';
 
-const RecordArraysCache = new Map<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>();
+const RecordArraysCache = new Map<StableRecordIdentifier, Set<Collection>>();
 const FAKE_ARR = {};
+
+const SLICE_BATCH_SIZE = 1200;
+/**
+ * This is a clever optimization.
+ *
+ * clever optimizations rarely stand the test of time, so if you're
+ * ever curious or think something better is possible please benchmark
+ * and discuss. The benchmark for this at the time of writing is in
+ * `scripts/benchmark-push.js`
+ *
+ * This approach turns out to be 150x faster in Chrome and node than
+ * simply using push or concat. It's highly susceptible to the specifics
+ * of the batch size, and may require tuning.
+ *
+ * Clever optimizations should always come with a `why`. This optimization
+ * exists for two reasons.
+ *
+ * 1) array.push(...objects) and Array.prototype.push.apply(arr, objects)
+ *   are susceptible to stack overflows. The size of objects at which this
+ *   occurs varies by environment, browser, and current stack depth and memory
+ *   pressure; however, it occurs in all browsers in fairly pristine conditions
+ *   somewhere around 125k to 200k elements. Since EmberData regularly encounters
+ *   arrays larger than this in size, we cannot use push.
+ *
+ * 2) `array.concat` or simply setting the array to a new reference is often an
+ *   easier approach; however, native Proxy to an array cannot swap it's target array
+ *   and attempts at juggling multiple array sources have proven to be victim to a number
+ *   of browser implementation bugs. Should these bugs be addressed then we could
+ *   simplify to using `concat`, however, do note this is currently 150x faster
+ *   than concat, and due to the overloaded signature of concat will likely always
+ *   be faster.
+ *
+ * Sincerely,
+ *   - runspired (Chris Thoburn) 08/21/2022
+ *
+ * @function fastPush
+ * @internal
+ * @param target the array to push into
+ * @param source the items to push into target
+ */
+export function fastPush<T>(target: T[], source: T[]) {
+  let startLength = 0;
+  let newLength = source.length;
+  while (newLength - startLength > SLICE_BATCH_SIZE) {
+    // eslint-disable-next-line prefer-spread
+    target.push.apply(target, source.slice(startLength, SLICE_BATCH_SIZE));
+    startLength += SLICE_BATCH_SIZE;
+  }
+  // eslint-disable-next-line prefer-spread
+  target.push.apply(target, source.slice(startLength));
+}
 
 type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del'>;
 
@@ -28,11 +77,10 @@ class RecordArrayManager {
   declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
-  declare _live: Map<string, RecordArray>;
-  declare _managed: Set<AdapterPopulatedRecordArray>;
-  declare _pending: Map<RecordArray | AdapterPopulatedRecordArray, ChangeSet>;
-  declare _willFlush: boolean;
-  declare _identifiers: Map<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>;
+  declare _live: Map<string, IdentifierArray>;
+  declare _managed: Set<IdentifierArray>;
+  declare _pending: Map<IdentifierArray, ChangeSet>;
+  declare _identifiers: Map<StableRecordIdentifier, Set<Collection>>;
   declare _staged: Map<string, ChangeSet>;
 
   constructor(options: { store: Store }) {
@@ -43,18 +91,17 @@ class RecordArrayManager {
     this._managed = new Set();
     this._pending = new Map();
     this._staged = new Map();
-    this._willFlush = false;
     this._identifiers = RecordArraysCache;
   }
 
-  _syncArray(array: RecordArray | AdapterPopulatedRecordArray) {
+  _syncArray(array: IdentifierArray) {
     const pending = this._pending.get(array);
 
     if (!pending || this.isDestroying || this.isDestroyed) {
       return;
     }
 
-    array._updateState(pending);
+    sync(array, pending);
     this._pending.delete(array);
   }
 
@@ -67,7 +114,7 @@ class RecordArrayManager {
     @param {String} modelName
     @return {RecordArray}
   */
-  liveArrayFor(type: string): RecordArray {
+  liveArrayFor(type: string): IdentifierArray {
     let array = this._live.get(type);
     let identifiers: StableRecordIdentifier[] = [];
     let staged = this._staged.get(type);
@@ -81,19 +128,14 @@ class RecordArrayManager {
     }
 
     if (!array) {
-      array = RecordArray.create({
-        modelName: type,
-        content: A(identifiers),
+      array = new IdentifierArray({
+        type,
+        identifiers,
         store: this.store,
-        isLoaded: true,
+        allowMutation: false,
         manager: this,
       });
       this._live.set(type, array);
-    } else {
-      let pending = this._pending.get(array);
-      if (pending) {
-        array._notify();
-      }
     }
 
     return array;
@@ -104,18 +146,19 @@ class RecordArrayManager {
     query?: Dict<unknown>;
     identifiers?: StableRecordIdentifier[];
     doc?: CollectionResourceDocument;
-  }): AdapterPopulatedRecordArray {
-    let options: AdapterPopulatedRecordArrayCreateArgs = {
-      modelName: config.type,
+  }): Collection {
+    let options: CollectionCreateOptions = {
+      type: config.type,
       links: config.doc?.links || null,
       meta: config.doc?.meta || null,
       query: config.query || null,
-      content: A(config.identifiers || []),
+      identifiers: config.identifiers || [],
       isLoaded: !!config.identifiers?.length,
+      allowMutation: false,
       store: this.store,
       manager: this,
     };
-    let array = AdapterPopulatedRecordArray.create(options);
+    let array = new Collection(options);
     this._managed.add(array);
     if (config.identifiers) {
       associate(array, config.identifiers);
@@ -124,35 +167,29 @@ class RecordArrayManager {
     return array;
   }
 
-  dirtyArray(array: RecordArray | AdapterPopulatedRecordArray): void {
-    if (array === FAKE_ARR || this._willFlush) {
+  dirtyArray(array: IdentifierArray): void {
+    if (array === FAKE_ARR) {
       return;
     }
-    this._willFlush = true;
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    emberBackburner.schedule('actions', this, this._flush);
-  }
-
-  _flush() {
-    this._willFlush = false;
-    let pending = this._pending;
-    pending.forEach((_changes, recordArray) => {
-      recordArray._notify();
-    });
+    let tag = array[IDENTIFIER_ARRAY_TAG];
+    if (!tag.shouldReset) {
+      tag.shouldReset = true;
+      tag.ref = null;
+    }
   }
 
   _getPendingFor(
     identifier: StableRecordIdentifier,
     includeManaged: boolean,
     isRemove?: boolean
-  ): Map<RecordArray | AdapterPopulatedRecordArray, ChangeSet> | void {
+  ): Map<IdentifierArray, ChangeSet> | void {
     if (this.isDestroying || this.isDestroyed) {
       return;
     }
 
     let liveArray = this._live.get(identifier.type);
     const allPending = this._pending;
-    let pending: Map<RecordArray | AdapterPopulatedRecordArray, ChangeSet> = new Map();
+    let pending: Map<IdentifierArray, ChangeSet> = new Map();
 
     if (includeManaged) {
       let managed = RecordArraysCache.get(identifier);
@@ -170,7 +207,7 @@ class RecordArrayManager {
 
     // during unloadAll we can ignore removes since we've already
     // cleared the array.
-    if (liveArray && liveArray.content.length === 0 && isRemove) {
+    if (liveArray && liveArray[SOURCE].length === 0 && isRemove) {
       return pending;
     }
 
@@ -182,7 +219,7 @@ class RecordArrayManager {
         changes = new Map();
         this._staged.set(identifier.type, changes);
       }
-      pending.set(FAKE_ARR as RecordArray, changes);
+      pending.set(FAKE_ARR as IdentifierArray, changes);
     } else {
       let changes = allPending.get(liveArray);
       if (!changes) {
@@ -195,14 +232,13 @@ class RecordArrayManager {
     return pending;
   }
 
-  populateManagedArray(
-    array: AdapterPopulatedRecordArray,
-    identifiers: StableRecordIdentifier[],
-    payload: CollectionResourceDocument
-  ) {
+  populateManagedArray(array: Collection, identifiers: StableRecordIdentifier[], payload: CollectionResourceDocument) {
     this._pending.delete(array);
-    const old = array.content;
-    array.content.setObjects(identifiers); // this will also notify
+    const source = array[SOURCE];
+    const old = source.slice();
+    source.length = 0;
+    fastPush(source, identifiers);
+    array[IDENTIFIER_ARRAY_TAG].ref = null;
     array.meta = payload.meta || null;
     array.links = payload.links || null;
     array.isLoaded = true;
@@ -272,7 +308,7 @@ class RecordArrayManager {
   }
 }
 
-function associate(array: AdapterPopulatedRecordArray, identifiers: StableRecordIdentifier[]) {
+function associate(array: Collection, identifiers: StableRecordIdentifier[]) {
   for (let i = 0; i < identifiers.length; i++) {
     let identifier = identifiers[i];
     let cache = RecordArraysCache.get(identifier);
@@ -283,15 +319,58 @@ function associate(array: AdapterPopulatedRecordArray, identifiers: StableRecord
     cache.add(array);
   }
 }
-function disassociate(array: AdapterPopulatedRecordArray, identifiers: StableRecordIdentifier[]) {
+
+function disassociate(array: Collection, identifiers: StableRecordIdentifier[]) {
   for (let i = 0; i < identifiers.length; i++) {
     disassociateIdentifier(array, identifiers[i]);
   }
 }
-export function disassociateIdentifier(array: AdapterPopulatedRecordArray, identifier: StableRecordIdentifier) {
+
+export function disassociateIdentifier(array: Collection, identifier: StableRecordIdentifier) {
   let cache = RecordArraysCache.get(identifier);
   if (cache) {
     cache.delete(array);
+  }
+}
+
+function sync(array: IdentifierArray, changes: Map<StableRecordIdentifier, 'add' | 'del'>) {
+  let state = array[SOURCE];
+  const adds: StableRecordIdentifier[] = [];
+  const removes: StableRecordIdentifier[] = [];
+  changes.forEach((value, key) => {
+    if (value === 'add') {
+      // likely we want to keep a Set along-side
+      if (state.includes(key)) {
+        return;
+      }
+      adds.push(key);
+    } else {
+      removes.push(key);
+    }
+  });
+  if (removes.length) {
+    if (removes.length === state.length) {
+      state.length = 0;
+      // changing the reference breaks the Proxy
+      // state = array[SOURCE] = [];
+    } else {
+      removes.forEach((i) => {
+        state.splice(state.indexOf(i), 1);
+      });
+    }
+  }
+
+  if (adds.length) {
+    fastPush(state, adds);
+    // changing the reference breaks the Proxy
+    // else we could do this
+    /*
+    if (state.length === 0) {
+      array[SOURCE] = adds;
+    } else {
+      array[SOURCE] = state.concat(adds);
+    }
+    */
   }
 }
 

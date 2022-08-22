@@ -7,7 +7,6 @@ import EmberError from '@ember/error';
 import EmberObject from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
-import { inject as service } from '@ember/service';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
@@ -23,8 +22,9 @@ import {
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId, deprecatedPromiseObject, recordDataFor } from '@ember-data/store/-private';
+import { coerceId, recordDataFor } from '@ember-data/store/-private';
 
+import { deprecatedPromiseObject } from './deprecated-promise-proxy';
 import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
 import notifyChanges from './notify-changes';
@@ -122,7 +122,6 @@ function computeOnce(target, key, desc) {
   @extends Ember.EmberObject
 */
 class Model extends EmberObject {
-  @service store;
   ___private_notifications;
 
   init(options = {}) {
@@ -135,26 +134,27 @@ class Model extends EmberObject {
     const _secretInit = options._secretInit;
     options._createProps = null;
     options._secretInit = null;
+
+    let store = (this.store = _secretInit.store);
     super.init(options);
 
     let identity = _secretInit.identifier;
     _secretInit.cb(this, _secretInit.recordData, identity, _secretInit.store);
+
     this.___recordState = DEBUG ? new RecordState(this) : null;
 
     this.setProperties(createProps);
 
-    let store = storeFor(this);
     let notifications = store._notificationManager;
-
     this.___private_notifications = notifications.subscribe(identity, (identifier, type, key) => {
       notifyChanges(identifier, type, key, this, store);
     });
   }
 
   destroy() {
+    const identifier = recordIdentifierFor(this);
     this.___recordState?.destroy();
     const store = storeFor(this);
-    const identifier = recordIdentifierFor(this);
     store._notificationManager.unsubscribe(this.___private_notifications);
     // Legacy behavior is to notify the relationships on destroy
     // such that they "clear". It's uncertain this behavior would
@@ -162,6 +162,7 @@ class Model extends EmberObject {
     // to simply not notify, for this reason the store does not itself
     // notify individual changes once the delete has been signaled,
     // this decision is left to model instances.
+
     this.eachRelationship((key, meta) => {
       if (meta.kind === 'belongsTo') {
         this.notifyPropertyChange(key);
@@ -170,6 +171,7 @@ class Model extends EmberObject {
     LEGACY_SUPPORT.get(this)?.destroy();
     LEGACY_SUPPORT.delete(this);
     LEGACY_SUPPORT.delete(identifier);
+
     super.destroy();
   }
 
@@ -846,6 +848,7 @@ class Model extends EmberObject {
   rollbackAttributes() {
     const { currentState } = this;
     const { isNew } = currentState;
+
     storeFor(this)._join(() => {
       recordDataFor(this).rollbackAttrs(recordIdentifierFor(this));
       this.errors.clear();
@@ -1152,7 +1155,7 @@ class Model extends EmberObject {
       record.eachRelationship(function(name, descriptor) {
         if (descriptor.kind === 'hasMany') {
           let serializedHasManyName = name.toUpperCase() + '_IDS';
-          json[serializedHasManyName] = record.get(name).mapBy('id');
+          json[serializedHasManyName] = record.get(name).map(r => r.id);
         }
       });
 

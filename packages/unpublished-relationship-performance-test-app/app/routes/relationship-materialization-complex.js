@@ -13,8 +13,8 @@ export default Route.extend({
     const peekedChildren = this.store.peekAll('child');
     const peekedParents = this.store.peekAll('parent');
     performance.mark('start-record-materialization');
-    peekedChildren.toArray();
-    peekedParents.toArray();
+    peekedChildren.slice();
+    peekedParents.slice();
     performance.mark('start-relationship-materialization');
     let seen = new Set();
     peekedParents.forEach((parent) => iterateParent(parent, seen));

@@ -59,7 +59,7 @@ module('integration/records/error', function (hooks) {
     person.errors.add('lastName', 'is invalid');
 
     assert.deepEqual(
-      person.errors.toArray(),
+      person.errors.slice(),
       [
         { attribute: 'firstName', message: 'is invalid' },
         { attribute: 'lastName', message: 'is invalid' },
@@ -108,7 +108,7 @@ module('integration/records/error', function (hooks) {
     person.errors.add('lastName', 'is invalid');
 
     assert.deepEqual(
-      person.errors.toArray(),
+      person.errors.slice(),
       [
         { attribute: 'firstName', message: 'is invalid' },
         { attribute: 'lastName', message: 'is invalid' },
@@ -144,11 +144,11 @@ module('integration/records/error', function (hooks) {
 
     person.errors.remove('firstName');
 
-    assert.deepEqual(person.errors.toArray(), []);
+    assert.deepEqual(person.errors.slice(), []);
 
     person.errors.add('firstName', 'is invalid');
 
-    assert.deepEqual(person.errors.toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
+    assert.deepEqual(person.errors.slice(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
 
   testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function (assert) {
@@ -181,7 +181,7 @@ module('integration/records/error', function (hooks) {
 
     assert.strictEqual(person.currentState.stateName, 'root.loaded.created.invalid');
 
-    assert.deepEqual(person.errors.toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
+    assert.deepEqual(person.errors.slice(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
 
   test('using setProperties to clear errors', async function (assert) {

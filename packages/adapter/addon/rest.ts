@@ -616,7 +616,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Store} store
     @param {Model} type
     @param {Object} query
-    @param {AdapterPopulatedRecordArray} recordArray
+    @param {Collection} recordArray
     @param {Object} adapterOptions
     @return {Promise} promise
   */

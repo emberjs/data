@@ -59,7 +59,7 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     await settled();
 
-    assert.strictEqual(get(recordArray, 'lastObject.name'), 'wycats');
+    assert.strictEqual(recordArray.at(-1).name, 'wycats');
 
     store.push({
       data: {
@@ -73,7 +73,7 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     await settled();
 
-    assert.strictEqual(get(recordArray, 'lastObject.name'), 'brohuda');
+    assert.strictEqual(recordArray.at(-1).name, 'brohuda');
   });
 
   test('acts as a live query (normalized names)', async function (assert) {
@@ -96,7 +96,10 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     await settled();
 
-    assert.deepEqual(recordArray.mapBy('name'), ['John Churchill']);
+    assert.deepEqual(
+      recordArray.map((v) => v.name),
+      ['John Churchill']
+    );
 
     store.push({
       data: {
@@ -110,7 +113,10 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     await settled();
 
-    assert.deepEqual(recordArray.mapBy('name'), ['John Churchill', 'Winston Churchill']);
+    assert.deepEqual(
+      recordArray.map((v) => v.name),
+      ['John Churchill', 'Winston Churchill']
+    );
   });
 
   test('a loaded record is removed from a record array when it is deleted', async function (assert) {
@@ -158,26 +164,26 @@ module('unit/record-array - RecordArray', function (hooks) {
       ],
     });
 
-    let scumbag = await store.findRecord('person', 1);
-    let tag = await store.findRecord('tag', 1);
+    let scumbag = await store.findRecord('person', '1');
+    let tag = await store.findRecord('tag', '1');
     let recordArray = tag.people;
 
-    recordArray.addObject(scumbag);
+    recordArray.push(scumbag);
 
     assert.strictEqual(scumbag.tag, tag, "precond - the scumbag's tag has been set");
-    assert.strictEqual(get(recordArray, 'length'), 1, 'precond - record array has one item');
-    assert.strictEqual(get(recordArray.objectAt(0), 'name'), 'Scumbag Dale', 'item at index 0 is record with id 1');
+    assert.strictEqual(recordArray.length, 1, 'precond - record array has one item');
+    assert.strictEqual(recordArray.at(0)?.name, 'Scumbag Dale', 'item at index 0 is record with id 1');
 
     scumbag.deleteRecord();
 
-    assert.strictEqual(get(recordArray, 'length'), 1, 'record is still in the record array until it is saved');
+    assert.strictEqual(recordArray.length, 1, 'record is still in the record array until it is saved');
 
     await scumbag.save();
 
-    assert.strictEqual(get(recordArray, 'length'), 0, 'record is removed from the array when it is saved');
+    assert.strictEqual(recordArray.length, 0, 'record is removed from the array when it is saved');
   });
 
-  test("a loaded record is not removed from a record array when it is deleted even if the belongsTo side isn't defined", async function (assert) {
+  test("a loaded record is not removed from a relationship ManyArray when it is deleted even if the belongsTo side isn't defined", async function (assert) {
     class Person extends Model {
       @attr()
       name;
@@ -227,8 +233,8 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     scumbag.deleteRecord();
 
-    assert.strictEqual(tag.people.length, 1, 'record is not removed from the record array');
-    assert.strictEqual(tag.people.objectAt(0), scumbag, 'tag still has the scumbag');
+    assert.strictEqual(tag.people.length, 1, 'record is not removed from the ManyArray');
+    assert.strictEqual(tag.people.at(0), scumbag, 'tag still has the scumbag');
   });
 
   test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", async function (assert) {
@@ -300,12 +306,12 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     await settled();
 
-    assert.strictEqual(get(recordArray, 'length'), 4, 'precond - record array has the created item');
-    assert.strictEqual(recordArray.objectAt(0), scumbag, 'item at index 0 is record with id 1');
+    assert.strictEqual(recordArray.length, 4, 'precond - record array has the created item');
+    assert.strictEqual(recordArray.at(0), scumbag, 'item at index 0 is record with id 1');
 
     scumbag.deleteRecord();
 
-    assert.strictEqual(get(recordArray, 'length'), 3, 'record array no longer has the created item');
+    assert.strictEqual(recordArray.length, 3, 'record array no longer has the created item');
   });
 
   test("a record array returns undefined when asking for a member outside of its content Array's range", async function (assert) {
@@ -337,7 +343,7 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     let recordArray = store.peekAll('person');
 
-    assert.strictEqual(recordArray.objectAt(20), undefined, 'objects outside of the range just return undefined');
+    assert.strictEqual(recordArray.at(20), undefined, 'objects outside of the range just return undefined');
   });
 
   // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
@@ -370,16 +376,17 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     let recordArray = store.peekAll('person');
 
-    assert.strictEqual(get(recordArray.objectAt(2), 'id'), '3', 'should retrieve correct record at index 2');
-    assert.strictEqual(get(recordArray.objectAt(1), 'id'), '2', 'should retrieve correct record at index 1');
-    assert.strictEqual(get(recordArray.objectAt(0), 'id'), '1', 'should retrieve correct record at index 0');
+    assert.strictEqual(recordArray.at(2).id, '3', 'should retrieve correct record at index 2');
+    assert.strictEqual(recordArray.at(1).id, '2', 'should retrieve correct record at index 1');
+    assert.strictEqual(recordArray.at(0).id, '1', 'should retrieve correct record at index 0');
   });
 
   test("an AdapterPopulatedRecordArray knows if it's loaded or not", async function (assert) {
-    assert.expect(1);
+    assert.expect(2);
     let adapter = store.adapterFor('person');
 
     adapter.query = function (store, type, query, recordArray) {
+      assert.false(recordArray.isLoaded, 'not loaded yet');
       return resolve({
         data: [
           { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
@@ -391,6 +398,6 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     let people = await store.query('person', { page: 1 });
 
-    assert.true(get(people, 'isLoaded'), 'The array is now loaded');
+    assert.true(people.isLoaded, 'The array is now loaded');
   });
 });

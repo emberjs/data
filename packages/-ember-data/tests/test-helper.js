@@ -21,7 +21,7 @@ if (window.Promise === undefined) {
 if (QUnit.urlParams.enableoptionalfeatures) {
   window.EmberDataENV = { ENABLE_OPTIONAL_FEATURES: true };
 }
-
+QUnit.dump.maxDepth = 3;
 setup(QUnit.assert);
 
 configureAsserts();

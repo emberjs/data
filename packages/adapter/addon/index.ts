@@ -322,7 +322,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Store} store
     @param {Model} type
     @param {Object} query
-    @param {AdapterPopulatedRecordArray} recordArray
+    @param {Collection} recordArray
     @param {Object} adapterOptions
     @return {Promise} promise
     @public

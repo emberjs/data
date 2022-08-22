@@ -307,7 +307,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     });
 
     run(function () {
-      post.comments.pushObject(comment);
+      post.comments.push(comment);
     });
 
     let json = {};
@@ -923,7 +923,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: post });
 
     const comments = await post.comments;
-    comments.pushObject(comment);
+    comments.push(comment);
 
     const serializer = store.serializerFor('post');
     const serializedProperty = serializer.keyForRelationship('comments', 'hasMany');

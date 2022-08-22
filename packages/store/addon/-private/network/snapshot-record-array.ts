@@ -10,7 +10,8 @@ import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type RecordArray from '../record-arrays/record-array';
+import type IdentifierArray from '../record-arrays/identifier-array';
+import { SOURCE } from '../record-arrays/identifier-array';
 import Store from '../store-service';
 import type Snapshot from './snapshot';
 /**
@@ -23,12 +24,11 @@ import type Snapshot from './snapshot';
 */
 export default class SnapshotRecordArray {
   declare _snapshots: Snapshot[] | null;
-  declare _recordArray: RecordArray;
+  declare _recordArray: IdentifierArray;
   declare _type: ModelSchema | null;
   declare __store: Store;
 
   declare length: number;
-  declare meta: Dict<unknown> | null;
   declare adapterOptions?: Dict<unknown>;
   declare include?: string;
 
@@ -41,10 +41,9 @@ export default class SnapshotRecordArray {
     @private
     @constructor
     @param {RecordArray} recordArray
-    @param {Object} meta
     @param options
    */
-  constructor(store: Store, recordArray: RecordArray, options: FindOptions = {}) {
+  constructor(store: Store, recordArray: IdentifierArray, options: FindOptions = {}) {
     this.__store = store;
     /**
       An array of snapshots
@@ -181,8 +180,9 @@ export default class SnapshotRecordArray {
     if (this._snapshots !== null) {
       return this._snapshots;
     }
+
     const { _instanceCache } = this.__store;
-    this._snapshots = this._recordArray.content.map((identifier: StableRecordIdentifier) =>
+    this._snapshots = this._recordArray[SOURCE].map((identifier: StableRecordIdentifier) =>
       _instanceCache.createSnapshot(identifier)
     );
 

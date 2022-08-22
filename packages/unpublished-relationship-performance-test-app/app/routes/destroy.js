@@ -15,7 +15,7 @@ export default Route.extend({
     performance.mark('start-destroy-records');
     const children = await parent.children;
 
-    const childrenPromise = all(children.toArray().map((child) => child.destroyRecord()));
+    const childrenPromise = all(children.slice().map((child) => child.destroyRecord()));
     const parentPromise = parent.destroyRecord();
 
     await all([childrenPromise, parentPromise]);

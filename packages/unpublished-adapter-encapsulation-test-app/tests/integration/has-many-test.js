@@ -195,7 +195,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     let comments = await post.comments;
     let serializedComments = {
-      data: comments.toArray().map((comment) => comment.serialize().data),
+      data: comments.slice().map((comment) => comment.serialize().data),
     };
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
@@ -304,7 +304,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let post = store.push(initialRecord);
     let comments = await post.comments;
     let serializedComments = {
-      data: comments.toArray().map((comment) => comment.serialize().data),
+      data: comments.slice().map((comment) => comment.serialize().data),
     };
 
     assert.strictEqual(findRecordCalled, 2, 'findRecord is called twice');
@@ -376,7 +376,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let post = store.push(initialRecord);
     let comments = await post.comments;
     let serializedComments = {
-      data: comments.toArray().map((comment) => comment.serialize().data),
+      data: comments.slice().map((comment) => comment.serialize().data),
     };
 
     assert.strictEqual(findRecordCalled, 2, 'findRecord is called twice');
@@ -459,7 +459,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let post = store.push(initialRecord);
     let comments = await post.comments;
     let serializedComments = {
-      data: comments.toArray().map((comment) => comment.serialize().data),
+      data: comments.slice().map((comment) => comment.serialize().data),
     };
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
@@ -538,7 +538,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let post = store.push(initialRecord);
     let comments = await post.comments;
     let serializedComments = {
-      data: comments.toArray().map((comment) => comment.serialize().data),
+      data: comments.slice().map((comment) => comment.serialize().data),
     };
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
@@ -617,7 +617,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     let comments = await post.comments;
     let serializedComments = {
-      data: comments.toArray().map((comment) => comment.serialize().data),
+      data: comments.slice().map((comment) => comment.serialize().data),
     };
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
@@ -699,7 +699,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let post = store.push(initialRecord);
     let comments = await post.comments;
     let serializedComments = {
-      data: comments.toArray().map((comment) => comment.serialize().data),
+      data: comments.slice().map((comment) => comment.serialize().data),
     };
 
     assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
@@ -770,7 +770,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let post = store.push(initialRecord);
     let comments = await post.comments;
     let serializedComments = {
-      data: comments.toArray().map((comment) => comment.serialize().data),
+      data: comments.slice().map((comment) => comment.serialize().data),
     };
 
     assert.strictEqual(findRecordCalled, 2, 'findRecord is called twice');

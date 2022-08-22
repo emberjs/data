@@ -1,5 +1,8 @@
+import { helper } from '@ember/component/helper';
 import { addObserver, removeObserver } from '@ember/object/observers';
+import { render } from '@ember/test-helpers';
 
+import hbs from 'htmlbars-inline-precompile';
 import QUnit from 'qunit';
 
 function freeze(obj) {
@@ -50,6 +53,23 @@ export function watchProperty(obj, propertyName) {
   return { counter, unwatch };
 }
 
+export async function startWatching() {
+  this.set(
+    'observe',
+    helper(([obj, prop, value]) => {
+      obj.watchers[prop]();
+    })
+  );
+  this.set('__watchedObjects', this.__watchedObjects);
+  await render(hbs`
+  {{#each this.__watchedObjects key="@index" as |obj|}}
+    {{#each obj.properties key="@index" as |prop|}}
+      {{this.observe obj prop (get obj.context prop)}}
+    {{/each}}
+  {{/each}}
+`);
+}
+
 export function watchProperties(obj, propertyNames) {
   let watched = {};
   let counters = {};
@@ -68,17 +88,11 @@ export function watchProperties(obj, propertyNames) {
     let { counter, increment } = makeCounter();
     watched[propertyName] = increment;
     counters[propertyName] = counter;
-
-    addObserver(obj, propertyName, increment);
   }
 
-  function unwatch() {
-    Object.keys(watched).forEach((propertyName) => {
-      removeObserver(obj, propertyName, watched[propertyName]);
-    });
-  }
-
-  return { counters, unwatch };
+  this.__watchedObjects = this.__watchedObjects || [];
+  this.__watchedObjects.push({ context: obj, counters, watchers: watched, properties: propertyNames });
+  return { counters };
 }
 
 QUnit.assert.watchedPropertyCounts = function assertWatchedPropertyCount(watchedObject, expectedCounts, label = '') {
@@ -132,18 +146,4 @@ QUnit.assert.watchedPropertyCount = function assertWatchedPropertyCount(watcher,
     expected: expectedCount,
     message: label,
   });
-};
-
-QUnit.assert.dirties = function assertDirties(options, updateMethodCallback, label) {
-  let { object: obj, property, count } = options;
-  count = typeof count === 'number' ? count : 1;
-  let { counter, unwatch } = watchProperty(obj, property);
-  updateMethodCallback();
-  this.pushResult({
-    result: counter.count === count,
-    actual: counter.count,
-    expected: count,
-    message: label,
-  });
-  unwatch();
 };
