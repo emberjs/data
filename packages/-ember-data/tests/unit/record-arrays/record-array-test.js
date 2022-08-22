@@ -1,6 +1,5 @@
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import RSVP, { resolve } from 'rsvp';

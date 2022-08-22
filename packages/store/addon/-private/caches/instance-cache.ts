@@ -451,9 +451,12 @@ export class InstanceCache {
       keys.forEach((key) => this.clear(key));
     } else {
       let identifiers = typeCache[type]?.lid;
+      const rds = this.__instances.recordData;
       if (identifiers) {
         identifiers.forEach((identifier) => {
-          this.unloadRecord(identifier);
+          if (rds.has(identifier)) {
+            this.unloadRecord(identifier);
+          }
           // TODO we don't remove the identifier, should we?
         });
       }
