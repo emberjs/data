@@ -13,10 +13,11 @@ import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
-import RecordArrayManager from '../managers/record-array-manager';
+import RecordArrayManager, { disassociateIdentifier } from '../managers/record-array-manager';
 import type { PromiseArray } from '../proxies/promise-proxies';
 import { promiseArray } from '../proxies/promise-proxies';
 import type Store from '../store-service';
+import type AdapterPopulatedRecordArray from './adapter-populated-record-array';
 
 function recordForIdentifier(store: Store, identifier: StableRecordIdentifier): RecordInstance {
   return store._instanceCache.getRecord(identifier);
@@ -29,6 +30,7 @@ export interface RecordArrayCreateArgs {
   content: NativeArray<StableRecordIdentifier>;
   isLoaded: boolean;
 }
+export const MANAGED = Symbol('#managed');
 
 /**
   A record array is an array that contains records of a certain modelName. The record
@@ -96,6 +98,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @type Boolean
   */
   @tracked isUpdating: boolean = false;
+  [MANAGED]: boolean = false;
 
   init(props?: RecordArrayCreateArgs) {
     assert(`Cannot initialize RecordArray with isUpdating`, !props || !('isUpdating' in props));
@@ -237,8 +240,12 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     const content = this.content;
     const adds: StableRecordIdentifier[] = [];
     const removes: StableRecordIdentifier[] = [];
+    const isManaged = this[MANAGED];
     changes.forEach((value, key) => {
       value === 'add' ? adds.push(key) : removes.push(key);
+      if (isManaged && value === 'del') {
+        disassociateIdentifier(this as unknown as AdapterPopulatedRecordArray, key);
+      }
     });
     if (removes.length) {
       if (removes.length === content.length) {

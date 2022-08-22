@@ -1866,6 +1866,7 @@ class Store extends Service {
           graph.identifiers.clear();
         }
       }
+      this._notificationManager.destroy();
       this._instanceCache.clear();
     } else {
       let normalizedModelName = normalizeModelName(modelName);
@@ -2555,7 +2556,6 @@ class Store extends Service {
 
   willDestroy() {
     super.willDestroy();
-    this._notificationManager.destroy();
     this.recordArrayManager.destroy();
     this.identifierCache.destroy();
 

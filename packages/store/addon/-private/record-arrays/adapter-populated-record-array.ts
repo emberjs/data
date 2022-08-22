@@ -10,7 +10,7 @@ import type RecordArrayManager from '../managers/record-array-manager';
 import type { PromiseArray } from '../proxies/promise-proxies';
 import { promiseArray } from '../proxies/promise-proxies';
 import type Store from '../store-service';
-import RecordArray from './record-array';
+import RecordArray, { MANAGED } from './record-array';
 
 export interface AdapterPopulatedRecordArrayCreateArgs {
   modelName: string;
@@ -69,6 +69,7 @@ export default class AdapterPopulatedRecordArray extends RecordArray {
   declare links: Links | PaginationLinks | null;
   declare meta: Dict<unknown> | null;
   declare query: Dict<unknown> | null;
+  [MANAGED] = true;
 
   init(props?: AdapterPopulatedRecordArrayCreateArgs) {
     assert(`Cannot initialize AdapterPopulatedRecordArray with isUpdating`, !props || !('isUpdating' in props));

@@ -447,8 +447,9 @@ export class InstanceCache {
   clear(type?: string) {
     const typeCache = this.store.identifierCache._cache.types;
     if (type === undefined) {
-      let keys = Object.keys(typeCache);
-      keys.forEach((key) => this.clear(key));
+      this.__instances.recordData.forEach((value, identifier) => {
+        this.unloadRecord(identifier);
+      });
     } else {
       let identifiers = typeCache[type]?.lid;
       const rds = this.__instances.recordData;

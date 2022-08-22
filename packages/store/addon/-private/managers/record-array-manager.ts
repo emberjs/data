@@ -20,13 +20,6 @@ const FAKE_ARR = {};
 
 type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del' | 'unk'>;
 
-function _isManaged(
-  cache: Set<AdapterPopulatedRecordArray>,
-  arr: RecordArray | AdapterPopulatedRecordArray
-): arr is AdapterPopulatedRecordArray {
-  return cache.has(arr as AdapterPopulatedRecordArray);
-}
-
 /**
   @class RecordArrayManager
   @internal
@@ -60,24 +53,6 @@ class RecordArrayManager {
     if (!pending || this.isDestroying || this.isDestroyed) {
       return;
     }
-    let cache = this.store._instanceCache;
-    const isManaged = _isManaged(this._managed, array);
-
-    pending.forEach((value, key) => {
-      let shouldRemove = isManaged;
-      if (value === 'unk') {
-        let isLoaded = cache.recordIsLoaded(key, true);
-        if (isLoaded && isManaged) {
-          shouldRemove = false;
-          pending.delete(key);
-        } else {
-          pending.set(key, isLoaded ? 'add' : 'del');
-        }
-      }
-      if (shouldRemove) {
-        disassociateIdentifier(array as AdapterPopulatedRecordArray, key);
-      }
-    });
 
     array._updateState(pending as Map<StableRecordIdentifier, 'add' | 'del'>);
     this._pending.delete(array);
@@ -237,7 +212,12 @@ class RecordArrayManager {
     let changeSets = this._getPendingFor(identifier, false);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
-        changes.set(identifier, 'add');
+        let existing = changes.get(identifier);
+        if (existing === 'del') {
+          changes.delete(identifier);
+        } else {
+          changes.set(identifier, 'add');
+        }
         if (changes.size === 1) {
           this.dirtyArray(array);
         }
@@ -249,7 +229,12 @@ class RecordArrayManager {
     let changeSets = this._getPendingFor(identifier, true, true);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
-        changes.set(identifier, 'del');
+        let existing = changes.get(identifier);
+        if (existing === 'add') {
+          changes.delete(identifier);
+        } else {
+          changes.set(identifier, 'del');
+        }
         if (changes.size === 1) {
           this.dirtyArray(array);
         }
@@ -258,14 +243,12 @@ class RecordArrayManager {
   }
 
   identifierChanged(identifier: StableRecordIdentifier): void {
-    let changeSets = this._getPendingFor(identifier, true);
-    if (changeSets) {
-      changeSets.forEach((changes, array) => {
-        changes.set(identifier, 'unk');
-        if (changes.size === 1) {
-          this.dirtyArray(array);
-        }
-      });
+    let newState = this.store._instanceCache.recordIsLoaded(identifier, true);
+
+    if (newState) {
+      this.identifierAdded(identifier);
+    } else {
+      this.identifierRemoved(identifier);
     }
   }
 
@@ -300,7 +283,7 @@ function disassociate(array: AdapterPopulatedRecordArray, identifiers: StableRec
     disassociateIdentifier(array, identifiers[i]);
   }
 }
-function disassociateIdentifier(array: AdapterPopulatedRecordArray, identifier: StableRecordIdentifier) {
+export function disassociateIdentifier(array: AdapterPopulatedRecordArray, identifier: StableRecordIdentifier) {
   let cache = RecordArraysCache.get(identifier);
   if (cache) {
     cache.delete(array);

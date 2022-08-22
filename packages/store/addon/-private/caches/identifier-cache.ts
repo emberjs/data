@@ -131,6 +131,7 @@ export class IdentifierCache {
   declare _forget: ForgetMethod;
   declare _reset: ResetMethod;
   declare _merge: MergeMethod;
+  declare _isDefaultConfig: boolean;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
@@ -140,6 +141,7 @@ export class IdentifierCache {
     this._forget = configuredForgetMethod || defaultEmptyCallback;
     this._reset = configuredResetMethod || defaultEmptyCallback;
     this._merge = defaultEmptyCallback;
+    this._isDefaultConfig = !configuredGenerationMethod;
   }
 
   /**
@@ -235,7 +237,7 @@ export class IdentifierCache {
       // different than expected
       if (lid !== null && newLid !== lid) {
         throw new Error(`You should not change the <lid> of a RecordIdentifier`);
-      } else if (lid === null) {
+      } else if (lid === null && !this._isDefaultConfig) {
         // allow configuration to tell us that we have
         // seen this `lid` before. E.g. a secondary lookup
         // connects this resource to a previously seen

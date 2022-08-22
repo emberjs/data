@@ -24,10 +24,15 @@ export interface NotificationCallback {
 // TODO this isn't importable anyway, remove and use a map on the manager?
 export function unsubscribe(token: UnsubscribeToken) {
   let identifier = Tokens.get(token);
-  assert('Passed unknown unsubscribe token to unsubscribe', identifier);
-  Tokens.delete(token);
-  const map = Cache.get(identifier);
-  map?.delete(token);
+  if (LOG_NOTIFICATIONS && !identifier) {
+    // eslint-disable-next-line no-console
+    console.log('Passed unknown unsubscribe token to unsubscribe', identifier);
+  }
+  if (identifier) {
+    Tokens.delete(token);
+    const map = Cache.get(identifier);
+    map?.delete(token);
+  }
 }
 /*
   Currently only support a single callback per identifier
