@@ -130,7 +130,7 @@ export class InstanceCache {
   };
 
   recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
-    const recordData = this.peek({ identifier, bucket: 'recordData' });
+    const recordData = this.__instances.recordData.get(identifier);
     if (!recordData) {
       return false;
     }
@@ -277,7 +277,7 @@ export class InstanceCache {
   }
 
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
-    let record = this.peek({ identifier, bucket: 'record' });
+    let record = this.__instances.record.get(identifier);
 
     if (!record) {
       const recordData = this.getRecordData(identifier);
@@ -303,7 +303,7 @@ export class InstanceCache {
   }
 
   getRecordData(identifier: StableRecordIdentifier): RecordData {
-    let recordData = this.peek({ identifier, bucket: 'recordData' });
+    let recordData = this.__instances.recordData.get(identifier);
 
     if (!recordData) {
       if (DEPRECATE_V1CACHE_STORE_APIS && this.store.createRecordDataFor.length > 2) {
@@ -409,8 +409,8 @@ export class InstanceCache {
 
     // TODO is this join still necessary?
     this.store._join(() => {
-      const record = this.peek({ identifier, bucket: 'record' });
-      const recordData = this.peek({ identifier, bucket: 'recordData' });
+      const record = this.__instances.record.get(identifier);
+      const recordData = this.__instances.recordData.get(identifier);
 
       if (record) {
         this.store.teardownRecord(record);
@@ -594,7 +594,7 @@ function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData
 }
 
 export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  let recordData = cache.peek({ identifier, bucket: 'recordData' });
+  let recordData = cache.__instances.recordData.get(identifier);
   return !recordData || _recordDataIsFullDeleted(identifier, recordData);
 }
 
@@ -669,7 +669,7 @@ function _convertPreloadRelationshipToJSON(
 }
 
 function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  const recordData = cache.peek({ identifier: identifier, bucket: 'recordData' });
+  const recordData = cache.__instances.recordData.get(identifier);
   if (!recordData) {
     return true;
   }

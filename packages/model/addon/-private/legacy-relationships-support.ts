@@ -703,7 +703,7 @@ function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship)
 
 function isEmpty(store: Store, cache: IdentifierCache, resource: ResourceIdentifierObject): boolean {
   const identifier = cache.getOrCreateRecordIdentifier(resource);
-  const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
+  const recordData = store._instanceCache.__instances.recordData.get(identifier);
   return !recordData || recordData.isEmpty(identifier);
 }
 
