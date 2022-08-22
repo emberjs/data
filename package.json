@@ -103,7 +103,7 @@
     "ember-try": "^2.0.0",
     "eslint": "^8.22.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-ember": "^11.0.5",
+    "eslint-plugin-ember": "^11.0.6",
     "eslint-plugin-ember-data": "link:./packages/unpublished-eslint-rules",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-mocha": "^10.1.0",
