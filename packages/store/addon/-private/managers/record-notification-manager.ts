@@ -6,15 +6,13 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
-import WeakCache from '../utils/weak-cache';
 
 type UnsubscribeToken = object;
 let tokenId = 0;
-const Cache = new WeakCache<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>(
-  DEBUG ? 'subscribers' : ''
-);
-Cache._generator = () => new Map();
-const Tokens = new WeakCache<UnsubscribeToken, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
+
+// TODO clear these on store teardown
+const Cache = new Map<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>();
+const Tokens = new Map<UnsubscribeToken, StableRecordIdentifier>();
 
 export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state';
 
@@ -24,6 +22,7 @@ export interface NotificationCallback {
   (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
 }
 
+// TODO this isn't importable anyway, remove and use a map on the manager?
 export function unsubscribe(token: UnsubscribeToken) {
   let identifier = Tokens.get(token);
   assert('Passed unknown unsubscribe token to unsubscribe', identifier);
@@ -42,7 +41,12 @@ export default class NotificationManager {
 
   subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     assert(`Expected to receive a stable Identifier to subscribe to`, isStableIdentifier(identifier));
-    let map = Cache.lookup(identifier);
+    let map = Cache.get(identifier);
+
+    if (!map) {
+      map = new Map();
+      Cache.set(identifier, map);
+    }
     let unsubToken = DEBUG ? { _tokenRef: tokenId++ } : {};
     map.set(unsubToken, callback);
     Tokens.set(unsubToken, identifier);

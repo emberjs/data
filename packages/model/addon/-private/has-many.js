@@ -15,7 +15,7 @@ import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
 } from '@ember-data/private-build-infra/deprecations';
 
-import { LEGACY_SUPPORT } from './model';
+import { lookupLegacySupport } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
 function normalizeType(type) {
@@ -249,7 +249,7 @@ function hasMany(type, options) {
       if (this.isDestroying || this.isDestroyed) {
         return A();
       }
-      return LEGACY_SUPPORT.lookup(this).getHasMany(key);
+      return lookupLegacySupport(this).getHasMany(key);
     },
     set(key, records) {
       if (DEBUG) {
@@ -259,7 +259,7 @@ function hasMany(type, options) {
           );
         }
       }
-      const support = LEGACY_SUPPORT.lookup(this);
+      const support = lookupLegacySupport(this);
       this.store._join(() => {
         support.setDirtyHasMany(key, records);
       });

@@ -9,7 +9,7 @@ import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
 } from '@ember-data/private-build-infra/deprecations';
 
-import { LEGACY_SUPPORT } from './model';
+import { lookupLegacySupport } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
 function normalizeType(type) {
@@ -205,7 +205,7 @@ function belongsTo(modelName, options) {
       if (this.isDestroying || this.isDestroyed) {
         return null;
       }
-      const support = LEGACY_SUPPORT.lookup(this);
+      const support = lookupLegacySupport(this);
 
       if (DEBUG) {
         if (['currentState'].indexOf(key) !== -1) {
@@ -237,7 +237,7 @@ function belongsTo(modelName, options) {
       return support.getBelongsTo(key);
     },
     set(key, value) {
-      const support = LEGACY_SUPPORT.lookup(this);
+      const support = lookupLegacySupport(this);
       if (DEBUG) {
         if (['currentState'].indexOf(key) !== -1) {
           throw new Error(

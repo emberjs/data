@@ -13,7 +13,6 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
-import type { DebugWeakCache } from '@ember-data/store/-private/utils/weak-cache';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -496,9 +495,9 @@ export default class HasManyReference {
    @return {ManyArray}
    */
   value() {
-    const support: LegacySupport = (
-      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.___identifier);
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
+      this.___identifier
+    )!;
 
     return this._isLoaded() ? support.getManyArray(this.key) : null;
   }
@@ -568,9 +567,9 @@ export default class HasManyReference {
    this has-many relationship.
    */
   async load(options?: FindOptions): Promise<ManyArray> {
-    const support: LegacySupport = (
-      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.___identifier);
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
+      this.___identifier
+    )!;
     return support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray; // this cast is necessary because typescript does not work properly with custom thenables;
   }
 
@@ -625,9 +624,9 @@ export default class HasManyReference {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
   reload(options?: FindOptions) {
-    const support: LegacySupport = (
-      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.___identifier);
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
+      this.___identifier
+    )!;
     return support.reloadHasMany(this.key, options);
   }
 }

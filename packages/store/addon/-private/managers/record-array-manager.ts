@@ -5,7 +5,6 @@
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
-import { DEBUG } from '@glimmer/env';
 
 import type { CollectionResourceDocument, Meta } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -14,15 +13,8 @@ import type { Dict } from '@ember-data/types/q/utils';
 import AdapterPopulatedRecordArray from '../record-arrays/adapter-populated-record-array';
 import RecordArray from '../record-arrays/record-array';
 import type Store from '../store-service';
-import WeakCache from '../utils/weak-cache';
 
-const RecordArraysCache = new WeakCache<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>(
-  DEBUG ? 'record-arrays' : ''
-);
-RecordArraysCache._generator = () => new Set();
-function recordArraysForIdentifier(identifier: StableRecordIdentifier): Set<AdapterPopulatedRecordArray> {
-  return RecordArraysCache.lookup(identifier);
-}
+const RecordArraysCache = new Map<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>();
 
 type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del' | 'unk'>;
 
@@ -53,8 +45,13 @@ class RecordArrayManager {
    * @param {StableIdentifier} param
    * @return {RecordArray} array
    */
-  getRecordArraysForIdentifier(identifier: StableRecordIdentifier): Set<RecordArray> {
-    return recordArraysForIdentifier(identifier);
+  getRecordArraysForIdentifier(identifier: StableRecordIdentifier): Set<AdapterPopulatedRecordArray> {
+    let cache = RecordArraysCache.get(identifier);
+    if (!cache) {
+      cache = new Set();
+      RecordArraysCache.set(identifier, cache);
+    }
+    return cache;
   }
 
   _flushPendingIdentifiersForModelName(modelName: string, changes: ChangeSet): void {
@@ -290,7 +287,7 @@ class RecordArrayManager {
    * @param {StableIdentifier} identifiers
    * @param {RecordArray} array
    */
-  _associateWithRecordArray(identifiers: StableRecordIdentifier[], array: RecordArray): void {
+  _associateWithRecordArray(identifiers: StableRecordIdentifier[], array: AdapterPopulatedRecordArray): void {
     for (let i = 0, l = identifiers.length; i < l; i++) {
       let identifier = identifiers[i];
       let recordArrays = this.getRecordArraysForIdentifier(identifier);
@@ -389,7 +386,7 @@ function removeFromAll(store: Store, identifier: StableRecordIdentifier): void {
   const recordArrays = RecordArraysCache.get(identifier);
 
   if (recordArrays) {
-    recordArrays.forEach(function (recordArray) {
+    recordArrays.forEach(function (recordArray: AdapterPopulatedRecordArray) {
       recordArray._removeIdentifiers([identifier]);
     });
 
