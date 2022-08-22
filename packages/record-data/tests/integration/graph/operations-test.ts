@@ -87,18 +87,20 @@ module('Integration | Graph | Operations', function (hooks) {
     const configIdentifier3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '3' });
     const configIdentifier4 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
 
-    graph.update({
-      op: 'replaceRelatedRecords',
-      field: 'configs',
-      record: appIdentifier,
-      value: [
-        configIdentifier1,
-        configIdentifier1,
-        configIdentifier1,
-        configIdentifier2,
-        configIdentifier3,
-        configIdentifier4,
-      ],
+    store._join(() => {
+      graph.update({
+        op: 'replaceRelatedRecords',
+        field: 'configs',
+        record: appIdentifier,
+        value: [
+          configIdentifier1,
+          configIdentifier1,
+          configIdentifier1,
+          configIdentifier2,
+          configIdentifier3,
+          configIdentifier4,
+        ],
+      });
     });
 
     const data = graph.get(appIdentifier, 'configs') as ManyRelationship;

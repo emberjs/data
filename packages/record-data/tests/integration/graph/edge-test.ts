@@ -142,11 +142,13 @@ module('Integration | Graph | Edges', function (hooks) {
         'We still have no record data instance after updating the canonical state'
       );
 
-      graph.update({
-        op: 'replaceRelatedRecord',
-        record: identifier,
-        field: 'bestFriend',
-        value: identifier2,
+      store._join(() => {
+        graph.update({
+          op: 'replaceRelatedRecord',
+          record: identifier,
+          field: 'bestFriend',
+          value: identifier2,
+        });
       });
 
       state = stateOf(bestFriend);
@@ -226,11 +228,13 @@ module('Integration | Graph | Edges', function (hooks) {
         'We still have no record data instance after updating the canonical state'
       );
 
-      graph.update({
-        op: 'replaceRelatedRecord',
-        record: identifier,
-        field: 'bestFriend',
-        value: identifier2,
+      store._join(() => {
+        graph.update({
+          op: 'replaceRelatedRecord',
+          record: identifier,
+          field: 'bestFriend',
+          value: identifier2,
+        });
       });
 
       state = stateOf(bestFriend);
@@ -319,11 +323,13 @@ module('Integration | Graph | Edges', function (hooks) {
       );
       const identifier4 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' });
 
-      graph.update({
-        op: 'addToRelatedRecords',
-        record: identifier,
-        field: 'bestFriends',
-        value: identifier4,
+      store._join(() => {
+        graph.update({
+          op: 'addToRelatedRecords',
+          record: identifier,
+          field: 'bestFriends',
+          value: identifier4,
+        });
       });
 
       state = stateOf(bestFriends);
@@ -416,11 +422,13 @@ module('Integration | Graph | Edges', function (hooks) {
       );
       const identifier4 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' });
 
-      graph.update({
-        op: 'addToRelatedRecords',
-        record: identifier,
-        field: 'bestFriends',
-        value: identifier4,
+      store._join(() => {
+        graph.update({
+          op: 'addToRelatedRecords',
+          record: identifier,
+          field: 'bestFriends',
+          value: identifier4,
+        });
       });
 
       state = stateOf(bestFriends);
