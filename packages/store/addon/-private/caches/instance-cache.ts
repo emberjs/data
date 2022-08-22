@@ -416,7 +416,7 @@ export class InstanceCache {
     }
 
     // TODO is this join still necessary?
-    this.store._backburner.join(() => {
+    this.store._join(() => {
       const record = this.peek({ identifier, bucket: 'record' });
       const recordData = this.peek({ identifier, bucket: 'recordData' });
       this.peekList[identifier.type]?.delete(identifier);
@@ -484,7 +484,7 @@ export class InstanceCache {
     const isLoading = _isLoading(this, identifier);
 
     if (options.preload) {
-      this.store._backburner.join(() => {
+      this.store._join(() => {
         preloadData(this.store, identifier, options.preload!);
       });
     }

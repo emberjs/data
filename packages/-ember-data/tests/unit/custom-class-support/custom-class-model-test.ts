@@ -1,5 +1,3 @@
-import { settled } from '@ember/test-helpers';
-
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
@@ -108,11 +106,13 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
-    storeWrapper.notifyChange(identifier, 'relationships', 'key');
-    storeWrapper.notifyChange(identifier, 'relationships', 'key');
-    storeWrapper.notifyChange(identifier, 'state');
-    storeWrapper.notifyChange(identifier, 'errors');
-    await settled();
+    // emulate this happening within a single push
+    store._join(() => {
+      storeWrapper.notifyChange(identifier, 'relationships', 'key');
+      storeWrapper.notifyChange(identifier, 'relationships', 'key');
+      storeWrapper.notifyChange(identifier, 'state');
+      storeWrapper.notifyChange(identifier, 'errors');
+    });
 
     assert.strictEqual(notificationCount, 3, 'called notification callback');
   });

@@ -285,8 +285,7 @@ export class Graph {
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
-      const backburner = getStore(this.store)._backburner;
-      backburner.schedule('coalesce', this, this._flushRemoteQueue);
+      getStore(this.store)._schedule('coalesce', () => this._flushRemoteQueue());
     }
   }
 
@@ -358,8 +357,7 @@ export class Graph {
     this._updatedRelationships.add(relationship);
     if (!this._willSyncLocal) {
       this._willSyncLocal = true;
-      const backburner = getStore(this.store)._backburner;
-      backburner.schedule('sync', this, this._flushLocalQueue);
+      getStore(this.store)._schedule('sync', () => this._flushLocalQueue());
     }
   }
 

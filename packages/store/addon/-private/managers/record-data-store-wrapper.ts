@@ -50,9 +50,13 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     }
 
     this._willNotify = true;
-    let backburner: any = this._store._backburner;
-
-    backburner.schedule('notify', this, this._flushNotifications);
+    // it's possible a RecordData adhoc notifies us,
+    // in which case we sync flush
+    if (this._store._cbs) {
+      this._store._schedule('notify', () => this._flushNotifications());
+    } else {
+      this._flushNotifications();
+    }
   }
 
   _flushNotifications(): void {
@@ -346,9 +350,7 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
     }
 
     this._willNotify = true;
-    let backburner: any = this._store._backburner;
-
-    backburner.schedule('notify', this, this._flushNotifications);
+    this._store._schedule('notify', () => this._flushNotifications());
   }
 
   _flushNotifications(): void {

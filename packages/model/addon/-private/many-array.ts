@@ -280,7 +280,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
       !objects || Array.isArray(objects) || EmberArray.detect(objects)
     );
     const { store, identifier } = this;
-    store._backburner.join(() => {
+    store._join(() => {
       let identifiers: StableRecordIdentifier[];
       if (amt > 0) {
         identifiers = this.currentState.slice(idx, idx + amt);

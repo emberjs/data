@@ -426,7 +426,7 @@ class RecordDataDefault implements RecordDataV1 {
       // we scheduled this into ember's destroy
       // disconnectRecord called from destroy will teardown
       // relationships. We do this to queue that.
-      (this.storeWrapper as unknown as { _store: Store })._store._backburner.join(() => {
+      (this.storeWrapper as unknown as { _store: Store })._store._join(() => {
         for (let i = 0; i < relatedIdentifiers.length; ++i) {
           let identifier = relatedIdentifiers[i];
           storeWrapper.disconnectRecord(identifier);
