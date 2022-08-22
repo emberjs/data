@@ -9,7 +9,6 @@ import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { InstanceCache } from '../caches/instance-cache';
 import AdapterPopulatedRecordArray, {
   AdapterPopulatedRecordArrayCreateArgs,
 } from '../record-arrays/adapter-populated-record-array';
@@ -17,6 +16,7 @@ import RecordArray from '../record-arrays/record-array';
 import type Store from '../store-service';
 
 const RecordArraysCache = new Map<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>();
+const FAKE_ARR = {};
 
 type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del' | 'unk'>;
 
@@ -40,6 +40,7 @@ class RecordArrayManager {
   declare _pending: Map<RecordArray | AdapterPopulatedRecordArray, ChangeSet>;
   declare _willFlush: boolean;
   declare _identifiers: Map<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>;
+  declare _staged: Map<string, ChangeSet>;
 
   constructor(options: { store: Store }) {
     this.store = options.store;
@@ -48,6 +49,7 @@ class RecordArrayManager {
     this._live = new Map();
     this._managed = new Set();
     this._pending = new Map();
+    this._staged = new Map();
     this._willFlush = false;
     this._identifiers = RecordArraysCache;
   }
@@ -94,15 +96,21 @@ class RecordArrayManager {
     let array = this._live.get(type);
 
     if (!array) {
-      let identifiers = visibleIdentifiersByType(this.store._instanceCache, type);
       array = RecordArray.create({
         modelName: type,
-        content: A(identifiers || []),
+        content: A([]),
         store: this.store,
         isLoaded: true,
         manager: this,
       });
       this._live.set(type, array);
+
+      let staged = this._staged.get(type);
+      if (staged) {
+        this._pending.set(array, staged);
+        this._staged.delete(type);
+        array._notify();
+      }
     } else {
       let pending = this._pending.get(array);
       if (pending) {
@@ -139,7 +147,7 @@ class RecordArrayManager {
   }
 
   dirtyArray(array: RecordArray | AdapterPopulatedRecordArray): void {
-    if (this._willFlush) {
+    if (array === FAKE_ARR || this._willFlush) {
       return;
     }
     this._willFlush = true;
@@ -184,16 +192,27 @@ class RecordArrayManager {
 
     // during unloadAll we can ignore removes since we've already
     // cleared the array.
-    if (!liveArray || (liveArray.content.length === 0 && isRemove)) {
+    if (liveArray && liveArray.content.length === 0 && isRemove) {
       return pending;
     }
 
-    let changes = allPending.get(liveArray);
-    if (!changes) {
-      changes = new Map();
-      allPending.set(liveArray, changes);
+    if (!liveArray) {
+      // start building a changeset for when we eventually
+      // do have a live array
+      let changes = this._staged.get(identifier.type);
+      if (!changes) {
+        changes = new Map();
+        this._staged.set(identifier.type, changes);
+      }
+      pending.set(FAKE_ARR as RecordArray, changes);
+    } else {
+      let changes = allPending.get(liveArray);
+      if (!changes) {
+        changes = new Map();
+        allPending.set(liveArray, changes);
+      }
+      pending.set(liveArray, changes);
     }
-    pending.set(liveArray, changes);
 
     return pending;
   }
@@ -286,23 +305,6 @@ function disassociateIdentifier(array: AdapterPopulatedRecordArray, identifier: 
   if (cache) {
     cache.delete(array);
   }
-}
-
-// TODO we can probably get rid of this and build up the list
-// as we are notified of changes
-// doing so *might* decrease costs by allowing us to avoid
-// the `recordIsLoaded` check.
-// for 100k records this is like 35ms currently
-function visibleIdentifiersByType(cache: InstanceCache, type: string): StableRecordIdentifier[] {
-  const list = cache.store.identifierCache._cache.types[type]?.lid;
-  const visible: StableRecordIdentifier[] = [];
-  const getLoaded = (identifier: StableRecordIdentifier) => {
-    if (cache.recordIsLoaded(identifier, true)) {
-      visible.push(identifier);
-    }
-  };
-  list?.forEach(getLoaded);
-  return visible;
 }
 
 export default RecordArrayManager;
