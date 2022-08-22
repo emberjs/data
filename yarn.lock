@@ -2499,6 +2499,11 @@
     "@types/ember__object" "*"
     "@types/rsvp" "*"
 
+"@types/ember__owner@*":
+  version "4.0.0"
+  resolved "https://registry.npmjs.org/@types/ember__owner/-/ember__owner-4.0.0.tgz#2058a8fbf9636774dc79430abd355b07538c51d7"
+  integrity sha512-7ZotJNCkZUvJpcGHYswQlQsHyRITQ3aNOoFPi86NFxmOXEIVAGVKPHB87w8ZlMmhssG2vitCuNzuQCeDwPaokQ==
+
 "@types/ember__polyfills@*":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@types/ember__polyfills/-/ember__polyfills-4.0.0.tgz#d83ae94ff2890ad47798315426d9916f39ff4ae6"
@@ -2540,7 +2545,7 @@
   resolved "https://registry.npmjs.org/@types/ember__template/-/ember__template-4.0.0.tgz#3423b6ddc3a6cf0b13a1e0fd5f1a84eec664a095"
   integrity sha512-51bAEQecMKpDYRXMmVVfU7excrtxDJixRU7huUsAm4acBCqL2+TmMgTqZEkOQSNy6qnKUc2ktSzX28a9//C6pA==
 
-"@types/ember__test-helpers@*", "@types/ember__test-helpers@^2.8.0":
+"@types/ember__test-helpers@*":
   version "2.8.0"
   resolved "https://registry.npmjs.org/@types/ember__test-helpers/-/ember__test-helpers-2.8.0.tgz#9e8fb470935b1f94ba60b2c673b720addaf36940"
   integrity sha512-lAnpTPmGNuocrJiIxFP6pkMWhEeTmrqsa4yBKjaBBxDXWF1qh3CCWEr/Tj7oe7HVUyL7w53mxyPIjskvCyiEBw==
@@ -2548,6 +2553,18 @@
     "@types/ember-resolver" "*"
     "@types/ember__application" "*"
     "@types/ember__error" "*"
+    "@types/ember__test-helpers" "*"
+    "@types/htmlbars-inline-precompile" "*"
+
+"@types/ember__test-helpers@^2.8.1":
+  version "2.8.1"
+  resolved "https://registry.npmjs.org/@types/ember__test-helpers/-/ember__test-helpers-2.8.1.tgz#06414a77bea02bd77a5f849bc1bfd2a9cbe4d86f"
+  integrity sha512-UlzmA3yAynqsj5tklBEnPt3WXCj9vLtLTSY9PJDt/NWkcFsDIssYnTQUzzNUflkO+ngHVHRX3tiYuLzcwpTEmA==
+  dependencies:
+    "@types/ember-resolver" "*"
+    "@types/ember__application" "*"
+    "@types/ember__error" "*"
+    "@types/ember__owner" "*"
     "@types/ember__test-helpers" "*"
     "@types/htmlbars-inline-precompile" "*"
 
@@ -7231,7 +7248,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "4.8.0-alpha.3"
+  version "4.8.0-alpha.4"
 
 eslint-plugin-ember@^11.0.5:
   version "11.0.5"
