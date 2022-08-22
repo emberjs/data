@@ -10,7 +10,6 @@ import type Store from '../store-service';
 type UnsubscribeToken = object;
 let tokenId = 0;
 
-// TODO clear these on store teardown
 const Cache = new Map<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>();
 const Tokens = new Map<UnsubscribeToken, StableRecordIdentifier>();
 
@@ -90,5 +89,10 @@ export default class NotificationManager {
       cb(identifier, value, key);
     });
     return true;
+  }
+
+  destroy() {
+    Tokens.clear();
+    Cache.clear();
   }
 }
