@@ -182,9 +182,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
@@ -203,9 +203,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
@@ -233,9 +233,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername1.lid}' in ['${lids.join("', '")}']`
       );
@@ -408,9 +408,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
@@ -431,9 +431,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
@@ -457,9 +457,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache).filter((lid) => lidCache[lid] !== undefined);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
@@ -490,9 +490,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
@@ -542,9 +542,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
@@ -575,9 +575,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
@@ -607,9 +607,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.lids;
-      const lids = Object.keys(lidCache);
+      const lids = [...lidCache.values()];
       assert.strictEqual(
-        lids.length,
+        lidCache.size,
         1,
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );

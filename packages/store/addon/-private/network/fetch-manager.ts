@@ -86,7 +86,7 @@ export default class FetchManager {
   }
 
   clearEntries(identifier: StableRecordIdentifier) {
-    delete this.requestCache._done[identifier.lid];
+    this.requestCache._done.delete(identifier);
   }
 
   /**

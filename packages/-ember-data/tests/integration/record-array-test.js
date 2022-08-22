@@ -113,44 +113,6 @@ module('unit/record-array - RecordArray', function (hooks) {
     assert.deepEqual(recordArray.mapBy('name'), ['John Churchill', 'Winston Churchill']);
   });
 
-  test('stops updating when destroyed', async function (assert) {
-    assert.expect(3);
-
-    let recordArray = store.peekAll('person');
-
-    store.push({
-      data: {
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'wycats',
-        },
-      },
-    });
-
-    await settled();
-
-    recordArray.destroy();
-
-    await settled();
-
-    assert.strictEqual(recordArray.length, 0, 'Has no more records');
-    store.push({
-      data: {
-        type: 'person',
-        id: '2',
-        attributes: {
-          name: 'brohuda',
-        },
-      },
-    });
-
-    await settled();
-
-    assert.strictEqual(recordArray.length, 0, 'length has not been updated');
-    assert.strictEqual(recordArray.content, null, 'content has not been updated');
-  });
-
   test('a loaded record is removed from a record array when it is deleted', async function (assert) {
     assert.expect(5);
     this.owner.register(

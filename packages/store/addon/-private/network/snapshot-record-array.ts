@@ -6,10 +6,12 @@ import { deprecate } from '@ember/debug';
 
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import type RecordArray from '../record-arrays/record-array';
+import Store from '../store-service';
 import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
@@ -23,6 +25,7 @@ export default class SnapshotRecordArray {
   declare _snapshots: Snapshot[] | null;
   declare _recordArray: RecordArray;
   declare _type: ModelSchema | null;
+  declare __store: Store;
 
   declare length: number;
   declare meta: Dict<unknown> | null;
@@ -41,7 +44,8 @@ export default class SnapshotRecordArray {
     @param {Object} meta
     @param options
    */
-  constructor(recordArray: RecordArray, meta: Dict<unknown> | null, options: FindOptions = {}) {
+  constructor(store: Store, recordArray: RecordArray, options: FindOptions = {}) {
+    this.__store = store;
     /**
       An array of snapshots
       @private
@@ -78,29 +82,6 @@ export default class SnapshotRecordArray {
       @type {Number}
     */
     this.length = recordArray.length as unknown as number; // deal with computedProperty shennanigans
-
-    /**
-      Meta objects for the record array.
-
-      Example
-
-      ```app/adapters/post.js
-      import JSONAPIAdapter from '@ember-data/adapter/json-api';
-
-      export default class PostAdapter extends JSONAPIAdapter {
-        shouldReloadAll(store, snapshotRecordArray) {
-          let lastRequestTime = snapshotRecordArray.meta.lastRequestTime;
-          let twentyMinutes = 20 * 60 * 1000;
-          return Date.now() > lastRequestTime + twentyMinutes;
-        }
-      });
-      ```
-
-      @property meta
-      @public
-      @type {Object}
-    */
-    this.meta = meta;
 
     /**
       A hash of adapter options passed into the store method for this request.
@@ -200,8 +181,10 @@ export default class SnapshotRecordArray {
     if (this._snapshots !== null) {
       return this._snapshots;
     }
-
-    this._snapshots = this._recordArray._takeSnapshot();
+    const { _instanceCache } = this.__store;
+    this._snapshots = this._recordArray.content.map((identifier: StableRecordIdentifier) =>
+      _instanceCache.createSnapshot(identifier)
+    );
 
     return this._snapshots;
   }

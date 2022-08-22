@@ -9,7 +9,6 @@ import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { recordIdentifierFor } from '@ember-data/store';
 
 const Person = Model.extend({
   name: attr('string'),
@@ -37,7 +36,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     this.owner.register('adapter:application', ApplicationAdapter);
 
     let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
+    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
     let payload = {
       data: [
@@ -65,12 +64,9 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       ],
     };
 
-    let results = store.push(payload);
+    let results = store._push(payload);
 
-    recordArray._setIdentifiers(
-      results.map((r) => recordIdentifierFor(r)),
-      payload
-    );
+    store.recordArrayManager.populateManagedArray(recordArray, results, payload);
 
     assert.strictEqual(recordArray.length, 3, 'expected recordArray to contain exactly 3 records');
 
@@ -83,7 +79,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
   test('stores the metadata off the payload', async function (assert) {
     let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
+    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
     let payload = {
       data: [
@@ -114,17 +110,15 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       },
     };
 
-    let results = store.push(payload);
-    recordArray._setIdentifiers(
-      results.map((r) => recordIdentifierFor(r)),
-      payload
-    );
+    let results = store._push(payload);
+
+    store.recordArrayManager.populateManagedArray(recordArray, results, payload);
     assert.strictEqual(recordArray.meta.foo, 'bar', 'expected meta.foo to be bar from payload');
   });
 
   test('stores the links off the payload', async function (assert) {
     let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
+    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
     let payload = {
       data: [
@@ -155,18 +149,15 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       },
     };
 
-    let results = store.push(payload);
-    recordArray._setIdentifiers(
-      results.map((r) => recordIdentifierFor(r)),
-      payload
-    );
+    let results = store._push(payload);
 
+    store.recordArrayManager.populateManagedArray(recordArray, results, payload);
     assert.strictEqual(recordArray.links.first, '/foo?page=1', 'expected links.first to be "/foo?page=1" from payload');
   });
 
   test('recordArray.replace() throws error', async function (assert) {
     let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
+    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
     await settled();
 

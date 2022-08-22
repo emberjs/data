@@ -55,7 +55,7 @@ interface KeyOptions {
   id: IdentifierMap;
 }
 
-type IdentifierMap = ConfidentDict<StableRecordIdentifier>;
+type IdentifierMap = Map<string, StableRecordIdentifier>;
 type TypeMap = ConfidentDict<KeyOptions>;
 export type MergeMethod = (
   targetIdentifier: StableRecordIdentifier,
@@ -84,12 +84,15 @@ export function setIdentifierResetMethod(method: ResetMethod | null): void {
   configuredResetMethod = method;
 }
 
+type WithLid = { lid: string };
+type WithId = { id: string | null; type: string };
+
 function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: IdentifierBucket): string {
-  if ('lid' in data && isNonEmptyString(data.lid)) {
-    return data.lid;
+  if (isNonEmptyString((data as WithLid).lid)) {
+    return (data as WithLid).lid;
   }
-  if ('id' in data) {
-    let { type, id } = data;
+  if ((data as WithId).id !== undefined) {
+    let { type, id } = data as WithId;
     // TODO: add test for id not a string
     if (isNonEmptyString(coerceId(id))) {
       return `@lid:${normalizeModelName(type)}-${id}`;
@@ -120,7 +123,7 @@ if (DEBUG) {
  */
 export class IdentifierCache {
   _cache = {
-    lids: Object.create(null) as IdentifierMap,
+    lids: new Map<string, StableRecordIdentifier>(),
     types: Object.create(null) as TypeMap,
   };
   declare _generate: GenerationMethod;
@@ -128,6 +131,7 @@ export class IdentifierCache {
   declare _forget: ForgetMethod;
   declare _reset: ResetMethod;
   declare _merge: MergeMethod;
+  declare _isDefaultConfig: boolean;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
@@ -137,6 +141,7 @@ export class IdentifierCache {
     this._forget = configuredForgetMethod || defaultEmptyCallback;
     this._reset = configuredResetMethod || defaultEmptyCallback;
     this._merge = defaultEmptyCallback;
+    this._isDefaultConfig = !configuredGenerationMethod;
   }
 
   /**
@@ -166,7 +171,7 @@ export class IdentifierCache {
     if (isStableIdentifier(resource)) {
       if (DEBUG) {
         // TODO should we instead just treat this case as a new generation skipping the short circuit?
-        if (!(this._cache.lids[resource.lid] !== undefined) || this._cache.lids[resource.lid] !== resource) {
+        if (!this._cache.lids.has(resource.lid) || this._cache.lids.get(resource.lid) !== resource) {
           throw new Error(`The supplied identifier ${resource} does not belong to this store instance`);
         }
       }
@@ -178,7 +183,7 @@ export class IdentifierCache {
     }
 
     let lid = coerceId(resource.lid);
-    let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids[lid] : undefined;
+    let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids.get(lid) : undefined;
 
     if (identifier !== undefined) {
       if (LOG_IDENTIFIERS) {
@@ -209,13 +214,13 @@ export class IdentifierCache {
 
     // go straight for the stable RecordIdentifier key'd to `lid`
     if (lid !== null) {
-      identifier = keyOptions.lid[lid];
+      identifier = keyOptions.lid.get(lid);
     }
 
     // we may have not seen this resource before
     // but just in case we check our own secondary lookup (`id`)
     if (identifier === undefined && id !== null) {
-      identifier = keyOptions.id[id];
+      identifier = keyOptions.id.get(id);
     }
 
     if (identifier === undefined) {
@@ -232,12 +237,12 @@ export class IdentifierCache {
       // different than expected
       if (lid !== null && newLid !== lid) {
         throw new Error(`You should not change the <lid> of a RecordIdentifier`);
-      } else if (lid === null) {
+      } else if (lid === null && !this._isDefaultConfig) {
         // allow configuration to tell us that we have
         // seen this `lid` before. E.g. a secondary lookup
         // connects this resource to a previously seen
         // resource.
-        identifier = keyOptions.lid[newLid];
+        identifier = keyOptions.lid.get(newLid);
       }
 
       if (shouldGenerate === true) {
@@ -249,16 +254,16 @@ export class IdentifierCache {
           if (DEBUG) {
             // realistically if you hit this it means you changed `type` :/
             // TODO consider how to handle type change assertions more gracefully
-            if (this._cache.lids[identifier.lid] !== undefined) {
+            if (this._cache.lids.has(identifier.lid)) {
               throw new Error(`You should not change the <type> of a RecordIdentifier`);
             }
           }
-          this._cache.lids[identifier.lid] = identifier;
+          this._cache.lids.set(identifier.lid, identifier);
 
           // populate our primary lookup table
           // TODO consider having the `lid` cache be
           // one level up
-          keyOptions.lid[identifier.lid] = identifier;
+          keyOptions.lid.set(identifier.lid, identifier);
 
           if (LOG_IDENTIFIERS && shouldGenerate) {
             // eslint-disable-next-line no-console
@@ -280,7 +285,7 @@ export class IdentifierCache {
         // because they may not match and we prefer
         // what we've set via resource data
         if (identifier.id !== null) {
-          keyOptions.id[identifier.id] = identifier;
+          keyOptions.id.set(identifier.id, identifier);
 
           // TODO allow filling out of `id` here
           // for the `username` non-client created
@@ -354,14 +359,17 @@ export class IdentifierCache {
 
     // populate our unique table
     if (DEBUG) {
-      if (this._cache.lids[identifier.lid] !== undefined) {
+      if (this._cache.lids.has(identifier.lid)) {
         throw new Error(`The lid generated for the new record is not unique as it matches an existing identifier`);
       }
     }
-    this._cache.lids[identifier.lid] = identifier;
+    this._cache.lids.set(identifier.lid, identifier);
 
     // populate the type+lid cache
-    keyOptions.lid[newLid] = identifier;
+    keyOptions.lid.set(newLid, identifier);
+    if (data.id) {
+      keyOptions.id.set(data.id, identifier);
+    }
 
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -447,10 +455,10 @@ export class IdentifierCache {
         );
       }
       let keyOptions = getTypeIndex(this._cache.types, identifier.type);
-      keyOptions.id[newId] = identifier;
+      keyOptions.id.set(newId, identifier);
 
       if (id !== null) {
-        keyOptions.id[id] = undefined as unknown as StableRecordIdentifier;
+        keyOptions.id.delete(id);
       }
     } else if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -479,10 +487,10 @@ export class IdentifierCache {
     this.forgetRecordIdentifier(abandoned);
 
     // ensure a secondary cache entry for this id for the identifier we do keep
-    keyOptions.id[newId] = kept;
+    keyOptions.id.set(newId, kept);
     // ensure a secondary cache entry for this id for the abandoned identifier's type we do keep
     let baseKeyOptions = getTypeIndex(this._cache.types, existingIdentifier.type);
-    baseKeyOptions.id[newId] = kept;
+    baseKeyOptions.id.set(newId, kept);
 
     // make sure that the `lid` on the data we are processing matches the lid we kept
     data.lid = kept.lid;
@@ -506,10 +514,10 @@ export class IdentifierCache {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
     let keyOptions = getTypeIndex(this._cache.types, identifier.type);
     if (identifier.id !== null) {
-      keyOptions.id[identifier.id] = undefined as unknown as StableRecordIdentifier;
+      keyOptions.id.delete(identifier.id);
     }
-    this._cache.lids[identifier.lid] = undefined as unknown as StableRecordIdentifier;
-    keyOptions.lid[identifier.lid] = undefined as unknown as StableRecordIdentifier;
+    this._cache.lids.delete(identifier.lid);
+    keyOptions.lid.delete(identifier.lid);
 
     IDENTIFIERS.delete(identifierObject);
     this._forget(identifier, 'record');
@@ -529,8 +537,8 @@ function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
 
   if (typeIndex === undefined) {
     typeIndex = {
-      lid: Object.create(null),
-      id: Object.create(null),
+      lid: new Map(),
+      id: new Map(),
     };
     typeMap[type] = typeIndex;
   }
@@ -649,7 +657,7 @@ function detectMerge(
   const { id, type, lid } = identifier;
   if (id !== null && id !== newId && newId !== null) {
     let keyOptions = getTypeIndex(typesCache, identifier.type);
-    let existingIdentifier = keyOptions.id[newId];
+    let existingIdentifier = keyOptions.id.get(newId);
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
@@ -657,12 +665,12 @@ function detectMerge(
 
     // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
-      let existingIdentifier = lids[data.lid];
+      let existingIdentifier = lids.get(data.lid);
       return existingIdentifier !== undefined ? existingIdentifier : false;
       // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
     } else if (id !== null && id === newId && newType && newType !== type && data.lid && data.lid === lid) {
       let keyOptions = getTypeIndex(typesCache, newType);
-      let existingIdentifier = keyOptions.id[id];
+      let existingIdentifier = keyOptions.id.get(id);
       return existingIdentifier !== undefined ? existingIdentifier : false;
     }
   }

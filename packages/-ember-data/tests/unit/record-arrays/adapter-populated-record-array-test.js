@@ -1,6 +1,5 @@
 import { A } from '@ember/array';
 import Evented from '@ember/object/evented';
-import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
@@ -9,7 +8,6 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { recordIdentifierFor } from '@ember-data/store';
 
 const { AdapterPopulatedRecordArray, RecordArrayManager } = DS;
 
@@ -109,98 +107,18 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.false(recordArray.isUpdating, 'should no longer be updating');
   });
 
-  // TODO: is this method required, i suspect store._query should be refactor so this is not needed
-  test('#_setIdentifiers', async function (assert) {
-    let didAddRecord = 0;
-    function add(array) {
-      didAddRecord++;
-      assert.strictEqual(array, recordArray);
-    }
-
-    this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
-
-    const set = new Set();
-    set.add = add;
-    let manager = new RecordArrayManager({
-      store,
-    });
-    manager.getRecordArraysForIdentifier = () => {
-      return set;
-    };
-
-    let recordArray = AdapterPopulatedRecordArray.create({
-      query: 'some-query',
-      manager,
-      content: A(),
-      store,
-    });
-
-    let model1 = {
-      type: 'tag',
-      id: '1',
-    };
-    let model2 = {
-      type: 'tag',
-      id: '2',
-    };
-
-    let [record1, record2] = store.push({
-      data: [model1, model2],
-    });
-
-    let identifier1 = recordIdentifierFor(record1);
-    let identifier2 = recordIdentifierFor(record2);
-
-    assert.strictEqual(didAddRecord, 0, 'no records should have been added yet');
-
-    let links = { foo: 1 };
-    let meta = { bar: 2 };
-
-    let result = recordArray._setIdentifiers([identifier1, identifier2], {
-      links,
-      meta,
-    });
-
-    assert.strictEqual(result, undefined, '_setIdentifiers should have no return value');
-
-    assert.strictEqual(didAddRecord, 2, 'two records should have been added');
-
-    assert.deepEqual(recordArray.toArray(), [record1, record2], 'should now contain the loaded records by identifier');
-    assert.strictEqual(recordArray.links.foo, 1, 'has links');
-    assert.strictEqual(recordArray.meta.bar, 2, 'has meta');
-
-    await settled();
-  });
-
   test('change events when receiving a new query payload', async function (assert) {
-    assert.expect(37);
+    assert.expect(29);
 
     let arrayDidChange = 0;
     let contentDidChange = 0;
-    let didAddRecord = 0;
 
     this.owner.register('model:tag', Tag);
     let store = this.owner.lookup('service:store');
 
-    function add(array) {
-      didAddRecord++;
-      assert.strictEqual(array, recordArray);
-    }
-
-    function del(array) {
-      assert.strictEqual(array, recordArray);
-    }
-
-    const set = new Set();
-    set.add = add;
-    set.delete = del;
     let manager = new RecordArrayManager({
       store,
     });
-    manager.getRecordArraysForIdentifier = () => {
-      return set;
-    };
     let recordArray = AdapterPopulatedRecordArray.extend(Evented).create({
       query: 'some-query',
       manager,
@@ -223,13 +141,12 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       },
     };
 
-    let [record1, record2] = store.push({
+    let results = store._push({
       data: [model1, model2],
     });
 
-    recordArray._setIdentifiers([recordIdentifierFor(record1), recordIdentifierFor(record2)], {});
+    store.recordArrayManager.populateManagedArray(recordArray, results, {});
 
-    assert.strictEqual(didAddRecord, 2, 'expected 2 didAddRecords');
     assert.deepEqual(
       recordArray.map((x) => x.name),
       ['Scumbag Dale', 'Scumbag Katz']
@@ -260,7 +177,6 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     arrayDidChange = 0;
     contentDidChange = 0;
-    didAddRecord = 0;
 
     let model3 = {
       type: 'tag',
@@ -277,13 +193,12 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       },
     };
 
-    let [record3, record4] = store.push({
+    results = store._push({
       data: [model3, model4],
     });
 
-    recordArray._setIdentifiers([recordIdentifierFor(record3), recordIdentifierFor(record4)], {});
+    store.recordArrayManager.populateManagedArray(recordArray, results, {});
 
-    assert.strictEqual(didAddRecord, 2, 'expected 2 didAddRecords');
     assert.true(recordArray.isLoaded, 'should be considered loaded');
     assert.false(recordArray.isUpdating, 'should no longer be updating');
 
@@ -297,7 +212,6 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     arrayDidChange = 0; // reset change event counter
     contentDidChange = 0; // reset change event counter
-    didAddRecord = 0;
 
     recordArray.one('@array:change', function (array, startIdx, removeAmt, addAmt) {
       arrayDidChange++;
@@ -323,13 +237,11 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       },
     };
 
-    let record5 = store.push({
+    results = store._push({
       data: model5,
     });
 
-    recordArray._setIdentifiers([recordIdentifierFor(record5)], {});
-
-    assert.strictEqual(didAddRecord, 1, 'expected 0 didAddRecord');
+    store.recordArrayManager.populateManagedArray(recordArray, [results], {});
 
     assert.true(recordArray.isLoaded, 'should be considered loaded');
     assert.false(recordArray.isUpdating, 'should not longer be updating');

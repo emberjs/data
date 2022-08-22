@@ -62,6 +62,7 @@ import FetchManager, { SaveOp } from './network/fetch-manager';
 import { _findAll, _query, _queryRecord } from './network/finders';
 import type RequestCache from './network/request-cache';
 import type Snapshot from './network/snapshot';
+import SnapshotRecordArray from './network/snapshot-record-array';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import AdapterPopulatedRecordArray from './record-arrays/adapter-populated-record-array';
 import RecordArray from './record-arrays/record-array';
@@ -1759,7 +1760,7 @@ class Store extends Service {
       array.isUpdating = true;
       fetch = _findAll(adapter, this, normalizedModelName, options);
     } else {
-      let snapshotArray = array._createSnapshot(options);
+      let snapshotArray = new SnapshotRecordArray(this, array, options);
 
       if (options.reload !== false) {
         if (
@@ -1780,7 +1781,7 @@ class Store extends Service {
           adapter.shouldBackgroundReloadAll(this, snapshotArray)
         ) {
           array.isUpdating = true;
-          _findAll(adapter, this, modelName, options);
+          _findAll(adapter, this, modelName, options, snapshotArray);
         }
 
         fetch = resolve(array);
@@ -1825,7 +1826,7 @@ class Store extends Service {
       typeof modelName === 'string'
     );
     let normalizedModelName = normalizeModelName(modelName);
-    return this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
+    return this.recordArrayManager.liveArrayFor(normalizedModelName);
   }
 
   /**
@@ -1865,6 +1866,7 @@ class Store extends Service {
           graph.identifiers.clear();
         }
       }
+      this._notificationManager.destroy();
       this._instanceCache.clear();
     } else {
       let normalizedModelName = normalizeModelName(modelName);
@@ -2554,7 +2556,6 @@ class Store extends Service {
 
   willDestroy() {
     super.willDestroy();
-    this._notificationManager.destroy();
     this.recordArrayManager.destroy();
     this.identifierCache.destroy();
 

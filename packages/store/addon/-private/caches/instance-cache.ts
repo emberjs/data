@@ -120,7 +120,6 @@ type Caches = {
 export class InstanceCache {
   declare store: Store;
   declare _storeWrapper: RecordDataStoreWrapper;
-  declare peekList: Dict<Set<StableRecordIdentifier>>;
   declare __recordDataFor: (resource: RecordIdentifier) => RecordData;
 
   declare __cacheManager: NonSingletonRecordDataManager;
@@ -131,7 +130,7 @@ export class InstanceCache {
   };
 
   recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
-    const recordData = this.peek({ identifier, bucket: 'recordData' });
+    const recordData = this.__instances.recordData.get(identifier);
     if (!recordData) {
       return false;
     }
@@ -140,7 +139,7 @@ export class InstanceCache {
 
     // if we are new we must consider ourselves loaded
     if (isNew) {
-      return true;
+      return !recordData.isDeleted(identifier);
     }
     // even if we have a past request, if we are now empty we are not loaded
     // typically this is true after an unloadRecord call
@@ -170,7 +169,6 @@ export class InstanceCache {
 
   constructor(store: Store) {
     this.store = store;
-    this.peekList = Object.create(null) as Dict<Set<StableRecordIdentifier>>;
 
     this._storeWrapper = new RecordDataStoreWrapper(this.store);
     this.__recordDataFor = (resource: RecordIdentifier) => {
@@ -226,7 +224,6 @@ export class InstanceCache {
         // remove "other" from cache
         if (otherHasRecord) {
           // TODO probably need to release other things
-          this.peekList[altIdentifier.type]?.delete(altIdentifier);
         }
 
         if (imRecordData === null && otherRecordData === null) {
@@ -242,14 +239,11 @@ export class InstanceCache {
           if (imRecordData) {
             // TODO check if we are retained in any async relationships
             // TODO probably need to release other things
-            this.peekList[intendedIdentifier.type]?.delete(intendedIdentifier);
             // im.destroy();
           }
           imRecordData = otherRecordData!;
           // TODO do we need to notify the id change?
           // TODO swap recordIdentifierFor result?
-          this.peekList[intendedIdentifier.type] = this.peekList[intendedIdentifier.type] || new Set();
-          this.peekList[intendedIdentifier.type]!.add(intendedIdentifier);
 
           // just use im
         } else {
@@ -283,7 +277,7 @@ export class InstanceCache {
   }
 
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
-    let record = this.peek({ identifier, bucket: 'record' });
+    let record = this.__instances.record.get(identifier);
 
     if (!record) {
       const recordData = this.getRecordData(identifier);
@@ -309,7 +303,7 @@ export class InstanceCache {
   }
 
   getRecordData(identifier: StableRecordIdentifier): RecordData {
-    let recordData = this.peek({ identifier, bucket: 'recordData' });
+    let recordData = this.__instances.recordData.get(identifier);
 
     if (!recordData) {
       if (DEPRECATE_V1CACHE_STORE_APIS && this.store.createRecordDataFor.length > 2) {
@@ -352,8 +346,6 @@ export class InstanceCache {
       setRecordDataFor(identifier, recordData);
 
       this.__instances.recordData.set(identifier, recordData);
-      this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
-      this.peekList[identifier.type]!.add(identifier);
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
         console.log(`InstanceCache: created RecordData for ${String(identifier)}`);
@@ -417,9 +409,8 @@ export class InstanceCache {
 
     // TODO is this join still necessary?
     this.store._join(() => {
-      const record = this.peek({ identifier, bucket: 'record' });
-      const recordData = this.peek({ identifier, bucket: 'recordData' });
-      this.peekList[identifier.type]?.delete(identifier);
+      const record = this.__instances.record.get(identifier);
+      const recordData = this.__instances.recordData.get(identifier);
 
       if (record) {
         this.store.teardownRecord(record);
@@ -454,20 +445,19 @@ export class InstanceCache {
   }
 
   clear(type?: string) {
+    const typeCache = this.store.identifierCache._cache.types;
     if (type === undefined) {
-      let keys = Object.keys(this.peekList);
-      keys.forEach((key) => this.clear(key));
+      this.__instances.recordData.forEach((value, identifier) => {
+        this.unloadRecord(identifier);
+      });
     } else {
-      let identifiers = this.peekList[type];
+      let identifiers = typeCache[type]?.lid;
+      const rds = this.__instances.recordData;
       if (identifiers) {
         identifiers.forEach((identifier) => {
-          // TODO we rely on not removing the main cache
-          // and only removing the peekList cache apparently.
-          // we should figure out this duality and codify whatever
-          // signal it is actually trying to give us.
-          // this.cache.delete(identifier);
-          this.peekList[identifier.type]!.delete(identifier);
-          this.unloadRecord(identifier);
+          if (rds.has(identifier)) {
+            this.unloadRecord(identifier);
+          }
           // TODO we don't remove the identifier, should we?
         });
       }
@@ -608,7 +598,7 @@ function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData
 }
 
 export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  let recordData = cache.peek({ identifier, bucket: 'recordData' });
+  let recordData = cache.__instances.recordData.get(identifier);
   return !recordData || _recordDataIsFullDeleted(identifier, recordData);
 }
 
@@ -683,7 +673,7 @@ function _convertPreloadRelationshipToJSON(
 }
 
 function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  const recordData = cache.peek({ identifier: identifier, bucket: 'recordData' });
+  const recordData = cache.__instances.recordData.get(identifier);
   if (!recordData) {
     return true;
   }
