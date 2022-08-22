@@ -1,5 +1,4 @@
 import { computed, get, observer, set } from '@ember/object';
-import { guidFor } from '@ember/object/internals';
 
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
