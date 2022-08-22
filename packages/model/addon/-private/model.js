@@ -23,7 +23,7 @@ import {
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId, deprecatedPromiseObject, recordDataFor, WeakCache } from '@ember-data/store/-private';
+import { coerceId, deprecatedPromiseObject, recordDataFor } from '@ember-data/store/-private';
 
 import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
@@ -32,18 +32,21 @@ import RecordState, { peekTag, tagged } from './record-state';
 import { relationshipFromMeta } from './relationship-meta';
 
 const { changeProperties } = Ember;
-export const LEGACY_SUPPORT = new WeakCache(DEBUG ? 'legacy-relationships' : '');
-LEGACY_SUPPORT._generator = (record) => {
+export const LEGACY_SUPPORT = new Map();
+
+export function lookupLegacySupport(record) {
   const identifier = recordIdentifierFor(record);
   let support = LEGACY_SUPPORT.get(identifier);
 
   if (!support) {
     support = new LegacySupport(record);
     LEGACY_SUPPORT.set(identifier, support);
+    LEGACY_SUPPORT.set(record, support);
   }
 
   return support;
-};
+}
+
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
 
@@ -1038,7 +1041,7 @@ class Model extends EmberObject {
     @return {BelongsToReference} reference for this relationship
   */
   belongsTo(name) {
-    return LEGACY_SUPPORT.lookup(this).referenceFor('belongsTo', name);
+    return lookupLegacySupport(this).referenceFor('belongsTo', name);
   }
 
   /**
@@ -1101,7 +1104,7 @@ class Model extends EmberObject {
     @return {HasManyReference} reference for this relationship
   */
   hasMany(name) {
-    return LEGACY_SUPPORT.lookup(this).referenceFor('hasMany', name);
+    return lookupLegacySupport(this).referenceFor('hasMany', name);
   }
 
   /**

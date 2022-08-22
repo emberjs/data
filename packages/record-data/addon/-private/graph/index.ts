@@ -3,7 +3,6 @@ import { DEBUG } from '@glimmer/env';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type Store from '@ember-data/store';
-import { WeakCache } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -44,17 +43,7 @@ export interface ImplicitRelationship {
 
 type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
-const Graphs = new WeakCache<RecordDataStoreWrapper, Graph>(DEBUG ? 'graph' : '');
-Graphs._generator = (wrapper: RecordDataStoreWrapper) => {
-  const graph = new Graph(wrapper);
-
-  // in DEBUG we attach the graph to the main store for improved debuggability
-  if (DEBUG) {
-    Graphs.set(getStore(wrapper) as unknown as RecordDataStoreWrapper, graph);
-  }
-
-  return graph;
-};
+const Graphs = new Map<RecordDataStoreWrapper, Graph>();
 
 function isStore(maybeStore: unknown): maybeStore is Store {
   return (maybeStore as Store)._instanceCache !== undefined;
@@ -70,7 +59,19 @@ export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefi
 export type peekGraph = typeof peekGraph;
 
 export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
-  return Graphs.lookup(getWrapper(store));
+  const wrapper = getWrapper(store);
+  let graph = Graphs.get(wrapper);
+
+  if (!graph) {
+    graph = new Graph(wrapper);
+    Graphs.set(wrapper, graph);
+
+    // in DEBUG we attach the graph to the main store for improved debuggability
+    if (DEBUG) {
+      Graphs.set(getStore(wrapper) as unknown as RecordDataStoreWrapper, graph);
+    }
+  }
+  return graph;
 }
 
 /*

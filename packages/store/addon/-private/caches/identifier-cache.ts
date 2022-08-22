@@ -25,9 +25,8 @@ import coerceId from '../utils/coerce-id';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifer-debug-consts';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import normalizeModelName from '../utils/normalize-model-name';
-import WeakCache from '../utils/weak-cache';
 
-const IDENTIFIERS = new WeakSet();
+const IDENTIFIERS = new Set();
 
 export function isStableIdentifier(identifier: Object): identifier is StableRecordIdentifier {
   return IDENTIFIERS.has(identifier);
@@ -103,7 +102,7 @@ function defaultEmptyCallback(...args: any[]): any {}
 
 let DEBUG_MAP;
 if (DEBUG) {
-  DEBUG_MAP = new WeakCache<StableRecordIdentifier, StableRecordIdentifier>('identifier-proxy-target');
+  DEBUG_MAP = new WeakMap<StableRecordIdentifier, StableRecordIdentifier>();
 }
 
 /**

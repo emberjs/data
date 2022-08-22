@@ -37,7 +37,6 @@ import { assertIdentifierHasId } from '../store-service';
 import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
-import WeakCache, { DebugWeakCache } from '../utils/weak-cache';
 import { removeRecordDataFor, setRecordDataFor } from './record-data-for';
 
 let _peekGraph: peekGraph;
@@ -54,10 +53,7 @@ if (HAS_RECORD_DATA_PACKAGE) {
   @module @ember-data/store
 */
 
-const RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
-if (DEBUG) {
-  RecordCache._expectMsg = (key: RecordInstance) => `${String(key)} is not a record instantiated by @ember-data/store`;
-}
+const RecordCache = new Map<RecordInstance, StableRecordIdentifier>();
 
 export function peekRecordIdentifier(record: RecordInstance): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
@@ -83,7 +79,8 @@ export function peekRecordIdentifier(record: RecordInstance): StableRecordIdenti
   @returns {StableRecordIdentifier}
  */
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
-  return RecordCache.getWithError(record);
+  assert(`${String(record)} is not a record instantiated by @ember-data/store`, RecordCache.has(record));
+  return RecordCache.get(record)!;
 }
 
 export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
@@ -102,7 +99,7 @@ export function setRecordIdentifier(record: RecordInstance, identifier: StableRe
   RecordCache.set(record, identifier);
 }
 
-export const StoreMap = new WeakCache<RecordInstance, Store>(DEBUG ? 'store' : '');
+export const StoreMap = new Map<RecordInstance, Store>();
 
 export function storeFor(record: RecordInstance): Store | undefined {
   const store = StoreMap.get(record);
@@ -117,7 +114,7 @@ export function storeFor(record: RecordInstance): Store | undefined {
 type Caches = {
   record: Map<StableRecordIdentifier, RecordInstance>;
   recordData: Map<StableRecordIdentifier, RecordData>;
-  reference: DebugWeakCache<StableRecordIdentifier, RecordReference>;
+  reference: WeakMap<StableRecordIdentifier, RecordReference>;
 };
 
 export class InstanceCache {
@@ -130,7 +127,7 @@ export class InstanceCache {
   __instances: Caches = {
     record: new Map<StableRecordIdentifier, RecordInstance>(),
     recordData: new Map<StableRecordIdentifier, RecordData>(),
-    reference: new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : ''),
+    reference: new WeakMap<StableRecordIdentifier, RecordReference>(),
   };
 
   recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
@@ -180,10 +177,6 @@ export class InstanceCache {
       // TODO enforce strict
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
       return this.getRecordData(identifier);
-    };
-
-    this.__instances.reference._generator = (identifier) => {
-      return new RecordReference(this.store, identifier);
     };
 
     store.identifierCache.__configureMerge(
@@ -371,7 +364,14 @@ export class InstanceCache {
   }
 
   getReference(identifier: StableRecordIdentifier) {
-    return this.__instances.reference.lookup(identifier);
+    let cache = this.__instances.reference;
+    let reference = cache.get(identifier);
+
+    if (!reference) {
+      reference = new RecordReference(this.store, identifier);
+      cache.set(identifier, reference);
+    }
+    return reference;
   }
 
   createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {

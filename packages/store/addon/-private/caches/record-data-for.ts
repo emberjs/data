@@ -1,20 +1,15 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
 
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-
-import WeakCache from '../utils/weak-cache';
 
 /*
  * Returns the RecordData instance associated with a given
  * Model or Identifier
  */
 
-const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier | RecordInstance, RecordData>(
-  DEBUG ? 'recordData' : ''
-);
+const RecordDataForIdentifierCache = new Map<StableRecordIdentifier | RecordInstance, RecordData>();
 
 export function setRecordDataFor(identifier: StableRecordIdentifier | RecordInstance, recordData: RecordData): void {
   assert(

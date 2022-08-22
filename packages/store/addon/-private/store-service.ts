@@ -2554,6 +2554,7 @@ class Store extends Service {
 
   willDestroy() {
     super.willDestroy();
+    this._notificationManager.destroy();
     this.recordArrayManager.destroy();
     this.identifierCache.destroy();
 

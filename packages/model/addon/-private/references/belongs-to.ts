@@ -10,7 +10,6 @@ import type Store from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
-import type { DebugWeakCache } from '@ember-data/store/-private/utils/weak-cache';
 import type {
   LinkObject,
   Links,
@@ -529,9 +528,9 @@ export default class BelongsToReference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
   load(options?: Dict<unknown>) {
-    const support: LegacySupport = (
-      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.___identifier);
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
+      this.___identifier
+    )!;
     return support.getBelongsTo(this.key, options);
   }
 
@@ -586,9 +585,9 @@ export default class BelongsToReference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
   reload(options?: Dict<unknown>) {
-    const support: LegacySupport = (
-      LEGACY_SUPPORT as DebugWeakCache<StableRecordIdentifier, LegacySupport>
-    ).getWithError(this.___identifier);
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
+      this.___identifier
+    )!;
     return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }

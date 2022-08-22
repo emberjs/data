@@ -9,17 +9,18 @@ import { tracked } from '@glimmer/tracking';
 
 import { Promise } from 'rsvp';
 
-import type { RecordArrayManager, Snapshot } from 'ember-data/-private';
-
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 
+import RecordArrayManager from '../managers/record-array-manager';
+import type Snapshot from '../network/snapshot';
 import SnapshotRecordArray from '../network/snapshot-record-array';
 import type { PromiseArray } from '../proxies/promise-proxies';
 import { promiseArray } from '../proxies/promise-proxies';
 import type Store from '../store-service';
+import type AdapterPopulatedRecordArray from './adapter-populated-record-array';
 
 function recordForIdentifier(store: Store, identifier: StableRecordIdentifier): RecordInstance {
   return store._instanceCache.getRecord(identifier);
@@ -260,7 +261,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
       let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
 
       if (recordArrays) {
-        recordArrays.delete(this);
+        recordArrays.delete(this as unknown as AdapterPopulatedRecordArray);
       }
     });
   }

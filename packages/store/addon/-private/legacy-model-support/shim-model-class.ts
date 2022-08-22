@@ -1,18 +1,20 @@
-import { DEBUG } from '@glimmer/env';
-
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import type Store from '../store-service';
-import WeakCache from '../utils/weak-cache';
 
-const AvailableShims = new WeakCache<Store, Dict<ShimModelClass>>(DEBUG ? 'schema-shims' : '');
-AvailableShims._generator = () => {
-  return Object.create(null) as Dict<ShimModelClass>;
-};
+// if modelFor turns out to be a bottleneck we should replace with a Map
+// and clear it during store teardown.
+const AvailableShims = new WeakMap<Store, Dict<ShimModelClass>>();
+
 export function getShimClass(store: Store, modelName: string): ShimModelClass {
-  let shims = AvailableShims.lookup(store);
+  let shims = AvailableShims.get(store);
+
+  if (!shims) {
+    shims = Object.create(null) as Dict<ShimModelClass>;
+    AvailableShims.set(store, shims);
+  }
   let shim = shims[modelName];
   if (shim === undefined) {
     shim = shims[modelName] = new ShimModelClass(store, modelName);
