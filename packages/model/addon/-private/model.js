@@ -493,9 +493,8 @@ class Model extends EmberObject {
     }
   }
 
-  // TODO just write a nice toString
-  toStringExtension() {
-    return this.id;
+  toString() {
+    return `model::${this.constructor.modelName}:${this.id}`;
   }
 
   /**
