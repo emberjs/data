@@ -139,7 +139,7 @@ export class InstanceCache {
 
     // if we are new we must consider ourselves loaded
     if (isNew) {
-      return true;
+      return !recordData.isDeleted(identifier);
     }
     // even if we have a past request, if we are now empty we are not loaded
     // typically this is true after an unloadRecord call

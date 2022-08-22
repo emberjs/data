@@ -367,6 +367,9 @@ export class IdentifierCache {
 
     // populate the type+lid cache
     keyOptions.lid.set(newLid, identifier);
+    if (data.id) {
+      keyOptions.id.set(data.id, identifier);
+    }
 
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console

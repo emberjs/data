@@ -299,7 +299,7 @@ module('integration/record-data - Record Data State', function (hooks) {
   });
 
   test('Record Data state record flags', async function (assert) {
-    assert.expect(14);
+    assert.expect(13);
     let isDeleted, isNew, isDeletionCommitted;
     let calledSetIsDeleted = false;
     let storeWrapper;
@@ -386,9 +386,6 @@ module('integration/record-data - Record Data State', function (hooks) {
     assert.strictEqual(people.length, 1, 'live array starting length is 1 after deleteRecord');
     assert.false(person.isDeleted, 'calling deleteRecord does not automatically set isDeleted flag to true');
     assert.true(calledSetIsDeleted, 'called setIsDeleted');
-
-    storeWrapper.notifyChange(personIdentifier, 'state');
-    assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isDeletionCommitted = true;
     storeWrapper.notifyChange(personIdentifier, 'state');
