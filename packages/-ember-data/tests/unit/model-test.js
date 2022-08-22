@@ -1,5 +1,4 @@
 import { computed, get, observer, set } from '@ember/object';
-import { guidFor } from '@ember/object/internals';
 
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
@@ -196,11 +195,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      assert.strictEqual(
-        person.toString(),
-        `<dummy@model:${person.constructor.modelName}::${guidFor(person)}:1>`,
-        'reports id in toString'
-      );
+      assert.strictEqual(person.toString(), `<model::${person.constructor.modelName}:1>`, 'reports id in toString');
     });
 
     testInDebug('trying to use `id` as an attribute should raise', async function (assert) {

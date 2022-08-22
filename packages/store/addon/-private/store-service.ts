@@ -322,25 +322,23 @@ class Store extends Service {
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
       let modelName = identifier.type;
-      let store = this;
 
       let recordData = this._instanceCache.getRecordData(identifier);
       let createOptions: any = {
         // TODO deprecate allowing unknown args setting
         _createProps: createRecordArgs,
         // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
-        _secretInit: (record: RecordInstance): void => {
-          setRecordIdentifier(record, identifier);
-          StoreMap.set(record, store);
-          setRecordDataFor(record, recordData);
+        _secretInit: {
+          identifier,
+          recordData,
+          store: this,
+          cb: secretInit,
         },
-        container: null, // necessary hack for setOwner?
       };
 
       // ensure that `getOwner(this)` works inside a model instance
       setOwner(createOptions, getOwner(this));
-      delete createOptions.container;
-      return getModelFactory(this, this._modelFactoryCache, modelName).create(createOptions);
+      return getModelFactory(this, this._modelFactoryCache, modelName).class.create(createOptions);
     }
     assert(`You must implement the store's instantiateRecord hook for your custom model class.`);
   }
@@ -2779,4 +2777,15 @@ function extractIdentifierFromRecord(
 
 function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
   return !!record.then;
+}
+
+function secretInit(
+  record: RecordInstance,
+  recordData: RecordData,
+  identifier: StableRecordIdentifier,
+  store: Store
+): void {
+  setRecordIdentifier(record, identifier);
+  StoreMap.set(record, store);
+  setRecordDataFor(record, recordData);
 }
