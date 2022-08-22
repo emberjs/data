@@ -10,6 +10,7 @@ import type { CollectionResourceDocument, Meta } from '@ember-data/types/q/ember
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import { InstanceCache } from '../caches/instance-cache';
 import AdapterPopulatedRecordArray from '../record-arrays/adapter-populated-record-array';
 import RecordArray from '../record-arrays/record-array';
 import type Store from '../store-service';
@@ -106,7 +107,7 @@ class RecordArrayManager {
       return;
     }
     let hasNoPotentialDeletions = pending.size === 0;
-    let listSize = this.store._instanceCache.peekList[modelName]?.size;
+    let listSize = this.store.identifierCache._cache.types[modelName]?.lid.size || 0;
     let hasNoInsertionsOrRemovals = listSize === array.length;
 
     /*
@@ -153,27 +154,12 @@ class RecordArrayManager {
     } else {
       // if the array is being newly created merely create it with its initial
       // content already set. This prevents unneeded change events.
-      let identifiers = this._visibleIdentifiersByType(modelName);
+      let identifiers = visibleIdentifiersByType(this.store._instanceCache, modelName);
       array = this.createRecordArray(modelName, identifiers);
       this._liveRecordArrays[modelName] = array;
     }
 
     return array;
-  }
-
-  _visibleIdentifiersByType(modelName: string) {
-    const cache = this.store._instanceCache;
-    const list = cache.peekList[modelName];
-    let all = list ? [...list.values()] : [];
-    let visible: StableRecordIdentifier[] = [];
-    for (let i = 0; i < all.length; i++) {
-      let identifier = all[i];
-
-      if (cache.recordIsLoaded(identifier, true)) {
-        visible.push(identifier);
-      }
-    }
-    return visible;
   }
 
   /**
@@ -392,6 +378,23 @@ function removeFromAll(store: Store, identifier: StableRecordIdentifier): void {
 
     recordArrays.clear();
   }
+}
+
+// TODO we can probably get rid of this and build up the list
+// as we are notified of changes
+// doing so *might* decrease costs by allowing us to avoid
+// the `recordIsLoaded` check.
+// for 100k records this is like 35ms currently
+function visibleIdentifiersByType(cache: InstanceCache, type: string): StableRecordIdentifier[] {
+  const list = cache.store.identifierCache._cache.types[type]?.lid;
+  const visible: StableRecordIdentifier[] = [];
+  const getLoaded = (identifier: StableRecordIdentifier) => {
+    if (cache.recordIsLoaded(identifier, true)) {
+      visible.push(identifier);
+    }
+  };
+  list?.forEach(getLoaded);
+  return visible;
 }
 
 export default RecordArrayManager;

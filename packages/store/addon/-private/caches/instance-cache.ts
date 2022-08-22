@@ -120,7 +120,6 @@ type Caches = {
 export class InstanceCache {
   declare store: Store;
   declare _storeWrapper: RecordDataStoreWrapper;
-  declare peekList: Dict<Set<StableRecordIdentifier>>;
   declare __recordDataFor: (resource: RecordIdentifier) => RecordData;
 
   declare __cacheManager: NonSingletonRecordDataManager;
@@ -170,7 +169,6 @@ export class InstanceCache {
 
   constructor(store: Store) {
     this.store = store;
-    this.peekList = Object.create(null) as Dict<Set<StableRecordIdentifier>>;
 
     this._storeWrapper = new RecordDataStoreWrapper(this.store);
     this.__recordDataFor = (resource: RecordIdentifier) => {
@@ -226,7 +224,6 @@ export class InstanceCache {
         // remove "other" from cache
         if (otherHasRecord) {
           // TODO probably need to release other things
-          this.peekList[altIdentifier.type]?.delete(altIdentifier);
         }
 
         if (imRecordData === null && otherRecordData === null) {
@@ -242,14 +239,11 @@ export class InstanceCache {
           if (imRecordData) {
             // TODO check if we are retained in any async relationships
             // TODO probably need to release other things
-            this.peekList[intendedIdentifier.type]?.delete(intendedIdentifier);
             // im.destroy();
           }
           imRecordData = otherRecordData!;
           // TODO do we need to notify the id change?
           // TODO swap recordIdentifierFor result?
-          this.peekList[intendedIdentifier.type] = this.peekList[intendedIdentifier.type] || new Set();
-          this.peekList[intendedIdentifier.type]!.add(intendedIdentifier);
 
           // just use im
         } else {
@@ -352,8 +346,6 @@ export class InstanceCache {
       setRecordDataFor(identifier, recordData);
 
       this.__instances.recordData.set(identifier, recordData);
-      this.peekList[identifier.type] = this.peekList[identifier.type] || new Set();
-      this.peekList[identifier.type]!.add(identifier);
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
         console.log(`InstanceCache: created RecordData for ${String(identifier)}`);
@@ -419,7 +411,6 @@ export class InstanceCache {
     this.store._join(() => {
       const record = this.peek({ identifier, bucket: 'record' });
       const recordData = this.peek({ identifier, bucket: 'recordData' });
-      this.peekList[identifier.type]?.delete(identifier);
 
       if (record) {
         this.store.teardownRecord(record);
@@ -454,19 +445,14 @@ export class InstanceCache {
   }
 
   clear(type?: string) {
+    const typeCache = this.store.identifierCache._cache.types;
     if (type === undefined) {
-      let keys = Object.keys(this.peekList);
+      let keys = Object.keys(typeCache);
       keys.forEach((key) => this.clear(key));
     } else {
-      let identifiers = this.peekList[type];
+      let identifiers = typeCache[type]?.lid;
       if (identifiers) {
         identifiers.forEach((identifier) => {
-          // TODO we rely on not removing the main cache
-          // and only removing the peekList cache apparently.
-          // we should figure out this duality and codify whatever
-          // signal it is actually trying to give us.
-          // this.cache.delete(identifier);
-          this.peekList[identifier.type]!.delete(identifier);
           this.unloadRecord(identifier);
           // TODO we don't remove the identifier, should we?
         });
