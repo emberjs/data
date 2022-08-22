@@ -69,23 +69,26 @@ class RecordArrayManager {
   */
   liveArrayFor(type: string): RecordArray {
     let array = this._live.get(type);
+    let identifiers: StableRecordIdentifier[] = [];
+    let staged = this._staged.get(type);
+    if (staged) {
+      staged.forEach((value, key) => {
+        if (value === 'add') {
+          identifiers.push(key);
+        }
+      });
+      this._staged.delete(type);
+    }
 
     if (!array) {
       array = RecordArray.create({
         modelName: type,
-        content: A([]),
+        content: A(identifiers),
         store: this.store,
         isLoaded: true,
         manager: this,
       });
       this._live.set(type, array);
-
-      let staged = this._staged.get(type);
-      if (staged) {
-        this._pending.set(array, staged);
-        this._staged.delete(type);
-        array._notify();
-      }
     } else {
       let pending = this._pending.get(array);
       if (pending) {
