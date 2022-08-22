@@ -1229,16 +1229,16 @@ module('autotracking has-many', function (hooks) {
 
     let names = findAll('li').map((e) => e.textContent);
 
-    assert.deepEqual(names, ['Doodad'], 'rendered no people');
+    assert.deepEqual(names, ['Doodad'], 'rendered 1 person');
 
     await click('#createPerson');
 
     names = findAll('li').map((e) => e.textContent);
-    assert.deepEqual(names, ['Doodad', 'RGB'], 'rendered 1 person');
+    assert.deepEqual(names, ['Doodad', 'RGB'], 'rendered 2 people');
 
     await click('#createPerson');
 
     names = findAll('li').map((e) => e.textContent);
-    assert.deepEqual(names, ['Doodad', 'RGB', 'RGB'], 'rendered 2 people');
+    assert.deepEqual(names, ['Doodad', 'RGB', 'RGB'], 'rendered 3 people');
   });
 });

@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -94,7 +93,7 @@ module('integration/record_array_manager', function (hooks) {
 
     let all = store.peekAll('person');
     let query = {};
-    let adapterPopulated = manager.createAdapterPopulatedRecordArray('person', query);
+    let adapterPopulated = manager.createArray({ type: 'person', query });
     let allSummary = tap(all, 'willDestroy');
     let adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
     let identifier = recordIdentifierFor(person);
@@ -102,29 +101,20 @@ module('integration/record_array_manager', function (hooks) {
     assert.strictEqual(allSummary.called.length, 0, 'initial: no calls to all.willDestroy');
     assert.strictEqual(adapterPopulatedSummary.called.length, 0, 'initial: no calls to adapterPopulated.willDestroy');
     assert.strictEqual(
-      manager.getRecordArraysForIdentifier(identifier).size,
-      0,
+      manager._identifiers.get(identifier)?.size,
+      undefined,
       'initial: expected the person to be a member of 0 AdapterPopulatedRecordArrays'
     );
-    assert.true('person' in manager._liveRecordArrays, 'initial: we have a live array for person');
-
-    all.destroy();
-    await settled();
-
-    assert.strictEqual(
-      manager.getRecordArraysForIdentifier(identifier).size,
-      0,
-      'expected the person to be a member of no recordArrays'
-    );
-    assert.strictEqual(allSummary.called.length, 1, 'all.willDestroy called once');
-    assert.false('person' in manager._liveRecordArrays, 'no longer have a live array for person');
+    assert.true(manager._live.has('person'), 'initial: we have a live array for person');
 
     manager.destroy();
     await settled();
 
+    assert.strictEqual(allSummary.called.length, 1, 'all.willDestroy called once');
+    assert.false(manager._live.has('person'), 'no longer have a live array for person');
     assert.strictEqual(
-      manager.getRecordArraysForIdentifier(identifier).size,
-      0,
+      manager._identifiers.get(identifier)?.size,
+      undefined,
       'expected the person to be a member of no recordArrays'
     );
     assert.strictEqual(allSummary.called.length, 1, 'all.willDestroy still only called once');
@@ -235,16 +225,16 @@ module('integration/record_array_manager', function (hooks) {
 
     const query = {};
 
-    let adapterPopulated = manager.createAdapterPopulatedRecordArray('car', query);
+    let adapterPopulated = manager.createArray({ type: 'car', query });
 
     adapterPopulated.destroy();
     await settled();
 
-    assert.strictEqual(manager._adapterPopulatedRecordArrays.length, 0);
+    assert.strictEqual(manager._managed.size, 0);
   });
 
-  test('createRecordArray', function (assert) {
-    let recordArray = manager.createRecordArray('foo');
+  test('liveArrayFor (base)', function (assert) {
+    let recordArray = manager.liveArrayFor('foo');
 
     assert.strictEqual(recordArray.modelName, 'foo');
     assert.true(recordArray.isLoaded);
@@ -253,45 +243,12 @@ module('integration/record_array_manager', function (hooks) {
     assert.deepEqual(recordArray.toArray(), []);
   });
 
-  test('createRecordArray with optional content', function (assert) {
-    let record = store.push({
-      data: {
-        type: 'car',
-        id: '1',
-        attributes: {
-          make: 'BMC',
-          model: 'Mini Cooper',
-        },
-      },
-    });
-    let content = A([recordIdentifierFor(record)]);
-
-    let recordArray = manager.createRecordArray('foo', content);
-
-    assert.strictEqual(recordArray.modelName, 'foo', 'has modelName');
-    assert.true(recordArray.isLoaded, 'isLoaded is true');
-    assert.strictEqual(recordArray.manager, manager, 'recordArray has manager');
-    assert.deepEqual(recordArray.content, [recordIdentifierFor(record)], 'recordArray has content');
-    assert.deepEqual(recordArray.toArray(), [record], 'toArray works');
+  test('liveArrayFor always return the same array for a given type', function (assert) {
+    assert.strictEqual(manager.liveArrayFor('foo'), manager.liveArrayFor('foo'));
   });
 
-  test('liveRecordArrayFor always return the same array for a given type', function (assert) {
-    assert.strictEqual(manager.liveRecordArrayFor('foo'), manager.liveRecordArrayFor('foo'));
-  });
-
-  test('liveRecordArrayFor create with content', function (assert) {
-    assert.expect(6);
-
-    let createRecordArrayCalled = 0;
-    let superCreateRecordArray = manager.createRecordArray;
-
-    manager.createRecordArray = function (modelName, identifiers) {
-      createRecordArrayCalled++;
-      assert.strictEqual(modelName, 'car');
-      assert.strictEqual(identifiers.length, 1);
-      assert.strictEqual(identifiers[0].id, '1');
-      return superCreateRecordArray.apply(this, arguments);
-    };
+  test('liveArrayFor create with content', function (assert) {
+    assert.expect(3);
 
     store.push({
       data: {
@@ -304,10 +261,10 @@ module('integration/record_array_manager', function (hooks) {
       },
     });
 
-    assert.strictEqual(createRecordArrayCalled, 0, 'no record array has been created yet');
-    manager.liveRecordArrayFor('car');
-    assert.strictEqual(createRecordArrayCalled, 1, 'one record array is created');
-    manager.liveRecordArrayFor('car');
-    assert.strictEqual(createRecordArrayCalled, 1, 'no new record array is created');
+    assert.strictEqual(manager._live.size, 0, 'no record array has been created yet');
+    manager.liveArrayFor('car');
+    assert.strictEqual(manager._live.size, 1, 'one record array is created');
+    manager.liveArrayFor('car');
+    assert.strictEqual(manager._live.size, 1, 'no new record array is created');
   });
 });

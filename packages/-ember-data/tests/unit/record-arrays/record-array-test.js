@@ -10,6 +10,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
+import { SnapshotRecordArray } from '@ember-data/store/-private';
 
 const { RecordArray } = DS;
 
@@ -167,36 +168,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     });
   });
 
-  test('#_pushIdentifiers', async function (assert) {
-    let content = A();
-    let recordArray = RecordArray.create({
-      content,
-    });
-
-    let model1 = { lid: '@lid:model-1' };
-    let model2 = { lid: '@lid:model-2' };
-    let model3 = { lid: '@lid:model-3' };
-
-    assert.strictEqual(recordArray._pushIdentifiers([model1]), undefined, '_pushIdentifiers has no return value');
-    assert.deepEqual(recordArray.content, [model1], 'now contains model1');
-
-    recordArray._pushIdentifiers([model1]);
-    assert.deepEqual(
-      recordArray.content,
-      [model1, model1],
-      'allows duplicates, because record-array-manager ensures no duplicates, this layer should not double check'
-    );
-
-    recordArray._updateState(new Map([[model1, 'del']]));
-
-    recordArray._pushIdentifiers([model1]);
-
-    // can add multiple models at once
-    recordArray._pushIdentifiers([model2, model3]);
-    assert.deepEqual(recordArray.content, [model1, model2, model3], 'now contains model1, model2, model3');
-  });
-
-  test('#_removeIdentifiers', async function (assert) {
+  test('#_updateState', async function (assert) {
     let content = A();
     let recordArray = RecordArray.create({
       content,
@@ -214,23 +186,34 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     );
     assert.deepEqual(recordArray.content, [], 'now contains no models');
 
-    recordArray._pushIdentifiers([model1, model2]);
+    recordArray._updateState(
+      new Map([
+        [model1, 'add'],
+        [model2, 'add'],
+      ])
+    );
 
     assert.deepEqual(recordArray.content, [model1, model2], 'now contains model1, model2,');
     assert.strictEqual(
       recordArray._updateState(new Map([[model1, 'del']])),
       undefined,
-      '_removeIdentifiers has no return value'
+      '_updateState has no return value'
     );
     assert.deepEqual(recordArray.content, [model2], 'now only contains model2');
     assert.strictEqual(
       recordArray._updateState(new Map([[model2, 'del']])),
       undefined,
-      '_removeIdentifiers has no return value'
+      '_updateState has no return value'
     );
     assert.deepEqual(recordArray.content, [], 'now contains no models');
 
-    recordArray._pushIdentifiers([model1, model2, model3]);
+    recordArray._updateState(
+      new Map([
+        [model1, 'add'],
+        [model2, 'add'],
+        [model3, 'add'],
+      ])
+    );
 
     assert.strictEqual(
       recordArray._updateState(
@@ -240,14 +223,14 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
         ])
       ),
       undefined,
-      '_removeIdentifiers has no return value'
+      '_updateState has no return value'
     );
 
     assert.deepEqual(recordArray.content, [model2], 'now contains model2');
     assert.strictEqual(
       recordArray._updateState(new Map([[model2, 'del']])),
       undefined,
-      '_removeIdentifiers has no return value'
+      '_updateState has no return value'
     );
     assert.deepEqual(recordArray.content, [], 'now contains no models');
   });
@@ -297,70 +280,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     assert.strictEqual(r.id, result.id, 'save promise should fulfill with the original recordArray');
   });
 
-  test('#destroy', async function (assert) {
-    let didUnregisterRecordArray = 0;
-    let didDissociatieFromOwnRecords = 0;
-    this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
-
-    let model1 = {
-      id: '1',
-      type: 'tag',
-    };
-    let record = store.push({
-      data: model1,
-    });
-
-    const set = new Set();
-    set.delete = (array) => {
-      didDissociatieFromOwnRecords++;
-      assert.strictEqual(array, recordArray);
-    };
-
-    let recordArray = RecordArray.create({
-      content: A([recordIdentifierFor(record)]),
-      store,
-      manager: {
-        getRecordArraysForIdentifier() {
-          return set;
-        },
-        unregisterRecordArray(_recordArray) {
-          didUnregisterRecordArray++;
-          assert.strictEqual(recordArray, _recordArray);
-        },
-      },
-    });
-
-    assert.false(get(recordArray, 'isDestroyed'), 'should not be destroyed');
-    assert.false(get(recordArray, 'isDestroying'), 'should not be destroying');
-
-    assert.strictEqual(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
-    assert.strictEqual(
-      didUnregisterRecordArray,
-      0,
-      'before destroy, we should not yet have unregisterd the record array'
-    );
-    assert.strictEqual(
-      didDissociatieFromOwnRecords,
-      0,
-      'before destroy, we should not yet have dissociated from own record array'
-    );
-    recordArray.destroy();
-    await settled();
-
-    assert.strictEqual(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
-    assert.strictEqual(
-      didDissociatieFromOwnRecords,
-      1,
-      'after destroy, we should have dissociated from own record array'
-    );
-
-    assert.strictEqual(get(recordArray, 'content'), null);
-    assert.strictEqual(get(recordArray, 'length'), 0, 'after destroy we should have no length');
-    assert.true(get(recordArray, 'isDestroyed'), 'should be destroyed');
-  });
-
-  test('#_createSnapshot', async function (assert) {
+  test('Create A SnapshotRecordArray', async function (assert) {
     this.owner.register('model:tag', Tag);
     let store = this.owner.lookup('service:store');
 
@@ -382,7 +302,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       store,
     });
 
-    let snapshot = recordArray._createSnapshot();
+    let snapshot = new SnapshotRecordArray(store, recordArray, {});
     let [snapshot1, snapshot2] = snapshot.snapshots();
 
     assert.strictEqual(
@@ -395,72 +315,5 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       String(model2.id),
       'record array snapshot should contain the second createSnapshot result'
     );
-  });
-
-  test('#destroy second', async function (assert) {
-    let didUnregisterRecordArray = 0;
-    let didDissociatieFromOwnRecords = 0;
-
-    this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
-
-    let model1 = {
-      id: '1',
-      type: 'tag',
-    };
-    let record = store.push({
-      data: model1,
-    });
-
-    // TODO: this will be removed once we fix ownership related memory leaks.
-    const set = new Set();
-    set.delete = (array) => {
-      didDissociatieFromOwnRecords++;
-      assert.strictEqual(array, recordArray);
-    };
-    // end TODO:
-
-    let recordArray = RecordArray.create({
-      content: A([recordIdentifierFor(record)]),
-      manager: {
-        getRecordArraysForIdentifier() {
-          return set;
-        },
-        unregisterRecordArray(_recordArray) {
-          didUnregisterRecordArray++;
-          assert.strictEqual(recordArray, _recordArray);
-        },
-      },
-      store,
-    });
-
-    assert.false(get(recordArray, 'isDestroyed'), 'should not be destroyed');
-    assert.false(get(recordArray, 'isDestroying'), 'should not be destroying');
-
-    assert.strictEqual(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
-    assert.strictEqual(
-      didUnregisterRecordArray,
-      0,
-      'before destroy, we should not yet have unregisterd the record array'
-    );
-    assert.strictEqual(
-      didDissociatieFromOwnRecords,
-      0,
-      'before destroy, we should not yet have dissociated from own record array'
-    );
-    recordArray.destroy();
-    await settled();
-
-    assert.strictEqual(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
-    assert.strictEqual(
-      didDissociatieFromOwnRecords,
-      1,
-      'after destroy, we should have dissociated from own record array'
-    );
-    recordArray.destroy();
-
-    assert.strictEqual(get(recordArray, 'content'), null);
-    assert.strictEqual(get(recordArray, 'length'), 0, 'after destroy we should have no length');
-    assert.true(get(recordArray, 'isDestroyed'), 'should be destroyed');
   });
 });

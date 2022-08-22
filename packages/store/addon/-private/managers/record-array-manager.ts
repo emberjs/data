@@ -3,21 +3,29 @@
 */
 
 import { A } from '@ember/array';
-import { assert } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
-import type { CollectionResourceDocument, Meta } from '@ember-data/types/q/ember-data-json-api';
+import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { InstanceCache } from '../caches/instance-cache';
-import AdapterPopulatedRecordArray from '../record-arrays/adapter-populated-record-array';
+import AdapterPopulatedRecordArray, {
+  AdapterPopulatedRecordArrayCreateArgs,
+} from '../record-arrays/adapter-populated-record-array';
 import RecordArray from '../record-arrays/record-array';
 import type Store from '../store-service';
 
 const RecordArraysCache = new Map<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>();
 
 type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del' | 'unk'>;
+
+function _isManaged(
+  cache: Set<AdapterPopulatedRecordArray>,
+  arr: RecordArray | AdapterPopulatedRecordArray
+): arr is AdapterPopulatedRecordArray {
+  return cache.has(arr as AdapterPopulatedRecordArray);
+}
 
 /**
   @class RecordArrayManager
@@ -27,356 +35,256 @@ class RecordArrayManager {
   declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
-  declare _liveRecordArrays: Dict<RecordArray>;
-  declare _pendingIdentifiers: Dict<ChangeSet>;
-  declare _adapterPopulatedRecordArrays: RecordArray[];
+  declare _live: Map<string, RecordArray>;
+  declare _managed: Set<AdapterPopulatedRecordArray>;
+  declare _pending: Map<RecordArray | AdapterPopulatedRecordArray, ChangeSet>;
+  declare _willFlush: boolean;
+  declare _identifiers: Map<StableRecordIdentifier, Set<AdapterPopulatedRecordArray>>;
 
   constructor(options: { store: Store }) {
     this.store = options.store;
     this.isDestroying = false;
     this.isDestroyed = false;
-    this._liveRecordArrays = Object.create(null) as Dict<RecordArray>;
-    this._pendingIdentifiers = Object.create(null) as Dict<ChangeSet>;
-    this._adapterPopulatedRecordArrays = [];
+    this._live = new Map();
+    this._managed = new Set();
+    this._pending = new Map();
+    this._willFlush = false;
+    this._identifiers = RecordArraysCache;
   }
 
-  /**
-   * @method getRecordArraysForIdentifier
-   * @internal
-   * @param {StableIdentifier} param
-   * @return {RecordArray} array
-   */
-  getRecordArraysForIdentifier(identifier: StableRecordIdentifier): Set<AdapterPopulatedRecordArray> {
-    let cache = RecordArraysCache.get(identifier);
-    if (!cache) {
-      cache = new Set();
-      RecordArraysCache.set(identifier, cache);
-    }
-    return cache;
-  }
+  _syncArray(array: RecordArray | AdapterPopulatedRecordArray) {
+    const pending = this._pending.get(array);
 
-  _flushPendingIdentifiersForModelName(modelName: string, changes: ChangeSet): void {
-    if (this.isDestroying || this.isDestroyed) {
+    if (!pending || this.isDestroying || this.isDestroyed) {
       return;
     }
-    let identifiersToRemove: StableRecordIdentifier[] = [];
     let cache = this.store._instanceCache;
+    const isManaged = _isManaged(this._managed, array);
 
-    changes.forEach((value, key) => {
+    pending.forEach((value, key) => {
+      let shouldRemove = isManaged;
       if (value === 'unk') {
         let isLoaded = cache.recordIsLoaded(key, true);
-        changes.set(key, isLoaded ? 'add' : 'del');
-        if (!isLoaded) {
-          identifiersToRemove.push(key);
+        if (isLoaded && isManaged) {
+          shouldRemove = false;
+          pending.delete(key);
+        } else {
+          pending.set(key, isLoaded ? 'add' : 'del');
         }
-      } else if (value === 'del') {
-        identifiersToRemove.push(key);
+      }
+      if (shouldRemove) {
+        disassociateIdentifier(array as AdapterPopulatedRecordArray, key);
       }
     });
 
-    let array = this._liveRecordArrays[modelName];
-    if (array) {
-      // TODO: skip if it only changed
-      // process liveRecordArrays
-      array._updateState(changes as Map<StableRecordIdentifier, 'add' | 'del'>);
-    }
-
-    // process adapterPopulatedRecordArrays
-    if (identifiersToRemove.length > 0) {
-      removeFromAdapterPopulatedRecordArrays(this.store, identifiersToRemove);
-    }
-  }
-
-  _flush() {
-    let pending = this._pendingIdentifiers;
-    this._pendingIdentifiers = Object.create(null) as Dict<ChangeSet>;
-
-    for (let modelName in pending) {
-      this._flushPendingIdentifiersForModelName(modelName, pending[modelName]!);
-    }
-  }
-
-  _syncLiveRecordArray(array: RecordArray, modelName: string) {
-    assert(
-      `recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`,
-      typeof modelName === 'string'
-    );
-    let pending = this._pendingIdentifiers[modelName];
-
-    if (!pending) {
-      return;
-    }
-    let hasNoPotentialDeletions = pending.size === 0;
-    let listSize = this.store.identifierCache._cache.types[modelName]?.lid.size || 0;
-    let hasNoInsertionsOrRemovals = listSize === array.length;
-
-    /*
-      Ideally the recordArrayManager has knowledge of the changes to be applied to
-      liveRecordArrays, and is capable of strategically flushing those changes and applying
-      small diffs if desired.  However, until we've refactored recordArrayManager, this dirty
-      check prevents us from unnecessarily wiping out live record arrays returned by peekAll.
-      */
-    if (hasNoPotentialDeletions && hasNoInsertionsOrRemovals) {
-      return;
-    }
-
-    this._flushPendingIdentifiersForModelName(modelName, pending);
-    delete this._pendingIdentifiers[modelName];
-  }
-
-  _didUpdateAll(modelName: string): void {
-    let recordArray = this._liveRecordArrays[modelName];
-    if (recordArray) {
-      recordArray.isUpdating = false;
-    }
+    array._updateState(pending as Map<StableRecordIdentifier, 'add' | 'del'>);
+    this._pending.delete(array);
   }
 
   /**
     Get the `RecordArray` for a modelName, which contains all loaded records of
     given modelName.
 
-    @method liveRecordArrayFor
+    @method liveArrayFor
     @internal
     @param {String} modelName
     @return {RecordArray}
   */
-  liveRecordArrayFor(modelName: string): RecordArray {
-    assert(
-      `recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`,
-      typeof modelName === 'string'
-    );
+  liveArrayFor(type: string): RecordArray {
+    let array = this._live.get(type);
 
-    let array = this._liveRecordArrays[modelName];
-
-    if (array) {
-      // if the array already exists, synchronize
-      this._syncLiveRecordArray(array, modelName);
-    } else {
-      // if the array is being newly created merely create it with its initial
-      // content already set. This prevents unneeded change events.
-      let identifiers = visibleIdentifiersByType(this.store._instanceCache, modelName);
-      array = this.createRecordArray(modelName, identifiers);
-      this._liveRecordArrays[modelName] = array;
-    }
-
-    return array;
-  }
-
-  /**
-    Create a `RecordArray` for a modelName.
-
-    @method createRecordArray
-    @internal
-    @param {String} modelName
-    @param {Array} [identifiers]
-    @return {RecordArray}
-  */
-  createRecordArray(modelName: string, identifiers: StableRecordIdentifier[] = []): RecordArray {
-    assert(
-      `recordArrayManger.createRecordArray expects modelName not modelClass as the param`,
-      typeof modelName === 'string'
-    );
-
-    let array = RecordArray.create({
-      modelName,
-      content: A(identifiers || []),
-      store: this.store,
-      isLoaded: true,
-      manager: this,
-    });
-
-    return array;
-  }
-
-  /**
-    Create a `AdapterPopulatedRecordArray` for a modelName with given query.
-
-    @method createAdapterPopulatedRecordArray
-    @internal
-    @param {String} modelName
-    @param {Object} query
-    @return {AdapterPopulatedRecordArray}
-  */
-  createAdapterPopulatedRecordArray(
-    modelName: string,
-    query: Dict<unknown> | undefined,
-    identifiers: StableRecordIdentifier[],
-    payload?: CollectionResourceDocument
-  ): AdapterPopulatedRecordArray {
-    assert(
-      `recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`,
-      typeof modelName === 'string'
-    );
-
-    let array: AdapterPopulatedRecordArray;
-    if (Array.isArray(identifiers)) {
-      array = AdapterPopulatedRecordArray.create({
-        modelName,
-        query: query,
-        content: A(identifiers),
+    if (!array) {
+      let identifiers = visibleIdentifiersByType(this.store._instanceCache, type);
+      array = RecordArray.create({
+        modelName: type,
+        content: A(identifiers || []),
         store: this.store,
-        manager: this,
         isLoaded: true,
-        isUpdating: false,
-        // TODO this assign kills the root reference but a deep-copy would be required
-        // for both meta and links to actually not be by-ref. We whould likely change
-        // this to a dev-only deep-freeze.
-        meta: Object.assign({} as Meta, payload?.meta),
-        links: Object.assign({}, payload?.links),
-      });
-
-      this._associateWithRecordArray(identifiers, array);
-    } else {
-      array = AdapterPopulatedRecordArray.create({
-        modelName,
-        query: query,
-        content: A<StableRecordIdentifier>(),
-        isLoaded: false,
-        store: this.store,
         manager: this,
       });
-    }
-
-    this._adapterPopulatedRecordArrays.push(array);
-
-    return array;
-  }
-
-  /**
-    Unregister a RecordArray.
-    So manager will not update this array.
-
-    @method unregisterRecordArray
-    @internal
-    @param {RecordArray} array
-  */
-  unregisterRecordArray(array: RecordArray): void {
-    let modelName = array.modelName;
-
-    // remove from adapter populated record array
-    let removedFromAdapterPopulated = removeFromArray(this._adapterPopulatedRecordArrays, array);
-
-    if (!removedFromAdapterPopulated) {
-      let liveRecordArrayForType = this._liveRecordArrays[modelName];
-      // unregister live record array
-      if (liveRecordArrayForType) {
-        if (array === liveRecordArrayForType) {
-          delete this._liveRecordArrays[modelName];
-        }
+      this._live.set(type, array);
+    } else {
+      let pending = this._pending.get(array);
+      if (pending) {
+        array._notify();
       }
     }
+
+    return array;
   }
 
-  /**
-   * @method _associateWithRecordArray
-   * @internal
-   * @param {StableIdentifier} identifiers
-   * @param {RecordArray} array
-   */
-  _associateWithRecordArray(identifiers: StableRecordIdentifier[], array: AdapterPopulatedRecordArray): void {
-    for (let i = 0, l = identifiers.length; i < l; i++) {
-      let identifier = identifiers[i];
-      let recordArrays = this.getRecordArraysForIdentifier(identifier);
-      recordArrays.add(array);
+  createArray(config: {
+    type: string;
+    query?: Dict<unknown>;
+    identifiers?: StableRecordIdentifier[];
+    doc?: CollectionResourceDocument;
+  }): AdapterPopulatedRecordArray {
+    let options: AdapterPopulatedRecordArrayCreateArgs = {
+      modelName: config.type,
+      links: config.doc?.links || null,
+      meta: config.doc?.meta || null,
+      query: config.query || null,
+      content: A(config.identifiers || []),
+      isLoaded: !!config.identifiers?.length,
+      store: this.store,
+      manager: this,
+    };
+    let array = AdapterPopulatedRecordArray.create(options);
+    this._managed.add(array);
+    if (config.identifiers) {
+      associate(array, config.identifiers);
     }
+
+    return array;
   }
 
-  _getPendingForType(identifier: StableRecordIdentifier) {
-    if (
-      (!this._liveRecordArrays[identifier.type] && !RecordArraysCache.has(identifier)) ||
-      this.isDestroying ||
-      this.isDestroyed
-    ) {
+  dirtyArray(array: RecordArray | AdapterPopulatedRecordArray): void {
+    if (this._willFlush) {
+      return;
+    }
+    this._willFlush = true;
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    emberBackburner.schedule('actions', this, this._flush);
+  }
+
+  _flush() {
+    this._willFlush = false;
+    let pending = this._pending;
+    pending.forEach((_changes, recordArray) => {
+      recordArray._notify();
+    });
+  }
+
+  _getPendingFor(
+    identifier: StableRecordIdentifier,
+    includeManaged: boolean,
+    isRemove?: boolean
+  ): Map<RecordArray | AdapterPopulatedRecordArray, ChangeSet> | void {
+    if (this.isDestroying || this.isDestroyed) {
       return;
     }
 
-    let modelName = identifier.type;
-    let pending = this._pendingIdentifiers;
-    return (pending[modelName] = pending[modelName] || new Map());
+    let liveArray = this._live.get(identifier.type);
+    const allPending = this._pending;
+    let pending: Map<RecordArray | AdapterPopulatedRecordArray, ChangeSet> = new Map();
+
+    if (includeManaged) {
+      let managed = RecordArraysCache.get(identifier);
+      if (managed) {
+        managed.forEach((arr) => {
+          let changes = allPending.get(arr);
+          if (!changes) {
+            changes = new Map();
+            allPending.set(arr, changes);
+          }
+          pending.set(arr, changes);
+        });
+      }
+    }
+
+    // during unloadAll we can ignore removes since we've already
+    // cleared the array.
+    if (!liveArray || (liveArray.content.length === 0 && isRemove)) {
+      return pending;
+    }
+
+    let changes = allPending.get(liveArray);
+    if (!changes) {
+      changes = new Map();
+      allPending.set(liveArray, changes);
+    }
+    pending.set(liveArray, changes);
+
+    return pending;
+  }
+
+  populateManagedArray(
+    array: AdapterPopulatedRecordArray,
+    identifiers: StableRecordIdentifier[],
+    payload: CollectionResourceDocument
+  ) {
+    this._pending.delete(array);
+    const old = array.content;
+    array.content.setObjects(identifiers); // this will also notify
+    array.meta = payload.meta || null;
+    array.links = payload.links || null;
+    array.isLoaded = true;
+
+    disassociate(array, old);
+    associate(array, identifiers);
   }
 
   identifierAdded(identifier: StableRecordIdentifier): void {
-    let models = this._getPendingForType(identifier);
-    if (models) {
-      models.set(identifier, 'add');
-      if (models.size > 1) {
-        return;
-      }
-
-      // TODO do we still need this schedule?
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      emberBackburner.schedule('actions', this, this._flush);
+    let changeSets = this._getPendingFor(identifier, false);
+    if (changeSets) {
+      changeSets.forEach((changes, array) => {
+        changes.set(identifier, 'add');
+        if (changes.size === 1) {
+          this.dirtyArray(array);
+        }
+      });
     }
   }
 
   identifierRemoved(identifier: StableRecordIdentifier): void {
-    let models = this._getPendingForType(identifier);
-    if (models) {
-      models.set(identifier, 'del');
-      if (models.size > 1) {
-        return;
-      }
-
-      // TODO do we still need this schedule?
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      emberBackburner.schedule('actions', this, this._flush);
+    let changeSets = this._getPendingFor(identifier, true, true);
+    if (changeSets) {
+      changeSets.forEach((changes, array) => {
+        changes.set(identifier, 'del');
+        if (changes.size === 1) {
+          this.dirtyArray(array);
+        }
+      });
     }
   }
 
   identifierChanged(identifier: StableRecordIdentifier): void {
-    let models = this._getPendingForType(identifier);
-    if (models) {
-      models.set(identifier, 'unk');
-      if (models.size > 1) {
-        return;
-      }
-
-      // TODO do we still need this schedule?
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      emberBackburner.schedule('actions', this, this._flush);
+    let changeSets = this._getPendingFor(identifier, true);
+    if (changeSets) {
+      changeSets.forEach((changes, array) => {
+        changes.set(identifier, 'unk');
+        if (changes.size === 1) {
+          this.dirtyArray(array);
+        }
+      });
     }
   }
 
-  willDestroy() {
-    Object.keys(this._liveRecordArrays).forEach((modelName) => this._liveRecordArrays[modelName]!.destroy());
-    this._adapterPopulatedRecordArrays.forEach((entry) => entry.destroy());
-    this.isDestroyed = true;
+  clear() {
+    this._live.forEach((array) => array.destroy());
+    this._managed.forEach((array) => array.destroy());
+    this._managed.clear();
+    RecordArraysCache.clear();
   }
 
   destroy() {
     this.isDestroying = true;
-    // TODO do we still need this schedule?
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    emberBackburner.schedule('actions', this, this.willDestroy);
+    this.clear();
+    this._live.clear();
+    this.isDestroyed = true;
   }
 }
 
-function removeFromArray(array: RecordArray[], item: RecordArray): boolean {
-  let index = array.indexOf(item);
-
-  if (index !== -1) {
-    array.splice(index, 1);
-    return true;
-  }
-
-  return false;
-}
-
-function removeFromAdapterPopulatedRecordArrays(store: Store, identifiers: StableRecordIdentifier[]): void {
+function associate(array: AdapterPopulatedRecordArray, identifiers: StableRecordIdentifier[]) {
   for (let i = 0; i < identifiers.length; i++) {
-    removeFromAll(store, identifiers[i]);
+    let identifier = identifiers[i];
+    let cache = RecordArraysCache.get(identifier);
+    if (!cache) {
+      cache = new Set();
+      RecordArraysCache.set(identifier, cache);
+    }
+    cache.add(array);
   }
 }
-
-function removeFromAll(store: Store, identifier: StableRecordIdentifier): void {
-  const recordArrays = RecordArraysCache.get(identifier);
-
-  if (recordArrays) {
-    recordArrays.forEach(function (recordArray: AdapterPopulatedRecordArray) {
-      recordArray._removeIdentifiers([identifier]);
-    });
-
-    recordArrays.clear();
+function disassociate(array: AdapterPopulatedRecordArray, identifiers: StableRecordIdentifier[]) {
+  for (let i = 0; i < identifiers.length; i++) {
+    disassociateIdentifier(array, identifiers[i]);
+  }
+}
+function disassociateIdentifier(array: AdapterPopulatedRecordArray, identifier: StableRecordIdentifier) {
+  let cache = RecordArraysCache.get(identifier);
+  if (cache) {
+    cache.delete(array);
   }
 }
 

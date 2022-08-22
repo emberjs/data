@@ -4,6 +4,7 @@ import { Promise } from 'rsvp';
 
 import { guardDestroyedStore } from '../utils/common';
 import { normalizeResponseHelper } from '../utils/serializer-response';
+import SnapshotRecordArray from './snapshot-record-array';
 
 /**
   @module @ember-data/store
@@ -17,10 +18,10 @@ function payloadIsNotBlank(adapterPayload) {
   }
 }
 
-export function _findAll(adapter, store, modelName, options) {
+export function _findAll(adapter, store, modelName, options, snapshotArray) {
   let modelClass = store.modelFor(modelName); // adapter.findAll depends on the class
   let recordArray = store.peekAll(modelName);
-  let snapshotArray = recordArray._createSnapshot(options);
+  snapshotArray = snapshotArray || new SnapshotRecordArray(store, recordArray, options);
   let promise = Promise.resolve().then(() => adapter.findAll(store, modelClass, null, snapshotArray));
   let label = 'DS: Handle Adapter#findAll of ' + modelClass;
 
@@ -36,8 +37,7 @@ export function _findAll(adapter, store, modelName, options) {
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findAll');
 
       store._push(payload);
-      store.recordArrayManager._didUpdateAll(modelName);
-
+      recordArray.isUpdating = false;
       return recordArray;
     },
     null,
@@ -49,7 +49,12 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
 
   // TODO @deprecate RecordArrays being passed to Adapters
-  recordArray = recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
+  recordArray =
+    recordArray ||
+    store.recordArrayManager.createArray({
+      type: modelName,
+      query,
+    });
   let promise = Promise.resolve().then(() => adapter.query(store, modelClass, query, recordArray, options));
 
   let label = `DS: Handle Adapter#query of ${modelName}`;
@@ -65,7 +70,7 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
         'The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.',
         Array.isArray(identifiers)
       );
-      recordArray._setIdentifiers(identifiers, payload);
+      store.recordArrayManager.populateManagedArray(recordArray, identifiers, payload);
 
       return recordArray;
     },

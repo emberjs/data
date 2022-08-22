@@ -8,16 +8,15 @@ import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/
 module('Unit - snapshot-record-array', function () {
   test('constructor', function (assert) {
     let array = A([1, 2]);
-    let meta = {};
+    array.content = [1, 2];
     let options = {
       adapterOptions: 'some options',
       include: 'include me',
     };
 
-    let snapshot = new SnapshotRecordArray(array, meta, options);
+    let snapshot = new SnapshotRecordArray({}, array, options);
 
     assert.strictEqual(snapshot.length, 2);
-    assert.strictEqual(snapshot.meta, meta);
     assert.strictEqual(snapshot.adapterOptions, 'some options');
     assert.strictEqual(snapshot.include, 'include me');
   });
@@ -27,24 +26,29 @@ module('Unit - snapshot-record-array', function () {
     let didTakeSnapshot = 0;
     let snapshotTaken = {};
 
-    array.type = 'some type';
-    array._takeSnapshot = function () {
-      didTakeSnapshot++;
-      return snapshotTaken;
+    const mockStore = {
+      _instanceCache: {
+        createSnapshot() {
+          didTakeSnapshot++;
+          return snapshotTaken;
+        },
+      },
     };
 
-    let meta = {};
+    array.type = 'some type';
+    array.content = ['1'];
+
     let options = {
       adapterOptions: 'some options',
       include: 'include me',
     };
 
-    let snapshot = new SnapshotRecordArray(array, meta, options);
+    let snapshot = new SnapshotRecordArray(mockStore, array, options);
 
-    assert.strictEqual(didTakeSnapshot, 0, 'no shapshot shouldn yet be taken');
-    assert.strictEqual(snapshot.snapshots(), snapshotTaken, 'should be correct snapshot');
+    assert.strictEqual(didTakeSnapshot, 0, 'no shapshot should yet be taken');
+    assert.strictEqual(snapshot.snapshots()[0], snapshotTaken, 'should be correct snapshot');
     assert.strictEqual(didTakeSnapshot, 1, 'one snapshot should have been taken');
-    assert.strictEqual(snapshot.snapshots(), snapshotTaken, 'should return the exact same snapshot');
+    assert.strictEqual(snapshot.snapshots()[0], snapshotTaken, 'should return the exact same snapshot');
     assert.strictEqual(didTakeSnapshot, 1, 'still only one snapshot should have been taken');
   });
 
@@ -66,13 +70,12 @@ module('Unit - snapshot-record-array', function () {
         },
       });
 
-      let meta = {};
       let options = {
         adapterOptions: 'some options',
         include: 'include me',
       };
 
-      let snapshot = new SnapshotRecordArray(array, meta, options);
+      let snapshot = new SnapshotRecordArray({}, array, options);
 
       assert.false(typeLoaded, 'model class is not eager loaded');
       assert.strictEqual(snapshot.type, 'some type');

@@ -5,7 +5,7 @@ import type {
   RequestState,
   SaveRecordMutation,
 } from '@ember-data/types/q/fetch-manager';
-import type { RecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
@@ -23,7 +23,7 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
 
 export default class RequestCache {
   _pending: { [lid: string]: InternalRequest[] } = Object.create(null);
-  _done: { [lid: string]: InternalRequest[] } = Object.create(null);
+  _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _subscriptions: { [lid: string]: Function[] } = Object.create(null);
 
   enqueue(promise: Promise<any>, queryRequest: Request) {
@@ -86,22 +86,25 @@ export default class RequestCache {
 
   _addDone(request: InternalRequest) {
     request[Touching].forEach((identifier) => {
-      if (!this._done[identifier.lid]) {
-        this._done[identifier.lid] = [];
-      }
       // TODO add support for multiple
       let requestDataOp = request.request.data[0].op;
-      this._done[identifier.lid] = this._done[identifier.lid].filter((req) => {
-        // TODO add support for multiple
-        let data;
-        if (req.request.data instanceof Array) {
-          data = req.request.data[0];
-        } else {
-          data = req.request.data;
-        }
-        return data.op !== requestDataOp;
-      });
-      this._done[identifier.lid].push(request);
+      let requests = this._done.get(identifier);
+
+      if (requests) {
+        requests = requests.filter((req) => {
+          // TODO add support for multiple
+          let data;
+          if (req.request.data instanceof Array) {
+            data = req.request.data[0];
+          } else {
+            data = req.request.data;
+          }
+          return data.op !== requestDataOp;
+        });
+      }
+      requests = requests || [];
+      requests.push(request);
+      this._done.set(identifier, requests);
     });
   }
 
@@ -120,7 +123,7 @@ export default class RequestCache {
   }
 
   getLastRequestForRecord(identifier: RecordIdentifier): RequestState | null {
-    let requests = this._done[identifier.lid];
+    let requests = this._done.get(identifier);
     if (requests) {
       return requests[requests.length - 1];
     }

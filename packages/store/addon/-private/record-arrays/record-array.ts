@@ -12,15 +12,11 @@ import { Promise } from 'rsvp';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { FindOptions } from '@ember-data/types/q/store';
 
 import RecordArrayManager from '../managers/record-array-manager';
-import type Snapshot from '../network/snapshot';
-import SnapshotRecordArray from '../network/snapshot-record-array';
 import type { PromiseArray } from '../proxies/promise-proxies';
 import { promiseArray } from '../proxies/promise-proxies';
 import type Store from '../store-service';
-import type AdapterPopulatedRecordArray from './adapter-populated-record-array';
 
 function recordForIdentifier(store: Store, identifier: StableRecordIdentifier): RecordInstance {
   return store._instanceCache.getRecord(identifier);
@@ -59,7 +55,6 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @type Ember.Array
   */
   declare content: NativeArray<StableRecordIdentifier>;
-  declare _getDeprecatedEventedInfo: () => string;
   declare modelName: string;
   /**
     The flag to signal a `RecordArray` is finished loading data.
@@ -110,6 +105,12 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     // TODO can we get rid of this?
     this.content = this.content || null;
     this._updatingPromise = null;
+  }
+
+  _notify() {
+    // until we kill ArrayProxy we immediately sync
+    // because otherwise we double notify
+    this.manager._syncArray(this);
   }
 
   replace() {
@@ -217,17 +218,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     return promiseArray<RecordInstance, RecordArray>(promise);
   }
 
-  /**
-    @method _unregisterFromManager
-    @internal
-  */
-  _unregisterFromManager() {
-    this.manager.unregisterRecordArray(this);
-  }
-
   willDestroy() {
-    this._unregisterFromManager();
-    this._dissociateFromOwnRecords();
     // TODO: we should not do work during destroy:
     //   * when objects are destroyed, they should simply be left to do
     //   * if logic errors do to this, that logic needs to be more careful during
@@ -240,30 +231,6 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     set(this, 'content', null as unknown as NativeArray<StableRecordIdentifier>);
     set(this, 'length', 0);
     super.willDestroy();
-  }
-
-  /**
-    @method _createSnapshot
-    @private
-  */
-  _createSnapshot(options: FindOptions) {
-    // this is private for users, but public for ember-data internals
-    // meta will only be present for an AdapterPopulatedRecordArray
-    return new SnapshotRecordArray(this, null, options);
-  }
-
-  /**
-    @method _dissociateFromOwnRecords
-    @internal
-  */
-  _dissociateFromOwnRecords() {
-    this.content.forEach((identifier) => {
-      let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
-
-      if (recordArrays) {
-        recordArrays.delete(this as unknown as AdapterPopulatedRecordArray);
-      }
-    });
   }
 
   _updateState(changes: Map<StableRecordIdentifier, 'add' | 'del'>) {
@@ -288,25 +255,6 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
         content.addObjects(adds);
       }
     }
-  }
-
-  /**
-    Adds identifiers to the `RecordArray` without duplicates
-
-    @method _pushIdentifiers
-    @internal
-    @param {StableRecordIdentifier[]} identifiers
-  */
-  _pushIdentifiers(identifiers: StableRecordIdentifier[]): void {
-    this.content.pushObjects(identifiers);
-  }
-
-  /**
-    @method _takeSnapshot
-    @internal
-  */
-  _takeSnapshot(): Snapshot[] {
-    return this.content.map((identifier) => this.store._instanceCache.createSnapshot(identifier));
   }
 }
 
