@@ -22,6 +22,11 @@ function addonBuildConfigForDataPackage(PackageName) {
       this._prodLikeWarning();
       this.debugTree = BroccoliDebug.buildDebugCallback(`ember-data:${PackageName}`);
       this.options = this.options || {};
+      Object.assign(this.options, {
+        '@embroider/macros': {
+          setOwnConfig: {},
+        },
+      });
     },
 
     _prodLikeWarning() {
