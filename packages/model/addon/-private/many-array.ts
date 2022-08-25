@@ -35,6 +35,9 @@ export interface ManyArrayCreateArgs {
   type: ShimModelClass;
   identifier: StableRecordIdentifier;
   recordData: RecordData;
+  currentState: StableRecordIdentifier[];
+  meta: Dict<unknown> | null;
+  links: Links | PaginationLinks | null;
   key: string;
   isPolymorphic: boolean;
   isAsync: boolean;
@@ -182,7 +185,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     @property {ManyRelationship} relationship
     @private
     */
-    this.currentState = [];
+    this.currentState = this.currentState || [];
     this._isUpdating = false;
     this._isDirty = false;
     /*

@@ -18,6 +18,7 @@ export {
   setIdentifierUpdateMethod,
   setIdentifierForgetMethod,
   setIdentifierResetMethod,
+  isStableIdentifier,
 } from './caches/identifier-cache';
 
 export function normalizeModelName(modelName: string) {
