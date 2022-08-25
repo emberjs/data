@@ -152,7 +152,6 @@ class Model extends EmberObject {
   }
 
   destroy() {
-    LEGACY_SUPPORT.get(this)?.destroy();
     this.___recordState?.destroy();
     const store = storeFor(this);
     const identifier = recordIdentifierFor(this);
@@ -163,7 +162,10 @@ class Model extends EmberObject {
     // to simply not notify, for this reason the store does not itself
     // notify individual changes once the delete has been signaled,
     // this decision is left to model instances.
-    notifyChanges(identifier, 'relationships', undefined, this, store);
+    // notifyChanges(identifier, 'relationships', undefined, this, store);
+    LEGACY_SUPPORT.get(this)?.destroy();
+    LEGACY_SUPPORT.delete(this);
+    LEGACY_SUPPORT.delete(identifier);
     super.destroy();
   }
 

@@ -1853,25 +1853,27 @@ class Store extends Service {
       !modelName || typeof modelName === 'string'
     );
 
-    if (modelName === undefined) {
-      // destroy the graph before unloadAll
-      // since then we avoid churning relationships
-      // during unload
-      if (HAS_RECORD_DATA_PACKAGE) {
-        const peekGraph = (
-          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-        ).peekGraph;
-        let graph = peekGraph(this);
-        if (graph) {
-          graph.identifiers.clear();
+    this._join(() => {
+      if (modelName === undefined) {
+        // destroy the graph before unloadAll
+        // since then we avoid churning relationships
+        // during unload
+        if (HAS_RECORD_DATA_PACKAGE) {
+          const peekGraph = (
+            importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+          ).peekGraph;
+          let graph = peekGraph(this);
+          if (graph) {
+            graph.identifiers.clear();
+          }
         }
+        this._notificationManager.destroy();
+        this._instanceCache.clear();
+      } else {
+        let normalizedModelName = normalizeModelName(modelName);
+        this._instanceCache.clear(normalizedModelName);
       }
-      this._notificationManager.destroy();
-      this._instanceCache.clear();
-    } else {
-      let normalizedModelName = normalizeModelName(modelName);
-      this._instanceCache.clear(normalizedModelName);
-    }
+    });
   }
 
   /**
