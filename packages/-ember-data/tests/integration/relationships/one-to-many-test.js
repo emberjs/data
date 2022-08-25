@@ -1614,7 +1614,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
 
   deprecatedTest(
     'createRecord updates inverse record array which has observers',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 5 },
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 4 },
     async function (assert) {
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');

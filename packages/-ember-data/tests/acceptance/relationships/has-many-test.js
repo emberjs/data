@@ -854,6 +854,7 @@ module('autotracking has-many', function (hooks) {
 
       names = findAll('li').map((e) => e.textContent);
       assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+      assert.expectDeprecation({ id: 'ember-data:no-a-with-array-like', count: 6 });
     }
   );
 

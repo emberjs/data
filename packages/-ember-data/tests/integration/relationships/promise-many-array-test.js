@@ -3,7 +3,7 @@ import EmberObject, { computed } from '@ember/object';
 import { filterBy } from '@ember/object/computed';
 import { settled } from '@ember/test-helpers';
 
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
@@ -14,39 +14,43 @@ import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/
 module('PromiseManyArray', (hooks) => {
   setupRenderingTest(hooks);
 
-  test('PromiseManyArray is not side-affected by EmberArray', async function (assert) {
-    const { owner } = this;
-    class Person extends Model {
-      @attr('string') name;
+  deprecatedTest(
+    'PromiseManyArray is not side-affected by EmberArray',
+    { id: 'ember-data:no-a-with-array-like', until: '5.0', count: 1 },
+    async function (assert) {
+      const { owner } = this;
+      class Person extends Model {
+        @attr('string') name;
+      }
+      class Group extends Model {
+        @hasMany('person', { async: true, inverse: null }) members;
+      }
+      owner.register('model:person', Person);
+      owner.register('model:group', Group);
+      const store = owner.lookup('service:store');
+      const members = ['Bob', 'John', 'Michael', 'Larry', 'Lucy'].map((name) => store.createRecord('person', { name }));
+      const group = store.createRecord('group', { members });
+
+      const forEachFn = group.members.forEach;
+      assert.strictEqual(group.members.length, 5, 'initial length is correct');
+
+      if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
+        group.members.replace(0, 1);
+        assert.strictEqual(group.members.length, 4, 'updated length is correct');
+      }
+
+      A(group.members);
+
+      assert.strictEqual(forEachFn, group.members.forEach, 'we have the same function for forEach');
+
+      if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
+        group.members.replace(0, 1);
+        assert.strictEqual(group.members.length, 3, 'updated length is correct');
+        // we'll want to use a different test for this but will want to still ensure we are not side-affected
+        assert.expectDeprecation({ id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 2 });
+      }
     }
-    class Group extends Model {
-      @hasMany('person', { async: true, inverse: null }) members;
-    }
-    owner.register('model:person', Person);
-    owner.register('model:group', Group);
-    const store = owner.lookup('service:store');
-    const members = ['Bob', 'John', 'Michael', 'Larry', 'Lucy'].map((name) => store.createRecord('person', { name }));
-    const group = store.createRecord('group', { members });
-
-    const forEachFn = group.members.forEach;
-    assert.strictEqual(group.members.length, 5, 'initial length is correct');
-
-    if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
-      group.members.replace(0, 1);
-      assert.strictEqual(group.members.length, 4, 'updated length is correct');
-    }
-
-    A(group.members);
-
-    assert.strictEqual(forEachFn, group.members.forEach, 'we have the same function for forEach');
-
-    if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
-      group.members.replace(0, 1);
-      assert.strictEqual(group.members.length, 3, 'updated length is correct');
-      // we'll want to use a different test for this but will want to still ensure we are not side-affected
-      assert.expectDeprecation({ id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 2 });
-    }
-  });
+  );
 
   deprecatedTest(
     'PromiseManyArray can be subscribed to by computed chains',
@@ -130,6 +134,7 @@ module('PromiseManyArray', (hooks) => {
       assert.strictEqual(memberIds.length, 6, 'memberIds length is correct');
       assert.strictEqual(johnRecords.length, 2, 'johnRecords length is correct');
       assert.strictEqual(group.members.length, 6, 'members length is correct');
+      assert.expectDeprecation({ id: 'ember-data:no-a-with-array-like', count: 2 });
     }
   );
 });

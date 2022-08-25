@@ -2,6 +2,7 @@ import ArrayMixin, { NativeArray } from '@ember/array';
 import type ArrayProxy from '@ember/array/proxy';
 import { assert, deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
+import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
@@ -9,7 +10,10 @@ import { resolve } from 'rsvp';
 
 import type { ManyArray } from 'ember-data/-private';
 
-import { DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS } from '@ember-data/private-build-infra/deprecations';
+import {
+  DEPRECATE_A_USAGE,
+  DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
+} from '@ember-data/private-build-infra/deprecations';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import { FindOptions } from '@ember-data/types/q/store';
@@ -53,13 +57,26 @@ export default class PromiseManyArray {
     this.isDestroyed = false;
     this.isDestroying = false;
 
-    const meta = Ember.meta(this);
-    meta.hasMixin = (mixin: Object) => {
-      if (mixin === NativeArray || mixin === ArrayMixin) {
-        return true;
-      }
-      return false;
-    };
+    if (DEPRECATE_A_USAGE) {
+      const meta = Ember.meta(this);
+      meta.hasMixin = (mixin: Object) => {
+        deprecate(`Do not use A() on an EmberData PromiseManyArray`, false, {
+          id: 'ember-data:no-a-with-array-like',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+          for: 'ember-data',
+        });
+        if (mixin === NativeArray || mixin === ArrayMixin) {
+          return true;
+        }
+        return false;
+      };
+    } else if (DEBUG) {
+      const meta = Ember.meta(this);
+      meta.hasMixin = (mixin: Object) => {
+        assert(`Do not use A() on an EmberData PromiseManyArray`);
+      };
+    }
   }
 
   //---- Methods/Properties on ArrayProxy that we will keep as our API

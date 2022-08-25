@@ -1,3 +1,5 @@
+import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
@@ -85,6 +87,7 @@ module('Store.createRecord() coverage', function (hooks) {
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
     pet.unloadRecord();
+    await settled();
     assert.strictEqual(pet.owner, null, 'Shen no longer has an owner');
     // check that the relationship has been dissolved
     pets = chris.pets.toArray().map((pet) => pet.name);

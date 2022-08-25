@@ -662,8 +662,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     let { owner } = this;
 
-    let hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
-
+    let hasManyReturnValue;
     class RelationshipRecordData extends TestRecordData {
       getHasMany(key: string) {
         return hasManyReturnValue;
@@ -716,6 +715,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('service:store', TestStore);
 
     store = owner.lookup('service:store');
+    hasManyReturnValue = { data: [store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' })] };
 
     store.push({
       data: [davidHash, runspiredHash, igorHash],
@@ -747,8 +747,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.expect(10);
     let { owner } = this;
 
-    let hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
-
+    let hasManyReturnValue;
     class RelationshipRecordData extends TestRecordData {
       getHasMany(key: string) {
         return hasManyReturnValue;
@@ -770,8 +769,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
         hasManyReturnValue = {
           data: [
-            { id: '3', type: 'person' },
-            { id: '2', type: 'person' },
+            store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
+            store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
           ],
         };
         this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
@@ -787,7 +786,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
           assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
           assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to removeFromHasMany');
         }
-        hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
+        hasManyReturnValue = { data: [store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' })] };
         this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
       }
 
@@ -796,8 +795,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
         assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '3', 'Passed correct RD to addToHasMany');
         hasManyReturnValue = {
           data: [
-            { id: '1', type: 'person' },
-            { id: '2', type: 'person' },
+            store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }),
+            store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
           ],
         };
         this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
@@ -813,8 +812,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
         assert.strictEqual(values[0].id, '3', 'Passed correct RD to addToHasMany');
         hasManyReturnValue = {
           data: [
-            { id: '1', type: 'person' },
-            { id: '2', type: 'person' },
+            store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }),
+            store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
           ],
         };
         this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
@@ -834,6 +833,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('service:store', TestStore);
 
     store = owner.lookup('service:store');
+    hasManyReturnValue = { data: [store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' })] };
 
     store.push({
       data: [davidHash, runspiredHash, igorHash],
