@@ -1,0 +1,95 @@
+name: Performance Check Against Release
+
+on:
+  pull-request:
+    branches:
+      - master
+
+concurrency:
+  group: perf-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  performance-checks:
+    name: 'Performance Check Against Release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 3
+      - run: git fetch origin release --depth=1
+      - name: Check SHA
+        run: |
+          sha=$(git rev-parse --short=8 HEAD)
+          echo "HEAD sha=$sha"
+          echo "GITHUB_SHA sha=$GITHUB_SHA"
+          mkdir -p tmp
+          echo $sha > tmp/sha-for-check.txt
+          originSha=$(git rev-parse HEAD^2)
+          echo $originSha > tmp/sha-for-commit.txt
+          git show --format=short --no-patch $originSha
+      - uses: tracerbench/tracerbench-compare-action@master
+        with:
+          experiment-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
+          experiment-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-experiment --port 4201
+          control-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-control
+          control-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-control
+          sample-timeout: 60
+          use-yarn: true
+          scenarios: |
+            {
+              "basic-record-materialization": {
+                "control": "http://localhost:4200/basic-record-materialization",
+                "experiment": "http://localhost:4201/basic-record-materialization",
+                "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,end-record-materialization"
+              },
+              "relationship-materialization-simple": {
+                "control": "http://localhost:4200/relationship-materialization-simple",
+                "experiment": "http://localhost:4201/relationship-materialization-simple",
+                "markers": "start-find-all,start-materialization,end-materialization"
+              },
+              "relationship-materialization-complex": {
+                "control": "http://localhost:4200/relationship-materialization-complex",
+                "experiment": "http://localhost:4201/relationship-materialization-complex",
+                "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,start-relationship-materialization,end-relationship-materialization"
+              },
+              "unload": {
+                "control": "http://localhost:4200/unload",
+                "experiment": "http://localhost:4201/unload",
+                "markers": "start-push-payload,start-unload-records,end-unload-records"
+              },
+              "unload-all": {
+                "control": "http://localhost:4200/unload-all",
+                "experiment": "http://localhost:4201/unload-all",
+                "markers": "start-push-payload,start-materialization,start-unload-all,end-unload-all"
+              },
+              "destroy": {
+                "control": "http://localhost:4200/destroy",
+                "experiment": "http://localhost:4201/destroy",
+                "markers": "start-push-payload,start-destroy-records,end-destroy-records"
+              },
+              "add-children": {
+                "control": "http://localhost:4200/add-children",
+                "experiment": "http://localhost:4201/add-children",
+                "markers": "start-push-initial-payload,start-push-update-payload,end-push-update-payload"
+              },
+              "unused-relationships": {
+                "control": "http://localhost:4200/unused-relationships",
+                "experiment": "http://localhost:4201/unused-relationships",
+                "markers": "start-push-payload,end-push-payload"
+              }
+            }
+          fidelity: 60
+          upload-traces: true
+          upload-results: true
+      - name: Report TracerBench Results
+        if: failure() || success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMENT_MARKER: "Commit v Release Performance Report for "
+        run: |
+          COMMENT_MARKER="Commit v Release Performance Report for "
+          sha=$(cat tmp/sha-for-commit.txt)
+          node ./scripts/perf-tracking/create-comment.js $sha > tracerbench-results/comment.txt
+          COMMENT_TEXT="@./tracerbench-results/comment.txt"
+          source scripts/asset-size-tracking/src/post-comment.sh
