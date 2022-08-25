@@ -80,6 +80,7 @@ jobs:
               }
             }
           fidelity: 60
+          control-sha: origin/release
           upload-traces: true
           upload-results: true
       - name: Report TracerBench Results
