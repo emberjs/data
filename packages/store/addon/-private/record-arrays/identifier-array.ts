@@ -10,6 +10,7 @@ import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import {
+  DEPRECATE_A_USAGE,
   DEPRECATE_ARRAY_LIKE,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
@@ -377,9 +378,23 @@ class IdentifierArray {
       },
     }) as IdentifierArray;
 
-    if (DEBUG) {
-      // prevent `A()` from clobbering us
-      const meta = Ember.meta(proxy);
+    if (DEPRECATE_A_USAGE) {
+      const meta = Ember.meta(this);
+      meta.hasMixin = (mixin: Object) => {
+        deprecate(`Do not call A() on EmberData RecordArrays`, false, {
+          id: 'ember-data:no-a-with-array-like',
+          until: '5.0',
+          since: { enabled: '4.8', available: '4.8' },
+          for: 'ember-data',
+        });
+        // @ts-expect-error ArrayMixin is more than a type
+        if (mixin === NativeArray || mixin === ArrayMixin) {
+          return true;
+        }
+        return false;
+      };
+    } else if (DEBUG) {
+      const meta = Ember.meta(this);
       meta.hasMixin = (mixin: Object) => {
         assert(`Do not call A() on EmberData RecordArrays`);
       };

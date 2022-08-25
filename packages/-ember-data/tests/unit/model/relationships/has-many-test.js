@@ -2640,18 +2640,22 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     assert.strictEqual(peopleDidChange, 0, 'expect hasMany to not sync before access after fetch completes');
     assert.strictEqual(people.length, 0, 'we have the right number of people');
-    assert.strictEqual(peopleDidChange, 1, 'expect people hasMany to dirty after fetch completes');
+    assert.strictEqual(
+      peopleDidChange,
+      0,
+      'expect people hasMany to not dirty after fetch completes, as we did not hit network'
+    );
 
     let person = store.createRecord('person');
 
-    assert.strictEqual(peopleDidChange, 1, 'expect people hasMany to not sync before access');
+    assert.strictEqual(peopleDidChange, 0, 'expect people hasMany to not sync before access');
     people = await tag.people;
     assert.strictEqual(people.length, 0, 'we have the right number of people');
-    assert.strictEqual(peopleDidChange, 1, 'expect people hasMany to not sync before access');
+    assert.strictEqual(peopleDidChange, 0, 'expect people hasMany to not sync after access');
     people.push(person);
-    assert.strictEqual(peopleDidChange, 1, 'expect hasMany to not sync after push of new related data');
+    assert.strictEqual(peopleDidChange, 0, 'expect hasMany to not sync after push of new related data');
     assert.strictEqual(people.length, 1, 'we have the right number of people');
-    assert.strictEqual(peopleDidChange, 2, 'expect hasMany to sync on access after push');
+    assert.strictEqual(peopleDidChange, 1, 'expect hasMany to sync on access after push');
   });
 
   test('fetch hasMany loads full relationship after a parent and child have been loaded', function (assert) {

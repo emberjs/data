@@ -28,3 +28,4 @@ export const DEPRECATE_V1_RECORD_DATA = deprecationState('DEPRECATE_V1_RECORD_DA
 export const DEPRECATE_A_USAGE = deprecationState('DEPRECATE_A_USAGE');
 export const DEPRECATE_PROMISE_PROXIES = deprecationState('DEPRECATE_PROMISE_PROXIES');
 export const DEPRECATE_ARRAY_LIKE = deprecationState('DEPRECATE_ARRAY_LIKE');
+export const DEPRECATE_COMPUTED_CHAINS = deprecationState('DEPRECATE_COMPUTED_CHAINS');

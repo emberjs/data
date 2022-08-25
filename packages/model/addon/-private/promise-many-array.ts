@@ -10,6 +10,7 @@ import { resolve } from 'rsvp';
 
 import {
   DEPRECATE_A_USAGE,
+  DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
 } from '@ember-data/private-build-infra/deprecations';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -93,7 +94,9 @@ export default class PromiseManyArray {
   get length(): number {
     // shouldn't be needed, but ends up being needed
     // for computed chains even in 4.x
-    // this['[]'];
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      this['[]'];
+    }
     return this.content ? this.content.length : 0;
   }
 
@@ -103,8 +106,9 @@ export default class PromiseManyArray {
   // to recompute. We entangle the '[]' tag from
   @dependentKeyCompat
   get '[]'() {
-    return this.content?.length && this.content;
-    // return this.content ? this.content['[]'] : this.content;
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      return this.content?.length && this.content;
+    }
   }
 
   /**
@@ -118,7 +122,6 @@ export default class PromiseManyArray {
    * @private
    */
   forEach(cb) {
-    // this['[]']; // needed for < 3.23 support e.g. 3.20 lts
     if (this.content && this.length) {
       this.content.forEach(cb);
     }
