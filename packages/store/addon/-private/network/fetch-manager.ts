@@ -5,8 +5,10 @@ import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
+import { importSync } from '@embroider/macros';
 import { default as RSVP, resolve } from 'rsvp';
 
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
@@ -214,7 +216,20 @@ export default class FetchManager {
       (error) => {
         const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
         if (!recordData || recordData.isEmpty(identifier) || isLoading) {
-          store._instanceCache.unloadRecord(identifier);
+          let isReleasable = true;
+          if (!recordData && HAS_RECORD_DATA_PACKAGE) {
+            const graphFor = (
+              importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+            ).graphFor;
+            const graph = graphFor(store);
+            isReleasable = graph.isReleasable(identifier);
+            if (!isReleasable) {
+              graph.unload(identifier);
+            }
+          }
+          if (recordData || isReleasable) {
+            store._instanceCache.unloadRecord(identifier);
+          }
         }
         throw error;
       }

@@ -122,8 +122,6 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     this.isLoaded = this.isLoaded || false;
     this.isAsync = this.isAsync || false;
 
-    this._length = 0;
-
     /**
     Metadata associated with the request for async hasMany relationships.
 
@@ -186,6 +184,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     @private
     */
     this.currentState = this.currentState || [];
+    this._length = this.currentState.length || 0;
     this._isUpdating = false;
     this._isDirty = false;
     /*

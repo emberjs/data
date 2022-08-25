@@ -220,7 +220,6 @@ export class LegacySupport {
       }
 
       const jsonApi = this.recordData.getRelationship(this.identifier, key) as CollectionResourceRelationship;
-
       const promise = this._findHasManyByJsonApiResource(jsonApi, this.identifier, relationship, options);
 
       if (!promise) {

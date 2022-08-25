@@ -532,7 +532,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.expect(6);
 
     let { owner } = this;
-    let belongsToReturnValue = { data: { id: '1', type: 'person' } };
+    let belongsToReturnValue;
 
     class RelationshipRecordData extends TestRecordData {
       getBelongsTo(key: string) {
@@ -570,6 +570,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('service:store', TestStore);
 
     store = owner.lookup('service:store');
+    belongsToReturnValue = { data: store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }) };
 
     store.push({
       data: [davidHash, runspiredHash],
@@ -591,7 +592,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.expect(4);
     let { owner } = this;
 
-    let belongsToReturnValue = { data: { id: '1', type: 'person' } };
+    let belongsToReturnValue;
 
     let RelationshipRecordData;
     if (V2CACHE_SINGLETON_MANAGER) {
@@ -607,7 +608,9 @@ module('integration/record-data - Custom RecordData Implementations', function (
           key: string,
           value: StableRecordIdentifier | null
         ) {
-          belongsToReturnValue = { data: { id: '3', type: 'person' } };
+          belongsToReturnValue = {
+            data: store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
+          };
           this._storeWrapper.notifyChange(this._identifier, 'relationships', 'landlord');
         }
       };
@@ -619,7 +622,9 @@ module('integration/record-data - Custom RecordData Implementations', function (
         }
 
         setDirtyBelongsTo(this: V1TestRecordData, key: string, recordData: this | null) {
-          belongsToReturnValue = { data: { id: '3', type: 'person' } };
+          belongsToReturnValue = {
+            data: store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
+          };
           this._storeWrapper.notifyChange(this._identifier, 'relationships', 'landlord');
         }
       };
@@ -638,6 +643,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('service:store', TestStore);
 
     store = owner.lookup('service:store');
+    belongsToReturnValue = { data: store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }) };
 
     store.push({
       data: [davidHash, runspiredHash, igorHash],
