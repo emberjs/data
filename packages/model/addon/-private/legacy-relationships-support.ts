@@ -100,8 +100,8 @@ export class LegacySupport {
   getBelongsTo(key: string, options?: FindOptions): PromiseBelongsTo | RecordInstance | null {
     const { identifier, recordData } = this;
     let resource = recordData.getRelationship(this.identifier, key) as SingleResourceRelationship;
-    let relatedIdentifier =
-      resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
+    let relatedIdentifier = resource && resource.data ? resource.data : null;
+    assert(`Expected a stable identifier`, !relatedIdentifier || isStableIdentifier(relatedIdentifier));
 
     const store = this.store;
     const graphFor = (
@@ -493,7 +493,8 @@ export class LegacySupport {
       return resolve(null);
     }
 
-    const identifier = resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
+    const identifier = resource.data ? resource.data : null;
+    assert(`Expected a stable identifier`, !identifier || isStableIdentifier(identifier));
 
     let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = relationship.state;
 
