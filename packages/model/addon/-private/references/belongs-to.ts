@@ -1,9 +1,11 @@
+import { deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { resolve } from 'rsvp';
 
+import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type { Graph } from '@ember-data/record-data/-private/graph';
 import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
 import type Store from '@ember-data/store';
@@ -385,8 +387,25 @@ export default class BelongsToReference {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
   async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
-    // TODO @deprecate pushing unresolved payloads
-    const jsonApiDoc = await resolve(data);
+    let jsonApiDoc: SingleResourceDocument = data as SingleResourceDocument;
+    if (DEPRECATE_PROMISE_PROXIES && (data as { then: unknown }).then) {
+      jsonApiDoc = await resolve(data);
+      if (jsonApiDoc !== data) {
+        deprecate(
+          `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
+          false,
+          {
+            id: 'ember-data:deprecate-promise-proxies',
+            until: '5.0',
+            since: {
+              enabled: '4.8',
+              available: '4.8',
+            },
+            for: 'ember-data',
+          }
+        );
+      }
+    }
     let record = this.store.push(jsonApiDoc);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call

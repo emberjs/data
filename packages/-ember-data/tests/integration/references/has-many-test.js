@@ -5,11 +5,12 @@ import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
 
 import { gte } from 'ember-compatibility-helpers';
-import DS from 'ember-data';
 import { setupRenderingTest } from 'ember-qunit';
 
+import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 import createTrackingContext from '../../helpers/create-tracking-context';
@@ -36,7 +37,7 @@ module('integration/references/has-many', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:pet', Pet);
 
-    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
@@ -218,7 +219,7 @@ module('integration/references/has-many', function (hooks) {
       await context.render();
 
       assert.strictEqual(renderedValue.length, 1, 'We have a value');
-      assert.strictEqual(renderedValue.objectAt(0), person1, 'We have the right value');
+      assert.strictEqual(renderedValue.at(0), person1, 'We have the right value');
 
       store.push({
         data: {
@@ -254,51 +255,38 @@ module('integration/references/has-many', function (hooks) {
       let person2 = store.peekRecord('person', '2');
       assert.notStrictEqual(person2, null, 'we have a person');
       assert.strictEqual(renderedValue.length, 2, 'We have two values');
-      assert.strictEqual(renderedValue.objectAt(0), person1, 'We have the right value[0]');
-      assert.strictEqual(renderedValue.objectAt(1), person2, 'We have the right value[1]');
+      assert.strictEqual(renderedValue.at(0), person1, 'We have the right value[0]');
+      assert.strictEqual(renderedValue.at(1), person2, 'We have the right value[1]');
     });
   }
 
-  testInDebug('push(array)', function (assert) {
-    var done = assert.async();
-
-    let store = this.owner.lookup('service:store');
-
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: '1',
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: '1' },
-                { type: 'person', id: '2' },
-              ],
-            },
+  testInDebug('push(array)', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+            ],
           },
         },
-      });
+      },
     });
 
-    var personsReference = family.hasMany('persons');
+    const personsReference = family.hasMany('persons');
+    const data = [
+      { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
+      { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
+    ];
 
-    run(function () {
-      var data = [
-        { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
-        { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
-      ];
-
-      personsReference.push(data).then(function (records) {
-        assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).name, 'Vito');
-        assert.strictEqual(records.objectAt(1).name, 'Michael');
-
-        done();
-      });
-    });
+    const records = await personsReference.push(data);
+    assert.strictEqual(get(records, 'length'), 2);
+    assert.strictEqual(records.at(0).name, 'Vito');
+    assert.strictEqual(records.at(1).name, 'Michael');
   });
 
   testInDebug('push(array) works with polymorphic type', function (assert) {
@@ -325,9 +313,8 @@ module('integration/references/has-many', function (hooks) {
       var data = [{ data: { type: 'mafia-boss', id: '1', attributes: { name: 'Vito' } } }];
 
       personsReference.push(data).then(function (records) {
-        assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 1);
-        assert.strictEqual(records.objectAt(0).name, 'Vito');
+        assert.strictEqual(records.at(0).name, 'Vito');
 
         done();
       });
@@ -383,54 +370,56 @@ module('integration/references/has-many', function (hooks) {
       };
 
       personsReference.push(payload).then(function (records) {
-        assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).name, 'Vito');
-        assert.strictEqual(records.objectAt(1).name, 'Michael');
+        assert.strictEqual(records.at(0).name, 'Vito');
+        assert.strictEqual(records.at(1).name, 'Michael');
 
         done();
       });
     });
   });
 
-  test('push(promise)', async function (assert) {
-    const store = this.owner.lookup('service:store');
-    const deferred = defer();
+  deprecatedTest(
+    'push(promise)',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const deferred = defer();
 
-    const family = store.push({
-      data: {
-        type: 'family',
-        id: '1',
-        relationships: {
-          persons: {
-            data: [
-              { type: 'person', id: '1' },
-              { type: 'person', id: '2' },
-            ],
+      const family = store.push({
+        data: {
+          type: 'family',
+          id: '1',
+          relationships: {
+            persons: {
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
+            },
           },
         },
-      },
-    });
-    const personsReference = family.hasMany('persons');
-    let pushResult = personsReference.push(deferred.promise);
+      });
+      const personsReference = family.hasMany('persons');
+      let pushResult = personsReference.push(deferred.promise);
 
-    assert.ok(pushResult.then, 'HasManyReference.push returns a promise');
+      assert.ok(pushResult.then, 'HasManyReference.push returns a promise');
 
-    const payload = {
-      data: [
-        { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
-        { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
-      ],
-    };
+      const payload = {
+        data: [
+          { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
+          { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
+        ],
+      };
 
-    deferred.resolve(payload);
+      deferred.resolve(payload);
 
-    const records = await pushResult;
-    assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-    assert.strictEqual(get(records, 'length'), 2);
-    assert.strictEqual(records.objectAt(0).name, 'Vito');
-    assert.strictEqual(records.objectAt(1).name, 'Michael');
-  });
+      const records = await pushResult;
+      assert.strictEqual(get(records, 'length'), 2);
+      assert.strictEqual(records.at(0).name, 'Vito');
+      assert.strictEqual(records.at(1).name, 'Michael');
+    }
+  );
 
   test('push valid json:api', async function (assert) {
     const store = this.owner.lookup('service:store');
@@ -460,10 +449,9 @@ module('integration/references/has-many', function (hooks) {
     assert.ok(pushResult.then, 'HasManyReference.push returns a promise');
 
     const records = await pushResult;
-    assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
     assert.strictEqual(get(records, 'length'), 2);
-    assert.strictEqual(records.objectAt(0).name, 'Vito');
-    assert.strictEqual(records.objectAt(1).name, 'Michael');
+    assert.strictEqual(records.at(0).name, 'Vito');
+    assert.strictEqual(records.at(1).name, 'Michael');
   });
 
   test('value() returns null when reference is not yet loaded', function (assert) {
@@ -518,7 +506,7 @@ module('integration/references/has-many', function (hooks) {
       var personsReference = family.hasMany('persons');
       var records = personsReference.value();
       assert.strictEqual(get(records, 'length'), 2);
-      assert.true(records.isEvery('isLoaded'));
+      assert.true(records.every((v) => v.isLoaded));
     });
   });
 
@@ -612,10 +600,9 @@ module('integration/references/has-many', function (hooks) {
 
     run(function () {
       personsReference.load({ adapterOptions }).then(function (records) {
-        assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).name, 'Vito');
-        assert.strictEqual(records.objectAt(1).name, 'Michael');
+        assert.strictEqual(records.at(0).name, 'Vito');
+        assert.strictEqual(records.at(1).name, 'Michael');
 
         done();
       });
@@ -662,10 +649,9 @@ module('integration/references/has-many', function (hooks) {
 
     run(function () {
       personsReference.load({ adapterOptions }).then(function (records) {
-        assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).name, 'Vito');
-        assert.strictEqual(records.objectAt(1).name, 'Michael');
+        assert.strictEqual(records.at(0).name, 'Vito');
+        assert.strictEqual(records.at(1).name, 'Michael');
 
         done();
       });
@@ -705,7 +691,6 @@ module('integration/references/has-many', function (hooks) {
 
     return run(() => {
       return personsReference.load({ adapterOptions }).then((records) => {
-        assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 0);
         assert.strictEqual(get(personsReference.value(), 'length'), 0);
       });
@@ -805,10 +790,9 @@ module('integration/references/has-many', function (hooks) {
 
     run(function () {
       personsReference.reload({ adapterOptions }).then(function (records) {
-        assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
         assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).name, 'Vito Coreleone');
-        assert.strictEqual(records.objectAt(1).name, 'Michael Coreleone');
+        assert.strictEqual(records.at(0).name, 'Vito Coreleone');
+        assert.strictEqual(records.at(1).name, 'Michael Coreleone');
 
         done();
       });
@@ -871,10 +855,9 @@ module('integration/references/has-many', function (hooks) {
           return personsReference.reload({ adapterOptions });
         })
         .then(function (records) {
-          assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
           assert.strictEqual(get(records, 'length'), 2);
-          assert.strictEqual(records.objectAt(0).name, 'Vito Coreleone');
-          assert.strictEqual(records.objectAt(1).name, 'Michael Coreleone');
+          assert.strictEqual(records.at(0).name, 'Vito Coreleone');
+          assert.strictEqual(records.at(1).name, 'Michael Coreleone');
 
           done();
         });

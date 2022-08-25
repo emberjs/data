@@ -794,8 +794,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
           return superVillain.evilMinions;
         })
         .then((evilMinions) => {
-          assert.ok(evilMinions.firstObject instanceof YellowMinion, 'we have an instance');
-          assert.strictEqual(evilMinions.firstObject.eyes, 3, 'we have the right minion');
+          assert.ok(evilMinions.at(0) instanceof YellowMinion, 'we have an instance');
+          assert.strictEqual(evilMinions.at(0).eyes, 3, 'we have the right minion');
         });
     });
   });

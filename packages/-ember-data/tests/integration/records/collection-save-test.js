@@ -46,7 +46,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     });
   });
 
-  test('Collection will reject save on error', function (assert) {
+  test('Collection will reject save on error', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -59,14 +59,15 @@ module('integration/records/collection_save - Save Collection of Records', funct
       return reject();
     };
 
-    return run(() => {
-      return posts.save().catch(() => {
-        assert.ok(true, 'save operation was rejected');
-      });
-    });
+    try {
+      await posts.save();
+      assert.ok(false, 'should error');
+    } catch {
+      assert.ok(true, 'save operation was rejected');
+    }
   });
 
-  test('Retry is allowed in a failure handler', function (assert) {
+  test('Retry is allowed in a failure handler', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -90,19 +91,17 @@ module('integration/records/collection_save - Save Collection of Records', funct
       return resolve({ data: { id: snapshot.id, type: 'post' } });
     };
 
-    return run(() => {
-      return posts
-        .save()
-        .catch(() => posts.save())
-        .then((post) => {
-          // the ID here is '2' because the second post saves on the first attempt,
-          // while the first post saves on the second attempt
-          assert.strictEqual(posts.firstObject.id, '2', 'The post ID made it through');
-        });
-    });
+    await posts
+      .save()
+      .catch(() => posts.save())
+      .then((post) => {
+        // the ID here is '2' because the second post saves on the first attempt,
+        // while the first post saves on the second attempt
+        assert.strictEqual(posts.at(0).id, '2', 'The post ID made it through');
+      });
   });
 
-  test('Collection will reject save on invalid', function (assert) {
+  test('Collection will reject save on invalid', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -117,10 +116,8 @@ module('integration/records/collection_save - Save Collection of Records', funct
       return reject({ title: 'invalid' });
     };
 
-    return run(() => {
-      return posts.save().catch(() => {
-        assert.ok(true, 'save operation was rejected');
-      });
+    await posts.save().catch(() => {
+      assert.ok(true, 'save operation was rejected');
     });
   });
 });

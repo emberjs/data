@@ -1,15 +1,11 @@
-import { A } from '@ember/array';
-import Evented from '@ember/object/evented';
-
-import { module, test } from 'qunit';
+import { module, skip, test } from 'qunit';
 import RSVP from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-
-const { AdapterPopulatedRecordArray, RecordArrayManager } = DS;
+import { AdapterPopulatedRecordArray, RecordArrayManager, SOURCE } from '@ember-data/store/-private';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Tag extends Model {
   @attr()
@@ -20,28 +16,27 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    let recordArray = AdapterPopulatedRecordArray.create({
-      modelName: 'recordType',
+    let recordArray = new AdapterPopulatedRecordArray({
+      type: 'recordType',
       isLoaded: false,
-      content: A(),
+      identifiers: [],
       store: null,
     });
 
     assert.false(recordArray.isLoaded, 'expected isLoaded to be false');
     assert.strictEqual(recordArray.modelName, 'recordType', 'has modelName');
-    assert.deepEqual(recordArray.content, [], 'has no content');
+    assert.deepEqual(recordArray.slice(), [], 'has no content');
     assert.strictEqual(recordArray.query, null, 'no query');
     assert.strictEqual(recordArray.store, null, 'no store');
     assert.strictEqual(recordArray.links, null, 'no links');
   });
 
   test('custom initial state', async function (assert) {
-    let content = A([]);
     let store = {};
-    let recordArray = AdapterPopulatedRecordArray.create({
-      modelName: 'apple',
+    let recordArray = new AdapterPopulatedRecordArray({
+      type: 'apple',
       isLoaded: true,
-      content,
+      identifiers: ['1'],
       store,
       query: 'some-query',
       links: 'foo',
@@ -49,22 +44,23 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.true(recordArray.isLoaded);
     assert.false(recordArray.isUpdating);
     assert.strictEqual(recordArray.modelName, 'apple');
-    assert.deepEqual(recordArray.content, content);
+    assert.deepEqual(recordArray[SOURCE].slice(), ['1']);
     assert.strictEqual(recordArray.store, store);
     assert.strictEqual(recordArray.query, 'some-query');
     assert.strictEqual(recordArray.links, 'foo');
   });
 
-  test('#replace() throws error', function (assert) {
-    let recordArray = AdapterPopulatedRecordArray.create({ modelName: 'recordType' });
+  testInDebug('#replace() throws error', function (assert) {
+    let recordArray = new AdapterPopulatedRecordArray({ type: 'recordType', identifiers: [] });
 
     assert.throws(
       () => {
         recordArray.replace();
       },
-      Error('The result of a server query (on recordType) is immutable.'),
+      Error('Assertion Failed: Mutating this array of records via splice is not allowed.'),
       'throws error'
     );
+    assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
   });
 
   test('#update uses _update enabling query specific behavior', async function (assert) {
@@ -82,10 +78,10 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       },
     };
 
-    let recordArray = AdapterPopulatedRecordArray.create({
-      modelName: 'recordType',
+    let recordArray = new AdapterPopulatedRecordArray({
+      type: 'recordType',
       store,
-      content: A(),
+      identifiers: [],
       isLoaded: true,
       query: 'some-query',
     });
@@ -97,7 +93,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     let updateResult = recordArray.update();
 
     assert.strictEqual(queryCalled, 1);
-    const expectedResult = A();
+    const expectedResult = [];
     deferred.resolve(expectedResult);
 
     assert.true(recordArray.isUpdating, 'should be updating');
@@ -107,7 +103,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.false(recordArray.isUpdating, 'should no longer be updating');
   });
 
-  test('change events when receiving a new query payload', async function (assert) {
+  skip('change events when receiving a new query payload', async function (assert) {
     assert.expect(29);
 
     let arrayDidChange = 0;
@@ -119,10 +115,10 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     let manager = new RecordArrayManager({
       store,
     });
-    let recordArray = AdapterPopulatedRecordArray.extend(Evented).create({
+    let recordArray = new AdapterPopulatedRecordArray({
       query: 'some-query',
       manager,
-      content: A(),
+      identifiers: [],
       store,
     });
 

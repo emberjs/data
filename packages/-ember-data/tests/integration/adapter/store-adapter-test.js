@@ -76,7 +76,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     assert.strictEqual(people2.length, 2, 'return the elements');
     assert.ok(people2.isLoaded, 'array is loaded');
 
-    const person = people.objectAt(0);
+    const person = people.at(0);
     assert.ok(person.isLoaded, 'record is loaded');
 
     // delete record will not throw exception
@@ -1357,7 +1357,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     store.createRecord('person', { name: 'Tom' }).save({ adapterOptions: { subscribe: true } });
   });
 
-  test('record.save should pass adapterOptions to the deleteRecord method', function (assert) {
+  test('record.save should pass adapterOptions to the deleteRecord method', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1378,7 +1378,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       },
     });
     let person = store.peekRecord('person', '1');
-    person.destroyRecord({ adapterOptions: { subscribe: true } });
+    await person.destroyRecord({ adapterOptions: { subscribe: true } });
   });
 
   test('store.findRecord should pass adapterOptions to adapter.findRecord', function (assert) {

@@ -64,10 +64,7 @@ module('unit/model - init properties', function (hooks) {
       assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
       assert.strictEqual(get(record, 'randomProp'), 'An unknown prop', 'Unknown properties are available as expected');
       assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
-      assert.ok(
-        get(record, 'comments.firstObject') instanceof types.Comment,
-        'hasMany relationships are available as expected'
-      );
+      assert.ok(record.comments.at(0) instanceof types.Comment, 'hasMany relationships are available as expected');
     }
 
     let { store } = setupModels(this.owner, testState);
@@ -109,10 +106,7 @@ module('unit/model - init properties', function (hooks) {
     function testState(types, record) {
       assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
       assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
-      assert.ok(
-        get(record, 'comments.firstObject') instanceof types.Comment,
-        'hasMany relationships are available as expected'
-      );
+      assert.ok(record.comments.at(0) instanceof types.Comment, 'hasMany relationships are available as expected');
     }
 
     let { store } = setupModels(this.owner, testState);
@@ -160,10 +154,7 @@ module('unit/model - init properties', function (hooks) {
     function testState(types, record) {
       assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
       assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
-      assert.ok(
-        get(record, 'comments.firstObject') instanceof types.Comment,
-        'hasMany relationships are available as expected'
-      );
+      assert.ok(record.comments.at(0) instanceof types.Comment, 'hasMany relationships are available as expected');
     }
 
     let { adapter, store } = setupModels(this.owner, testState);
@@ -213,10 +204,7 @@ module('unit/model - init properties', function (hooks) {
     function testState(types, record) {
       assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
       assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
-      assert.ok(
-        get(record, 'comments.firstObject') instanceof types.Comment,
-        'hasMany relationships are available as expected'
-      );
+      assert.ok(record.comments.at(0) instanceof types.Comment, 'hasMany relationships are available as expected');
     }
 
     let { adapter, store } = setupModels(this.owner, testState);

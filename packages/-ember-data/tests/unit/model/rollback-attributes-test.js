@@ -195,7 +195,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       run(() => person.deleteRecord());
 
       assert.strictEqual(people.length, 1, 'a deleted record appears in record array until it is saved');
-      assert.strictEqual(people.objectAt(0), person, 'a deleted record appears in record array until it is saved');
+      assert.strictEqual(people.at(0), person, 'a deleted record appears in record array until it is saved');
 
       return run(() => {
         return person
@@ -341,7 +341,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       });
 
       assert.strictEqual(people.length, 1, 'a deleted record appears in the record array until it is saved');
-      assert.strictEqual(people.objectAt(0), person, 'a deleted record appears in the record array until it is saved');
+      assert.strictEqual(people.at(0), person, 'a deleted record appears in the record array until it is saved');
 
       assert.true(person.isDeleted, 'must be deleted');
 

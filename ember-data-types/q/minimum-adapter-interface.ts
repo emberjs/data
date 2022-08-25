@@ -1,7 +1,7 @@
 import type Store from '@ember-data/store';
 import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type SnapshotRecordArray from '@ember-data/store/-private/network/snapshot-record-array';
-import type AdapterPopulatedRecordArray from '@ember-data/store/-private/record-arrays/adapter-populated-record-array';
+import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 
 import type { ModelSchema } from './ds-model';
 import type { RelationshipSchema } from './record-data-schemas';
@@ -122,7 +122,7 @@ export interface MinimumAdapterInterface {
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {object} query
-   * @param {AdapterPopulatedRecordArray} recordArray
+   * @param {Collection} recordArray
    * @param {object} options
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
@@ -130,7 +130,7 @@ export interface MinimumAdapterInterface {
     store: Store,
     schema: ModelSchema,
     query: Dict<unknown>,
-    recordArray: AdapterPopulatedRecordArray,
+    recordArray: Collection,
     options: { adapterOptions?: unknown }
   ): Promise<AdapterPayload>;
 

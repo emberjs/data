@@ -8,6 +8,7 @@ import { setupTest } from 'ember-qunit';
 
 import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
+import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
@@ -114,6 +115,9 @@ class V1TestRecordData implements RecordDataV1 {
   }
 }
 class V2TestRecordData implements RecordData {
+  update(operation: LocalRelationshipOperation): void {
+    throw new Error('Method not implemented.');
+  }
   version: '2' = '2';
 
   _errors?: JsonApiValidationError[];

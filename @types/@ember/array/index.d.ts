@@ -10,13 +10,12 @@
 import Enumerable from '@ember/array/-private/enumerable';
 import type NativeArray from '@ember/array/-private/native-array';
 import type ComputedProperty from '@ember/object/computed';
-import type Mixin from '@ember/object/mixin';
 
 /**
  * This module implements Observer-friendly Array-like behavior. This mixin is picked up by the
  * Array class as well as other controllers, etc. that want to appear to be arrays.
  */
-interface Array<T> extends Enumerable<T> {
+interface EmberArray<T> extends Enumerable<T> {
   /**
    * __Required.__ You must implement this method to apply this mixin.
    */
@@ -89,16 +88,10 @@ interface Array<T> extends Enumerable<T> {
    */
   '@each': ComputedProperty<T>;
 }
-// Ember.Array rather than Array because the `array-type` lint rule doesn't realize the global is shadowed
-// tslint:disable-next-line:array-type
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare class Array<T> extends Mixin<Array<unknown>> {
-  static detect(arr: unknown): boolean;
-}
 
 export const NativeArray;
 
-export default Array;
+export default EmberArray;
 
 /**
  * Creates an `Ember.NativeArray` from an Array like object.

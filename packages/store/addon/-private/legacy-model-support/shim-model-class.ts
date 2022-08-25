@@ -15,6 +15,7 @@ export function getShimClass(store: Store, modelName: string): ShimModelClass {
     shims = Object.create(null) as Dict<ShimModelClass>;
     AvailableShims.set(store, shims);
   }
+
   let shim = shims[modelName];
   if (shim === undefined) {
     shim = shims[modelName] = new ShimModelClass(store, modelName);

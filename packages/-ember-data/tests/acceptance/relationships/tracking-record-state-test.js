@@ -79,7 +79,7 @@ module('tracking state flags on a record', function (hooks) {
         // - access a prop on a single record (which is the prop
         //   we will now change)
         if (this.children !== null) {
-          return this.children.toArray().filter((child) => {
+          return this.children.slice().filter((child) => {
             return child.isNew;
           });
         } else {

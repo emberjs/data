@@ -183,7 +183,7 @@ module(
 
       const longModel = await store.findRecord('long_model_name', '1');
       const postNotesRel = await longModel.postNotes;
-      const postNotes = postNotesRel.toArray();
+      const postNotes = postNotesRel.slice();
 
       assert.deepEqual(postNotes, [store.peekRecord('postNote', 1)], 'inverse records found');
     });

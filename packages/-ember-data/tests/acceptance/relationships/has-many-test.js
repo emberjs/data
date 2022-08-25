@@ -16,6 +16,7 @@ import { ServerError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
+import { DEPRECATE_ARRAY_LIKE } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
@@ -697,7 +698,7 @@ module('autotracking has-many', function (hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('We can re-render a pojo', async function (assert) {
+  test('We can re-render a simple array', async function (assert) {
     class ChildrenList extends Component {
       @service store;
 
@@ -706,7 +707,13 @@ module('autotracking has-many', function (hooks) {
       }
 
       get sortedChildren() {
-        return this.children.sortBy('name');
+        if (DEPRECATE_ARRAY_LIKE) {
+          let result = this.children.sortBy('name');
+          assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+          return result;
+        } else {
+          return this.children.slice().sort((a, b) => (a.name > b.name ? 1 : -1));
+        }
       }
 
       @action
@@ -760,7 +767,9 @@ module('autotracking has-many', function (hooks) {
         @service store;
 
         get sortedChildren() {
-          return this.args.person.children.sortBy('name');
+          let result = this.args.person.children.sortBy('name');
+          assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+          return result;
         }
 
         @action
@@ -860,19 +869,28 @@ module('autotracking has-many', function (hooks) {
 
   deprecatedTest(
     'We can re-render hasMany with PromiseManyArray.objectAt',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 12 },
     async function (assert) {
+      let calls = 0;
       class ChildrenList extends Component {
         @service store;
 
         get firstChild() {
-          return this.args.person.children.objectAt(0);
+          const result = this.args.person.children.objectAt(0);
+          assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+          return result;
+        }
+
+        get lastChild() {
+          const result = this.args.person.children.objectAt(-1);
+          assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+          return result;
         }
 
         @action
         createChild() {
           const parent = this.args.person;
-          const name = 'RGB';
+          const name = 'RGB ' + calls++;
           this.store.createRecord('person', { name, parent });
         }
       }
@@ -881,6 +899,7 @@ module('autotracking has-many', function (hooks) {
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
       <h2>{{this.firstChild.name}}</h2>
+      <h3>{{this.lastChild.name}}</h3>
     `;
       this.owner.register('component:children-list', ChildrenList);
       this.owner.register('template:components/children-list', layout);
@@ -894,11 +913,13 @@ module('autotracking has-many', function (hooks) {
 
       await click('#createChild');
 
-      assert.dom('h2').hasText('RGB', 'renders first child');
+      assert.dom('h2').hasText('RGB 0', 'renders first child');
+      assert.dom('h3').hasText('RGB 0', 'renders last child');
 
       await click('#createChild');
 
-      assert.dom('h2').hasText('RGB', 'renders first child');
+      assert.dom('h2').hasText('RGB 0', 'renders first child');
+      assert.dom('h3').hasText('RGB 1', 'renders last child');
     }
   );
 
@@ -1054,7 +1075,7 @@ module('autotracking has-many', function (hooks) {
       @service store;
 
       get firstChild() {
-        return this.args.children.objectAt(0);
+        return this.args.children.at(0);
       }
 
       @action
@@ -1145,7 +1166,7 @@ module('autotracking has-many', function (hooks) {
       @service store;
 
       get children() {
-        return this.args.children.toArray();
+        return this.args.children.slice();
       }
 
       @action

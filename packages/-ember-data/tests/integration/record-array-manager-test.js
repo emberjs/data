@@ -8,6 +8,7 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
+import { SOURCE } from '@ember-data/store/-private';
 
 let store, manager;
 
@@ -41,23 +42,6 @@ module('integration/record_array_manager', function (hooks) {
     store = owner.lookup('service:store');
     manager = store.recordArrayManager;
   });
-
-  function tap(obj, methodName, callback) {
-    let old = obj[methodName];
-
-    let summary = { called: [] };
-
-    obj[methodName] = function () {
-      let result = old.apply(obj, arguments);
-      if (callback) {
-        callback.apply(obj, arguments);
-      }
-      summary.called.push(arguments);
-      return result;
-    };
-
-    return summary;
-  }
 
   test('destroying the store correctly cleans everything up', async function (assert) {
     store.push({
@@ -94,12 +78,10 @@ module('integration/record_array_manager', function (hooks) {
     let all = store.peekAll('person');
     let query = {};
     let adapterPopulated = manager.createArray({ type: 'person', query });
-    let allSummary = tap(all, 'willDestroy');
-    let adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
     let identifier = recordIdentifierFor(person);
 
-    assert.strictEqual(allSummary.called.length, 0, 'initial: no calls to all.willDestroy');
-    assert.strictEqual(adapterPopulatedSummary.called.length, 0, 'initial: no calls to adapterPopulated.willDestroy');
+    assert.false(all.isDestroyed, 'initial: no calls to all.willDestroy');
+    assert.false(adapterPopulated.isDestroyed, 'initial: no calls to adapterPopulated.willDestroy');
     assert.strictEqual(
       manager._identifiers.get(identifier)?.size,
       undefined,
@@ -110,15 +92,14 @@ module('integration/record_array_manager', function (hooks) {
     manager.destroy();
     await settled();
 
-    assert.strictEqual(allSummary.called.length, 1, 'all.willDestroy called once');
+    assert.true(all.isDestroyed, 'all.willDestroy called once');
     assert.false(manager._live.has('person'), 'no longer have a live array for person');
     assert.strictEqual(
       manager._identifiers.get(identifier)?.size,
       undefined,
       'expected the person to be a member of no recordArrays'
     );
-    assert.strictEqual(allSummary.called.length, 1, 'all.willDestroy still only called once');
-    assert.strictEqual(adapterPopulatedSummary.called.length, 1, 'adapterPopulated.willDestroy called once');
+    assert.true(adapterPopulated.isDestroyed, 'adapterPopulated.willDestroy called once');
   });
 
   if (!gte('4.0.0')) {
@@ -133,7 +114,7 @@ module('integration/record_array_manager', function (hooks) {
         assert.strictEqual(addedCount, 2, 'expected 2 added');
       };
 
-      assert.deepEqual(cars.toArray(), []);
+      assert.deepEqual(cars.slice(), []);
       assert.strictEqual(arrayContentWillChangeCount, 0, 'expected NO arrayChangeEvents yet');
 
       store.push({
@@ -160,7 +141,7 @@ module('integration/record_array_manager', function (hooks) {
 
       assert.strictEqual(arrayContentWillChangeCount, 1, 'expected ONE array change event');
 
-      assert.deepEqual(cars.toArray(), [store.peekRecord('car', 1), store.peekRecord('car', 2)]);
+      assert.deepEqual(cars.slice(), [store.peekRecord('car', 1), store.peekRecord('car', 2)]);
 
       store.peekRecord('car', 1).set('model', 'Mini');
 
@@ -238,9 +219,9 @@ module('integration/record_array_manager', function (hooks) {
 
     assert.strictEqual(recordArray.modelName, 'foo');
     assert.true(recordArray.isLoaded);
-    assert.strictEqual(recordArray.manager, manager);
-    assert.deepEqual(recordArray.content, []);
-    assert.deepEqual(recordArray.toArray(), []);
+    assert.strictEqual(recordArray._manager, manager, 'the manager is set correctly');
+    assert.deepEqual(recordArray[SOURCE], []);
+    assert.deepEqual(recordArray.slice(), []);
   });
 
   test('liveArrayFor always return the same array for a given type', function (assert) {

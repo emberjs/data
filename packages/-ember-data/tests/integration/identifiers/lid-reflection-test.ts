@@ -165,7 +165,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     class TestAdapter extends Adapter {
       createRecord(store, ModelClass, snapshot) {
         const cakeLid = recordIdentifierFor(snapshot.record).lid;
-        const ingredientLid = recordIdentifierFor(snapshot.record.ingredients.firstObject).lid;
+        const ingredientLid = recordIdentifierFor(snapshot.record.ingredients.at(0)).lid;
         return resolve({
           data: {
             type: 'cake',
@@ -221,7 +221,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     await cake.save();
 
     assert.deepEqual(cake.hasMany('ingredients').ids(), ['2']);
-    assert.strictEqual(cake.ingredients.objectAt(0).name, 'Cheese');
+    assert.strictEqual(cake.ingredients.at(0).name, 'Cheese');
 
     assert.strictEqual(cake.id, '1', 'cake has the correct id');
     assert.strictEqual(cheese.id, '2', 'cheese has the correct id');

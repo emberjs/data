@@ -39,7 +39,6 @@ module('integration/records/save - Save Record', function (hooks) {
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       // `save` returns a PromiseObject which allows to call get on it
       assert.strictEqual(saved.get('id'), undefined);
-      assert.strictEqual(saved.id, undefined);
     }
 
     deferred.resolve({ data: { id: '123', type: 'post' } });
@@ -47,7 +46,12 @@ module('integration/records/save - Save Record', function (hooks) {
     assert.ok(true, 'save operation was resolved');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       assert.strictEqual(saved.get('id'), '123');
-      assert.strictEqual(saved.id, undefined);
+      try {
+        saved.id;
+        assert.ok(false, 'access should error with .get assertion');
+      } catch {
+        assert.ok(true, 'access errored correctly');
+      }
       assert.strictEqual(model.id, '123');
     } else {
       assert.strictEqual(saved.id, undefined);
@@ -57,13 +61,15 @@ module('integration/records/save - Save Record', function (hooks) {
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       // We don't care about the exact value of the property, but accessing it
       // should not throw an error and only show a deprecation.
+      saved.__ec_cancel__ = true;
       assert.strictEqual(saved.__ec_cancel__, undefined);
+      assert.strictEqual(model.__ec_cancel__, undefined);
 
-      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 5 });
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 4 });
     }
   });
 
-  test('Will reject save on error', function (assert) {
+  test('Will reject save on error', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     let post = store.createRecord('post', { title: 'toto' });
@@ -73,14 +79,12 @@ module('integration/records/save - Save Record', function (hooks) {
       return reject(error);
     };
 
-    run(function () {
-      post.save().then(
-        function () {},
-        function () {
-          assert.ok(true, 'save operation was rejected');
-        }
-      );
-    });
+    try {
+      await post.save();
+      assert.ok(false, 'we should err');
+    } catch (error) {
+      assert.ok(true, 'we errored during save');
+    }
   });
 
   test('Retry is allowed in a failure handler', function (assert) {

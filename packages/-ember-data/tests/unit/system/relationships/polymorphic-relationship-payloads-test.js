@@ -64,7 +64,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
     const user = run(() => this.store.push(userData));
 
-    const finalResult = user.hats.mapBy('type');
+    const finalResult = user.hats.map((r) => r.type);
 
     assert.deepEqual(finalResult, ['hat', 'big-hat', 'small-hat'], 'We got all our hats!');
   });
@@ -118,7 +118,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     };
 
     const user = run(() => this.store.push(userData)),
-      finalResult = user.hats.mapBy('type'),
+      finalResult = user.hats.map((r) => r.type),
       expectedResults = included.map((m) => m.type);
 
     assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
@@ -174,7 +174,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     };
 
     const user = run(() => this.store.push(userData)),
-      finalResult = user.hats.mapBy('type'),
+      finalResult = user.hats.map((r) => r.type),
       expectedResults = included.map((m) => m.type);
 
     assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
@@ -230,7 +230,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
     const expectedAlienResults = alienIncluded.map((m) => m.type),
       alien = run(() => this.store.push(alienData)),
-      alienFinalHats = alien.hats.mapBy('type');
+      alienFinalHats = alien.hats.map((r) => r.type);
 
     assert.deepEqual(alienFinalHats, expectedAlienResults, 'We got all alien hats!');
   });
@@ -309,8 +309,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       return this.store.push(smallPersonData);
     });
 
-    const finalBigResult = bigPerson.hats.toArray();
-    const finalSmallResult = smallPerson.hats.toArray();
+    const finalBigResult = bigPerson.hats.slice();
+    const finalSmallResult = smallPerson.hats.slice();
 
     assert.strictEqual(finalBigResult.length, 4, 'We got all our hats!');
     assert.strictEqual(finalSmallResult.length, 2, 'We got all our hats!');
@@ -403,7 +403,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       return this.store.push(payload);
     });
 
-    const familyResultReferences = boyInstance.family.toArray().map((i) => {
+    const familyResultReferences = boyInstance.family.slice().map((i) => {
       return { type: i.constructor.modelName, id: i.id };
     });
     const twinResult = boyInstance.twin;
@@ -503,7 +503,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       return this.store.push(payload);
     });
 
-    const familyResultReferences = boyInstance.family.toArray().map((i) => {
+    const familyResultReferences = boyInstance.family.slice().map((i) => {
       return { type: i.constructor.modelName, id: i.id };
     });
     const twinResult = boyInstance.twin;
@@ -552,7 +552,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     const expectedHatReference = { id: '2', type: 'big-hat' };
     const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
 
-    const finalHatsReferences = hat2.hats.toArray().map((i) => {
+    const finalHatsReferences = hat2.hats.slice().map((i) => {
       return { type: i.constructor.modelName, id: i.id };
     });
     const hatResult = hat1.hat;
@@ -596,7 +596,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     const expectedHatReference = { id: '1', type: 'big-hat' };
     const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
 
-    const finalHatsReferences = hat.hats.toArray().map((i) => {
+    const finalHatsReferences = hat.hats.slice().map((i) => {
       return { type: i.constructor.modelName, id: i.id };
     });
     const hatResult = hat.hat;
@@ -798,8 +798,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       return this.store.push(smallPersonData);
     });
 
-    const finalBigResult = bigPerson.hats.toArray();
-    const finalSmallResult = smallPerson.hats.toArray();
+    const finalBigResult = bigPerson.hats.slice();
+    const finalSmallResult = smallPerson.hats.slice();
 
     assert.deepEqual(
       finalBigResult.map((h) => ({ type: h.constructor.modelName, id: h.id })),

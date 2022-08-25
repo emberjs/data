@@ -162,15 +162,18 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     // pre-condition
     assert.strictEqual(all.length, 2, 'expected 2 records');
+    let destroys = 0;
 
     run(function () {
       all.forEach(function (record) {
+        destroys++;
         record.destroyRecord();
       });
     });
 
+    assert.strictEqual(destroys, 2, 'we destroyed 2 records');
     assert.strictEqual(all.length, 0, 'expected 0 records');
-    assert.strictEqual(all.objectAt(0), undefined, "can't get any records");
+    assert.strictEqual(all.at(0), undefined, "can't get any records");
   });
 
   test('Deleting an invalid newly created record should remove it from the store', async function (assert) {
@@ -440,7 +443,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(groupCompany.name, 'Inc.', 'group belongs to our company');
     assert.strictEqual(group.employees.length, 1, 'expected 1 related record before delete');
     const employees = await group.employees;
-    employee = employees.objectAt(0);
+    employee = employees.at(0);
     assert.strictEqual(employee.name, 'Adam Sunderland', 'expected related records to be loaded');
 
     await group.destroyRecord();

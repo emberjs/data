@@ -1,17 +1,19 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { importSync } from '@embroider/macros';
 import { all, resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
+import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
 import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
-import { isStableIdentifier, recordIdentifierFor, storeFor } from '@ember-data/store/-private';
-import { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
+import { fastPush, isStableIdentifier, recordIdentifierFor, SOURCE, storeFor } from '@ember-data/store/-private';
+import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -23,8 +25,7 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
 import { assertIdentifierHasId } from './legacy-data-utils';
-import type { ManyArrayCreateArgs } from './many-array';
-import ManyArray from './many-array';
+import RelatedCollection from './many-array';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
 import PromiseBelongsTo from './promise-belongs-to';
 import type { HasManyProxyCreateArgs } from './promise-many-array';
@@ -32,7 +33,6 @@ import PromiseManyArray from './promise-many-array';
 import BelongsToReference from './references/belongs-to';
 import HasManyReference from './references/has-many';
 
-type ManyArrayFactory = { create(args: ManyArrayCreateArgs): ManyArray };
 type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): PromiseBelongsTo };
 
 export class LegacySupport {
@@ -41,8 +41,8 @@ export class LegacySupport {
   declare recordData: RecordData;
   declare references: Dict<BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
-  declare _manyArrayCache: Dict<ManyArray>;
-  declare _relationshipPromisesCache: Dict<Promise<ManyArray | RecordInstance>>;
+  declare _manyArrayCache: Dict<RelatedCollection>;
+  declare _relationshipPromisesCache: Dict<Promise<RelatedCollection | RecordInstance>>;
   declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo>;
 
   declare isDestroying: boolean;
@@ -54,10 +54,67 @@ export class LegacySupport {
     this.identifier = recordIdentifierFor(record);
     this.recordData = this.store._instanceCache.getRecordData(this.identifier);
 
-    this._manyArrayCache = Object.create(null) as Dict<ManyArray>;
-    this._relationshipPromisesCache = Object.create(null) as Dict<Promise<ManyArray | RecordInstance>>;
+    this._manyArrayCache = Object.create(null) as Dict<RelatedCollection>;
+    this._relationshipPromisesCache = Object.create(null) as Dict<Promise<RelatedCollection | RecordInstance>>;
     this._relationshipProxyCache = Object.create(null) as Dict<PromiseManyArray | PromiseBelongsTo>;
     this.references = Object.create(null) as Dict<BelongsToReference>;
+  }
+
+  _syncArray(array: RelatedCollection) {
+    // It’s possible the parent side of the relationship may have been destroyed by this point
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
+    const currentState = array[SOURCE];
+    const identifier = this.identifier;
+
+    let [identifiers, jsonApi] = this._getCurrentState(identifier, array.key);
+
+    if (jsonApi.meta) {
+      array.meta = jsonApi.meta;
+    }
+
+    if (jsonApi.links) {
+      array.links = jsonApi.links;
+    }
+
+    currentState.length = 0;
+    fastPush(currentState, identifiers);
+  }
+
+  updateCache(operation: LocalRelationshipOperation): void {
+    if (DEPRECATE_V1_RECORD_DATA) {
+      switch (operation.op) {
+        case 'addToRelatedRecords':
+          this.recordData.addToHasMany(
+            operation.record,
+            operation.field,
+            operation.value as StableRecordIdentifier[],
+            operation.index
+          );
+          return;
+        case 'removeFromRelatedRecords':
+          this.recordData.removeFromHasMany(
+            operation.record,
+            operation.field,
+            operation.value as StableRecordIdentifier[]
+          );
+          return;
+        case 'replaceRelatedRecords':
+          this.recordData.setHasMany(operation.record, operation.field, operation.value as StableRecordIdentifier[]);
+          return;
+        case 'replaceRelatedRecord':
+          this.recordData.removeFromHasMany(operation.record, operation.field, [operation.prior!]);
+          this.recordData.addToHasMany(operation.record, operation.field, [operation.value!], operation.index);
+          return;
+        case 'sortRelatedRecords':
+          return;
+        default:
+          return;
+      }
+    } else {
+      this.recordData.update(operation);
+    }
   }
 
   _findBelongsTo(
@@ -174,9 +231,9 @@ export class LegacySupport {
     return [identifiers, jsonApi];
   }
 
-  getManyArray(key: string, definition?: UpgradedMeta): ManyArray {
+  getManyArray(key: string, definition?: UpgradedMeta): RelatedCollection {
     assert('hasMany only works with the @ember-data/record-data package', HAS_RECORD_DATA_PACKAGE);
-    let manyArray: ManyArray | undefined = this._manyArrayCache[key];
+    let manyArray: RelatedCollection | undefined = this._manyArrayCache[key];
     if (!definition) {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
@@ -186,20 +243,22 @@ export class LegacySupport {
 
     if (!manyArray) {
       const [identifiers, doc] = this._getCurrentState(this.identifier, key);
-      manyArray = (ManyArray as unknown as ManyArrayFactory).create({
+
+      manyArray = new RelatedCollection({
         store: this.store,
-        type: this.store.modelFor(definition.type),
+        type: definition.type,
         identifier: this.identifier,
         recordData: this.recordData,
+        identifiers,
         key,
-        currentState: identifiers,
         meta: doc.meta || null,
         links: doc.links || null,
         isPolymorphic: definition.isPolymorphic,
         isAsync: definition.isAsync,
         _inverseIsAsync: definition.inverseIsAsync,
-        legacySupport: this,
+        manager: this,
         isLoaded: !definition.isAsync,
+        allowMutation: true,
       });
       this._manyArrayCache[key] = manyArray;
     }
@@ -210,11 +269,11 @@ export class LegacySupport {
   fetchAsyncHasMany(
     key: string,
     relationship: ManyRelationship,
-    manyArray: ManyArray,
+    manyArray: RelatedCollection,
     options?: FindOptions
-  ): Promise<ManyArray> {
+  ): Promise<RelatedCollection> {
     if (HAS_RECORD_DATA_PACKAGE) {
-      let loadingPromise = this._relationshipPromisesCache[key] as Promise<ManyArray> | undefined;
+      let loadingPromise = this._relationshipPromisesCache[key] as Promise<RelatedCollection> | undefined;
       if (loadingPromise) {
         return loadingPromise;
       }
@@ -263,7 +322,7 @@ export class LegacySupport {
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  getHasMany(key: string, options?: FindOptions): PromiseManyArray | ManyArray {
+  getHasMany(key: string, options?: FindOptions): PromiseManyArray | RelatedCollection {
     if (HAS_RECORD_DATA_PACKAGE) {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
@@ -445,6 +504,9 @@ export class LegacySupport {
           return;
         }
         assert(`Expected collection to be an array`, Array.isArray(resource.data));
+        if (allInverseRecordsAreLoaded) {
+          return;
+        }
         let finds = new Array(resource.data.length);
         let cache = this.store._instanceCache;
         for (let i = 0; i < resource.data.length; i++) {
@@ -594,8 +656,8 @@ function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
   relationship: ManyRelationship,
-  value: ManyArray
-): ManyArray;
+  value: RelatedCollection
+): RelatedCollection;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
@@ -607,16 +669,16 @@ function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
   relationship: ManyRelationship,
-  value: ManyArray,
+  value: RelatedCollection,
   error: Error
 ): never;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
   relationship: BelongsToRelationship | ManyRelationship,
-  value: ManyArray | StableRecordIdentifier | null,
+  value: RelatedCollection | StableRecordIdentifier | null,
   error?: Error
-): ManyArray | RecordInstance | null {
+): RelatedCollection | RecordInstance | null {
   delete recordExt._relationshipPromisesCache[key];
   relationship.state.shouldForceReload = false;
   const isHasMany = relationship.definition.kind === 'hasMany';
@@ -624,7 +686,7 @@ function handleCompletedRelationshipRequest(
   if (isHasMany) {
     // we don't notify the record property here to avoid refetch
     // only the many array
-    (value as ManyArray).notify();
+    (value as RelatedCollection).notify();
   }
 
   if (error) {
@@ -648,7 +710,7 @@ function handleCompletedRelationshipRequest(
   }
 
   if (isHasMany) {
-    (value as ManyArray).set('isLoaded', true);
+    (value as RelatedCollection).isLoaded = true;
   }
 
   relationship.state.hasFailedLoadAttempt = false;
@@ -656,7 +718,7 @@ function handleCompletedRelationshipRequest(
   relationship.state.isStale = false;
 
   return isHasMany || !value
-    ? (value as ManyArray | null)
+    ? (value as RelatedCollection | null)
     : recordExt.store.peekRecord(value as StableRecordIdentifier);
 }
 
@@ -690,11 +752,24 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
     return null;
   }
 
-  if (isPromiseRecord(recordOrPromiseRecord)) {
+  if (DEPRECATE_PROMISE_PROXIES && isPromiseRecord(recordOrPromiseRecord)) {
     let content = recordOrPromiseRecord.content;
     assert(
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
       content !== undefined
+    );
+    deprecate(
+      `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
+      false,
+      {
+        id: 'ember-data:deprecate-promise-proxies',
+        until: '5.0',
+        since: {
+          enabled: '4.8',
+          available: '4.8',
+        },
+        for: 'ember-data',
+      }
     );
     return content ? recordIdentifierFor(content) : null;
   }

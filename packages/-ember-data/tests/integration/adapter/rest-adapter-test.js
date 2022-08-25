@@ -432,12 +432,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let comments = post.comments;
 
     // Replace the comment with a new one
-    comments.popObject();
-    comments.pushObject(newComment);
+    comments.pop();
+    comments.push(newComment);
 
     await post.save();
     assert.strictEqual(post.comments.length, 1, 'the post has the correct number of comments');
-    assert.strictEqual(post.get('comments.firstObject.name'), 'Yes. Yes it is.', 'the post has the correct comment');
+    assert.strictEqual(post.comments.at(0).name, 'Yes. Yes it is.', 'the post has the correct comment');
   });
 
   test('updateRecord - hasMany relationships faithfully reflect removal from response', async function (assert) {
@@ -530,7 +530,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let post = await store.peekRecord('post', 1);
     let comment = await store.peekRecord('comment', 1);
     let comments = post.comments;
-    comments.pushObject(comment);
+    comments.push(comment);
     assert.strictEqual(post.comments.length, 1, 'the post has one comment');
 
     post = await post.save();
@@ -752,7 +752,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
     assert.true(posts.isLoaded, 'The RecordArray is loaded');
-    assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
+    assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
   test('findAll - passes buildURL the requestType and snapshot', async function (assert) {
@@ -867,7 +867,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
     assert.true(posts.isLoaded, 'The RecordArray is loaded');
-    assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
+    assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
   test('query - if `sortQueryParams` option is not provided, query params are sorted alphabetically', async function (assert) {
@@ -1061,7 +1061,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
     assert.true(posts.isLoaded, 'The RecordArray is loaded');
-    assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
+    assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
   test('query - returning sideloaded data loads the data', async function (assert) {
@@ -1127,7 +1127,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
     assert.true(posts.isLoaded, 'The RecordArray is loaded');
-    assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
+    assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
   test('queryRecord - empty response', async function (assert) {
@@ -1492,7 +1492,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       name: 'What is omakase?',
     });
 
-    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+    assert.deepEqual(comments.slice(), [comment1, comment2, comment3], 'The correct records are in the array');
   });
 
   test('findMany - returning sideloaded data loads the data', async function (assert) {
@@ -1546,7 +1546,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let comment4 = store.peekRecord('comment', '4');
     let post2 = store.peekRecord('post', '2');
 
-    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+    assert.deepEqual(comments.slice(), [comment1, comment2, comment3], 'The correct records are in the array');
 
     assert.deepEqual(comment4.getProperties('id', 'name'), {
       id: '4',
@@ -1627,7 +1627,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       name: 'What is omakase?',
     });
 
-    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+    assert.deepEqual(comments.slice(), [comment1, comment2, comment3], 'The correct records are in the array');
   });
 
   test('findHasMany - returning an array populates the array', async function (assert) {
@@ -1689,7 +1689,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       name: 'What is omakase?',
     });
 
-    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+    assert.deepEqual(comments.slice(), [comment1, comment2, comment3], 'The correct records are in the array');
   });
 
   test('findHasMany - passes buildURL the requestType', async function (assert) {
@@ -1790,7 +1790,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let comment3 = store.peekRecord('comment', 3);
     let post2 = store.peekRecord('post', 2);
 
-    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+    assert.deepEqual(comments.slice(), [comment1, comment2, comment3], 'The correct records are in the array');
 
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' });
   });
@@ -1865,7 +1865,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
           name: 'What is omakase?',
         });
 
-        assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+        assert.deepEqual(comments.slice(), [comment1, comment2, comment3], 'The correct records are in the array');
       });
   });
 
@@ -2140,7 +2140,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let post = await store.findRecord('post', 1);
     assert.strictEqual(post.authorName, '@d2h');
     assert.strictEqual(post.author.name, 'D2H');
-    assert.deepEqual(post.comments.mapBy('body'), ['Rails is unagi', 'What is omakase?']);
+    assert.deepEqual(
+      post.comments.map((r) => r.body),
+      ['Rails is unagi', 'What is omakase?']
+    );
   });
 
   test('groupRecordsForFindMany splits up calls for large ids', async function (assert) {
@@ -2711,9 +2714,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     let comments = store.peekAll('comment');
 
-    assert.strictEqual(get(comments, 'length'), 2, 'comments.length is correct');
-    assert.strictEqual(get(comments, 'firstObject.name'), 'First comment', 'comments.firstObject.name is correct');
-    assert.strictEqual(get(comments, 'lastObject.name'), 'Second comment', 'comments.lastObject.name is correct');
+    assert.strictEqual(comments.length, 2, 'comments.length is correct');
+    assert.strictEqual(comments[0].name, 'First comment', 'comments.at(0).name is correct');
+    assert.strictEqual(comments.at(-1).name, 'Second comment', 'comments.at(-1).name is correct');
   });
 
   testInDebug(

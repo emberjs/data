@@ -78,8 +78,8 @@ module(
       });
       run(function () {
         user.messages.then(function (messages) {
-          assert.strictEqual(messages.objectAt(0), video, 'The hasMany has loaded correctly');
-          messages.objectAt(0).user.then(function (fetchedUser) {
+          assert.strictEqual(messages.at(0), video, 'The hasMany has loaded correctly');
+          messages.at(0).user.then(function (fetchedUser) {
             assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
           });
         });
@@ -123,7 +123,7 @@ module(
 
       run(function () {
         user.messages.then(function (fetchedMessages) {
-          fetchedMessages.pushObject(video);
+          fetchedMessages.push(video);
           video.user.then(function (fetchedUser) {
             assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
@@ -169,7 +169,7 @@ module(
 
       run(function () {
         user.messages.then(function (fetchedMessages) {
-          fetchedMessages.pushObject(video);
+          fetchedMessages.push(video);
           video.user.then(function (fetchedUser) {
             assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
@@ -217,7 +217,7 @@ module(
         run(function () {
           user.messages.then(function (fetchedMessages) {
             assert.expectAssertion(function () {
-              fetchedMessages.pushObject(notMessage);
+              fetchedMessages.push(notMessage);
             }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message/);
           });
         });
@@ -258,7 +258,7 @@ module(
 
       run(function () {
         user.messages.then(function (fetchedMessages) {
-          fetchedMessages.pushObject(video);
+          fetchedMessages.push(video);
           video.user.then(function (fetchedUser) {
             assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
@@ -306,7 +306,7 @@ module(
         run(function () {
           user.messages.then(function (fetchedMessages) {
             assert.expectAssertion(function () {
-              fetchedMessages.pushObject(notMessage);
+              fetchedMessages.push(notMessage);
             }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
           });
         });

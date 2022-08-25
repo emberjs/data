@@ -70,9 +70,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     assert.strictEqual(recordArray.length, 3, 'expected recordArray to contain exactly 3 records');
 
-    recordArray.firstObject.destroyRecord();
-
-    await settled();
+    await recordArray.at(0).destroyRecord();
 
     assert.strictEqual(recordArray.length, 2, 'expected recordArray to contain exactly 2 records');
   });
@@ -161,11 +159,27 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     await settled();
 
-    assert.throws(
+    assert.expectAssertion(
       () => {
         recordArray.replace();
       },
-      Error('The result of a server query (on person) is immutable.'),
+      'Assertion Failed: Mutating this array of records via splice is not allowed.',
+      'throws error'
+    );
+    assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+  });
+
+  test('recordArray mutation throws error', async function (assert) {
+    let store = this.owner.lookup('service:store');
+    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+
+    await settled();
+
+    assert.expectAssertion(
+      () => {
+        recordArray.splice(0, 1);
+      },
+      'Assertion Failed: Mutating this array of records via splice is not allowed.',
       'throws error'
     );
   });
@@ -220,7 +234,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     recordArray = await recordArray.update();
     assert.deepEqual(
-      recordArray.getEach('name'),
+      recordArray.map((r) => r.name),
       ['Scumbag Dale', 'Scumbag Katz'],
       'expected query to contain specific records'
     );
@@ -235,7 +249,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     recordArray = await recordArray.update();
 
     assert.deepEqual(
-      recordArray.getEach('name'),
+      recordArray.map((r) => r.name),
       ['Scumbag Dale', 'Scumbag Penner'],
       'expected query to still contain specific records'
     );

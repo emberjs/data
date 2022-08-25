@@ -134,7 +134,7 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     let manyArray = await store.findAll('person');
 
-    let result = manyArray.toArray().map((person) => person.serialize());
+    let result = manyArray.slice().map((person) => person.serialize());
     expectedResult = expectedResult.data.map((person) => ({ data: person }));
 
     assert.strictEqual(findAllCalled, 1, 'findAll is called once');
@@ -209,7 +209,7 @@ module('integration/queries - Queries Tests', function (hooks) {
         assert.strictEqual(passedStore, store, 'instance of store is passed to query');
         assert.strictEqual(type, Person, 'model is passed to query');
         assert.deepEqual(query, { firstName: 'Chris' }, 'query is passed to query');
-        assert.deepEqual(recordArray.toArray(), [], 'recordArray is passsed to query');
+        assert.deepEqual(recordArray.slice(), [], 'recordArray is passsed to query');
         assert.deepEqual(options, {}, 'options is passed to query');
 
         return resolve(expectedResult);
@@ -220,7 +220,7 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     let manyArray = await store.query('person', { firstName: 'Chris' });
 
-    let result = manyArray.toArray().map((person) => person.serialize());
+    let result = manyArray.slice().map((person) => person.serialize());
     expectedResult = expectedResult.data.map((person) => ({ data: person }));
 
     assert.strictEqual(queryCalled, 1, 'query is called once');

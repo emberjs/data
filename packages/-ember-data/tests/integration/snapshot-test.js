@@ -559,49 +559,46 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let comment = store.peekRecord('comment', 2);
+    let comment = store.peekRecord('comment', '2');
 
-    await comment.post.then((post) => {
-      store.push({
-        data: [
-          {
-            type: 'post',
-            id: '1',
-            attributes: {
-              title: 'Hello World',
-            },
+    const post = await comment.post;
+    store.push({
+      data: [
+        {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Hello World',
           },
-          {
-            type: 'comment',
-            id: '2',
-            attributes: {
-              body: 'This is comment',
-            },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            body: 'This is comment',
           },
-        ],
-      });
-      let comment = store.peekRecord('comment', 2);
-
-      post.comments.then((comments) => {
-        comments.addObject(comment);
-
-        let postSnapshot = post._createSnapshot();
-        let commentSnapshot = comment._createSnapshot();
-
-        let hasManyRelationship = postSnapshot.hasMany('comments');
-        let belongsToRelationship = commentSnapshot.belongsTo('post');
-
-        assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
-        assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
-
-        assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
-        assert.strictEqual(
-          belongsToRelationship.attr('title'),
-          'Hello World',
-          'belongsTo relationship contains related object'
-        );
-      });
+        },
+      ],
     });
+
+    const comments = await post.comments;
+    comments.push(comment);
+
+    let postSnapshot = post._createSnapshot();
+    let commentSnapshot = comment._createSnapshot();
+
+    let hasManyRelationship = postSnapshot.hasMany('comments');
+    let belongsToRelationship = commentSnapshot.belongsTo('post');
+
+    assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
+    assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
+
+    assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
+    assert.strictEqual(
+      belongsToRelationship.attr('title'),
+      'Hello World',
+      'belongsTo relationship contains related object'
+    );
   });
 
   test('snapshot.belongsTo() and snapshot.hasMany() returns correctly when adding an object to a hasMany relationship', async function (assert) {
@@ -625,11 +622,11 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let post = store.peekRecord('post', 1);
-    let comment = store.peekRecord('comment', 2);
+    let post = store.peekRecord('post', '1');
+    let comment = store.peekRecord('comment', '2');
 
     const comments = await post.comments;
-    comments.addObject(comment);
+    comments.push(comment);
 
     let postSnapshot = post._createSnapshot();
     let commentSnapshot = comment._createSnapshot();
@@ -1116,8 +1113,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let comment3 = store.peekRecord('comment', 3);
     let post = store.peekRecord('post', 4);
     const comments = await post.comments;
-    comments.removeObject(comment3);
-    comments.insertAt(0, comment3);
+    comments.splice(comments.indexOf(comment3), 1);
+    comments.unshift(comment3);
 
     let snapshot = post._createSnapshot();
     let relationship = snapshot.hasMany('comments');

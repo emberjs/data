@@ -119,7 +119,11 @@ module(
       let comments = await post.comments;
 
       assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
-      assert.deepEqual(comments.mapBy('message'), ['Message 1', 'Message 2'], 'response is expected response');
+      assert.deepEqual(
+        comments.map((r) => r.message),
+        ['Message 1', 'Message 2'],
+        'response is expected response'
+      );
     });
 
     test('accessing an async hasMany relationship with links results in serializer.normalizeResponse being called with the requestType findHasMany', async function (assert) {
@@ -182,7 +186,11 @@ module(
       let comments = await post.comments;
 
       assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
-      assert.deepEqual(comments.mapBy('message'), ['Message 1', 'Message 2'], 'response is expected response');
+      assert.deepEqual(
+        comments.map((r) => r.message),
+        ['Message 1', 'Message 2'],
+        'response is expected response'
+      );
     });
 
     test('accessing an async belongsTo relationship with links results in serializer.normalizeResponse being called with the requestType findBelongsTo', async function (assert) {

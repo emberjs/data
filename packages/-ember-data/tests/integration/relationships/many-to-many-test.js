@@ -1,10 +1,9 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(ada)" }]*/
 
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -45,462 +44,397 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     Server loading tests
   */
 
-  test('Loading from one hasMany side reflects on the other hasMany side - async', function (assert) {
+  test('Loading from one hasMany side reflects on the other hasMany side - async', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            topics: {
-              data: [
-                {
-                  id: '2',
-                  type: 'topic',
-                },
-                {
-                  id: '3',
-                  type: 'topic',
-                },
-              ],
-            },
+    store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          topics: {
+            data: [
+              {
+                id: '2',
+                type: 'topic',
+              },
+              {
+                id: '3',
+                type: 'topic',
+              },
+            ],
           },
         },
-      });
+      },
     });
 
-    let topic = run(() => {
-      return store.push({
-        data: {
-          id: '2',
-          type: 'topic',
-          attributes: {
-            title: 'EmberFest was great',
-          },
+    let topic = store.push({
+      data: {
+        id: '2',
+        type: 'topic',
+        attributes: {
+          title: 'EmberFest was great',
         },
-      });
+      },
     });
 
-    return run(() => {
-      return topic.users.then((fetchedUsers) => {
-        assert.strictEqual(fetchedUsers.length, 1, 'User relationship was set up correctly');
-      });
-    });
+    const fetchedUsers = await topic.users;
+
+    assert.strictEqual(fetchedUsers.length, 1, 'User relationship was set up correctly');
   });
 
   test('Relationship is available from one hasMany side even if only loaded from the other hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var account;
-    run(() => {
-      account = store.push({
-        data: {
-          id: '2',
-          type: 'account',
-          attributes: {
-            state: 'lonely',
+    let account = store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
+        },
+      },
+    });
+    store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          accounts: {
+            data: [
+              {
+                id: '2',
+                type: 'account',
+              },
+            ],
           },
         },
-      });
-      store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            accounts: {
-              data: [
-                {
-                  id: '2',
-                  type: 'account',
-                },
-              ],
-            },
-          },
-        },
-      });
+      },
     });
-
-    run(() => {
-      assert.strictEqual(account.users.length, 1, 'User relationship was set up correctly');
-    });
+    assert.strictEqual(account.users.length, 1, 'User relationship was set up correctly');
   });
 
-  test('Fetching a hasMany where a record was removed reflects on the other hasMany side - async', function (assert) {
+  test('Fetching a hasMany where a record was removed reflects on the other hasMany side - async', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let user, topic;
-    run(() => {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            topics: {
-              data: [{ id: '2', type: 'topic' }],
-            },
+    let user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          topics: {
+            data: [{ id: '2', type: 'topic' }],
           },
         },
-      });
-      topic = store.push({
-        data: {
-          id: '2',
-          type: 'topic',
-          attributes: {
-            title: 'EmberFest was great',
-          },
-          relationships: {
-            users: {
-              data: [],
-            },
+      },
+    });
+    let topic = store.push({
+      data: {
+        id: '2',
+        type: 'topic',
+        attributes: {
+          title: 'EmberFest was great',
+        },
+        relationships: {
+          users: {
+            data: [],
           },
         },
-      });
+      },
     });
 
-    return run(() => {
-      return user.topics.then((fetchedTopics) => {
-        assert.strictEqual(fetchedTopics.length, 0, 'Topics were removed correctly');
-        assert.strictEqual(fetchedTopics.objectAt(0), undefined, "Topics can't be fetched");
-        return topic.users.then((fetchedUsers) => {
-          assert.strictEqual(fetchedUsers.length, 0, 'Users were removed correctly');
-          assert.strictEqual(fetchedUsers.objectAt(0), undefined, "User can't be fetched");
-        });
-      });
-    });
+    const fetchedTopics = await user.topics;
+    assert.strictEqual(fetchedTopics.length, 0, 'Topics were removed correctly');
+    assert.strictEqual(fetchedTopics.at(0), undefined, "Topics can't be fetched");
+    const fetchedUsers = await topic.users;
+    assert.strictEqual(fetchedUsers.length, 0, 'Users were removed correctly');
+    assert.strictEqual(fetchedUsers.at(0), undefined, "User can't be fetched");
   });
 
   test('Fetching a hasMany where a record was removed reflects on the other hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let account, user;
-    run(() => {
-      account = store.push({
-        data: {
-          id: '2',
-          type: 'account',
-          attributes: {
-            state: 'lonely',
+    let account = store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
+        },
+      },
+    });
+    let user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          accounts: {
+            data: [
+              {
+                id: '2',
+                type: 'account',
+              },
+            ],
           },
         },
-      });
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            accounts: {
-              data: [
-                {
-                  id: '2',
-                  type: 'account',
-                },
-              ],
-            },
+      },
+    });
+    account = store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
+        },
+        relationships: {
+          users: {
+            data: [],
           },
         },
-      });
-      account = store.push({
-        data: {
-          id: '2',
-          type: 'account',
-          attributes: {
-            state: 'lonely',
-          },
-          relationships: {
-            users: {
-              data: [],
-            },
-          },
-        },
-      });
+      },
     });
 
-    run(() => {
-      assert.strictEqual(user.accounts.length, 0, 'Accounts were removed correctly');
-      assert.strictEqual(account.users.length, 0, 'Users were removed correctly');
-    });
+    assert.strictEqual(user.accounts.length, 0, 'Accounts were removed correctly');
+    assert.strictEqual(account.users.length, 0, 'Users were removed correctly');
   });
 
   /*
     Local edits
   */
 
-  test('Pushing to a hasMany reflects on the other hasMany side - async', function (assert) {
+  test('Pushing to a hasMany reflects on the other hasMany side - async', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
 
-    let user, topic;
-
-    run(() => {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            topics: {
-              data: [],
-            },
+    let user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          topics: {
+            data: [],
           },
         },
-      });
-      topic = store.push({
-        data: {
-          id: '2',
-          type: 'topic',
-          attributes: {
-            title: 'EmberFest was great',
-          },
+      },
+    });
+    let topic = store.push({
+      data: {
+        id: '2',
+        type: 'topic',
+        attributes: {
+          title: 'EmberFest was great',
         },
-      });
+      },
     });
 
-    return run(() => {
-      return topic.users.then((fetchedUsers) => {
-        fetchedUsers.pushObject(user);
-        return user.topics.then((fetchedTopics) => {
-          assert.strictEqual(fetchedTopics.length, 1, 'User relationship was set up correctly');
-        });
-      });
-    });
+    const fetchedUsers = await topic.users;
+    fetchedUsers.push(user);
+    const fetchedTopics = await user.topics;
+    assert.strictEqual(fetchedTopics.length, 1, 'User relationship was set up correctly');
   });
 
   test('Pushing to a hasMany reflects on the other hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let account, stanley;
-    run(() => {
-      account = store.push({
-        data: {
-          id: '2',
-          type: 'account',
-          attributes: {
-            state: 'lonely',
-          },
+    let account = store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
         },
-      });
-      stanley = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-        },
-      });
-      stanley.accounts.pushObject(account);
+      },
     });
+    let stanley = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+      },
+    });
+    stanley.accounts.push(account);
 
-    run(() => {
-      assert.strictEqual(account.users.length, 1, 'User relationship was set up correctly');
-    });
+    assert.strictEqual(account.users.length, 1, 'User relationship was set up correctly');
   });
 
-  test('Removing a record from a hasMany reflects on the other hasMany side - async', function (assert) {
+  test('Removing a record from a hasMany reflects on the other hasMany side - async', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let user, topic;
-    run(() => {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            topics: {
-              data: [
-                {
-                  id: '2',
-                  type: 'topic',
-                },
-              ],
-            },
+    const user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          topics: {
+            data: [
+              {
+                id: '2',
+                type: 'topic',
+              },
+            ],
           },
         },
-      });
-      topic = store.push({
-        data: {
-          id: '2',
-          type: 'topic',
-          attributes: {
-            title: 'EmberFest was great',
-          },
+      },
+    });
+    const topic = store.push({
+      data: {
+        id: '2',
+        type: 'topic',
+        attributes: {
+          title: 'EmberFest was great',
         },
-      });
+      },
     });
 
-    return run(() => {
-      return user.topics.then((fetchedTopics) => {
-        assert.strictEqual(fetchedTopics.length, 1, 'Topics were setup correctly');
-        fetchedTopics.removeObject(topic);
-        return topic.users.then((fetchedUsers) => {
-          assert.strictEqual(fetchedUsers.length, 0, 'Users were removed correctly');
-          assert.strictEqual(fetchedUsers.objectAt(0), undefined, "User can't be fetched");
-        });
-      });
-    });
+    const fetchedTopics = await user.topics;
+    assert.strictEqual(fetchedTopics.length, 1, 'Topics were setup correctly');
+    fetchedTopics.splice(fetchedTopics.indexOf(topic), 1);
+    const fetchedUsers = await topic.users;
+    assert.strictEqual(fetchedUsers.length, 0, 'Users were removed correctly');
+    assert.strictEqual(fetchedUsers.at(0), undefined, "User can't be fetched");
   });
 
   test('Removing a record from a hasMany reflects on the other hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let account, user;
-    run(() => {
-      account = store.push({
-        data: {
-          id: '2',
-          type: 'account',
-          attributes: {
-            state: 'lonely',
+    const account = store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
+        },
+      },
+    });
+    const user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          accounts: {
+            data: [
+              {
+                id: '2',
+                type: 'account',
+              },
+            ],
           },
         },
-      });
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            accounts: {
-              data: [
-                {
-                  id: '2',
-                  type: 'account',
-                },
-              ],
-            },
-          },
-        },
-      });
+      },
     });
 
-    run(() => {
-      assert.strictEqual(account.users.length, 1, 'Users were setup correctly');
-      account.users.removeObject(user);
-      assert.strictEqual(user.accounts.length, 0, 'Accounts were removed correctly');
-      assert.strictEqual(account.users.length, 0, 'Users were removed correctly');
-    });
+    assert.strictEqual(account.users.length, 1, 'Users were setup correctly');
+    account.users.splice(account.users.indexOf(user), 1);
+    assert.strictEqual(user.accounts.length, 0, 'Accounts were removed correctly');
+    assert.strictEqual(account.users.length, 0, 'Users were removed correctly');
   });
 
   /*
     Rollback Attributes tests
   */
 
-  test('Rollbacking attributes for a deleted record that has a ManyToMany relationship works correctly - async', function (assert) {
+  test('Rollbacking attributes for a deleted record that has a ManyToMany relationship works correctly - async', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let user, topic;
-    run(() => {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            topics: {
-              data: [
-                {
-                  id: '2',
-                  type: 'topic',
-                },
-              ],
-            },
+    let user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          topics: {
+            data: [
+              {
+                id: '2',
+                type: 'topic',
+              },
+            ],
           },
         },
-      });
-      topic = store.push({
-        data: {
-          id: '2',
-          type: 'topic',
-          attributes: {
-            title: 'EmberFest was great',
-          },
+      },
+    });
+    let topic = store.push({
+      data: {
+        id: '2',
+        type: 'topic',
+        attributes: {
+          title: 'EmberFest was great',
         },
-      });
+      },
     });
 
-    run(() => {
-      topic.deleteRecord();
-      topic.rollbackAttributes();
-    });
+    topic.deleteRecord();
+    topic.rollbackAttributes();
+    await settled();
 
-    return run(() => {
-      let users = topic.users.then((fetchedUsers) => {
-        assert.strictEqual(fetchedUsers.length, 1, 'Users are still there');
-      });
+    let users = await topic.users;
+    assert.strictEqual(users.length, 1, 'Users are still there');
 
-      let topics = user.topics.then((fetchedTopics) => {
-        assert.strictEqual(fetchedTopics.length, 1, 'Topic got rollbacked into the user');
-      });
-
-      return EmberPromise.all([users, topics]);
-    });
+    let topics = await user.topics;
+    assert.strictEqual(topics.length, 1, 'Topic got rollbacked into the user');
   });
 
   test('Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let account, user;
-    run(() => {
-      account = store.push({
-        data: {
-          id: '2',
-          type: 'account',
-          attributes: {
-            state: 'lonely',
+    let account = store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
+        },
+      },
+    });
+    let user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          accounts: {
+            data: [
+              {
+                id: '2',
+                type: 'account',
+              },
+            ],
           },
         },
-      });
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            accounts: {
-              data: [
-                {
-                  id: '2',
-                  type: 'account',
-                },
-              ],
-            },
-          },
-        },
-      });
+      },
     });
-
-    run(() => {
-      account.deleteRecord();
-      account.rollbackAttributes();
-      assert.strictEqual(account.users.length, 1, 'Users are still there');
-      assert.strictEqual(user.accounts.length, 1, 'Account got rolledback correctly into the user');
-    });
+    account.deleteRecord();
+    account.rollbackAttributes();
+    assert.strictEqual(account.users.length, 1, 'Users are still there');
+    assert.strictEqual(user.accounts.length, 1, 'Account got rolledback correctly into the user');
   });
 
   test('Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async', async function (assert) {
@@ -518,40 +452,35 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     let topic = store.createRecord('topic');
 
     let fetchedTopics = await user.topics;
-    fetchedTopics.pushObject(topic);
+    fetchedTopics.push(topic);
     topic.rollbackAttributes();
 
     let fetchedUsers = await topic.users;
     assert.strictEqual(fetchedUsers.length, 0, 'Users got removed');
-    assert.strictEqual(fetchedUsers.objectAt(0), undefined, "User can't be fetched");
+    assert.strictEqual(fetchedUsers.at(0), undefined, "User can't be fetched");
 
     fetchedTopics = await user.topics;
     assert.strictEqual(fetchedTopics.length, 0, 'Topics got removed');
-    assert.strictEqual(fetchedTopics.objectAt(0), undefined, "Topic can't be fetched");
+    assert.strictEqual(fetchedTopics.at(0), undefined, "Topic can't be fetched");
   });
 
   test('Deleting an unpersisted record via rollbackAttributes that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let account, user;
-    run(() => {
-      account = store.push({
-        data: {
-          id: '2',
-          type: 'account',
-          attributes: {
-            state: 'lonely',
-          },
+    let account = store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
         },
-      });
-
-      user = store.createRecord('user');
+      },
     });
 
-    run(() => {
-      account.users.pushObject(user);
-      user.rollbackAttributes();
-    });
+    let user = store.createRecord('user');
+
+    account.users.push(user);
+    user.rollbackAttributes();
 
     assert.strictEqual(account.users.length, 0, 'Users got removed');
     assert.strictEqual(user.accounts.length, 0, 'Accounts got rolledback correctly');
@@ -564,80 +493,76 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
 
       let store = this.owner.lookup('service:store');
 
-      let account;
-
-      run(() => {
-        account = store.push({
-          data: {
-            id: '2',
-            type: 'account',
-            attributes: {
-              state: 'account 1',
+      let account = store.push({
+        data: {
+          id: '2',
+          type: 'account',
+          attributes: {
+            state: 'account 1',
+          },
+        },
+      });
+      let ada = store.push({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Ada Lovelace',
+          },
+          relationships: {
+            accounts: {
+              data: [
+                {
+                  id: '2',
+                  type: 'account',
+                },
+              ],
             },
           },
-        });
-        let ada = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Ada Lovelace',
-            },
-            relationships: {
-              accounts: {
-                data: [
-                  {
-                    id: '2',
-                    type: 'account',
-                  },
-                ],
-              },
+        },
+      });
+      let byron = store.push({
+        data: {
+          id: '2',
+          type: 'user',
+          attributes: {
+            name: 'Lord Byron',
+          },
+          relationships: {
+            accounts: {
+              data: [
+                {
+                  id: '2',
+                  type: 'account',
+                },
+              ],
             },
           },
-        });
-        let byron = store.push({
-          data: {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Lord Byron',
-            },
-            relationships: {
-              accounts: {
-                data: [
-                  {
-                    id: '2',
-                    type: 'account',
-                  },
-                ],
-              },
+        },
+      });
+      account.users.splice(account.users.indexOf(byron), 1);
+      account = store.push({
+        data: {
+          id: '2',
+          type: 'account',
+          attributes: {
+            state: 'account 1',
+          },
+          relationships: {
+            users: {
+              data: [
+                {
+                  id: '1',
+                  type: 'user',
+                },
+                {
+                  id: '2',
+                  type: 'user',
+                },
+              ],
             },
           },
-        });
-        account.users.removeObject(byron);
-        account = store.push({
-          data: {
-            id: '2',
-            type: 'account',
-            attributes: {
-              state: 'account 1',
-            },
-            relationships: {
-              users: {
-                data: [
-                  {
-                    id: '1',
-                    type: 'user',
-                  },
-                  {
-                    id: '2',
-                    type: 'user',
-                  },
-                ],
-              },
-            },
-          },
-        });
+        },
       });
 
       let state = account.hasMany('users').hasManyRelationship.remoteState;

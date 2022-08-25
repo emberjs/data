@@ -260,8 +260,10 @@ function hasMany(type, options) {
         }
       }
       const support = lookupLegacySupport(this);
+      const manyArray = support.getManyArray(key);
+      assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
       this.store._join(() => {
-        support.setDirtyHasMany(key, records);
+        manyArray.splice(0, manyArray.length, ...records);
       });
 
       return support.getHasMany(key);

@@ -111,8 +111,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     assert.strictEqual(user.firstName, 'Yehuda', 'firstName is correct');
     assert.strictEqual(user.lastName, 'Katz', 'lastName is correct');
     assert.strictEqual(company.name, 'Tilde Inc.', 'company.name is correct');
-    assert.strictEqual(handles.firstObject.username, 'wycats', 'handles.firstObject.username is correct');
-    assert.strictEqual(handles.lastObject.nickname, '@wycats', 'handles.lastObject.nickname is correct');
+    assert.strictEqual(handles.at(0).username, 'wycats', 'handles.at(0).username is correct');
+    assert.strictEqual(handles.at(-1).nickname, '@wycats', 'handles.at(-1).nickname is correct');
   });
 
   testInDebug('Warns when normalizing an unknown type', function (assert) {
@@ -698,8 +698,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     let handle2 = store.peekRecord('handle', '2');
 
     const handles = await user.handles;
-    handles.removeObject(handle1);
-    handles.removeObject(handle2);
+    handles.splice(handles.indexOf(handle1), 1);
+    handles.splice(handles.indexOf(handle2), 1);
 
     let serialized = user.serialize({ includeId: true });
 

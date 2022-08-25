@@ -760,7 +760,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       assert.ok(!!pets, 'We found our pets');
 
       if (!petRelDataWasEmpty) {
-        pets.objectAt(0).unloadRecord();
+        pets.at(0).unloadRecord();
         assert.strictEqual(pets.length, 0, 'we unloaded');
         await user.pets;
         assert.strictEqual(pets.length, 1, 'we reloaded');
@@ -1049,7 +1049,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
       assert.ok(!!pets, 'We found our pets');
 
-      pets.objectAt(0).unloadRecord();
+      pets.at(0).unloadRecord();
       assert.strictEqual(pets.length, 0, 'we unloaded our pet');
       await user.pets;
       assert.strictEqual(pets.length, 1, 'we have our pet again');
@@ -1434,7 +1434,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     let pets = await user.pets;
 
     assert.ok(!!pets, 'We found our pets');
-    pets.objectAt(0).unloadRecord();
+    pets.at(0).unloadRecord();
     assert.strictEqual(pets.length, 0, 'we unloaded our pet');
     await user.pets;
     assert.strictEqual(pets.length, 1, 'we reloaded our pet');
@@ -1703,7 +1703,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     assert.ok(!!pets, 'We found our pets');
     assert.strictEqual(pets.length, 1, 'we loaded our pets');
-    pets.objectAt(0).unloadRecord();
+    pets.at(0).unloadRecord();
     assert.strictEqual(pets.length, 0, 'we unloaded our pets');
 
     // should trigger a findRecord for the unloaded pet

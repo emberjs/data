@@ -1597,14 +1597,14 @@ module('integration/embedded-records-mixin', function (hooks) {
         superVillain,
       });
 
-      superVillain.secretWeapons.pushObject(secretWeapon);
+      superVillain.secretWeapons.push(secretWeapon);
 
       let evilMinion = store.createRecord('evil-minion', {
         id: '1',
         name: 'Evil Minion',
         superVillain,
       });
-      superVillain.evilMinions.pushObject(evilMinion);
+      superVillain.evilMinions.push(evilMinion);
 
       const serializer = store.serializerFor('super-villain');
       const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
@@ -1687,13 +1687,13 @@ module('integration/embedded-records-mixin', function (hooks) {
         superVillain,
       });
 
-      superVillain.secretWeapons.pushObject(secretWeapon);
+      superVillain.secretWeapons.push(secretWeapon);
       let evilMinion = store.createRecord('evil-minion', {
         id: '1',
         name: 'Evil Minion',
         superVillain,
       });
-      superVillain.evilMinions.pushObject(evilMinion);
+      superVillain.evilMinions.push(evilMinion);
 
       const serializer = store.serializerFor('super-villain');
       const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
@@ -1936,8 +1936,8 @@ module('integration/embedded-records-mixin', function (hooks) {
           superVillain,
         });
 
-        superVillain.evilMinions.pushObject(evilMinion);
-        superVillain.secretWeapons.pushObject(secretWeapon);
+        superVillain.evilMinions.push(evilMinion);
+        superVillain.secretWeapons.push(secretWeapon);
 
         const serializer = store.serializerFor('super-villain');
         const serializedRestJson = serializer.serialize(superVillain._createSnapshot());

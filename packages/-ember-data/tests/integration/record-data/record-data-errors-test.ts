@@ -8,6 +8,7 @@ import { setupTest } from 'ember-qunit';
 import { InvalidError } from '@ember-data/adapter/error';
 import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
+import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 import { DSModel } from '@ember-data/types/q/ds-model';
@@ -25,6 +26,9 @@ if (V2CACHE_SINGLETON_MANAGER) {
   }
 
   class TestRecordData implements RecordData {
+    update(operation: LocalRelationshipOperation): void {
+      throw new Error('Method not implemented.');
+    }
     version: '2' = '2';
 
     _errors?: JsonApiValidationError[];
@@ -253,7 +257,7 @@ if (V2CACHE_SINGLETON_MANAGER) {
       }) as DSModel;
 
       const identifier = recordIdentifierFor(person);
-      let nameError = person.errors.errorsFor('firstName').firstObject;
+      let nameError = person.errors.errorsFor('firstName').at(0);
       assert.strictEqual(nameError, undefined, 'no error shows up on firstName initially');
       assert.true(person.isValid, 'person is initially valid');
 
@@ -268,7 +272,7 @@ if (V2CACHE_SINGLETON_MANAGER) {
       ];
       storeWrapper.notifyChange(identifier, 'errors');
 
-      nameError = person.errors.errorsFor('firstName').firstObject;
+      nameError = person.errors.errorsFor('firstName').at(0);
       assert.strictEqual(nameError?.attribute, 'firstName', 'error shows up on name');
       assert.false(person.isValid, 'person is not valid');
 
@@ -291,7 +295,7 @@ if (V2CACHE_SINGLETON_MANAGER) {
 
       assert.false(person.isValid, 'person is not valid');
       assert.strictEqual(person.errors.errorsFor('firstName').length, 0, 'no errors on firstName');
-      let lastNameError = person.errors.errorsFor('lastName').firstObject;
+      let lastNameError = person.errors.errorsFor('lastName').at(0);
       assert.strictEqual(lastNameError?.attribute, 'lastName', 'error shows up on lastName');
     });
   });
@@ -568,7 +572,7 @@ if (V2CACHE_SINGLETON_MANAGER) {
       });
       let person = store.peekRecord('person', '1');
       const identifier = recordIdentifierFor(person);
-      let nameError = person.errors.errorsFor('name').firstObject;
+      let nameError = person.errors.errorsFor('name').at(0);
       assert.strictEqual(nameError.attribute, 'name', 'error shows up on name');
       assert.false(person.isValid, 'person is not valid');
       errorsToReturn = [];
@@ -587,7 +591,7 @@ if (V2CACHE_SINGLETON_MANAGER) {
       storeWrapper.notifyChange(identifier, 'errors');
       assert.false(person.isValid, 'person is valid');
       assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
-      let lastNameError = person.errors.errorsFor('lastName').firstObject;
+      let lastNameError = person.errors.errorsFor('lastName').at(0);
       assert.strictEqual(lastNameError.attribute, 'lastName', 'error shows up on lastName');
     });
   });

@@ -230,7 +230,7 @@ module('RecordData Compatibility', function (hooks) {
       ],
     });
     let pets = chris.pets;
-    let shen = pets.objectAt(0);
+    let shen = pets.at(0);
 
     assert.strictEqual(shen.name, 'Shen', 'We found Shen');
     assert.strictEqual(customCalled, 2, 'we used the custom record-data for pet');
@@ -305,7 +305,7 @@ module('RecordData Compatibility', function (hooks) {
       ],
     });
     let pets = chris.pets;
-    let shen = pets.objectAt(0);
+    let shen = pets.at(0);
 
     assert.strictEqual(shen.name, 'Shen', 'We found Shen');
 

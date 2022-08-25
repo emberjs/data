@@ -10,7 +10,7 @@ interface MutableEnumerable<T> extends Enumerable<T> {
   /**
    * __Required.__ You must implement this method to apply this mixin.
    */
-  addObject(object: T): T;
+  addObject(object: T): this;
   /**
    * Adds each object in the passed enumerable to the receiver.
    */
@@ -18,7 +18,7 @@ interface MutableEnumerable<T> extends Enumerable<T> {
   /**
    * __Required.__ You must implement this method to apply this mixin.
    */
-  removeObject(object: T): T;
+  removeObject(object: T): this;
   /**
    * Removes each object in the passed enumerable from the receiver.
    */

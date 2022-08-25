@@ -57,7 +57,11 @@ module('integration/requests - running requests with minimum serializer', functi
     let response = await store.findAll('person');
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
-    assert.deepEqual(response.mapBy('id'), ['urn:person:1'], 'response is expected response');
+    assert.deepEqual(
+      response.map((r) => r.id),
+      ['urn:person:1'],
+      'response is expected response'
+    );
   });
 
   test('findRecord calls normalizeResponse', async function (assert) {
@@ -147,7 +151,11 @@ module('integration/requests - running requests with minimum serializer', functi
     let response = await store.query('person', { name: 'Chris' });
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
-    assert.deepEqual(response.mapBy('id'), ['urn:person:1'], 'response is expected response');
+    assert.deepEqual(
+      response.map((r) => r.id),
+      ['urn:person:1'],
+      'response is expected response'
+    );
   });
 
   test('queryRecord calls normalizeResponse', async function (assert) {

@@ -1,17 +1,12 @@
-import { A } from '@ember/array';
-import { get } from '@ember/object';
-
 import { module, test } from 'qunit';
-import RSVP, { resolve } from 'rsvp';
+import RSVP from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import { SnapshotRecordArray } from '@ember-data/store/-private';
-
-const { RecordArray } = DS;
+import { RecordArray, SnapshotRecordArray, SOURCE } from '@ember-data/store/-private';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Tag extends Model {
   @attr
@@ -22,44 +17,53 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    let recordArray = RecordArray.create({ modelName: 'recordType', isLoaded: false, store: null });
+    let recordArray = new RecordArray({ type: 'recordType', identifiers: [], store: null });
 
-    assert.false(get(recordArray, 'isLoaded'), 'record is not loaded');
-    assert.false(get(recordArray, 'isUpdating'), 'record is not updating');
-    assert.strictEqual(get(recordArray, 'modelName'), 'recordType', 'has modelName');
-    assert.strictEqual(get(recordArray, 'content'), null, 'content is not defined');
-    assert.strictEqual(get(recordArray, 'store'), null, 'no store with recordArray');
+    assert.false(recordArray.isUpdating, 'record is not updating');
+    assert.strictEqual(recordArray.modelName, 'recordType', 'has modelName');
+    assert.deepEqual(recordArray[SOURCE], [], 'content is not defined');
+    assert.strictEqual(recordArray.store, null, 'no store with recordArray');
   });
 
   test('custom initial state', async function (assert) {
-    let content = A();
     let store = {};
-    let recordArray = RecordArray.create({
-      modelName: 'apple',
-      isLoaded: true,
-      content,
+    let recordArray = new RecordArray({
+      type: 'apple',
+      identifiers: [],
       store,
     });
-    assert.true(get(recordArray, 'isLoaded'));
-    assert.false(get(recordArray, 'isUpdating')); // cannot set as default value:
-    assert.strictEqual(get(recordArray, 'modelName'), 'apple');
-    assert.deepEqual(get(recordArray, 'content'), content);
-    assert.strictEqual(get(recordArray, 'store'), store);
+    assert.false(recordArray.isUpdating); // cannot set as default value:
+    assert.strictEqual(recordArray.modelName, 'apple');
+    assert.deepEqual(recordArray[SOURCE], []);
+    assert.strictEqual(recordArray.store, store);
   });
 
-  test('#replace() throws error', async function (assert) {
-    let recordArray = RecordArray.create({ modelName: 'recordType' });
+  testInDebug('#replace() throws error', async function (assert) {
+    let recordArray = new RecordArray({ identifiers: [], type: 'recordType' });
 
     assert.throws(
       () => {
         recordArray.replace();
       },
-      Error('The result of a server query (for all recordType types) is immutable. To modify contents, use toArray()'),
+      Error('Assertion Failed: Mutating this array of records via splice is not allowed.'),
+      'throws error'
+    );
+    assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+  });
+
+  testInDebug('Mutation throws error', async function (assert) {
+    let recordArray = new RecordArray({ identifiers: [], type: 'recordType' });
+
+    assert.throws(
+      () => {
+        recordArray.splice(0, 1);
+      },
+      Error('Assertion Failed: Mutating this array of records via splice is not allowed.'),
       'throws error'
     );
   });
 
-  test('#objectAtContent', async function (assert) {
+  test('#access by index', async function (assert) {
     this.owner.register('model:tag', Tag);
     let store = this.owner.lookup('service:store');
 
@@ -80,17 +84,17 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       ],
     });
 
-    let recordArray = RecordArray.create({
-      modelName: 'recordType',
-      content: A(records.map((r) => recordIdentifierFor(r))),
+    let recordArray = new RecordArray({
+      type: 'recordType',
+      identifiers: records.map(recordIdentifierFor),
       store,
     });
 
-    assert.strictEqual(get(recordArray, 'length'), 3);
-    assert.strictEqual(recordArray.objectAtContent(0).id, '1');
-    assert.strictEqual(recordArray.objectAtContent(1).id, '3');
-    assert.strictEqual(recordArray.objectAtContent(2).id, '5');
-    assert.strictEqual(recordArray.objectAtContent(3), undefined);
+    assert.strictEqual(recordArray.length, 3);
+    assert.strictEqual(recordArray[0].id, '1');
+    assert.strictEqual(recordArray[1].id, '3');
+    assert.strictEqual(recordArray[2].id, '5');
+    assert.strictEqual(recordArray[3], undefined);
   });
 
   test('#update', async function (assert) {
@@ -106,12 +110,13 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       },
     };
 
-    let recordArray = RecordArray.create({
-      modelName: 'recordType',
+    let recordArray = new RecordArray({
+      type: 'recordType',
+      identifiers: [],
       store,
     });
 
-    assert.false(get(recordArray, 'isUpdating'), 'should not yet be updating');
+    assert.false(recordArray.isUpdating, 'should not yet be updating');
 
     assert.strictEqual(findAllCalled, 0);
 
@@ -121,11 +126,11 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
     deferred.resolve('return value');
 
-    assert.true(get(recordArray, 'isUpdating'), 'should be updating');
+    assert.true(recordArray.isUpdating, 'should be updating');
 
     return updateResult.then((result) => {
       assert.strictEqual(result, 'return value');
-      assert.false(get(recordArray, 'isUpdating'), 'should no longer be updating');
+      assert.false(recordArray.isUpdating, 'should no longer be updating');
     });
   });
 
@@ -139,12 +144,13 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       },
     };
 
-    let recordArray = RecordArray.create({
-      modelName: { modelName: 'recordType' },
+    let recordArray = new RecordArray({
+      type: 'recordType',
+      identifiers: [],
       store,
     });
 
-    assert.false(get(recordArray, 'isUpdating'), 'should not be updating');
+    assert.false(recordArray.isUpdating, 'should not be updating');
     assert.strictEqual(findAllCalled, 0);
 
     let updateResult1 = recordArray.update();
@@ -159,79 +165,12 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
     deferred.resolve('return value');
 
-    assert.true(get(recordArray, 'isUpdating'), 'should be updating');
+    assert.true(recordArray.isUpdating, 'should be updating');
 
     return updateResult1.then((result) => {
       assert.strictEqual(result, 'return value');
-      assert.false(get(recordArray, 'isUpdating'), 'should no longer be updating');
+      assert.false(recordArray.isUpdating, 'should no longer be updating');
     });
-  });
-
-  test('#_updateState', async function (assert) {
-    let content = A();
-    let recordArray = RecordArray.create({
-      content,
-    });
-
-    let model1 = { lid: '@lid:model-1' };
-    let model2 = { lid: '@lid:model-2' };
-    let model3 = { lid: '@lid:model-3' };
-
-    assert.strictEqual(recordArray.content.length, 0);
-    assert.strictEqual(
-      recordArray._updateState(new Map([[model1, 'del']])),
-      undefined,
-      '_updateState has no return value'
-    );
-    assert.deepEqual(recordArray.content, [], 'now contains no models');
-
-    recordArray._updateState(
-      new Map([
-        [model1, 'add'],
-        [model2, 'add'],
-      ])
-    );
-
-    assert.deepEqual(recordArray.content, [model1, model2], 'now contains model1, model2,');
-    assert.strictEqual(
-      recordArray._updateState(new Map([[model1, 'del']])),
-      undefined,
-      '_updateState has no return value'
-    );
-    assert.deepEqual(recordArray.content, [model2], 'now only contains model2');
-    assert.strictEqual(
-      recordArray._updateState(new Map([[model2, 'del']])),
-      undefined,
-      '_updateState has no return value'
-    );
-    assert.deepEqual(recordArray.content, [], 'now contains no models');
-
-    recordArray._updateState(
-      new Map([
-        [model1, 'add'],
-        [model2, 'add'],
-        [model3, 'add'],
-      ])
-    );
-
-    assert.strictEqual(
-      recordArray._updateState(
-        new Map([
-          [model1, 'del'],
-          [model3, 'del'],
-        ])
-      ),
-      undefined,
-      '_updateState has no return value'
-    );
-
-    assert.deepEqual(recordArray.content, [model2], 'now contains model2');
-    assert.strictEqual(
-      recordArray._updateState(new Map([[model2, 'del']])),
-      undefined,
-      '_updateState has no return value'
-    );
-    assert.deepEqual(recordArray.content, [], 'now contains no models');
   });
 
   test('#save', async function (assert) {
@@ -250,22 +189,18 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let [record1, record2] = store.push({
       data: [model1, model2],
     });
-    let identifiers = A([recordIdentifierFor(record1), recordIdentifierFor(record2)]);
-    let recordArray = RecordArray.create({
-      content: identifiers,
+    let identifiers = [recordIdentifierFor(record1), recordIdentifierFor(record2)];
+    let recordArray = new RecordArray({
+      identifiers,
       store,
     });
-    record1.save = () => {
-      model1Saved++;
-      return resolve(this);
-    };
-    record2.save = () => {
-      model2Saved++;
-      return resolve(this);
-    };
 
     let model1Saved = 0;
     let model2Saved = 0;
+    store.saveRecord = (record) => {
+      record === record1 ? model1Saved++ : model2Saved++;
+      return Promise.resolve(record);
+    };
 
     assert.strictEqual(model1Saved, 0, 'save not yet called');
     assert.strictEqual(model2Saved, 0, 'save not yet called');
@@ -276,7 +211,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     assert.strictEqual(model2Saved, 1, 'save was called for mode2');
 
     const r = await result;
-    assert.strictEqual(r.id, result.id, 'save promise should fulfill with the original recordArray');
+    assert.strictEqual(r, recordArray, 'save promise should fulfill with the original recordArray');
   });
 
   test('Create A SnapshotRecordArray', async function (assert) {
@@ -296,8 +231,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       data: [model1, model2],
     });
 
-    let recordArray = RecordArray.create({
-      content: A(records.map((r) => recordIdentifierFor(r))),
+    let recordArray = new RecordArray({
+      identifiers: records.map(recordIdentifierFor),
       store,
     });
 
