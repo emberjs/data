@@ -224,7 +224,7 @@ export default class FetchManager {
             const graph = graphFor(store);
             isReleasable = graph.isReleasable(identifier);
             if (!isReleasable) {
-              graph.unload(identifier);
+              graph.unload(identifier, true);
             }
           }
           if (recordData || isReleasable) {

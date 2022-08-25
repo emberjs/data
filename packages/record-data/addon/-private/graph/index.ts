@@ -232,7 +232,7 @@ export class Graph {
     return true;
   }
 
-  unload(identifier: StableRecordIdentifier) {
+  unload(identifier: StableRecordIdentifier, silenceNotifications?: boolean) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
       console.log(`graph: unload ${String(identifier)}`);
@@ -247,7 +247,7 @@ export class Graph {
         if (!rel) {
           return;
         }
-        destroyRelationship(this, rel);
+        destroyRelationship(this, rel, silenceNotifications);
         if (isImplicit(rel)) {
           relationships[key] = undefined;
         }
@@ -446,7 +446,7 @@ export class Graph {
 // delete, so we remove the inverse records from this relationship to
 // disconnect the graph.  Because it's not async, we don't need to keep around
 // the identifier as an id-wrapper for references
-function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
+function destroyRelationship(graph: Graph, rel: RelationshipEdge, silenceNotifications?: boolean) {
   if (isImplicit(rel)) {
     if (graph.isReleasable(rel.identifier)) {
       removeCompletelyFromInverse(graph, rel);
@@ -459,7 +459,7 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
 
   if (!rel.definition.inverseIsImplicit) {
     forAllRelatedIdentifiers(rel, (inverseIdentifer: StableRecordIdentifier) =>
-      notifyInverseOfDematerialization(graph, inverseIdentifer, inverseKey, identifier)
+      notifyInverseOfDematerialization(graph, inverseIdentifer, inverseKey, identifier, silenceNotifications)
     );
   }
 
@@ -475,7 +475,7 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge) {
     // we should discuss whether we still care about this, probably fine to just
     // leave the ui relationship populated since the record is destroyed and
     // internally we've fully cleaned up.
-    if (!rel.definition.isAsync) {
+    if (!rel.definition.isAsync && !silenceNotifications) {
       notifyChange(graph, rel.identifier, rel.definition.key);
     }
   }
@@ -485,7 +485,8 @@ function notifyInverseOfDematerialization(
   graph: Graph,
   inverseIdentifier: StableRecordIdentifier,
   inverseKey: string,
-  identifier: StableRecordIdentifier
+  identifier: StableRecordIdentifier,
+  silenceNotifications?: boolean
 ) {
   if (!graph.has(inverseIdentifier, inverseKey)) {
     return;
@@ -497,7 +498,12 @@ function notifyInverseOfDematerialization(
   // For remote members, it is possible that inverseRecordData has already been associated to
   // to another record. For such cases, do not dematerialize the inverseRecordData
   if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
-    removeDematerializedInverse(graph, relationship as BelongsToRelationship | ManyRelationship, identifier);
+    removeDematerializedInverse(
+      graph,
+      relationship as BelongsToRelationship | ManyRelationship,
+      identifier,
+      silenceNotifications
+    );
   }
 }
 
@@ -518,7 +524,8 @@ function clearRelationship(relationship: ManyRelationship | BelongsToRelationshi
 function removeDematerializedInverse(
   graph: Graph,
   relationship: ManyRelationship | BelongsToRelationship,
-  inverseIdentifier: StableRecordIdentifier
+  inverseIdentifier: StableRecordIdentifier,
+  silenceNotifications?: boolean
 ) {
   if (isBelongsTo(relationship)) {
     const inverseIdentifier = relationship.localState;
@@ -544,7 +551,9 @@ function removeDematerializedInverse(
       relationship.state.hasDematerializedInverse = true;
     }
 
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
+    if (!silenceNotifications) {
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
+    }
   } else {
     if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
       // unloading inverse of a sync relationship is treated as a client-side
@@ -557,7 +566,9 @@ function removeDematerializedInverse(
       relationship.state.hasDematerializedInverse = true;
     }
 
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
+    if (!silenceNotifications) {
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
+    }
   }
 }
 
