@@ -153,7 +153,8 @@ export function forAllRelatedIdentifiers(
 export function removeIdentifierCompletelyFromRelationship(
   graph: Graph,
   relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship,
-  value: StableRecordIdentifier
+  value: StableRecordIdentifier,
+  silenceNotifications?: boolean
 ): void {
   if (isBelongsTo(relationship)) {
     if (relationship.remoteState === value) {
@@ -165,7 +166,9 @@ export function removeIdentifierCompletelyFromRelationship(
       // This allows dematerialized inverses to be rematerialized
       // we shouldn't be notifying here though, figure out where
       // a notification was missed elsewhere.
-      notifyChange(graph, relationship.identifier, relationship.definition.key);
+      if (!silenceNotifications) {
+        notifyChange(graph, relationship.identifier, relationship.definition.key);
+      }
     }
   } else if (isHasMany(relationship)) {
     relationship.remoteMembers.delete(value);
@@ -182,8 +185,9 @@ export function removeIdentifierCompletelyFromRelationship(
       // This allows dematerialized inverses to be rematerialized
       // we shouldn't be notifying here though, figure out where
       // a notification was missed elsewhere.
-
-      notifyChange(graph, relationship.identifier, relationship.definition.key);
+      if (!silenceNotifications) {
+        notifyChange(graph, relationship.identifier, relationship.definition.key);
+      }
     }
   } else {
     relationship.remoteMembers.delete(value);
@@ -191,6 +195,7 @@ export function removeIdentifierCompletelyFromRelationship(
   }
 }
 
+// TODO add silencing at the graph level
 export function notifyChange(graph: Graph, identifier: StableRecordIdentifier, key: string) {
   if (identifier === graph._removing) {
     if (LOG_GRAPH) {

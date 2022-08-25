@@ -10,14 +10,10 @@ import type { ImplicitRelationship } from '@ember-data/record-data/-private/grap
 import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
-import { recordIdentifierFor, storeFor } from '@ember-data/store/-private';
-import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
+import { isStableIdentifier, recordIdentifierFor, storeFor } from '@ember-data/store/-private';
+import { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import type { DSModel } from '@ember-data/types/q/ds-model';
-import {
-  CollectionResourceRelationship,
-  ResourceIdentifierObject,
-  SingleResourceRelationship,
-} from '@ember-data/types/q/ember-data-json-api';
+import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
@@ -104,8 +100,8 @@ export class LegacySupport {
   getBelongsTo(key: string, options?: FindOptions): PromiseBelongsTo | RecordInstance | null {
     const { identifier, recordData } = this;
     let resource = recordData.getRelationship(this.identifier, key) as SingleResourceRelationship;
-    let relatedIdentifier =
-      resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
+    let relatedIdentifier = resource && resource.data ? resource.data : null;
+    assert(`Expected a stable identifier`, !relatedIdentifier || isStableIdentifier(relatedIdentifier));
 
     const store = this.store;
     const graphFor = (
@@ -154,6 +150,30 @@ export class LegacySupport {
     return this.recordData.setBelongsTo(this.identifier, key, extractIdentifierFromRecord(value));
   }
 
+  _getCurrentState(
+    identifier: StableRecordIdentifier,
+    field: string
+  ): [StableRecordIdentifier[], CollectionResourceRelationship] {
+    let jsonApi = (this.recordData as NonSingletonRecordDataManager).getRelationship(
+      identifier,
+      field,
+      true
+    ) as CollectionResourceRelationship;
+    const cache = this.store._instanceCache;
+    let identifiers: StableRecordIdentifier[] = [];
+    if (jsonApi.data) {
+      for (let i = 0; i < jsonApi.data.length; i++) {
+        const identifier = jsonApi.data[i];
+        assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+        if (cache.recordIsLoaded(identifier, true)) {
+          identifiers.push(identifier);
+        }
+      }
+    }
+
+    return [identifiers, jsonApi];
+  }
+
   getManyArray(key: string, definition?: UpgradedMeta): ManyArray {
     assert('hasMany only works with the @ember-data/record-data package', HAS_RECORD_DATA_PACKAGE);
     let manyArray: ManyArray | undefined = this._manyArrayCache[key];
@@ -165,12 +185,16 @@ export class LegacySupport {
     }
 
     if (!manyArray) {
+      const [identifiers, doc] = this._getCurrentState(this.identifier, key);
       manyArray = (ManyArray as unknown as ManyArrayFactory).create({
         store: this.store,
         type: this.store.modelFor(definition.type),
         identifier: this.identifier,
         recordData: this.recordData,
         key,
+        currentState: identifiers,
+        meta: doc.meta || null,
+        links: doc.links || null,
         isPolymorphic: definition.isPolymorphic,
         isAsync: definition.isAsync,
         _inverseIsAsync: definition.inverseIsAsync,
@@ -196,8 +220,14 @@ export class LegacySupport {
       }
 
       const jsonApi = this.recordData.getRelationship(this.identifier, key) as CollectionResourceRelationship;
+      const promise = this._findHasManyByJsonApiResource(jsonApi, this.identifier, relationship, options);
 
-      loadingPromise = this._findHasManyByJsonApiResource(jsonApi, this.identifier, relationship, options).then(
+      if (!promise) {
+        manyArray.isLoaded = true;
+        return resolve(manyArray);
+      }
+
+      loadingPromise = promise.then(
         () => handleCompletedRelationshipRequest(this, key, relationship, manyArray),
         (e: Error) => handleCompletedRelationshipRequest(this, key, relationship, manyArray, e)
       );
@@ -358,10 +388,10 @@ export class LegacySupport {
     parentIdentifier: StableRecordIdentifier,
     relationship: ManyRelationship,
     options: FindOptions = {}
-  ): Promise<void | unknown[]> {
+  ): Promise<void | unknown[]> | void {
     if (HAS_RECORD_DATA_PACKAGE) {
       if (!resource) {
-        return resolve();
+        return;
       }
       const { definition, state } = relationship;
       const adapter = this.store.adapterFor(definition.type);
@@ -411,11 +441,16 @@ export class LegacySupport {
 
       // fetch using data, pulling from local cache if possible
       if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
+        if (allInverseRecordsAreLoaded) {
+          return;
+        }
         assert(`Expected collection to be an array`, Array.isArray(resource.data));
         let finds = new Array(resource.data.length);
+        let cache = this.store._instanceCache;
         for (let i = 0; i < resource.data.length; i++) {
-          let identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data[i]);
-          finds[i] = this.store._instanceCache._fetchDataIfNeededForIdentifier(identifier, options);
+          const identifier = resource.data[i];
+          assert(`expected a stable identifier`, isStableIdentifier(identifier));
+          finds[i] = cache._fetchDataIfNeededForIdentifier(identifier, options);
         }
 
         return all(finds);
@@ -425,8 +460,9 @@ export class LegacySupport {
 
       // fetch by data
       if (hasData || hasLocalPartialData) {
-        assert(`Expected collection to be an array`, Array.isArray(resource.data));
-        let identifiers = resource.data.map((json) => this.store.identifierCache.getOrCreateRecordIdentifier(json));
+        const identifiers = resource.data;
+        assert(`Expected collection to be an array`, Array.isArray(identifiers));
+        assert(`Expected stable identifiers`, identifiers.every(isStableIdentifier));
         let fetches = new Array(identifiers.length);
         const manager = this.store._fetchManager;
 
@@ -441,7 +477,7 @@ export class LegacySupport {
 
       // we were explicitly told we have no data and no links.
       //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-      return resolve();
+      return;
     }
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
@@ -456,7 +492,8 @@ export class LegacySupport {
       return resolve(null);
     }
 
-    const identifier = resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
+    const identifier = resource.data ? resource.data : null;
+    assert(`Expected a stable identifier`, !identifier || isStableIdentifier(identifier));
 
     let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = relationship.state;
 
@@ -681,30 +718,21 @@ function anyUnloaded(store: Store, relationship: ManyRelationship) {
 }
 
 function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship): boolean {
-  const cache = store.identifierCache;
+  const instanceCache = store._instanceCache;
+  const identifiers = resource.data;
 
-  if (Array.isArray(resource.data)) {
+  if (Array.isArray(identifiers)) {
+    assert(`Expected stable identifiers`, identifiers.every(isStableIdentifier));
     // treat as collection
     // check for unloaded records
-    let hasEmptyRecords = resource.data.reduce((hasEmptyModel, resourceIdentifier) => {
-      return hasEmptyModel || isEmpty(store, cache, resourceIdentifier);
-    }, false);
-
-    return !hasEmptyRecords;
-  } else {
-    // treat as single resource
-    if (!resource.data) {
-      return true;
-    } else {
-      return !isEmpty(store, cache, resource.data);
-    }
+    return identifiers.every((identifier: StableRecordIdentifier) => instanceCache.recordIsLoaded(identifier));
   }
-}
 
-function isEmpty(store: Store, cache: IdentifierCache, resource: ResourceIdentifierObject): boolean {
-  const identifier = cache.getOrCreateRecordIdentifier(resource);
-  const recordData = store._instanceCache.__instances.recordData.get(identifier);
-  return !recordData || recordData.isEmpty(identifier);
+  // treat as single resource
+  if (!identifiers) return true;
+
+  assert(`Expected stable identifiers`, isStableIdentifier(identifiers));
+  return instanceCache.recordIsLoaded(identifiers);
 }
 
 function isBelongsTo(

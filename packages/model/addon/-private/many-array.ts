@@ -9,7 +9,7 @@ import EmberObject, { get } from '@ember/object';
 import { all } from 'rsvp';
 
 import type Store from '@ember-data/store';
-import { PromiseArray, recordIdentifierFor } from '@ember-data/store/-private';
+import { isStableIdentifier, PromiseArray, recordIdentifierFor } from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
@@ -35,6 +35,9 @@ export interface ManyArrayCreateArgs {
   type: ShimModelClass;
   identifier: StableRecordIdentifier;
   recordData: RecordData;
+  currentState: StableRecordIdentifier[];
+  meta: Dict<unknown> | null;
+  links: Links | PaginationLinks | null;
   key: string;
   isPolymorphic: boolean;
   isAsync: boolean;
@@ -119,8 +122,6 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     this.isLoaded = this.isLoaded || false;
     this.isAsync = this.isAsync || false;
 
-    this._length = 0;
-
     /**
     Metadata associated with the request for async hasMany relationships.
 
@@ -182,7 +183,8 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     @property {ManyRelationship} relationship
     @private
     */
-    this.currentState = [];
+    this.currentState = this.currentState || [];
+    this._length = this.currentState.length || 0;
     this._isUpdating = false;
     this._isDirty = false;
     /*
@@ -202,9 +204,6 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
      * since it will be the first-access for those observers.
      */
     this._hasNotified = false;
-    // make sure we initialize to the correct state
-    // since the user has already accessed
-    this.retrieveLatest();
   }
 
   // TODO refactor away _hasArrayObservers for tests
@@ -313,12 +312,13 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
       true
     ) as CollectionResourceRelationship;
     const cache = this.store._instanceCache;
-    const idCache = this.store.identifierCache;
 
     let identifiers: StableRecordIdentifier[] = [];
-    if (jsonApi.data) {
-      for (let i = 0; i < jsonApi.data.length; i++) {
-        const identifier = idCache.getOrCreateRecordIdentifier(jsonApi.data[i]);
+    const data = jsonApi.data;
+    if (data) {
+      for (let i = 0; i < data.length; i++) {
+        const identifier: StableRecordIdentifier = data[i] as unknown as StableRecordIdentifier;
+        assert(`expected a stable identifier`, isStableIdentifier(identifier));
 
         if (cache.recordIsLoaded(identifier, true)) {
           identifiers.push(identifier);
