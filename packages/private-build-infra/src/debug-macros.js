@@ -6,6 +6,10 @@ module.exports = function debugMacros(app, isProd, config) {
   const DEBUG = require('./debugging')(config.debug, isProd);
   const DEPRECATIONS = require('./deprecations')(config.compatWith, isProd);
   const debugMacrosPath = require.resolve('babel-plugin-debug-macros');
+  const ConvertExistenceChecksToMacros = require.resolve(
+    './transforms/babel-plugin-convert-existence-checks-to-macros'
+  );
+
   let plugins = [
     [
       debugMacrosPath,
@@ -43,6 +47,7 @@ module.exports = function debugMacros(app, isProd, config) {
       },
       '@ember-data/deprecation-stripping',
     ],
+<<<<<<< HEAD
     [
       debugMacrosPath,
       {
@@ -55,6 +60,7 @@ module.exports = function debugMacros(app, isProd, config) {
       },
       '@ember-data/debugging',
     ],
+    [ConvertExistenceChecksToMacros, {}],
   ];
 
   return plugins;
