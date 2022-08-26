@@ -147,6 +147,7 @@ export function configureDeprecationHandler() {
     // we do not call next to avoid spamming the console
   });
 
+  // @ts-expect-error
   QUnit.assert.expectDeprecation = async function (
     cb: () => unknown,
     config: string | RegExp | DeprecationConfig,

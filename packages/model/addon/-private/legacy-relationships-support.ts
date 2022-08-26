@@ -180,6 +180,7 @@ export class LegacySupport {
         field: key,
         value: extractIdentifierFromRecord(value),
       },
+      // @ts-expect-error
       true
     );
   }

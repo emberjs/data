@@ -335,7 +335,7 @@ export class InstanceCache {
           recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
         } else {
           if (DEBUG) {
-            recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager(this.store);
+            recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager();
             (recordData as SingletonRecordDataManager)._addRecordData(identifier, recordDataInstance as RecordData);
           } else {
             recordData = recordDataInstance as RecordData;
