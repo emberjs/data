@@ -5,8 +5,8 @@ import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
-import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 
 class Person extends Model {
   @hasMany('pet', { inverse: null, async: false })
@@ -176,7 +176,7 @@ module('RecordData Compatibility', function (hooks) {
     getBelongsTo() {}
   }
 
-  const CustomRecordData = V2CACHE_SINGLETON_MANAGER ? V2CustomRecordData : V1CustomRecordData;
+  const CustomRecordData = DEPRECATE_V1_RECORD_DATA ? V2CustomRecordData : V1CustomRecordData;
 
   test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function (assert) {
     const originalCreateRecordDataFor = store.createRecordDataFor;

@@ -68,6 +68,19 @@ export class NonSingletonRecordDataManager implements RecordData {
     this.#store = store;
     this.#recordData = recordData;
     this.#identifier = identifier;
+
+    if (this.#isDeprecated(recordData)) {
+      deprecate(
+        `This RecordData uses the deprecated V1 RecordData Spec. Upgrade to V2 to maintain compatibility.`,
+        false,
+        {
+          id: 'ember-data:deprecate-v1-cache',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+          for: 'ember-data',
+        }
+      );
+    }
   }
 
   #isDeprecated(recordData: RecordData | RecordDataV1): recordData is RecordDataV1 {

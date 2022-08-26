@@ -6,8 +6,8 @@ import { Promise } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
-import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
@@ -19,7 +19,7 @@ import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import { Dict } from '@ember-data/types/q/utils';
 
-if (V2CACHE_SINGLETON_MANAGER) {
+if (!DEPRECATE_V1_RECORD_DATA) {
   class Person extends Model {
     @attr declare firstName: string;
     @attr declare lastName: string;

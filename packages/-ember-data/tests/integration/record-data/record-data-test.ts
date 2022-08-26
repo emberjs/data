@@ -6,7 +6,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
@@ -198,8 +197,9 @@ class V2TestRecordData implements RecordData {
   }
 }
 
-const TestRecordData: typeof V2TestRecordData | typeof V1TestRecordData =
-  !DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER ? V2TestRecordData : V1TestRecordData;
+const TestRecordData: typeof V2TestRecordData | typeof V1TestRecordData = !DEPRECATE_V1_RECORD_DATA
+  ? V2TestRecordData
+  : V1TestRecordData;
 
 const CustomStore = Store.extend({
   createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
@@ -491,7 +491,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
       getAttr(identifier: StableRecordIdentifier, key: string): string {
         calledGet++;
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
+        if (!DEPRECATE_V1_RECORD_DATA) {
           assert.strictEqual(key, 'name', 'key passed to getAttr');
         } else {
           assert.strictEqual(identifier as unknown as string, 'name', 'key passed to getAttr');
@@ -598,7 +598,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let belongsToReturnValue;
 
     let RelationshipRecordData;
-    if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
+    if (!DEPRECATE_V1_RECORD_DATA) {
       RelationshipRecordData = class extends TestRecordData {
         getRelationship(identifier: StableRecordIdentifier, key: string) {
           assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
@@ -681,7 +681,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         return hasManyReturnValue;
       }
       addToHasMany(key: string, recordDatas: any[], idx?: number) {
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
+        if (!DEPRECATE_V1_RECORD_DATA) {
           const key: string = arguments[1];
           const identifiers: StableRecordIdentifier[] = arguments[2];
           assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
@@ -692,7 +692,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         }
       }
       removeFromHasMany(key: string, recordDatas: any[]) {
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
+        if (!DEPRECATE_V1_RECORD_DATA) {
           const key: string = arguments[1];
           const identifiers: StableRecordIdentifier[] = arguments[2];
           assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
@@ -793,7 +793,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       addToHasMany(this: V1TestRecordData, key: string, recordDatas: any[], idx?: number) {
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
+        if (!DEPRECATE_V1_RECORD_DATA) {
           const key: string = arguments[1];
           const identifiers: StableRecordIdentifier[] = arguments[2];
           assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
@@ -813,7 +813,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       removeFromHasMany(this: V1TestRecordData, key: string, recordDatas: any[]) {
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
+        if (!DEPRECATE_V1_RECORD_DATA) {
           const key: string = arguments[1];
           const identifiers: StableRecordIdentifier[] = arguments[2];
           assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');

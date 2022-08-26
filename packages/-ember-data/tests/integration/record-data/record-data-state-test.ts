@@ -6,8 +6,8 @@ import { Promise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
-import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
@@ -196,7 +196,7 @@ class V2TestRecordData implements RecordData {
     return false;
   }
 }
-const TestRecordData = V2CACHE_SINGLETON_MANAGER ? V2TestRecordData : V1TestRecordData;
+const TestRecordData = DEPRECATE_V1_RECORD_DATA ? V1TestRecordData : V2TestRecordData;
 
 const CustomStore = Store.extend({
   createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
