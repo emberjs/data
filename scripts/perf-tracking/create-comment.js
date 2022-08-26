@@ -5,7 +5,7 @@ const GITHUB_SHA = process.argv[2];
 
 const analysisPath = path.resolve(__dirname, `../../tracerbench-results/analysis-output.json`);
 let analysisJSON = JSON.parse(fs.readFileSync(analysisPath, 'utf-8'));
-let commentText = `Performance Report for ${GITHUB_SHA}`;
+let commentText = `${process.env.COMMENT_MARKER || 'Performance Report for'} ${GITHUB_SHA}`;
 
 Object.keys(analysisJSON).forEach((name) => {
   let analysisText = analysisJSON[name];
