@@ -494,25 +494,7 @@ export class NonSingletonRecordDataManager implements RecordData {
   /**
    * Mutate the current state of a belongsTo relationship
    *
-   * @method setBelongsTo
-   * @public
-   * @param identifier
-   * @param propertyName
-   * @param value
-   */
-  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null) {
-    const store = this.#store;
-    const recordData = this.#recordData;
-
-    this.#isDeprecated(recordData)
-      ? recordData.setDirtyBelongsTo(propertyName, value ? store._instanceCache.getRecordData(value) : null)
-      : recordData.setBelongsTo(identifier, propertyName, value);
-  }
-
-  /**
-   * Mutate the current state of a belongsTo relationship
-   *
-   * DEPRECATED use setBelongsTo
+   * DEPRECATED use update
    *
    * @method setDirtyBelongsTo
    * @public
@@ -524,8 +506,13 @@ export class NonSingletonRecordDataManager implements RecordData {
     const recordData = this.#recordData;
 
     this.#isDeprecated(recordData)
-      ? recordData.setDirtyBelongsTo(propertyName, value as unknown as RecordData)
-      : recordData.setBelongsTo(this.#identifier, propertyName, value ? value.getResourceIdentifier() : null);
+      ? recordData.setDirtyBelongsTo(propertyName, value)
+      : recordData.update({
+          op: 'replaceRelatedRecord',
+          record: this.#identifier,
+          field: propertyName,
+          value: value ? value.getResourceIdentifier() : null,
+        });
   }
 
   /**
@@ -533,98 +520,52 @@ export class NonSingletonRecordDataManager implements RecordData {
    * An index may optionally be specified which the cache should use for
    * where in the list to insert the records
    *
+   * DEPRECATED use update
+   *
    * @method addToHasMany
+   * @deprecated
    * @public
-   * @param identifier
    * @param propertyName
    * @param value
    * @param idx
    */
-  addToHasMany(
-    identifier: StableRecordIdentifier,
-    propertyName: string,
-    value: StableRecordIdentifier[],
-    idx?: number
-  ): void {
-    // called by something V1
-    let isFromV1 = false;
-    if (!isStableIdentifier(identifier)) {
-      isFromV1 = true;
-      idx = value as unknown as number;
-      value = propertyName as unknown as StableRecordIdentifier[];
-      propertyName = identifier as unknown as string;
-      identifier = this.#identifier;
-    }
-    const cache = this.#store._instanceCache;
+  addToHasMany(propertyName: string, value: NonSingletonRecordDataManager[], idx?: number): void {
+    const identifier = this.#identifier;
     const recordData = this.#recordData;
 
     this.#isDeprecated(recordData)
-      ? recordData.addToHasMany(
-          propertyName,
-          isFromV1 ? (value as unknown as RecordData[]) : value.map((v) => cache.getRecordData(v)),
-          idx
-        )
-      : recordData.addToHasMany(
-          identifier,
-          propertyName,
-          isFromV1
-            ? (value as unknown as NonSingletonRecordDataManager[]).map((v) => v.getResourceIdentifier())
-            : value,
-          idx
-        );
+      ? recordData.addToHasMany(propertyName, value, idx)
+      : recordData.update({
+          op: 'addToRelatedRecords',
+          field: propertyName,
+          record: identifier,
+          value: value.map((v) => v.getResourceIdentifier()),
+        });
   }
 
   /**
    * Mutate the current state of a hasMany relationship by removing values.
    *
-   * @method removeFromHasMany
-   * @public
-   * @param identifier
-   * @param propertyName
-   * @param value
-   */
-  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    let isFromV1 = false;
-    if (!isStableIdentifier(identifier)) {
-      isFromV1 = true;
-      value = propertyName as unknown as StableRecordIdentifier[];
-      propertyName = identifier as unknown as string;
-      identifier = this.#identifier;
-    }
-    const cache = this.#store._instanceCache;
-    const recordData = this.#recordData;
-
-    this.#isDeprecated(recordData)
-      ? recordData.removeFromHasMany(
-          propertyName,
-          isFromV1 ? (value as unknown as RecordData[]) : value.map((v) => cache.getRecordData(v))
-        )
-      : recordData.removeFromHasMany(
-          identifier,
-          propertyName,
-          isFromV1 ? (value as unknown as NonSingletonRecordDataManager[]).map((v) => v.getResourceIdentifier()) : value
-        );
-  }
-
-  /**
-   * Mutate the current state of a hasMany relationship by replacing it entirely
+   * DEPRECATED use update
    *
-   * @method setHasMany
+   * @method removeFromHasMany
+   * @deprecated
    * @public
-   * @param identifier
    * @param propertyName
    * @param value
    */
-  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    const cache = this.#store._instanceCache;
+  removeFromHasMany(propertyName: string, value: RecordData[]): void {
+    const identifier = this.#identifier;
     const recordData = this.#recordData;
 
     this.#isDeprecated(recordData)
-      ? recordData.setDirtyHasMany(
-          propertyName,
-          value.map((identifier) => cache.getRecordData(identifier))
-        )
-      : recordData.setHasMany(identifier, propertyName, value);
+      ? recordData.removeFromHasMany(propertyName, value)
+      : recordData.update({
+          op: 'removeFromRelatedRecords',
+          record: identifier,
+          field: propertyName,
+          value: (value as unknown as NonSingletonRecordDataManager[]).map((v) => v.getResourceIdentifier()),
+        });
   }
 
   /**
@@ -638,16 +579,17 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @param propertyName
    * @param value
    */
-  setDirtyHasMany(propertyName: string, value: RecordData[]) {
+  setDirtyHasMany(propertyName: string, value: NonSingletonRecordDataManager[]) {
     let recordData = this.#recordData;
 
     this.#isDeprecated(recordData)
       ? recordData.setDirtyHasMany(propertyName, value)
-      : recordData.setHasMany(
-          this.#identifier,
-          propertyName,
-          (value as unknown as NonSingletonRecordDataManager[]).map((rd) => rd.getResourceIdentifier())
-        );
+      : recordData.update({
+          op: 'replaceRelatedRecords',
+          record: this.#identifier,
+          field: propertyName,
+          value: value.map((rd) => rd.getResourceIdentifier()),
+        });
   }
 
   // State
@@ -743,15 +685,10 @@ export class NonSingletonRecordDataManager implements RecordData {
 export class SingletonRecordDataManager implements RecordData {
   version: '2' = '2';
 
-  #store: Store;
   #recordDatas: Map<StableRecordIdentifier, RecordData>;
 
-  constructor(store: Store) {
-    this.#store = store;
+  constructor() {
     this.#recordDatas = new Map();
-  }
-  update(operation: LocalRelationshipOperation): void {
-    this.#recordData(operation.record).update(operation);
   }
 
   _addRecordData(identifier: StableRecordIdentifier, recordData: RecordData) {
@@ -819,26 +756,8 @@ export class SingletonRecordDataManager implements RecordData {
   ): SingleResourceRelationship | CollectionResourceRelationship {
     return this.#recordData(identifier).getRelationship(identifier, propertyName);
   }
-
-  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null) {
-    this.#recordData(identifier).setBelongsTo(identifier, propertyName, value);
-  }
-
-  addToHasMany(
-    identifier: StableRecordIdentifier,
-    propertyName: string,
-    value: StableRecordIdentifier[],
-    idx?: number
-  ): void {
-    this.#recordData(identifier).addToHasMany(identifier, propertyName, value, idx);
-  }
-
-  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    this.#recordData(identifier).removeFromHasMany(identifier, propertyName, value);
-  }
-
-  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    this.#recordData(identifier).setHasMany(identifier, propertyName, value);
+  update(operation: LocalRelationshipOperation): void {
+    this.#recordData(operation.record).update(operation);
   }
 
   // State
