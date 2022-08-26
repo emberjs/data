@@ -128,21 +128,54 @@ export class NonSingletonRecordDataManager implements RecordData {
     return recordData.pushData(identifier, data, hasRecord);
   }
 
-  update(operation: LocalRelationshipOperation): void {
+  /**
+   * Update resource data with a local mutation. Currently supports operations
+   * on relationships only.
+   *
+   * @method update
+   * @param operation
+   * @returns
+   */
+  // isCollection is only needed for interop with v1 cache
+  update(operation: LocalRelationshipOperation, isResource?: boolean): void {
     if (this.#isDeprecated(this.#recordData)) {
-      deprecate(
-        `RecordData.update(operation) can only be used with V2 RecordData Implementations. Upgrade this RecordData to V2 to make use of this feature. This Relationship update will be ignored.`,
-        false,
-        {
-          id: 'ember-data:deprecate-v1-record-data',
-          until: '5.0',
-          since: {
-            enabled: '4.8',
-            available: '4.8',
-          },
-          for: 'ember-data',
-        }
-      );
+      const cache = this.#store._instanceCache;
+      switch (operation.op) {
+        case 'addToRelatedRecords':
+          this.#recordData.addToHasMany(
+            operation.field,
+            (operation.value as StableRecordIdentifier[]).map((i) => cache.getRecordData(i)),
+            operation.index
+          );
+          return;
+        case 'removeFromRelatedRecords':
+          this.#recordData.removeFromHasMany(
+            operation.field,
+            (operation.value as StableRecordIdentifier[]).map((i) => cache.getRecordData(i))
+          );
+          return;
+        case 'replaceRelatedRecords':
+          this.#recordData.setDirtyHasMany(
+            operation.field,
+            operation.value.map((i) => cache.getRecordData(i))
+          );
+          return;
+        case 'replaceRelatedRecord':
+          if (isResource) {
+            this.#recordData.setDirtyBelongsTo(
+              operation.field,
+              operation.value ? cache.getRecordData(operation.value) : null
+            );
+            return;
+          }
+          this.#recordData.removeFromHasMany(operation.field, [cache.getRecordData(operation.prior!)]);
+          this.#recordData.addToHasMany(operation.field, [cache.getRecordData(operation.value!)], operation.index);
+          return;
+        case 'sortRelatedRecords':
+          return;
+        default:
+          return;
+      }
     } else {
       this.#recordData.update(operation);
     }

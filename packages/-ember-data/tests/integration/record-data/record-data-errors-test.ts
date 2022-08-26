@@ -420,7 +420,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     });
 
     test('Record Data invalid errors', async function (assert) {
-      assert.expect(2);
+      assert.expect(3);
 
       const personHash = {
         type: 'person',
@@ -474,14 +474,15 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         data: [personHash],
       });
       let person = store.peekRecord('person', '1');
-      person.save().then(
+      await person.save().then(
         () => {},
         (err) => {}
       );
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
     });
 
     test('Record Data adapter errors', async function (assert) {
-      assert.expect(1);
+      assert.expect(2);
       const personHash = {
         type: 'person',
         id: '1',
@@ -523,10 +524,11 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         () => {},
         (err) => {}
       );
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
     });
 
     test('Getting errors from Record Data shows up on the record', async function (assert) {
-      assert.expect(7);
+      assert.expect(8);
       let storeWrapper;
       const personHash = {
         type: 'person',
@@ -593,6 +595,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
       let lastNameError = person.errors.errorsFor('lastName').at(0);
       assert.strictEqual(lastNameError.attribute, 'lastName', 'error shows up on lastName');
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
     });
   });
 }

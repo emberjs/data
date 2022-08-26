@@ -219,7 +219,7 @@ module('integration/record-data - Record Data State', function (hooks) {
   });
 
   test('Record Data state saving', async function (assert) {
-    assert.expect(3);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
 
     let isDeleted, isNew, isDeletionCommitted;
     let calledDelete = false;
@@ -300,10 +300,13 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     await person.save();
     assert.true(calledUpdate, 'called update if record isnt deleted or new');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data state record flags', async function (assert) {
-    assert.expect(13);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 14 : 13);
     let isDeleted, isNew, isDeletionCommitted;
     let calledSetIsDeleted = false;
     let storeWrapper;
@@ -395,5 +398,8 @@ module('integration/record-data - Record Data State', function (hooks) {
     storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 });

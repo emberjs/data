@@ -3,6 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import Store from '@ember-data/store';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
@@ -133,7 +134,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
   });
 
   test('Relationship definitions', async function (assert) {
-    assert.expect(3);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
     let { owner } = this;
 
     class RelationshipRD extends TestRecordData {
@@ -217,10 +218,14 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     store.push({
       data: [houseHash],
     });
+
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('RecordDataFor', async function (assert) {
-    assert.expect(3);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
     let { owner } = this;
 
     let count = 0;
@@ -269,10 +274,13 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     });
 
     assert.strictEqual(count, 2, 'two TestRecordDatas have been created');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
+    }
   });
 
   test('recordDataFor - create new', async function (assert) {
-    assert.expect(3);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
     let { owner } = this;
     let count = 0;
     let recordData;
@@ -338,10 +346,13 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     );
 
     assert.strictEqual(count, 2, 'two TestRecordDatas have been created');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
+    }
   });
 
   test('setRecordId', async function (assert) {
-    assert.expect(2);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 3 : 2);
     let { owner } = this;
 
     class RecordDataForTest extends TestRecordData {
@@ -374,10 +385,13 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       house,
       'can lookup the record from the identify map based on the new id'
     );
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('hasRecord', async function (assert) {
-    assert.expect(4);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 5 : 4);
     let { owner } = this;
 
     class RecordDataForTest extends TestRecordData {
@@ -417,10 +431,13 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     house2.unloadRecord();
 
     store.createRecord('house');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 3 });
+    }
   });
 
   test('disconnectRecord', async function (assert) {
-    assert.expect(1);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 2 : 1);
     let { owner } = this;
     let wrapper;
     let identifier;
@@ -452,5 +469,8 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     });
     wrapper.disconnectRecord(identifier);
     assert.strictEqual(store.peekRecord('house', '1'), null, 'record was removed from id map');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 });

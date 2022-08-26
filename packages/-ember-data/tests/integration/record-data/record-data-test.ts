@@ -298,10 +298,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
     await settled();
 
     assert.strictEqual(all.length, 3, 'we have 3 records');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 3 });
+    }
   });
 
   test('Record Data push, create and save lifecycle', async function (assert) {
-    assert.expect(19);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 20 : 19);
     let called = 0;
     const personHash = {
       type: 'person',
@@ -446,10 +449,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     await settled();
     assert.strictEqual(calledPush, 0, 'Did not call pushData');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
+    }
   });
 
   test('Record Data attribute setting', async function (assert) {
-    let expectedCount = 13;
+    let expectedCount = DEPRECATE_V1_RECORD_DATA ? 14 : 13;
     assert.expect(expectedCount);
     const personHash = {
       type: 'person',
@@ -529,10 +535,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
       { name: ['old', 'new'] },
       'changed attributes passes through RD value'
     );
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data controls belongsTo notifications', async function (assert) {
-    assert.expect(6);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 7 : 6);
 
     let { owner } = this;
     let belongsToReturnValue;
@@ -589,10 +598,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     house.set('landlord', runspired);
     assert.strictEqual(house.landlord.name, 'David', 'belongsTo does not change if RD did not notify');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data custom belongsTo', async function (assert) {
-    assert.expect(4);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 5 : 4);
     let { owner } = this;
 
     let belongsToReturnValue;
@@ -664,10 +676,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     // This is intentionally !== runspired to test the custom RD implementation
     assert.strictEqual(house.landlord.name, 'Igor', 'RecordData sets the custom belongsTo value');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data controls hasMany notifications', async function (assert) {
-    assert.expect(11);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 12 : 11);
 
     let { owner } = this;
 
@@ -777,10 +792,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
     notifier.notifyChange(houseIdentifier, 'relationships', 'tenants');
     await settled();
     assert.deepEqual(people.slice(), [david], 'final lookup is correct once notified');
+
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data supports custom hasMany handling', async function (assert) {
-    assert.expect(10);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 11 : 10);
     let { owner } = this;
 
     let hasManyReturnValue;
@@ -935,5 +954,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
     house.set('tenants', [igor]);
     // This is intentionally !== [igor] to test the custom RD implementation
     assert.deepEqual(people.slice(), [david, runspired], 'setDirtyHasMany applies changes');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 });
