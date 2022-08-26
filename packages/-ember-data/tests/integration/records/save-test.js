@@ -1,4 +1,5 @@
 import { run } from '@ember/runloop';
+import { DEBUG } from '@glimmer/env';
 
 import { module, test } from 'qunit';
 import { defer, reject, resolve } from 'rsvp';
@@ -46,12 +47,15 @@ module('integration/records/save - Save Record', function (hooks) {
     assert.ok(true, 'save operation was resolved');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       assert.strictEqual(saved.get('id'), '123');
-      try {
-        saved.id;
-        assert.ok(false, 'access should error with .get assertion');
-      } catch {
-        assert.ok(true, 'access errored correctly');
+      if (DEBUG) {
+        try {
+          saved.id;
+          assert.ok(false, 'access should error with .get assertion');
+        } catch {
+          assert.ok(true, 'access errored correctly');
+        }
       }
+
       assert.strictEqual(model.id, '123');
     } else {
       assert.strictEqual(saved.id, undefined);
