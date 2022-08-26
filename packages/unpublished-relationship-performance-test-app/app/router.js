@@ -8,9 +8,12 @@ const Router = EmberRouter.extend({
 });
 
 Router.map(function () {
-  this.route('materialization');
+  this.route('basic-record-materialization');
+  this.route('relationship-materialization-simple');
+  this.route('relationship-materialization-complex');
   this.route('add-children');
   this.route('unload');
+  this.route('unload-all');
   this.route('destroy');
   this.route('unused-relationships');
 });

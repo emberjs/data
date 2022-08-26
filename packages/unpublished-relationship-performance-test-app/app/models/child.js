@@ -7,5 +7,5 @@ export default Model.extend({
   friends: hasMany('child', { async: true, inverse: null }),
   bestFriend: belongsTo('child', { async: true, inverse: 'bestFriend' }),
   secondBestFriend: belongsTo('child', { async: true, inverse: 'secondBestFriend' }),
-  parent: belongsTo('parent', { async: true }),
+  parent: belongsTo('parent', { async: true, inverse: 'children' }),
 });

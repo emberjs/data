@@ -45,7 +45,8 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.19.1",
     "qunit-dom": "^2.0.0",
-    "webpack": "^5.74.0"
+    "webpack": "^5.74.0",
+    "zlib": "1.0.5"
   },
   "ember": {
     "edition": "octane"
@@ -55,7 +56,7 @@
     "yarn": "1.22.19"
   },
   "volta": {
-    "node": "16.16.0",
+    "node": "16.17.0",
     "yarn": "1.22.19"
   }
 }
