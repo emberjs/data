@@ -104,28 +104,36 @@ export default class HasManyReference {
 
     let resource = this._resource();
 
-    this.#relatedTokenMap.forEach((token) => {
-      this.store._notificationManager.unsubscribe(token);
-    });
-    this.#relatedTokenMap.clear();
+    let map = this.#relatedTokenMap;
+    this.#relatedTokenMap = new Map();
 
     if (resource && resource.data) {
       return resource.data.map((resourceIdentifier) => {
         const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
-        const token = this.store._notificationManager.subscribe(
-          identifier,
-          (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-            if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
-              this._ref++;
-            }
-          }
-        );
+        let token = map.get(identifier);
 
+        if (token) {
+          map.delete(identifier);
+        } else {
+          token = this.store._notificationManager.subscribe(
+            identifier,
+            (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+              if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
+                this._ref++;
+              }
+            }
+          );
+        }
         this.#relatedTokenMap.set(identifier, token);
 
         return identifier;
       });
     }
+
+    map.forEach((token) => {
+      this.store._notificationManager.unsubscribe(token);
+    });
+    map.clear();
 
     return [];
   }
