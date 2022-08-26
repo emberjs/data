@@ -27,13 +27,15 @@ import { unsubscribe } from '../record-notification-manager';
    @extends Reference
 */
 export default class RecordReference {
+  declare store: Store;
   // unsubscribe token given to us by the notification manager
   #token!: Object;
   #identifier: StableRecordIdentifier;
 
   @tracked _ref = 0;
 
-  constructor(public store: Store, identifier: StableRecordIdentifier) {
+  constructor(store: Store, identifier: StableRecordIdentifier) {
+    this.store = store;
     this.#identifier = identifier;
     this.#token = store._notificationManager.subscribe(
       identifier,

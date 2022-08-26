@@ -2,7 +2,6 @@
   @module @ember-data/store
 */
 import { assert, deprecate } from '@ember/debug';
-import { get } from '@ember/object';
 
 import { importSync } from '@embroider/macros';
 
@@ -10,11 +9,7 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
-import type { DSModel, DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
-import type {
-  ExistingResourceIdentifierObject,
-  NewResourceIdentifierObject,
-} from '@ember-data/types/q/ember-data-json-api';
+import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { ChangedAttributesHash } from '@ember-data/types/q/record-data';
@@ -41,11 +36,11 @@ function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModel
   @public
 */
 export default class Snapshot implements Snapshot {
-  private __attributes: Dict<unknown> | null = null;
-  private _belongsToRelationships: Dict<Snapshot> = Object.create(null);
-  private _belongsToIds: Dict<RecordId> = Object.create(null);
-  private _hasManyRelationships: Dict<Snapshot[]> = Object.create(null);
-  private _hasManyIds: Dict<RecordId[]> = Object.create(null);
+  declare __attributes: Dict<unknown> | null;
+  declare _belongsToRelationships: Dict<Snapshot>;
+  declare _belongsToIds: Dict<RecordId>;
+  declare _hasManyRelationships: Dict<Snapshot[]>;
+  declare _hasManyIds: Dict<RecordId[]>;
   declare _internalModel: InternalModel;
   declare _changedAttributes: ChangedAttributesHash;
 
@@ -54,6 +49,7 @@ export default class Snapshot implements Snapshot {
   declare id: string | null;
   declare include?: unknown;
   declare adapterOptions?: Dict<unknown>;
+  declare _store: Store;
 
   /**
    * @method constructor
@@ -63,8 +59,16 @@ export default class Snapshot implements Snapshot {
    * @param identifier
    * @param _store
    */
-  constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store) {
-    let internalModel = (this._internalModel = _store._instanceCache._internalModelForResource(identifier));
+  constructor(options: FindOptions, identifier: StableRecordIdentifier, store: Store) {
+    this._store = store;
+
+    this.__attributes = null;
+    this._belongsToRelationships = Object.create(null);
+    this._belongsToIds = Object.create(null);
+    this._hasManyRelationships = Object.create(null);
+    this._hasManyIds = Object.create(null);
+
+    const hasRecord = !!store._instanceCache.peek({ identifier, bucket: 'record' });
     this.modelName = identifier.type;
 
     /**
@@ -83,7 +87,7 @@ export default class Snapshot implements Snapshot {
       in time" in which a snapshot is created, we greedily grab
       the values.
      */
-    if (internalModel.hasRecord) {
+    if (hasRecord) {
       this._attributes;
     }
 
@@ -129,7 +133,7 @@ export default class Snapshot implements Snapshot {
      @public
      */
     this.modelName = identifier.type;
-    if (internalModel.hasRecord) {
+    if (hasRecord) {
       this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttributes();
     }
   }
@@ -160,10 +164,12 @@ export default class Snapshot implements Snapshot {
     let attributes = (this.__attributes = Object.create(null));
     let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier));
     let recordData = this._store._instanceCache.getRecordData(this.identifier);
+    const modelClass = this._store.modelFor(this.identifier.type);
+    const isDSModel = schemaIsDSModel(modelClass);
     attrs.forEach((keyName) => {
-      if (schemaIsDSModel(this._internalModel.modelClass)) {
+      if (isDSModel) {
         // if the schema is for a DSModel then the instance is too
-        attributes[keyName] = get(record as DSModel, keyName);
+        attributes[keyName] = record[keyName];
       } else {
         attributes[keyName] = recordData.getAttr(keyName);
       }
@@ -182,7 +188,8 @@ export default class Snapshot implements Snapshot {
    */
 
   get isNew(): boolean {
-    return this._internalModel.isNew();
+    const recordData = this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'recordData' });
+    return recordData?.isNew?.() || false;
   }
 
   /**
@@ -297,9 +304,8 @@ export default class Snapshot implements Snapshot {
    */
   belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
     let returnModeIsId = !!(options && options.id);
-    let inverseInternalModel: InternalModel | null;
     let result: Snapshot | RecordId | undefined;
-    let store = this._internalModel.store;
+    let store = this._store;
 
     if (returnModeIsId === true && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
@@ -344,14 +350,14 @@ export default class Snapshot implements Snapshot {
     let value = relationship.getData();
     let data = value && value.data;
 
-    inverseInternalModel = data ? store._instanceCache._internalModelForResource(data) : null;
+    let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
+      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted?.()) {
         if (returnModeIsId) {
-          result = inverseInternalModel.id;
+          result = inverseIdentifier.id;
         } else {
-          result = store._instanceCache.createSnapshot(inverseInternalModel.identifier);
+          result = store._instanceCache.createSnapshot(inverseIdentifier);
         }
       } else {
         result = null;
@@ -411,7 +417,7 @@ export default class Snapshot implements Snapshot {
       return cachedSnapshots;
     }
 
-    let store = this._internalModel.store;
+    let store = this._store;
     let relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
       keyName
     ];
@@ -448,14 +454,12 @@ export default class Snapshot implements Snapshot {
     if (value.data) {
       results = [];
       value.data.forEach((member) => {
-        let internalModel = store._instanceCache._internalModelForResource(member);
-        if (!internalModel.isDeleted()) {
+        let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
+        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted?.()) {
           if (returnModeIsIds) {
-            (results as RecordId[]).push(
-              (member as ExistingResourceIdentifierObject | NewResourceIdentifierObject).id || null
-            );
+            (results as RecordId[]).push(inverseIdentifier.id);
           } else {
-            (results as Snapshot[]).push(store._instanceCache.createSnapshot(internalModel.identifier));
+            (results as Snapshot[]).push(store._instanceCache.createSnapshot(inverseIdentifier));
           }
         }
       });
@@ -566,7 +570,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._internalModel.modelClass;
+      return this._store.modelFor(this.identifier.type);
     },
   });
 }

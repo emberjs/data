@@ -45,7 +45,7 @@ module('integration/relationships - running requests for async relatonships with
         return {
           data: [
             {
-              id: 1,
+              id: '1',
               type: 'comment',
               attributes: {
                 message: 'Message 1',
@@ -53,14 +53,14 @@ module('integration/relationships - running requests for async relatonships with
               relationships: {
                 post: {
                   data: {
-                    id: 1,
+                    id: '1',
                     type: 'post',
                   },
                 },
               },
             },
             {
-              id: 2,
+              id: '2',
               type: 'comment',
               attributes: {
                 message: 'Message 2',
@@ -68,7 +68,7 @@ module('integration/relationships - running requests for async relatonships with
               relationships: {
                 post: {
                   data: {
-                    id: 1,
+                    id: '1',
                     type: 'post',
                   },
                 },

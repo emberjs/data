@@ -42,7 +42,10 @@ export function unsubscribe(token: UnsubscribeToken) {
   Currently only support a single callback per identifier
 */
 export default class NotificationManager {
-  constructor(private store: Store) {}
+  declare store: Store;
+  constructor(store: Store) {
+    this.store = store;
+  }
 
   subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);

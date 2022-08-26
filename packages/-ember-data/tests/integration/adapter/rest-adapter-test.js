@@ -1465,16 +1465,19 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         },
       });
 
-      assert.expectWarning(async () => {
-        try {
-          await post.get('comments');
-        } catch (e) {
-          assert.strictEqual(
-            e.message,
-            `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`
-          );
-        }
-      }, /expected to find records with the following ids in the adapter response but they were missing: \[ "2", "3" \]/);
+      assert.expectWarning(
+        async () => {
+          try {
+            await post.get('comments');
+          } catch (e) {
+            assert.strictEqual(
+              e.message,
+              `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`
+            );
+          }
+        },
+        { id: 'ds.store.missing-records-from-adapter' }
+      );
     }
   );
 
