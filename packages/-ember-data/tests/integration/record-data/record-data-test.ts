@@ -6,7 +6,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
@@ -120,10 +119,6 @@ class V2TestRecordData implements RecordData {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
-  update(operation: LocalRelationshipOperation): void {
-    throw new Error('Method not implemented.');
-  }
-
   pushData(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
@@ -160,21 +155,7 @@ class V2TestRecordData implements RecordData {
   ): SingleResourceRelationship | CollectionResourceRelationship {
     throw new Error('Method not implemented.');
   }
-  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void {
-    throw new Error('Method not implemented.');
-  }
-  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    throw new Error('Method not implemented.');
-  }
-  addToHasMany(
-    identifier: StableRecordIdentifier,
-    propertyName: string,
-    value: StableRecordIdentifier[],
-    idx?: number | undefined
-  ): void {
-    throw new Error('Method not implemented.');
-  }
-  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+  update(operation: LocalRelationshipOperation): void {
     throw new Error('Method not implemented.');
   }
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
@@ -198,8 +179,9 @@ class V2TestRecordData implements RecordData {
   }
 }
 
-const TestRecordData: typeof V2TestRecordData | typeof V1TestRecordData =
-  !DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER ? V2TestRecordData : V1TestRecordData;
+const TestRecordData: typeof V2TestRecordData | typeof V1TestRecordData = !DEPRECATE_V1_RECORD_DATA
+  ? V2TestRecordData
+  : V1TestRecordData;
 
 const CustomStore = Store.extend({
   createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
@@ -298,10 +280,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
     await settled();
 
     assert.strictEqual(all.length, 3, 'we have 3 records');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 3 });
+    }
   });
 
   test('Record Data push, create and save lifecycle', async function (assert) {
-    assert.expect(19);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 20 : 19);
     let called = 0;
     const personHash = {
       type: 'person',
@@ -446,10 +431,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     await settled();
     assert.strictEqual(calledPush, 0, 'Did not call pushData');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
+    }
   });
 
   test('Record Data attribute setting', async function (assert) {
-    let expectedCount = 13;
+    let expectedCount = DEPRECATE_V1_RECORD_DATA ? 14 : 13;
     assert.expect(expectedCount);
     const personHash = {
       type: 'person',
@@ -491,7 +479,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
       getAttr(identifier: StableRecordIdentifier, key: string): string {
         calledGet++;
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
+        if (!DEPRECATE_V1_RECORD_DATA) {
           assert.strictEqual(key, 'name', 'key passed to getAttr');
         } else {
           assert.strictEqual(identifier as unknown as string, 'name', 'key passed to getAttr');
@@ -529,10 +517,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
       { name: ['old', 'new'] },
       'changed attributes passes through RD value'
     );
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data controls belongsTo notifications', async function (assert) {
-    assert.expect(6);
+    assert.expect(7);
 
     let { owner } = this;
     let belongsToReturnValue;
@@ -554,9 +545,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
         assert.strictEqual(recordData.getResourceIdentifier().id, '2', 'Passed correct RD to setBelongsTo');
       }
 
-      setBelongsTo(identifier: StableRecordIdentifier, key: string, value: StableRecordIdentifier | null) {
-        assert.strictEqual(key, 'landlord', 'Passed correct key to setBelongsTo');
-        assert.strictEqual(value?.id, '2', 'Passed correct Identifier to setBelongsTo');
+      update(operation: LocalRelationshipOperation) {
+        assert.strictEqual(operation.op, 'replaceRelatedRecord', 'Passed correct op to update');
+        assert.strictEqual(operation.field, 'landlord', 'Passed correct key to update');
+        assert.strictEqual(
+          operation.value ? (operation.value as StableRecordIdentifier).id : null,
+          '2',
+          'Passed correct Identifier to update'
+        );
       }
     }
 
@@ -589,28 +585,26 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     house.set('landlord', runspired);
     assert.strictEqual(house.landlord.name, 'David', 'belongsTo does not change if RD did not notify');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data custom belongsTo', async function (assert) {
-    assert.expect(4);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 5 : 4);
     let { owner } = this;
 
     let belongsToReturnValue;
 
     let RelationshipRecordData;
-    if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
+    if (!DEPRECATE_V1_RECORD_DATA) {
       RelationshipRecordData = class extends TestRecordData {
         getRelationship(identifier: StableRecordIdentifier, key: string) {
           assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
           return belongsToReturnValue;
         }
 
-        setBelongsTo(
-          this: V2TestRecordData,
-          identifier: StableRecordIdentifier,
-          key: string,
-          value: StableRecordIdentifier | null
-        ) {
+        update(this: V2TestRecordData, operation: LocalRelationshipOperation) {
           belongsToReturnValue = {
             data: store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
           };
@@ -664,10 +658,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     // This is intentionally !== runspired to test the custom RD implementation
     assert.strictEqual(house.landlord.name, 'Igor', 'RecordData sets the custom belongsTo value');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data controls hasMany notifications', async function (assert) {
-    assert.expect(11);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 12 : 11);
 
     let { owner } = this;
 
@@ -681,22 +678,16 @@ module('integration/record-data - Custom RecordData Implementations', function (
         return hasManyReturnValue;
       }
       addToHasMany(key: string, recordDatas: any[], idx?: number) {
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
-          const key: string = arguments[1];
-          const identifiers: StableRecordIdentifier[] = arguments[2];
-          assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-          assert.strictEqual(identifiers[0].id, '2', 'Passed correct RD to addToHasMany');
+        if (!DEPRECATE_V1_RECORD_DATA) {
+          throw new Error('should not have called addToHasMany in v2');
         } else {
           assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
           assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to addToHasMany');
         }
       }
       removeFromHasMany(key: string, recordDatas: any[]) {
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
-          const key: string = arguments[1];
-          const identifiers: StableRecordIdentifier[] = arguments[2];
-          assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
-          assert.strictEqual(identifiers[0].id, '1', 'Passed correct RD to removeFromHasMany');
+        if (!DEPRECATE_V1_RECORD_DATA) {
+          throw new Error('should not have called removeFromHasMany in v2');
         } else {
           assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
           assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '1', 'Passed correct RD to removeFromHasMany');
@@ -705,10 +696,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
       setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
         assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '3', 'Passed correct RD to addToHasMany');
-      }
-      setHasMany(identifier: StableRecordIdentifier, key: string, values: StableRecordIdentifier[]) {
-        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(values[0].id, '3', 'Passed correct RD to addToHasMany');
       }
       update(operation: LocalRelationshipOperation) {
         if (operation.op === 'addToRelatedRecords') {
@@ -777,10 +764,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
     notifier.notifyChange(houseIdentifier, 'relationships', 'tenants');
     await settled();
     assert.deepEqual(people.slice(), [david], 'final lookup is correct once notified');
+
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data supports custom hasMany handling', async function (assert) {
-    assert.expect(10);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 11 : 10);
     let { owner } = this;
 
     let hasManyReturnValue;
@@ -793,11 +784,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       addToHasMany(this: V1TestRecordData, key: string, recordDatas: any[], idx?: number) {
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
-          const key: string = arguments[1];
-          const identifiers: StableRecordIdentifier[] = arguments[2];
-          assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-          assert.strictEqual(identifiers[0].id, '2', 'Passed correct RD to addToHasMany');
+        if (!DEPRECATE_V1_RECORD_DATA) {
+          throw new Error('should not have called addToHasMany in v2');
         } else {
           assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
           assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to addToHasMany');
@@ -813,11 +801,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       removeFromHasMany(this: V1TestRecordData, key: string, recordDatas: any[]) {
-        if (!DEPRECATE_V1_RECORD_DATA || V2CACHE_SINGLETON_MANAGER) {
-          const key: string = arguments[1];
-          const identifiers: StableRecordIdentifier[] = arguments[2];
-          assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
-          assert.strictEqual(identifiers[0].id, '2', 'Passed correct RD to removeFromHasMany');
+        if (!DEPRECATE_V1_RECORD_DATA) {
+          throw new Error('should not have called removeFromHasMany in v2');
         } else {
           assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
           assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to removeFromHasMany');
@@ -838,29 +823,12 @@ module('integration/record-data - Custom RecordData Implementations', function (
         this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
       }
 
-      setHasMany(
-        this: V2TestRecordData,
-        identifier: StableRecordIdentifier,
-        key: string,
-        values: StableRecordIdentifier[]
-      ) {
-        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(values[0].id, '3', 'Passed correct RD to addToHasMany');
-        hasManyReturnValue = {
-          data: [
-            store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }),
-            store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
-          ],
-        };
-        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
-      }
-
       update(this: V2TestRecordData, operation: LocalRelationshipOperation) {
         if (operation.op === 'addToRelatedRecords') {
           hasManyReturnValue = {
             data: [
-              { id: '3', type: 'person' },
-              { id: '2', type: 'person' },
+              store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
+              store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
             ],
           };
           assert.strictEqual(operation.field, 'tenants', 'correct field for addToRelatedRecords');
@@ -876,14 +844,16 @@ module('integration/record-data - Custom RecordData Implementations', function (
             ['2'],
             'correct ids passed'
           );
-          hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
+          hasManyReturnValue = {
+            data: [store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' })],
+          };
         } else if (operation.op === 'replaceRelatedRecords') {
           assert.strictEqual(operation.field, 'tenants', 'Passed correct key to addToHasMany');
           assert.strictEqual(operation.value[0].id, '3', 'Passed correct RD to addToHasMany');
           hasManyReturnValue = {
             data: [
-              { id: '1', type: 'person' },
-              { id: '2', type: 'person' },
+              store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }),
+              store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
             ],
           };
         } else {
@@ -935,5 +905,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
     house.set('tenants', [igor]);
     // This is intentionally !== [igor] to test the custom RD implementation
     assert.deepEqual(people.slice(), [david, runspired], 'setDirtyHasMany applies changes');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 });

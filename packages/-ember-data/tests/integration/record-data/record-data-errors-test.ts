@@ -6,8 +6,8 @@ import { Promise } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
-import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
@@ -19,7 +19,7 @@ import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import { Dict } from '@ember-data/types/q/utils';
 
-if (V2CACHE_SINGLETON_MANAGER) {
+if (!DEPRECATE_V1_RECORD_DATA) {
   class Person extends Model {
     @attr declare firstName: string;
     @attr declare lastName: string;
@@ -68,12 +68,6 @@ if (V2CACHE_SINGLETON_MANAGER) {
       identifier: StableRecordIdentifier,
       propertyName: string
     ): SingleResourceRelationship | CollectionResourceRelationship {
-      throw new Error('Method not implemented.');
-    }
-    setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void {
-      throw new Error('Method not implemented.');
-    }
-    setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
       throw new Error('Method not implemented.');
     }
     addToHasMany(
@@ -420,7 +414,7 @@ if (V2CACHE_SINGLETON_MANAGER) {
     });
 
     test('Record Data invalid errors', async function (assert) {
-      assert.expect(2);
+      assert.expect(3);
 
       const personHash = {
         type: 'person',
@@ -474,14 +468,15 @@ if (V2CACHE_SINGLETON_MANAGER) {
         data: [personHash],
       });
       let person = store.peekRecord('person', '1');
-      person.save().then(
+      await person.save().then(
         () => {},
         (err) => {}
       );
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
     });
 
     test('Record Data adapter errors', async function (assert) {
-      assert.expect(1);
+      assert.expect(2);
       const personHash = {
         type: 'person',
         id: '1',
@@ -523,10 +518,11 @@ if (V2CACHE_SINGLETON_MANAGER) {
         () => {},
         (err) => {}
       );
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
     });
 
     test('Getting errors from Record Data shows up on the record', async function (assert) {
-      assert.expect(7);
+      assert.expect(8);
       let storeWrapper;
       const personHash = {
         type: 'person',
@@ -593,6 +589,7 @@ if (V2CACHE_SINGLETON_MANAGER) {
       assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
       let lastNameError = person.errors.errorsFor('lastName').at(0);
       assert.strictEqual(lastNameError.attribute, 'lastName', 'error shows up on lastName');
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
     });
   });
 }

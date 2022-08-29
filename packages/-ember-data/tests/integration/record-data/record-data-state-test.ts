@@ -6,8 +6,8 @@ import { Promise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
-import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
@@ -159,12 +159,6 @@ class V2TestRecordData implements RecordData {
   ): SingleResourceRelationship | CollectionResourceRelationship {
     throw new Error('Method not implemented.');
   }
-  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void {
-    throw new Error('Method not implemented.');
-  }
-  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    throw new Error('Method not implemented.');
-  }
   addToHasMany(
     identifier: StableRecordIdentifier,
     propertyName: string,
@@ -196,7 +190,7 @@ class V2TestRecordData implements RecordData {
     return false;
   }
 }
-const TestRecordData = V2CACHE_SINGLETON_MANAGER ? V2TestRecordData : V1TestRecordData;
+const TestRecordData = DEPRECATE_V1_RECORD_DATA ? V1TestRecordData : V2TestRecordData;
 
 const CustomStore = Store.extend({
   createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
@@ -219,7 +213,7 @@ module('integration/record-data - Record Data State', function (hooks) {
   });
 
   test('Record Data state saving', async function (assert) {
-    assert.expect(3);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
 
     let isDeleted, isNew, isDeletionCommitted;
     let calledDelete = false;
@@ -300,10 +294,13 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     await person.save();
     assert.true(calledUpdate, 'called update if record isnt deleted or new');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 
   test('Record Data state record flags', async function (assert) {
-    assert.expect(13);
+    assert.expect(DEPRECATE_V1_RECORD_DATA ? 14 : 13);
     let isDeleted, isNew, isDeletionCommitted;
     let calledSetIsDeleted = false;
     let storeWrapper;
@@ -395,5 +392,8 @@ module('integration/record-data - Record Data State', function (hooks) {
     storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
   });
 });

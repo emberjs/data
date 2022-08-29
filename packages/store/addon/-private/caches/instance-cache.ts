@@ -4,10 +4,9 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { resolve } from 'rsvp';
 
-import { V2CACHE_SINGLETON_MANAGER } from '@ember-data/canary-features';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
-import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
 import type { Graph, peekGraph } from '@ember-data/record-data/-private/graph/index';
 import type {
   ExistingResourceIdentifierObject,
@@ -324,23 +323,23 @@ export class InstanceCache {
           identifier.lid,
           this._storeWrapper
         );
-        if (V2CACHE_SINGLETON_MANAGER) {
+        if (DEPRECATE_V1_RECORD_DATA) {
+          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        } else {
           recordData = this.__cacheManager =
             this.__cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
-        } else {
-          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
         }
       } else {
         let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
-        if (V2CACHE_SINGLETON_MANAGER) {
+        if (DEPRECATE_V1_RECORD_DATA) {
+          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        } else {
           if (DEBUG) {
-            recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager(this.store);
+            recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager();
             (recordData as SingletonRecordDataManager)._addRecordData(identifier, recordDataInstance as RecordData);
           } else {
             recordData = recordDataInstance as RecordData;
           }
-        } else {
-          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
         }
       }
       setRecordDataFor(identifier, recordData);

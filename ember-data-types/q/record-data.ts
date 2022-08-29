@@ -75,8 +75,6 @@ export interface RecordData {
 
   unloadRecord(identifier: StableRecordIdentifier): void;
 
-  update(operation: LocalRelationshipOperation): void;
-
   // Attrs
   // =====
 
@@ -92,16 +90,7 @@ export interface RecordData {
     identifier: StableRecordIdentifier,
     propertyName: string
   ): SingleResourceRelationship | CollectionResourceRelationship;
-
-  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void;
-  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void;
-  addToHasMany(
-    identifier: StableRecordIdentifier,
-    propertyName: string,
-    value: StableRecordIdentifier[],
-    idx?: number
-  ): void;
-  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void;
+  update(operation: LocalRelationshipOperation): void;
 
   // State
   // =============

@@ -5,7 +5,7 @@ import { importSync } from '@embroider/macros';
 import { all, resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
 import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph/index';
@@ -83,38 +83,7 @@ export class LegacySupport {
   }
 
   updateCache(operation: LocalRelationshipOperation): void {
-    if (DEPRECATE_V1_RECORD_DATA) {
-      switch (operation.op) {
-        case 'addToRelatedRecords':
-          this.recordData.addToHasMany(
-            operation.record,
-            operation.field,
-            operation.value as StableRecordIdentifier[],
-            operation.index
-          );
-          return;
-        case 'removeFromRelatedRecords':
-          this.recordData.removeFromHasMany(
-            operation.record,
-            operation.field,
-            operation.value as StableRecordIdentifier[]
-          );
-          return;
-        case 'replaceRelatedRecords':
-          this.recordData.setHasMany(operation.record, operation.field, operation.value as StableRecordIdentifier[]);
-          return;
-        case 'replaceRelatedRecord':
-          this.recordData.removeFromHasMany(operation.record, operation.field, [operation.prior!]);
-          this.recordData.addToHasMany(operation.record, operation.field, [operation.value!], operation.index);
-          return;
-        case 'sortRelatedRecords':
-          return;
-        default:
-          return;
-      }
-    } else {
-      this.recordData.update(operation);
-    }
+    this.recordData.update(operation);
   }
 
   _findBelongsTo(
@@ -204,7 +173,16 @@ export class LegacySupport {
   }
 
   setDirtyBelongsTo(key: string, value: RecordInstance | null) {
-    return this.recordData.setBelongsTo(this.identifier, key, extractIdentifierFromRecord(value));
+    return this.recordData.update(
+      {
+        op: 'replaceRelatedRecord',
+        record: this.identifier,
+        field: key,
+        value: extractIdentifierFromRecord(value),
+      },
+      // @ts-expect-error
+      true
+    );
   }
 
   _getCurrentState(
@@ -351,11 +329,6 @@ export class LegacySupport {
       }
     }
     assert(`hasMany only works with the @ember-data/record-data package`);
-  }
-
-  setDirtyHasMany(key: string, records: RecordInstance[]) {
-    assertRecordsPassedToHasMany(records);
-    return this.recordData.setHasMany(this.identifier, key, extractIdentifiersFromRecords(records));
   }
 
   _updatePromiseProxyFor(kind: 'hasMany', key: string, args: HasManyProxyCreateArgs): PromiseManyArray;
@@ -720,29 +693,6 @@ function handleCompletedRelationshipRequest(
   return isHasMany || !value
     ? (value as RelatedCollection | null)
     : recordExt.store.peekRecord(value as StableRecordIdentifier);
-}
-
-function assertRecordsPassedToHasMany(records: RecordInstance[]) {
-  assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
-  assert(
-    `All elements of a hasMany relationship must be instances of Model, you passed ${records
-      .map((r) => `${typeof r}`)
-      .join(', ')}`,
-    (function () {
-      return records.every((record) => {
-        try {
-          recordIdentifierFor(record);
-          return true;
-        } catch {
-          return false;
-        }
-      });
-    })()
-  );
-}
-
-function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
-  return records.map(extractIdentifierFromRecord) as StableRecordIdentifier[];
 }
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
