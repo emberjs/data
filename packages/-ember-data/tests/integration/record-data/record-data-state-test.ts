@@ -159,12 +159,6 @@ class V2TestRecordData implements RecordData {
   ): SingleResourceRelationship | CollectionResourceRelationship {
     throw new Error('Method not implemented.');
   }
-  setBelongsTo(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier | null): void {
-    throw new Error('Method not implemented.');
-  }
-  setHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
-    throw new Error('Method not implemented.');
-  }
   addToHasMany(
     identifier: StableRecordIdentifier,
     propertyName: string,

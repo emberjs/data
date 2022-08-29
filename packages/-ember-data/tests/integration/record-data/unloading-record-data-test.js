@@ -102,11 +102,9 @@ module('RecordData Compatibility', function (hooks) {
     changedAttributes() {}
     hasChangedAttributes() {}
     setAttr() {}
-    setHasMany() {}
     getHasMany() {}
     addToHasMany() {}
     removeFromHasMany() {}
-    setBelongsTo() {}
     getBelongsTo() {}
   }
   class V2CustomRecordData {
@@ -168,15 +166,11 @@ module('RecordData Compatibility', function (hooks) {
     changedAttributes() {}
     hasChangedAttributes() {}
     setAttr() {}
-    setHasMany() {}
-    getHasMany() {}
-    addToHasMany() {}
-    removeFromHasMany() {}
-    setBelongsTo() {}
-    getBelongsTo() {}
+    update() {}
+    getRelationship() {}
   }
 
-  const CustomRecordData = DEPRECATE_V1_RECORD_DATA ? V2CustomRecordData : V1CustomRecordData;
+  const CustomRecordData = DEPRECATE_V1_RECORD_DATA ? V1CustomRecordData : V2CustomRecordData;
 
   test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function (assert) {
     const originalCreateRecordDataFor = store.createRecordDataFor;

@@ -845,13 +845,23 @@ class SingletonRecordData implements RecordData {
             this.setAttr(identifier, name, propertyValue);
             break;
           case 'belongsTo':
-            this.setBelongsTo(identifier, name, propertyValue as StableRecordIdentifier | null);
+            this.update({
+              op: 'replaceRelatedRecord',
+              field: name,
+              record: identifier,
+              value: propertyValue as StableRecordIdentifier | null,
+            });
             relationship = graph.get(identifier, name);
             relationship.state.hasReceivedData = true;
             relationship.state.isEmpty = false;
             break;
           case 'hasMany':
-            this.setHasMany(identifier, name, propertyValue as StableRecordIdentifier[]);
+            this.update({
+              op: 'replaceRelatedRecords',
+              field: name,
+              record: identifier,
+              value: propertyValue as StableRecordIdentifier[],
+            });
             relationship = graph.get(identifier, name);
             relationship.state.hasReceivedData = true;
             relationship.state.isEmpty = false;
@@ -1059,44 +1069,6 @@ class SingletonRecordData implements RecordData {
     field: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
     return (graphFor(this.__storeWrapper).get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
-  }
-  setBelongsTo(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier | null): void {
-    graphFor(this.__storeWrapper).update({
-      op: 'replaceRelatedRecord',
-      record,
-      field,
-      value,
-    });
-  }
-  setHasMany(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier[]): void {
-    graphFor(this.__storeWrapper).update({
-      op: 'replaceRelatedRecords',
-      record,
-      field,
-      value,
-    });
-  }
-  addToHasMany(
-    record: StableRecordIdentifier,
-    field: string,
-    value: StableRecordIdentifier[],
-    index?: number | undefined
-  ): void {
-    graphFor(this.__storeWrapper).update({
-      op: 'addToRelatedRecords',
-      record,
-      field,
-      value,
-      index,
-    });
-  }
-  removeFromHasMany(record: StableRecordIdentifier, field: string, value: StableRecordIdentifier[]): void {
-    graphFor(this.__storeWrapper).update({
-      op: 'removeFromRelatedRecords',
-      record,
-      field,
-      value,
-    });
   }
 
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {

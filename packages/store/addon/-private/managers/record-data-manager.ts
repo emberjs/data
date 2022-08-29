@@ -134,7 +134,6 @@ export class NonSingletonRecordDataManager implements RecordData {
    *
    * @method update
    * @param operation
-   * @returns
    */
   // isCollection is only needed for interop with v1 cache
   update(operation: LocalRelationshipOperation, isResource?: boolean): void {
