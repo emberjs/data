@@ -342,6 +342,7 @@ module.exports = {
     "(public) @ember-data/store RecordDataManager#setDirtyHasMany",
     "(public) @ember-data/store RecordDataManager#setIsDeleted",
     "(public) @ember-data/store RecordDataManager#unloadRecord",
+    "(public) @ember-data/store RecordDataManager#update",
     "(public) @ember-data/store RecordDataManager#willCommit",
     '(public) @ember-data/store RecordReference#id',
     '(public) @ember-data/store RecordReference#identifier',
