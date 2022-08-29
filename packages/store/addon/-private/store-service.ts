@@ -11,7 +11,6 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { reject, resolve } from 'rsvp';
 
-import { V2CACHE_SINGLETON_RECORD_DATA } from '@ember-data/canary-features';
 import type DSModelClass from '@ember-data/model';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import {
@@ -2365,17 +2364,11 @@ class Store extends Service {
         storeWrapper = arguments[3];
       }
 
-      if (V2CACHE_SINGLETON_RECORD_DATA) {
-        // @ts-expect-error
-        this.__private_singleton_recordData = this.__private_singleton_recordData || new _RecordData(storeWrapper);
-        (
-          this.__private_singleton_recordData as RecordData & { createCache(identifier: StableRecordIdentifier): void }
-        ).createCache(identifier);
-        return this.__private_singleton_recordData;
-      }
-
-      // @ts-expect-error
-      return new _RecordData(identifier, storeWrapper);
+      this.__private_singleton_recordData = this.__private_singleton_recordData || new _RecordData(storeWrapper);
+      (
+        this.__private_singleton_recordData as RecordData & { createCache(identifier: StableRecordIdentifier): void }
+      ).createCache(identifier);
+      return this.__private_singleton_recordData;
     }
 
     assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);

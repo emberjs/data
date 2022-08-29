@@ -171,5 +171,4 @@
 */
 export default {
   SAMPLE_FEATURE_FLAG: null,
-  V2CACHE_SINGLETON_RECORD_DATA: true,
 };

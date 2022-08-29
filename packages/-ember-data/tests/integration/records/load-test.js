@@ -6,7 +6,6 @@ import { reject, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { V2CACHE_SINGLETON_RECORD_DATA } from '@ember-data/canary-features';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
@@ -223,13 +222,8 @@ module('integration/load - Loading Records', function (hooks) {
 
     // test that after the reload-due-to-unload our state is correct
     newRecordData = cache.peek({ identifier, bucket: 'recordData' });
-    if (V2CACHE_SINGLETON_RECORD_DATA) {
-      // this first assertion changes based on activation of singleton cache because its a simple mapping of identifier
-      // to state and we now have state
-      assert.false(recordData.isEmpty(identifier), 'after second find: Our original recordData is no longer empty');
-    } else {
-      assert.true(recordData.isEmpty(identifier), 'after second find: Our original recordData is still empty');
-    }
+    assert.false(recordData.isEmpty(identifier), 'after second find: Our original recordData is no longer empty');
+
     assert.false(newRecordData.isEmpty(identifier), 'after second find: We are no longer empty');
     assert.false(_isLoading(cache, identifier), 'after second find: We have loaded');
     assert.false(record.isReloading, 'after second find: We are not reloading');
