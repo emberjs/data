@@ -481,8 +481,6 @@ class IdentifierArray {
   }
 }
 
-Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
-
 export default IdentifierArray;
 
 if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
