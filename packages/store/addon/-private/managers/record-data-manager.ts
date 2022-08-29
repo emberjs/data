@@ -133,6 +133,7 @@ export class NonSingletonRecordDataManager implements RecordData {
    * on relationships only.
    *
    * @method update
+   * @public
    * @param operation
    */
   // isCollection is only needed for interop with v1 cache
