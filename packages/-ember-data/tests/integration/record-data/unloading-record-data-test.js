@@ -226,6 +226,10 @@ module('RecordData Compatibility', function (hooks) {
     let pets = chris.pets;
     let shen = pets.at(0);
 
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
+    }
+
     assert.strictEqual(shen.name, 'Shen', 'We found Shen');
     assert.strictEqual(customCalled, 2, 'we used the custom record-data for pet');
     assert.deepEqual(
@@ -365,6 +369,10 @@ module('RecordData Compatibility', function (hooks) {
     assert.strictEqual(recordDataInstances, 0, 'initially no instances');
 
     await store.findRecord('pet', '1');
+
+    if (DEPRECATE_V1_RECORD_DATA) {
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+    }
 
     assert.strictEqual(recordDataInstances, 1, 'record data created after promise fulfills');
   });
