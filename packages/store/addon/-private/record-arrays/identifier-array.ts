@@ -2,7 +2,7 @@
   @module @ember-data/store
 */
 import { assert, deprecate } from '@ember/debug';
-import { get } from '@ember/object';
+import { get, set } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { compare } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
@@ -779,35 +779,109 @@ if (DEPRECATE_ARRAY_LIKE) {
     return this.map((value) => (value[key] as (...args: unknown[]) => unknown)(...args));
   };
 
-  /*
-  Object.defineProperty(IdentifierArray.prototype, '[]', {
-    get() {
-      return this as IdentifierArray;
-    },
-  });
-  */
+  // @ts-expect-error
+  IdentifierArray.prototype.addArrayObserver = function () {
+    deprecateArrayLike(
+      this.DEPRECATED_CLASS_NAME,
+      'addArrayObserver',
+      'derived state or reacting at the change source'
+    );
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.removeArrayObserver = function () {
+    deprecateArrayLike(
+      this.DEPRECATED_CLASS_NAME,
+      'removeArrayObserver',
+      'derived state or reacting at the change source'
+    );
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.arrayContentWillChange = function () {
+    deprecateArrayLike(
+      this.DEPRECATED_CLASS_NAME,
+      'arrayContentWillChange',
+      'derived state or reacting at the change source'
+    );
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.arrayContentDidChange = function () {
+    deprecateArrayLike(
+      this.DEPRECATED_CLASS_NAME,
+      'arrayContentDidChange',
+      'derived state or reacting at the change source.'
+    );
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.reject = function (key: string, value?: unknown) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reject', 'filter');
+    if (arguments.length === 2) {
+      return this.filter((value) => {
+        return !get(value, key);
+      });
+    }
+    return this.filter((value) => {
+      return !get(value, key);
+    });
+  };
+
+  IdentifierArray.prototype.rejectBy = function (key: string, value?: unknown) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'rejectBy', 'filter');
+    if (arguments.length === 2) {
+      return this.filter((value) => {
+        return !get(value, key);
+      });
+    }
+    return this.filter((value) => {
+      return !get(value, key);
+    });
+  };
+
+  IdentifierArray.prototype.setEach = function (key: string, value: unknown) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setEach', 'forEach');
+    this.forEach((item) => set(item, key, value));
+  };
+
+  IdentifierArray.prototype.uniq = function () {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniq', 'filter');
+    // all current managed arrays are already enforced as unique
+    return this.slice();
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.uniqBy = function (key: string) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniqBy', 'filter');
+    // all current managed arrays are already enforced as unique
+    let seen = new Set();
+    let result: RecordInstance[] = [];
+    this.forEach((item) => {
+      let value = get(item, key);
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+      result.push(item);
+    });
+    return result;
+  };
+
+  IdentifierArray.prototype.without = function (value: RecordInstance) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'without', 'slice');
+    const newArr = this.slice();
+    const index = this.indexOf(value);
+    if (index !== -1) {
+      newArr.splice(index, 1);
+    }
+    return newArr;
+  };
 
   // @ts-expect-error
   IdentifierArray.prototype.firstObject = null;
   // @ts-expect-error
   IdentifierArray.prototype.lastObject = null;
-
-  /*
-  const InheritedProxyMethods = [
-    'findBy',
-    'reject',
-    'rejectBy',
-    'setEach',
-    'uniq',
-    'uniqBy',
-    'without',
-
-    'addArrayObserver',
-    'arrayContentDidChange',
-    'arrayContentWillChange',
-    'removeArrayObserver',
-  ];
-  */
 }
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
