@@ -2,7 +2,6 @@ import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
-import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';

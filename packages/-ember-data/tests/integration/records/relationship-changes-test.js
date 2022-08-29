@@ -53,48 +53,6 @@ const sibling2Ref = {
   id: '2',
 };
 
-const sibling3 = {
-  type: 'person',
-  id: '3',
-  attributes: {
-    firstName: 'Snakezn',
-    lastName: 'Ladderz',
-  },
-};
-
-const sibling3Ref = {
-  type: 'person',
-  id: '3',
-};
-
-const sibling4 = {
-  type: 'person',
-  id: '4',
-  attributes: {
-    firstName: 'Hamsterzn',
-    lastName: 'Gerbilz',
-  },
-};
-
-const sibling4Ref = {
-  type: 'person',
-  id: '4',
-};
-
-const sibling5 = {
-  type: 'person',
-  id: '5',
-  attributes: {
-    firstName: 'Donkeyzn',
-    lastName: 'Llamaz',
-  },
-};
-
-const sibling5Ref = {
-  type: 'person',
-  id: '5',
-};
-
 module('integration/records/relationship-changes - Relationship changes', function (hooks) {
   setupTest(hooks);
 

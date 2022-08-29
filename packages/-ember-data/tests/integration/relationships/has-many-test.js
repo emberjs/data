@@ -6,7 +6,6 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { all, hash, Promise as EmberPromise, reject, resolve } from 'rsvp';
 
-import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
