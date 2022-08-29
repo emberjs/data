@@ -171,7 +171,7 @@ function printItem(item, indent = 0) {
 }
 
 function formatSize(item, isCompressed = false) {
-  let size = formatBytes(isCompressed ? item.newSizeCompressed : item.newSize);
+  let size = formatBytes(isCompressed ? item.newSizeCompressed : item.newSize, false);
   let delta = formatDelta(item, isCompressed);
 
   return isCompressed ? chalk.grey(`(${chalk.white(size)} ${delta} compressed)`) : `${chalk.white(size)} ${delta}`;
@@ -191,7 +191,7 @@ function formatDelta(item, isCompressed = false) {
   }
 }
 
-function humanizeNumber(n) {
+function humanizeNumber(n, isDelta = true) {
   let s = n.toFixed(2);
   if (s.charAt(s.length - 1) === '0') {
     s = n.toFixed(1);
@@ -200,18 +200,18 @@ function humanizeNumber(n) {
       s = n.toFixed(0);
     }
   }
-  if (n > 0) {
+  if (isDelta && n > 0) {
     s = '+' + s;
   }
   return s;
 }
 
-function formatBytes(b) {
+function formatBytes(b, isDelta) {
   let str;
   if (b > 1024 || b < -1024) {
-    str = humanizeNumber(b / 1024) + ' KB';
+    str = humanizeNumber(b / 1024, isDelta) + ' KB';
   } else {
-    str = humanizeNumber(b) + ' B';
+    str = humanizeNumber(b, isDelta) + ' B';
   }
 
   return str;
