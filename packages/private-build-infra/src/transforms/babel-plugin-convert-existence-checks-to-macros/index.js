@@ -46,25 +46,31 @@ module.exports = function (babel) {
     name: 'ast-transform', // not required
     visitor: {
       ImportSpecifier(path, state) {
-        if (path.node.imported.name === 'HAS_RECORD_DATA_PACKAGE') {
-          const parent = path.findParent((path) => path.isImportDeclaration);
-          if (parent.node.specifiers.length > 1) {
-            path.remove();
-          } else {
-            parent.remove();
+        const replacements = state.opts;
+        Object.keys(replacements).forEach((key) => {
+          if (path.node?.imported?.name === key) {
+            const parent = path.findParent((path) => path.isImportDeclaration);
+            if (parent.node.specifiers.length > 1) {
+              path.remove();
+            } else {
+              parent.remove();
+            }
+            state.ensureImport('macroCondition', '@embroider/macros');
+            state.ensureImport('moduleExists', '@embroider/macros');
           }
-          state.ensureImport('macroCondition', '@embroider/macros');
-          state.ensureImport('moduleExists', '@embroider/macros');
-        }
+        });
       },
-      Identifier(path) {
-        if (path.node.name === 'HAS_RECORD_DATA_PACKAGE') {
-          if (t.isIfStatement(path.parent)) {
-            path.replaceWith(
-              t.callExpression(t.identifier('macroCondition'), [
-                t.callExpression(t.identifier('moduleExists'), [t.stringLiteral('@ember-data/record-data')]),
-              ])
-            );
+      Identifier(path, state) {
+        const replacements = state.opts;
+        for (const [key, value] of Object.entries(replacements)) {
+          if (path.node.name === key) {
+            if (t.isIfStatement(path.parent)) {
+              path.replaceWith(
+                t.callExpression(t.identifier('macroCondition'), [
+                  t.callExpression(t.identifier('moduleExists'), [t.stringLiteral(value)]),
+                ])
+              );
+            }
           }
         }
       },
