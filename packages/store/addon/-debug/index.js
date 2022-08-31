@@ -1,6 +1,8 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/private-build-infra/deprecations';
+
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
   relationship of the `record`.
@@ -29,18 +31,38 @@ if (DEBUG) {
   };
 
   assertPolymorphicType = function assertPolymorphicType(parentIdentifier, parentDefinition, addedIdentifier, store) {
-    store = store._store ? store._store : store; // allow usage with storeWrapper
-    let addedModelName = addedIdentifier.type;
-    let parentModelName = parentIdentifier.type;
-    let key = parentDefinition.key;
-    let relationshipModelName = parentDefinition.type;
-    let relationshipClass = store.modelFor(relationshipModelName);
-    let addedClass = store.modelFor(addedModelName);
+    let asserted = false;
 
-    let assertionMessage = `The '${addedModelName}' type does not implement '${relationshipModelName}' and thus cannot be assigned to the '${key}' relationship in '${parentModelName}'. Make it a descendant of '${relationshipModelName}' or use a mixin of the same name.`;
-    let isPolymorphic = checkPolymorphic(relationshipClass, addedClass);
+    if (parentDefinition.inverseIsImplicit) {
+      return;
+    }
+    if (parentDefinition.isPolymorphic) {
+      let meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
+        parentDefinition.inverseKey
+      ];
+      if (meta?.options?.as) {
+        asserted = true;
+        assert(
+          `The schema for the relationship '${parentDefinition.inverseKey}' on '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. The definition should specify 'as: "${parentDefinition.type}"' in options.`,
+          meta.options.as === parentDefinition.type
+        );
+      }
+    }
 
-    assert(assertionMessage, isPolymorphic);
+    if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM && !asserted) {
+      store = store._store ? store._store : store; // allow usage with storeWrapper
+      let addedModelName = addedIdentifier.type;
+      let parentModelName = parentIdentifier.type;
+      let key = parentDefinition.key;
+      let relationshipModelName = parentDefinition.type;
+      let relationshipClass = store.modelFor(relationshipModelName);
+      let addedClass = store.modelFor(addedModelName);
+
+      let assertionMessage = `The '${addedModelName}' type does not implement '${relationshipModelName}' and thus cannot be assigned to the '${key}' relationship in '${parentModelName}'. Make it a descendant of '${relationshipModelName}' or use a mixin of the same name.`;
+      let isPolymorphic = checkPolymorphic(relationshipClass, addedClass);
+
+      assert(assertionMessage, isPolymorphic);
+    }
   };
 }
 

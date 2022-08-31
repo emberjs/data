@@ -1,5 +1,4 @@
 import Mixin from '@ember/object/mixin';
-import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 
@@ -14,23 +13,24 @@ module(
   'integration/relationships/polymorphic_mixins_has_many_test - Polymorphic hasMany relationships with mixins',
   function (hooks) {
     setupTest(hooks);
+    class User extends Model {
+      @attr name;
+      @hasMany('message', { async: true, inverse: 'user', polymorphic: true }) messages;
+    }
 
-    let Message;
+    const Message = Mixin.create({
+      title: attr('string'),
+      user: belongsTo('user', { async: true, inverse: 'messages', as: 'message' }),
+    });
+
+    class Video extends Model.extend(Message) {
+      @attr video;
+    }
+    class NotMessage extends Model {
+      @attr video;
+    }
 
     hooks.beforeEach(function () {
-      const User = Model.extend({
-        name: attr('string'),
-        messages: hasMany('message', { async: true, inverse: 'user', polymorphic: true }),
-      });
-
-      Message = Mixin.create({
-        title: attr('string'),
-        user: belongsTo('user', { async: true, inverse: 'messages' }),
-      });
-
-      const Video = Model.extend(Message, { video: attr() });
-      const NotMessage = Model.extend({ video: attr() });
-
       this.owner.register('model:user', User);
       this.owner.register('model:video', Video);
       this.owner.register('model:not-message', NotMessage);
@@ -45,136 +45,110 @@ module(
     Server loading tests
   */
 
-    test('Relationship is available from the belongsTo side even if only loaded from the hasMany side - async', function (assert) {
-      let store = this.owner.lookup('service:store');
+    test('Relationship is available from the belongsTo side even if only loaded from the hasMany side - async', async function (assert) {
+      const store = this.owner.lookup('service:store');
 
-      var user, video;
-      run(function () {
-        store.push({
-          data: [
-            {
-              type: 'user',
-              id: '1',
-              attributes: {
-                name: 'Stanley',
-              },
-              relationships: {
-                messages: {
-                  data: [{ type: 'video', id: '2' }],
-                },
+      const [user, video] = store.push({
+        data: [
+          {
+            type: 'user',
+            id: '1',
+            attributes: {
+              name: 'Stanley',
+            },
+            relationships: {
+              messages: {
+                data: [{ type: 'video', id: '2' }],
               },
             },
-            {
-              type: 'video',
-              id: '2',
-              attributes: {
-                video: 'Here comes Youtube',
-              },
+          },
+          {
+            type: 'video',
+            id: '2',
+            attributes: {
+              video: 'Here comes Youtube',
             },
-          ],
-        });
-        user = store.peekRecord('user', 1);
-        video = store.peekRecord('video', 2);
+          },
+        ],
       });
-      run(function () {
-        user.messages.then(function (messages) {
-          assert.strictEqual(messages.at(0), video, 'The hasMany has loaded correctly');
-          messages.at(0).user.then(function (fetchedUser) {
-            assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
-          });
-        });
-      });
+
+      const messages = await user.messages;
+      assert.strictEqual(messages.at(0), video, 'The hasMany has loaded correctly');
+      const fetchedUser = await messages.at(0).user;
+      assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
     });
 
     /*
     Local edits
   */
-    test('Pushing to the hasMany reflects the change on the belongsTo side - async', function (assert) {
-      let store = this.owner.lookup('service:store');
+    test('Pushing to the hasMany reflects the change on the belongsTo side - async', async function (assert) {
+      const store = this.owner.lookup('service:store');
 
-      var user, video;
-      run(function () {
-        store.push({
-          data: [
-            {
-              type: 'user',
-              id: '1',
-              attributes: {
-                name: 'Stanley',
-              },
-              relationships: {
-                messages: {
-                  data: [],
-                },
+      const [user, video] = store.push({
+        data: [
+          {
+            type: 'user',
+            id: '1',
+            attributes: {
+              name: 'Stanley',
+            },
+            relationships: {
+              messages: {
+                data: [],
               },
             },
-            {
-              type: 'video',
-              id: '2',
-              attributes: {
-                video: 'Here comes Youtube',
-              },
+          },
+          {
+            type: 'video',
+            id: '2',
+            attributes: {
+              video: 'Here comes Youtube',
             },
-          ],
-        });
-        user = store.peekRecord('user', 1);
-        video = store.peekRecord('video', 2);
+          },
+        ],
       });
 
-      run(function () {
-        user.messages.then(function (fetchedMessages) {
-          fetchedMessages.push(video);
-          video.user.then(function (fetchedUser) {
-            assert.strictEqual(fetchedUser, user, 'user got set correctly');
-          });
-        });
-      });
+      const fetchedMessages = await user.messages;
+      fetchedMessages.push(video);
+      const fetchedUser = await video.user;
+      assert.strictEqual(fetchedUser, user, 'user got set correctly');
     });
 
-    test('NATIVE CLASSES: Pushing to the hasMany reflects the change on the belongsTo side - async', function (assert) {
+    test('NATIVE CLASSES: Pushing to the hasMany reflects the change on the belongsTo side - async', async function (assert) {
       class Video extends Model.extend(Message) {}
 
       this.owner.register('model:video', Video);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-      var user, video;
-      run(function () {
-        store.push({
-          data: [
-            {
-              type: 'user',
-              id: '1',
-              attributes: {
-                name: 'Stanley',
-              },
-              relationships: {
-                messages: {
-                  data: [],
-                },
+      const [user, video] = store.push({
+        data: [
+          {
+            type: 'user',
+            id: '1',
+            attributes: {
+              name: 'Stanley',
+            },
+            relationships: {
+              messages: {
+                data: [],
               },
             },
-            {
-              type: 'video',
-              id: '2',
-              attributes: {
-                video: 'Here comes Youtube',
-              },
+          },
+          {
+            type: 'video',
+            id: '2',
+            attributes: {
+              video: 'Here comes Youtube',
             },
-          ],
-        });
-        user = store.peekRecord('user', 1);
-        video = store.peekRecord('video', 2);
+          },
+        ],
       });
 
-      run(function () {
-        user.messages.then(function (fetchedMessages) {
-          fetchedMessages.push(video);
-          video.user.then(function (fetchedUser) {
-            assert.strictEqual(fetchedUser, user, 'user got set correctly');
-          });
-        });
-      });
+      const fetchedMessages = await user.messages;
+      fetchedMessages.push(video);
+      const fetchedUser = await video.user;
+      assert.strictEqual(fetchedUser, user, 'user got set correctly');
     });
 
     /*
@@ -182,54 +156,10 @@ module(
   */
     testInDebug(
       'Pushing a an object that does not implement the mixin to the mixin accepting array errors out',
-      function (assert) {
-        let store = this.owner.lookup('service:store');
+      async function (assert) {
+        const store = this.owner.lookup('service:store');
 
-        var user, notMessage;
-        run(function () {
-          store.push({
-            data: [
-              {
-                type: 'user',
-                id: '1',
-                attributes: {
-                  name: 'Stanley',
-                },
-                relationships: {
-                  messages: {
-                    data: [],
-                  },
-                },
-              },
-              {
-                type: 'not-message',
-                id: '2',
-                attributes: {
-                  video: 'Here comes Youtube',
-                },
-              },
-            ],
-          });
-          user = store.peekRecord('user', 1);
-          notMessage = store.peekRecord('not-message', 2);
-        });
-
-        run(function () {
-          user.messages.then(function (fetchedMessages) {
-            assert.expectAssertion(function () {
-              fetchedMessages.push(notMessage);
-            }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message/);
-          });
-        });
-      }
-    );
-
-    test('Pushing to the hasMany reflects the change on the belongsTo side - model injections true', function (assert) {
-      let store = this.owner.lookup('service:store');
-
-      var user, video;
-      run(function () {
-        store.push({
+        const [user, notMessage] = store.push({
           data: [
             {
               type: 'user',
@@ -244,7 +174,7 @@ module(
               },
             },
             {
-              type: 'video',
+              type: 'not-message',
               id: '2',
               attributes: {
                 video: 'Here comes Youtube',
@@ -252,18 +182,45 @@ module(
             },
           ],
         });
-        user = store.peekRecord('user', 1);
-        video = store.peekRecord('video', 2);
+
+        const fetchedMessages = await user.messages;
+        assert.expectAssertion(function () {
+          fetchedMessages.push(notMessage);
+        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message/);
+      }
+    );
+
+    test('Pushing to the hasMany reflects the change on the belongsTo side - model injections true', async function (assert) {
+      const store = this.owner.lookup('service:store');
+
+      const [user, video] = store.push({
+        data: [
+          {
+            type: 'user',
+            id: '1',
+            attributes: {
+              name: 'Stanley',
+            },
+            relationships: {
+              messages: {
+                data: [],
+              },
+            },
+          },
+          {
+            type: 'video',
+            id: '2',
+            attributes: {
+              video: 'Here comes Youtube',
+            },
+          },
+        ],
       });
 
-      run(function () {
-        user.messages.then(function (fetchedMessages) {
-          fetchedMessages.push(video);
-          video.user.then(function (fetchedUser) {
-            assert.strictEqual(fetchedUser, user, 'user got set correctly');
-          });
-        });
-      });
+      const fetchedMessages = await user.messages;
+      fetchedMessages.push(video);
+      const fetchedUser = await video.user;
+      assert.strictEqual(fetchedUser, user, 'user got set correctly');
     });
 
     /*
@@ -271,45 +228,37 @@ module(
   */
     testInDebug(
       'Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true',
-      function (assert) {
-        let store = this.owner.lookup('service:store');
+      async function (assert) {
+        const store = this.owner.lookup('service:store');
 
-        var user, notMessage;
-        run(function () {
-          store.push({
-            data: [
-              {
-                type: 'user',
-                id: '1',
-                attributes: {
-                  name: 'Stanley',
-                },
-                relationships: {
-                  messages: {
-                    data: [],
-                  },
+        const [user, notMessage] = store.push({
+          data: [
+            {
+              type: 'user',
+              id: '1',
+              attributes: {
+                name: 'Stanley',
+              },
+              relationships: {
+                messages: {
+                  data: [],
                 },
               },
-              {
-                type: 'not-message',
-                id: '2',
-                attributes: {
-                  video: 'Here comes Youtube',
-                },
+            },
+            {
+              type: 'not-message',
+              id: '2',
+              attributes: {
+                video: 'Here comes Youtube',
               },
-            ],
-          });
-          user = store.peekRecord('user', 1);
-          notMessage = store.peekRecord('not-message', 2);
+            },
+          ],
         });
 
-        run(function () {
-          user.messages.then(function (fetchedMessages) {
-            assert.expectAssertion(function () {
-              fetchedMessages.push(notMessage);
-            }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
-          });
-        });
+        const fetchedMessages = await user.messages;
+        assert.expectAssertion(function () {
+          fetchedMessages.push(notMessage);
+        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
       }
     );
   }

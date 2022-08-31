@@ -7,7 +7,6 @@ import EmberError from '@ember/error';
 import EmberObject from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
-import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
@@ -18,6 +17,7 @@ import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EARLY_STATIC,
   DEPRECATE_MODEL_REOPEN,
+  DEPRECATE_NON_EXPLICIT_POLYMORPHISM,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
@@ -58,7 +58,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let relationshipsForType = relationshipMap.get(type.modelName);
   let relationships = Array.isArray(relationshipsForType)
     ? relationshipsForType.filter((relationship) => {
-        let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+        let optionsForRelationship = relationship.options;
 
         if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
           return true;
@@ -1394,42 +1394,46 @@ class Model extends EmberObject {
         this.modelName
       );
     }
-    let inverseType = this.typeForRelationship(name, store);
-    if (!inverseType) {
-      return null;
-    }
 
-    let propertyMeta = this.metaForProperty(name);
+    const relationship = this.relationshipsByName.get(name);
+    const { options } = relationship;
+    const isPolymorphic = options.polymorphic;
+
     //If inverse is manually specified to be null, like  `comments: hasMany('message', { inverse: null })`
-    let options = propertyMeta.options;
-    if (options.inverse === null) {
+    const isExplicitInverseNull = options.inverse === null;
+    const isAbstractType =
+      !isExplicitInverseNull && isPolymorphic && !store.getSchemaDefinitionService().doesTypeExist(relationship.type);
+
+    if (isExplicitInverseNull || isAbstractType) {
+      assert(
+        `No schema for the abstract type '${relationship.type}' for the polymorphic relationship '${name}' on '${this.modelName}' was provided by the SchemaDefinitionService.`,
+        !isPolymorphic || isExplicitInverseNull
+      );
       return null;
     }
 
-    let inverseName, inverseKind, inverse, inverseOptions;
+    let fieldOnInverse, inverseKind, inverseRelationship, inverseOptions;
+    let inverseSchema = this.typeForRelationship(name, store);
 
+    // if the type does not exist and we are not polymorphic
     //If inverse is specified manually, return the inverse
-    if (options.inverse) {
-      inverseName = options.inverse;
-      inverse = inverseType.relationshipsByName.get(inverseName);
+    if (options.inverse !== undefined) {
+      fieldOnInverse = options.inverse;
+      inverseRelationship = inverseSchema && inverseSchema.relationshipsByName.get(fieldOnInverse);
 
       assert(
-        "We found no inverse relationships by the name of '" +
-          inverseName +
-          "' on the '" +
-          inverseType.modelName +
-          "' model. This is most likely due to a missing attribute on your model definition.",
-        !isNone(inverse)
+        `We found no field named '${fieldOnInverse}' on the schema for '${inverseSchema.modelName}' to be the inverse of the '${name}' relationship on '${this.modelName}'. This is most likely due to a missing field on your model definition.`,
+        inverseRelationship
       );
 
       // TODO probably just return the whole inverse here
-      inverseKind = inverse.kind;
-      inverseOptions = inverse.options;
+      inverseKind = inverseRelationship.kind;
+      inverseOptions = inverseRelationship.options;
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
-      if (propertyMeta.type === propertyMeta.parentModelName) {
+      if (relationship.type === relationship.parentModelName) {
         warn(
-          `Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
+          `Detected a reflexive relationship named '${name}' on the schema for ${relationship.type} without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
           false,
           {
             id: 'ds.model.reflexive-relationship-without-inverse',
@@ -1437,30 +1441,33 @@ class Model extends EmberObject {
         );
       }
 
-      let possibleRelationships = findPossibleInverses(this, inverseType, name);
+      let possibleRelationships = findPossibleInverses(this, inverseSchema, name);
 
       if (possibleRelationships.length === 0) {
         return null;
       }
 
-      let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
-        let optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
-        return name === optionsForRelationship.inverse;
-      });
+      if (DEBUG) {
+        let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
+          let optionsForRelationship = possibleRelationship.options;
+          return name === optionsForRelationship.inverse;
+        });
 
-      assert(
-        "You defined the '" +
-          name +
-          "' relationship on " +
-          this +
-          ', but you defined the inverse relationships of type ' +
-          inverseType.toString() +
-          ' multiple times. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
-        filteredRelationships.length < 2
-      );
+        assert(
+          "You defined the '" +
+            name +
+            "' relationship on " +
+            this +
+            ', but you defined the inverse relationships of type ' +
+            inverseSchema.toString() +
+            ' multiple times. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
+          filteredRelationships.length < 2
+        );
+      }
 
-      if (filteredRelationships.length === 1) {
-        possibleRelationships = filteredRelationships;
+      let explicitRelationship = possibleRelationships.find((relationship) => relationship.options.inverse === name);
+      if (explicitRelationship) {
+        possibleRelationships = [explicitRelationship];
       }
 
       assert(
@@ -1471,24 +1478,78 @@ class Model extends EmberObject {
           ', but multiple possible inverse relationships of type ' +
           this +
           ' were found on ' +
-          inverseType +
+          inverseSchema +
           '. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
         possibleRelationships.length === 1
       );
 
-      inverseName = possibleRelationships[0].name;
+      fieldOnInverse = possibleRelationships[0].name;
       inverseKind = possibleRelationships[0].kind;
       inverseOptions = possibleRelationships[0].options;
     }
 
+    // ensure inverse is properly configured
+    if (DEBUG && isPolymorphic) {
+      if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+        if (!inverseOptions.as) {
+          deprecate(
+            `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
+            false,
+            {
+              id: 'ember-data:non-explicit-relationships',
+              since: { enabled: '4.8', available: '4.8' },
+              until: '5.0',
+              for: 'ember-data',
+            }
+          );
+        }
+      } else {
+        assert(
+          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
+          inverseOptions.as
+        );
+        assert(
+          `options.as should match the expected type of the polymorphic relationship. Expected field '${fieldOnInverse}' on type '${inverseSchema.modelName}' to specify '${relationship.type}' but found '${inverseOptions.as}'`,
+          !!inverseOptions.as && relationship.type === inverseOptions.as
+        );
+      }
+    }
+
+    // ensure we are properly configured
+    if (DEBUG && inverseOptions.polymorphic) {
+      if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+        if (!options.as) {
+          deprecate(
+            `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
+            false,
+            {
+              id: 'ember-data:non-explicit-relationships',
+              since: { enabled: '4.8', available: '4.8' },
+              until: '5.0',
+              for: 'ember-data',
+            }
+          );
+        }
+      } else {
+        assert(
+          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
+          options.as
+        );
+        assert(
+          `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${this.modelName}' to specify '${inverseRelationship.type}' but found '${options.as}'`,
+          !!options.as && inverseRelationship.type === options.as
+        );
+      }
+    }
+
     assert(
-      `The ${inverseType.modelName}:${inverseName} relationship declares 'inverse: null', but it was resolved as the inverse for ${this.modelName}:${name}.`,
-      !inverseOptions || inverseOptions.inverse !== null
+      `The ${inverseSchema.modelName}:${fieldOnInverse} relationship declares 'inverse: null', but it was resolved as the inverse for ${this.modelName}:${name}.`,
+      inverseOptions.inverse !== null
     );
 
     return {
-      type: inverseType,
-      name: inverseName,
+      type: inverseSchema,
+      name: fieldOnInverse,
       kind: inverseKind,
       options: inverseOptions,
     };

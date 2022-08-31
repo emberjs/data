@@ -277,16 +277,20 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
 
     class Message extends Model {
-      @belongsTo('user', { inverse: 'messages', async: false }) user;
+      @belongsTo('user', { inverse: 'messages', async: false, as: 'message' }) user;
       @attr('date') created_at;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr('string') body;
+      @attr('date') created_at;
+      @belongsTo('user', { inverse: 'messages', async: false, as: 'message' }) user;
       @belongsTo('message', { polymorphic: true, async: false, inverse: null }) message;
     }
-    class Post extends Message {
+    class Post extends Model {
       @attr('string') title;
+      @attr('date') created_at;
+      @belongsTo('user', { inverse: 'messages', async: false, as: 'message' }) user;
       @hasMany('comment', { async: false, inverse: null }) comments;
     }
 
@@ -296,23 +300,23 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
     }
 
-    const Book1 = Model.extend({
-      name: attr('string'),
-    });
+    class Book1 extends Model {
+      @attr name;
+    }
 
     class Chapter extends Model {
       @attr title;
       @belongsTo('book', { async: false, inverse: 'chapters' }) book;
     }
 
-    const Author = Model.extend({
-      name: attr('string'),
-      books: hasMany('book', { async: false, inverse: 'author' }),
-    });
+    class Author extends Model {
+      @attr name;
+      @hasMany('book', { async: false, inverse: 'author' }) books;
+    }
 
-    const Section = Model.extend({
-      name: attr('string'),
-    });
+    class Section extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:user', User);
     this.owner.register('model:post', Post);
@@ -428,16 +432,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
   test('The store can materialize a non loaded monomorphic belongsTo association', function (assert) {
     assert.expect(1);
-    class Message extends Model {
-      @belongsTo('user', { inverse: 'messages', async: false }) user;
-      @attr('date') created_at;
-    }
-    class Post extends Message {
+
+    class Post extends Model {
       @attr('string') title;
       @hasMany('comment', { async: false, inverse: null }) comments;
-      @belongsTo('user', { async: true, inverse: 'messages' }) user;
+      @belongsTo('user', { async: true, inverse: 'messages', as: 'message' }) user;
     }
-    this.owner.register('model:message', Message);
     this.owner.register('model:post', Post);
 
     let store = this.owner.lookup('service:store');

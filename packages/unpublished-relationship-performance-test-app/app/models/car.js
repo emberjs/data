@@ -1,6 +1,4 @@
-import DS from 'ember-data';
-
-const { Model, belongsTo, hasMany } = DS;
+import Model, { belongsTo, hasMany } from '@ember-data/model';
 
 export default Model.extend({
   make: belongsTo('make', { async: false, inverse: 'cars' }),

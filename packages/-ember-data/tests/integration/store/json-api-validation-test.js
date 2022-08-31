@@ -3,15 +3,17 @@ import { run } from '@ember/runloop';
 import QUnit, { module } from 'qunit';
 import { resolve } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import Adapter from '@ember-data/adapter';
+import Model, { attr } from '@ember-data/model';
+import Serializer from '@ember-data/serializer';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function payloadError(owner, payload, expectedError, assert) {
   owner.register(
     'serializer:person',
-    DS.Serializer.extend({
+    Serializer.extend({
       normalizeResponse(store, type, pld) {
         return pld;
       },
@@ -19,7 +21,7 @@ function payloadError(owner, payload, expectedError, assert) {
   );
   owner.register(
     'adapter:person',
-    DS.Adapter.extend({
+    Adapter.extend({
       findRecord() {
         return resolve(payload);
       },
@@ -44,11 +46,11 @@ module('integration/store/json-validation', function (hooks) {
   hooks.beforeEach(function () {
     QUnit.assert.payloadError = payloadError.bind(QUnit.assert);
 
-    const Person = DS.Model.extend({
-      updatedAt: DS.attr('string'),
-      name: DS.attr('string'),
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
+    const Person = Model.extend({
+      updatedAt: attr('string'),
+      name: attr('string'),
+      firstName: attr('string'),
+      lastName: attr('string'),
     });
 
     this.owner.register('model:person', Person);
@@ -61,14 +63,14 @@ module('integration/store/json-validation', function (hooks) {
   testInDebug("when normalizeResponse returns undefined (or doesn't return), throws an error", function (assert) {
     this.owner.register(
       'serializer:person',
-      DS.Serializer.extend({
+      Serializer.extend({
         normalizeResponse() {},
       })
     );
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord() {
           return resolve({ data: {} });
         },
@@ -87,7 +89,7 @@ module('integration/store/json-validation', function (hooks) {
   testInDebug('when normalizeResponse returns null, throws an error', function (assert) {
     this.owner.register(
       'serializer:person',
-      DS.Serializer.extend({
+      Serializer.extend({
         normalizeResponse() {
           return null;
         },
@@ -96,7 +98,7 @@ module('integration/store/json-validation', function (hooks) {
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord() {
           return resolve({ data: {} });
         },
@@ -115,7 +117,7 @@ module('integration/store/json-validation', function (hooks) {
   testInDebug('when normalizeResponse returns an empty object, throws an error', function (assert) {
     this.owner.register(
       'serializer:person',
-      DS.Serializer.extend({
+      Serializer.extend({
         normalizeResponse() {
           return {};
         },
@@ -124,7 +126,7 @@ module('integration/store/json-validation', function (hooks) {
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord() {
           return resolve({ data: {} });
         },
@@ -145,7 +147,7 @@ module('integration/store/json-validation', function (hooks) {
     function (assert) {
       this.owner.register(
         'serializer:person',
-        DS.Serializer.extend({
+        Serializer.extend({
           normalizeResponse() {
             return {
               data: [],
@@ -157,7 +159,7 @@ module('integration/store/json-validation', function (hooks) {
 
       this.owner.register(
         'adapter:person',
-        DS.Adapter.extend({
+        Adapter.extend({
           findRecord() {
             return resolve({ data: {} });
           },

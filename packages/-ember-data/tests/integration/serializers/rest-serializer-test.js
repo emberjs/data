@@ -3,11 +3,12 @@ import { camelize, dasherize, decamelize } from '@ember/string';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
 import Inflector, { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
+import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONSerializer from '@ember-data/serializer/json';
 import RESTSerializer from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -62,7 +63,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     this.owner.register('model:basket', Basket);
     this.owner.register('model:container', Container);
 
-    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
 
     let store = this.owner.lookup('service:store');
@@ -93,7 +94,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('normalizeResponse should extract meta using extractMeta', function (assert) {
     this.owner.register(
       'serializer:home-planet',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         extractMeta(store, modelClass, payload) {
           let meta = this._super(...arguments);
           meta.authors.push('Tomhuda');
@@ -125,8 +126,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       return singularize(camelized);
     };
 
-    this.owner.register('serializer:home-planet', DS.JSONSerializer.extend());
-    this.owner.register('serializer:super-villain', DS.JSONSerializer.extend());
+    this.owner.register('serializer:home-planet', JSONSerializer.extend());
+    this.owner.register('serializer:super-villain', JSONSerializer.extend());
 
     var jsonHash = {
       home_planets: [
@@ -196,7 +197,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     this.owner.register(
       'serializer:home-planet',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         normalize() {
           homePlanetNormalizeCount++;
           return this._super.apply(this, arguments);
@@ -235,8 +236,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     var homePlanet;
     var oldModelNameFromPayloadKey = serializer.modelNameFromPayloadKey;
-    this.owner.register('serializer:super-villain', DS.JSONSerializer.extend());
-    this.owner.register('serializer:home-planet', DS.JSONSerializer.extend());
+    this.owner.register('serializer:super-villain', JSONSerializer.extend());
+    this.owner.register('serializer:home-planet', JSONSerializer.extend());
 
     serializer.modelNameFromPayloadKey = function (root) {
       //return some garbage that won"t resolve in the container
@@ -277,8 +278,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let serializer = store.serializerFor('application');
 
     var homePlanets;
-    this.owner.register('serializer:super-villain', DS.JSONSerializer);
-    this.owner.register('serializer:home-planet', DS.JSONSerializer);
+    this.owner.register('serializer:super-villain', JSONSerializer);
+    this.owner.register('serializer:home-planet', JSONSerializer);
     serializer.modelNameFromPayloadKey = function (root) {
       //return some garbage that won"t resolve in the container
       return 'garbage';
@@ -350,10 +351,10 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('normalizeResponse loads secondary records with correct serializer', function (assert) {
     var superVillainNormalizeCount = 0;
 
-    this.owner.register('serializer:evil-minion', DS.JSONSerializer);
+    this.owner.register('serializer:evil-minion', JSONSerializer);
     this.owner.register(
       'serializer:super-villain',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         normalize() {
           superVillainNormalizeCount++;
           return this._super.apply(this, arguments);
@@ -397,10 +398,10 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('normalizeResponse loads secondary records with correct serializer', function (assert) {
     var superVillainNormalizeCount = 0;
 
-    this.owner.register('serializer:evil-minion', DS.JSONSerializer);
+    this.owner.register('serializer:evil-minion', JSONSerializer);
     this.owner.register(
       'serializer:super-villain',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         normalize() {
           superVillainNormalizeCount++;
           return this._super.apply(this, arguments);
@@ -424,8 +425,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test('normalizeResponse can handle large included arrays', function (assert) {
-    this.owner.register('serializer:super-villain', DS.RESTSerializer);
-    this.owner.register('serializer:evil-minion', DS.RESTSerializer);
+    this.owner.register('serializer:super-villain', RESTSerializer);
+    this.owner.register('serializer:evil-minion', RESTSerializer);
 
     let evilMinions = [];
     // The actual stack size seems to vary based on browser and potenetially hardware and
@@ -457,7 +458,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('normalize should allow for different levels of normalization', function (assert) {
     this.owner.register(
       'serializer:evil-minion',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         attrs: {
           superVillain: 'is_super_villain',
         },
@@ -485,7 +486,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('normalize should allow for different levels of normalization - attributes', function (assert) {
     this.owner.register(
       'serializer:evil-minion',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         attrs: {
           name: 'full_name',
         },
@@ -633,7 +634,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     this.owner.register(
       'serializer:home-planet',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         payloadKeyFromModelName(modelName) {
           return dasherize(modelName);
         },
@@ -809,7 +810,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       ],
     };
     var array;
-    this.owner.register('serializer:comment', DS.JSONSerializer);
+    this.owner.register('serializer:comment', JSONSerializer);
 
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
@@ -935,7 +936,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('Serializer should respect the attrs hash in links', function (assert) {
     this.owner.register(
       'serializer:super-villain',
-      DS.RESTSerializer.extend({
+      RESTSerializer.extend({
         attrs: {
           evilMinions: { key: 'my_minions' },
         },
@@ -963,8 +964,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
   // https://github.com/emberjs/data/issues/3805
   test('normalizes sideloaded single record so that it sideloads correctly - belongsTo - GH-3805', function (assert) {
-    this.owner.register('serializer:evil-minion', DS.JSONSerializer);
-    this.owner.register('serializer:doomsday-device', DS.RESTSerializer.extend());
+    this.owner.register('serializer:evil-minion', JSONSerializer);
+    this.owner.register('serializer:doomsday-device', RESTSerializer.extend());
 
     let payload = {
       doomsdayDevice: {
@@ -999,8 +1000,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
   // https://github.com/emberjs/data/issues/3805
   test('normalizes sideloaded single record so that it sideloads correctly - hasMany - GH-3805', function (assert) {
-    this.owner.register('serializer:super-villain', DS.JSONSerializer);
-    this.owner.register('serializer:home-planet', DS.RESTSerializer.extend());
+    this.owner.register('serializer:super-villain', JSONSerializer);
+    this.owner.register('serializer:home-planet', RESTSerializer.extend());
 
     let payload = {
       homePlanet: {

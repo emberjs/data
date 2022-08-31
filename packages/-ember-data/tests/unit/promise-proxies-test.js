@@ -3,11 +3,11 @@ import { A } from '@ember/array';
 import { module, test } from 'qunit';
 import { Promise as EmberPromise } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { belongsTo } from '@ember-data/model';
+import { PromiseManyArray } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('PromiseManyArray', function () {
@@ -18,7 +18,7 @@ module('PromiseManyArray', function () {
 
     content.reload = () => EmberPromise.resolve(content);
 
-    let array = DS.PromiseManyArray.create({
+    let array = PromiseManyArray.create({
       content,
     });
 
@@ -40,7 +40,7 @@ module('PromiseManyArray', function () {
     };
     let promise = EmberPromise.resolve(content);
 
-    array = DS.PromiseManyArray.create({
+    array = PromiseManyArray.create({
       promise,
     });
 
@@ -62,7 +62,7 @@ module('PromiseManyArray', function () {
     assert.false(array.isSettled, 'should NOT be settled');
     assert.false(array.isFulfilled, 'should NOT be fulfilled');
 
-    assert.ok(reloaded instanceof DS.PromiseManyArray);
+    assert.ok(reloaded instanceof PromiseManyArray);
     assert.strictEqual(reloaded, array);
 
     let value = await reloaded;
@@ -81,7 +81,7 @@ module('PromiseManyArray', function () {
 
     let promise = EmberPromise.resolve(content);
 
-    let array = DS.PromiseManyArray.create({
+    let array = PromiseManyArray.create({
       promise,
     });
 
@@ -103,7 +103,7 @@ module('PromiseManyArray', function () {
     assert.false(array.isSettled, 'should NOT be settled');
     assert.false(array.isFulfilled, 'should NOT be fulfilled');
 
-    assert.ok(array instanceof DS.PromiseManyArray);
+    assert.ok(array instanceof PromiseManyArray);
 
     let value = await array;
     assert.false(array.isRejected, 'should NOT be rejected');

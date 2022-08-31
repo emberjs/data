@@ -1,7 +1,6 @@
 import QUnit, { module } from 'qunit';
 
-import DS from 'ember-data';
-
+import { Errors } from '@ember-data/model/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const AssertPrototype = QUnit.assert;
@@ -10,7 +9,7 @@ let errors;
 
 module('unit/model/errors', function (hooks) {
   hooks.beforeEach(function () {
-    errors = DS.Errors.create({
+    errors = Errors.create({
       __record: {
         currentState: {
           notify() {},

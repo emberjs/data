@@ -7,7 +7,6 @@ import { module, test } from 'qunit';
 import { Promise as EmberPromise, reject } from 'rsvp';
 
 import { gte } from 'ember-compatibility-helpers';
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
@@ -22,9 +21,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
 
   module('rolledBack hook', function (hooks) {
     hooks.beforeEach(function () {
-      const Person = DS.Model.extend({
-        firstName: DS.attr(),
-        lastName: DS.attr(),
+      const Person = Model.extend({
+        firstName: attr(),
+        lastName: attr(),
       });
 
       this.owner.register('model:person', Person);
@@ -235,14 +234,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test(`invalid new record's attributes can be rollbacked`, async function (assert) {
-      let error = new DS.InvalidError([
+      let error = new InvalidError([
         {
           detail: 'is invalid',
           source: { pointer: 'data/attributes/name' },
         },
       ]);
 
-      let adapter = DS.RESTAdapter.extend({
+      let adapter = RESTAdapter.extend({
         ajax(url, type, hash) {
           return reject(error);
         },
@@ -272,9 +271,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function (assert) {
-      let adapter = DS.RESTAdapter.extend({
+      let adapter = RESTAdapter.extend({
         ajax(url, type, hash) {
-          let error = new DS.InvalidError();
+          let error = new InvalidError();
           return reject(error);
         },
       });
@@ -491,18 +490,18 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
   });
 
   test(`when destroying a record setup the record state to invalid, the record's attributes can be rollbacked`, async function (assert) {
-    const Dog = DS.Model.extend({
-      name: DS.attr(),
+    const Dog = Model.extend({
+      name: attr(),
     });
 
-    let error = new DS.InvalidError([
+    let error = new InvalidError([
       {
         detail: 'is invalid',
         source: { pointer: 'data/attributes/name' },
       },
     ]);
 
-    let adapter = DS.RESTAdapter.extend({
+    let adapter = RESTAdapter.extend({
       ajax(url, type, hash) {
         return reject(error);
       },
