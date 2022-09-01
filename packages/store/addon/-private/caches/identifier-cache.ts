@@ -25,6 +25,7 @@ import coerceId from '../utils/coerce-id';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifer-debug-consts';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import normalizeModelName from '../utils/normalize-model-name';
+import installPolyfill from '../utils/uuid-polyfill';
 
 const IDENTIFIERS = new Set();
 
@@ -36,7 +37,7 @@ const isFastBoot = typeof FastBoot !== 'undefined';
 const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
 
 if (macroCondition(getOwnConfig<{ polyfillUUID: boolean }>().polyfillUUID)) {
-  importSync('./utils/uuid-polyfill');
+  installPolyfill();
 }
 
 function uuidv4(): string {

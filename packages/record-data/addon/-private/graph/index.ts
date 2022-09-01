@@ -98,6 +98,7 @@ export class Graph {
   declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
   declare identifiers: Map<StableRecordIdentifier, Dict<RelationshipEdge>>;
   declare store: RecordDataStoreWrapper;
+  declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
   declare _pushedUpdates: {
@@ -114,6 +115,7 @@ export class Graph {
     this._potentialPolymorphicTypes = Object.create(null);
     this.identifiers = new Map();
     this.store = store;
+    this.isDestroyed = false;
     this._willSyncRemote = false;
     this._willSyncLocal = false;
     this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
@@ -424,17 +426,16 @@ export class Graph {
     updated.forEach((rel) => syncRemoteToLocal(this, rel));
   }
 
-  willDestroy() {
-    this.identifiers.clear();
-    this.store = null as unknown as RecordDataStoreWrapper;
-  }
-
   destroy() {
     Graphs.delete(this.store);
 
     if (DEBUG) {
       Graphs.delete(getStore(this.store) as unknown as RecordDataStoreWrapper);
     }
+
+    this.identifiers.clear();
+    this.store = null as unknown as RecordDataStoreWrapper;
+    this.isDestroyed = true;
   }
 }
 

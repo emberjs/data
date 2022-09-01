@@ -18,7 +18,7 @@ class FrameworkClass {
 module('Integration | Relationships | Explicit Polymorphism', function (hooks) {
   setupTest(hooks);
 
-  test('We can fetch a polymorphic belongsTo relationship with a null inverse', async function (assert) {
+  test('a polymorphic belongsTo relationship with a null inverse may point at any type', async function (assert) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
@@ -74,7 +74,6 @@ module('Integration | Relationships | Explicit Polymorphism', function (hooks) {
         attributes: { name: 'My Tag' },
         relationships: {
           tagged: {
-            // we expect the store to not error on push for this unknown model name
             data: { type: 'comment', id: '1' },
           },
         },
@@ -108,7 +107,7 @@ module('Integration | Relationships | Explicit Polymorphism', function (hooks) {
     assert.strictEqual(identifier2.type, 'post', 'identifier type is correct');
   });
 
-  test('We can fetch a polymorphic belongsTo relationship with a specified inverse', async function (assert) {
+  test('a polymorphic belongsTo relationship with a specified inverse may only point at types that are correctly configured', async function (assert) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
@@ -140,6 +139,82 @@ module('Integration | Relationships | Explicit Polymorphism', function (hooks) {
       }
     );
 
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: { name: 'My Post' },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '1' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'tag',
+          id: '1',
+          attributes: { name: 'My Tag' },
+          relationships: {
+            tagged: {
+              data: { type: 'post', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+    const tag = store.peekRecord('tag', '1');
+
+    assert.strictEqual(post.tag, tag, 'post can have a tag');
+
+    const comment = store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: { name: 'My Comment' },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '1' },
+          },
+        },
+      },
+    });
+
+    assert.strictEqual(comment.tag, tag, 'the tag now belongs to comment');
+    assert.strictEqual(post.tag, null, 'post now has no tag');
+  });
+
+  test('a polymorphic belongsTo relationship with a specified inverse may initially specify the abstract type as a related record', async function (assert) {
+    const { owner } = this;
+    const store = owner.lookup('service:store');
+
+    owner.register(
+      'model:taggable',
+      class extends Model {
+        @belongsTo('tag', { async: false, inverse: 'tagged', as: 'taggable' }) tag;
+      }
+    );
+    owner.register(
+      'model:tag',
+      class extends Model {
+        @attr name;
+        @belongsTo('taggable', { async: true, inverse: 'tag', polymorphic: true }) tagged;
+      }
+    );
+    owner.register(
+      'model:comment',
+      class extends Model {
+        @attr name;
+        @belongsTo('tag', { async: false, inverse: 'tagged', as: 'taggable' }) tag;
+      }
+    );
+    owner.register(
+      'model:post',
+      class extends Model {
+        @attr name;
+        @belongsTo('tag', { async: false, inverse: 'tagged', as: 'taggable' }) tag;
+      }
+    );
     owner.register(
       'adapter:application',
       class extends FrameworkClass {
@@ -165,34 +240,22 @@ module('Integration | Relationships | Explicit Polymorphism', function (hooks) {
       }
     );
 
-    const post = store.push({
+    const tag = store.push({
       data: {
-        type: 'post',
+        type: 'tag',
         id: '1',
-        attributes: { name: 'My Post' },
+        attributes: { name: 'My Tag' },
         relationships: {
-          tag: {
-            // we expect the store to not error on push for this unknown model name
-            data: { type: 'tag', id: '1' },
+          tagged: {
+            data: { type: 'taggable', id: '1' },
           },
         },
       },
-      included: [
-        {
-          type: 'tag',
-          id: '1',
-          attributes: { name: 'My Tag' },
-          relationships: {
-            tagged: {
-              // we expect the store to not error on push for this unknown model name
-              data: { type: 'post', id: '1' },
-            },
-          },
-        },
-      ],
     });
-    const tag = store.peekRecord('tag', '1');
+    const tagged = await tag.tagged;
+    const comment = store.peekRecord('comment', '1');
 
-    assert.strictEqual(post.tag, tag, 'we have a tag');
+    assert.strictEqual(tagged.name, 'My Comment', 'we have the right comment');
+    assert.strictEqual(tagged, comment, 'abstract type can be used to fetch real type');
   });
 });

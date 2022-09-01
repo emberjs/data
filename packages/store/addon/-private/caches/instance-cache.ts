@@ -128,44 +128,6 @@ export class InstanceCache {
     reference: new WeakMap<StableRecordIdentifier, RecordReference>(),
   };
 
-  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
-    const recordData = this.__instances.recordData.get(identifier);
-    if (!recordData) {
-      return false;
-    }
-    const isNew = recordData.isNew(identifier);
-    const isEmpty = recordData.isEmpty(identifier);
-
-    // if we are new we must consider ourselves loaded
-    if (isNew) {
-      return !recordData.isDeleted(identifier);
-    }
-    // even if we have a past request, if we are now empty we are not loaded
-    // typically this is true after an unloadRecord call
-
-    // if we are not empty, not new && we have a fulfilled request then we are loaded
-    // we should consider allowing for something to be loaded that is simply "not empty".
-    // which is how RecordState currently handles this case; however, RecordState is buggy
-    // in that it does not account for unloading.
-    return filterDeleted && recordData.isDeletionCommitted(identifier) ? false : !isEmpty;
-
-    /*
-    const req = this.store.getRequestStateService();
-    const fulfilled = req.getLastRequestForRecord(identifier);
-    const isLocallyLoaded = !isEmpty;
-    const isLoading =
-      !isLocallyLoaded &&
-      fulfilled === null &&
-      req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
-
-    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted(identifier)) || isLoading) {
-      return false;
-    }
-
-    return true;
-    */
-  }
-
   constructor(store: Store) {
     this.store = store;
 
@@ -178,25 +140,24 @@ export class InstanceCache {
 
     store.identifierCache.__configureMerge(
       (identifier: StableRecordIdentifier, matchedIdentifier: StableRecordIdentifier, resourceData) => {
-        let intendedIdentifier = identifier;
+        let keptIdentifier = identifier;
         if (identifier.id !== matchedIdentifier.id) {
-          intendedIdentifier =
-            'id' in resourceData && identifier.id === resourceData.id ? identifier : matchedIdentifier;
+          keptIdentifier = 'id' in resourceData && identifier.id === resourceData.id ? identifier : matchedIdentifier;
         } else if (identifier.type !== matchedIdentifier.type) {
-          intendedIdentifier =
+          keptIdentifier =
             'type' in resourceData && identifier.type === resourceData.type ? identifier : matchedIdentifier;
         }
-        let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
+        let staleIdentifier = identifier === keptIdentifier ? matchedIdentifier : identifier;
 
         // check for duplicate entities
-        let imHasRecord = this.__instances.record.has(intendedIdentifier);
-        let otherHasRecord = this.__instances.record.has(altIdentifier);
-        let imRecordData = this.__instances.recordData.get(intendedIdentifier) || null;
-        let otherRecordData = this.__instances.recordData.get(altIdentifier) || null;
+        let keptHasRecord = this.__instances.record.has(keptIdentifier);
+        let staleHasRecord = this.__instances.record.has(staleIdentifier);
+        let keptRecordData = this.__instances.recordData.get(keptIdentifier) || null;
+        let staleRecordData = this.__instances.recordData.get(staleIdentifier) || null;
 
         // we cannot merge entities when both have records
         // (this may not be strictly true, we could probably swap the recordData the record points at)
-        if (imHasRecord && otherHasRecord) {
+        if (keptHasRecord && staleHasRecord) {
           // TODO we probably don't need to throw these errors anymore
           // we can probably just "swap" what data source the abandoned
           // record points at so long as
@@ -210,7 +171,7 @@ export class InstanceCache {
               }:${String(matchedIdentifier.id)} (${matchedIdentifier.lid})'`
             );
           }
-          // TODO @runspired determine when this is even possible
+
           assert(
             `Failed to update the RecordIdentifier '${identifier.type}:${String(identifier.id)} (${
               identifier.lid
@@ -220,33 +181,33 @@ export class InstanceCache {
           );
         }
 
-        // remove "other" from cache
-        if (otherHasRecord) {
-          // TODO probably need to release other things
-        }
-
-        if (imRecordData === null && otherRecordData === null) {
+        if (keptRecordData === null && staleRecordData === null) {
           // nothing more to do
-          return intendedIdentifier;
+          return keptIdentifier;
 
           // only the other has a RecordData
           // OR only the other has a Record
         } else if (
-          (imRecordData === null && otherRecordData !== null) ||
-          (imRecordData && !imHasRecord && otherRecordData && otherHasRecord)
+          (keptRecordData === null && staleRecordData !== null) ||
+          (keptRecordData && !keptHasRecord && staleRecordData && staleHasRecord)
         ) {
-          if (imRecordData) {
+          if (keptRecordData) {
             // TODO check if we are retained in any async relationships
             // TODO probably need to release other things
             // im.destroy();
           }
-          imRecordData = otherRecordData!;
+          keptRecordData = staleRecordData!;
           // TODO do we need to notify the id change?
           // TODO swap recordIdentifierFor result?
 
           // just use im
         } else {
           // otherIm.destroy();
+        }
+
+        // remove "other" from cache
+        if (staleHasRecord) {
+          // TODO probably need to release other things
         }
 
         /*
@@ -259,7 +220,7 @@ export class InstanceCache {
       }
       */
 
-        return intendedIdentifier;
+        return keptIdentifier;
       }
     );
   }
@@ -305,6 +266,7 @@ export class InstanceCache {
     let recordData = this.__instances.recordData.get(identifier);
 
     if (!recordData) {
+      debugger;
       if (DEPRECATE_V1CACHE_STORE_APIS && this.store.createRecordDataFor.length > 2) {
         deprecate(
           `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
@@ -363,6 +325,44 @@ export class InstanceCache {
       cache.set(identifier, reference);
     }
     return reference;
+  }
+
+  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
+    const recordData = this.__instances.recordData.get(identifier);
+    if (!recordData) {
+      return false;
+    }
+    const isNew = recordData.isNew(identifier);
+    const isEmpty = recordData.isEmpty(identifier);
+
+    // if we are new we must consider ourselves loaded
+    if (isNew) {
+      return !recordData.isDeleted(identifier);
+    }
+    // even if we have a past request, if we are now empty we are not loaded
+    // typically this is true after an unloadRecord call
+
+    // if we are not empty, not new && we have a fulfilled request then we are loaded
+    // we should consider allowing for something to be loaded that is simply "not empty".
+    // which is how RecordState currently handles this case; however, RecordState is buggy
+    // in that it does not account for unloading.
+    return filterDeleted && recordData.isDeletionCommitted(identifier) ? false : !isEmpty;
+
+    /*
+    const req = this.store.getRequestStateService();
+    const fulfilled = req.getLastRequestForRecord(identifier);
+    const isLocallyLoaded = !isEmpty;
+    const isLoading =
+      !isLocallyLoaded &&
+      fulfilled === null &&
+      req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
+
+    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted(identifier)) || isLoading) {
+      return false;
+    }
+
+    return true;
+    */
   }
 
   createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {

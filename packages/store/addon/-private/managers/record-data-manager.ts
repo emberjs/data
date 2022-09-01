@@ -6,7 +6,7 @@ import type {
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
+import type { ChangedAttributesHash, MergeOperation, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -126,6 +126,14 @@ export class NonSingletonRecordDataManager implements RecordData {
       return recordData.pushData(data, hasRecord);
     }
     return recordData.pushData(identifier, data, hasRecord);
+  }
+
+  sync(op: MergeOperation): void {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      return;
+    }
+    this.#recordData.sync(op);
   }
 
   /**
@@ -738,6 +746,10 @@ export class SingletonRecordDataManager implements RecordData {
 
   pushData(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
     return this.#recordData(identifier).pushData(identifier, data, hasRecord);
+  }
+
+  sync(op: MergeOperation): void {
+    this.#recordData(op.record).sync(op);
   }
 
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown> {
