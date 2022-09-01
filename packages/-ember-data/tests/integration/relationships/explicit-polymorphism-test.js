@@ -113,6 +113,12 @@ module('Integration | Relationships | Explicit Polymorphism', function (hooks) {
     const store = owner.lookup('service:store');
 
     owner.register(
+      'model:taggable',
+      class extends Model {
+        @belongsTo('tag', { async: false, inverse: 'tagged', as: 'taggable' }) tag;
+      }
+    );
+    owner.register(
       'model:tag',
       class extends Model {
         @attr name;

@@ -22,7 +22,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
     const Hat = Model.extend({
       type: attr('string'),
-      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+      user: belongsTo('user', { async: false, inverse: 'hats', as: 'hat' }),
     });
 
     this.owner.register('model:user', User);
@@ -76,7 +76,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
     let Hat = Model.extend({
       type: attr('string'),
-      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+      user: belongsTo('user', { async: false, inverse: 'hats', as: 'hat' }),
     });
 
     this.owner.register('model:user', User);
@@ -131,7 +131,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
     let Hat = Model.extend({
       type: attr('string'),
-      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+      user: belongsTo('user', { async: false, inverse: 'hats', as: 'hat' }),
     });
 
     this.owner.register('model:user', User);
@@ -182,12 +182,12 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
   test('push both sides are polymorphic', function (assert) {
     let User = Model.extend({
-      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+      hats: hasMany('hat', { async: false, polymorphic: true, as: 'user', inverse: 'user' }),
     });
 
     let Hat = Model.extend({
       type: attr('string'),
-      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true, as: 'hat' }),
     });
 
     this.owner.register('model:user', User);
@@ -241,6 +241,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
         async: false,
         polymorphic: true,
         inverse: 'person',
+        as: 'person',
       }),
     });
 
@@ -250,6 +251,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
         async: false,
         inverse: 'hats',
         polymorphic: true,
+        as: 'hat',
       }),
     });
 
@@ -345,8 +347,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
     let Person = Model.extend({
       name: attr(),
-      family: hasMany('person', { async: false, polymorphic: true, inverse: 'family' }),
-      twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' }),
+      family: hasMany('person', { async: false, polymorphic: true, inverse: 'family', as: 'person' }),
+      twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin', as: 'person' }),
     });
 
     this.owner.register('model:person', Person);
@@ -442,8 +444,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
     const Person = Model.extend({
       name: attr(),
-      family: hasMany('person', { async: false, polymorphic: true, inverse: 'family' }),
-      twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' }),
+      family: hasMany('person', { async: false, polymorphic: true, as: 'person', inverse: 'family' }),
+      twin: belongsTo('person', { async: false, polymorphic: true, as: 'person', inverse: 'twin' }),
     });
 
     this.owner.register('model:person', Person);
@@ -519,8 +521,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
   test('push polymorphic self-referential non-reflexive relationship', function (assert) {
     let Hat = Model.extend({
       type: attr('string'),
-      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
-      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true }),
+      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true, as: 'hat' }),
+      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true, as: 'hat' }),
     });
 
     this.owner.register('model:hat', Hat);
@@ -568,8 +570,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
   test('push polymorphic self-referential circular non-reflexive relationship', function (assert) {
     let Hat = Model.extend({
       type: attr('string'),
-      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
-      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true }),
+      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true, as: 'hat' }),
+      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true, as: 'hat' }),
     });
 
     this.owner.register('model:hat', Hat);
@@ -611,12 +613,12 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
   test('polymorphic hasMany to types with separate id-spaces', function (assert) {
     let User = Model.extend({
-      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user', as: 'user' }),
     });
 
     let Hat = Model.extend({
       type: attr('string'),
-      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true, as: 'hat' }),
     });
 
     let BigHat = Hat.extend({});
@@ -668,12 +670,12 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
 
   test('polymorphic hasMany to types with separate id-spaces, from inverse payload', function (assert) {
     let User = Model.extend({
-      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user', as: 'user' }),
     });
 
     let Hat = Model.extend({
       type: attr('string'),
-      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true, as: 'hat' }),
     });
 
     this.owner.register('model:user', User);
@@ -728,6 +730,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
         async: false,
         polymorphic: true,
         inverse: 'person',
+        as: 'person',
       }),
     });
 
@@ -737,6 +740,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
         async: false,
         inverse: 'hats',
         polymorphic: true,
+        as: 'hat',
       }),
     });
 

@@ -13,7 +13,7 @@ function stringify(string) {
   };
 }
 
-module('integration/inverse_test - inverseFor', function (hooks) {
+module('integration/inverse-test - inverseFor', function (hooks) {
   setupTest(hooks);
   let store;
 
@@ -300,16 +300,14 @@ module('integration/inverse_test - inverseFor', function (hooks) {
 
         //Maybe store is evaluated lazily, so we need this :(
         assert.expectWarning(() => {
-          var reflexiveModel;
-          store.push({
+          const reflexiveModel = store.push({
             data: {
               type: 'reflexive-model',
               id: '1',
             },
           });
-          reflexiveModel = store.peekRecord('reflexive-model', 1);
           reflexiveModel.reflexiveProp;
-        }, /Detected a reflexive relationship by the name of 'reflexiveProp'/);
+        }, /Detected a reflexive relationship named 'reflexiveProp' on the schema for 'reflexive-model' without an inverse option/);
       }
     );
   }

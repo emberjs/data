@@ -104,7 +104,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
   if (op.value) {
     if (definition.type !== op.value.type) {
       assert(
-        `Record of type '${op.value.type}' does not satisfy the relationships ${op.field} on ${definition.type} as the relationship is not polymorphic.`,
+        `The '<${definition.inverseType}>.${op.field}' relationship expects only '${definition.type}' records since it is not polymorphic. Received a Record of type '${op.value.type}'`,
         definition.isPolymorphic
       );
 

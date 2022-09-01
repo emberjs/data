@@ -266,11 +266,20 @@ module('integration/references/belongs-to', function (hooks) {
     }, "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name.");
   });
 
-  testInDebug('push(object) works with polymorphic modelClass', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let Family = store.modelFor('family');
+  testInDebug('push(object) works with polymorphic types', async function (assert) {
+    const Family = Model.extend({
+      persons: hasMany('person', { async: true, inverse: 'family', as: 'family' }),
+      name: attr(),
+    });
 
+    const Person = Model.extend({
+      family: belongsTo('family', { async: true, inverse: 'persons', polymorphic: true }),
+    });
+
+    this.owner.register('model:family', Family);
+    this.owner.register('model:person', Person);
     this.owner.register('model:mafia-family', Family.extend());
+    let store = this.owner.lookup('service:store');
 
     let person = store.push({
       data: {

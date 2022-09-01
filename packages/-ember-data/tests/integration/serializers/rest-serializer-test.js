@@ -12,48 +12,46 @@ import JSONSerializer from '@ember-data/serializer/json';
 import RESTSerializer from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-let HomePlanet, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container;
-
 module('integration/serializer/rest - RESTSerializer', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function () {
-    HomePlanet = Model.extend({
-      name: attr('string'),
-      superVillains: hasMany('super-villain', { async: false, inverse: 'homePlanet' }),
-    });
-    SuperVillain = Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      homePlanet: belongsTo('home-planet', { async: false, inverse: 'superVillains' }),
-      evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-    });
-    EvilMinion = Model.extend({
-      superVillain: belongsTo('super-villain', { async: false, inverse: 'evilMinions' }),
-      name: attr('string'),
-      doomsdayDevice: belongsTo('doomsday-device', { async: false, inverse: 'evilMinion' }),
-    });
-    YellowMinion = EvilMinion.extend({
-      eyes: attr('number'),
-    });
-    DoomsdayDevice = Model.extend({
-      name: attr('string'),
-      evilMinion: belongsTo('evil-minion', { polymorphic: true, async: true, inverse: 'doomsdayDevice' }),
-    });
-    Comment = Model.extend({
-      body: attr('string'),
-      root: attr('boolean'),
-      children: hasMany('comment', { inverse: null, async: false }),
-    });
-    Basket = Model.extend({
-      type: attr('string'),
-      size: attr('number'),
-    });
-    Container = Model.extend({
-      type: belongsTo('basket', { async: true, inverse: null }),
-      volume: attr('string'),
-    });
+  class HomePlanet extends Model {
+    @attr('string') name;
+    @hasMany('super-villain', { async: false, inverse: 'homePlanet' }) superVillains;
+  }
+  class SuperVillain extends Model {
+    @attr('string') firstName;
+    @attr('string') lastName;
+    @belongsTo('home-planet', { async: false, inverse: 'superVillains' }) homePlanet;
+    @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+  }
+  class EvilMinion extends Model {
+    @attr('string') name;
+    @belongsTo('super-villain', { async: false, inverse: 'evilMinions' }) superVillain;
+    @belongsTo('doomsday-device', { async: false, inverse: 'evilMinion', as: 'evil-minion' }) doomsdayDevice;
+  }
+  class YellowMinion extends EvilMinion {
+    @attr('number') eyes;
+  }
+  class DoomsdayDevice extends Model {
+    @attr('string') name;
+    @belongsTo('evil-minion', { polymorphic: true, async: true, inverse: 'doomsdayDevice' }) evilMinion;
+  }
+  class Comment extends Model {
+    @attr('string') body;
+    @attr('boolean') root;
+    @hasMany('comment', { inverse: null, async: false }) children;
+  }
+  class Basket extends Model {
+    @attr('string') type;
+    @attr('number') size;
+  }
+  class Container extends Model {
+    @belongsTo('basket', { async: true, inverse: null }) type;
+    @attr('string') volume;
+  }
 
+  hooks.beforeEach(function () {
     this.owner.register('model:super-villain', SuperVillain);
     this.owner.register('model:home-planet', HomePlanet);
     this.owner.register('model:evil-minion', EvilMinion);
@@ -65,17 +63,6 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
-
-    let store = this.owner.lookup('service:store');
-
-    store.modelFor('super-villain');
-    store.modelFor('home-planet');
-    store.modelFor('evil-minion');
-    store.modelFor('yellow-minion');
-    store.modelFor('doomsday-device');
-    store.modelFor('comment');
-    store.modelFor('basket');
-    store.modelFor('container');
   });
 
   test('modelNameFromPayloadKey returns always same modelName even for uncountable multi words keys', function (assert) {
@@ -110,7 +97,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    var json = store.serializerFor('home-planet').normalizeResponse(store, HomePlanet, jsonHash, null, 'findAll');
+    var json = store
+      .serializerFor('home-planet')
+      .normalizeResponse(store, store.modelFor('home-planet'), jsonHash, null, 'findAll');
 
     assert.deepEqual(json.meta.authors, ['Tomster', 'Tomhuda']);
   });
@@ -149,7 +138,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     var array;
 
     run(function () {
-      array = serializer.normalizeResponse(store, HomePlanet, jsonHash, '1', 'findRecord');
+      array = serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, '1', 'findRecord');
     });
 
     assert.deepEqual(array, {
@@ -211,7 +200,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     var array;
 
     run(function () {
-      array = serializer.normalizeResponse(store, HomePlanet, jsonHash, '1', 'findAll');
+      array = serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, '1', 'findAll');
     });
 
     assert.deepEqual(array, {
@@ -251,7 +240,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     assert.expectWarning(
       bind(null, function () {
         run(function () {
-          serializer.normalizeResponse(store, HomePlanet, jsonHash, '1', 'findRecord');
+          serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, '1', 'findRecord');
         });
       }),
       /Encountered "home_planet" in payload, but no model was found for model name "garbage"/
@@ -265,7 +254,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     assert.expectNoWarning(function () {
       run(function () {
-        homePlanet = serializer.normalizeResponse(store, HomePlanet, jsonHash, 1, 'findRecord');
+        homePlanet = serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, 1, 'findRecord');
       });
     });
 
@@ -290,7 +279,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     };
 
     assert.expectWarning(function () {
-      serializer.normalizeResponse(store, HomePlanet, jsonHash, null, 'findAll');
+      serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, null, 'findAll');
     }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
     // should not warn if a model is found.
@@ -304,7 +293,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     assert.expectNoWarning(function () {
       run(function () {
-        homePlanets = serializer.normalizeResponse(store, HomePlanet, jsonHash, null, 'findAll');
+        homePlanets = serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, null, 'findAll');
       });
     });
 
@@ -371,7 +360,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let serializer = store.serializerFor('application');
 
     run(function () {
-      serializer.normalizeResponse(store, EvilMinion, jsonHash, '1', 'findRecord');
+      serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, '1', 'findRecord');
     });
 
     assert.strictEqual(superVillainNormalizeCount, 1, 'superVillain is normalized once');
@@ -389,7 +378,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let serializer = store.serializerFor('application');
 
     run(function () {
-      value = serializer.normalizeResponse(store, EvilMinion, jsonHash, null, 'findRecord');
+      value = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findRecord');
     });
 
     assert.deepEqual(value, { data: null, included: [] }, 'returned value is null');
@@ -418,7 +407,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let serializer = store.serializerFor('application');
 
     run(function () {
-      serializer.normalizeResponse(store, EvilMinion, jsonHash, null, 'findAll');
+      serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findAll');
     });
 
     assert.strictEqual(superVillainNormalizeCount, 1, 'superVillain is normalized once');
@@ -445,7 +434,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     try {
       let store = this.owner.lookup('service:store');
       let serializer = store.serializerFor('application');
-      superVillain = serializer.normalizeResponse(store, SuperVillain, jsonHash, null, 'findAll');
+      superVillain = serializer.normalizeResponse(store, store.modelFor('super-villain'), jsonHash, null, 'findAll');
     } catch (err) {
       assert.ok(false, `normalizeResponse could not handle included length of ${stackOverflowSize}`);
       // Rethrow to provide stack trace to test output
@@ -477,7 +466,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let serializer = store.serializerFor('application');
 
     run(function () {
-      array = serializer.normalizeResponse(store, EvilMinion, jsonHash, null, 'findAll');
+      array = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findAll');
     });
 
     assert.strictEqual(array.data[0].relationships.superVillain.data.id, '1');
@@ -505,7 +494,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let serializer = store.serializerFor('application');
 
     run(function () {
-      array = serializer.normalizeResponse(store, EvilMinion, jsonHash, null, 'findAll');
+      array = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findAll');
     });
 
     assert.strictEqual(array.data[0].attributes.name, 'Tom Dale');
@@ -517,7 +506,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let league = store.createRecord('home-planet', { name: 'Umber', id: '123' });
     let json = {};
 
-    serializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
+    serializer.serializeIntoHash(json, store.modelFor('home-planet'), league._createSnapshot());
 
     assert.deepEqual(json, {
       homePlanet: {
@@ -533,7 +522,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let league = store.createRecord('home-planet', { name: 'Umber', id: '123' });
     let json = {};
 
-    serializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
+    serializer.serializeIntoHash(json, store.modelFor('home-planet'), league._createSnapshot());
 
     assert.deepEqual(json, {
       homePlanet: {
@@ -622,7 +611,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       return 'typeForEvilMinion';
     };
 
-    var normalized = serializer.normalizeResponse(store, DoomsdayDevice, json, null, 'findRecord');
+    var normalized = serializer.normalizeResponse(store, store.modelFor('doomsday-device'), json, null, 'findRecord');
 
     assert.deepEqual(normalized, expected, 'normalized JSON is correct');
   });
@@ -643,7 +632,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     let serializer = store.serializerFor('home-planet');
 
-    serializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
+    serializer.serializeIntoHash(json, store.modelFor('home-planet'), league._createSnapshot());
 
     assert.deepEqual(json, {
       'home-planet': {
@@ -734,35 +723,35 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test('normalizeResponse with async polymorphic hasMany', function (assert) {
-    const HomePlanet = Model.extend({
-      name: attr('string'),
-      superVillains: hasMany('super-villain2', { async: false, inverse: 'homePlanet' }),
-    });
-    const SuperVillain = Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      homePlanet: belongsTo('home-planet2', { async: false, inverse: 'superVillains' }),
-      evilMinions: hasMany('evil-minion2', { async: true, polymorphic: true, inverse: 'superVillain' }),
-    });
-    const EvilMinion = Model.extend({
-      superVillain: belongsTo('super-villain2', { async: false, inverse: 'evilMinions' }),
-      name: attr('string'),
-    });
-    const YellowMinion = EvilMinion.extend({
-      eyes: attr('number'),
-    });
+    class HomePlanet extends Model {
+      @attr('string') name;
+      @hasMany('super-villain', { async: false, inverse: 'homePlanet' }) superVillains;
+    }
+    class SuperVillain extends Model {
+      @attr('string') firstName;
+      @attr('string') lastName;
+      @belongsTo('home-planet', { async: false, inverse: 'superVillains' }) homePlanet;
+      @hasMany('evil-minion', { async: true, polymorphic: true, inverse: 'superVillain' }) evilMinions;
+    }
+    class EvilMinion extends Model {
+      @attr('string') name;
+      @belongsTo('super-villain', { async: false, inverse: 'evilMinions', as: 'evil-minion' }) superVillain;
+    }
+    class YellowMinion extends EvilMinion {
+      @attr('number') eyes;
+    }
 
-    this.owner.register('model:super-villain2', SuperVillain);
-    this.owner.register('model:home-planet2', HomePlanet);
-    this.owner.register('model:evil-minion2', EvilMinion);
-    this.owner.register('model:yellow-minion2', YellowMinion);
+    this.owner.register('model:super-villain', SuperVillain);
+    this.owner.register('model:home-planet', HomePlanet);
+    this.owner.register('model:evil-minion', EvilMinion);
+    this.owner.register('model:yellow-minion', YellowMinion);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     adapter.findRecord = () => {
       return {
-        superVillain2s: [
+        superVillains: [
           {
             id: '1',
             firstName: 'Yehuda',
@@ -777,10 +766,10 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     adapter.findHasMany = () => {
       return {
-        evilMinion2: [
+        evilMinion: [
           {
             id: '1',
-            type: 'yellowMinion2',
+            type: 'yellowMinion',
             name: 'Alex',
             eyes: 3,
           },
@@ -790,7 +779,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     run(function () {
       store
-        .findRecord('super-villain2', '1')
+        .findRecord('super-villain', '1')
         .then((superVillain) => {
           return superVillain.evilMinions;
         })
@@ -865,7 +854,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     run(function () {
       store.push(
-        serializer.normalizeArrayResponse(store, Basket, {
+        serializer.normalizeArrayResponse(store, store.modelFor('basket'), {
           basket: [
             { type: 'bamboo', size: 10, id: '1' },
             { type: 'yellowMinion', size: 10, id: '65536' },
@@ -893,7 +882,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       store.push(
         serializer.normalizeSingleResponse(
           store,
-          Basket,
+          store.modelFor('basket'),
           {
             basket: { type: 'yellowMinion', size: 10, id: '65536' },
           },
@@ -918,6 +907,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
         baskets: [{ id: '1', size: 4 }],
       };
     };
+    const Basket = store.modelFor('basket');
 
     run(function () {
       store
@@ -957,7 +947,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    var documentHash = store.serializerFor('super-villain').normalizeSingleResponse(store, SuperVillain, jsonHash);
+    var documentHash = store
+      .serializerFor('super-villain')
+      .normalizeSingleResponse(store, store.modelFor('super-villain'), jsonHash);
 
     assert.strictEqual(documentHash.data.relationships.evilMinions.links.related, 'me/minions');
   });
@@ -979,7 +971,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    let document = store.serializerFor('doomsday-device').normalizeSingleResponse(store, DoomsdayDevice, payload);
+    let document = store
+      .serializerFor('doomsday-device')
+      .normalizeSingleResponse(store, store.modelFor('doomsday-device'), payload);
 
     assert.strictEqual(document.data.relationships.evilMinion.data.id, '2');
     assert.strictEqual(document.included.length, 1);
@@ -1015,7 +1009,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     };
 
     let store = this.owner.lookup('service:store');
-    let document = store.serializerFor('home-planet').normalizeSingleResponse(store, HomePlanet, payload);
+    let document = store
+      .serializerFor('home-planet')
+      .normalizeSingleResponse(store, store.modelFor('home-planet'), payload);
 
     assert.strictEqual(document.data.relationships.superVillains.data.length, 1);
     assert.strictEqual(document.data.relationships.superVillains.data[0].id, '2');

@@ -1433,7 +1433,7 @@ class Model extends EmberObject {
       //No inverse was specified manually, we need to use a heuristic to guess one
       if (relationship.type === relationship.parentModelName) {
         warn(
-          `Detected a reflexive relationship named '${name}' on the schema for ${relationship.type} without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
+          `Detected a reflexive relationship named '${name}' on the schema for '${relationship.type}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
           false,
           {
             id: 'ds.model.reflexive-relationship-without-inverse',

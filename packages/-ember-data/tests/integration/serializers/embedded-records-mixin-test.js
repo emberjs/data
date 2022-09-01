@@ -11,45 +11,45 @@ module('integration/embedded-records-mixin', function (hooks) {
   setupTest(hooks);
   let store;
 
+  class SuperVillain extends Model {
+    @attr('string') firstName;
+    @attr('string') lastName;
+    @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+    @belongsTo('secret-lab', { async: false, inverse: 'superVillain' }) secretLab;
+    @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
+    @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+  }
+  class HomePlanet extends Model {
+    @attr('string') name;
+    @hasMany('super-villain', { inverse: 'homePlanet', async: false }) villains;
+  }
+  class SecretLab extends Model {
+    @attr('number') minionCapacity;
+    @attr('string') vicinity;
+    @belongsTo('super-villain', { async: false, inverse: 'secretLab', as: 'secret-lab' }) superVillain;
+  }
+  class BatCave extends SecretLab {
+    @attr('boolean') infiltrated;
+  }
+  class SecretWeapon extends Model {
+    @attr('string') name;
+    @belongsTo('super-villain', { async: false, inverse: 'secretWeapons', as: 'secret-weapon' }) superVillain;
+  }
+  class LightSaber extends SecretWeapon {
+    @attr('string') color;
+  }
+  class EvilMinion extends Model {
+    @belongsTo('super-villain', { async: false, inverse: 'evilMinions' }) superVillain;
+    @attr('string') name;
+  }
+  class Comment extends Model {
+    @attr('string') body;
+    @attr('boolean') root;
+    @hasMany('comment', { inverse: null, async: false }) children;
+  }
+
   hooks.beforeEach(function () {
     let { owner } = this;
-
-    const SuperVillain = Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-      secretLab: belongsTo('secret-lab', { async: false, inverse: 'superVillain' }),
-      secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
-      evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-    });
-    const HomePlanet = Model.extend({
-      name: attr('string'),
-      villains: hasMany('super-villain', { inverse: 'homePlanet', async: false }),
-    });
-    const SecretLab = Model.extend({
-      minionCapacity: attr('number'),
-      vicinity: attr('string'),
-      superVillain: belongsTo('super-villain', { async: false, inverse: 'secretLab' }),
-    });
-    const BatCave = SecretLab.extend({
-      infiltrated: attr('boolean'),
-    });
-    const SecretWeapon = Model.extend({
-      name: attr('string'),
-      superVillain: belongsTo('super-villain', { async: false, inverse: 'secretWeapons' }),
-    });
-    const LightSaber = SecretWeapon.extend({
-      color: attr('string'),
-    });
-    const EvilMinion = Model.extend({
-      superVillain: belongsTo('super-villain', { async: false, inverse: 'evilMinions' }),
-      name: attr('string'),
-    });
-    const Comment = Model.extend({
-      body: attr('string'),
-      root: attr('boolean'),
-      children: hasMany('comment', { inverse: null, async: false }),
-    });
 
     owner.register('model:super-villain', SuperVillain);
     owner.register('model:home-planet', HomePlanet);
@@ -385,11 +385,11 @@ module('integration/embedded-records-mixin', function (hooks) {
 
     test('normalizeResponse with embedded objects of same type, but from separate attributes', async function (assert) {
       let { owner } = this;
-      const HomePlanetKlass = Model.extend({
-        name: attr('string'),
-        villains: hasMany('super-villain', { inverse: 'homePlanet', async: false }),
-        reformedVillains: hasMany('superVillain', { inverse: null, async: false }),
-      });
+      class HomePlanetKlass extends Model {
+        @attr('string') name;
+        @hasMany('super-villain', { inverse: 'homePlanet', async: false }) villains;
+        @hasMany('superVillain', { inverse: null, async: false }) reformedVillains;
+      }
       owner.unregister('model:home-planet');
       owner.register('model:home-planet', HomePlanetKlass);
       owner.register(
@@ -589,14 +589,14 @@ module('integration/embedded-records-mixin', function (hooks) {
 
     test('normalizeResponse with polymorphic hasMany and custom primary key', async function (assert) {
       let { owner } = this;
-      const SuperVillainClass = Model.extend({
-        firstName: attr('string'),
-        lastName: attr('string'),
-        homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-        secretLab: belongsTo('secret-lab', { async: false, inverse: 'superVillain' }),
-        secretWeapons: hasMany('secretWeapon', { polymorphic: true, async: false, inverse: 'superVillain' }),
-        evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-      });
+      class SuperVillainClass extends Model {
+        @attr('string') firstName;
+        @attr('string') lastName;
+        @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+        @belongsTo('secret-lab', { async: false, inverse: 'superVillain' }) secretLab;
+        @hasMany('secretWeapon', { polymorphic: true, async: false, inverse: 'superVillain' }) secretWeapons;
+        @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+      }
 
       owner.register(
         'serializer:light-saber',
@@ -685,14 +685,14 @@ module('integration/embedded-records-mixin', function (hooks) {
 
     test('normalizeResponse with polymorphic belongsTo', async function (assert) {
       let { owner } = this;
-      const SuperVillainClass = Model.extend({
-        firstName: attr('string'),
-        lastName: attr('string'),
-        homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-        secretLab: belongsTo('secretLab', { polymorphic: true, async: true, inverse: 'superVillain' }),
-        secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
-        evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-      });
+      class SuperVillainClass extends Model {
+        @attr('string') firstName;
+        @attr('string') lastName;
+        @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+        @belongsTo('secretLab', { polymorphic: true, async: true, inverse: 'superVillain' }) secretLab;
+        @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
+        @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+      }
 
       owner.register(
         'serializer:super-villain',
@@ -755,14 +755,14 @@ module('integration/embedded-records-mixin', function (hooks) {
 
     test('normalizeResponse with polymorphic belongsTo and custom primary key', async function (assert) {
       let { owner } = this;
-      const SuperVillainClass = Model.extend({
-        firstName: attr('string'),
-        lastName: attr('string'),
-        homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-        secretLab: belongsTo('secretLab', { polymorphic: true, async: true, inverse: 'superVillain' }),
-        secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
-        evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-      });
+      class SuperVillainClass extends Model {
+        @attr('string') firstName;
+        @attr('string') lastName;
+        @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+        @belongsTo('secretLab', { polymorphic: true, async: true, inverse: 'superVillain' }) secretLab;
+        @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
+        @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+      }
 
       owner.register(
         'serializer:super-villain',
@@ -1188,11 +1188,11 @@ module('integration/embedded-records-mixin', function (hooks) {
 
     test('normalizeResponse with embedded objects of same type, but from separate attributes', async function (assert) {
       let { owner } = this;
-      const HomePlanetClass = Model.extend({
-        name: attr('string'),
-        villains: hasMany('super-villain', { inverse: 'homePlanet', async: false }),
-        reformedVillains: hasMany('superVillain', { async: false, inverse: null }),
-      });
+      class HomePlanetClass extends Model {
+        @attr('string') name;
+        @hasMany('super-villain', { inverse: 'homePlanet', async: false }) villains;
+        @hasMany('superVillain', { async: false, inverse: null }) reformedVillains;
+      }
       owner.unregister('model:home-planet');
       owner.register('model:home-planet', HomePlanetClass);
       owner.register(
@@ -1456,14 +1456,14 @@ module('integration/embedded-records-mixin', function (hooks) {
     test('normalizeResponse with polymorphic hasMany', async function (assert) {
       let { owner } = this;
 
-      const SuperVillainClass = Model.extend({
-        firstName: attr('string'),
-        lastName: attr('string'),
-        homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-        secretLab: belongsTo('secret-lab', { async: false, inverse: 'superVillain' }),
-        secretWeapons: hasMany('secretWeapon', { polymorphic: true, async: false, inverse: 'superVillain' }),
-        evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-      });
+      class SuperVillainClass extends Model {
+        @attr('string') firstName;
+        @attr('string') lastName;
+        @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+        @belongsTo('secret-lab', { async: false, inverse: 'superVillain' }) secretLab;
+        @hasMany('secretWeapon', { polymorphic: true, async: false, inverse: 'superVillain' }) secretWeapons;
+        @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+      }
 
       owner.register(
         'serializer:super-villain',
@@ -1960,15 +1960,15 @@ module('integration/embedded-records-mixin', function (hooks) {
 
       test('serialize has many relationship using the `ids-and-types` strategy', async function (assert) {
         let { owner } = this;
-        const NormalMinion = Model.extend({
-          name: attr('string'),
-        });
+        class NormalMinion extends Model {
+          @attr('string') name;
+        }
         const YellowMinion = NormalMinion.extend();
         const RedMinion = NormalMinion.extend();
-        const CommanderVillain = Model.extend({
-          name: attr('string'),
-          minions: hasMany('normal-minion', { async: true, inverse: null, polymorphic: true }),
-        });
+        class CommanderVillain extends Model {
+          @attr('string') name;
+          @hasMany('normal-minion', { async: true, inverse: null, polymorphic: true }) minions;
+        }
 
         owner.register('model:commander-villain', CommanderVillain);
         owner.register('model:normal-minion', NormalMinion);
@@ -2151,14 +2151,14 @@ module('integration/embedded-records-mixin', function (hooks) {
             },
           })
         );
-        const SuperVillain = Model.extend({
-          firstName: attr('string'),
-          lastName: attr('string'),
-          homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-          secretLab: belongsTo('secret-lab', { async: true, inverse: 'superVillain', polymorphic: true }),
-          secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
-          evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-        });
+        class SuperVillain extends Model {
+          @attr('string') firstName;
+          @attr('string') lastName;
+          @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+          @belongsTo('secret-lab', { async: true, inverse: 'superVillain', polymorphic: true }) secretLab;
+          @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
+          @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+        }
         owner.unregister('model:super-villain');
         owner.register('model:super-villain', SuperVillain);
 
@@ -2292,14 +2292,14 @@ module('integration/embedded-records-mixin', function (hooks) {
 
       test('serialize with embedded object (polymorphic belongsTo relationship) supports serialize:ids', async function (assert) {
         let { owner } = this;
-        const SuperVillain = Model.extend({
-          firstName: attr('string'),
-          lastName: attr('string'),
-          homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-          secretLab: belongsTo('secret-lab', { polymorphic: true, async: true, inverse: 'superVillain' }),
-          secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
-          evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-        });
+        class SuperVillain extends Model {
+          @attr('string') firstName;
+          @attr('string') lastName;
+          @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+          @belongsTo('secret-lab', { polymorphic: true, async: true, inverse: 'superVillain' }) secretLab;
+          @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
+          @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+        }
         owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2337,14 +2337,14 @@ module('integration/embedded-records-mixin', function (hooks) {
 
       test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function (assert) {
         let { owner } = this;
-        const SuperVillain = Model.extend({
-          firstName: attr('string'),
-          lastName: attr('string'),
-          homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-          secretLab: belongsTo('secret-lab', { polymorphic: true, inverse: 'superVillain', async: true }),
-          secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
-          evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-        });
+        class SuperVillain extends Model {
+          @attr('string') firstName;
+          @attr('string') lastName;
+          @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+          @belongsTo('secret-lab', { polymorphic: true, inverse: 'superVillain', async: true }) secretLab;
+          @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
+          @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+        }
 
         owner.register(
           'serializer:super-villain',
@@ -2384,14 +2384,14 @@ module('integration/embedded-records-mixin', function (hooks) {
 
       test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function (assert) {
         let { owner } = this;
-        const SuperVillain = Model.extend({
-          firstName: attr('string'),
-          lastName: attr('string'),
-          homePlanet: belongsTo('home-planet', { inverse: 'villains', async: true }),
-          secretLab: belongsTo('secret-lab', { polymorphic: true, inverse: 'superVillain', async: true }),
-          secretWeapons: hasMany('secret-weapon', { async: false, inverse: 'superVillain' }),
-          evilMinions: hasMany('evil-minion', { async: false, inverse: 'superVillain' }),
-        });
+        class SuperVillain extends Model {
+          @attr('string') firstName;
+          @attr('string') lastName;
+          @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
+          @belongsTo('secret-lab', { polymorphic: true, inverse: 'superVillain', async: true }) secretLab;
+          @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
+          @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
+        }
 
         owner.register(
           'serializer:super-villain',
@@ -2639,13 +2639,13 @@ module('integration/embedded-records-mixin', function (hooks) {
 
       test('serializing belongsTo correctly removes embedded foreign key', async function (assert) {
         let { owner } = this;
-        const SecretWeaponClass = Model.extend({
-          name: attr('string'),
-        });
-        const EvilMinionClass = Model.extend({
-          secretWeapon: belongsTo('secret-weapon', { async: false, inverse: null }),
-          name: attr('string'),
-        });
+        class SecretWeaponClass extends Model {
+          @attr('string') name;
+        }
+        class EvilMinionClass extends Model {
+          @belongsTo('secret-weapon', { async: false, inverse: null }) secretWeapon;
+          @attr('string') name;
+        }
 
         owner.register(
           'serializer:evil-minion',

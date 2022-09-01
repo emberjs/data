@@ -373,7 +373,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     var relationship = snapshot.record.relationshipFor('comments');
     var key = relationship.key;
 
-    var shouldSerialize = store.serializerFor('post').shouldSerializeHasMany(snapshot, relationship, key);
+    var shouldSerialize = store.serializerFor('post').shouldSerializeHasMany(snapshot, key, relationship);
 
     assert.ok(shouldSerialize, 'shouldSerializeHasMany correctly identifies with hasMany relationship');
   });
