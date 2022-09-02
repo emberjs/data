@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
+import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
@@ -33,6 +34,85 @@ module('Editing a Record', function (hooks) {
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     store = owner.lookup('service:store');
+  });
+
+  todo('Change parent relationship then unload original child', async function (assert) {
+    let chris = store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: { name: 'Chris' },
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '3' }],
+          },
+        },
+      },
+    });
+
+    let john = store.push({
+      data: {
+        id: '2',
+        type: 'person',
+        attributes: { name: 'John' },
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '4' }],
+          },
+        },
+      },
+    });
+
+    let shen = store.push({
+      data: {
+        id: '3',
+        type: 'pet',
+        attributes: { name: 'Shen' },
+        relationships: {
+          owner: {
+            data: {
+              type: 'person',
+              id: '1',
+            },
+          },
+        },
+      },
+    });
+
+    let rocky = store.push({
+      data: {
+        id: '4',
+        type: 'pet',
+        attributes: { name: 'Rocky' },
+        relationships: {
+          owner: {
+            data: {
+              type: 'person',
+              id: '2',
+            },
+          },
+        },
+      },
+    });
+
+    assert.ok(shen.get('owner') === chris, 'Precondition: Chris is the current owner of Shen');
+    assert.ok(rocky.get('owner') === john, 'Precondition: John is the current owner of Rocky');
+
+    shen.set('owner', john);
+    assert.ok(shen.get('owner') === john, 'Precondition: John is the new owner of Shen');
+
+    let pets = john.pets.toArray().map((pet) => pet.name);
+    assert.deepEqual(pets, ['Rocky', 'Shen'], 'Precondition: John has Rocky and Shen as pets');
+
+    pets = chris.pets.toArray().map((pet) => pet.name);
+    assert.deepEqual(pets, [], 'Precondition: Chris has no pets');
+
+    rocky.unloadRecord();
+
+    assert.ok(shen.get('owner') === john, 'John is still the owner of Shen');
+
+    pets = john.pets.toArray().map((pet) => pet.name);
+    assert.todo.deepEqual(pets, ['Shen'], 'John has Shen as a pet');
   });
 
   module('Simple relationship addition case', function () {
