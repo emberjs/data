@@ -16,7 +16,7 @@ import type {
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
+import type { ChangedAttributesHash, MergeOperation, RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -118,6 +118,9 @@ class V2TestRecordData implements RecordData {
   constructor(wrapper: RecordDataStoreWrapper, identifier: StableRecordIdentifier) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
+  }
+  sync(op: MergeOperation): void {
+    throw new Error('Method not implemented.');
   }
   pushData(
     identifier: StableRecordIdentifier,
