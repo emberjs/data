@@ -10,7 +10,7 @@ import type {
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, RecordData } from '@ember-data/types/q/record-data';
+import type { ChangedAttributesHash, MergeOperation, RecordData } from '@ember-data/types/q/record-data';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import { RecordDataStoreWrapper, V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
@@ -133,6 +133,17 @@ export default class SingletonRecordData implements RecordData {
     }
 
     return changedKeys;
+  }
+
+  sync(op: MergeOperation): void {
+    if (op.op === 'mergeIdentifiers') {
+      const cache = this.__cache.get(op.record);
+      if (cache) {
+        this.__cache.set(op.value, cache);
+        this.__cache.delete(op.record);
+      }
+      graphFor(this.__storeWrapper).update(op, true);
+    }
   }
 
   update(operation: LocalRelationshipOperation): void {

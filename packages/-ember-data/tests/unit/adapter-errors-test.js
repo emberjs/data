@@ -2,14 +2,24 @@ import EmberError from '@ember/error';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
+import AdapterError, {
+  AbortError,
+  ConflictError,
+  errorsArrayToHash,
+  errorsHashToArray,
+  ForbiddenError,
+  InvalidError,
+  NotFoundError,
+  ServerError,
+  TimeoutError,
+  UnauthorizedError,
+} from '@ember-data/adapter/error';
 import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/adapter-errors - DS.AdapterError', function () {
-  test('DS.AdapterError', function (assert) {
-    let error = new DS.AdapterError();
+module('unit/adapter-errors - AdapterError', function () {
+  test('AdapterError', function (assert) {
+    let error = new AdapterError();
 
     assert.ok(error instanceof Error);
     assert.ok(error instanceof EmberError);
@@ -17,90 +27,90 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.strictEqual(error.message, 'Adapter operation failed');
   });
 
-  test('DS.InvalidError', function (assert) {
-    let error = new DS.InvalidError();
+  test('InvalidError', function (assert) {
+    let error = new InvalidError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'The adapter rejected the commit because it was invalid');
   });
 
-  test('DS.TimeoutError', function (assert) {
-    let error = new DS.TimeoutError();
+  test('TimeoutError', function (assert) {
+    let error = new TimeoutError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'The adapter operation timed out');
   });
 
-  test('DS.AbortError', function (assert) {
-    let error = new DS.AbortError();
+  test('AbortError', function (assert) {
+    let error = new AbortError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'The adapter operation was aborted');
   });
 
-  test('DS.UnauthorizedError', function (assert) {
-    let error = new DS.UnauthorizedError();
+  test('UnauthorizedError', function (assert) {
+    let error = new UnauthorizedError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'The adapter operation is unauthorized');
   });
 
-  test('DS.ForbiddenError', function (assert) {
-    let error = new DS.ForbiddenError();
+  test('ForbiddenError', function (assert) {
+    let error = new ForbiddenError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'The adapter operation is forbidden');
   });
 
-  test('DS.NotFoundError', function (assert) {
-    let error = new DS.NotFoundError();
+  test('NotFoundError', function (assert) {
+    let error = new NotFoundError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'The adapter could not find the resource');
   });
 
-  test('DS.ConflictError', function (assert) {
-    let error = new DS.ConflictError();
+  test('ConflictError', function (assert) {
+    let error = new ConflictError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'The adapter operation failed due to a conflict');
   });
 
-  test('DS.ServerError', function (assert) {
-    let error = new DS.ServerError();
+  test('ServerError', function (assert) {
+    let error = new ServerError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'The adapter operation failed due to a server error');
   });
 
   test('CustomAdapterError', function (assert) {
-    let CustomAdapterError = DS.AdapterError.extend();
+    let CustomAdapterError = AdapterError.extend();
     let error = new CustomAdapterError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error instanceof AdapterError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'Adapter operation failed');
   });
 
   test('CustomAdapterError with default message', function (assert) {
-    let CustomAdapterError = DS.AdapterError.extend({ message: 'custom error!' });
+    let CustomAdapterError = AdapterError.extend({ message: 'custom error!' });
     let error = new CustomAdapterError();
 
     assert.strictEqual(error.message, 'custom error!');
@@ -148,25 +158,25 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     ];
 
     test('errorsHashToArray', function (assert) {
-      let result = DS.errorsHashToArray(errorsHash);
+      let result = errorsHashToArray(errorsHash);
       assert.deepEqual(result, errorsArray);
       assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
     });
 
     test('errorsHashToArray for primary data object', function (assert) {
-      let result = DS.errorsHashToArray(errorsPrimaryHash);
+      let result = errorsHashToArray(errorsPrimaryHash);
       assert.deepEqual(result, errorsPrimaryArray);
       assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
     });
 
     test('errorsArrayToHash', function (assert) {
-      let result = DS.errorsArrayToHash(errorsArray);
+      let result = errorsArrayToHash(errorsArray);
       assert.deepEqual(result, errorsHash);
       assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
     });
 
     test('errorsArrayToHash without trailing slash', function (assert) {
-      let result = DS.errorsArrayToHash([
+      let result = errorsArrayToHash([
         {
           detail: 'error message',
           source: { pointer: 'data/attributes/name' },
@@ -177,15 +187,15 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     });
 
     test('errorsArrayToHash for primary data object', function (assert) {
-      let result = DS.errorsArrayToHash(errorsPrimaryArray);
+      let result = errorsArrayToHash(errorsPrimaryArray);
       assert.deepEqual(result, errorsPrimaryHash);
       assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
     });
   }
 
-  testInDebug('DS.InvalidError will normalize errors hash will assert', function (assert) {
+  testInDebug('InvalidError will normalize errors hash will assert', function (assert) {
     assert.expectAssertion(function () {
-      new DS.InvalidError({ name: ['is invalid'] });
+      new InvalidError({ name: ['is invalid'] });
     }, /expects json-api formatted errors/);
   });
 });

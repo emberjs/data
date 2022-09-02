@@ -407,15 +407,53 @@ class Store extends Service {
    * for use when information about a resource's schema needs
    * to be queried.
    *
-   * This method can only be called once and needs to be called before
-   * `getSchemaDefinitionService` is called when using `@ember-data/model`.
+   * This method can only be called more than once, but only one schema
+   * definition service may exist. Therefore if you wish to chain services
+   * you must lookup the existing service and close over it with the new
+   * service by calling `getSchemaDefinitionService` prior to registration.
+   *
+   * For Example:
+   *
+   * ```ts
+   * import Store from '@ember-data/store';
+   *
+   * class SchemaDelegator {
+   *   constructor(schema) {
+   *     this._schema = schema;
+   *   }
+   *
+   *   doesTypeExist(type: string): boolean {
+   *     if (AbstractSchemas.has(type)) {
+   *       return true;
+   *     }
+   *     return this._schema.doesTypeExist(type);
+   *   }
+   *
+   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+   *     return this._schema.attributesDefinitionFor(identifier);
+   *   }
+   *
+   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+   *     const schema = AbstractSchemas.get(identifier.type);
+   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
+   *   }
+   * }
+   *
+   * export default class extends Store {
+   *   constructor(...args) {
+   *     super(...args);
+   *
+   *     const schema = this.getSchemaDefinitionService();
+   *     this.registerSchemaDefinitionService(new SchemaDelegator(schema));
+   *   }
+   * }
+   * ```
    *
    * @method registerSchemaDefinitionService
    * @param {SchemaDefinitionService} schema
    * @public
    */
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {
-    assert(`Cannot register a schema definition service when one already exists`, !this._schemaDefinitionService);
     this._schemaDefinitionService = schema;
   }
 
@@ -2574,16 +2612,6 @@ class Store extends Service {
     super.willDestroy();
     this.recordArrayManager.destroy();
     this.identifierCache.destroy();
-
-    if (HAS_RECORD_DATA_PACKAGE) {
-      const peekGraph = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-      ).peekGraph;
-      let graph = peekGraph(this);
-      if (graph) {
-        graph.willDestroy();
-      }
-    }
 
     this.unloadAll();
 

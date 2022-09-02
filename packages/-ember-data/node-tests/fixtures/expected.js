@@ -311,6 +311,7 @@ module.exports = {
     '(public) @ember-data/store RecordArray#save',
     '(public) @ember-data/store RecordArray#type',
     '(public) @ember-data/store RecordArray#update',
+    "(public) @ember-data/store RecordDataManager#sync",
     "(public) @ember-data/store RecordDataManager#addToHasMany",
     "(public) @ember-data/store RecordDataManager#changedAttributes",
     "(public) @ember-data/store RecordDataManager#changedAttrs",

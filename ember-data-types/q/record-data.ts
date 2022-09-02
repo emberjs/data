@@ -13,6 +13,12 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
+export interface MergeOperation {
+  op: 'mergeIdentifiers';
+  record: StableRecordIdentifier; // existing
+  value: StableRecordIdentifier; // new
+}
+
 export interface RecordDataV1 {
   version?: '1';
 
@@ -74,6 +80,7 @@ export interface RecordData {
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]): void;
 
   unloadRecord(identifier: StableRecordIdentifier): void;
+  sync(op: MergeOperation): void;
 
   // Attrs
   // =====

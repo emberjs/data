@@ -3,10 +3,10 @@ import { get } from '@ember/object';
 import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 
@@ -14,8 +14,8 @@ module('integration/references/record', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Person = DS.Model.extend({
-      name: DS.attr(),
+    const Person = Model.extend({
+      name: attr(),
     });
 
     this.owner.register('model:person', Person);

@@ -1,9 +1,10 @@
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
-module('unit/adapters/build-url-mixin/build-url - DS.BuildURLMixin#buildURL', function (hooks) {
+import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+
+module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', function (hooks) {
   let adapter;
   setupTest(hooks);
   hooks.beforeEach(function () {
@@ -16,9 +17,9 @@ module('unit/adapters/build-url-mixin/build-url - DS.BuildURLMixin#buildURL', fu
       },
     };
 
-    const Adapter = DS.Adapter.extend(DS.BuildURLMixin, customPathForType);
+    const AppAdapter = Adapter.extend(BuildURLMixin, customPathForType);
 
-    adapter = Adapter.create();
+    adapter = AppAdapter.create();
   });
 
   test('buildURL - works with empty paths', function (assert) {

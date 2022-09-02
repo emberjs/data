@@ -35,28 +35,33 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     }
 
     class Handle extends Model {
-      @belongsTo('user', { async: true, inverse: 'handles' }) user;
+      @belongsTo('user', { async: true, inverse: 'handles', as: 'handle' }) user;
     }
-
-    class GithubHandle extends Handle {
+    class GithubHandle extends Model {
       @attr('string') username;
+      @belongsTo('user', { async: true, inverse: 'handles', as: 'handle' }) user;
     }
 
-    class TwitterHandle extends Handle {
+    class TwitterHandle extends Model {
       @attr('string') nickname;
+      @belongsTo('user', { async: true, inverse: 'handles', as: 'handle' }) user;
     }
 
     class Company extends Model {
       @attr('string') name;
-      @hasMany('user', { async: true, inverse: 'company' }) employees;
+      @hasMany('user', { async: true, inverse: 'company', as: 'company' }) employees;
     }
 
-    class DevelopmentShop extends Company {
+    class DevelopmentShop extends Model {
       @attr('boolean') coffee;
+      @attr('string') name;
+      @hasMany('user', { async: true, inverse: 'company', as: 'company' }) employees;
     }
 
-    class DesignStudio extends Company {
+    class DesignStudio extends Model {
       @attr('number') hipsters;
+      @attr('string') name;
+      @hasMany('user', { async: true, inverse: 'company', as: 'company' }) employees;
     }
 
     this.owner.register('adapter:application', class extends JSONAPIAdapter {});
@@ -768,6 +773,14 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
   });
 
   test('create record', async function (assert) {
+    this.owner.register(
+      'serializer:application',
+      class extends JSONAPISerializer {
+        shouldSerializeHasMany() {
+          return true;
+        }
+      }
+    );
     assert.expect(3);
 
     ajaxResponse([
@@ -798,6 +811,15 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
         },
       },
     });
+    let twitterHandle = store.push({
+      data: {
+        type: 'twitter-handle',
+        id: '2',
+        attributes: {
+          nickname: 'wycats',
+        },
+      },
+    });
 
     let user = store.createRecord('user', {
       firstName: 'Yehuda',
@@ -808,6 +830,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     let handles = await user.handles;
 
     handles.push(githubHandle);
+    handles.push(twitterHandle);
 
     await user.save();
 
@@ -827,6 +850,12 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
             company: {
               data: { type: 'companies', id: '1' },
             },
+            handles: {
+              data: [
+                { type: 'github-handles', id: '2' },
+                { type: 'twitter-handles', id: '2' },
+              ],
+            },
           },
         },
       },
@@ -835,6 +864,15 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
 
   test('update record', async function (assert) {
     assert.expect(3);
+
+    this.owner.register(
+      'serializer:application',
+      class extends JSONAPISerializer {
+        shouldSerializeHasMany() {
+          return true;
+        }
+      }
+    );
 
     ajaxResponse([
       {
@@ -900,6 +938,9 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
           relationships: {
             company: {
               data: { type: 'companies', id: '2' },
+            },
+            handles: {
+              data: [{ type: 'github-handles', id: '3' }],
             },
           },
         },

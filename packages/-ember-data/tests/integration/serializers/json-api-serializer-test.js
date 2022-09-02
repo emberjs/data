@@ -3,47 +3,51 @@ import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
+import Transform from '@ember-data/serializer/transform';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/serializers/json-api-serializer - JSONAPISerializer', function (hooks) {
   setupTest(hooks);
 
+  class User extends Model {
+    @attr('string') firstName;
+    @attr('string') lastName;
+    @attr('string') title;
+    @hasMany('handle', { async: true, polymorphic: true, inverse: 'user' }) handles;
+    @belongsTo('company', { async: true, inverse: 'employees' }) company;
+    @belongsTo('user', { async: true, inverse: null }) reportsTo;
+  }
+
+  class Handle extends Model {
+    @belongsTo('user', { async: true, inverse: 'handles', as: 'handle' }) user;
+  }
+
+  class GithubHandle extends Model {
+    @attr('string') username;
+    @belongsTo('user', { async: true, inverse: 'handles', as: 'handle' }) user;
+  }
+
+  class TwitterHandle extends Model {
+    @attr('string') nickname;
+    @belongsTo('user', { async: true, inverse: 'handles', as: 'handle' }) user;
+  }
+
+  class Company extends Model {
+    @attr('string') name;
+    @hasMany('user', { async: true, inverse: 'company' }) employees;
+  }
+
+  class Project extends Model {
+    @attr 'company-name';
+  }
+
   hooks.beforeEach(function () {
-    const User = DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-      title: DS.attr('string'),
-      handles: DS.hasMany('handle', { async: true, polymorphic: true, inverse: 'user' }),
-      company: DS.belongsTo('company', { async: true, inverse: 'employees' }),
-      reportsTo: DS.belongsTo('user', { async: true, inverse: null }),
-    });
-
-    const Handle = DS.Model.extend({
-      user: DS.belongsTo('user', { async: true, inverse: 'handles' }),
-    });
-
-    const GithubHandle = Handle.extend({
-      username: DS.attr('string'),
-    });
-
-    const TwitterHandle = Handle.extend({
-      nickname: DS.attr('string'),
-    });
-
-    const Company = DS.Model.extend({
-      name: DS.attr('string'),
-      employees: DS.hasMany('user', { async: true, inverse: 'company' }),
-    });
-
-    const Project = DS.Model.extend({
-      'company-name': DS.attr('string'),
-    });
-
     this.owner.register('model:user', User);
     this.owner.register('model:handle', Handle);
     this.owner.register('model:github-handle', GithubHandle);
@@ -386,14 +390,14 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   test('options are passed to transform for serialization', function (assert) {
     assert.expect(1);
 
-    const User = DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-      title: DS.attr('string'),
-      handles: DS.hasMany('handle', { async: true, polymorphic: true, inverse: 'user' }),
-      company: DS.belongsTo('company', { async: true, inverse: 'employees' }),
-      reportsTo: DS.belongsTo('user', { async: true, inverse: null }),
-      myCustomField: DS.attr('custom', {
+    const User = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      title: attr('string'),
+      handles: hasMany('handle', { async: true, polymorphic: true, inverse: 'user' }),
+      company: belongsTo('company', { async: true, inverse: 'employees' }),
+      reportsTo: belongsTo('user', { async: true, inverse: null }),
+      myCustomField: attr('custom', {
         custom: 'config',
       }),
     });
@@ -405,7 +409,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     this.owner.register(
       'transform:custom',
-      DS.Transform.extend({
+      Transform.extend({
         serialize: function (deserialized, options) {
           assert.deepEqual(options, { custom: 'config' }, 'we have the right options');
         },
@@ -723,13 +727,13 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
   testInDebug('Asserts when combined with EmbeddedRecordsMixin', function (assert) {
     assert.expectAssertion(function () {
-      JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();
+      JSONAPISerializer.extend(EmbeddedRecordsMixin).create();
     }, /You've used the EmbeddedRecordsMixin in/);
   });
 
   testInDebug('Allows EmbeddedRecordsMixin if isEmbeddedRecordsMixinCompatible is true', function (assert) {
     assert.expectNoAssertion(function () {
-      JSONAPISerializer.extend(DS.EmbeddedRecordsMixin, {
+      JSONAPISerializer.extend(EmbeddedRecordsMixin, {
         isEmbeddedRecordsMixinCompatible: true,
       }).create();
     });

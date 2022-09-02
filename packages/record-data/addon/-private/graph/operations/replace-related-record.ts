@@ -103,7 +103,17 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
 
   if (op.value) {
     if (definition.type !== op.value.type) {
+      assert(
+        `The '<${definition.inverseType}>.${op.field}' relationship expects only '${definition.type}' records since it is not polymorphic. Received a Record of type '${op.value.type}'`,
+        definition.isPolymorphic
+      );
+
+      // TODO this should now handle the deprecation warning if isPolymorphic is not set
+      // but the record does turn out to be polymorphic
+      // this should still assert if the user is relying on legacy inheritance/mixins to
+      // provide polymorphic behavior and has not yet added the polymorphic flags
       assertPolymorphicType(relationship.identifier, definition, op.value, graph.store);
+
       graph.registerPolymorphicType(definition.type, op.value.type);
     }
     addToInverse(graph, op.value, definition.inverseKey, op.record, isRemote);

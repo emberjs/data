@@ -268,52 +268,55 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
 
 module('integration/relationship/belongs_to Belongs-To Relationships', function (hooks) {
   setupTest(hooks);
+  class User extends Model {
+    @attr('string') name;
+    @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+    @belongsTo('message', { polymorphic: true, inverse: null, async: false }) favouriteMessage;
+  }
+
+  class Message extends Model {
+    @belongsTo('user', { inverse: 'messages', async: false, as: 'message' }) user;
+    @attr('date') created_at;
+  }
+
+  class Comment extends Model {
+    @attr('string') body;
+    @attr('date') created_at;
+    @belongsTo('user', { inverse: 'messages', async: false, as: 'message' }) user;
+    @belongsTo('message', { polymorphic: true, async: false, inverse: null }) message;
+  }
+  class Post extends Model {
+    @attr('string') title;
+    @attr('date') created_at;
+    @belongsTo('user', { inverse: 'messages', async: false, as: 'message' }) user;
+    @hasMany('comment', { async: false, inverse: null }) comments;
+  }
+
+  class Book extends Model {
+    @attr name;
+    @belongsTo('author', { async: false, inverse: 'books' }) author;
+    @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
+  }
+
+  class Book1 extends Model {
+    @attr name;
+  }
+
+  class Chapter extends Model {
+    @attr title;
+    @belongsTo('book', { async: false, inverse: 'chapters' }) book;
+  }
+
+  class Author extends Model {
+    @attr name;
+    @hasMany('book', { async: false, inverse: 'author' }) books;
+  }
+
+  class Section extends Model {
+    @attr name;
+  }
 
   hooks.beforeEach(function () {
-    class User extends Model {
-      @attr('string') name;
-      @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
-      @belongsTo('message', { polymorphic: true, inverse: null, async: false }) favouriteMessage;
-    }
-
-    class Message extends Model {
-      @belongsTo('user', { inverse: 'messages', async: false }) user;
-      @attr('date') created_at;
-    }
-
-    class Comment extends Message {
-      @attr('string') body;
-      @belongsTo('message', { polymorphic: true, async: false, inverse: null }) message;
-    }
-    class Post extends Message {
-      @attr('string') title;
-      @hasMany('comment', { async: false, inverse: null }) comments;
-    }
-
-    class Book extends Model {
-      @attr name;
-      @belongsTo('author', { async: false, inverse: 'books' }) author;
-      @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
-    }
-
-    const Book1 = Model.extend({
-      name: attr('string'),
-    });
-
-    class Chapter extends Model {
-      @attr title;
-      @belongsTo('book', { async: false, inverse: 'chapters' }) book;
-    }
-
-    const Author = Model.extend({
-      name: attr('string'),
-      books: hasMany('book', { async: false, inverse: 'author' }),
-    });
-
-    const Section = Model.extend({
-      name: attr('string'),
-    });
-
     this.owner.register('model:user', User);
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
@@ -428,16 +431,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
   test('The store can materialize a non loaded monomorphic belongsTo association', function (assert) {
     assert.expect(1);
-    class Message extends Model {
-      @belongsTo('user', { inverse: 'messages', async: false }) user;
-      @attr('date') created_at;
-    }
-    class Post extends Message {
+
+    class Post extends Model {
       @attr('string') title;
       @hasMany('comment', { async: false, inverse: null }) comments;
-      @belongsTo('user', { async: true, inverse: 'messages' }) user;
+      @belongsTo('user', { async: true, inverse: 'messages', as: 'message' }) user;
     }
-    this.owner.register('model:message', Message);
     this.owner.register('model:post', Post);
 
     let store = this.owner.lookup('service:store');
@@ -534,99 +533,26 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
   testInDebug(
     'Only a record of the same modelClass can be used with a monomorphic belongsTo relationship',
-    function (assert) {
+    async function (assert) {
       assert.expect(1);
-
       let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
 
-      adapter.shouldBackgroundReloadRecord = () => false;
-
-      run(() => {
-        store.push({
-          data: {
-            id: '1',
-            type: 'post',
-          },
-        });
-        store.push({
-          data: {
-            id: '2',
-            type: 'comment',
-          },
-        });
+      const post = store.push({
+        data: {
+          id: '1',
+          type: 'post',
+        },
+      });
+      const comment = store.push({
+        data: {
+          id: '2',
+          type: 'comment',
+        },
       });
 
-      return run(() => {
-        return hash({
-          post: store.findRecord('post', 1),
-          comment: store.findRecord('comment', 2),
-        }).then((records) => {
-          assert.expectAssertion(() => {
-            records.post.set('user', records.comment);
-          }, /The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'/);
-        });
-      });
-    }
-  );
-
-  testInDebug(
-    'Only a record of the same base modelClass can be used with a polymorphic belongsTo relationship',
-    function (assert) {
-      assert.expect(1);
-
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
-
-      adapter.shouldBackgroundReloadRecord = () => false;
-
-      run(() => {
-        store.push({
-          data: [
-            {
-              id: '1',
-              type: 'comment',
-            },
-            {
-              id: '2',
-              type: 'comment',
-            },
-          ],
-        });
-        store.push({
-          data: {
-            id: '1',
-            type: 'post',
-          },
-        });
-        store.push({
-          data: {
-            id: '3',
-            type: 'user',
-          },
-        });
-      });
-
-      return run(() => {
-        let asyncRecords = hash({
-          user: store.findRecord('user', 3),
-          post: store.findRecord('post', 1),
-          comment: store.findRecord('comment', 1),
-          anotherComment: store.findRecord('comment', 2),
-        });
-
-        return asyncRecords.then((records) => {
-          let comment = records.comment;
-
-          comment.set('message', records.anotherComment);
-          comment.set('message', records.post);
-          comment.set('message', null);
-
-          assert.expectAssertion(() => {
-            comment.set('message', records.user);
-          }, /The 'user' type does not implement 'message' and thus cannot be assigned to the 'message' relationship in 'comment'. Make it a descendant of 'message'/);
-        });
-      });
+      assert.expectAssertion(() => {
+        post.user = comment;
+      }, /The '<message>.user' relationship expects only 'user' records since it is not polymorphic. Received a Record of type 'comment'/);
     }
   );
 
@@ -949,17 +875,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     });
   });
 
-  test('the subclass in a polymorphic belongsTo relationship is an instanceof its superclass', function (assert) {
-    assert.expect(1);
-
-    let store = this.owner.lookup('service:store');
-    let message = store.createRecord('message', { id: '1' });
-    let comment = store.createRecord('comment', { id: '2', message: message });
-    const Message = store.modelFor('message');
-
-    assert.ok(comment instanceof Message, 'a comment is an instance of a message');
-  });
-
   test('relationship changes shouldn’t cause async fetches', function (assert) {
     assert.expect(2);
 
@@ -1065,20 +980,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     let adapter = store.adapterFor('application');
     let post;
 
-    class Message extends Model {
-      @attr('date') created_at;
-      @hasMany('user', { async: true, inverse: 'messages' }) user;
-    }
-    class Post extends Message {
+    class Post extends Model {
       @attr('string') title;
-      @hasMany('comment', { async: true, inverse: 'post' }) comments;
-      @belongsTo('user', { async: true, inverse: 'messages' }) user;
-    }
-
-    class Comment extends Message {
-      @attr('string') body;
-      @belongsTo('message', { polymorphic: true, async: false, inverse: null }) message;
-      @belongsTo('post', { async: false, inverse: 'user' }) messages;
+      @belongsTo('user', { async: true, inverse: 'messages', as: 'message' }) user;
     }
 
     this.owner.register('model:post', Post);

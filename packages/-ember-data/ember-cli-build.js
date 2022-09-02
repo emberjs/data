@@ -59,6 +59,13 @@ module.exports = function (defaults) {
       includeExternalHelpers: true,
     },
     'ember-cli-terser': terserSettings,
+    '@embroider/macros': {
+      setConfig: {
+        '@ember-data/store': {
+          polyfillUUID: true,
+        },
+      },
+    },
   });
 
   /*

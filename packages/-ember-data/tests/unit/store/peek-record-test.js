@@ -2,9 +2,9 @@ import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import Model from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -12,7 +12,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    this.owner.register('model:person', DS.Model.extend());
+    this.owner.register('model:person', Model.extend());
   });
 
   test('peekRecord should return the record if it is in the store', function (assert) {

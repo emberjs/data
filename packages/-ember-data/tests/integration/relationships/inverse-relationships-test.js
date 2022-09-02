@@ -312,7 +312,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
       @belongsTo('user', { async: false })
       twoUser;
 
-      @belongsTo('user', { async: false })
+      @belongsTo('user', { async: false, as: 'message' })
       redUser;
 
       @belongsTo('user', { async: false })
@@ -361,7 +361,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     }
 
     class Message extends Model {
-      @belongsTo('user', { inverse: 'youMessages', async: false })
+      @belongsTo('user', { inverse: 'youMessages', async: false, as: 'message' })
       user;
     }
 
@@ -396,7 +396,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
       @hasMany('comment', { inverse: null, async: false })
       meMessages;
 
-      @hasMany('comment', { inverse: 'message', async: false })
+      @hasMany('comment', { inverse: 'message', async: false, as: 'message' })
       youMessages;
 
       @hasMany('comment', { inverse: null, async: false })
@@ -455,7 +455,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.expectAssertion(function () {
       post = store.createRecord('post');
       post.comments;
-    }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
+    }, /We found no field named 'testPost' on the schema for 'comment' to be the inverse of the 'comments' relationship on 'post'. This is most likely due to a missing field on your model definition./);
   });
 
   testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", async function (assert) {
@@ -478,7 +478,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.expectAssertion(function () {
       post = store.createRecord('post');
       post.user;
-    }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
+    }, /We found no field named 'testPost' on the schema for 'user' to be the inverse of the 'user' relationship on 'post'. This is most likely due to a missing field on your model definition./);
   });
 
   test('inverseFor is only called when inverse is not null', async function (assert) {

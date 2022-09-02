@@ -34,34 +34,39 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       @belongsTo('user', { async: false, inverse: null }) user;
     }
 
-    class Email extends Contact {
+    class Email extends Model {
+      @belongsTo('user', { async: false, inverse: null }) user;
       @attr email;
     }
 
-    class Phone extends Contact {
+    class Phone extends Model {
+      @belongsTo('user', { async: false, inverse: null }) user;
       @attr number;
     }
 
     class Message extends Model {
       @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
+      @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
     }
 
-    class Post extends Message {
+    class Post extends Model {
+      @attr('date') created_at;
+      @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
       @attr title;
-      @hasMany('comment', { async: false, inverse: 'message' }) comments;
+      @hasMany('comment', { async: false, inverse: 'message', as: 'post' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
+      @attr('date') created_at;
+      @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
       @attr body;
       @belongsTo('post', { polymorphic: true, async: true, inverse: 'comments' }) message;
     }
 
-    const Book = Model.extend({
-      title: attr(),
-      chapters: hasMany('chapter', { async: true, inverse: null }),
-      toString: () => 'Book',
-    });
+    class Book extends Model {
+      @attr title;
+      @hasMany('chapter', { async: true, inverse: null }) chapters;
+    }
 
     class Chapter extends Model {
       @attr title;
@@ -474,23 +479,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   // common use case of this is to provide a URL to a collection that
   // is loaded later.
   test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { polymorphic: true, async: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: true, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -549,23 +548,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('Accessing a hasMany backed by a link multiple times triggers only one request', async function (assert) {
     assert.expect(2);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: true, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -624,23 +617,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('A hasMany backed by a link remains a promise after a record has been added to it', function (assert) {
     assert.expect(1);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: true, inverse: 'comments' }) message;
     }
+
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -694,23 +682,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('A hasMany updated link should not remove new children', function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: true, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -750,23 +732,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('A hasMany updated link should not remove new children when the parent record has children already', function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: true, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -808,23 +784,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test("A hasMany relationship doesn't contain duplicate children, after the canonical state of the relationship is updated via store#push", function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: true, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -881,23 +851,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('A hasMany relationship can be reloaded if it was fetched via a link', async function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1025,23 +989,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('A hasMany relationship can be reloaded if it was fetched via ids', function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
+
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1104,23 +1063,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('A hasMany relationship can be reloaded even if it failed at the first time', async function (assert) {
     assert.expect(7);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1186,23 +1139,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('A hasMany relationship can be directly reloaded if it was fetched via links', function (assert) {
     assert.expect(6);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1247,23 +1194,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('Has many via links - Calling reload multiple times does not send a new request if the first one is not settled', function (assert) {
     assert.expect(1);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let done = assert.async();
 
@@ -1311,23 +1252,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('A hasMany relationship can be directly reloaded if it was fetched via ids', function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1374,23 +1309,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('Has many via ids - Calling reload multiple times does not send a new request if the first one is not settled', function (assert) {
     assert.expect(1);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let done = assert.async();
 
@@ -1446,23 +1375,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
     function (assert) {
       assert.expect(4);
-      class Message extends Model {
-        @attr('date') created_at;
-        @belongsTo('user', { async: false, inverse: 'messages' }) user;
-      }
-
-      class Post extends Message {
+      class Post extends Model {
         @attr title;
         @hasMany('comment', { async: true, inverse: 'message' }) comments;
       }
 
-      class Comment extends Message {
+      class Comment extends Model {
         @attr body;
-        @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+        @belongsTo('post', { async: false, inverse: 'comments' }) message;
       }
       this.owner.register('model:post', Post);
       this.owner.register('model:comment', Comment);
-      this.owner.register('model:message', Message);
 
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');
@@ -1509,23 +1432,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('An updated `links` value should invalidate a relationship cache', async function (assert) {
     assert.expect(8);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -1887,20 +1804,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('Polymorphic relationships with a hasMany is set up correctly on both sides', function (assert) {
     assert.expect(2);
     class Contact extends Model {
-      @belongsTo('user', { async: false, inverse: null }) user;
-      @hasMany('post', { async: false, inverse: 'contact' }) posts;
+      @hasMany('post', { async: false, inverse: 'contact', as: 'contact' }) posts;
     }
-    class Email extends Contact {
+    class Email extends Model {
       @attr email;
+      @hasMany('post', { async: false, inverse: 'contact', as: 'contact' }) posts;
     }
-    class Phone extends Contact {
+
+    class Phone extends Model {
       @attr number;
+      @hasMany('post', { async: false, inverse: 'contact', as: 'contact' }) posts;
     }
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: false, inverse: 'message' }) comments;
       @belongsTo('contact', { async: false, polymorphic: true, inverse: 'posts' }) contact;
@@ -1908,7 +1823,6 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:contact', Contact);
     this.owner.register('model:email', Email);
     this.owner.register('model:phone', Phone);
-    this.owner.register('model:message', Message);
     this.owner.register('model:post', Post);
 
     let store = this.owner.lookup('service:store');
@@ -1919,7 +1833,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
 
     assert.strictEqual(post.contact, email, 'The polymorphic belongsTo is set up correctly');
-    assert.strictEqual(get(email, 'posts.length'), 1, 'The inverse has many is set up correctly on the email side.');
+    assert.strictEqual(email.posts.length, 1, 'The inverse has many is set up correctly on the email side.');
   });
 
   testInDebug('Only records of the same type can be added to a monomorphic hasMany relationship', function (assert) {
@@ -2093,23 +2007,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('When a record is created on the client, its async hasMany arrays should be in a loaded state', function (assert) {
     assert.expect(4);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let post = store.createRecord('post');
@@ -2158,23 +2066,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('We can set records ASYNC HM relationship', function (assert) {
     assert.expect(1);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let post = store.createRecord('post');
@@ -2228,23 +2130,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('dual non-async HM <-> BT', async function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -2294,23 +2190,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched', async function (assert) {
     assert.expect(6);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -2415,12 +2305,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.ok(false, 'no request should be made');
     };
 
-    const Post = Model.extend({
-      title: attr('string'),
-      comments: hasMany('comment', { async: true, inverse: 'message' }),
-      toString: () => 'Post',
-    });
+    class Post extends Model {
+      @attr title;
+      @hasMany('comment', { async: true, inverse: 'message' }) comments;
+    }
+
+    class Comment extends Model {
+      @attr body;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
+    }
+
     this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     let comment = store.createRecord('comment');
     let post = store.push({
@@ -2787,23 +2683,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('Relationship.clear removes all records correctly', async function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
 
@@ -2876,23 +2766,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('unloading a record with associated records does not prevent the store from tearing down', function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: false, inverse: 'post' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
 
@@ -3417,23 +3301,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('Related link should be fetched when no relationship data is present', function (assert) {
     assert.expect(3);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -3487,23 +3365,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('Related link should take precedence over relationship data when local record data is missing', function (assert) {
     assert.expect(3);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -3558,23 +3430,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('Local relationship data should take precedence over related link when local record data is available', function (assert) {
     assert.expect(1);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -3626,23 +3492,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('Related link should take precedence over local record data when relationship data is not initially available', function (assert) {
     assert.expect(3);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'post' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: false, inverse: 'comments' }) post;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -3713,23 +3573,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
   test('Updated related link should take precedence over relationship data and local record data', function (assert) {
     assert.expect(3);
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
-      @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+      @belongsTo('post', { async: false, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -3787,23 +3641,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
     function (assert) {
       assert.expect(1);
-      class Message extends Model {
-        @attr('date') created_at;
-        @belongsTo('user', { async: false, inverse: 'messages' }) user;
-      }
-
-      class Post extends Message {
+      class Post extends Model {
         @attr title;
         @hasMany('comment', { async: true, inverse: 'message' }) comments;
       }
-
-      class Comment extends Message {
+      class Comment extends Model {
         @attr body;
-        @belongsTo('post', { async: false, polymorphic: true, inverse: 'comments' }) message;
+        @belongsTo('post', { async: false, inverse: 'comments' }) message;
       }
       this.owner.register('model:post', Post);
       this.owner.register('model:comment', Comment);
-      this.owner.register('model:message', Message);
 
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');
@@ -3844,22 +3691,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('deleteRecord + unloadRecord', async function (assert) {
     class User extends Model {
       @attr name;
-      @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
       @hasMany('user', { inverse: null, async: false }) contacts;
       @hasMany('post', { async: true, inverse: null }) posts;
     }
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
 
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: false, inverse: 'message' }) comments;
       @belongsTo('user', { inverse: null, async: false }) user;
     }
     this.owner.register('model:user', User);
-    this.owner.register('model:message', Message);
     this.owner.register('model:post', Post);
 
     let store = this.owner.lookup('service:store');
@@ -4096,23 +3937,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('A hasMany relationship with a link will trigger the link request even if a inverse related object is pushed to the store', function (assert) {
-    class Message extends Model {
-      @attr('date') created_at;
-      @belongsTo('user', { async: false, inverse: 'messages' }) user;
-    }
-
-    class Post extends Message {
+    class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
     }
 
-    class Comment extends Message {
+    class Comment extends Model {
       @attr body;
       @belongsTo('post', { async: true, inverse: 'comments' }) message;
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('model:message', Message);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');

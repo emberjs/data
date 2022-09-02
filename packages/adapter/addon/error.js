@@ -356,9 +356,7 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
 /**
   Convert an hash of errors into an array with errors in JSON-API format.
    ```javascript
-  import DS from 'ember-data';
-
-   const { errorsHashToArray } = DS;
+   import { errorsHashToArray } from '@ember-data/adapter/error';
 
    let errors = {
     base: 'Invalid attributes on saving this record',
@@ -437,9 +435,7 @@ export function errorsHashToArray(errors) {
   Convert an array of errors in JSON-API format into an object.
 
   ```javascript
-  import DS from 'ember-data';
-
-  const { errorsArrayToHash } = DS;
+  import { errorsArrayToHash } from '@ember-data/adapter/error';
 
   let errorsArray = [
     {

@@ -3,9 +3,10 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import Adapter from '@ember-data/adapter';
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -13,8 +14,8 @@ module('integration/store/query-record - Query one record with a query hash', fu
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
     this.owner.register('model:person', Person);
@@ -45,7 +46,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         queryRecord(store, type, query) {
           assert.strictEqual(type, Person, 'the query method is called with the correct type');
           return resolve({
@@ -65,7 +66,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
   test('When a record is requested, and the promise is rejected, .queryRecord() is rejected.', function (assert) {
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         queryRecord(store, type, query) {
           return reject();
         },
@@ -100,7 +101,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         queryRecord(store, type, query) {
           return resolve({
             data: {

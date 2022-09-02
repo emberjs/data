@@ -10,8 +10,8 @@ module('Deprecations', function (hooks) {
 
   const StaticModelMethods = [
     { name: 'typeForRelationship', count: 3 },
-    { name: 'inverseFor', count: 6 },
-    { name: '_findInverseFor', count: 4 },
+    { name: 'inverseFor', count: 5 },
+    { name: '_findInverseFor', count: 3 },
     { name: 'eachRelationship', count: 3 },
     { name: 'eachRelatedType', count: 3 },
     { name: 'determineRelationshipType', count: 1 },

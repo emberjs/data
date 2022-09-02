@@ -1,17 +1,18 @@
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import Model from '@ember-data/model';
+import JSONSerializer from '@ember-data/serializer/json';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, Person;
 
-module('unit/store/serializer_for - DS.Store#serializerFor', function (hooks) {
+module('unit/store/serializer_for - Store#serializerFor', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    Person = DS.Model.extend({});
+    Person = Model.extend({});
 
     this.owner.register('model:person', Person);
 
@@ -19,7 +20,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function (hooks) {
   });
 
   test('Calling serializerFor looks up `serializer:<type>` from the container', function (assert) {
-    const PersonSerializer = DS.JSONSerializer.extend();
+    const PersonSerializer = JSONSerializer.extend();
 
     this.owner.register('serializer:person', PersonSerializer);
 
@@ -30,7 +31,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function (hooks) {
   });
 
   test('Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer', function (assert) {
-    const ApplicationSerializer = DS.JSONSerializer.extend();
+    const ApplicationSerializer = JSONSerializer.extend();
 
     this.owner.register('serializer:application', ApplicationSerializer);
 

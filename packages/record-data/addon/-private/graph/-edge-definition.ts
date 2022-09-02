@@ -175,13 +175,30 @@ export function upgradeDefinition(
 
   // CASE: Inverse is explicitly null
   if (definition.inverseKey === null) {
+    // TODO probably dont need this assertion if polymorphic
     assert(`Expected the inverse model to exist`, getStore(storeWrapper).modelFor(inverseType));
     inverseDefinition = null;
   } else {
     inverseKey = inverseForRelationship(getStore(storeWrapper), identifier, propertyName);
 
-    // CASE: Inverse resolves to null
-    if (!inverseKey) {
+    // CASE: If we are polymorphic, and we declared an inverse that is non-null
+    // we must assume that the lack of inverseKey means that there is no
+    // concrete type as the baseType, so we must construct and artificial
+    // placeholder
+    if (!inverseKey && definition.isPolymorphic && definition.inverseKey) {
+      inverseDefinition = {
+        kind: 'belongsTo', // this must be updated when we find the first belongsTo or hasMany definition that matches
+        key: definition.inverseKey,
+        type: type,
+        isAsync: false, // this must be updated when we find the first belongsTo or hasMany definition that matches
+        isImplicit: false,
+        isCollection: false, // this must be updated when we find the first belongsTo or hasMany definition that matches
+        isPolymorphic: false,
+        isInitialized: false, // tracks whether we have seen the other side at least once
+      };
+
+      // CASE: Inverse resolves to null
+    } else if (!inverseKey) {
       inverseDefinition = null;
     } else {
       // CASE: We have an explicit inverse or were able to resolve one

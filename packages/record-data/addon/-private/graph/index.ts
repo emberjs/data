@@ -4,6 +4,7 @@ import { DEBUG } from '@glimmer/env';
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { MergeOperation } from '@ember-data/types/q/record-data';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -29,6 +30,7 @@ import {
   removeIdentifierCompletelyFromRelationship,
 } from './-utils';
 import addToRelatedRecords from './operations/add-to-related-records';
+import { mergeIdentifier } from './operations/merge-identifier';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
@@ -41,7 +43,7 @@ export interface ImplicitRelationship {
   remoteMembers: Set<StableRecordIdentifier>;
 }
 
-type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
+export type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
 const Graphs = new Map<RecordDataStoreWrapper, Graph>();
 
@@ -98,6 +100,7 @@ export class Graph {
   declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
   declare identifiers: Map<StableRecordIdentifier, Dict<RelationshipEdge>>;
   declare store: RecordDataStoreWrapper;
+  declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
   declare _pushedUpdates: {
@@ -114,6 +117,7 @@ export class Graph {
     this._potentialPolymorphicTypes = Object.create(null);
     this.identifiers = new Map();
     this.store = store;
+    this.isDestroyed = false;
     this._willSyncRemote = false;
     this._willSyncLocal = false;
     this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
@@ -293,15 +297,15 @@ export class Graph {
   /*
    * Local state changes
    */
-  update(op: RemoteRelationshipOperation, isRemote: true): void;
+  update(op: RemoteRelationshipOperation | MergeOperation, isRemote: true): void;
   update(op: LocalRelationshipOperation, isRemote?: false): void;
   update(
-    op: LocalRelationshipOperation | RemoteRelationshipOperation | UnknownOperation,
+    op: MergeOperation | LocalRelationshipOperation | RemoteRelationshipOperation | UnknownOperation,
     isRemote: boolean = false
   ): void {
     assert(
       `Cannot update an implicit relationship`,
-      op.op === 'deleteRecord' || !isImplicit(this.get(op.record, op.field))
+      op.op === 'deleteRecord' || op.op === 'mergeIdentifiers' || !isImplicit(this.get(op.record, op.field))
     );
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -309,6 +313,13 @@ export class Graph {
     }
 
     switch (op.op) {
+      case 'mergeIdentifiers': {
+        const relationships = this.identifiers.get(op.record);
+        if (relationships) {
+          mergeIdentifier(this, op, relationships);
+        }
+        break;
+      }
       case 'updateRelationship':
         assert(`Can only perform the operation updateRelationship on remote state`, isRemote);
         if (DEBUG) {
@@ -424,17 +435,16 @@ export class Graph {
     updated.forEach((rel) => syncRemoteToLocal(this, rel));
   }
 
-  willDestroy() {
-    this.identifiers.clear();
-    this.store = null as unknown as RecordDataStoreWrapper;
-  }
-
   destroy() {
     Graphs.delete(this.store);
 
     if (DEBUG) {
       Graphs.delete(getStore(this.store) as unknown as RecordDataStoreWrapper);
     }
+
+    this.identifiers.clear();
+    this.store = null as unknown as RecordDataStoreWrapper;
+    this.isDestroyed = true;
   }
 }
 
