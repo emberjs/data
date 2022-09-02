@@ -4,7 +4,6 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
-import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
@@ -36,7 +35,7 @@ module('Editing a Record', function (hooks) {
     store = owner.lookup('service:store');
   });
 
-  todo('Change parent relationship then unload original child', async function (assert) {
+  test('Change parent relationship then unload original child', async function (assert) {
     let chris = store.push({
       data: {
         id: '1',
@@ -95,24 +94,24 @@ module('Editing a Record', function (hooks) {
       },
     });
 
-    assert.ok(shen.get('owner') === chris, 'Precondition: Chris is the current owner of Shen');
-    assert.ok(rocky.get('owner') === john, 'Precondition: John is the current owner of Rocky');
+    assert.strictEqual(shen.owner, chris, 'Precondition: Chris is the current owner of Shen');
+    assert.strictEqual(rocky.owner, john, 'Precondition: John is the current owner of Rocky');
 
-    shen.set('owner', john);
-    assert.ok(shen.get('owner') === john, 'Precondition: John is the new owner of Shen');
+    shen.owner = john;
+    assert.strictEqual(shen.owner, john, 'Precondition: John is the new owner of Shen');
 
-    let pets = john.pets.toArray().map((pet) => pet.name);
+    let pets = john.pets.map((pet) => pet.name);
     assert.deepEqual(pets, ['Rocky', 'Shen'], 'Precondition: John has Rocky and Shen as pets');
 
-    pets = chris.pets.toArray().map((pet) => pet.name);
+    pets = chris.pets.map((pet) => pet.name);
     assert.deepEqual(pets, [], 'Precondition: Chris has no pets');
 
     rocky.unloadRecord();
 
-    assert.ok(shen.get('owner') === john, 'John is still the owner of Shen');
+    assert.strictEqual(shen.owner, john, 'John is still the owner of Shen');
 
-    pets = john.pets.toArray().map((pet) => pet.name);
-    assert.todo.deepEqual(pets, ['Shen'], 'John has Shen as a pet');
+    pets = john.pets.map((pet) => pet.name);
+    assert.deepEqual(pets, ['Shen'], 'John has Shen as a pet');
   });
 
   module('Simple relationship addition case', function () {
