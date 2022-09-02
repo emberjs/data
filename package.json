@@ -54,7 +54,7 @@
     "@types/ember-testing-helpers": "^0.0.4",
     "@types/ember__debug": "^4.0.1",
     "@types/ember__test-helpers": "^2.8.1",
-    "@types/ember__utils": "^4.0.0",
+    "@types/ember__utils": "^4.0.1",
     "@types/rsvp": "^4.0.4",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
     "@typescript-eslint/parser": "^5.36.1",

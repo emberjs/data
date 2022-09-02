@@ -2575,10 +2575,17 @@
   dependencies:
     "@types/ember__application" "*"
 
-"@types/ember__utils@*", "@types/ember__utils@^4.0.0":
+"@types/ember__utils@*":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@types/ember__utils/-/ember__utils-4.0.0.tgz#a7e9e11334b5e203324e6155ff74c2b33ec21567"
   integrity sha512-gwSFUm+6t6StkQxSllbn9lqRms/dXMCQDieRfaTGN8IRatnKjJoEPME3A0T6O9afsU6viBQyqlPyFxsOWknYkg==
+  dependencies:
+    "@types/ember" "*"
+
+"@types/ember__utils@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/@types/ember__utils/-/ember__utils-4.0.1.tgz#106a7a9652bacc44c735ed1ffd6d3651ac03fdce"
+  integrity sha512-FhXZ37uY1BNgt63XoPH++PkAsMnF7P5wjPRluXecbFpEFHXP6enFbx1F5vjyoPtFjLEl4R3ftLM5QbEWsuyF5g==
   dependencies:
     "@types/ember" "*"
 
@@ -7249,7 +7256,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "4.8.0-alpha.5"
+  version "4.8.0-alpha.6"
 
 eslint-plugin-ember@^11.0.6:
   version "11.0.6"
