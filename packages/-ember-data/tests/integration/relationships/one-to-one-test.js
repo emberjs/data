@@ -2,7 +2,7 @@ import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise, resolve } from 'rsvp';
+import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -607,82 +607,73 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   deprecatedTest(
-    'Setting a BelongsTo to a promise multiple times is resistant to race conditions- async',
+    'Setting a BelongsTo to a promise multiple times is resistant to race conditions when the first set resolves quicker',
     { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 2 },
-    function (assert) {
-      assert.expect(1);
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
-
-      var stanley, igor, newFriend;
-      run(function () {
-        stanley = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Stanley',
-            },
-            relationships: {
-              bestFriend: {
-                data: {
-                  id: '2',
-                  type: 'user',
-                },
+      const stanley = store.push({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Stanley',
+          },
+          relationships: {
+            bestFriend: {
+              data: {
+                id: '2',
+                type: 'user',
               },
             },
           },
-        });
-        igor = store.push({
-          data: {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Igor',
-            },
-            relationships: {
-              bestFriend: {
-                data: {
-                  id: '5',
-                  type: 'user',
-                },
+        },
+      });
+      const igor = store.push({
+        data: {
+          id: '3',
+          type: 'user',
+          attributes: {
+            name: 'Igor',
+          },
+          relationships: {
+            bestFriend: {
+              data: {
+                id: '5',
+                type: 'user',
               },
             },
           },
-        });
-        newFriend = store.push({
-          data: {
-            id: '7',
-            type: 'user',
-            attributes: {
-              name: 'New friend',
-            },
+        },
+      });
+      const newFriend = store.push({
+        data: {
+          id: '7',
+          type: 'user',
+          attributes: {
+            name: 'New friend',
           },
-        });
+        },
       });
 
       adapter.findRecord = function (store, type, id, snapshot) {
         if (id === '5') {
           return resolve({ data: { id: '5', type: 'user', attributes: { name: "Igor's friend" } } });
         } else if (id === '2') {
-          let done = assert.async();
-          return new EmberPromise(function (resolve, reject) {
-            setTimeout(function () {
-              done();
-              resolve({ data: { id: '2', type: 'user', attributes: { name: "Stanley's friend" } } });
-            }, 1);
-          });
+          return resolve({ data: { id: '2', type: 'user', attributes: { name: "Stanley's friend" } } });
         }
       };
 
-      run(function () {
-        newFriend.set('bestFriend', stanley.bestFriend);
-        newFriend.set('bestFriend', igor.bestFriend);
-        newFriend.bestFriend.then(function (fetchedUser) {
-          assert.strictEqual(fetchedUser.name, "Igor's friend", 'User relationship was updated correctly');
-        });
-      });
+      let stanleyPromise = stanley.bestFriend;
+      let igorPromise = igor.bestFriend;
+
+      await Promise.all([stanleyPromise, igorPromise]);
+      newFriend.bestFriend = stanleyPromise;
+      newFriend.bestFriend = igorPromise;
+
+      const fetchedUser = await newFriend.bestFriend;
+      assert.strictEqual(fetchedUser?.name, "Igor's friend", 'User relationship was updated correctly');
     }
   );
 

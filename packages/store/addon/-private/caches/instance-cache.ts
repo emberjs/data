@@ -192,7 +192,7 @@ export class InstanceCache {
         } else if (HAS_RECORD_DATA_PACKAGE) {
           // TODO notify cache always, this requires it always being a singleton
           // and not ever specific to one record-data
-          this.store.__private_singleton_recordData.sync({
+          this.store.__private_singleton_recordData?.sync({
             op: 'mergeIdentifiers',
             record: staleIdentifier,
             value: keptIdentifier,
