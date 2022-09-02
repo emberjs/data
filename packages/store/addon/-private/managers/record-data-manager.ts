@@ -133,7 +133,7 @@ export class NonSingletonRecordDataManager implements RecordData {
     if (this.#isDeprecated(recordData)) {
       return;
     }
-    this.#recordData.sync(op);
+    recordData.sync(op);
   }
 
   /**

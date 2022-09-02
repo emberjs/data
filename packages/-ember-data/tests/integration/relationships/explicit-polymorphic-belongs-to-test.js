@@ -15,7 +15,7 @@ class FrameworkClass {
   }
 }
 
-module('Integration | Relationships | Explicit Polymorphism', function (hooks) {
+module('Integration | Relationships | Explicit Polymorphic BelongsTo', function (hooks) {
   setupTest(hooks);
 
   test('a polymorphic belongsTo relationship with a null inverse may point at any type', async function (assert) {
@@ -257,5 +257,208 @@ module('Integration | Relationships | Explicit Polymorphism', function (hooks) {
 
     assert.strictEqual(tagged.name, 'My Comment', 'we have the right comment');
     assert.strictEqual(tagged, comment, 'abstract type can be used to fetch real type');
+  });
+
+  test('polymorphic belongs-to to polymorphic belongs-to works as expected', async function (assert) {
+    const { owner } = this;
+    owner.register(
+      'model:taggable',
+      class extends Model {
+        @belongsTo('tag', { async: false, inverse: 'tagged', polymorphic: true, as: 'taggable' }) tag;
+      }
+    );
+    owner.register(
+      'model:comment',
+      class extends Model {
+        @attr text;
+        @belongsTo('tag', { async: false, inverse: 'tagged', polymorphic: true, as: 'taggable' }) tag;
+      }
+    );
+    owner.register(
+      'model:post',
+      class extends Model {
+        @attr title;
+        @belongsTo('tag', { async: false, inverse: 'tagged', polymorphic: true, as: 'taggable' }) tag;
+      }
+    );
+    owner.register(
+      'model:tag',
+      class extends Model {
+        @attr name;
+        @belongsTo('taggable', { async: false, inverse: 'tag', polymorphic: true, as: 'tag' }) tagged;
+      }
+    );
+    owner.register(
+      'model:label',
+      class extends Model {
+        @attr text;
+        @belongsTo('taggable', { async: false, inverse: 'tag', polymorphic: true, as: 'tag' }) tagged;
+      }
+    );
+    const store = owner.lookup('service:store');
+
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: { title: 'Rey is the best Dog' },
+        relationships: {
+          tag: {
+            data: { type: 'label', id: '1' },
+          },
+        },
+      },
+    });
+    const tag = store.push({
+      data: {
+        type: 'tag',
+        id: '1',
+        attributes: { name: 'Friend' },
+        relationships: {
+          tagged: {
+            data: { type: 'comment', id: '1' },
+          },
+        },
+      },
+    });
+    const comment = store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: { text: 'I agree, Rey is the best!' },
+      },
+    });
+    const label = store.push({
+      data: {
+        type: 'label',
+        id: '1',
+        attributes: { text: 'Best Puppers' },
+      },
+    });
+
+    assert.strictEqual(post.tag, label, 'post accepts label, and label accepts post');
+    assert.strictEqual(tag.tagged, comment, 'tag accepts comment, and comment accepts tag');
+    post.tag = tag;
+
+    assert.strictEqual(post.tag, tag, 'post accepts tag, and tag accepts post');
+    assert.strictEqual(comment.tag, null, 'comment has no tag');
+    assert.strictEqual(label.tagged, null, 'label is not tagged');
+    comment.tag = label;
+
+    assert.strictEqual(post.tag, tag, 'post accepts tag, and tag accepts post');
+    assert.strictEqual(label.tagged, comment, 'comment accepts label, and label accepts comment');
+  });
+
+  test('a polymorphic belongsTo relationship with a specified inverse can use an abstract-type defined via the schema service', async function (assert) {
+    const { owner } = this;
+    const store = owner.lookup('service:store');
+
+    const AbstractSchemas = new Map([
+      [
+        'taggable',
+        {
+          tag: {
+            kind: 'belongsTo',
+            type: 'tag',
+            name: 'tag',
+            options: {
+              async: false,
+              inverse: 'tagged',
+              as: 'taggable',
+            },
+          },
+        },
+      ],
+    ]);
+
+    class SchemaDelegator {
+      constructor(schema) {
+        this._schema = schema;
+      }
+
+      doesTypeExist(type) {
+        if (AbstractSchemas.has(type)) {
+          return true; // some apps may want `true`
+        }
+        return this._schema.doesTypeExist(type);
+      }
+
+      attributesDefinitionFor(identifier) {
+        return this._schema.attributesDefinitionFor(identifier);
+      }
+
+      relationshipsDefinitionFor(identifier) {
+        const schema = AbstractSchemas.get(identifier.type);
+        return schema || this._schema.relationshipsDefinitionFor(identifier);
+      }
+    }
+    const schema = store.getSchemaDefinitionService();
+    store.registerSchemaDefinitionService(new SchemaDelegator(schema));
+
+    owner.register(
+      'model:tag',
+      class extends Model {
+        @attr name;
+        @belongsTo('taggable', { async: false, inverse: 'tag', polymorphic: true }) tagged;
+      }
+    );
+    owner.register(
+      'model:comment',
+      class extends Model {
+        @attr name;
+        @belongsTo('tag', { async: false, inverse: 'tagged', as: 'taggable' }) tag;
+      }
+    );
+    owner.register(
+      'model:post',
+      class extends Model {
+        @attr name;
+        @belongsTo('tag', { async: false, inverse: 'tagged', as: 'taggable' }) tag;
+      }
+    );
+
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: { name: 'My Post' },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '1' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'tag',
+          id: '1',
+          attributes: { name: 'My Tag' },
+          relationships: {
+            tagged: {
+              data: { type: 'post', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+    const tag = store.peekRecord('tag', '1');
+
+    assert.strictEqual(post.tag, tag, 'post can have a tag');
+
+    const comment = store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: { name: 'My Comment' },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '1' },
+          },
+        },
+      },
+    });
+
+    assert.strictEqual(comment.tag, tag, 'the tag now belongs to comment');
+    assert.strictEqual(post.tag, null, 'post now has no tag');
   });
 });

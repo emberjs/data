@@ -181,33 +181,26 @@ export class InstanceCache {
           );
         }
 
-        if (keptRecordData === null && staleRecordData === null) {
-          // nothing more to do
-          return keptIdentifier;
+        let recordData = keptRecordData || staleRecordData;
 
-          // only the other has a RecordData
-          // OR only the other has a Record
-        } else if (
-          (keptRecordData === null && staleRecordData !== null) ||
-          (keptRecordData && !keptHasRecord && staleRecordData && staleHasRecord)
-        ) {
-          if (keptRecordData) {
-            // TODO check if we are retained in any async relationships
-            // TODO probably need to release other things
-            // im.destroy();
-          }
-          keptRecordData = staleRecordData!;
-          // TODO do we need to notify the id change?
-          // TODO swap recordIdentifierFor result?
-
-          // just use im
-        } else {
-          // otherIm.destroy();
+        if (recordData) {
+          recordData.sync({
+            op: 'mergeIdentifiers',
+            record: staleIdentifier,
+            value: keptIdentifier,
+          });
+        } else if (HAS_RECORD_DATA_PACKAGE) {
+          // TODO notify cache always, this requires it always being a singleton
+          // and not ever specific to one record-data
+          this.store.__private_singleton_recordData.sync({
+            op: 'mergeIdentifiers',
+            record: staleIdentifier,
+            value: keptIdentifier,
+          });
         }
 
-        // remove "other" from cache
-        if (staleHasRecord) {
-          // TODO probably need to release other things
+        if (staleRecordData === null) {
+          return keptIdentifier;
         }
 
         /*
@@ -220,6 +213,7 @@ export class InstanceCache {
       }
       */
 
+        this.unloadRecord(staleIdentifier);
         return keptIdentifier;
       }
     );
@@ -266,7 +260,6 @@ export class InstanceCache {
     let recordData = this.__instances.recordData.get(identifier);
 
     if (!recordData) {
-      debugger;
       if (DEPRECATE_V1CACHE_STORE_APIS && this.store.createRecordDataFor.length > 2) {
         deprecate(
           `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
