@@ -45,35 +45,37 @@ module.exports = function (babel) {
   return {
     name: 'ast-transform', // not required
     visitor: {
-      ImportSpecifier(path, state) {
-        const replacements = state.opts;
-        Object.keys(replacements).forEach((key) => {
-          if (path.node?.imported?.name === key) {
-            const parent = path.findParent((path) => path.isImportDeclaration);
-            if (parent.node.specifiers.length > 1) {
-              path.remove();
-            } else {
-              parent.remove();
+      ImportDeclaration(path, state) {
+        console.log(state.filename);
+        const replacements = state.opts.flags;
+        const importPath = path.node.source.value;
+
+        if (importPath === state.opts.source) {
+          const specifiers = path.get('specifiers');
+          specifiers.forEach((specifier) => {
+            let name = specifier.node.imported.name;
+            if (replacements[name]) {
+              let localBindingName = specifier.node.local.name;
+              let binding = specifier.scope.getBinding(localBindingName);
+              // console.log('binding: ', binding);
+              binding.referencePaths.forEach((p) => {
+                p.replaceWith(
+                  t.callExpression(t.identifier('macroCondition'), [
+                    t.callExpression(t.identifier('moduleExists'), [t.stringLiteral(replacements[name])]),
+                  ])
+                );
+              });
+              specifier.scope.removeOwnBinding(localBindingName);
+              state.ensureImport('@embroider/macros', 'macroCondition');
+              state.ensureImport('@embroider/macros', 'moduleExists');
             }
-            state.ensureImport('macroCondition', '@embroider/macros');
-            state.ensureImport('moduleExists', '@embroider/macros');
-          }
-        });
-      },
-      Identifier(path, state) {
-        const replacements = state.opts;
-        for (const [key, value] of Object.entries(replacements)) {
-          if (path.node.name === key) {
-            if (t.isIfStatement(path.parent)) {
-              path.replaceWith(
-                t.callExpression(t.identifier('macroCondition'), [
-                  t.callExpression(t.identifier('moduleExists'), [t.stringLiteral(value)]),
-                ])
-              );
-            }
-          }
+          });
+        }
+        if (path.get('specifiers').length === 0) {
+          path.remove();
         }
       },
+
       Program(path, state) {
         setupState(t, path, state);
       },
