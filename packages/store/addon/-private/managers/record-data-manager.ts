@@ -128,6 +128,17 @@ export class NonSingletonRecordDataManager implements RecordData {
     return recordData.pushData(identifier, data, hasRecord);
   }
 
+  /**
+   * Perform an operation on the cache to update the remote state.
+   *
+   * Note: currently the only valid operation is a MergeOperation
+   * which occurs when a collision of identifiers is detected.
+   *
+   * @method sync
+   * @public
+   * @param op the operation to perform
+   * @returns {void}
+   */
   sync(op: MergeOperation): void {
     const recordData = this.#recordData;
     if (this.#isDeprecated(recordData)) {

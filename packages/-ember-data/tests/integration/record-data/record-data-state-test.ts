@@ -13,7 +13,7 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
+import type { ChangedAttributesHash, MergeOperation, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import { Dict } from '@ember-data/types/q/utils';
@@ -115,6 +115,9 @@ class V1TestRecordData implements RecordDataV1 {
   }
 }
 class V2TestRecordData implements RecordData {
+  sync(op: MergeOperation): void {
+    throw new Error('Method not implemented.');
+  }
   update(operation: LocalRelationshipOperation): void {
     throw new Error('Method not implemented.');
   }
