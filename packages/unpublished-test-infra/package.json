@@ -32,7 +32,7 @@
     "qunit-dom": "^2.0.0",
     "rsvp": "^4.8.5",
     "semver": "^7.3.7",
-    "testem": "^3.8.0",
+    "testem": "^3.9.0",
     "webpack": "^5.74.0"
   },
   "devDependencies": {
