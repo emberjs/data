@@ -211,38 +211,40 @@ export class LegacySupport {
   }
 
   getManyArray(key: string, definition?: UpgradedMeta): RelatedCollection {
-    assert('hasMany only works with the @ember-data/record-data package', HAS_RECORD_DATA_PACKAGE);
-    let manyArray: RelatedCollection | undefined = this._manyArrayCache[key];
-    if (!definition) {
-      const graphFor = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-      ).graphFor;
-      definition = graphFor(this.store).get(this.identifier, key).definition;
+    if (HAS_RECORD_DATA_PACKAGE) {
+      let manyArray: RelatedCollection | undefined = this._manyArrayCache[key];
+      if (!definition) {
+        const graphFor = (
+          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+        ).graphFor;
+        definition = graphFor(this.store).get(this.identifier, key).definition;
+      }
+
+      if (!manyArray) {
+        const [identifiers, doc] = this._getCurrentState(this.identifier, key);
+
+        manyArray = new RelatedCollection({
+          store: this.store,
+          type: definition.type,
+          identifier: this.identifier,
+          recordData: this.recordData,
+          identifiers,
+          key,
+          meta: doc.meta || null,
+          links: doc.links || null,
+          isPolymorphic: definition.isPolymorphic,
+          isAsync: definition.isAsync,
+          _inverseIsAsync: definition.inverseIsAsync,
+          manager: this,
+          isLoaded: !definition.isAsync,
+          allowMutation: true,
+        });
+        this._manyArrayCache[key] = manyArray;
+      }
+
+      return manyArray;
     }
-
-    if (!manyArray) {
-      const [identifiers, doc] = this._getCurrentState(this.identifier, key);
-
-      manyArray = new RelatedCollection({
-        store: this.store,
-        type: definition.type,
-        identifier: this.identifier,
-        recordData: this.recordData,
-        identifiers,
-        key,
-        meta: doc.meta || null,
-        links: doc.links || null,
-        isPolymorphic: definition.isPolymorphic,
-        isAsync: definition.isAsync,
-        _inverseIsAsync: definition.inverseIsAsync,
-        manager: this,
-        isLoaded: !definition.isAsync,
-        allowMutation: true,
-      });
-      this._manyArrayCache[key] = manyArray;
-    }
-
-    return manyArray;
+    assert('hasMany only works with the @ember-data/record-data package');
   }
 
   fetchAsyncHasMany(
