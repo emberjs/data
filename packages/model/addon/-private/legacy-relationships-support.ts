@@ -8,9 +8,9 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
-import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph/index';
-import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
+import { RelationshipEdge } from '@ember-data/record-data/-private/graph/graph';
+import type { CollectionRelationship } from '@ember-data/record-data/addon/-private/graph/edges/collection';
+import type { ResourceRelationship } from '@ember-data/record-data/addon/-private/graph/edges/resource';
 import type Store from '@ember-data/store';
 import { fastPush, isStableIdentifier, recordIdentifierFor, SOURCE, storeFor } from '@ember-data/store/-private';
 import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
@@ -89,7 +89,7 @@ export class LegacySupport {
   _findBelongsTo(
     key: string,
     resource: SingleResourceRelationship,
-    relationship: BelongsToRelationship,
+    relationship: ResourceRelationship,
     options?: FindOptions
   ): Promise<RecordInstance | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
@@ -247,7 +247,7 @@ export class LegacySupport {
 
   fetchAsyncHasMany(
     key: string,
-    relationship: ManyRelationship,
+    relationship: CollectionRelationship,
     manyArray: RelatedCollection,
     options?: FindOptions
   ): Promise<RelatedCollection> {
@@ -284,7 +284,7 @@ export class LegacySupport {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
+      const relationship = graphFor(this.store).get(this.identifier, key) as CollectionRelationship;
       const { definition, state } = relationship;
 
       state.hasFailedLoadAttempt = false;
@@ -306,7 +306,7 @@ export class LegacySupport {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
+      const relationship = graphFor(this.store).get(this.identifier, key) as CollectionRelationship;
       const { definition, state } = relationship;
       let manyArray = this.getManyArray(key, definition);
 
@@ -403,11 +403,17 @@ export class LegacySupport {
           this.store,
           graph,
           this.identifier,
-          relationship as BelongsToRelationship,
+          relationship as ResourceRelationship,
           name
         );
       } else if (relationshipKind === 'hasMany') {
-        reference = new HasManyReference(this.store, graph, this.identifier, relationship as ManyRelationship, name);
+        reference = new HasManyReference(
+          this.store,
+          graph,
+          this.identifier,
+          relationship as CollectionRelationship,
+          name
+        );
       }
 
       this.references[name] = reference;
@@ -419,7 +425,7 @@ export class LegacySupport {
   _findHasManyByJsonApiResource(
     resource: CollectionResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
-    relationship: ManyRelationship,
+    relationship: CollectionRelationship,
     options: FindOptions = {}
   ): Promise<void | unknown[]> | void {
     if (HAS_RECORD_DATA_PACKAGE) {
@@ -521,7 +527,7 @@ export class LegacySupport {
   _findBelongsToByJsonApiResource(
     resource: SingleResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
-    relationship: BelongsToRelationship,
+    relationship: ResourceRelationship,
     options: FindOptions = {}
   ): Promise<StableRecordIdentifier | null> {
     if (!resource) {
@@ -623,33 +629,33 @@ export class LegacySupport {
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: BelongsToRelationship,
+  relationship: ResourceRelationship,
   value: StableRecordIdentifier | null
 ): RecordInstance | null;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: ManyRelationship,
+  relationship: CollectionRelationship,
   value: RelatedCollection
 ): RelatedCollection;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: BelongsToRelationship,
+  relationship: ResourceRelationship,
   value: null,
   error: Error
 ): never;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: ManyRelationship,
+  relationship: CollectionRelationship,
   value: RelatedCollection,
   error: Error
 ): never;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: BelongsToRelationship | ManyRelationship,
+  relationship: ResourceRelationship | CollectionRelationship,
   value: RelatedCollection | StableRecordIdentifier | null,
   error?: Error
 ): RelatedCollection | RecordInstance | null {
@@ -732,7 +738,7 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
   return !!record.then;
 }
 
-function anyUnloaded(store: Store, relationship: ManyRelationship) {
+function anyUnloaded(store: Store, relationship: CollectionRelationship) {
   let state = relationship.localState;
   const cache = store._instanceCache;
   const unloaded = state.find((s) => {
@@ -761,8 +767,6 @@ function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship)
   return instanceCache.recordIsLoaded(identifiers);
 }
 
-function isBelongsTo(
-  relationship: BelongsToRelationship | ImplicitRelationship | ManyRelationship
-): relationship is BelongsToRelationship {
+function isBelongsTo(relationship: RelationshipEdge): relationship is ResourceRelationship {
   return relationship.definition.kind === 'belongsTo';
 }

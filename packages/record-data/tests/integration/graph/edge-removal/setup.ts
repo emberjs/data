@@ -2,8 +2,9 @@ import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/record-data/-private';
 import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph';
-import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
+import type { CollectionRelationship } from '@ember-data/record-data/-private/graph/edges/collection';
+import type { ResourceRelationship } from '@ember-data/record-data/-private/graph/edges/resource';
+import { RelationshipEdge } from '@ember-data/record-data/-private/graph/graph';
 import Store from '@ember-data/store';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
@@ -38,10 +39,7 @@ class AbstractGraph {
     };
   }
 
-  get(
-    identifier: StableRecordIdentifier,
-    propertyName: string
-  ): ManyRelationship | BelongsToRelationship | ImplicitRelationship {
+  get(identifier: StableRecordIdentifier, propertyName: string): RelationshipEdge {
     return graphFor(this.store).get(identifier, propertyName);
   }
 
@@ -64,21 +62,15 @@ function graphForTest(store: Store) {
   return new AbstractGraph(store);
 }
 
-export function isBelongsTo(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is BelongsToRelationship {
+export function isBelongsTo(relationship: RelationshipEdge): relationship is ResourceRelationship {
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ImplicitRelationship {
+export function isImplicit(relationship: RelationshipEdge): relationship is ImplicitRelationship {
   return relationship.definition.isImplicit;
 }
 
-export function isHasMany(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ManyRelationship {
+export function isHasMany(relationship: RelationshipEdge): relationship is CollectionRelationship {
   return relationship.definition.kind === 'hasMany';
 }
 
@@ -86,7 +78,7 @@ function setToArray<T>(set: Set<T>): T[] {
   return Array.from(set);
 }
 
-export function stateOf(rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship): {
+export function stateOf(rel: RelationshipEdge): {
   remote: StableRecordIdentifier[];
   local: StableRecordIdentifier[];
 } {

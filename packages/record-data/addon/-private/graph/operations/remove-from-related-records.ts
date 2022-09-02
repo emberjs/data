@@ -2,9 +2,9 @@ import { assert } from '@ember/debug';
 
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type ManyRelationship from '../../relationships/state/has-many';
 import type { RemoveFromRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
+import type { CollectionRelationship } from '../edges/collection';
 import type { Graph } from '../graph';
 import { removeFromInverse } from './replace-related-records';
 
@@ -31,7 +31,7 @@ export default function removeFromRelatedRecords(
 
 function removeRelatedRecord(
   graph: Graph,
-  relationship: ManyRelationship,
+  relationship: CollectionRelationship,
   record: StableRecordIdentifier,
   value: StableRecordIdentifier,
   isRemote: boolean

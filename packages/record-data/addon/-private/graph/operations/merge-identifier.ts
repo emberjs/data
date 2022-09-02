@@ -1,9 +1,9 @@
 import type { MergeOperation } from '@ember-data/types/q/record-data';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type BelongsToRelationship from '../../relationships/state/belongs-to';
-import type ManyRelationship from '../../relationships/state/has-many';
 import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
+import { CollectionRelationship } from '../edges/collection';
+import type { ResourceRelationship } from '../edges/resource';
 import type { Graph, ImplicitRelationship, RelationshipEdge } from '../graph';
 
 export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Dict<RelationshipEdge>) {
@@ -34,7 +34,7 @@ function mergeInRelationship(graph: Graph, rel: RelationshipEdge, op: MergeOpera
   }
 }
 
-function mergeBelongsTo(graph: Graph, rel: BelongsToRelationship, op: MergeOperation): void {
+function mergeBelongsTo(graph: Graph, rel: ResourceRelationship, op: MergeOperation): void {
   if (rel.remoteState === op.record) {
     rel.remoteState = op.value;
   }
@@ -44,7 +44,7 @@ function mergeBelongsTo(graph: Graph, rel: BelongsToRelationship, op: MergeOpera
   }
 }
 
-function mergeHasMany(graph: Graph, rel: ManyRelationship, op: MergeOperation): void {
+function mergeHasMany(graph: Graph, rel: CollectionRelationship, op: MergeOperation): void {
   if (rel.remoteMembers.has(op.record)) {
     rel.remoteMembers.delete(op.record);
     rel.remoteMembers.add(op.value);

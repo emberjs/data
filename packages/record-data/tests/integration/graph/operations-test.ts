@@ -4,8 +4,8 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, hasMany } from '@ember-data/model';
 import { graphFor } from '@ember-data/record-data/-private';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import Store from '@ember-data/store';
+import { CollectionResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 
 module('Integration | Graph | Operations', function (hooks) {
   setupTest(hooks);
@@ -48,9 +48,9 @@ module('Integration | Graph | Operations', function (hooks) {
       });
     });
 
-    const data = graph.get(appIdentifier, 'configs') as ManyRelationship;
+    const data = graph.getData(appIdentifier, 'configs') as CollectionResourceRelationship;
     assert.deepEqual(
-      JSON.parse(JSON.stringify(data.getData())),
+      JSON.parse(JSON.stringify(data)),
       {
         data: [
           { type: 'config', id: '1', lid: '@lid:config-1' },
@@ -103,9 +103,9 @@ module('Integration | Graph | Operations', function (hooks) {
       });
     });
 
-    const data = graph.get(appIdentifier, 'configs') as ManyRelationship;
+    const data = graph.getData(appIdentifier, 'configs') as CollectionResourceRelationship;
     assert.deepEqual(
-      JSON.parse(JSON.stringify(data.getData())),
+      JSON.parse(JSON.stringify(data)),
       {
         data: [
           { type: 'config', id: '1', lid: '@lid:config-1' },

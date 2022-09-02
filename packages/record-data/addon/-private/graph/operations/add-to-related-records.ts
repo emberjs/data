@@ -3,9 +3,9 @@ import { assert } from '@ember/debug';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type ManyRelationship from '../../relationships/state/has-many';
 import type { AddToRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
+import type { CollectionRelationship } from '../edges/collection';
 import type { Graph } from '../graph';
 import { addToInverse } from './replace-related-records';
 
@@ -29,7 +29,7 @@ export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecord
 
 function addRelatedRecord(
   graph: Graph,
-  relationship: ManyRelationship,
+  relationship: CollectionRelationship,
   record: StableRecordIdentifier,
   value: StableRecordIdentifier,
   index: number | undefined,

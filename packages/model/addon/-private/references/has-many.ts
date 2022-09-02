@@ -10,7 +10,7 @@ import { ManyArray } from 'ember-data/-private';
 
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type { Graph } from '@ember-data/record-data/-private/graph/graph';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
+import type { CollectionRelationship } from '@ember-data/record-data/addon/-private/graph/edges/collection';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
@@ -57,7 +57,7 @@ function isResourceIdentiferWithRelatedLinks(
 export default class HasManyReference {
   declare graph: Graph;
   declare key: string;
-  declare hasManyRelationship: ManyRelationship;
+  declare hasManyRelationship: CollectionRelationship;
   declare type: string;
   declare store: Store;
 
@@ -72,7 +72,7 @@ export default class HasManyReference {
     store: Store,
     graph: Graph,
     parentIdentifier: StableRecordIdentifier,
-    hasManyRelationship: ManyRelationship,
+    hasManyRelationship: CollectionRelationship,
     key: string
   ) {
     this.graph = graph;

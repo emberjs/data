@@ -7,7 +7,7 @@ import { resolve } from 'rsvp';
 
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type { Graph } from '@ember-data/record-data/-private/graph/graph';
-import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
+import type { ResourceRelationship } from '@ember-data/record-data/addon/-private/graph/edges/resource';
 import type Store from '@ember-data/store';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { recordIdentifierFor } from '@ember-data/store/-private';
@@ -52,7 +52,7 @@ function isResourceIdentiferWithRelatedLinks(
  */
 export default class BelongsToReference {
   declare key: string;
-  declare belongsToRelationship: BelongsToRelationship;
+  declare belongsToRelationship: ResourceRelationship;
   declare type: string;
   ___identifier: StableRecordIdentifier;
   declare store: Store;
@@ -68,7 +68,7 @@ export default class BelongsToReference {
     store: Store,
     graph: Graph,
     parentIdentifier: StableRecordIdentifier,
-    belongsToRelationship: BelongsToRelationship,
+    belongsToRelationship: ResourceRelationship,
     key: string
   ) {
     this.graph = graph;

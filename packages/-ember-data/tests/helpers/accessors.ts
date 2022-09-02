@@ -1,17 +1,13 @@
 import { graphFor } from '@ember-data/record-data/-private';
 import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph';
-import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
+import { RelationshipEdge } from '@ember-data/record-data/-private/graph/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { ConfidentDict as RelationshipDict } from '@ember-data/types/q/utils';
 
-export function getRelationshipStateForRecord(
-  record: { store: Store },
-  propertyName: string
-): BelongsToRelationship | ManyRelationship | ImplicitRelationship {
+export function getRelationshipStateForRecord(record: { store: Store }, propertyName: string): RelationshipEdge {
   const identifier = recordIdentifierFor(record);
   return graphFor(record.store).get(identifier, propertyName);
 }

@@ -3,9 +3,9 @@ import { assert } from '@ember/debug';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type ManyRelationship from '../../relationships/state/has-many';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
+import type { CollectionRelationship } from '../edges/collection';
 import type { Graph } from '../graph';
 
 /*
@@ -357,7 +357,7 @@ export function removeFromInverse(
   }
 }
 
-export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
+export function syncRemoteToLocal(graph: Graph, rel: CollectionRelationship) {
   let toSet = rel.remoteState;
   let newRecordDatas = rel.localState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
   let existingState = rel.localState;
@@ -382,6 +382,6 @@ export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
   }
 }
 
-function flushCanonical(graph: Graph, rel: ManyRelationship) {
+function flushCanonical(graph: Graph, rel: CollectionRelationship) {
   graph._scheduleLocalSync(rel);
 }

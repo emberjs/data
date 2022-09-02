@@ -2,13 +2,12 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
+import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { MergeOperation } from '@ember-data/types/q/record-data';
+import type { MergeOperation } from '@ember-data/types/q/record-data';
 import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import BelongsToRelationship from '../relationships/state/belongs-to';
-import ManyRelationship from '../relationships/state/has-many';
 import type { EdgeCache, UpgradedMeta } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
 import type {
@@ -19,15 +18,16 @@ import type {
 } from './-operations';
 import {
   assertValidRelationshipPayload,
-  forAllRelatedIdentifiers,
+  destroyRelationship,
   getStore,
   isBelongsTo,
-  isHasMany,
   isImplicit,
-  isNew,
-  notifyChange,
-  removeIdentifierCompletelyFromRelationship,
+  removeCompletelyFromInverse,
 } from './-utils';
+import type { CollectionRelationship } from './edges/collection';
+import { createCollectionRelationship, legacyGetCollectionRelationshipData } from './edges/collection';
+import type { ResourceRelationship } from './edges/resource';
+import { createResourceRelationship, legacyGetResourceRelationshipData } from './edges/resource';
 import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
@@ -42,7 +42,7 @@ export interface ImplicitRelationship {
   remoteMembers: Set<StableRecordIdentifier>;
 }
 
-export type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
+export type RelationshipEdge = ImplicitRelationship | CollectionRelationship | ResourceRelationship;
 
 export const Graphs = new Map<RecordDataStoreWrapper, Graph>();
 
@@ -78,8 +78,8 @@ export class Graph {
     hasMany: RemoteRelationshipOperation[];
     deletions: DeleteRecordOperation[];
   };
-  declare _updatedRelationships: Set<ManyRelationship>;
-  declare _transaction: Set<ManyRelationship | BelongsToRelationship> | null;
+  declare _updatedRelationships: Set<CollectionRelationship>;
+  declare _transaction: Set<CollectionRelationship | ResourceRelationship> | null;
   declare _removing: StableRecordIdentifier | null;
 
   constructor(store: RecordDataStoreWrapper) {
@@ -104,6 +104,18 @@ export class Graph {
     return relationships[propertyName] !== undefined;
   }
 
+  getData(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): SingleResourceRelationship | CollectionResourceRelationship {
+    const relationship = this.get(identifier, propertyName);
+    assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
+    if (isBelongsTo(relationship)) {
+      return legacyGetResourceRelationshipData(relationship);
+    }
+    return legacyGetCollectionRelationshipData(relationship);
+  }
+
   get(identifier: StableRecordIdentifier, propertyName: string): RelationshipEdge {
     assert(`expected propertyName`, propertyName);
     let relationships = this.identifiers.get(identifier);
@@ -118,9 +130,10 @@ export class Graph {
       assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
       const meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
 
-      if (meta.kind !== 'implicit') {
-        const Klass = meta.kind === 'hasMany' ? ManyRelationship : BelongsToRelationship;
-        relationship = relationships[propertyName] = new Klass(meta, identifier);
+      if (meta.kind === 'belongsTo') {
+        relationship = relationships[propertyName] = createResourceRelationship(meta, identifier);
+      } else if (meta.kind === 'hasMany') {
+        relationship = relationships[propertyName] = createCollectionRelationship(meta, identifier);
       } else {
         relationship = relationships[propertyName] = {
           definition: meta,
@@ -335,7 +348,7 @@ export class Graph {
     }
   }
 
-  _scheduleLocalSync(relationship: ManyRelationship) {
+  _scheduleLocalSync(relationship: CollectionRelationship) {
     this._updatedRelationships.add(relationship);
     if (!this._willSyncLocal) {
       this._willSyncLocal = true;
@@ -372,7 +385,7 @@ export class Graph {
     this._finalize();
   }
 
-  _addToTransaction(relationship: ManyRelationship | BelongsToRelationship) {
+  _addToTransaction(relationship: CollectionRelationship | ResourceRelationship) {
     assert(`expected a transaction`, this._transaction !== null);
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -415,170 +428,5 @@ export class Graph {
     this.identifiers.clear();
     this.store = null as unknown as RecordDataStoreWrapper;
     this.isDestroyed = true;
-  }
-}
-
-// Handle dematerialization for relationship `rel`.  In all cases, notify the
-// relationship of the dematerialization: this is done so the relationship can
-// notify its inverse which needs to update state
-//
-// If the inverse is sync, unloading this record is treated as a client-side
-// delete, so we remove the inverse records from this relationship to
-// disconnect the graph.  Because it's not async, we don't need to keep around
-// the identifier as an id-wrapper for references
-function destroyRelationship(graph: Graph, rel: RelationshipEdge, silenceNotifications?: boolean) {
-  if (isImplicit(rel)) {
-    if (graph.isReleasable(rel.identifier)) {
-      removeCompletelyFromInverse(graph, rel);
-    }
-    return;
-  }
-
-  const { identifier } = rel;
-  const { inverseKey } = rel.definition;
-
-  if (!rel.definition.inverseIsImplicit) {
-    forAllRelatedIdentifiers(rel, (inverseIdentifer: StableRecordIdentifier) =>
-      notifyInverseOfDematerialization(graph, inverseIdentifer, inverseKey, identifier, silenceNotifications)
-    );
-  }
-
-  if (!rel.definition.inverseIsImplicit && !rel.definition.inverseIsAsync) {
-    rel.state.isStale = true;
-    clearRelationship(rel);
-
-    // necessary to clear relationships in the ui from dematerialized records
-    // hasMany is managed by Model which calls `retreiveLatest` after
-    // dematerializing the recordData instance.
-    // but sync belongsTo requires this since they don't have a proxy to update.
-    // so we have to notify so it will "update" to null.
-    // we should discuss whether we still care about this, probably fine to just
-    // leave the ui relationship populated since the record is destroyed and
-    // internally we've fully cleaned up.
-    if (!rel.definition.isAsync && !silenceNotifications) {
-      notifyChange(graph, rel.identifier, rel.definition.key);
-    }
-  }
-}
-
-function notifyInverseOfDematerialization(
-  graph: Graph,
-  inverseIdentifier: StableRecordIdentifier,
-  inverseKey: string,
-  identifier: StableRecordIdentifier,
-  silenceNotifications?: boolean
-) {
-  if (!graph.has(inverseIdentifier, inverseKey)) {
-    return;
-  }
-
-  let relationship = graph.get(inverseIdentifier, inverseKey);
-  assert(`expected no implicit`, !isImplicit(relationship));
-
-  // For remote members, it is possible that inverseRecordData has already been associated to
-  // to another record. For such cases, do not dematerialize the inverseRecordData
-  if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
-    removeDematerializedInverse(
-      graph,
-      relationship as BelongsToRelationship | ManyRelationship,
-      identifier,
-      silenceNotifications
-    );
-  }
-}
-
-function clearRelationship(relationship: ManyRelationship | BelongsToRelationship) {
-  if (isBelongsTo(relationship)) {
-    relationship.localState = null;
-    relationship.remoteState = null;
-    relationship.state.hasReceivedData = false;
-    relationship.state.isEmpty = true;
-  } else {
-    relationship.localMembers.clear();
-    relationship.remoteMembers.clear();
-    relationship.localState = [];
-    relationship.remoteState = [];
-  }
-}
-
-function removeDematerializedInverse(
-  graph: Graph,
-  relationship: ManyRelationship | BelongsToRelationship,
-  inverseIdentifier: StableRecordIdentifier,
-  silenceNotifications?: boolean
-) {
-  if (isBelongsTo(relationship)) {
-    const inverseIdentifier = relationship.localState;
-    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
-      // unloading inverse of a sync relationship is treated as a client-side
-      // delete, so actually remove the models don't merely invalidate the cp
-      // cache.
-      // if the record being unloaded only exists on the client, we similarly
-      // treat it as a client side delete
-      if (relationship.localState === inverseIdentifier && inverseIdentifier !== null) {
-        relationship.localState = null;
-      }
-
-      if (relationship.remoteState === inverseIdentifier && inverseIdentifier !== null) {
-        relationship.remoteState = null;
-        relationship.state.hasReceivedData = true;
-        relationship.state.isEmpty = true;
-        if (relationship.localState && !isNew(relationship.localState)) {
-          relationship.localState = null;
-        }
-      }
-    } else {
-      relationship.state.hasDematerializedInverse = true;
-    }
-
-    if (!silenceNotifications) {
-      notifyChange(graph, relationship.identifier, relationship.definition.key);
-    }
-  } else {
-    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
-      // unloading inverse of a sync relationship is treated as a client-side
-      // delete, so actually remove the models don't merely invalidate the cp
-      // cache.
-      // if the record being unloaded only exists on the client, we similarly
-      // treat it as a client side delete
-      removeIdentifierCompletelyFromRelationship(graph, relationship, inverseIdentifier);
-    } else {
-      relationship.state.hasDematerializedInverse = true;
-    }
-
-    if (!silenceNotifications) {
-      notifyChange(graph, relationship.identifier, relationship.definition.key);
-    }
-  }
-}
-
-function removeCompletelyFromInverse(
-  graph: Graph,
-  relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship
-) {
-  const { identifier } = relationship;
-  const { inverseKey } = relationship.definition;
-
-  forAllRelatedIdentifiers(relationship, (inverseIdentifier: StableRecordIdentifier) => {
-    if (graph.has(inverseIdentifier, inverseKey)) {
-      removeIdentifierCompletelyFromRelationship(graph, graph.get(inverseIdentifier, inverseKey), identifier);
-    }
-  });
-
-  if (isBelongsTo(relationship)) {
-    if (!relationship.definition.isAsync) {
-      clearRelationship(relationship);
-    }
-
-    relationship.localState = null;
-  } else if (isHasMany(relationship)) {
-    if (!relationship.definition.isAsync) {
-      clearRelationship(relationship);
-
-      notifyChange(graph, relationship.identifier, relationship.definition.key);
-    }
-  } else {
-    relationship.remoteMembers.clear();
-    relationship.localMembers.clear();
   }
 }

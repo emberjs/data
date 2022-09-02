@@ -18,9 +18,9 @@ import { Dict } from '@ember-data/types/q/utils';
 
 import { LocalRelationshipOperation } from './graph/-operations';
 import { isImplicit } from './graph/-utils';
+import type { CollectionRelationship } from './graph/edges/collection';
+import type { ResourceRelationship } from './graph/edges/resource';
 import { graphFor } from './graph/index';
-import type BelongsToRelationship from './relationships/state/belongs-to';
-import type ManyRelationship from './relationships/state/has-many';
 
 const EMPTY_ITERATOR = {
   iterator() {
@@ -403,7 +403,7 @@ export default class SingletonRecordData implements RecordData {
     identifier: StableRecordIdentifier,
     field: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
-    return (graphFor(this.__storeWrapper).get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
+    return graphFor(this.__storeWrapper).getData(identifier, field);
   }
 
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
@@ -595,7 +595,7 @@ function _directlyRelatedRecordDatasIterable(
     return EMPTY_ITERATOR;
   }
 
-  const initializedRelationshipsArr: Array<ManyRelationship | BelongsToRelationship> = [];
+  const initializedRelationshipsArr: Array<CollectionRelationship | ResourceRelationship> = [];
   Object.keys(initializedRelationships).forEach((key) => {
     const rel = initializedRelationships[key];
     if (rel && !isImplicit(rel)) {
