@@ -8,14 +8,17 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
-import { RelationshipEdge } from '@ember-data/record-data/-private/graph/graph';
+import type { RelationshipEdge } from '@ember-data/record-data/-private/graph/graph';
 import type { CollectionRelationship } from '@ember-data/record-data/addon/-private/graph/edges/collection';
 import type { ResourceRelationship } from '@ember-data/record-data/addon/-private/graph/edges/resource';
 import type Store from '@ember-data/store';
 import { fastPush, isStableIdentifier, recordIdentifierFor, SOURCE, storeFor } from '@ember-data/store/-private';
 import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import type { DSModel } from '@ember-data/types/q/ds-model';
-import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import type {
+  CollectionResourceRelationship,
+  SingleResourceRelationship,
+} from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
