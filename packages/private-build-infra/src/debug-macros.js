@@ -1,14 +1,9 @@
 'use strict';
 
-<<<<<<< HEAD
 module.exports = function debugMacros(app, isProd, config) {
+  const requireModule = require('./utilities/require-module');
+
   const PACKAGES = require('./packages')(app);
-||||||| parent of 3667ed7d1 (Use config to determine what to replace, add config to replace all existing package existence checks)
-module.exports = function debugMacros(app, isProd, compatVersion) {
-  const PACKAGES = require('./packages')(app);
-=======
-module.exports = function debugMacros(app, isProd, compatVersion) {
->>>>>>> 3667ed7d1 (Use config to determine what to replace, add config to replace all existing package existence checks)
   const FEATURES = require('./features')(isProd);
   const DEBUG = require('./debugging')(config.debug, isProd);
   const DEPRECATIONS = require('./deprecations')(config.compatWith, isProd);
@@ -16,6 +11,14 @@ module.exports = function debugMacros(app, isProd, compatVersion) {
   const ConvertExistenceChecksToMacros = require.resolve(
     './transforms/babel-plugin-convert-existence-checks-to-macros'
   );
+
+  const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
+  const MACRO_PACKAGE_FLAGS = Object.assign({}, ALL_PACKAGES.default);
+  delete MACRO_PACKAGE_FLAGS['HAS_DEBUG_PACKAGE'];
+
+  const DEBUG_PACKAGE_FLAG = {
+    HAS_DEBUG_PACKAGE: PACKAGES.HAS_DEBUG_PACKAGE,
+  };
 
   let plugins = [
     [
@@ -42,8 +45,6 @@ module.exports = function debugMacros(app, isProd, compatVersion) {
       },
       '@ember-data/deprecation-stripping',
     ],
-<<<<<<< HEAD
-<<<<<<< HEAD
     [
       debugMacrosPath,
       {
@@ -59,14 +60,21 @@ module.exports = function debugMacros(app, isProd, compatVersion) {
     [
       ConvertExistenceChecksToMacros,
       {
-        HAS_EMBER_DATA_PACKAGE: 'ember-data',
-        HAS_STORE_PACKAGE: '@ember-data/store',
-        HAS_MODEL_PACKAGE: '@ember-data/model',
-        HAS_RECORD_DATA_PACKAGE: '@ember-data/record-data',
-        HAS_ADAPTER_PACKAGE: '@ember-data/adapter',
-        HAS_SERIALIZER_PACKAGE: '@ember-data/serializer',
-        HAS_DEBUG_PACKAGE: '@ember-data/debug',
+        source: '@ember-data/private-build-infra',
+        flags: MACRO_PACKAGE_FLAGS,
       },
+    ],
+    [
+      debugMacrosPath,
+      {
+        flags: [
+          {
+            source: '@ember-data/private-build-infra',
+            flags: DEBUG_PACKAGE_FLAG,
+          },
+        ],
+      },
+      '@ember-data/optional-packages-stripping',
     ],
   ];
   return plugins;
