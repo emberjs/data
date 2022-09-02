@@ -7,8 +7,8 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type { Graph } from '.';
 import { expandingGet, expandingSet, getStore } from './-utils';
+import type { Graph } from './graph';
 
 export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
 

@@ -6,7 +6,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type ManyRelationship from '../../relationships/state/has-many';
 import type { AddToRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
-import type { Graph } from '../index';
+import type { Graph } from '../graph';
 import { addToInverse } from './replace-related-records';
 
 export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecordsOperation, isRemote: boolean) {
