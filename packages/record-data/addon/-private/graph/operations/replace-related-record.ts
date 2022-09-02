@@ -5,7 +5,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { ReplaceRelatedRecordOperation } from '../-operations';
 import { isBelongsTo, isNew, notifyChange } from '../-utils';
-import type { Graph } from '../index';
+import type { Graph } from '../graph';
 import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records';
 
 export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRecordOperation, isRemote = false) {

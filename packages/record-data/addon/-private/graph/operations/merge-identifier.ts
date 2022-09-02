@@ -3,8 +3,8 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import type BelongsToRelationship from '../../relationships/state/belongs-to';
 import type ManyRelationship from '../../relationships/state/has-many';
-import type { Graph, ImplicitRelationship, RelationshipEdge } from '..';
 import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
+import type { Graph, ImplicitRelationship, RelationshipEdge } from '../graph';
 
 export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Dict<RelationshipEdge>) {
   Object.keys(relationships).forEach((key) => {

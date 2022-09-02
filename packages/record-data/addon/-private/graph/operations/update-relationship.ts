@@ -5,7 +5,7 @@ import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember
 import _normalizeLink from '../../normalize-link';
 import type { UpdateRelationshipOperation } from '../-operations';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
-import type { Graph } from '../index';
+import type { Graph } from '../graph';
 
 /*
     Updates the "canonical" or "remote" state of a relationship, replacing any existing

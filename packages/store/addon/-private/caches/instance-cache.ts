@@ -7,7 +7,8 @@ import { resolve } from 'rsvp';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
-import type { Graph, peekGraph } from '@ember-data/record-data/-private/graph/index';
+import type { Graph } from '@ember-data/record-data/-private/graph/graph';
+import type { peekGraph } from '@ember-data/record-data/-private/graph/index';
 import type {
   ExistingResourceIdentifierObject,
   ExistingResourceObject,

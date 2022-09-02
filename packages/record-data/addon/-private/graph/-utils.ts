@@ -11,7 +11,7 @@ import { coerceId } from '../coerce-id';
 import type BelongsToRelationship from '../relationships/state/belongs-to';
 import type ManyRelationship from '../relationships/state/has-many';
 import type { UpdateRelationshipOperation } from './-operations';
-import type { Graph, ImplicitRelationship } from './index';
+import type { Graph, ImplicitRelationship } from './graph';
 
 export function getStore(wrapper: RecordDataStoreWrapper | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);
