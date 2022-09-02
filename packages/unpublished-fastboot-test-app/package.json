@@ -34,7 +34,7 @@
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@types/ember": "^4.0.1",
-    "@types/ember-qunit": "^5.0.0",
+    "@types/ember-qunit": "^5.0.1",
     "@types/ember-testing-helpers": "^0.0.4",
     "@types/ember__test-helpers": "^2.8.1",
     "@types/rsvp": "^4.0.4",
