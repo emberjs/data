@@ -6,6 +6,8 @@ import _normalizeLink from '../../normalize-link';
 import type { UpdateRelationshipOperation } from '../-operations';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { Graph } from '../graph';
+import { _replaceRelatedRecord } from './replace-related-record';
+import { _replaceRelatedRecordsRemote } from './replace-related-records';
 
 /*
     Updates the "canonical" or "remote" state of a relationship, replacing any existing
@@ -36,27 +38,21 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
       }
       assert(`Expected an array`, Array.isArray(payload.data));
       const cache = graph.store.identifierCache;
-      // TODO may not need to cast to stable identifiers here since update likely does this too
-      graph.update(
-        {
-          op: 'replaceRelatedRecords',
-          record: identifier,
-          field: op.field,
-          value: payload.data.map((i) => cache.getOrCreateRecordIdentifier(i)),
-        },
+      _replaceRelatedRecordsRemote(
+        graph,
+        identifier,
+        op.field,
+        payload.data.map((i) => cache.getOrCreateRecordIdentifier(i)),
         true
       );
     } else {
-      // TODO may not need to cast to stable identifiers here since update likely does this too
-      graph.update(
-        {
-          op: 'replaceRelatedRecord',
-          record: identifier,
-          field: op.field,
-          value: payload.data
-            ? graph.store.identifierCache.getOrCreateRecordIdentifier(payload.data as ExistingResourceIdentifierObject)
-            : null,
-        },
+      _replaceRelatedRecord(
+        graph,
+        identifier,
+        op.field,
+        payload.data
+          ? graph.store.identifierCache.getOrCreateRecordIdentifier(payload.data as ExistingResourceIdentifierObject)
+          : null,
         true
       );
     }
@@ -64,25 +60,9 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
     hasRelationshipDataProperty = true;
 
     if (isCollection) {
-      graph.update(
-        {
-          op: 'replaceRelatedRecords',
-          record: identifier,
-          field: op.field,
-          value: [],
-        },
-        true
-      );
+      _replaceRelatedRecordsRemote(graph, identifier, op.field, [], true);
     } else {
-      graph.update(
-        {
-          op: 'replaceRelatedRecord',
-          record: identifier,
-          field: op.field,
-          value: null,
-        },
-        true
-      );
+      _replaceRelatedRecord(graph, identifier, op.field, null, true);
     }
   }
 

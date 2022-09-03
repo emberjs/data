@@ -1,5 +1,6 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
+import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/private-build-infra/deprecations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
@@ -65,13 +66,13 @@ import type { Graph } from '../graph';
   */
 export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   if (isRemote) {
-    replaceRelatedRecordsRemote(graph, op, isRemote);
+    _replaceRelatedRecordsRemote(graph, op.record, op.field, op.value, isRemote);
   } else {
     replaceRelatedRecordsLocal(graph, op, isRemote);
   }
 }
 
-function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
+function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: false) {
   const identifiers = op.value;
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
@@ -141,94 +142,98 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   }
 }
 
-function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
-  const identifiers = op.value;
-  const relationship = graph.get(op.record, op.field);
+export function _replaceRelatedRecordsRemote(
+  graph: Graph,
+  record: StableRecordIdentifier,
+  field: string,
+  identifiers: StableRecordIdentifier[],
+  isRemote: true
+) {
+  const relationship = graph.get(record, field);
 
   assert(
-    `You can only '${op.op}' on a hasMany relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
+    `You can only 'replaceRelatedRecords' on a hasMany relationship. ${record.type}.${field} is a ${relationship.definition.kind}`,
     isHasMany(relationship)
   );
-  if (isRemote) {
-    graph._addToTransaction(relationship);
-  }
+  graph._addToTransaction(relationship);
   relationship.state.hasReceivedData = true;
 
   // cache existing state
   const { remoteState, remoteMembers, definition } = relationship;
-  const newValues = new Set(identifiers);
-  const identifiersLength = identifiers.length;
-  const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
   relationship.remoteMembers = newMembership;
-  relationship.remoteState = newState;
+  relationship.remoteState = identifiers;
 
   const { type } = relationship.definition;
 
   let changed = false;
-
-  const canonicalLength = remoteState.length;
-  const iterationLength = canonicalLength > identifiersLength ? canonicalLength : identifiersLength;
-  const equalLength = canonicalLength === identifiersLength;
-
-  for (let i = 0, j = 0; i < iterationLength; i++) {
-    let adv = false;
-    if (i < identifiersLength) {
-      const identifier = identifiers[i];
+  for (let i = 0; i < identifiers.length; i++) {
+    const identifier = identifiers[i];
+    if (DEPRECATE_NON_UNIQUE_PAYLOADS) {
       if (!newMembership.has(identifier)) {
         if (type !== identifier.type) {
           assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
           graph.registerPolymorphicType(type, identifier.type);
         }
-        newState[j] = identifier;
         newMembership.add(identifier);
-        adv = true;
 
         if (!remoteMembers.has(identifier)) {
           changed = true;
-          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+          addToInverse(graph, identifier, definition.inverseKey, record, isRemote);
+        } else if (!changed) {
+          // detect reordering
+          if (i < remoteState.length && identifier !== remoteState[i]) {
+            changed = true;
+          }
         }
+      } else {
+        deprecate(`Expected all entries in the relationship to be unique, found duplicates`, false, {
+          id: 'ember-data:deprecate-non-unique-relationship-entries',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.8', enabled: '4.8' },
+        });
+        // we have encountered a duplicate
+        // TODO consider deprecating
+        identifiers.splice(i, 1); // remove the duplicate
+        i -= 1;
       }
-    }
-    if (i < canonicalLength) {
-      const identifier = remoteState[i];
+    } else {
+      assert(`Expected all entries in the relationship to be unique, found duplicates`, !newMembership.has(identifier));
+      if (type !== identifier.type) {
+        assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+        graph.registerPolymorphicType(type, identifier.type);
+      }
+      newMembership.add(identifier);
 
-      if (!newMembership.has(identifier)) {
+      if (!remoteMembers.has(identifier)) {
+        changed = true;
+        addToInverse(graph, identifier, definition.inverseKey, record, isRemote);
+      } else if (!changed) {
         // detect reordering
-        if (equalLength && newState[j] !== identifier) {
+        if (i < remoteState.length && identifier !== remoteState[i]) {
           changed = true;
-        }
-
-        if (!newValues.has(identifier)) {
-          changed = true;
-          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
         }
       }
     }
-    if (adv) {
-      j++;
+  }
+  for (let i = 0; i < remoteState.length; i++) {
+    const identifier = remoteState[i];
+
+    if (!newMembership.has(identifier)) {
+      changed = true;
+      removeFromInverse(graph, identifier, definition.inverseKey, record, isRemote);
     }
   }
 
   if (changed) {
-    flushCanonical(graph, relationship);
-    /*
-    replaceRelatedRecordsLocal(
-      graph,
-      {
-        op: op.op,
-        record: op.record,
-        field: op.field,
-        value: remoteState,
-      },
-      false
-    );*/
+    graph._scheduleLocalSync(relationship);
   } else {
-    // preserve legacy behavior we want to change but requires some sort
-    // of deprecation.
-    flushCanonical(graph, relationship);
+    // TODO in theory if we have not changed we should not flush here
+    // but historically we did. Can we change this now?
+    graph._scheduleLocalSync(relationship);
   }
 }
 
@@ -273,7 +278,7 @@ export function addToInverse(
         relationship.remoteState.push(value);
         relationship.remoteMembers.add(value);
         relationship.state.hasReceivedData = true;
-        flushCanonical(graph, relationship);
+        graph._scheduleLocalSync(relationship);
       }
     } else {
       if (!relationship.localMembers.has(value)) {
@@ -380,8 +385,4 @@ export function syncRemoteToLocal(graph: Graph, rel: CollectionRelationship) {
       }
     }
   }
-}
-
-function flushCanonical(graph: Graph, rel: CollectionRelationship) {
-  graph._scheduleLocalSync(rel);
 }

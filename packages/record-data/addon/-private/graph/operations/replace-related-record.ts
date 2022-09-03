@@ -9,9 +9,19 @@ import type { Graph } from '../graph';
 import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records';
 
 export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRecordOperation, isRemote = false) {
-  const relationship = graph.get(op.record, op.field);
+  _replaceRelatedRecord(graph, op.record, op.field, op.value, isRemote);
+}
+
+export function _replaceRelatedRecord(
+  graph: Graph,
+  record: StableRecordIdentifier,
+  field: string,
+  value: StableRecordIdentifier | null,
+  isRemote = false
+) {
+  const relationship = graph.get(record, field);
   assert(
-    `You can only '${op.op}' on a belongsTo relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
+    `You can only 'replaceRelatedRecord' on a belongsTo relationship. ${record.type}.${field} is a ${relationship.definition.kind}`,
     isBelongsTo(relationship)
   );
   if (isRemote) {
@@ -68,7 +78,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
   */
 
   // nothing for us to do
-  if (op.value === existingState) {
+  if (value === existingState) {
     // if we were empty before but now know we are empty this needs to be true
     state.hasReceivedData = true;
     // if this is a remote update we still sync
@@ -79,7 +89,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
         return;
       }
       if (existingState && localState === existingState) {
-        notifyInverseOfPotentialMaterialization(graph, existingState, definition.inverseKey, op.record, isRemote);
+        notifyInverseOfPotentialMaterialization(graph, existingState, definition.inverseKey, record, isRemote);
       } else {
         relationship.localState = existingState;
 
@@ -91,20 +101,20 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
 
   // remove this value from the inverse if required
   if (existingState) {
-    removeFromInverse(graph, existingState, definition.inverseKey, op.record, isRemote);
+    removeFromInverse(graph, existingState, definition.inverseKey, record, isRemote);
   }
 
   // update value to the new value
-  relationship[prop] = op.value;
+  relationship[prop] = value;
   state.hasReceivedData = true;
-  state.isEmpty = op.value === null;
+  state.isEmpty = value === null;
   state.isStale = false;
   state.hasFailedLoadAttempt = false;
 
-  if (op.value) {
-    if (definition.type !== op.value.type) {
+  if (value) {
+    if (definition.type !== value.type) {
       assert(
-        `The '<${definition.inverseType}>.${op.field}' relationship expects only '${definition.type}' records since it is not polymorphic. Received a Record of type '${op.value.type}'`,
+        `The '<${definition.inverseType}>.${field}' relationship expects only '${definition.type}' records since it is not polymorphic. Received a Record of type '${value.type}'`,
         definition.isPolymorphic
       );
 
@@ -112,11 +122,11 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
       // but the record does turn out to be polymorphic
       // this should still assert if the user is relying on legacy inheritance/mixins to
       // provide polymorphic behavior and has not yet added the polymorphic flags
-      assertPolymorphicType(relationship.identifier, definition, op.value, graph.store);
+      assertPolymorphicType(relationship.identifier, definition, value, graph.store);
 
-      graph.registerPolymorphicType(definition.type, op.value.type);
+      graph.registerPolymorphicType(definition.type, value.type);
     }
-    addToInverse(graph, op.value, definition.inverseKey, op.record, isRemote);
+    addToInverse(graph, value, definition.inverseKey, record, isRemote);
   }
 
   if (isRemote) {
