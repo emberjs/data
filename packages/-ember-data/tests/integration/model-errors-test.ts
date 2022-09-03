@@ -80,14 +80,20 @@ module('integration/model.errors', function (hooks) {
 
     await render(hbs`<ErrorList @model={{this.tag}} @field="name"/>`);
 
-    assert.dom('.error-list__error').hasText('the-error');
+    assert.deepEqual(this.tag.errors.errorsFor('name'), [{ attribute: 'name', message: 'the-error' }]);
+    assert.deepEqual(this.tag.errors.errorsFor('slug'), [{ attribute: 'slug', message: 'the-error' }]);
 
     set(this.tag, 'name', 'something');
     await settled();
 
+    assert.deepEqual(this.tag.errors.errorsFor('name'), []);
+    assert.deepEqual(this.tag.errors.errorsFor('slug'), [{ attribute: 'slug', message: 'the-error' }]);
+
     set(this.tag, 'slug', 'else');
     await settled();
 
+    assert.deepEqual(this.tag.errors.errorsFor('name'), []);
+    assert.deepEqual(this.tag.errors.errorsFor('email'), []);
     assert.dom('.error-list__error').doesNotExist();
   });
 });
