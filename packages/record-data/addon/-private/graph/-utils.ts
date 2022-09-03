@@ -107,13 +107,12 @@ export function forAllRelatedIdentifiers(
     // in both localMembers and remoteMembers
     let seen = new Set();
 
-    for (let i = 0; i < rel.localState.length; i++) {
-      const inverseIdentifier = rel.localState[i];
+    rel.additions?.forEach((inverseIdentifier) => {
       if (!seen.has(inverseIdentifier)) {
         seen.add(inverseIdentifier);
         cb(inverseIdentifier);
       }
-    }
+    });
 
     for (let i = 0; i < rel.remoteState.length; i++) {
       const inverseIdentifier = rel.remoteState[i];
@@ -167,22 +166,25 @@ export function removeIdentifierCompletelyFromRelationship(
     }
   } else if (isHasMany(relationship)) {
     relationship.remoteMembers.delete(value);
-    relationship.localMembers.delete(value);
+    relationship.additions?.delete(value);
+    relationship.removals?.delete(value);
+    relationship.isDirty = true;
 
     const canonicalIndex = relationship.remoteState.indexOf(value);
     if (canonicalIndex !== -1) {
       relationship.remoteState.splice(canonicalIndex, 1);
     }
 
-    const currentIndex = relationship.localState.indexOf(value);
-    if (currentIndex !== -1) {
-      relationship.localState.splice(currentIndex, 1);
+    const isActive =
+      !silenceNotifications &&
+      (relationship.additions?.has(value) ||
+        (!relationship.removals?.has(value) && relationship.remoteMembers.has(value)));
+
+    if (isActive) {
       // This allows dematerialized inverses to be rematerialized
       // we shouldn't be notifying here though, figure out where
       // a notification was missed elsewhere.
-      if (!silenceNotifications) {
-        notifyChange(graph, relationship.identifier, relationship.definition.key);
-      }
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
     relationship.remoteMembers.delete(value);
@@ -314,7 +316,8 @@ function clearRelationship(relationship: ResourceRelationship | CollectionRelati
     relationship.state.hasReceivedData = false;
     relationship.state.isEmpty = true;
   } else {
-    relationship.localMembers.clear();
+    relationship.additions?.clear();
+    relationship.removals?.clear();
     relationship.remoteMembers.clear();
     relationship.localState = [];
     relationship.remoteState = [];

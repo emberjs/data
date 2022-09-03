@@ -1,11 +1,11 @@
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 
-import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/private-build-infra/deprecations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { diffCollection } from '../-diff';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
-import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
+import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { CollectionRelationship } from '../edges/collection';
 import type { Graph } from '../graph';
 
@@ -73,73 +73,38 @@ export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRe
 }
 
 function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: false) {
-  const identifiers = op.value;
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
   relationship.state.hasReceivedData = true;
+  const { additions, removals } = relationship;
+  const { inverseKey, type } = relationship.definition;
+  const { record } = op;
 
-  // cache existing state
-  const { localState, localMembers, definition } = relationship;
-  const newValues = new Set(identifiers);
-  const identifiersLength = identifiers.length;
-  const newState = new Array(newValues.size);
-  const newMembership = new Set<StableRecordIdentifier>();
-
-  // wipe existing state
-  relationship.localMembers = newMembership;
-  relationship.localState = newState;
-
-  const { type } = relationship.definition;
-
-  let changed = false;
-
-  const currentLength = localState.length;
-  const iterationLength = currentLength > identifiersLength ? currentLength : identifiersLength;
-  const equalLength = currentLength === identifiersLength;
-
-  for (let i = 0, j = 0; i < iterationLength; i++) {
-    let adv = false;
-    if (i < identifiersLength) {
-      const identifier = identifiers[i];
-      // skip processing if we encounter a duplicate identifier in the array
-      if (!newMembership.has(identifier)) {
-        if (type !== identifier.type) {
-          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-          graph.registerPolymorphicType(type, identifier.type);
+  const diff = diffCollection(
+    op.value,
+    relationship,
+    (v) => {
+      if (removals?.has(v) || !additions?.has(v)) {
+        if (type !== v.type) {
+          assertPolymorphicType(relationship.identifier, relationship.definition, v, graph.store);
+          graph.registerPolymorphicType(type, v.type);
         }
-        newState[j] = identifier;
-        adv = true;
-        newMembership.add(identifier);
-
-        if (!localMembers.has(identifier)) {
-          changed = true;
-          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
+        addToInverse(graph, v, inverseKey, record, isRemote);
+      }
+    },
+    (v) => {
+      if (additions?.has(v) || !removals?.has(v)) {
+        removeFromInverse(graph, v, inverseKey, record, isRemote);
       }
     }
-    if (i < currentLength) {
-      const identifier = localState[i];
+  );
 
-      // detect reordering
-      if (!newMembership.has(identifier)) {
-        if (equalLength && newState[i] !== identifier) {
-          changed = true;
-        }
+  relationship.additions = diff.add;
+  relationship.removals = diff.del;
+  relationship.localState = diff.finalState;
+  relationship.isDirty = false;
 
-        if (!newValues.has(identifier)) {
-          changed = true;
-          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
-      }
-    }
-    if (adv) {
-      j++;
-    }
-  }
-
-  if (changed) {
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
-  }
+  notifyChange(graph, relationship.identifier, relationship.definition.key);
 }
 
 export function _replaceRelatedRecordsRemote(
@@ -159,82 +124,31 @@ export function _replaceRelatedRecordsRemote(
   relationship.state.hasReceivedData = true;
 
   // cache existing state
-  const { remoteState, remoteMembers, definition } = relationship;
-  const newMembership = new Set<StableRecordIdentifier>();
+  const { type, inverseKey } = relationship.definition;
 
-  // wipe existing state
-  relationship.remoteMembers = newMembership;
-  relationship.remoteState = identifiers;
-
-  const { type } = relationship.definition;
-
-  let changed = false;
-  for (let i = 0; i < identifiers.length; i++) {
-    const identifier = identifiers[i];
-    if (DEPRECATE_NON_UNIQUE_PAYLOADS) {
-      if (!newMembership.has(identifier)) {
-        if (type !== identifier.type) {
-          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-          graph.registerPolymorphicType(type, identifier.type);
-        }
-        newMembership.add(identifier);
-
-        if (!remoteMembers.has(identifier)) {
-          changed = true;
-          addToInverse(graph, identifier, definition.inverseKey, record, isRemote);
-        } else if (!changed) {
-          // detect reordering
-          if (i < remoteState.length && identifier !== remoteState[i]) {
-            changed = true;
-          }
-        }
-      } else {
-        deprecate(`Expected all entries in the relationship to be unique, found duplicates`, false, {
-          id: 'ember-data:deprecate-non-unique-relationship-entries',
-          for: 'ember-data',
-          until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
-        });
-        // we have encountered a duplicate
-        // TODO consider deprecating
-        identifiers.splice(i, 1); // remove the duplicate
-        i -= 1;
+  const diff = diffCollection(
+    identifiers,
+    relationship,
+    (v) => {
+      if (type !== v.type) {
+        assertPolymorphicType(relationship.identifier, relationship.definition, v, graph.store);
+        graph.registerPolymorphicType(type, v.type);
       }
-    } else {
-      assert(`Expected all entries in the relationship to be unique, found duplicates`, !newMembership.has(identifier));
-      if (type !== identifier.type) {
-        assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-        graph.registerPolymorphicType(type, identifier.type);
-      }
-      newMembership.add(identifier);
-
-      if (!remoteMembers.has(identifier)) {
-        changed = true;
-        addToInverse(graph, identifier, definition.inverseKey, record, isRemote);
-      } else if (!changed) {
-        // detect reordering
-        if (i < remoteState.length && identifier !== remoteState[i]) {
-          changed = true;
-        }
-      }
+      addToInverse(graph, v, inverseKey, record, isRemote);
+    },
+    (v) => {
+      removeFromInverse(graph, v, inverseKey, record, isRemote);
     }
-  }
-  for (let i = 0; i < remoteState.length; i++) {
-    const identifier = remoteState[i];
+  );
 
-    if (!newMembership.has(identifier)) {
-      changed = true;
-      removeFromInverse(graph, identifier, definition.inverseKey, record, isRemote);
-    }
-  }
+  relationship.remoteState = diff.finalState;
+  relationship.remoteMembers = diff.finalSet;
+  relationship._diff = diff;
+  relationship.isDirty = true;
 
-  if (changed) {
-    graph._scheduleLocalSync(relationship);
-  } else {
-    // TODO in theory if we have not changed we should not flush here
-    // but historically we did. Can we change this now?
-    graph._scheduleLocalSync(relationship);
-  }
+  // TODO in theory if we have not changed we should not flush here
+  // but historically we did. Can we change this now?
+  graph._scheduleLocalSync(relationship);
 }
 
 export function addToInverse(
@@ -278,13 +192,11 @@ export function addToInverse(
         relationship.remoteState.push(value);
         relationship.remoteMembers.add(value);
         relationship.state.hasReceivedData = true;
+        relationship.isDirty = true;
         graph._scheduleLocalSync(relationship);
       }
     } else {
-      if (!relationship.localMembers.has(value)) {
-        relationship.localState.push(value);
-        relationship.localMembers.add(value);
-        relationship.state.hasReceivedData = true;
+      if (_add(graph, identifier, relationship, value)) {
         notifyChange(graph, relationship.identifier, relationship.definition.key);
       }
     }
@@ -300,6 +212,56 @@ export function addToInverse(
       }
     }
   }
+}
+
+export function _add(
+  graph: Graph,
+  record: StableRecordIdentifier,
+  relationship: CollectionRelationship,
+  value: StableRecordIdentifier
+): boolean {
+  let { remoteMembers, additions, removals } = relationship;
+
+  if (additions?.has(value)) {
+    return false;
+  }
+  if (removals?.has(value)) {
+    removals.delete(value);
+    relationship.isDirty = true;
+  } else if (remoteMembers.has(value)) {
+    return false;
+  } else {
+    additions = additions || new Set();
+    additions.add(value);
+    relationship.additions = additions;
+    relationship.isDirty = true;
+  }
+
+  const { type } = relationship.definition;
+  if (type !== value.type) {
+    assertPolymorphicType(record, relationship.definition, value, graph.store);
+    graph.registerPolymorphicType(value.type, type);
+  }
+  return true;
+}
+export function _remove(relationship: CollectionRelationship, value: StableRecordIdentifier): boolean {
+  let { remoteMembers, additions, removals } = relationship;
+
+  if (removals?.has(value)) {
+    return false;
+  }
+  if (additions?.has(value)) {
+    additions.delete(value);
+    relationship.isDirty = true;
+  } else if (!remoteMembers.has(value)) {
+    return false;
+  } else {
+    removals = removals || new Set();
+    removals.add(value);
+    relationship.removals = removals;
+    relationship.isDirty = true;
+  }
+  return true;
 }
 
 export function notifyInverseOfPotentialMaterialization(
@@ -336,20 +298,9 @@ export function removeFromInverse(
       notifyChange(graph, identifier, key);
     }
   } else if (isHasMany(relationship)) {
-    if (isRemote) {
-      graph._addToTransaction(relationship);
-      let index = relationship.remoteState.indexOf(value);
-      if (index !== -1) {
-        relationship.remoteMembers.delete(value);
-        relationship.remoteState.splice(index, 1);
-      }
+    if (_remove(relationship, value)) {
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
-    let index = relationship.localState.indexOf(value);
-    if (index !== -1) {
-      relationship.localMembers.delete(value);
-      relationship.localState.splice(index, 1);
-    }
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
     if (isRemote) {
       relationship.remoteMembers.delete(value);
@@ -363,26 +314,5 @@ export function removeFromInverse(
 }
 
 export function syncRemoteToLocal(graph: Graph, rel: CollectionRelationship) {
-  let toSet = rel.remoteState;
-  let newRecordDatas = rel.localState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
-  let existingState = rel.localState;
-  rel.localState = toSet.concat(newRecordDatas);
-
-  let localMembers = (rel.localMembers = new Set<StableRecordIdentifier>());
-  rel.remoteMembers.forEach((v) => localMembers.add(v));
-  for (let i = 0; i < newRecordDatas.length; i++) {
-    localMembers.add(newRecordDatas[i]);
-  }
-
-  // TODO always notifying fails only one test and we should probably do away with it
-  if (existingState.length !== rel.localState.length) {
-    notifyChange(graph, rel.identifier, rel.definition.key);
-  } else {
-    for (let i = 0; i < existingState.length; i++) {
-      if (existingState[i] !== rel.localState[i]) {
-        notifyChange(graph, rel.identifier, rel.definition.key);
-        break;
-      }
-    }
-  }
+  notifyChange(graph, rel.identifier, rel.definition.key);
 }

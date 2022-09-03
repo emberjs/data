@@ -309,7 +309,8 @@ export class LegacySupport {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
       ).graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, key) as CollectionRelationship;
+      const graph = graphFor(this.store);
+      const relationship = graph.get(this.identifier, key) as CollectionRelationship;
       const { definition, state } = relationship;
       let manyArray = this.getManyArray(key, definition);
 
@@ -326,7 +327,7 @@ export class LegacySupport {
           `You looked up the '${key}' relationship on a '${this.identifier.type}' with id ${
             this.identifier.id || 'null'
           } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany(<type>, { async: true, inverse: <inverse> })')`,
-          !anyUnloaded(this.store, relationship)
+          !anyUnloaded(this.store, graph.getData(this.identifier, key) && relationship.localState!)
         );
 
         return manyArray;
@@ -741,8 +742,7 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
   return !!record.then;
 }
 
-function anyUnloaded(store: Store, relationship: CollectionRelationship) {
-  let state = relationship.localState;
+function anyUnloaded(store: Store, state: StableRecordIdentifier[]) {
   const cache = store._instanceCache;
   const unloaded = state.find((s) => {
     let isLoaded = cache.recordIsLoaded(s, true);

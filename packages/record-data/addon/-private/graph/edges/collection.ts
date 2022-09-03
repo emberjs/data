@@ -6,6 +6,7 @@ import type {
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { computeLocalState } from '../-diff';
 import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';
 import { createState } from '../-state';
@@ -15,10 +16,17 @@ export interface CollectionRelationship {
   identifier: StableRecordIdentifier;
   state: RelationshipState;
 
-  localMembers: Set<StableRecordIdentifier>;
   remoteMembers: Set<StableRecordIdentifier>;
-  localState: StableRecordIdentifier[];
+  additions: Set<StableRecordIdentifier> | null;
+  removals: Set<StableRecordIdentifier> | null;
+  _diff?: {
+    add: Set<StableRecordIdentifier>;
+    del: Set<StableRecordIdentifier>;
+  };
   remoteState: StableRecordIdentifier[];
+  isDirty: boolean;
+
+  localState: StableRecordIdentifier[] | null;
 
   meta: Meta | null;
   links: Links | PaginationLinks | null;
@@ -33,10 +41,13 @@ export function createCollectionRelationship(
     definition,
     identifier,
     state: createState(),
-    localMembers: new Set(),
-    remoteMembers: new Set(),
-    localState: [],
     remoteState: [],
+    remoteMembers: new Set(),
+    additions: null,
+    removals: null,
+
+    localState: null,
+    isDirty: true,
 
     meta: null,
     links: null,
@@ -47,7 +58,7 @@ export function createCollectionRelationship(
 export function legacyGetCollectionRelationshipData(source: CollectionRelationship): CollectionResourceRelationship {
   let payload: CollectionResourceRelationship = {};
   if (source.state.hasReceivedData) {
-    payload.data = source.localState.slice();
+    payload.data = computeLocalState(source);
   }
   if (source.links) {
     payload.links = source.links;

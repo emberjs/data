@@ -1,15 +1,14 @@
 import { assert } from '@ember/debug';
 
-import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { AddToRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
 import type { CollectionRelationship } from '../edges/collection';
 import type { Graph } from '../graph';
-import { addToInverse } from './replace-related-records';
+import { _add, addToInverse } from './replace-related-records';
 
-export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecordsOperation, isRemote: boolean) {
+export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecordsOperation, isRemote: false) {
   const { record, value, index } = op;
   const relationship = graph.get(record, op.field);
   assert(
@@ -33,28 +32,11 @@ function addRelatedRecord(
   record: StableRecordIdentifier,
   value: StableRecordIdentifier,
   index: number | undefined,
-  isRemote: boolean
+  isRemote: false
 ) {
   assert(`expected an identifier to add to the relationship`, value);
-  const { localMembers, localState } = relationship;
-
-  if (localMembers.has(value)) {
-    return;
+  if (_add(graph, record, relationship, value)) {
+    relationship.state.hasReceivedData = true;
+    addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
   }
-
-  const { type } = relationship.definition;
-  if (type !== value.type) {
-    assertPolymorphicType(record, relationship.definition, value, graph.store);
-    graph.registerPolymorphicType(value.type, type);
-  }
-
-  relationship.state.hasReceivedData = true;
-  localMembers.add(value);
-  if (index === undefined) {
-    localState.push(value);
-  } else {
-    localState.splice(index, 0, value);
-  }
-
-  addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
 }

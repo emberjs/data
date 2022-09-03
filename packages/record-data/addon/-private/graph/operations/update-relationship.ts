@@ -124,7 +124,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
     // this only works when the side with just a link is a belongsTo, as we
     // don't know if a hasMany has full information or not.
     // see #7049 for context.
-    if (isCollection || !relationship.state.hasReceivedData || relationship.transactionRef === 0) {
+    if (isCollection || !relationship.state.hasReceivedData || relationship.transactionRef !== graph._transaction) {
       relationship.state.isStale = true;
 
       notifyChange(graph, relationship.identifier, relationship.definition.key);

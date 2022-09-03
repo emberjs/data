@@ -22,6 +22,7 @@ import {
   getStore,
   isBelongsTo,
   isImplicit,
+  notifyChange,
   removeCompletelyFromInverse,
 } from './-utils';
 import type { CollectionRelationship } from './edges/collection';
@@ -32,7 +33,7 @@ import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
-import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
+import replaceRelatedRecords from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
 
 export interface ImplicitRelationship {
@@ -45,7 +46,7 @@ export interface ImplicitRelationship {
 export type RelationshipEdge = ImplicitRelationship | CollectionRelationship | ResourceRelationship;
 
 export const Graphs = new Map<RecordDataStoreWrapper, Graph>();
-
+let transactionRef = 0;
 /*
  * Graph acts as the cache for relationship data. It allows for
  * us to ask about and update relationships for a given Identifier
@@ -79,7 +80,7 @@ export class Graph {
     deletions: DeleteRecordOperation[];
   };
   declare _updatedRelationships: Set<CollectionRelationship>;
-  declare _transaction: Set<CollectionRelationship | ResourceRelationship> | null;
+  declare _transaction: number | null;
   declare _removing: StableRecordIdentifier | null;
 
   constructor(store: RecordDataStoreWrapper) {
@@ -335,9 +336,13 @@ export class Graph {
         replaceRelatedRecord(this, op, isRemote);
         break;
       case 'addToRelatedRecords':
+        // we will lift this restriction once the cache is allowed to make remote updates directly
+        assert(`Can only perform the operation addToRelatedRecords on local state`, !isRemote);
         addToRelatedRecords(this, op, isRemote);
         break;
       case 'removeFromRelatedRecords':
+        // we will lift this restriction once the cache is allowed to make remote updates directly
+        assert(`Can only perform the operation removeFromRelatedRecords on local state`, !isRemote);
         removeFromRelatedRecords(this, op, isRemote);
         break;
       case 'replaceRelatedRecords':
@@ -364,7 +369,7 @@ export class Graph {
       // eslint-disable-next-line no-console
       console.groupCollapsed(`Graph: Initialized Transaction`);
     }
-    this._transaction = new Set();
+    this._transaction = ++transactionRef;
     this._willSyncRemote = false;
     const { deletions, hasMany, belongsTo } = this._pushedUpdates;
     this._pushedUpdates.deletions = [];
@@ -382,7 +387,13 @@ export class Graph {
     for (let i = 0; i < belongsTo.length; i++) {
       this.update(belongsTo[i], true);
     }
-    this._finalize();
+    this._transaction = null;
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: transaction finalized`);
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
   }
 
   _addToTransaction(relationship: CollectionRelationship | ResourceRelationship) {
@@ -391,21 +402,7 @@ export class Graph {
       // eslint-disable-next-line no-console
       console.log(`Graph: ${String(relationship.identifier)} ${relationship.definition.key} added to transaction`);
     }
-    relationship.transactionRef++;
-    this._transaction.add(relationship);
-  }
-
-  _finalize() {
-    if (this._transaction) {
-      this._transaction.forEach((v) => (v.transactionRef = 0));
-      this._transaction = null;
-      if (LOG_GRAPH) {
-        // eslint-disable-next-line no-console
-        console.log(`Graph: transaction finalized`);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
-    }
+    relationship.transactionRef = this._transaction;
   }
 
   _flushLocalQueue() {
@@ -415,7 +412,7 @@ export class Graph {
     this._willSyncLocal = false;
     let updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
-    updated.forEach((rel) => syncRemoteToLocal(this, rel));
+    updated.forEach((rel) => notifyChange(this, rel.identifier, rel.definition.key));
   }
 
   destroy() {

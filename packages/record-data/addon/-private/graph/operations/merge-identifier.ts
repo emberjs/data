@@ -45,17 +45,24 @@ function mergeBelongsTo(graph: Graph, rel: ResourceRelationship, op: MergeOperat
 }
 
 function mergeHasMany(graph: Graph, rel: CollectionRelationship, op: MergeOperation): void {
+  let found = false;
   if (rel.remoteMembers.has(op.record)) {
+    found = true;
     rel.remoteMembers.delete(op.record);
     rel.remoteMembers.add(op.value);
     const index = rel.remoteState.indexOf(op.record);
     rel.remoteState.splice(index, 1, op.value);
+  } else if (rel.additions?.has(op.record)) {
+    found = true;
+    rel.additions.delete(op.record);
+    rel.additions.add(op.value);
   }
-  if (rel.localMembers.has(op.record)) {
-    rel.localMembers.delete(op.record);
-    rel.localMembers.add(op.value);
-    const index = rel.localState.indexOf(op.record);
-    rel.localState.splice(index, 1, op.value);
+
+  if (rel.removals?.has(op.record)) {
+    rel.removals.delete(op.record);
+    rel.removals.add(op.value);
+  } else if (found) {
+    rel.isDirty = true;
     notifyChange(graph, rel.identifier, rel.definition.key);
   }
 }
