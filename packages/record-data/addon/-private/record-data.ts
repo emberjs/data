@@ -451,7 +451,7 @@ function getLocalState(rel) {
   if (rel.definition.kind === 'belongsTo') {
     return rel.localState ? [rel.localState] : [];
   }
-  return rel.localState;
+  return rel.additions ? Array.from(rel.additions) : [];
 }
 function getRemoteState(rel) {
   if (rel.definition.kind === 'belongsTo') {
