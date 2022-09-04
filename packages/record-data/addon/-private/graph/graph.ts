@@ -68,6 +68,7 @@ let transactionRef = 0;
  */
 export class Graph {
   declare _definitionCache: EdgeCache;
+  declare _metaCache: Dict<Dict<UpgradedMeta>>;
   declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
   declare identifiers: Map<StableRecordIdentifier, Dict<RelationshipEdge>>;
   declare store: RecordDataStoreWrapper;
@@ -85,6 +86,7 @@ export class Graph {
 
   constructor(store: RecordDataStoreWrapper) {
     this._definitionCache = Object.create(null) as EdgeCache;
+    this._metaCache = Object.create(null) as Dict<Dict<UpgradedMeta>>;
     this._potentialPolymorphicTypes = Object.create(null) as Dict<Dict<boolean>>;
     this.identifiers = new Map();
     this.store = store;
@@ -117,6 +119,19 @@ export class Graph {
     return legacyGetCollectionRelationshipData(relationship);
   }
 
+  getDefinition(identifier: StableRecordIdentifier, propertyName: string): UpgradedMeta {
+    let defs = this._metaCache[identifier.type];
+    let meta: UpgradedMeta | null | undefined = defs?.[propertyName];
+    if (!meta) {
+      const info = upgradeDefinition(this, identifier, propertyName);
+      assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
+      meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
+      defs = this._metaCache[identifier.type] = defs || {};
+      defs[propertyName] = meta;
+    }
+    return meta;
+  }
+
   get(identifier: StableRecordIdentifier, propertyName: string): RelationshipEdge {
     assert(`expected propertyName`, propertyName);
     let relationships = this.identifiers.get(identifier);
@@ -127,9 +142,7 @@ export class Graph {
 
     let relationship = relationships[propertyName];
     if (!relationship) {
-      const info = upgradeDefinition(this, identifier, propertyName);
-      assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
-      const meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
+      const meta = this.getDefinition(identifier, propertyName);
 
       if (meta.kind === 'belongsTo') {
         relationship = relationships[propertyName] = createResourceRelationship(meta, identifier);
@@ -268,9 +281,9 @@ export class Graph {
     } else if (op.op === 'replaceRelatedRecord') {
       this._pushedUpdates.belongsTo.push(op);
     } else {
-      const relationship = this.get(op.record, op.field);
-      assert(`Cannot push a remote update for an implicit relationship`, !isImplicit(relationship));
-      this._pushedUpdates[relationship.definition.kind as 'belongsTo' | 'hasMany'].push(op);
+      const definition = this.getDefinition(op.record, op.field);
+      assert(`Cannot push a remote update for an implicit relationship`, definition.kind !== 'implicit');
+      this._pushedUpdates[definition.kind].push(op);
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
@@ -371,21 +384,30 @@ export class Graph {
     }
     this._transaction = ++transactionRef;
     this._willSyncRemote = false;
-    const { deletions, hasMany, belongsTo } = this._pushedUpdates;
-    this._pushedUpdates.deletions = [];
-    this._pushedUpdates.hasMany = [];
-    this._pushedUpdates.belongsTo = [];
+    const updates = this._pushedUpdates;
+    const { deletions, hasMany, belongsTo } = updates;
+    updates.deletions = [];
+    updates.hasMany = [];
+    updates.belongsTo = [];
 
     for (let i = 0; i < deletions.length; i++) {
       this.update(deletions[i], true);
     }
 
     for (let i = 0; i < hasMany.length; i++) {
-      this.update(hasMany[i], true);
+      if (isActive(this, hasMany[i] as CacheOp)) {
+        this.update(hasMany[i], true);
+      } else {
+        updates.hasMany.push(hasMany[i]);
+      }
     }
 
     for (let i = 0; i < belongsTo.length; i++) {
-      this.update(belongsTo[i], true);
+      if (isActive(this, belongsTo[i] as CacheOp)) {
+        this.update(belongsTo[i], true);
+      } else {
+        updates.belongsTo.push(belongsTo[i]);
+      }
     }
     this._transaction = null;
     if (LOG_GRAPH) {
@@ -426,4 +448,13 @@ export class Graph {
     this.store = null as unknown as RecordDataStoreWrapper;
     this.isDestroyed = true;
   }
+}
+
+type CacheOp = {
+  record: StableRecordIdentifier;
+  field: string;
+};
+function isActive(graph: Graph, op: CacheOp): boolean {
+  const relationships = graph.identifiers.get(op.record);
+  return Boolean(relationships?.[op.field]);
 }
