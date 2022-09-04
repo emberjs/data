@@ -71,6 +71,7 @@ export default class SingletonRecordData implements RecordData {
   __storeWrapper: V2RecordDataStoreWrapper;
   __cache: Map<StableRecordIdentifier, CachedResource> = new Map();
   __destroyedCache: Map<StableRecordIdentifier, CachedResource> = new Map();
+  __relationships: Map<string, string[]> = new Map();
 
   constructor(storeWrapper: V2RecordDataStoreWrapper) {
     this.__storeWrapper = storeWrapper;
@@ -125,7 +126,7 @@ export default class SingletonRecordData implements RecordData {
     }
 
     if (data.relationships) {
-      setupRelationships(this.__storeWrapper, identifier, data);
+      setupRelationships(this, identifier, data);
     }
 
     if (changedKeys && changedKeys.length) {
@@ -234,7 +235,7 @@ export default class SingletonRecordData implements RecordData {
         this.__storeWrapper.setRecordId(identifier, data.id);
       }
       if (data.relationships) {
-        setupRelationships(this.__storeWrapper, identifier, data);
+        setupRelationships(this, identifier, data);
       }
       newCanonicalAttributes = data.attributes;
     }
@@ -526,8 +527,20 @@ function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash) 
   return changedKeys;
 }
 
+function _relationshipsFor(recordData: SingletonRecordData, identifier: StableRecordIdentifier): string[] {
+  let cached = recordData.__relationships.get(identifier.type);
+  if (!cached) {
+    let relationshipDefs = recordData.__storeWrapper
+      .getSchemaDefinitionService()
+      .relationshipsDefinitionFor(identifier);
+    cached = Object.keys(relationshipDefs);
+    recordData.__relationships.set(identifier.type, cached);
+  }
+  return cached;
+}
+
 function setupRelationships(
-  storeWrapper: RecordDataStoreWrapper,
+  recordData: SingletonRecordData,
   identifier: StableRecordIdentifier,
   data: JsonApiResource
 ) {
@@ -535,8 +548,7 @@ function setupRelationships(
   // allows relationship payloads to be ignored silently if no relationship
   // definition exists. Ensure there's a test for this and then consider
   // moving this to an assertion. This check should possibly live in the graph.
-  const relationships = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-  const keys = Object.keys(relationships);
+  const keys = _relationshipsFor(recordData, identifier);
   for (let i = 0; i < keys.length; i++) {
     const relationshipName = keys[i];
     const relationshipData = data.relationships![relationshipName];
@@ -545,7 +557,7 @@ function setupRelationships(
       continue;
     }
 
-    graphFor(storeWrapper).push({
+    graphFor(recordData.__storeWrapper).push({
       op: 'updateRelationship',
       record: identifier,
       field: relationshipName,
