@@ -2,6 +2,7 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
+import type Store from '@ember-data/store';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { MergeOperation } from '@ember-data/types/q/record-data';
@@ -47,6 +48,11 @@ export type RelationshipEdge = ImplicitRelationship | CollectionRelationship | R
 
 export const Graphs = new Map<RecordDataStoreWrapper, Graph>();
 let transactionRef = 0;
+type PendingOps = {
+  belongsTo?: Dict<Dict<RemoteRelationshipOperation[]>>;
+  hasMany?: Dict<Dict<RemoteRelationshipOperation[]>>;
+  deletions: DeleteRecordOperation[];
+};
 /*
  * Graph acts as the cache for relationship data. It allows for
  * us to ask about and update relationships for a given Identifier
@@ -75,11 +81,8 @@ export class Graph {
   declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
-  declare _pushedUpdates: {
-    belongsTo: RemoteRelationshipOperation[];
-    hasMany: RemoteRelationshipOperation[];
-    deletions: DeleteRecordOperation[];
-  };
+  declare silenceNotifications: boolean;
+  declare _pushedUpdates: PendingOps;
   declare _updatedRelationships: Set<CollectionRelationship>;
   declare _transaction: number | null;
   declare _removing: StableRecordIdentifier | null;
@@ -93,10 +96,15 @@ export class Graph {
     this.isDestroyed = false;
     this._willSyncRemote = false;
     this._willSyncLocal = false;
-    this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
+    this._pushedUpdates = {
+      belongsTo: undefined,
+      hasMany: undefined,
+      deletions: [],
+    };
     this._updatedRelationships = new Set();
     this._transaction = null;
     this._removing = null;
+    this.silenceNotifications = false;
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
@@ -112,6 +120,13 @@ export class Graph {
     propertyName: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
     const relationship = this.get(identifier, propertyName);
+    if (this._pushedUpdates.belongsTo || this._pushedUpdates.hasMany) {
+      this.silenceNotifications = true;
+      (this.store as unknown as { _store: Store })._store._join(() => {
+        this._flushRemoteForType(identifier, propertyName);
+      });
+      this.silenceNotifications = false;
+    }
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
     if (isBelongsTo(relationship)) {
       return legacyGetResourceRelationshipData(relationship);
@@ -278,12 +293,10 @@ export class Graph {
     }
     if (op.op === 'deleteRecord') {
       this._pushedUpdates.deletions.push(op);
-    } else if (op.op === 'replaceRelatedRecord') {
-      this._pushedUpdates.belongsTo.push(op);
     } else {
       const definition = this.getDefinition(op.record, op.field);
       assert(`Cannot push a remote update for an implicit relationship`, definition.kind !== 'implicit');
-      this._pushedUpdates[definition.kind].push(op);
+      addPending(this._pushedUpdates, definition, op);
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
@@ -387,13 +400,12 @@ export class Graph {
     const updates = this._pushedUpdates;
     const { deletions, hasMany, belongsTo } = updates;
     updates.deletions = [];
-    updates.hasMany = [];
-    updates.belongsTo = [];
 
     for (let i = 0; i < deletions.length; i++) {
       this.update(deletions[i], true);
     }
 
+    /*
     for (let i = 0; i < hasMany.length; i++) {
       if (isActive(this, hasMany[i] as CacheOp)) {
         this.update(hasMany[i], true);
@@ -409,6 +421,52 @@ export class Graph {
         updates.belongsTo.push(belongsTo[i]);
       }
     }
+    */
+    this._transaction = null;
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: transaction finalized`);
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
+  }
+
+  _flushRemoteForType(identifier: StableRecordIdentifier, field: string) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.groupCollapsed(`Graph: Initialized Transaction`);
+    }
+    this._transaction = ++transactionRef;
+    const updates = this._pushedUpdates;
+    const definition = this.getDefinition(identifier, field);
+    const inversePayloads =
+      definition.inverseKind !== 'implicit'
+        ? updates[definition.inverseKind]?.[definition.type]?.[definition.inverseKey]
+        : null;
+    const payloads = updates[definition.kind as 'belongsTo' | 'hasMany']?.[definition.inverseType]?.[definition.key];
+
+    const first = definition.inverseKind === 'hasMany' ? inversePayloads : payloads;
+    const second = definition.inverseKind === 'hasMany' ? payloads : inversePayloads;
+
+    if (first) {
+      for (let i = 0; i < first.length; i++) {
+        if (matchRel(this, definition, identifier, first[i] as CacheOp)) {
+          this.update(first[i], true);
+          first.splice(i, 1);
+          i--;
+        }
+      }
+    }
+    if (second) {
+      for (let i = 0; i < second.length; i++) {
+        if (matchRel(this, definition, identifier, second[i] as CacheOp)) {
+          this.update(second[i], true);
+          second.splice(i, 1);
+          i--;
+        }
+      }
+    }
+
     this._transaction = null;
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -432,6 +490,11 @@ export class Graph {
       return;
     }
     this._willSyncLocal = false;
+    if (this.silenceNotifications) {
+      this.silenceNotifications = false;
+      this._updatedRelationships = new Set();
+      return;
+    }
     let updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
     updated.forEach((rel) => notifyChange(this, rel.identifier, rel.definition.key));
@@ -454,7 +517,33 @@ type CacheOp = {
   record: StableRecordIdentifier;
   field: string;
 };
+
 function isActive(graph: Graph, op: CacheOp): boolean {
   const relationships = graph.identifiers.get(op.record);
+
   return Boolean(relationships?.[op.field]);
+}
+
+function matchRel(graph: Graph, def: UpgradedMeta, identifier: StableRecordIdentifier, op: CacheOp): boolean {
+  if (op.record === identifier && op.field === def.key) {
+    return true;
+  }
+  if (op.record.type === def.type && op.field === def.inverseKey) {
+    return true;
+  }
+  return false;
+}
+
+function addPending(
+  cache: PendingOps,
+  definition: UpgradedMeta,
+  op: RemoteRelationshipOperation & { field: string }
+): void {
+  let lc = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
+    cache[definition.kind as 'hasMany' | 'belongsTo'] ||
+    (Object.create(null) as Dict<Dict<RemoteRelationshipOperation[]>>));
+  let lc2 = (lc[definition.inverseType] =
+    lc[definition.inverseType] || (Object.create(null) as Dict<RemoteRelationshipOperation[]>));
+  let arr = (lc2[op.field] = lc2[op.field] || []);
+  arr.push(op);
 }
