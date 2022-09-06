@@ -1,5 +1,93 @@
 # Ember Data Changelog
 
+## v4.7.1 (2022-09-06)
+#### :goal_net: Test
+* `-ember-data`, `model`, `store`
+  * [#8128](https://github.com/emberjs/data/pull/8128) fix: backgroundReloads should not affect recordIsLoaded (#8125) ([@runspired](https://github.com/runspired))
+* `-ember-data`
+  * [#8160](https://github.com/emberjs/data/pull/8160) port test from #6147 ([@runspired](https://github.com/runspired))
+#### :rocket: Enhancement
+* `-ember-data`, `adapter`, `canary-features`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#8122](https://github.com/emberjs/data/pull/8122) v2.1 cache ([@runspired](https://github.com/runspired))
+* `-ember-data`, `canary-features`, `model`, `private-build-infra`, `record-data`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#8114](https://github.com/emberjs/data/pull/8114) implement store portion of v2 cache ([@runspired](https://github.com/runspired))
+* `-ember-data`, `canary-features`, `model`, `record-data`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#8129](https://github.com/emberjs/data/pull/8129) feat: deprecate v1 cache ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `model`, `private-build-infra`, `record-data`, `store`, `unpublished-relationship-performance-test-app`
+  * [#7955](https://github.com/emberjs/data/pull/7955) FEAT: Explicit Polymorphic Relationship Support [emberjs/rfcs#793] ([@runspired](https://github.com/runspired))
+
+#### :memo: Documentation
+* `-ember-data`, `adapter`, `canary-features`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#8122](https://github.com/emberjs/data/pull/8122) v2.1 cache ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `canary-features`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`
+  * [#8121](https://github.com/emberjs/data/pull/8121) Documentation Upgrades ([@runspired](https://github.com/runspired))
+* Other
+  * [#8124](https://github.com/emberjs/data/pull/8124) [DOC] typo fix ([@jenweber](https://github.com/jenweber))
+* `-ember-data`, `canary-features`, `model`, `private-build-infra`, `record-data`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#8114](https://github.com/emberjs/data/pull/8114) implement store portion of v2 cache ([@runspired](https://github.com/runspired))
+* [#8138](https://github.com/emberjs/data/pull/8138) [DOC] typo in identifier initializer documentation ([@ciur](https://github.com/ciur))
+
+#### :evergreen_tree: New Deprecation
+* `-ember-data`, `adapter`, `model`, `private-build-infra`, `serializer`, `store`
+  * [#8093](https://github.com/emberjs/data/pull/8093) deprecation: implement helper deprecations ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `private-build-infra`
+  * [#8092](https://github.com/emberjs/data/pull/8092) deprecation: Model.reopen/reopenClass and eager static fields lookups ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#8084](https://github.com/emberjs/data/pull/8084) Love of Mine ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `canary-features`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#8122](https://github.com/emberjs/data/pull/8122) v2.1 cache ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `private-build-infra`, `record-data`, `unpublished-adapter-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#8115](https://github.com/emberjs/data/pull/8115) deprecation: implement strict relationships ([@runspired](https://github.com/runspired))
+* `-ember-data`, `canary-features`, `model`, `private-build-infra`, `record-data`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#8114](https://github.com/emberjs/data/pull/8114) implement store portion of v2 cache ([@runspired](https://github.com/runspired))
+* `-ember-data`, `canary-features`, `model`, `record-data`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#8129](https://github.com/emberjs/data/pull/8129) feat: deprecate v1 cache ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `model`, `private-build-infra`, `record-data`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#8134](https://github.com/emberjs/data/pull/8134) feat: deprecate proxies (implements emberjs/rfcs#846) ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+* `-ember-data`
+  * [#7634](https://github.com/emberjs/data/pull/7634) [CHORE]: Modernized store-adapter-test ([@runnerboy22](https://github.com/runnerboy22))
+  * [#7607](https://github.com/emberjs/data/pull/7607) test: defined post model individually per test ([@runnerboy22](https://github.com/runnerboy22))
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#8084](https://github.com/emberjs/data/pull/8084) Love of Mine ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `private-build-infra`, `record-data`, `store`
+  * [#8120](https://github.com/emberjs/data/pull/8120) Typescript & encapsulation improvements in advance of cache v2 ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `record-data`, `store`
+  * [#8117](https://github.com/emberjs/data/pull/8117) fix: move defaultValue into RecordData to better encapsulate and prevent eager instantiations ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `record-data`
+  * [#8130](https://github.com/emberjs/data/pull/8130) chore: relationship cleanup ([@runspired](https://github.com/runspired))
+* [#8151](https://github.com/emberjs/data/pull/8151) chore: add release perf check ([@runspired](https://github.com/runspired))
+* `model`, `record-data`, `store`
+  * [#8161](https://github.com/emberjs/data/pull/8161) chore: restructure graph home ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+* `-ember-data`, `adapter`, `canary-features`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`
+  * [#8089](https://github.com/emberjs/data/pull/8089) fix: unpin yarn for consumers ([@runspired](https://github.com/runspired))
+* `private-build-infra`
+  * [#8108](https://github.com/emberjs/data/pull/8108) fix earlier versions of node-14 ([@runspired](https://github.com/runspired))
+* `model`
+  * [#8118](https://github.com/emberjs/data/pull/8118) fix: reopen deprecation should properly pass original arguments ([@law-rence](https://github.com/law-rence))
+* `-ember-data`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#8113](https://github.com/emberjs/data/pull/8113) fix: account for multi-options-per-identifer possibility ([@runspired](https://github.com/runspired))
+* `private-build-infra`, `store`
+  * [#8109](https://github.com/emberjs/data/pull/8109) fix: add optional polyfill for crypto.randomUUID ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `store`
+  * [#8116](https://github.com/emberjs/data/pull/8116) Clear subscriptions once unsubscribed, don't unnecessarily churn on subscriptions ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `store`
+  * [#8128](https://github.com/emberjs/data/pull/8128) fix: backgroundReloads should not affect recordIsLoaded (#8125) ([@runspired](https://github.com/runspired))
+* `-ember-data`, `adapter`, `model`, `private-build-infra`, `record-data`, `store`, `unpublished-relationship-performance-test-app`
+  * [#7955](https://github.com/emberjs/data/pull/7955) FEAT: Explicit Polymorphic Relationship Support [emberjs/rfcs#793] ([@runspired](https://github.com/runspired))
+* `store`
+  * [#8159](https://github.com/emberjs/data/pull/8159) fix: uuid polyfill logic ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Tyler ([@runnerboy22](https://github.com/runnerboy22))
+- Jen Weber ([@jenweber](https://github.com/jenweber))
+- [@law-rence](https://github.com/law-rence)
+- Eugen Ciur ([@ciur](https://github.com/ciur))
+
 ## v4.6.1 (2022-07-28)
 
 #### :bug: Bug Fix
