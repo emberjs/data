@@ -49,8 +49,8 @@ export type RelationshipEdge = ImplicitRelationship | CollectionRelationship | R
 export const Graphs = new Map<RecordDataStoreWrapper, Graph>();
 let transactionRef = 0;
 type PendingOps = {
-  belongsTo?: Dict<Dict<RemoteRelationshipOperation[]>>;
-  hasMany?: Dict<Dict<RemoteRelationshipOperation[]>>;
+  belongsTo?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
+  hasMany?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
   deletions: DeleteRecordOperation[];
 };
 /*
@@ -120,7 +120,7 @@ export class Graph {
     propertyName: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
     const relationship = this.get(identifier, propertyName);
-    if (this._pushedUpdates.belongsTo || this._pushedUpdates.hasMany) {
+    if (hasPending(this, relationship.definition, identifier, propertyName)) {
       this.silenceNotifications = true;
       (this.store as unknown as { _store: Store })._store._join(() => {
         this._flushRemoteForType(identifier, propertyName);
@@ -405,23 +405,13 @@ export class Graph {
       this.update(deletions[i], true);
     }
 
-    /*
-    for (let i = 0; i < hasMany.length; i++) {
-      if (isActive(this, hasMany[i] as CacheOp)) {
-        this.update(hasMany[i], true);
-      } else {
-        updates.hasMany.push(hasMany[i]);
-      }
+    if (hasMany) {
+      flushPending(this, hasMany);
+    }
+    if (belongsTo) {
+      flushPending(this, belongsTo);
     }
 
-    for (let i = 0; i < belongsTo.length; i++) {
-      if (isActive(this, belongsTo[i] as CacheOp)) {
-        this.update(belongsTo[i], true);
-      } else {
-        updates.belongsTo.push(belongsTo[i]);
-      }
-    }
-    */
     this._transaction = null;
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -441,28 +431,41 @@ export class Graph {
     const definition = this.getDefinition(identifier, field);
     const inversePayloads =
       definition.inverseKind !== 'implicit'
-        ? updates[definition.inverseKind]?.[definition.type]?.[definition.inverseKey]
+        ? updates[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey)
         : null;
-    const payloads = updates[definition.kind as 'belongsTo' | 'hasMany']?.[definition.inverseType]?.[definition.key];
+    const payloads = updates[definition.kind as 'belongsTo' | 'hasMany']
+      ?.get(definition.inverseType)
+      ?.get(definition.key);
 
     const first = definition.inverseKind === 'hasMany' ? inversePayloads : payloads;
     const second = definition.inverseKind === 'hasMany' ? payloads : inversePayloads;
 
     if (first) {
       for (let i = 0; i < first.length; i++) {
-        if (matchRel(this, definition, identifier, first[i] as CacheOp)) {
-          this.update(first[i], true);
-          first.splice(i, 1);
-          i--;
-        }
+        this.update(first[i], true);
       }
     }
     if (second) {
       for (let i = 0; i < second.length; i++) {
-        if (matchRel(this, definition, identifier, second[i] as CacheOp)) {
-          this.update(second[i], true);
-          second.splice(i, 1);
-          i--;
+        this.update(second[i], true);
+      }
+    }
+    if (payloads) {
+      const typeMap = updates[definition.kind as 'belongsTo' | 'hasMany']!;
+      const fieldMap = typeMap.get(definition.inverseType)!;
+      fieldMap.delete(definition.key);
+      if (fieldMap.size === 0) {
+        typeMap.delete(definition.inverseType);
+      }
+    }
+    if (inversePayloads) {
+      const typeMap = updates[definition.inverseKind as 'belongsTo' | 'hasMany']!;
+      const fieldMap = typeMap.get(definition.type)!;
+
+      if (fieldMap) {
+        fieldMap.delete(definition.inverseKey);
+        if (fieldMap.size === 0) {
+          typeMap.delete(definition.type);
         }
       }
     }
@@ -518,12 +521,29 @@ type CacheOp = {
   field: string;
 };
 
+function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelationshipOperation[]>>) {
+  ops.forEach((type) => {
+    type.forEach((opList) => {
+      flushPendingList(graph, opList);
+    });
+  });
+}
+function flushPendingList(graph: Graph, opList: RemoteRelationshipOperation[]) {
+  for (let i = 0; i < opList.length; i++) {
+    if (isActive(graph, opList[i] as CacheOp)) {
+      graph.update(opList[i], true);
+      i--;
+      opList.splice(i, 1);
+    }
+  }
+}
+
 function isActive(graph: Graph, op: CacheOp): boolean {
   const relationships = graph.identifiers.get(op.record);
 
   return Boolean(relationships?.[op.field]);
 }
-
+/*
 function matchRel(graph: Graph, def: UpgradedMeta, identifier: StableRecordIdentifier, op: CacheOp): boolean {
   if (op.record === identifier && op.field === def.key) {
     return true;
@@ -533,6 +553,7 @@ function matchRel(graph: Graph, def: UpgradedMeta, identifier: StableRecordIdent
   }
   return false;
 }
+*/
 
 function addPending(
   cache: PendingOps,
@@ -540,10 +561,33 @@ function addPending(
   op: RemoteRelationshipOperation & { field: string }
 ): void {
   let lc = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
-    cache[definition.kind as 'hasMany' | 'belongsTo'] ||
-    (Object.create(null) as Dict<Dict<RemoteRelationshipOperation[]>>));
-  let lc2 = (lc[definition.inverseType] =
-    lc[definition.inverseType] || (Object.create(null) as Dict<RemoteRelationshipOperation[]>));
-  let arr = (lc2[op.field] = lc2[op.field] || []);
+    cache[definition.kind as 'hasMany' | 'belongsTo'] || new Map<string, Map<string, RemoteRelationshipOperation[]>>());
+  let lc2 = lc.get(definition.inverseType);
+  if (!lc2) {
+    lc2 = new Map<string, RemoteRelationshipOperation[]>();
+    lc.set(definition.inverseType, lc2);
+  }
+  let arr = lc2.get(op.field);
+  if (!arr) {
+    arr = [];
+    lc2.set(op.field, arr);
+  }
   arr.push(op);
+}
+
+function hasPending(
+  graph: Graph,
+  definition: UpgradedMeta,
+  identifier: StableRecordIdentifier,
+  field: string
+): boolean {
+  let cache = graph._pushedUpdates;
+  let hasPrimary = cache[definition.kind as 'belongsTo' | 'hasMany']?.get(definition.inverseType)?.get(field);
+  if (hasPrimary) {
+    return true;
+  }
+  if (definition.inverseKind === 'implicit') {
+    return false;
+  }
+  return Boolean(cache[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey));
 }
