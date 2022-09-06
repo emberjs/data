@@ -543,17 +543,6 @@ function isActive(graph: Graph, op: CacheOp): boolean {
 
   return Boolean(relationships?.[op.field]);
 }
-/*
-function matchRel(graph: Graph, def: UpgradedMeta, identifier: StableRecordIdentifier, op: CacheOp): boolean {
-  if (op.record === identifier && op.field === def.key) {
-    return true;
-  }
-  if (op.record.type === def.type && op.field === def.inverseKey) {
-    return true;
-  }
-  return false;
-}
-*/
 
 function addPending(
   cache: PendingOps,
