@@ -46,7 +46,6 @@ module.exports = function (babel) {
     name: 'ast-transform', // not required
     visitor: {
       ImportDeclaration(path, state) {
-        console.log(state.filename);
         const replacements = state.opts.flags;
         const importPath = path.node.source.value;
 
@@ -57,7 +56,6 @@ module.exports = function (babel) {
             if (replacements[name]) {
               let localBindingName = specifier.node.local.name;
               let binding = specifier.scope.getBinding(localBindingName);
-              // console.log('binding: ', binding);
               binding.referencePaths.forEach((p) => {
                 p.replaceWith(
                   t.callExpression(t.identifier('macroCondition'), [
@@ -66,8 +64,9 @@ module.exports = function (babel) {
                 );
               });
               specifier.scope.removeOwnBinding(localBindingName);
-              state.ensureImport('@embroider/macros', 'macroCondition');
-              state.ensureImport('@embroider/macros', 'moduleExists');
+              specifier.remove();
+              state.ensureImport('macroCondition', '@embroider/macros');
+              state.ensureImport('moduleExists', '@embroider/macros');
             }
           });
         }
