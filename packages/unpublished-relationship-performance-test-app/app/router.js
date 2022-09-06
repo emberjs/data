@@ -12,6 +12,8 @@ Router.map(function () {
   this.route('relationship-materialization-simple');
   this.route('relationship-materialization-complex');
   this.route('add-children');
+  this.route('add-children-then-materialize');
+  this.route('add-children-to-materialized');
   this.route('unload');
   this.route('unload-all');
   this.route('destroy');
