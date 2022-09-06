@@ -86,7 +86,7 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-terser": "~4.0.2",
     "ember-cli-test-loader": "^3.0.0",
-    "ember-cli-typescript": "^5.1.0",
+    "ember-cli-typescript": "^5.1.1",
     "ember-cli-typescript-blueprints": "^3.0.0",
     "ember-cli-version-checker": "^5.1.2",
     "ember-cli-yuidoc": "^0.9.1",
