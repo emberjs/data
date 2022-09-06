@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/record-data",
-  "version": "4.7.0",
+  "version": "4.7.1",
   "description": "Provides the default resource cache (RecordData) implementation for ember-data",
   "keywords": [
     "ember-addon"
@@ -24,9 +24,9 @@
     "test:try-one": "ember try:one --config-path='../-ember-data/config/ember-try.js'"
   },
   "dependencies": {
-    "@ember-data/canary-features": "4.7.0",
-    "@ember-data/private-build-infra": "4.7.0",
-    "@ember-data/store": "4.7.0",
+    "@ember-data/canary-features": "4.7.1",
+    "@ember-data/private-build-infra": "4.7.1",
+    "@ember-data/store": "4.7.1",
     "@ember/edition-utils": "^1.2.0",
     "ember-auto-import": "^2.4.2",
     "ember-cli-babel": "^7.26.11",
@@ -34,8 +34,8 @@
     "ember-cli-typescript": "^5.1.0"
   },
   "devDependencies": {
-    "@ember-data/model": "4.7.0",
-    "@ember-data/unpublished-test-infra": "4.7.0",
+    "@ember-data/model": "4.7.1",
+    "@ember-data/unpublished-test-infra": "4.7.1",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
     "broccoli-asset-rev": "^3.0.0",
