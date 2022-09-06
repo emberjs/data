@@ -14,8 +14,8 @@ export default Route.extend({
     this.store.push(initialPayload);
 
     performance.mark('start-initial-materialize-records');
-    let peekedParents = this.store.peekAll('parent').slice();
-    this.store.peekAll('child').slice();
+    let peekedParents = this.store.peekAll('parent').toArray();
+    this.store.peekAll('child').toArray();
 
     performance.mark('start-initial-materialize-relationships');
     let seen = new Set();
@@ -25,8 +25,8 @@ export default Route.extend({
     this.store.push(updatePayload);
 
     performance.mark('start-materialize-all-records');
-    peekedParents = this.store.peekAll('parent').slice();
-    this.store.peekAll('child').slice();
+    peekedParents = this.store.peekAll('parent').toArray();
+    this.store.peekAll('child').toArray();
 
     performance.mark('start-materialize-all-relationships');
     seen = new Set();
