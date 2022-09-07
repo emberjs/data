@@ -4,7 +4,7 @@
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import { getOwnConfig, importSync, macroCondition } from '@embroider/macros';
+import { getOwnConfig, macroCondition } from '@embroider/macros';
 
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
@@ -24,6 +24,7 @@ import coerceId from './coerce-id';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from './identifer-debug-consts';
 import normalizeModelName from './normalize-model-name';
 import isNonEmptyString from './utils/is-non-empty-string';
+import installPolyfill from './utils/uuid-polyfill';
 import WeakCache from './weak-cache';
 
 const IDENTIFIERS = new WeakSet();
@@ -36,7 +37,7 @@ const isFastBoot = typeof FastBoot !== 'undefined';
 const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
 
 if (macroCondition(getOwnConfig<{ polyfillUUID: boolean }>().polyfillUUID)) {
-  importSync('./utils/uuid-polyfill');
+  installPolyfill();
 }
 
 function uuidv4(): string {
