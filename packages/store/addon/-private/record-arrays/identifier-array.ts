@@ -746,12 +746,12 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.filterBy = function (key: string, value?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'filterBy', 'filter');
     if (arguments.length === 2) {
-      return this.filter((value) => {
-        return Boolean(get(value, key));
+      return this.filter((record) => {
+        return get(record, key) === value;
       });
     }
-    return this.filter((value) => {
-      return Boolean(get(value, key));
+    return this.filter((record) => {
+      return Boolean(get(record, key));
     });
   };
 
