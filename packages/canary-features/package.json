@@ -15,6 +15,7 @@
   "directories": {},
   "scripts": {},
   "dependencies": {
+    "@embroider/macros": "^1.8.3",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-typescript": "^5.1.1"
   },

@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "ember-auto-import": "^2.4.3",
-    "ember-data": "4.9.0-alpha.6"
+    "ember-data": "4.8.0-alpha.6",
+    "@embroider/macros": "^1.8.3"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
