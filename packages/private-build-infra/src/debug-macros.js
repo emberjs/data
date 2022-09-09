@@ -34,6 +34,13 @@ module.exports = function debugMacros(app, isProd, config) {
       '@ember-data/canary-features-stripping',
     ],
     [
+      ConvertExistenceChecksToMacros,
+      {
+        source: '@ember-data/private-build-infra',
+        flags: MACRO_PACKAGE_FLAGS,
+      },
+    ],
+    [
       debugMacrosPath,
       {
         flags: [
@@ -58,13 +65,6 @@ module.exports = function debugMacros(app, isProd, config) {
       '@ember-data/debugging',
     ],
     [
-      ConvertExistenceChecksToMacros,
-      {
-        source: '@ember-data/private-build-infra',
-        flags: MACRO_PACKAGE_FLAGS,
-      },
-    ],
-    [
       debugMacrosPath,
       {
         flags: [
@@ -77,5 +77,6 @@ module.exports = function debugMacros(app, isProd, config) {
       '@ember-data/optional-packages-stripping',
     ],
   ];
+
   return plugins;
 };

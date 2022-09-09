@@ -22,5 +22,6 @@ module.exports = function (environment, app, config) {
   }
 
   plugins.push(...DebugMacros);
+
   return { plugins, postTransformPlugins };
 };
