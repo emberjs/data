@@ -22,6 +22,7 @@
     "@ember/edition-utils": "^1.2.0",
     "babel-plugin-debug-macros": "^0.3.4",
     "babel-plugin-filter-imports": "^4.0.0",
+    "babel-import-util": "^1.2.2",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-debug": "^0.6.5",
     "broccoli-file-creator": "^2.1.1",
