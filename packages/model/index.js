@@ -42,6 +42,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       'ember-inflector',
       'ember',
       'rsvp',
+      '@embroider/macros/runtime',
     ];
   },
 });

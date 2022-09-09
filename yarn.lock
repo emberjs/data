@@ -3729,7 +3729,7 @@ babel-helpers@^6.24.1:
     babel-runtime "^6.22.0"
     babel-template "^6.24.1"
 
-babel-import-util@^1.1.0, babel-import-util@^1.2.0:
+babel-import-util@^1.1.0, babel-import-util@^1.2.0, babel-import-util@^1.2.2:
   version "1.2.2"
   resolved "https://registry.npmjs.org/babel-import-util/-/babel-import-util-1.2.2.tgz#1027560e143a4a68b1758e71d4fadc661614e495"
   integrity sha512-8HgkHWt5WawRFukO30TuaL9EiDUOdvyKtDwLma4uBNeUSDbOO0/hiPfavrOWxSS6J6TKXfukWHZ3wiqZhJ8ONQ==
@@ -7261,7 +7261,8 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "4.8.0-alpha.6"
+  version "0.0.0"
+  uid ""
 
 eslint-plugin-ember@^11.0.6:
   version "11.0.6"
