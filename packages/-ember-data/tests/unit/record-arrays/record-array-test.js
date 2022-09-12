@@ -6,6 +6,7 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { RecordArray, SnapshotRecordArray, SOURCE } from '@ember-data/store/-private';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Tag extends Model {
@@ -96,6 +97,49 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     assert.strictEqual(recordArray[2].id, '5');
     assert.strictEqual(recordArray[3], undefined);
   });
+
+  deprecatedTest(
+    '#filterBy',
+    { id: 'ember-data:deprecate-array-like', until: '5.0', count: 3 },
+    async function (assert) {
+      this.owner.register('model:tag', Tag);
+      let store = this.owner.lookup('service:store');
+
+      let records = store.push({
+        data: [
+          {
+            type: 'tag',
+            id: '1',
+            attributes: {
+              name: 'first',
+            },
+          },
+          {
+            type: 'tag',
+            id: '3',
+          },
+          {
+            type: 'tag',
+            id: '5',
+            attributes: {
+              name: 'fifth',
+            },
+          },
+        ],
+      });
+
+      let recordArray = new RecordArray({
+        type: 'recordType',
+        identifiers: records.map(recordIdentifierFor),
+        store,
+      });
+
+      assert.strictEqual(recordArray.length, 3);
+      assert.strictEqual(recordArray.filterBy('id', '3').length, 1);
+      assert.strictEqual(recordArray.filterBy('id').length, 3);
+      assert.strictEqual(recordArray.filterBy('name').length, 2);
+    }
+  );
 
   test('#update', async function (assert) {
     let findAllCalled = 0;
