@@ -664,7 +664,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   };
 
   IdentifierArray.prototype.toArray = function () {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'unshiftObjects', 'unshift');
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'toArray', 'slice');
     return this.slice();
   };
 
