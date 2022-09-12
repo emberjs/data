@@ -19,7 +19,7 @@ export function serializeQueryParams(queryParamsObject: object | string): string
           if (RBRACKET.test(prefix)) {
             add(s, prefix, obj[i]);
           } else {
-            buildParams(prefix + '[' + (typeof obj[i] === 'object' ? i : '') + ']', obj[i]);
+            buildParams(prefix + '[' + (typeof obj[i] === 'object' && obj[i] !== null ? i : '') + ']', obj[i]);
           }
         }
       } else if (isPlainObject(obj)) {
@@ -41,7 +41,7 @@ export function serializeQueryParams(queryParamsObject: object | string): string
     return s;
   }
 
-  return buildParams('', queryParamsObject).join('&').replace(/%20/g, '+');
+  return buildParams('', queryParamsObject).join('&');
 }
 
 /*
