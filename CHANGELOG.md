@@ -1,5 +1,15 @@
 # Ember Data Changelog
 
+## Release 3.28.11 (2022-09-12)
+
+#### :bug: Bug Fix
+* `-ember-data`, `store`
+  * [#8181](https://github.com/emberjs/data/pull/8181) backport fix for clearing subscriptions from #8116 (Closes [#7857](https://github.com/emberjs/data/issues/7857)) ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
+
 ## Release 3.28.10 (LTS) (May 9, 2022)
 
 #### :bug: Bug Fix
