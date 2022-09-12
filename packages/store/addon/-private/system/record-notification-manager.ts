@@ -12,7 +12,15 @@ let tokenId = 0;
 const Cache = new Map<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>();
 const Tokens = new Map<UnsubscribeToken, StableRecordIdentifier>();
 
-export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state';
+export type NotificationType =
+  | 'attributes'
+  | 'relationships'
+  | 'identity'
+  | 'errors'
+  | 'meta'
+  | 'unload'
+  | 'state'
+  | 'property'; // 'property' is an internal EmberData only transition period concept.
 
 export interface NotificationCallback {
   (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
