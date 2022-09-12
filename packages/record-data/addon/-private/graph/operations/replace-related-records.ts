@@ -100,36 +100,43 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const iterationLength = currentLength > identifiersLength ? currentLength : identifiersLength;
   const equalLength = currentLength === identifiersLength;
 
-  for (let i = 0; i < iterationLength; i++) {
+  for (let i = 0, j = 0; i < iterationLength; i++) {
+    let adv = false;
     if (i < identifiersLength) {
       const identifier = identifiers[i];
-      if (newMembership.has(identifier)) {
-        break; // skip processing if we encounter a duplicate identifier in the array
-      }
-      if (type !== identifier.type) {
-        assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-        graph.registerPolymorphicType(type, identifier.type);
-      }
-      newState[i] = identifier;
-      newMembership.add(identifier);
+      // skip processing if we encounter a duplicate identifier in the array
+      if (!newMembership.has(identifier)) {
+        if (type !== identifier.type) {
+          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          graph.registerPolymorphicType(type, identifier.type);
+        }
+        newState[j] = identifier;
+        adv = true;
+        newMembership.add(identifier);
 
-      if (!members.has(identifier)) {
-        changed = true;
-        addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        if (!members.has(identifier)) {
+          changed = true;
+          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        }
       }
     }
     if (i < currentLength) {
       const identifier = currentState[i];
 
       // detect reordering
-      if (equalLength && newState[i] !== identifier) {
-        changed = true;
-      }
+      if (!newMembership.has(identifier)) {
+        if (equalLength && newState[i] !== identifier) {
+          changed = true;
+        }
 
-      if (!newValues.has(identifier)) {
-        changed = true;
-        removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        if (!newValues.has(identifier)) {
+          changed = true;
+          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        }
       }
+    }
+    if (adv) {
+      j++;
     }
   }
 
@@ -171,36 +178,42 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   const iterationLength = canonicalLength > identifiersLength ? canonicalLength : identifiersLength;
   const equalLength = canonicalLength === identifiersLength;
 
-  for (let i = 0; i < iterationLength; i++) {
+  for (let i = 0, j = 0; i < iterationLength; i++) {
+    let adv = false;
     if (i < identifiersLength) {
       const identifier = identifiers[i];
-      if (newMembership.has(identifier)) {
-        break;
-      }
-      if (type !== identifier.type) {
-        assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-        graph.registerPolymorphicType(type, identifier.type);
-      }
-      newState[i] = identifier;
-      newMembership.add(identifier);
+      if (!newMembership.has(identifier)) {
+        if (type !== identifier.type) {
+          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          graph.registerPolymorphicType(type, identifier.type);
+        }
+        newState[j] = identifier;
+        newMembership.add(identifier);
+        adv = true;
 
-      if (!canonicalMembers.has(identifier)) {
-        changed = true;
-        addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        if (!canonicalMembers.has(identifier)) {
+          changed = true;
+          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        }
       }
     }
     if (i < canonicalLength) {
       const identifier = canonicalState[i];
 
-      // detect reordering
-      if (equalLength && newState[i] !== identifier) {
-        changed = true;
-      }
+      if (!newMembership.has(identifier)) {
+        // detect reordering
+        if (equalLength && newState[i] !== identifier) {
+          changed = true;
+        }
 
-      if (!newValues.has(identifier)) {
-        changed = true;
-        removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        if (!newValues.has(identifier)) {
+          changed = true;
+          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        }
       }
+    }
+    if (adv) {
+      j++;
     }
   }
 
