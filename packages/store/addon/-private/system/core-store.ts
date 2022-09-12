@@ -2500,6 +2500,7 @@ abstract class CoreStore extends Service {
     const factory = internalModelFactoryFor(this);
 
     if (modelName === undefined) {
+      this._notificationManager.destroy();
       factory.clear();
     } else {
       let normalizedModelName = normalizeModelName(modelName);

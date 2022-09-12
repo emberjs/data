@@ -1,13 +1,16 @@
-import { identifierCacheFor } from '../identifiers/cache';
+import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
+
+import isStableIdentifier from '../identifiers/is-stable-identifier';
 
 type CoreStore = import('./core-store').default;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 
-type UnsubscribeToken = Object;
+type UnsubscribeToken = object;
+let tokenId = 0;
 
-const Cache = new WeakMap<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>();
-const Tokens = new WeakMap<UnsubscribeToken, StableRecordIdentifier>();
+const Cache = new Map<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>();
+const Tokens = new Map<UnsubscribeToken, StableRecordIdentifier>();
 
 export type NotificationType =
   | 'attributes'
@@ -20,50 +23,73 @@ export type NotificationType =
   | 'property'; // 'property' is an internal EmberData only transition period concept.
 
 export interface NotificationCallback {
-  (identifier: RecordIdentifier, notificationType: 'attributes' | 'relationships' | 'property', key?: string): void;
-  (identifier: RecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
+  (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
   (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
 }
 
+// TODO this isn't importable anyway, remove and use a map on the manager?
 export function unsubscribe(token: UnsubscribeToken) {
   let identifier = Tokens.get(token);
-  if (!identifier) {
-    throw new Error('Passed unknown unsubscribe token to unsubscribe');
+
+  if (identifier) {
+    Tokens.delete(token);
+    const map = Cache.get(identifier);
+    map?.delete(token);
   }
-  Tokens.delete(token);
-  const map = Cache.get(identifier);
-  map?.delete(token);
 }
 /*
   Currently only support a single callback per identifier
 */
 export default class NotificationManager {
-  constructor(private store: CoreStore) {}
+  declare store: CoreStore;
+  constructor(store: CoreStore) {
+    this.store = store;
+  }
 
-  subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
-    let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
-    let map = Cache.get(stableIdentifier);
-    if (map === undefined) {
+  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
+    assert(`Expected to receive a stable Identifier to subscribe to`, isStableIdentifier(identifier));
+    let map = Cache.get(identifier);
+
+    if (!map) {
       map = new Map();
-      Cache.set(stableIdentifier, map);
+      Cache.set(identifier, map);
     }
-    let unsubToken = {};
+
+    let unsubToken = DEBUG ? { _tokenRef: tokenId++ } : {};
     map.set(unsubToken, callback);
-    Tokens.set(unsubToken, stableIdentifier);
+    Tokens.set(unsubToken, identifier);
     return unsubToken;
   }
 
-  notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): boolean;
-  notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
-  notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {
-    let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
-    let callbackMap = Cache.get(stableIdentifier);
+  unsubscribe(token: UnsubscribeToken) {
+    unsubscribe(token);
+  }
+
+  // deactivated type signature overloads because pass-through was failing to match any. Bring back if possible.
+  // notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
+  // notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  notify(identifier: StableRecordIdentifier, value: NotificationType, key?: string): boolean {
+    assert(
+      `Notify does not accept a key argument for the namespace '${value}'. Received key '${key}'.`,
+      !key || value === 'attributes' || value === 'relationships'
+    );
+    if (!isStableIdentifier(identifier)) {
+      return false;
+    }
+
+    let callbackMap = Cache.get(identifier);
     if (!callbackMap || !callbackMap.size) {
       return false;
     }
     callbackMap.forEach((cb) => {
-      cb(stableIdentifier, value, key);
+      cb(identifier, value, key);
     });
     return true;
+  }
+
+  destroy() {
+    Tokens.clear();
+    Cache.clear();
   }
 }

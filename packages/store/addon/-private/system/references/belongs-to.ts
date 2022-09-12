@@ -40,8 +40,8 @@ export default class BelongsToReference extends Reference {
   declare parentIdentifier: StableRecordIdentifier;
 
   // unsubscribe tokens given to us by the notification manager
-  #token!: Object;
-  #relatedToken: Object | null = null;
+  #token!: object;
+  #relatedToken: object | null = null;
 
   @tracked _ref = 0;
 
@@ -76,8 +76,10 @@ export default class BelongsToReference extends Reference {
   destroy() {
     if (CUSTOM_MODEL_CLASS) {
       unsubscribe(this.#token);
+      this.#token = null as unknown as object;
       if (this.#relatedToken) {
         unsubscribe(this.#relatedToken);
+        this.#relatedToken = null;
       }
     }
   }
@@ -88,6 +90,7 @@ export default class BelongsToReference extends Reference {
     this._ref; // consume the tracked prop
     if (this.#relatedToken) {
       unsubscribe(this.#relatedToken);
+      this.#relatedToken = null;
     }
 
     let resource = this._resource();

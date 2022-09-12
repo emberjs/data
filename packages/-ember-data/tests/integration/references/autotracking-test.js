@@ -34,6 +34,9 @@ if (CUSTOM_MODEL_CLASS) {
           createRecord() {
             return { data: { id: '6', type: 'user' } };
           }
+          deleteRecord() {
+            return { data: null };
+          }
         }
       );
       owner.register(
@@ -93,6 +96,39 @@ if (CUSTOM_MODEL_CLASS) {
       await settled();
       assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the related record id updates');
       assert.strictEqual(testContext.bestFriendId, '6', 'the id is correct when the record is saved');
+    });
+
+    test('BelongsToReference.id() autotracking works with null value changes', async function (assert) {
+      class TestContext {
+        user = user;
+
+        get bestFriendId() {
+          return this.user.belongsTo('bestFriend').id();
+        }
+      }
+
+      const testContext = new TestContext();
+      this.set('context', testContext);
+      await render(hbs`id: {{if this.context.bestFriendId this.context.bestFriendId 'null'}}`);
+
+      assert.strictEqual(getRootElement().textContent, 'id: 2', 'the id is initially correct');
+      assert.strictEqual(testContext.bestFriendId, '2', 'the id is initially correct');
+      user.bestFriend = store.createRecord('user', { name: 'Bill' });
+      await settled();
+      assert.strictEqual(getRootElement().textContent, 'id: null', 'the id updates to null');
+      assert.strictEqual(testContext.bestFriendId, null, 'the id is correct when we swap records');
+      await user.bestFriend.save();
+      await settled();
+      assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the related record id updates');
+      assert.strictEqual(testContext.bestFriendId, '6', 'the id is correct when the record is saved');
+      await user.bestFriend.destroyRecord();
+      assert.strictEqual(getRootElement().textContent, 'id: null', 'the id updates when the related record is removed');
+      assert.strictEqual(testContext.bestFriendId, null, 'the id is correct when the related record is removed');
+      assert.strictEqual(user.bestFriend, null, 'the related record is removed');
+      user.bestFriend = store.createRecord('user', { name: 'Bill', id: '7' });
+      await settled();
+      assert.strictEqual(getRootElement().textContent, 'id: 7', 'the id updates to 7');
+      assert.strictEqual(testContext.bestFriendId, '7', 'the id is correct when we swap records');
     });
 
     test('HasManyReference.ids() is autotracked', async function (assert) {
