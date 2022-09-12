@@ -1,5 +1,17 @@
 # Ember Data Changelog
 
+## 3.28.12 (2022-09-12)
+
+#### :bug: Bug Fix
+* `-ember-data`, `adapter`, `debug`, `record-data`
+  * [#8182](https://github.com/emberjs/data/pull/8182) backport fixes to 3.28 lts ([@runspired](https://github.com/runspired))
+* `-ember-data`, `store`
+  * [#8154](https://github.com/emberjs/data/pull/8154) [BUGFIX] Model state error 3.28 ([@yratanov](https://github.com/yratanov))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Yuri Ratanov ([@yratanov](https://github.com/yratanov))
+
 ## Release 3.28.11 (2022-09-12)
 
 #### :bug: Bug Fix
