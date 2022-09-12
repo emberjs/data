@@ -13,16 +13,14 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 
+type DSModel = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModel;
+
 class Tag extends Model {
   @attr('string', {})
   name;
-}
 
-class ErrorList extends Component<{ model: Model; field: string }> {
-  get errors() {
-    const { model, field } = this.args;
-    return model.errors.errorsFor(field).map((error) => error.message);
-  }
+  @attr('string', {})
+  slug;
 }
 
 const template = hbs`
@@ -34,7 +32,7 @@ const template = hbs`
 `;
 
 interface CurrentTestContext {
-  tag: Tag;
+  tag: Tag & DSModel;
   owner: any;
 }
 
@@ -43,6 +41,13 @@ module('integration/model.errors', function (hooks) {
 
   hooks.beforeEach(function () {
     let { owner } = this;
+
+    class ErrorList extends Component<{ model: Model; field: string }> {
+      get errors() {
+        const { model, field } = this.args;
+        return model.errors.errorsFor(field).map((error) => error.message);
+      }
+    }
 
     owner.register('model:tag', Tag);
     owner.register('component:error-list', setComponentTemplate(template, ErrorList));
@@ -65,6 +70,32 @@ module('integration/model.errors', function (hooks) {
     errors.remove('name');
     await settled();
 
+    assert.dom('.error-list__error').doesNotExist();
+  });
+
+  test('Uncommitted model can become valid after changing 2 erred fields', async function (this: CurrentTestContext, assert) {
+    this.tag = this.owner.lookup('service:store').createRecord('tag');
+    // @ts-ignore
+    const errors = this.tag.errors;
+    errors.add('name', 'the-error');
+    errors.add('slug', 'the-error');
+
+    await render(hbs`<ErrorList @model={{this.tag}} @field="name"/>`);
+
+    assert.deepEqual(this.tag.errors.errorsFor('name'), [{ attribute: 'name', message: 'the-error' }]);
+    assert.deepEqual(this.tag.errors.errorsFor('slug'), [{ attribute: 'slug', message: 'the-error' }]);
+
+    this.tag.name = 'something';
+    await settled();
+
+    assert.deepEqual(this.tag.errors.errorsFor('name'), []);
+    assert.deepEqual(this.tag.errors.errorsFor('slug'), [{ attribute: 'slug', message: 'the-error' }]);
+
+    this.tag.slug = 'else';
+    await settled();
+
+    assert.deepEqual(this.tag.errors.errorsFor('name'), []);
+    assert.deepEqual(this.tag.errors.errorsFor('email'), []);
     assert.dom('.error-list__error').doesNotExist();
   });
 });
