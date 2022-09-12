@@ -2497,6 +2497,7 @@ abstract class CoreStore extends Service {
       !modelName || typeof modelName === 'string'
     );
 
+    this._notificationManager.destroy();
     const factory = internalModelFactoryFor(this);
 
     if (modelName === undefined) {
