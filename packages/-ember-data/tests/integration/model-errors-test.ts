@@ -2,7 +2,7 @@ import 'qunit-dom'; // tell TS consider *.dom extension for assert
 
 // @ts-ignore
 import { setComponentTemplate } from '@ember/component';
-import { get, set } from '@ember/object';
+import { get } from '@ember/object';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
@@ -12,6 +12,8 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+
+type DSModel = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModel;
 
 class Tag extends Model {
   @attr('string', {})
@@ -30,7 +32,7 @@ const template = hbs`
 `;
 
 interface CurrentTestContext {
-  tag: Tag;
+  tag: Tag & DSModel;
   owner: any;
 }
 
@@ -74,7 +76,7 @@ module('integration/model.errors', function (hooks) {
   test('Uncommitted model can become valid after changing 2 erred fields', async function (this: CurrentTestContext, assert) {
     this.tag = this.owner.lookup('service:store').createRecord('tag');
     // @ts-ignore
-    const errors = get(this.tag, 'errors');
+    const errors = this.tag.errors;
     errors.add('name', 'the-error');
     errors.add('slug', 'the-error');
 
@@ -83,13 +85,13 @@ module('integration/model.errors', function (hooks) {
     assert.deepEqual(this.tag.errors.errorsFor('name'), [{ attribute: 'name', message: 'the-error' }]);
     assert.deepEqual(this.tag.errors.errorsFor('slug'), [{ attribute: 'slug', message: 'the-error' }]);
 
-    set(this.tag, 'name', 'something');
+    this.tag.name = 'something';
     await settled();
 
     assert.deepEqual(this.tag.errors.errorsFor('name'), []);
     assert.deepEqual(this.tag.errors.errorsFor('slug'), [{ attribute: 'slug', message: 'the-error' }]);
 
-    set(this.tag, 'slug', 'else');
+    this.tag.slug = 'else';
     await settled();
 
     assert.deepEqual(this.tag.errors.errorsFor('name'), []);
