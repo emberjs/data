@@ -45,7 +45,7 @@
     "ember-cli-dependency-checker": "^3.3.1",
     "ember-cli-fastboot": "^3.3.2",
     "ember-cli-fastboot-testing": "^0.6.0",
-    "ember-cli-htmlbars": "^6.1.0",
+    "ember-cli-htmlbars": "^6.1.1",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-typescript": "^5.1.0",
     "ember-cli-typescript-blueprints": "^3.0.0",
