@@ -1,5 +1,20 @@
 # Ember Data Changelog
 
+## 4.6.2 (2022-09-15)
+
+#### :bug: Bug Fix
+* `store`
+  * [#8169](https://github.com/emberjs/data/pull/8169) fix: uuid polyfill logic ([@jrjohnson](https://github.com/jrjohnson))
+* `-ember-data`, `model`
+  * [#8148](https://github.com/emberjs/data/pull/8148) Clear subscriptions once unsubscribed, don't unnecessarily churn on subscriptions ([@jrjohnson](https://github.com/jrjohnson))
+* `private-build-infra`
+  * [#8145](https://github.com/emberjs/data/pull/8145) fix earlier versions of node-14 (#8108) ([@jrjohnson](https://github.com/jrjohnson))
+* `private-build-infra`, `store`
+  * [#8144](https://github.com/emberjs/data/pull/8144) Backport add optional polyfill (#8109) ([@jrjohnson](https://github.com/jrjohnson))
+
+#### Committers: 1
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+
 ## v4.6.1 (2022-07-28)
 
 #### :bug: Bug Fix
