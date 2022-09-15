@@ -1,3 +1,4 @@
+import { A, default as EmberArray } from '@ember/array';
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
@@ -349,13 +350,17 @@ export class InstanceCache {
 }
 
 function assertRecordsPassedToHasMany(records: RecordInstance[]) {
-  assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
+  assert(
+    `You must pass an array of records to set a hasMany relationship`,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    Array.isArray(records) || EmberArray.detect(records)
+  );
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed ${records
       .map((r) => `${typeof r}`)
       .join(', ')}`,
     (function () {
-      return records.every((record) => Object.prototype.hasOwnProperty.call(record, '_internalModel') === true);
+      return A(records).every((record) => Object.prototype.hasOwnProperty.call(record, '_internalModel') === true);
     })()
   );
 }
