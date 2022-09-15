@@ -1,6 +1,6 @@
 {
   "name": "relationship-performance-test-app",
-  "version": "4.6.2",
+  "version": "4.6.3",
   "private": true,
   "description": "Small description for relationship-performance-test-app goes here",
   "repository": {
@@ -23,10 +23,10 @@
   },
   "dependencies": {
     "ember-auto-import": "^2.4.2",
-    "ember-data": "4.6.2"
+    "ember-data": "4.6.3"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "4.6.2",
+    "@ember-data/unpublished-test-infra": "4.6.3",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
     "broccoli-asset-rev": "^3.0.0",
