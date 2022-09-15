@@ -6738,10 +6738,10 @@ ember-cli-yuidoc@^0.9.1:
     rsvp "3.0.14"
     yuidocjs "^0.10.0"
 
-ember-cli@~4.6.0:
-  version "4.6.0"
-  resolved "https://registry.npmjs.org/ember-cli/-/ember-cli-4.6.0.tgz#ff409b99d074414a8944bdadf6db820eaf2dfb7b"
-  integrity sha512-4OAPHJJt4wARrTzfpfEM49KA1JJjMZ/8mhUncdqJFJG19/mS6yJiAUemnsLhZLnbjicB/gYSQ3rrUv/vxeX3cA==
+ember-cli@~4.7.0:
+  version "4.7.0"
+  resolved "https://registry.npmjs.org/ember-cli/-/ember-cli-4.7.0.tgz#1fc5f272eaf3059e5b7a958f40486d3b1494fade"
+  integrity sha512-OJApGmIFBqzIYLQ6Qmp7BdJZxtNExkp2oUaAoFJhu9Z5VAVnORFiPOR+bQkR50SNVusHTvlR4zC7mMLrNTy+XQ==
   dependencies:
     "@babel/core" "^7.18.6"
     "@babel/plugin-transform-modules-amd" "^7.18.6"
@@ -7261,7 +7261,7 @@ eslint-module-utils@^2.7.3:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "4.9.0-alpha.1"
+  version "4.9.0-alpha.2"
 
 eslint-plugin-ember@^11.0.6:
   version "11.0.6"
