@@ -1,5 +1,11 @@
 # Ember Data Changelog
 
+## 4.6.3 (2022-09-15)
+
+#### :bug: Bug Fix
+* `store`
+  * fix: allow ManyArray being passed to createRecord
+
 ## 4.6.2 (2022-09-15)
 
 #### :bug: Bug Fix
