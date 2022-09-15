@@ -137,8 +137,8 @@ export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>
             until: '5.0',
             for: '@ember-data/store',
             since: {
-              available: '4.8',
-              enabled: '4.8',
+              available: '4.7',
+              enabled: '4.7',
             },
           }
         );
@@ -176,8 +176,8 @@ export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
             until: '5.0',
             for: '@ember-data/store',
             since: {
-              available: '4.8',
-              enabled: '4.8',
+              available: '4.7',
+              enabled: '4.7',
             },
           }
         );

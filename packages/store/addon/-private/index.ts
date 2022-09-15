@@ -30,7 +30,7 @@ export function normalizeModelName(modelName: string) {
         id: 'ember-data:deprecate-normalize-modelname-helper',
         for: 'ember-data',
         until: '5.0',
-        since: { available: '4.8', enabled: '4.8' },
+        since: { available: '4.7', enabled: '4.7' },
       }
     );
     return _normalize(modelName);

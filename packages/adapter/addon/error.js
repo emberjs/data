@@ -401,7 +401,7 @@ export function errorsHashToArray(errors) {
       id: 'ember-data:deprecate-errors-hash-to-array-helper',
       for: 'ember-data',
       until: '5.0',
-      since: { available: '4.8', enabled: '4.8' },
+      since: { available: '4.7', enabled: '4.7' },
     });
     let out = [];
 
@@ -476,7 +476,7 @@ export function errorsArrayToHash(errors) {
       id: 'ember-data:deprecate-errors-array-to-hash-helper',
       for: 'ember-data',
       until: '5.0',
-      since: { available: '4.8', enabled: '4.8' },
+      since: { available: '4.7', enabled: '4.7' },
     });
     let out = {};
 

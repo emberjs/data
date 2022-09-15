@@ -176,7 +176,7 @@ function hasMany(type, options) {
         id: 'ember-data:deprecate-non-strict-relationships',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       }
     );
     if (typeof type === 'object') {
@@ -201,7 +201,7 @@ function hasMany(type, options) {
       id: 'ember-data:deprecate-non-strict-relationships',
       for: 'ember-data',
       until: '5.0',
-      since: { enabled: '4.8', available: '4.8' },
+      since: { enabled: '4.7', available: '4.7' },
     });
   } else {
     assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
@@ -219,7 +219,7 @@ function hasMany(type, options) {
         id: 'ember-data:deprecate-non-strict-relationships',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       }
     );
   }

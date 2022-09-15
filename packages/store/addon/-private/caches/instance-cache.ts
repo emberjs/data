@@ -269,7 +269,7 @@ export class InstanceCache {
             id: 'ember-data:deprecate-v1cache-store-apis',
             for: 'ember-data',
             until: '5.0',
-            since: { enabled: '4.8', available: '4.8' },
+            since: { enabled: '4.7', available: '4.7' },
           }
         );
         let recordDataInstance = this.store.createRecordDataFor(

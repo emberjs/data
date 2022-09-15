@@ -99,7 +99,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
         id: 'ember-data:deprecate-v1cache-store-apis',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       });
     }
     const resource = constructResource(type, id, lid);
@@ -117,7 +117,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
           id: 'ember-data:deprecate-v1cache-store-apis',
           for: 'ember-data',
           until: '5.0',
-          since: { enabled: '4.8', available: '4.8' },
+          since: { enabled: '4.7', available: '4.7' },
         }
       );
     }
@@ -133,7 +133,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
           id: 'ember-data:deprecate-v1cache-store-apis',
           for: 'ember-data',
           until: '5.0',
-          since: { enabled: '4.8', available: '4.8' },
+          since: { enabled: '4.7', available: '4.7' },
         }
       );
     }
@@ -152,7 +152,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
         id: 'ember-data:deprecate-v1cache-store-apis',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       });
     }
     const resource = constructResource(type, id, lid);
@@ -169,7 +169,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
         id: 'ember-data:deprecate-v1cache-store-apis',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       });
     }
     const resource = constructResource(type, id, lid);
@@ -185,7 +185,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
         id: 'ember-data:deprecate-v1cache-store-apis',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       });
     }
     const resource = constructResource(type, id, lid);
@@ -202,7 +202,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
         id: 'ember-data:deprecate-v1cache-store-apis',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       });
     }
     const resource = constructResource(type, id, lid);
@@ -277,7 +277,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
         id: 'ember-data:deprecate-v1cache-store-apis',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       });
     }
     const resource = constructResource(type, id, lid);
@@ -305,7 +305,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
           id: 'ember-data:deprecate-v1cache-store-apis',
           for: 'ember-data',
           until: '5.0',
-          since: { enabled: '4.8', available: '4.8' },
+          since: { enabled: '4.7', available: '4.7' },
         }
       );
       let resource = constructResource(type, id, lid) as RecordIdentifier;
