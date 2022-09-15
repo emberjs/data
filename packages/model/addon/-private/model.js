@@ -1279,7 +1279,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1302,7 +1302,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1356,7 +1356,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1385,7 +1385,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1497,7 +1497,7 @@ class Model extends EmberObject {
             false,
             {
               id: 'ember-data:non-explicit-relationships',
-              since: { enabled: '4.8', available: '4.8' },
+              since: { enabled: '4.7', available: '4.7' },
               until: '5.0',
               for: 'ember-data',
             }
@@ -1524,7 +1524,7 @@ class Model extends EmberObject {
             false,
             {
               id: 'ember-data:non-explicit-relationships',
-              since: { enabled: '4.8', available: '4.8' },
+              since: { enabled: '4.7', available: '4.7' },
               until: '5.0',
               for: 'ember-data',
             }
@@ -1607,7 +1607,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1678,7 +1678,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1745,7 +1745,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1821,7 +1821,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1854,7 +1854,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1928,7 +1928,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -1971,7 +1971,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -2006,7 +2006,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -2032,7 +2032,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -2110,7 +2110,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -2186,7 +2186,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -2259,7 +2259,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -2327,7 +2327,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -2357,7 +2357,7 @@ class Model extends EmberObject {
           id: 'ember-data:deprecate-early-static',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
     } else {
@@ -2485,7 +2485,7 @@ if (DEBUG) {
         id: 'ember-data:deprecate-model-reopen',
         for: 'ember-data',
         until: '5.0',
-        since: { available: '4.8', enabled: '4.8' },
+        since: { available: '4.7', enabled: '4.7' },
       });
       return originalReopen.call(this, ...arguments);
     };
@@ -2498,7 +2498,7 @@ if (DEBUG) {
           id: 'ember-data:deprecate-model-reopenclass',
           for: 'ember-data',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
         }
       );
       return originalReopenClass.call(this, ...arguments);

@@ -2391,7 +2391,7 @@ class Store extends Service {
             id: 'ember-data:deprecate-v1cache-store-apis',
             for: 'ember-data',
             until: '5.0',
-            since: { enabled: '4.8', available: '4.8' },
+            since: { enabled: '4.7', available: '4.7' },
           }
         );
         identifier = this.identifierCache.getOrCreateRecordIdentifier({
@@ -2842,8 +2842,8 @@ function extractIdentifierFromRecord(
         id: 'ember-data:deprecate-promise-proxies',
         until: '5.0',
         since: {
-          enabled: '4.8',
-          available: '4.8',
+          enabled: '4.7',
+          available: '4.7',
         },
         for: 'ember-data',
       }

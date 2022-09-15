@@ -398,8 +398,8 @@ export default class BelongsToReference {
             id: 'ember-data:deprecate-promise-proxies',
             until: '5.0',
             since: {
-              enabled: '4.8',
-              available: '4.8',
+              enabled: '4.7',
+              available: '4.7',
             },
             for: 'ember-data',
           }

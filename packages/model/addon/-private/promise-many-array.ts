@@ -64,7 +64,7 @@ export default class PromiseManyArray {
         deprecate(`Do not use A() on an EmberData PromiseManyArray`, false, {
           id: 'ember-data:no-a-with-array-like',
           until: '5.0',
-          since: { enabled: '4.8', available: '4.8' },
+          since: { enabled: '4.7', available: '4.7' },
           for: 'ember-data',
         });
         // @ts-expect-error ArrayMixin is more than a type
@@ -261,7 +261,7 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
       {
         id: 'ember-data:deprecate-promise-many-array-behaviors',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
         for: 'ember-data',
       }
     );
@@ -277,7 +277,7 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
         {
           id: 'ember-data:deprecate-promise-many-array-behaviors',
           until: '5.0',
-          since: { enabled: '4.8', available: '4.8' },
+          since: { enabled: '4.7', available: '4.7' },
           for: 'ember-data',
         }
       );
@@ -293,7 +293,7 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
         {
           id: 'ember-data:deprecate-promise-many-array-behaviors',
           until: '5.0',
-          since: { enabled: '4.8', available: '4.8' },
+          since: { enabled: '4.7', available: '4.7' },
           for: 'ember-data',
         }
       );
@@ -347,7 +347,7 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
         {
           id: 'ember-data:deprecate-promise-many-array-behaviors',
           until: '5.0',
-          since: { enabled: '4.8', available: '4.8' },
+          since: { enabled: '4.7', available: '4.7' },
           for: 'ember-data',
         }
       );
@@ -414,7 +414,7 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
         {
           id: 'ember-data:deprecate-promise-many-array-behaviors',
           until: '5.0',
-          since: { enabled: '4.8', available: '4.8' },
+          since: { enabled: '4.7', available: '4.7' },
           for: 'ember-data',
         }
       );

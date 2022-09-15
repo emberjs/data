@@ -76,7 +76,7 @@ export class NonSingletonRecordDataManager implements RecordData {
         {
           id: 'ember-data:deprecate-v1-cache',
           until: '5.0',
-          since: { available: '4.8', enabled: '4.8' },
+          since: { available: '4.7', enabled: '4.7' },
           for: 'ember-data',
         }
       );

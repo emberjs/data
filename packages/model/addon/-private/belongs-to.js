@@ -132,7 +132,7 @@ function belongsTo(modelName, options) {
       id: 'ember-data:deprecate-non-strict-relationships',
       for: 'ember-data',
       until: '5.0',
-      since: { enabled: '4.8', available: '4.8' },
+      since: { enabled: '4.7', available: '4.7' },
     });
 
     if (typeof modelName === 'object') {
@@ -160,7 +160,7 @@ function belongsTo(modelName, options) {
       id: 'ember-data:deprecate-non-strict-relationships',
       for: 'ember-data',
       until: '5.0',
-      since: { enabled: '4.8', available: '4.8' },
+      since: { enabled: '4.7', available: '4.7' },
     });
   } else {
     assert(`Expected belongsTo options.async to be a boolean`, opts && typeof opts.async === 'boolean');
@@ -178,7 +178,7 @@ function belongsTo(modelName, options) {
         id: 'ember-data:deprecate-non-strict-relationships',
         for: 'ember-data',
         until: '5.0',
-        since: { enabled: '4.8', available: '4.8' },
+        since: { enabled: '4.7', available: '4.7' },
       }
     );
   } else {
