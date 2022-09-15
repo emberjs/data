@@ -1,5 +1,16 @@
 # Ember Data Changelog
 
+## 4.7.2 (2022-09-15)
+
+#### :bug: Bug Fix
+* `store`
+  * [#8176](https://github.com/emberjs/data/pull/8176) fix: correct deprecation message for toArray ([@jrjohnson](https://github.com/jrjohnson))
+* `-ember-data`, `store`
+  * [#8178](https://github.com/emberjs/data/pull/8178) fix: filterBy should compare values ([@jrjohnson](https://github.com/jrjohnson))
+
+#### Committers: 1
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+
 ## v4.7.1 (2022-09-06)
 #### :goal_net: Test
 * `-ember-data`, `model`, `store`
