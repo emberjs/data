@@ -286,10 +286,10 @@ class IdentifierArray {
           if (DEPRECATE_ARRAY_LIKE) {
             if (prop === 'firstObject') {
               deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop, '[0]');
-              return receiver.at(0);
+              return receiver[0];
             } else if (prop === 'lastObject') {
               deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop, 'at(-1)');
-              return receiver.at(-1);
+              return receiver[receiver.length - 1];
             }
           }
 
