@@ -631,12 +631,14 @@ if (DEPRECATE_ARRAY_LIKE) {
 
   IdentifierArray.prototype.objectAt = function (index: number) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectAt', 'at');
-    return this.at(index);
+    //For negative index values go back from the end of the array
+    let arrIndex = Math.sign(index) === -1 ? this.length + index : index;
+    return this[arrIndex];
   };
 
   IdentifierArray.prototype.objectsAt = function (indeces: number[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectsAt', 'at');
-    return indeces.map((index) => this.at(index)!);
+    return indeces.map((index) => this.objectAt(index)!);
   };
 
   IdentifierArray.prototype.removeAt = function (index: number) {
