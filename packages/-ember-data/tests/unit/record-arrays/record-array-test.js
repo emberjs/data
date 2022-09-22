@@ -183,6 +183,52 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     }
   );
 
+  deprecatedTest(
+    '#objectAt and #objectsAt',
+    { id: 'ember-data:deprecate-array-like', until: '5.0', count: 5 },
+    async function (assert) {
+      this.owner.register('model:tag', Tag);
+      let store = this.owner.lookup('service:store');
+
+      let records = store.push({
+        data: [
+          {
+            type: 'tag',
+            id: '1',
+            attributes: {
+              name: 'first',
+            },
+          },
+          {
+            type: 'tag',
+            id: '3',
+          },
+          {
+            type: 'tag',
+            id: '5',
+            attributes: {
+              name: 'fifth',
+            },
+          },
+        ],
+      });
+
+      let recordArray = new RecordArray({
+        type: 'recordType',
+        identifiers: records.map(recordIdentifierFor),
+        store,
+      });
+
+      assert.strictEqual(recordArray.length, 3);
+      assert.strictEqual(recordArray.objectAt(0).id, '1');
+      assert.strictEqual(recordArray.objectAt(-1).id, '5');
+      assert.deepEqual(
+        recordArray.objectsAt([2, 1]).map((r) => r.id),
+        ['5', '3']
+      );
+    }
+  );
+
   test('#update', async function (assert) {
     let findAllCalled = 0;
     let deferred = RSVP.defer();
