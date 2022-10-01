@@ -414,7 +414,7 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @method hasChangedAttributes
    * @public
    * @deprecated
-   * @returns
+   * @returns {boolean}
    */
   hasChangedAttributes(): boolean {
     const recordData = this.#recordData;
@@ -429,7 +429,7 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @returns
+   * @returns {boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const recordData = this.#recordData;
