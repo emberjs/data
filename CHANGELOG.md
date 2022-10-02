@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## 4.6.4 (2022-10-02)
+
+#### :bug: Bug Fix
+* `private-build-infra`
+  * [#8199](https://github.com/emberjs/data/pull/8199) [backport release-prev] fix: thread polyfillUUID config through nested deps ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## 4.6.3 (2022-09-15)
 
 #### :bug: Bug Fix
