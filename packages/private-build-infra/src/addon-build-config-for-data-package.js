@@ -143,6 +143,14 @@ function addonBuildConfigForDataPackage(PackageName) {
     included() {
       this._super.included.apply(this, arguments);
 
+      const host = this._findHost();
+      const name = this.name;
+      const options = host.options['@embroider/macros']?.setConfig?.[name];
+
+      if (options) {
+        Object.assign(this.options['@embroider/macros'].setOwnConfig, options);
+      }
+
       this._setupBabelOptions();
     },
 
