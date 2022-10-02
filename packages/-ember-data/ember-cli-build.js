@@ -12,14 +12,14 @@ module.exports = function (defaults) {
 
     terser: {
       compress: {
-        ecma: 2016, // probably can be higher
+        ecma: 2021,
         passes: 6, // slow, but worth it
         negate_iife: false,
         sequences: 30,
         defaults: true,
-        arguments: true,
+        arguments: false,
         keep_fargs: false,
-        toplevel: process.env.IS_ASSET_SIZE_CHECK ? false : true,
+        toplevel: false,
         unsafe: true,
         unsafe_comps: true,
         unsafe_math: true,
@@ -27,9 +27,9 @@ module.exports = function (defaults) {
         unsafe_proto: true,
         unsafe_undefined: true,
       },
-      toplevel: process.env.IS_ASSET_SIZE_CHECK ? false : true,
+      toplevel: false,
       sourceMap: false,
-      ecma: 2016,
+      ecma: 2021,
     },
   };
 
