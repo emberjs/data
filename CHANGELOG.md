@@ -1,5 +1,18 @@
 # Ember Data Changelog
 
+## 4.7.3 (2022-10-02)
+
+#### :bug: Bug Fix
+* `private-build-infra`
+  * [#8200](https://github.com/emberjs/data/pull/8200) [Backport Release]: fix: thread polyfillUUID config through nested deps ([@runspired](https://github.com/runspired))
+* `-ember-data`, `store`
+  * [#8191](https://github.com/emberjs/data/pull/8191) Use array notation instead of at for accessing object at values (#8189) ([@jrjohnson](https://github.com/jrjohnson))
+  * [#8185](https://github.com/emberjs/data/pull/8185) Use array notation instead of at for accessing values (#8184) ([@jrjohnson](https://github.com/jrjohnson))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+
 ## 4.7.2 (2022-09-15)
 
 #### :bug: Bug Fix
