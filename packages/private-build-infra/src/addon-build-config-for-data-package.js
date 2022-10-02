@@ -227,6 +227,9 @@ function addonBuildConfigForDataPackage(PackageName) {
       options.emberData.debug = options.emberData.debug || {};
       const debugOptions = Object.assign(
         {
+          LOG_PAYLOADS: false,
+          LOG_OPERATIONS: false,
+          LOG_MUTATIONS: false,
           LOG_NOTIFICATIONS: false,
           LOG_REQUEST_STATUS: false,
           LOG_IDENTIFIERS: false,

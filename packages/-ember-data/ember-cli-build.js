@@ -40,6 +40,9 @@ module.exports = function (defaults) {
   let config = {
     compatWith,
     debug: {
+      LOG_PAYLOADS: process.env.DEBUG_DATA ? true : false,
+      LOG_OPERATIONS: process.env.DEBUG_DATA ? true : false,
+      LOG_MUTATIONS: process.env.DEBUG_DATA ? true : false,
       LOG_NOTIFICATIONS: process.env.DEBUG_DATA ? true : false,
       LOG_REQUEST_STATUS: process.env.DEBUG_DATA ? true : false,
       LOG_IDENTIFIERS: process.env.DEBUG_DATA ? true : false,

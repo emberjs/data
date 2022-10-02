@@ -5,6 +5,7 @@ import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 
+import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
 import type {
   CollectionResourceRelationship,
   SingleResourceRelationship,
@@ -108,6 +109,17 @@ export default class SingletonRecordData implements RecordData {
     let changedKeys: string[] | undefined;
     const cached = this.__peek(identifier);
 
+    if (LOG_OPERATIONS) {
+      try {
+        let _data = JSON.parse(JSON.stringify(data));
+        // eslint-disable-next-line no-console
+        console.log('EmberData | Operation - pushData (upsert)', _data);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('EmberData | Operation - pushData (upsert)', data);
+      }
+    }
+
     if (cached.isNew) {
       cached.isNew = false;
       this.__storeWrapper.notifyChange(identifier, 'state');
@@ -136,6 +148,16 @@ export default class SingletonRecordData implements RecordData {
   }
 
   sync(op: MergeOperation): void {
+    if (LOG_OPERATIONS) {
+      try {
+        let _data = JSON.parse(JSON.stringify(op));
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Operation - sync ${op.op}`, _data);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Operation - sync ${op.op}`, op);
+      }
+    }
     if (op.op === 'mergeIdentifiers') {
       const cache = this.__cache.get(op.record);
       if (cache) {
@@ -146,11 +168,31 @@ export default class SingletonRecordData implements RecordData {
     }
   }
 
-  update(operation: LocalRelationshipOperation): void {
-    graphFor(this.__storeWrapper).update(operation, false);
+  update(op: LocalRelationshipOperation): void {
+    if (LOG_MUTATIONS) {
+      try {
+        let _data = JSON.parse(JSON.stringify(op));
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Mutation - update ${op.op}`, _data);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Mutation - update ${op.op}`, op);
+      }
+    }
+    graphFor(this.__storeWrapper).update(op, false);
   }
 
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+    if (LOG_MUTATIONS) {
+      try {
+        let _data = options ? JSON.parse(JSON.stringify(options)) : options;
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, _data);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, options);
+      }
+    }
     const cached = this.__peek(identifier);
     cached.isNew = true;
     let createOptions = {};
