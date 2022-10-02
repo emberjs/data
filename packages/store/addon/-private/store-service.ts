@@ -13,6 +13,7 @@ import { reject, resolve } from 'rsvp';
 
 import type DSModelClass from '@ember-data/model';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
@@ -2119,6 +2120,16 @@ class Store extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
+    if (LOG_PAYLOADS) {
+      try {
+        let data = JSON.parse(JSON.stringify(jsonApiDoc));
+        // eslint-disable-next-line no-console
+        console.log('EmberData | Payload - push', data);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('EmberData | Payload - push', jsonApiDoc);
+      }
+    }
     let ret;
     this._join(() => {
       let included = jsonApiDoc.included;
@@ -2300,6 +2311,16 @@ class Store extends Service {
     let fetchManagerPromise = this._fetchManager.scheduleSave(identifier, saveOptions);
     return fetchManagerPromise.then(
       (payload) => {
+        if (LOG_PAYLOADS) {
+          try {
+            let data = payload ? JSON.parse(JSON.stringify(payload)) : payload;
+            // eslint-disable-next-line no-console
+            console.log(`EmberData | Payload - ${operation}`, data);
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.log(`EmberData | Payload - ${operation}`, payload);
+          }
+        }
         /*
         // TODO @runspired re-evaluate the below claim now that
         // the save request pipeline is more streamlined.

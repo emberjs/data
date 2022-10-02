@@ -11,6 +11,9 @@ that has not explicitly activated it. To activate it set the appropriate flag to
   let app = new EmberApp(defaults, {
     emberData: {
       debug: {
+          LOG_PAYLOADS: false, // data store received to update cache with
+          LOG_OPERATIONS: false, // updates to cache remote state
+          LOG_MUTATIONS: false, // updates to cache local state
           LOG_NOTIFICATIONS: false,
           LOG_REQUEST_STATUS: false,
           LOG_IDENTIFIERS: false,
@@ -24,6 +27,29 @@ that has not explicitly activated it. To activate it set the appropriate flag to
   @class DebugLogging
   @public
  */
+/**
+ * log payloads received by the store
+ * via `push` or returned from a delete/update/create
+ * operation.
+ *
+ * @property {boolean} LOG_PAYLOADS
+ * @public
+ */
+export const LOG_PAYLOADS = false;
+/**
+ * log remote-state updates to the cache
+ *
+ * @property {boolean} LOG_OPERATIONS
+ * @public
+ */
+export const LOG_OPERATIONS = false;
+/**
+ * log local-state updates to the cache
+ *
+ * @property {boolean} LOG_MUTATIONS
+ * @public
+ */
+export const LOG_MUTATIONS = false;
 /**
  * log notifications received by the RecordNotificationManager
  *

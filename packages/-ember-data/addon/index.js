@@ -9,7 +9,7 @@ It provides many of the facilities you'd find in server-side `ORM`s like `Active
 
 EmberData is organized into primitives that compose together via public APIs.
 
-- [@ember-data/store](/ember-data/release/modules/@ember-data%2Fstore is the core and handles coordination
+- [@ember-data/store](/ember-data/release/modules/@ember-data%2Fstore) is the core and handles coordination
 - [@ember-data/record-data](/ember-data/release/modules/@ember-data%2Frecord-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
 - [@ember-data/model](/ember-data/release/modules/@ember-data%2Fmodel) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
 - [@ember-data/adapter](/ember-data/release/modules/@ember-data%2Fadapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
@@ -82,6 +82,9 @@ that has not explicitly activated it. To activate it set the appropriate flag to
   let app = new EmberApp(defaults, {
     emberData: {
       debug: {
+          LOG_PAYLOADS: false, // data store received to update cache with
+          LOG_OPERATIONS: false, // updates to cache remote state
+          LOG_MUTATIONS: false, // updates to cache local state
           LOG_NOTIFICATIONS: false,
           LOG_REQUEST_STATUS: false,
           LOG_IDENTIFIERS: false,
