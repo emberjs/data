@@ -12,10 +12,7 @@
   },
   "license": "MIT",
   "author": "",
-  "directories": {
-    "doc": "doc",
-    "test": "tests"
-  },
+  "directories": {},
   "scripts": {
     "build": "ember build",
     "start": "ember serve"
