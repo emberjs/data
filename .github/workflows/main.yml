@@ -89,7 +89,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install --network-timeout=300000
+        run: pnpm install --prefer-offline
       - name: Build V2 Addons
         run: pnpm build-v2-addons
       - name: Launcher Info
@@ -157,7 +157,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install --network-timeout=300000
+        run: pnpm install --prefer-offline
       - name: Build V2 Addons
         run: pnpm build-v2-addons
       - name: Fastboot Test ${{ matrix.scenario }}
@@ -193,8 +193,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install --network-timeout=300000
-      - name: Build V2 Addons
+        run: pnpm install --prefer-offline
         run: pnpm build-v2-addons
       - name: Launcher Info
         run: |
@@ -220,7 +219,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies w/o lockfile
-        run: pnpm install --no-lockfile --non-interactive
+        run: pnpm install --non-interactive --no-lockfile      
       - name: Build V2 Addons
         run: pnpm build-v2-addons
       - name: Basic Tests
@@ -305,7 +304,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install --network-timeout=300000
+        run: pnpm install --prefer-offline
       - name: Build V2 Addons
         run: pnpm build-v2-addons
       - name: Basic tests with ${{ matrix.scenario }}
