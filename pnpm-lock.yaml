@@ -233,14 +233,14 @@ importers:
       '@babel/core': ^7.18.9
       '@babel/plugin-transform-typescript': ^7.18.12
       '@babel/runtime': ^7.18.9
-      '@ember-data/adapter': 4.9.0-alpha.3
-      '@ember-data/debug': 4.9.0-alpha.3
-      '@ember-data/model': 4.9.0-alpha.3
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
-      '@ember-data/record-data': 4.9.0-alpha.3
-      '@ember-data/serializer': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/adapter': 4.9.0-alpha.4
+      '@ember-data/debug': 4.9.0-alpha.4
+      '@ember-data/model': 4.9.0-alpha.4
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
+      '@ember-data/record-data': 4.9.0-alpha.4
+      '@ember-data/serializer': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.0
@@ -367,9 +367,9 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.0
@@ -516,8 +516,8 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.0
@@ -589,10 +589,10 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/canary-features': 4.9.0-alpha.3
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/canary-features': 4.9.0-alpha.4
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.0
@@ -700,7 +700,7 @@ importers:
       '@babel/core': ^7.18.9
       '@babel/plugin-transform-block-scoping': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/canary-features': 4.9.0-alpha.3
+      '@ember-data/canary-features': 4.9.0-alpha.4
       '@ember/edition-utils': ^1.2.0
       babel-plugin-debug-macros: ^0.3.4
       babel-plugin-filter-imports: ^4.0.0
@@ -760,11 +760,11 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/canary-features': 4.9.0-alpha.3
-      '@ember-data/model': 4.9.0-alpha.3
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/canary-features': 4.9.0-alpha.4
+      '@ember-data/model': 4.9.0-alpha.4
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
@@ -843,8 +843,8 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.0
       '@ember/test-helpers': ~2.7.0
@@ -935,10 +935,10 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/canary-features': 4.9.0-alpha.3
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
+      '@ember-data/canary-features': 4.9.0-alpha.4
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
       '@ember-data/record-data': 4.9.0-alpha.2
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.0
       '@ember/test-helpers': ~2.7.0
@@ -1023,12 +1023,12 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/debug': 4.9.0-alpha.3
-      '@ember-data/model': 4.9.0-alpha.3
-      '@ember-data/record-data': 4.9.0-alpha.3
-      '@ember-data/serializer': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/debug': 4.9.0-alpha.4
+      '@ember-data/model': 4.9.0-alpha.4
+      '@ember-data/record-data': 4.9.0-alpha.4
+      '@ember-data/serializer': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
       '@glimmer/component': ^1.1.2
@@ -1090,11 +1090,11 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/adapter': 4.9.0-alpha.3
-      '@ember-data/model': 4.9.0-alpha.3
-      '@ember-data/serializer': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/adapter': 4.9.0-alpha.4
+      '@ember-data/model': 4.9.0-alpha.4
+      '@ember-data/serializer': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
       '@glimmer/component': ^1.1.2
@@ -1158,7 +1158,7 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
       '@glimmer/component': ^1.1.2
@@ -1180,7 +1180,7 @@ importers:
       ember-cli-inject-live-reload: ^2.1.0
       ember-cli-typescript: ^5.1.1
       ember-cli-typescript-blueprints: ^3.0.0
-      ember-data: 4.9.0-alpha.3
+      ember-data: 4.9.0-alpha.4
       ember-export-application-global: ^2.0.1
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
@@ -1241,12 +1241,12 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/adapter': 4.9.0-alpha.3
-      '@ember-data/canary-features': 4.9.0-alpha.3
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
-      '@ember-data/serializer': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/adapter': 4.9.0-alpha.4
+      '@ember-data/canary-features': 4.9.0-alpha.4
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
+      '@ember-data/serializer': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
       '@glimmer/component': ^1.1.2
@@ -1308,12 +1308,12 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/adapter': 4.9.0-alpha.3
-      '@ember-data/debug': 4.9.0-alpha.3
-      '@ember-data/model': 4.9.0-alpha.3
-      '@ember-data/serializer': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/adapter': 4.9.0-alpha.4
+      '@ember-data/debug': 4.9.0-alpha.4
+      '@ember-data/model': 4.9.0-alpha.4
+      '@ember-data/serializer': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
       '@glimmer/component': ^1.1.2
@@ -1375,7 +1375,7 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
       broccoli-asset-rev: ^3.0.0
@@ -1386,7 +1386,7 @@ importers:
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.1.1
       ember-cli-inject-live-reload: ^2.1.0
-      ember-data: 4.9.0-alpha.3
+      ember-data: 4.9.0-alpha.4
       ember-export-application-global: ^2.0.1
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
@@ -1430,11 +1430,11 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/adapter': 4.9.0-alpha.3
-      '@ember-data/model': 4.9.0-alpha.3
-      '@ember-data/record-data': 4.9.0-alpha.3
-      '@ember-data/store': 4.9.0-alpha.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.3
+      '@ember-data/adapter': 4.9.0-alpha.4
+      '@ember-data/model': 4.9.0-alpha.4
+      '@ember-data/record-data': 4.9.0-alpha.4
+      '@ember-data/store': 4.9.0-alpha.4
+      '@ember-data/unpublished-test-infra': 4.9.0-alpha.4
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
       '@glimmer/component': ^1.1.2
@@ -1495,7 +1495,7 @@ importers:
     specifiers:
       '@babel/core': ^7.18.9
       '@babel/runtime': ^7.18.9
-      '@ember-data/private-build-infra': 4.9.0-alpha.3
+      '@ember-data/private-build-infra': 4.9.0-alpha.4
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.7.0
