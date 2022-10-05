@@ -94,7 +94,7 @@ jobs:
         run: pnpm build-v2-addons
       - name: Launcher Info
         run: |
-          pnpm run testem launchers
+          pnpm exec testem launchers
       - name: Basic tests
         run: pnpm test
       - name: Production build
@@ -197,7 +197,7 @@ jobs:
         run: pnpm build-v2-addons
       - name: Launcher Info
         run: |
-          pnpm run testem launchers
+          pnpm exec testem launchers
       - name: Run Production Test
         timeout-minutes: 10
         env:
