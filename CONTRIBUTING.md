@@ -19,16 +19,17 @@ a great place to ask for help!
 You can use package linking to test checkouts of ember-data. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data. You can link to divisions within ember-data as well.
 
 1. clone this repository or another fork
-1. run `yarn install`
-1. run `yarn workspace ember-data link`
+1. run `pnpm install`
+1. run `pnpm --filter ember-data link`
 1. `cd` into your application
-1. run `yarn link "ember-data"`. If you don't use yarn in your application, `npm link "ember-data"` may work.
+1. run `pnpm link "ember-data"`. If you don't use pnpm in your application, `npm link "ember-data"` may work.
 
 Then you can run `ember serve` as usual in your application. You should see something like the following printed to your terminal:
+
 ```
 some-app $ ember serve
 
-Missing symlinked yarn packages:
+Missing symlinked pnpm packages:
 Package: ember-data
   * Specified: ~3.15.0
   * Symlinked: 3.17.0-alpha.1
@@ -112,9 +113,8 @@ the issue being fixed and test that the solution works.
 
 - PRs will automatically run an extensive set of test scenarios for your work
 - `ember-data` is an `ember-addon` and uses `ember-cli`. To run tests locally
-  use `yarn test` or `yarn test --serve`. For additional test commands see the list
+  use `pnpm test` or `pnpm test --serve`. For additional test commands see the list
   of commands in [./package.json](./package.json)
-
 
 #### Commit Tagging
 
@@ -166,7 +166,7 @@ To indicate that a PR should be backported, the following labels, all prefixed w
 - `target:lts` indicates that a PR requires being backported to the most current LTS release.
 - `target:lts-prev` indicates that a PR requires being backported to the second-most recent LTS release.
 
-Note: a PR should add the individual label for *every* backport target required. We use this while releasing to search
+Note: a PR should add the individual label for _every_ backport target required. We use this while releasing to search
 for any commits still requiring backport to include, and will eventually automate opening backport PRs via a bot when
 these labels are present. We remove the `target:` label from merged PRs only once the backport PR has been opened.
 

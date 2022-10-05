@@ -91,7 +91,7 @@ module.exports = {
       parserOptions: {
         sourceType: 'module',
         tsConfigRootDir: __dirname,
-        project: ['./tsconfig.json'],
+        project: 'tsconfig.json',
       },
       plugins: ['@typescript-eslint', 'ember-data'],
       extends: [
@@ -114,7 +114,7 @@ module.exports = {
       parserOptions: {
         sourceType: 'module',
         tsConfigRootDir: __dirname,
-        project: ['./tsconfig.json'],
+        project: 'tsconfig.json',
       },
       plugins: ['@typescript-eslint', 'ember-data'],
       extends: [
@@ -207,6 +207,7 @@ module.exports = {
         '@types/@ember/polyfills/index.d.ts',
         'packages/record-data/tests/integration/graph/polymorphism/implicit-keys-test.ts',
         'packages/record-data/tests/integration/graph/graph-test.ts',
+        'packages/record-data/tests/integration/graph/operations-test.ts',
         'packages/record-data/tests/integration/graph/edge-test.ts',
         'packages/record-data/tests/integration/graph/edge-removal/setup.ts',
         'packages/record-data/tests/integration/graph/edge-removal/helpers.ts',

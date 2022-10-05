@@ -15,32 +15,38 @@ jobs:
           if [[ "$(git name-rev --tags --name-only $(git rev-parse HEAD))" != "undefined" ]]; then
             exit 1
           fi
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies for master
-        run: yarn install --frozen-lockfile --non-interactive
+        run: pnpm install --non-interactive
       - name: Basic Tests
         env:
           CI: true
           ASSERT_ALL_DEPRECATIONS: true
-        run: yarn test
+        run: pnpm test
 
   release:
     name: Run publish script
     runs-on: ubuntu-latest
-    needs: [ test ]
+    needs: [test]
     environment: deployment
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           registry-url: 'https://registry.npmjs.org'
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies for master
-        run: yarn install --frozen-lockfile --non-interactive
+        run: pnpm install --non-interactive
       - name: Make sure git user is setup
         run: |
           git config --local user.email 'tomster@emberjs.com'

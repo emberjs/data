@@ -2,7 +2,7 @@
 
 module.exports = function () {
   return {
-    useYarn: true,
+    usePnpm: true,
     scenarios: [
       {
         name: 'fastboot-with-ember-fetch',

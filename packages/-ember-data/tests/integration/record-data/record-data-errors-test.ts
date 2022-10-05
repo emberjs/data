@@ -254,7 +254,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       }) as DSModel;
 
       const identifier = recordIdentifierFor(person);
-      let nameError = person.errors.errorsFor('firstName').at(0);
+      let nameError = person.errors.errorsFor('firstName').objectAt(0);
       assert.strictEqual(nameError, undefined, 'no error shows up on firstName initially');
       assert.true(person.isValid, 'person is initially valid');
 
@@ -269,7 +269,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       ];
       storeWrapper.notifyChange(identifier, 'errors');
 
-      nameError = person.errors.errorsFor('firstName').at(0);
+      nameError = person.errors.errorsFor('firstName').objectAt(0);
       assert.strictEqual(nameError?.attribute, 'firstName', 'error shows up on name');
       assert.false(person.isValid, 'person is not valid');
 
@@ -292,7 +292,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
 
       assert.false(person.isValid, 'person is not valid');
       assert.strictEqual(person.errors.errorsFor('firstName').length, 0, 'no errors on firstName');
-      let lastNameError = person.errors.errorsFor('lastName').at(0);
+      let lastNameError = person.errors.errorsFor('lastName').objectAt(0);
       assert.strictEqual(lastNameError?.attribute, 'lastName', 'error shows up on lastName');
     });
   });

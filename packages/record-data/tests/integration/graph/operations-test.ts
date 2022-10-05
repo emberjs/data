@@ -7,20 +7,20 @@ import { graphFor } from '@ember-data/record-data/-private';
 import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import Store from '@ember-data/store';
 
-module('Integration | Graph | Operations', function (hooks) {
+module('Integration | Graph | Operations', function (hooks: NestedHooks) {
   setupTest(hooks);
 
-  test('updateRelationship operation filters duplicates', function (assert) {
+  test('updateRelationship operation filters duplicates', function (assert: Assert) {
     const { owner } = this;
 
     class App extends Model {
-      @attr name;
+      @attr declare name: string;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      @hasMany('config', { async: false, inverse: null }) configs;
+      @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
     }
 
     class Config extends Model {
-      @attr name;
+      @attr declare name: string;
     }
 
     owner.register('service:store', Store);
@@ -67,13 +67,13 @@ module('Integration | Graph | Operations', function (hooks) {
     const { owner } = this;
 
     class App extends Model {
-      @attr name;
+      @attr declare name: string;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      @hasMany('config', { async: false, inverse: null }) configs;
+      @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
     }
 
     class Config extends Model {
-      @attr name;
+      @attr declare name: string;
     }
 
     owner.register('service:store', Store);

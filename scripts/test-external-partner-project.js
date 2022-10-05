@@ -93,7 +93,7 @@ try {
   );
 }
 
-const useYarn = fs.existsSync(path.join(projectTempDir, 'yarn.lock'));
+const usePnpm = fs.existsSync(path.join(projectTempDir, 'yarn.lock'));
 const packageJsonLocation = path.join(projectTempDir, 'package.json');
 
 // run project tests
@@ -108,7 +108,7 @@ try {
   } else {
     debug('Running Smoke Test');
     try {
-      execExternal(`${useYarn ? 'yarn install' : 'npm install'}`);
+      execExternal(`${usePnpm ? 'pnpm install' : 'npm install'}`);
     } catch (e) {
       debug(e);
       throw new Error(`Unable to complete install of dependencies for external project ${externalProjectName}`);
@@ -125,13 +125,13 @@ try {
 
   // clear node_modules installed for the smoke-test
   execExternal(`rm -rf node_modules`);
-  // we are forced to use yarn so that our resolutions will be respected
+  // we are forced to use pnpm so that our resolutions will be respected
   // in addition to the version file link we insert otherwise nested deps
   // may bring their own ember-data
   //
   // For this reason we don't trust the lock file
   // we also can't trust the cache
-  execExternal(`yarn install${noLockFile ? ' --no-lockfile' : ''}${useCache ? '' : ' --cache-folder=tmp/yarn-cache'}`);
+  execExternal(`pnpm install${noLockFile ? ' --no-lockfile' : ''}${useCache ? '' : ' --cache-folder=tmp/yarn-cache'}`);
 } catch (e) {
   console.log(`Unable to npm install tarballs for ember-data\` for ${externalProjectName}. Original error below:`);
 

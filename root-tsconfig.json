@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2022",
     "allowJs": false,
     "checkJs": false,
     "moduleResolution": "node",

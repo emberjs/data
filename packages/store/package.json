@@ -17,6 +17,9 @@
     "build": "ember build",
     "start": "ember serve"
   },
+  "optionalDependencies": {
+    "@ember-data/record-data": "4.9.0-alpha.2"
+  },
   "dependencies": {
     "@ember-data/canary-features": "4.9.0-alpha.6",
     "@ember-data/private-build-infra": "4.9.0-alpha.6",
@@ -31,10 +34,15 @@
     "ember-cli-typescript": "^5.1.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@babel/runtime": "^7.19.3",
     "@ember-data/unpublished-test-infra": "4.9.0-alpha.6",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
     "@types/ember": "^4.0.1",
+    "@types/ember__service": "^4.0.0",
+    "@types/ember__application": "^4.0.1",
+    "@types/ember__object": "^4.0.4",
     "@types/rsvp": "^4.0.4",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~4.7.0",
@@ -65,6 +73,7 @@
   },
   "volta": {
     "node": "16.18.0",
-    "yarn": "1.22.19"
-  }
+    "pnpm": "7.12.2"
+  },
+	"packageManager": "pnpm@7.12.2"
 }
