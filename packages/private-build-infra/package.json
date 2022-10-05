@@ -12,10 +12,7 @@
   },
   "license": "MIT",
   "author": "",
-  "directories": {
-    "doc": "doc",
-    "test": "tests"
-  },
+  "directories": {},
   "scripts": {},
   "dependencies": {
     "@babel/plugin-transform-block-scoping": "^7.18.9",
