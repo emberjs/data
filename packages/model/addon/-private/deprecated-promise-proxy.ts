@@ -1,4 +1,5 @@
 import { deprecate } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
@@ -16,6 +17,9 @@ const PROXIED_OBJECT_PROPS = ['content', 'isPending', 'isSettled', 'isRejected',
 
 export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObject<T> {
   const promiseObjectProxy: PromiseObject<T> = promiseObject(promise);
+  if (!DEBUG) {
+    return promiseObjectProxy;
+  }
   const handler = {
     get(target: object, prop: string, receiver?: object): unknown {
       if (typeof prop === 'symbol') {

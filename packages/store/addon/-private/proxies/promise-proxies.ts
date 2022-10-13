@@ -1,6 +1,7 @@
 import { deprecate } from '@ember/debug';
 import type ComputedProperty from '@ember/object/computed';
 import { reads } from '@ember/object/computed';
+import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
@@ -162,6 +163,9 @@ export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>
 
 export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
   const promiseObjectProxy: PromiseObjectProxy<T> = _promiseObject(promise);
+  if (!DEBUG) {
+    return promiseObjectProxy;
+  }
   const handler = {
     get(target: object, prop: string, receiver?: object): unknown {
       if (typeof prop === 'symbol') {
