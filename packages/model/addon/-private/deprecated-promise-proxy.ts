@@ -38,15 +38,15 @@ export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObject<T
 
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
-          `Accessing ${prop} on this PromiseObject is deprecated. The return type is being changed from PromiseObject to a Promise. The only available methods to access on this promise are .then, .catch and .finally`,
+          `Accessing ${prop} is deprecated. The return type is being changed fomr PromiseObjectProxy to a Promise. The only available methods to access on this promise are .then, .catch and .finally`,
           false,
           {
-            id: 'ember-data:deprecate-promise-proxies',
+            id: 'ember-data:model-save-promise',
             until: '5.0',
             for: '@ember-data/store',
             since: {
-              available: '4.7',
-              enabled: '4.7',
+              available: '4.4',
+              enabled: '4.4',
             },
           }
         );
