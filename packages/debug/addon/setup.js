@@ -10,22 +10,29 @@ export function typesMapFor(store) {
   if (typesMap === undefined) {
     typesMap = new Map();
     StoreTypesMap.set(store, typesMap);
-    installHook(store, typesMap);
   }
 
   return typesMap;
 }
 
 // EmberData 4.7+
-function installHook(store, typesMap) {
-  const getRecordData = store._instanceCache.getRecordData;
-  store._instanceCache.getRecordData = function(identifier) {
-    if (!typesMap.has(identifier.type)) {
-      typesMap.set(identifier.type, false);
+Object.defineProperty(Store.prototype, '_instanceCache', {
+  get() {
+    return this.__instanceCache;
+  },
+  set(value) {
+    const getRecordData = value.getRecordData;
+    const store = this;
+    value.getRecordData = function(identifier) {
+      const typesMap = typesMapFor(store);
+      if (!typesMap.has(identifier.type)) {
+        typesMap.set(identifier.type, false);
+      }
+      return getRecordData.call(this, identifier);
     }
-    return getRecordData.call(this, identifier);
+    this.__instanceCache = value;
   }
-}
+});
 
 // EmberData <= 4.6
 const __createRecordData = Store.prototype._createRecordData;
