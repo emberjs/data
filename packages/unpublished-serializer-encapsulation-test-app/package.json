@@ -26,7 +26,7 @@
     "@ember-data/model": "4.9.0-alpha.6",
     "@ember-data/record-data": "4.9.0-alpha.6",
     "@ember-data/store": "4.9.0-alpha.6",
-    "ember-auto-import": "^2.4.2",
+    "ember-auto-import": "^2.4.3",
     "ember-inflector": "^4.0.2"
   },
   "devDependencies": {
