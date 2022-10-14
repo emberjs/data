@@ -21,7 +21,7 @@
     "@ember-data/canary-features": "4.9.0-alpha.6",
     "@ember-data/private-build-infra": "4.9.0-alpha.6",
     "@ember/string": "^3.0.0",
-    "@embroider/macros": "^1.8.3",
+    "@embroider/macros": "^1.9.0",
     "@glimmer/tracking": "^1.1.2",
     "ember-auto-import": "^2.4.2",
     "ember-cached-decorator-polyfill": "^0.1.4",
