@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/tracking",
-  "description": "Add your description here",
-  "version": "0.0.0",
+  "description": "Tracking Primitives for controlling change notification of Tracked properties when working with EmberData",
+  "version": "4.9.0-alpha.6",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -22,7 +22,7 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@embroider/addon-shim": "^1.5.0"
+    "@embroider/addon-shim": "^1.8.3"
   },
   "exports": {
     ".": "./dist/src/index.js",
@@ -47,21 +47,21 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "@embroider/addon-dev": "^1.8.3",
-    "rollup": "^2.79.1",
-    "@babel/core": "^7.19.1",
+    "@embroider/addon-dev": "^2.0.0",
+    "rollup": "^3.1.0",
+    "@babel/core": "^7.19.3",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-decorators": "^7.19.1",
-    "@babel/plugin-transform-typescript": "^7.19.1",
+    "@babel/plugin-proposal-decorators": "^7.19.3",
+    "@babel/plugin-transform-typescript": "^7.19.3",
     "@babel/plugin-transform-runtime": "^7.19.1",
     "@babel/preset-typescript": "^7.18.6",
-    "@babel/preset-env": "^7.19.1",
-    "@babel/runtime": "^7.19.0",
-    "@rollup/plugin-babel": "^5.3.1",
-    "@rollup/plugin-typescript": "^8.5.0",
+    "@babel/preset-env": "^7.19.4",
+    "@babel/runtime": "^7.19.4",
+    "@rollup/plugin-babel": "^6.0.0",
+    "@rollup/plugin-typescript": "^9.0.1",
     "tslib": "^2.4.0",
     "walk-sync": "^3.0.0",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.4"
   },
   "ember": {
     "edition": "octane"
