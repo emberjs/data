@@ -10,7 +10,6 @@ export function typesMapFor(store) {
   if (typesMap === undefined) {
     typesMap = new Map();
     StoreTypesMap.set(store, typesMap);
-    installHook(store, typesMap);
   }
 
   return typesMap;
