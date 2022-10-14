@@ -519,7 +519,16 @@ export default class HasManyReference {
       this.___identifier
     )!;
 
-    return this._isLoaded() ? support.getManyArray(this.key) : null;
+    const loaded = this._isLoaded();
+
+    if (!loaded) {
+      // subscribe to changes
+      // for when we are not loaded yet
+      this._ref;
+      return null;
+    }
+
+    return support.getManyArray(this.key);
   }
 
   /**
