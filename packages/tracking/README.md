@@ -1,4 +1,4 @@
 @ember-data/tracking
 ============================================================================
 
-This addon is in the V2 Addon Format.
+Tracking Primitives for controlling change notification of Tracked properties when working with EmberData

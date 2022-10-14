@@ -20,6 +20,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/array/proxy',
       '@ember/object/promise-proxy-mixin',
       '@ember/object/proxy',
+      '@ember-data/tracking',
     ];
   },
   treeForAddon(tree) {

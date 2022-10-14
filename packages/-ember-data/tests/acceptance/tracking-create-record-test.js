@@ -10,6 +10,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import Store from '@ember-data/store';
+import { transact } from '@ember-data/tracking';
 
 module('acceptance/tracking-create-record', function (hooks) {
   setupRenderingTest(hooks);
@@ -24,14 +25,27 @@ module('acceptance/tracking-create-record', function (hooks) {
       @service store;
 
       @cached
-      get widget() {
-        return this.store.createRecord('widget', { name: 'Chris' });
+      get widgets() {
+        return transact(() => {
+          const arr = this.store.peekAll('widget');
+          // create a length subscription
+          const records = arr.filter((r) => r.isNew);
+          if (records.length === 0) {
+            // invalidate length
+            let record = this.store.createRecord('widget', { name: 'Chris' });
+            records.push(record);
+          }
+          return records;
+        });
       }
     }
 
     let layout = hbs`
-      <h1>{{this.widget.name}}</h1>
-      <h2>Valid: {{if this.widget.isValid 'Yes' 'No'}}</h2>
+      <ul>
+        {{#each this.widgets as |widget|}}
+          <li>{{widget.name}} {{if widget.isValid 'Is Valid' 'Is Invalid'}}</li>
+        {{/each}}
+      </ul>
     `;
 
     owner.register('service:store', Store);
@@ -44,8 +58,7 @@ module('acceptance/tracking-create-record', function (hooks) {
     `);
     await settled();
 
-    assert.dom('h1').exists();
-    assert.dom('h1').containsText('Chris');
-    assert.dom('h2').containsText('Yes');
+    assert.dom('ul > li').exists({ count: 1 });
+    assert.dom('ul > li:nth-of-type(1)').containsText('Chris Is Valid');
   });
 });

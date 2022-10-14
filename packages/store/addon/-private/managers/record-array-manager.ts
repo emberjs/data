@@ -1,6 +1,7 @@
 /**
   @module @ember-data/store
 */
+import { addToTransaction } from '@ember-data/tracking';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -174,7 +175,7 @@ class RecordArrayManager {
     let tag = array[IDENTIFIER_ARRAY_TAG];
     if (!tag.shouldReset) {
       tag.shouldReset = true;
-      tag.ref = null;
+      addToTransaction(tag);
     }
   }
 
