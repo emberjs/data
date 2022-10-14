@@ -47,15 +47,6 @@ module('integration/records/save - Save Record', function (hooks) {
     assert.ok(true, 'save operation was resolved');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       assert.strictEqual(saved.get('id'), '123');
-      if (DEBUG) {
-        try {
-          saved.id;
-          assert.ok(false, 'access should error with .get assertion');
-        } catch {
-          assert.ok(true, 'access errored correctly');
-        }
-      }
-
       assert.strictEqual(model.id, '123');
     } else {
       assert.strictEqual(saved.id, undefined);
@@ -69,7 +60,7 @@ module('integration/records/save - Save Record', function (hooks) {
       assert.strictEqual(saved.__ec_cancel__, undefined);
       assert.strictEqual(model.__ec_cancel__, undefined);
 
-      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 4 });
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 11 });
     }
   });
 
