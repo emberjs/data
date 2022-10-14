@@ -50,7 +50,7 @@
     "@ember/test-helpers": "~2.7.0",
     "@glimmer/component": "^1.1.2",
     "@types/ember": "^4.0.1",
-    "@types/ember-qunit": "^5.0.1",
+    "@types/ember-qunit": "^5.0.2",
     "@types/ember-testing-helpers": "^0.0.4",
     "@types/ember__debug": "^4.0.1",
     "@types/ember__test-helpers": "^2.8.1",
