@@ -14,6 +14,7 @@ function promiseObject<T>(promise: Promise<T>): PromiseObject<T> {
 
 // constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
+const ALLOWABLE_PROPS = ['__ec_yieldable__', '__ec_cancel__'];
 const PROXIED_OBJECT_PROPS = ['content', 'isPending', 'isSettled', 'isRejected', 'isFulfilled', 'promise', 'reason'];
 
 const ProxySymbolString = String(Symbol.for('PROXY_CONTENT'));
@@ -24,7 +25,7 @@ export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObject<T
     return promiseObjectProxy;
   }
   const handler = {
-    get(target: object, prop: string, receiver?: object): unknown {
+    get(target: object, prop: string, receiver: object): unknown {
       if (typeof prop === 'symbol') {
         if (String(prop) === ProxySymbolString) {
           return;
@@ -34,6 +35,10 @@ export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObject<T
 
       if (prop === 'constructor') {
         return target.constructor;
+      }
+
+      if (ALLOWABLE_PROPS.includes(prop)) {
+        return target[prop];
       }
 
       if (!ALLOWABLE_METHODS.includes(prop)) {

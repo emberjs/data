@@ -38,28 +38,32 @@ module('integration/records/save - Save Record', function (hooks) {
 
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       // `save` returns a PromiseObject which allows to call get on it
-      assert.strictEqual(saved.get('id'), undefined);
+      assert.strictEqual(saved.get('id'), undefined, `<proxy>.get('id') is undefined before save resolves`);
     }
 
     deferred.resolve({ data: { id: '123', type: 'post' } });
     let model = await saved;
     assert.ok(true, 'save operation was resolved');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
-      assert.strictEqual(saved.get('id'), '123');
-      assert.strictEqual(model.id, '123');
+      assert.strictEqual(saved.get('id'), '123', `<proxy>.get('id') is '123' after save resolves`);
+      assert.strictEqual(model.id, '123', `record.id is '123' after save resolves`);
     } else {
-      assert.strictEqual(saved.id, undefined);
-      assert.strictEqual(model.id, '123');
+      assert.strictEqual(saved.id, undefined, `<proxy>.id is undefined after save resolves`);
+      assert.strictEqual(model.id, '123', `record.id is '123' after save resolves`);
     }
     assert.strictEqual(model, post, 'resolves with the model');
     if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       // We don't care about the exact value of the property, but accessing it
       // should not throw an error and only show a deprecation.
       saved.__ec_cancel__ = true;
-      assert.strictEqual(saved.__ec_cancel__, undefined);
-      assert.strictEqual(model.__ec_cancel__, undefined);
+      assert.true(saved.__ec_cancel__, '__ec_cancel__ can be accessed on the proxy');
+      assert.strictEqual(
+        model.__ec_cancel__,
+        undefined,
+        '__ec_cancel__ can be accessed on the record but is not present'
+      );
 
-      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 11 });
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 10 });
     }
   });
 

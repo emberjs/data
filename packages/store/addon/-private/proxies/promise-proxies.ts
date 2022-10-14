@@ -107,6 +107,7 @@ function _promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>, labe
 
 // constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
+const ALLOWABLE_PROPS = ['__ec_yieldable__', '__ec_cancel__'];
 const PROXIED_ARRAY_PROPS = [
   'length',
   '[]',
@@ -129,9 +130,12 @@ export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>
     return promiseObjectProxy;
   }
   const handler = {
-    get(target: object, prop: string, receiver?: object): unknown {
+    get(target: object, prop: string, receiver: object): unknown {
       if (typeof prop === 'symbol') {
         return Reflect.get(target, prop, receiver);
+      }
+      if (ALLOWABLE_PROPS.includes(prop)) {
+        return receiver[prop];
       }
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
@@ -173,7 +177,7 @@ export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
     return promiseObjectProxy;
   }
   const handler = {
-    get(target: object, prop: string, receiver?: object): unknown {
+    get(target: object, prop: string, receiver: object): unknown {
       if (typeof prop === 'symbol') {
         if (String(prop) === ProxySymbolString) {
           return;
@@ -183,6 +187,10 @@ export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
 
       if (prop === 'constructor') {
         return target.constructor;
+      }
+
+      if (ALLOWABLE_PROPS.includes(prop)) {
+        return receiver[prop];
       }
 
       if (!ALLOWABLE_METHODS.includes(prop)) {
