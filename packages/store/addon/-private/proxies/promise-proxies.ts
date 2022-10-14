@@ -125,6 +125,9 @@ const PROXIED_OBJECT_PROPS = ['content', 'isPending', 'isSettled', 'isRejected',
 
 export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>): PromiseArray<I, T> {
   const promiseObjectProxy: PromiseArray<I, T> = _promiseArray(promise);
+  if (!DEBUG) {
+    return promiseObjectProxy;
+  }
   const handler = {
     get(target: object, prop: string, receiver?: object): unknown {
       if (typeof prop === 'symbol') {

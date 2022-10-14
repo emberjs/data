@@ -1,5 +1,4 @@
 import { run } from '@ember/runloop';
-import { DEBUG } from '@glimmer/env';
 
 import { module, test } from 'qunit';
 import { defer, reject, resolve } from 'rsvp';
