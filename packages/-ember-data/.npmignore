@@ -4,6 +4,7 @@
 /tmp/
 /types/
 **/*.d.ts
+yarn-error.log
 
 # dependencies
 /bower_components/
@@ -42,4 +43,3 @@ lib/scripts
 
 # whitelist yuidoc's data.json for api docs generation
 !/dist/docs/data.json
-
