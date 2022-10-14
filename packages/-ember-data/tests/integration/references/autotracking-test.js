@@ -158,6 +158,44 @@ module('integration/references/autotracking', function (hooks) {
     assert.deepEqual(testContext.friendIds, ['2', '6'], 'the ids are correct when the new record is saved');
   });
 
+  test('HasManyReference.value() is autotracked', async function (assert) {
+    store.unloadAll();
+    await settled();
+    user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {},
+      },
+      included: [],
+    });
+    class TestContext {
+      user = user;
+
+      get friends() {
+        return this.user.hasMany('friends').value();
+      }
+    }
+    const testContext = new TestContext();
+    this.set('context', testContext);
+    await render(
+      hbs`{{#each this.context.friends as |friend|}}id: {{if friend.id friend.id 'null'}}, {{else}}No Friends Loaded{{/each}}`
+    );
+
+    assert.strictEqual(getRootElement().textContent, 'No Friends Loaded', 'the ids are initially correct');
+    assert.deepEqual(testContext.friends, null, 'the value is initially null');
+    const igor = store.push({
+      data: { type: 'user', id: '2', attributes: { name: 'Igor' } },
+      included: [{ type: 'user', id: '1', relationships: { friends: { data: [{ type: 'user', id: '2' }] } } }],
+    });
+    await settled();
+    assert.strictEqual(getRootElement().textContent, 'id: 2, ', 'the ManyArray is rendered once loaded');
+    assert.deepEqual(testContext.friends, [igor], 'the friends are correct once loaded');
+  });
+
   test('RecordReference.id() is autotracked', async function (assert) {
     const dan = store.createRecord('user', { name: 'Dan' });
     const identifier = recordIdentifierFor(dan);
