@@ -27,6 +27,17 @@ function addonBuildConfigForDataPackage(PackageName) {
           setOwnConfig: {},
         },
       });
+      if (this.isDevelopingAddon()) {
+        Object.assign(this.options, {
+          autoImport: {
+            forbidEval: true,
+            webpack: {
+              cache: false,
+            },
+            watchDependencies: ['@ember-data/tracking'],
+          },
+        });
+      }
     },
 
     _prodLikeWarning() {

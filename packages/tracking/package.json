@@ -34,7 +34,8 @@
   "scripts": {
     "build": "rollup --config",
     "start": "rollup --config --watch",
-    "prepublishOnly": "rollup --config"
+    "prepublishOnly": "rollup --config",
+    "prepack": "rollup --config"
   },
   "ember-addon": {
     "main": "addon-main.js",

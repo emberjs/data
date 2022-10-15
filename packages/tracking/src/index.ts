@@ -1,1 +1,1 @@
-export { transact, memoTransact } from './-private';
+export { transact, memoTransact, untracked } from './-private';
