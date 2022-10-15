@@ -15,7 +15,7 @@ import {
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
-import { addToTransaction, subscribe } from '@ember-data/tracking';
+import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';

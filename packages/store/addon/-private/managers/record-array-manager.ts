@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { addToTransaction } from '@ember-data/tracking';
+import { addToTransaction } from '@ember-data/tracking/-private';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';

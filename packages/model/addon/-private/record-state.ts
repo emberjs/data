@@ -8,6 +8,7 @@ import { storeFor } from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
 import type RequestCache from '@ember-data/store/-private/network/request-cache';
+import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
 
@@ -41,15 +42,11 @@ class Tag {
     this.isDirty = true;
     this.value = undefined;
   }
-  @tracked _tracking = 0;
-
-  subscribe() {
-    this._tracking;
-  }
+  @tracked ref = null;
 
   notify() {
     this.isDirty = true;
-    this._tracking = this.rev;
+    addToTransaction(this);
     this.rev++;
   }
   consume(v) {
@@ -86,7 +83,7 @@ export function tagged(_target, key, desc) {
   const setter = desc.set;
   desc.get = function () {
     let tag = getTag(this, key);
-    tag.subscribe();
+    subscribe(tag);
 
     if (tag.isDirty) {
       tag.consume(getter.call(this));

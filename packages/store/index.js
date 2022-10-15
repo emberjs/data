@@ -14,7 +14,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
 
       '@ember-data/canary-features',
       '@ember-data/store/-debug',
-      '@ember-data/tracking',
+      '@ember-data/tracking/-private',
 
       '@ember/application',
       '@ember/array/proxy',
