@@ -11,11 +11,11 @@ import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
 
 function gte(version: string): boolean {
-  return semver.satisfies(semver.coerce(VERSION), version);
+  return semver.satisfies(semver.coerce(VERSION) as unknown as string, version);
 }
 
 function lte(version: string): boolean {
-  return semver.satisfies(semver.coerce(VERSION), version);
+  return semver.satisfies(semver.coerce(VERSION) as unknown as string, version);
 }
 
 let HAS_REGISTERED = false;
