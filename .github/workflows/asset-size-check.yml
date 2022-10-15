@@ -35,6 +35,8 @@ jobs:
         run: git checkout master
       - name: Install dependencies for master
         run: yarn install
+      - name: Build V2 Addons
+        run: npm run --if-present build-v2-addons
       - name: Build Production master
         run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/control
       - name: Build Production master (no rollup)
@@ -45,6 +47,8 @@ jobs:
           git checkout --progress --force $sha
       - name: Install dependencies for ${{github.ref}}
         run: yarn install
+      - name: Build V2 Addons
+        run: npm run --if-present build-v2-addons
       - name: Build Production ${{github.ref}}
         run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/experiment
       - name: Build Production ${{github.ref}} (no rollup)

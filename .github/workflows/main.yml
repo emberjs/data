@@ -82,6 +82,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Launcher Info
         run: |
           yarn run testem launchers
@@ -145,6 +147,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Fastboot Test ${{ matrix.scenario }}
         timeout-minutes: 12
         run: yarn test:fastboot ${{ matrix.scenario }}
@@ -176,6 +180,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Launcher Info
         run: |
           yarn run testem launchers
@@ -199,6 +205,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies w/o lockfile
         run: yarn install --no-lockfile --non-interactive
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Basic Tests
         run: yarn test
 
@@ -217,6 +225,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Basic tests with ${{ matrix.scenario }}
         timeout-minutes: 10
         env:
@@ -248,6 +258,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Basic tests with ${{ matrix.release }}
         env:
           CI: true
@@ -275,6 +287,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Basic tests with ${{ matrix.scenario }}
         env:
           CI: true
@@ -296,6 +310,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies w/o lockfile
         run: yarn install --no-lockfile --non-interactive
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Basic Tests
         run: yarn test
 
@@ -346,6 +362,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Generate package tarballs
         run: node ./scripts/packages-for-commit.js
       - name: Run Tests
