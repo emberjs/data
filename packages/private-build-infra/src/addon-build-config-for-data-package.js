@@ -30,10 +30,6 @@ function addonBuildConfigForDataPackage(PackageName) {
       if (this.isDevelopingAddon()) {
         Object.assign(this.options, {
           autoImport: {
-            forbidEval: true,
-            webpack: {
-              cache: false,
-            },
             watchDependencies: ['@ember-data/tracking'],
           },
         });
@@ -132,6 +128,7 @@ function addonBuildConfigForDataPackage(PackageName) {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
       plugins = plugins.concat(customPlugins.plugins);
+      plugins.push([require.resolve('ember-auto-import/babel-plugin')]);
 
       return {
         loose: true,

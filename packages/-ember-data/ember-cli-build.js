@@ -58,10 +58,6 @@ module.exports = function (defaults) {
       plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, config)],
     },
     autoImport: {
-      forbidEval: true,
-      webpack: {
-        cache: false,
-      },
       watchDependencies: ['@ember-data/tracking'],
     },
     'ember-cli-babel': {
