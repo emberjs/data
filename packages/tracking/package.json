@@ -57,6 +57,7 @@
     "@babel/runtime": "^7.19.4",
     "@rollup/plugin-babel": "^6.0.0",
     "@rollup/plugin-typescript": "^9.0.1",
+    "rollup-plugin-ts": "^3.0.2",
     "tslib": "^2.4.0",
     "walk-sync": "^3.0.0",
     "typescript": "^4.8.4"
