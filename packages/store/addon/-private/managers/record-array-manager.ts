@@ -1,6 +1,7 @@
 /**
   @module @ember-data/store
 */
+import { addToTransaction } from '@ember-data/tracking/-private';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -167,14 +168,16 @@ class RecordArrayManager {
     return array;
   }
 
-  dirtyArray(array: IdentifierArray): void {
+  dirtyArray(array: IdentifierArray, delta: number): void {
     if (array === FAKE_ARR) {
       return;
     }
     let tag = array[IDENTIFIER_ARRAY_TAG];
     if (!tag.shouldReset) {
       tag.shouldReset = true;
-      tag.ref = null;
+      addToTransaction(tag);
+    } else if (delta > 0 && tag.t) {
+      addToTransaction(tag);
     }
   }
 
@@ -257,9 +260,7 @@ class RecordArrayManager {
         } else {
           changes.set(identifier, 'add');
 
-          if (changes.size === 1) {
-            this.dirtyArray(array);
-          }
+          this.dirtyArray(array, changes.size);
         }
       });
     }
@@ -275,9 +276,7 @@ class RecordArrayManager {
         } else {
           changes.set(identifier, 'del');
 
-          if (changes.size === 1) {
-            this.dirtyArray(array);
-          }
+          this.dirtyArray(array, changes.size);
         }
       });
     }

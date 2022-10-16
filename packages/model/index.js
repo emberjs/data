@@ -19,6 +19,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@embroider/macros',
       '@ember/string',
       '@embroider/macros/es-compat',
+      '@ember-data/tracking/-private',
 
       '@ember/object/proxy',
       '@ember/object/promise-proxy-mixin',

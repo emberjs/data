@@ -92,7 +92,11 @@ function addonBuildConfigForDataPackage(PackageName) {
 
     shouldIncludeChildAddon(addon) {
       if (addon.name.startsWith('@ember-data')) {
-        if (this.name === 'ember-data' || addon.name === '@ember-data/canary-features') {
+        if (
+          this.name === 'ember-data' ||
+          addon.name === '@ember-data/canary-features' ||
+          addon.name === '@ember-data/tracking'
+        ) {
           return true;
         }
 
@@ -121,6 +125,7 @@ function addonBuildConfigForDataPackage(PackageName) {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
       plugins = plugins.concat(customPlugins.plugins);
+      plugins.push([require.resolve('ember-auto-import/babel-plugin')]);
 
       return {
         loose: true,

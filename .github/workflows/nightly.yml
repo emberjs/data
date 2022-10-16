@@ -15,6 +15,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies for master
         run: yarn install
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Basic Tests
         env:
           CI: true
@@ -40,6 +42,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies for ${{ matrix.scenario }}
         run: yarn install
+      - name: Build V2 Addons
+        run: yarn build-v2-addons
       - name: Basic Tests
         env:
           CI: true

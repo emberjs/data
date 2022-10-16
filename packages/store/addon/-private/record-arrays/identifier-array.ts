@@ -15,6 +15,7 @@ import {
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
+import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -76,6 +77,7 @@ function convertToInt(prop: KeyType): number | null {
 class Tag {
   @tracked ref = null;
   shouldReset: boolean = false;
+  t = false;
 }
 
 type ProxiedMethod = (...args: unknown[]) => unknown;
@@ -219,27 +221,28 @@ class IdentifierArray {
         let index = convertToInt(prop);
         if (_TAG.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
+          _TAG.t = false;
           _TAG.shouldReset = false;
         }
 
         if (index !== null) {
           const identifier = target[index];
           if (!transaction) {
-            _TAG.ref;
+            subscribe(_TAG);
           }
           return identifier && store._instanceCache.getRecord(identifier);
         }
 
-        if (prop === 'meta') return _TAG.ref, PrivateState.meta;
-        if (prop === 'links') return _TAG.ref, PrivateState.links;
-        if (prop === '[]') return _TAG.ref, receiver;
+        if (prop === 'meta') return subscribe(_TAG), PrivateState.meta;
+        if (prop === 'links') return subscribe(_TAG), PrivateState.links;
+        if (prop === '[]') return subscribe(_TAG), receiver;
 
         if (isArrayGetter(prop)) {
           let fn = boundFns.get(prop);
 
           if (fn === undefined) {
             fn = function () {
-              _TAG.ref;
+              subscribe(_TAG);
               // array functions must run through Reflect to work properly
               // binding via other means will not work.
               transaction = true;
@@ -270,7 +273,7 @@ class IdentifierArray {
               transaction = true;
               let result = Reflect.apply(target[prop] as ProxiedMethod, receiver, args) as unknown;
               self[MUTATE]!(prop as string, args, result);
-              _TAG.ref = null;
+              addToTransaction(_TAG);
               // TODO handle cache updates
               transaction = false;
               return result;
@@ -300,7 +303,7 @@ class IdentifierArray {
 
           if (typeof outcome === 'function') {
             fn = function () {
-              _TAG.ref;
+              subscribe(_TAG);
               // array functions must run through Reflect to work properly
               // binding via other means will not work.
               return Reflect.apply(outcome as ProxiedMethod, receiver, arguments) as unknown;
@@ -310,7 +313,7 @@ class IdentifierArray {
             return fn;
           }
 
-          return _TAG.ref, outcome;
+          return subscribe(_TAG), outcome;
         }
 
         return target[prop];
@@ -320,7 +323,7 @@ class IdentifierArray {
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
-            _TAG.ref = null;
+            addToTransaction(_TAG);
             Reflect.set(target, prop, value);
             self[MUTATE]!('length 0', []);
             transaction = false;
@@ -359,7 +362,7 @@ class IdentifierArray {
         (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         if (!transaction) {
           self[MUTATE]!('replace cell', [index, original, newIdentifier]);
-          _TAG.ref = null;
+          addToTransaction(_TAG);
         }
 
         return true;

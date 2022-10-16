@@ -33,6 +33,8 @@
       "@ember-data/types/*": ["ember-data-types/*"],
       "@ember-data/store": ["packages/store/addon"],
       "@ember-data/store/*": ["packages/store/addon/*"],
+      "@ember-data/tracking": ["packages/tracking/src"],
+      "@ember-data/tracking/*": ["packages/tracking/src/*"],
       "@ember-data/debug": ["packages/debug/addon"],
       "@ember-data/debug/*": ["packages/debug/addon/*"],
       "@ember-data/model": ["packages/model/addon"],

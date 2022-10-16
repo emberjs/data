@@ -6,12 +6,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/emberjs/data.git"
+    "url": "git+ssh://git@github.com:emberjs/data.git"
   },
   "pre-commit": [
     "lint:js:changed"
   ],
   "scripts": {
+    "build-v2-addons": "yarn workspace @ember-data/tracking build",
     "add-dev": "node ./scripts/add-dev-dependency.js",
     "sync-dev": "node ./scripts/sync-dev-dependency.js",
     "build": "yarn workspace ember-data build",
