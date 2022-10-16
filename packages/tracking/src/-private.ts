@@ -2,7 +2,7 @@
  * @module @ember-data/tracking
  */
 type OpaqueFn = (...args: unknown[]) => unknown;
-type Tag = { ref: null };
+type Tag = { ref: null; t: boolean };
 type Transaction = {
   cbs: Set<OpaqueFn>;
   props: Set<Tag>;
@@ -39,12 +39,11 @@ function flushTransaction() {
     cb();
   });
   transaction.props.forEach((obj: Tag) => {
+    obj.t = true;
     obj.ref = null;
   });
   transaction.sub.forEach((obj: Tag) => {
-    if (!transaction.props.has(obj)) {
-      obj.ref;
-    }
+    obj.ref;
   });
 }
 async function untrack() {
@@ -57,6 +56,7 @@ async function untrack() {
     cb();
   });
   transaction.props.forEach((obj: Tag) => {
+    obj.t = true;
     obj.ref = null;
   });
 }

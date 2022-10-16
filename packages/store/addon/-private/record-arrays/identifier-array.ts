@@ -77,6 +77,7 @@ function convertToInt(prop: KeyType): number | null {
 class Tag {
   @tracked ref = null;
   shouldReset: boolean = false;
+  t = false;
 }
 
 type ProxiedMethod = (...args: unknown[]) => unknown;
@@ -220,6 +221,7 @@ class IdentifierArray {
         let index = convertToInt(prop);
         if (_TAG.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
+          _TAG.t = false;
           _TAG.shouldReset = false;
         }
 

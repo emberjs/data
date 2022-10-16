@@ -168,13 +168,15 @@ class RecordArrayManager {
     return array;
   }
 
-  dirtyArray(array: IdentifierArray): void {
+  dirtyArray(array: IdentifierArray, delta: number): void {
     if (array === FAKE_ARR) {
       return;
     }
     let tag = array[IDENTIFIER_ARRAY_TAG];
     if (!tag.shouldReset) {
       tag.shouldReset = true;
+      addToTransaction(tag);
+    } else if (delta > 0 && tag.t) {
       addToTransaction(tag);
     }
   }
@@ -258,9 +260,7 @@ class RecordArrayManager {
         } else {
           changes.set(identifier, 'add');
 
-          if (changes.size === 1) {
-            this.dirtyArray(array);
-          }
+          this.dirtyArray(array, changes.size);
         }
       });
     }
@@ -276,9 +276,7 @@ class RecordArrayManager {
         } else {
           changes.set(identifier, 'del');
 
-          if (changes.size === 1) {
-            this.dirtyArray(array);
-          }
+          this.dirtyArray(array, changes.size);
         }
       });
     }

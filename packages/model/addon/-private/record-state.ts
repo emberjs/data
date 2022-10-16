@@ -36,11 +36,13 @@ class Tag {
   declare rev: number;
   declare isDirty: boolean;
   declare value: any;
+  declare t: boolean;
 
   constructor() {
     this.rev = 1;
     this.isDirty = true;
     this.value = undefined;
+    this.t = false;
   }
   @tracked ref = null;
 
