@@ -57,9 +57,6 @@ module.exports = function (defaults) {
       // for library packages is also done for our tests and dummy app
       plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, config)],
     },
-    autoImport: {
-      watchDependencies: ['@ember-data/tracking'],
-    },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
       includeExternalHelpers: true,

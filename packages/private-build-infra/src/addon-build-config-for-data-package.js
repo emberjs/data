@@ -27,13 +27,6 @@ function addonBuildConfigForDataPackage(PackageName) {
           setOwnConfig: {},
         },
       });
-      if (this.isDevelopingAddon()) {
-        Object.assign(this.options, {
-          autoImport: {
-            watchDependencies: ['@ember-data/tracking'],
-          },
-        });
-      }
     },
 
     _prodLikeWarning() {

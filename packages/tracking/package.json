@@ -20,7 +20,8 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@embroider/addon-shim": "^1.8.3"
+    "broccoli-funnel": "^3.0.8",
+    "ember-cli-babel": "^7.26.11"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -28,26 +29,24 @@
     "./addon-main.js": "./addon-main.js"
   },
   "files": [
+    "lib",
     "addon-main.js",
     "dist"
   ],
   "scripts": {
     "build": "rollup --config",
     "start": "rollup --config --watch",
-    "prepublishOnly": "rollup --config",
     "prepack": "rollup --config"
   },
   "ember-addon": {
     "main": "addon-main.js",
     "type": "addon",
-    "version": 2,
-    "app-js": {},
-    "public-assets": {}
+    "version": 1
   },
   "peerDependencies": {},
   "devDependencies": {
     "@embroider/addon-dev": "^2.0.0",
-    "rollup": "^3.1.0",
+    "rollup": "^3.2.1",
     "@babel/core": "^7.19.3",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-decorators": "^7.19.3",
@@ -56,9 +55,8 @@
     "@babel/preset-typescript": "^7.18.6",
     "@babel/preset-env": "^7.19.4",
     "@babel/runtime": "^7.19.4",
-    "@rollup/plugin-babel": "^6.0.0",
-    "@rollup/plugin-typescript": "^9.0.1",
-    "rollup-plugin-ts": "^3.0.2",
+    "@rollup/plugin-babel":"^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
     "tslib": "^2.4.0",
     "walk-sync": "^3.0.0",
     "typescript": "^4.8.4"

@@ -300,6 +300,7 @@ module.exports = {
         'packages/*/.eslintrc.js',
         'packages/*/.template-lintrc.js',
         'packages/*/ember-cli-build.js',
+        'packages/tracking/lib/*.js',
         'packages/*/addon-main.js',
         'packages/*/index.js',
         'packages/*/testem.js',
