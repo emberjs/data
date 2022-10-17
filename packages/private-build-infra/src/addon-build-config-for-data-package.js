@@ -125,7 +125,6 @@ function addonBuildConfigForDataPackage(PackageName) {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
       plugins = plugins.concat(customPlugins.plugins);
-      plugins.push([require.resolve('ember-auto-import/babel-plugin')]);
 
       return {
         loose: true,
@@ -191,6 +190,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       }
       let checker = new VersionChecker(this.project);
       let emberVersion = checker.for('ember-source');
+      let analyzer = this.registry.load('js').find((plugin) => plugin.name === 'ember-auto-import-analyzer');
 
       let privateTree = rollupPrivateModule(tree, {
         packageName: PackageName,
@@ -201,6 +201,7 @@ function addonBuildConfigForDataPackage(PackageName) {
         onWarn: this._suppressUneededRollupWarnings.bind(this),
         externalDependencies: this.externalDependenciesForPrivateModule(),
         destDir: this.getOutputDirForVersion(),
+        analyzer,
       });
 
       let withoutPrivate = new Funnel(tree, {
@@ -212,6 +213,10 @@ function addonBuildConfigForDataPackage(PackageName) {
       // use the default options
       let publicTree = babel.transpileTree(this.debugTree(withoutPrivate, 'babel-public:input'));
       publicTree = this.debugTree(publicTree, 'babel-public:output');
+
+      if (analyzer) {
+        publicTree = analyzer.toTree.call(analyzer, publicTree, undefined, undefined, { treeType: 'addon' });
+      }
 
       let destDir = this.getOutputDirForVersion();
 
