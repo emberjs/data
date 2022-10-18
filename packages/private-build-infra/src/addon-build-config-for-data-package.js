@@ -125,7 +125,6 @@ function addonBuildConfigForDataPackage(PackageName) {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
       plugins = plugins.concat(customPlugins.plugins);
-      plugins.push([require.resolve('ember-auto-import/babel-plugin')]);
 
       return {
         loose: true,
