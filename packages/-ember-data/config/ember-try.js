@@ -70,6 +70,7 @@ module.exports = function () {
           npm: {
             devDependencies: {
               'ember-source': urls[0],
+              '@glimmer/component': '^1.1.12',
             },
           },
         },

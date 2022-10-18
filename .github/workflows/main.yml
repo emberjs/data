@@ -220,7 +220,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies w/o lockfile
-        run: pnpm install --non-interactive --no-lockfile
+        run: pnpm install --no-lockfile
       - name: Build V2 Addons
         run: pnpm build-v2-addons
       - name: Basic Tests
@@ -331,7 +331,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install dependencies w/o lockfile
-        run: pnpm install --non-interactive
+        run: pnpm install
       - name: Build V2 Addons
         run: pnpm build-v2-addons
       - name: Basic Tests

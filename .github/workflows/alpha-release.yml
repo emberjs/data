@@ -23,7 +23,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies for master
-        run: pnpm install --non-interactive
+        run: pnpm install
       - name: Basic Tests
         env:
           CI: true
@@ -46,7 +46,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies for master
-        run: pnpm install --non-interactive
+        run: pnpm install
       - name: Make sure git user is setup
         run: |
           git config --local user.email 'tomster@emberjs.com'
