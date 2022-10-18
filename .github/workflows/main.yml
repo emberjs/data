@@ -194,6 +194,7 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --prefer-offline
+      - name: Build v2 Addons
         run: pnpm build-v2-addons
       - name: Launcher Info
         run: |
@@ -219,7 +220,7 @@ jobs:
           node-version: 16.x
           cache: 'pnpm'
       - name: Install dependencies w/o lockfile
-        run: pnpm install --non-interactive --no-lockfile      
+        run: pnpm install --non-interactive --no-lockfile
       - name: Build V2 Addons
         run: pnpm build-v2-addons
       - name: Basic Tests
