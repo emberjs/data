@@ -18,7 +18,7 @@
     "start": "ember serve"
   },
   "optionalDependencies": {
-    "@ember-data/record-data": "4.9.0-alpha.2"
+    "@ember-data/record-data": "4.9.0-alpha.6"
   },
   "dependencies": {
     "@ember-data/canary-features": "4.9.0-alpha.6",

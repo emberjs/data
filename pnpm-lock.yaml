@@ -881,7 +881,7 @@ importers:
       '@babel/runtime': ^7.19.3
       '@ember-data/canary-features': 4.9.0-alpha.6
       '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/record-data': 4.9.0-alpha.2
+      '@ember-data/record-data': 4.9.0-alpha.6
       '@ember-data/tracking': 4.9.0-alpha.6
       '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
       '@ember/optional-features': ^2.0.0
@@ -932,7 +932,7 @@ importers:
       ember-cli-path-utils: 1.0.0
       ember-cli-typescript: 5.1.1
     optionalDependencies:
-      '@ember-data/record-data': 4.9.0-alpha.2_wfdvla2jorjoj23kkavho2upde
+      '@ember-data/record-data': link:../record-data
     devDependencies:
       '@babel/core': 7.19.3
       '@babel/runtime': 7.19.4
@@ -3756,95 +3756,8 @@ packages:
     dev: true
     optional: true
 
-  /@ember-data/canary-features/4.9.0-alpha.2:
-    resolution: {integrity: sha512-yIroDV/EtO4HEpcR54ByXehQQ/evHfiL9MPJS3jkvL5YtQtYh29rTKg0LOOigkeZSI198SJLDWI5zQMWtw6fSQ==}
-    engines: {node: ^14.8.0 || 16.* || >= 18.*}
-    dependencies:
-      ember-cli-babel: 7.26.11
-      ember-cli-typescript: 5.1.1
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-    optional: true
-
-  /@ember-data/private-build-infra/4.9.0-alpha.2_@babel+core@7.19.3:
-    resolution: {integrity: sha512-OdD0b0HNIcswNBWsgzDZtPqSpN70isYrV0dF1r+r4CLrrL8dtCGkVu3Wy75MnlRhRdN+lVyvCFn2rpI9Fg6wtw==}
-    engines: {node: ^14.8.0 || 16.* || >= 18.*}
-    dependencies:
-      '@babel/plugin-transform-block-scoping': 7.19.4_@babel+core@7.19.3
-      '@ember-data/canary-features': 4.9.0-alpha.2
-      '@ember/edition-utils': 1.2.0
-      babel-plugin-debug-macros: 0.3.4_@babel+core@7.19.3
-      babel-plugin-filter-imports: 4.0.0
-      babel6-plugin-strip-class-callcheck: 6.0.0
-      broccoli-debug: 0.6.5
-      broccoli-file-creator: 2.1.1
-      broccoli-funnel: 3.0.8
-      broccoli-merge-trees: 4.2.0
-      broccoli-rollup: 5.0.0
-      calculate-cache-key-for-tree: 2.0.0
-      chalk: 4.1.2
-      ember-cli-babel: 7.26.11
-      ember-cli-path-utils: 1.0.0
-      ember-cli-string-utils: 1.1.0
-      ember-cli-typescript: 5.1.1
-      ember-cli-version-checker: 5.1.2
-      git-repo-info: 2.1.1
-      glob: 8.0.3
-      npm-git-info: 1.0.3
-      rimraf: 3.0.2
-      rsvp: 4.8.5
-      semver: 7.3.8
-      silent-error: 1.1.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-    dev: false
-    optional: true
-
-  /@ember-data/record-data/4.9.0-alpha.2_wfdvla2jorjoj23kkavho2upde:
-    resolution: {integrity: sha512-xg2M2ybGW13iRDAzpDfCTQ2qDOPlKpjU7DOUMOBGvAd8lE90BFgxEub6XrsoxGDevQa3SVpz+oCuEJorcYGZIg==}
-    engines: {node: ^14.8.0 || 16.* || >= 18.*}
-    requiresBuild: true
-    dependencies:
-      '@ember-data/canary-features': 4.9.0-alpha.2
-      '@ember-data/private-build-infra': 4.9.0-alpha.2_@babel+core@7.19.3
-      '@ember-data/store': 4.9.0-alpha.2_wfdvla2jorjoj23kkavho2upde
-      '@ember/edition-utils': 1.2.0
-      ember-auto-import: 2.4.3_webpack@5.74.0
-      ember-cli-babel: 7.26.11
-      ember-cli-test-info: 1.0.0
-      ember-cli-typescript: 5.1.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-      - webpack
-    dev: false
-    optional: true
-
   /@ember-data/rfc395-data/0.0.4:
     resolution: {integrity: sha512-tGRdvgC9/QMQSuSuJV45xoyhI0Pzjm7A9o/MVVA3HakXIImJbbzx/k/6dO9CUEQXIyS2y0fW6C1XaYOG7rY0FQ==}
-
-  /@ember-data/store/4.9.0-alpha.2_wfdvla2jorjoj23kkavho2upde:
-    resolution: {integrity: sha512-Q4unA7yRmGNgGWgKIQ42RhiW6IW+UzmW6cdci8JQHBEwvTufrjCohBEBw6dnLgYUvQ0fHHQUG6c1B++xJfTS/A==}
-    engines: {node: ^14.8.0 || 16.* || >= 18.*}
-    dependencies:
-      '@ember-data/canary-features': 4.9.0-alpha.2
-      '@ember-data/private-build-infra': 4.9.0-alpha.2_@babel+core@7.19.3
-      '@ember/string': 3.0.0
-      '@embroider/macros': 1.9.0
-      '@glimmer/tracking': 1.1.2
-      ember-auto-import: 2.4.3_webpack@5.74.0
-      ember-cached-decorator-polyfill: 0.1.4_@babel+core@7.19.3
-      ember-cli-babel: 7.26.11
-      ember-cli-path-utils: 1.0.0
-      ember-cli-typescript: 5.1.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-      - webpack
-    dev: false
-    optional: true
 
   /@ember/edition-utils/1.2.0:
     resolution: {integrity: sha512-VmVq/8saCaPdesQmftPqbFtxJWrzxNGSQ+e8x8LLe3Hjm36pJ04Q8LeORGZkAeOhldoUX9seLGmSaHeXkIqoog==}
