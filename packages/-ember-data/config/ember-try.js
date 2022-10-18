@@ -5,7 +5,7 @@ const getChannelURL = require('ember-source-channel-url');
 module.exports = function () {
   return Promise.all([getChannelURL('release'), getChannelURL('beta'), getChannelURL('canary')]).then((urls) => {
     return {
-      useYarn: true,
+      usePnpm: true,
       scenarios: [
         {
           name: 'with-ember-fetch-no-jquery',
@@ -70,6 +70,7 @@ module.exports = function () {
           npm: {
             devDependencies: {
               'ember-source': urls[0],
+              '@glimmer/component': '^1.1.2',
             },
           },
         },

@@ -36,6 +36,8 @@
     "webpack": "^5.74.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.9",
+    "@babel/runtime": "^7.18.9",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
     "@types/semver": "^7.3.12",
@@ -58,8 +60,7 @@
     "loader.js": "^4.7.0"
   },
   "engines": {
-    "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "node": "^14.8.0 || 16.* || >= 18.*"
   },
   "ember": {
     "edition": "octane"
@@ -69,6 +70,7 @@
   },
   "volta": {
     "node": "16.18.0",
-    "yarn": "1.22.19"
-  }
+    "pnpm": "7.12.2"
+  },
+	"packageManager": "pnpm@7.12.2"
 }

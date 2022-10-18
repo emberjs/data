@@ -27,7 +27,7 @@
  * *Using `yarn` to install the latest canary*
  *
  * ```cli
- * yarn add ember-data@canary
+ * pnpm add ember-data@canary
  * ```
  *
  * ### Activating a Canary Feature

@@ -2397,7 +2397,7 @@ class Store extends Service {
       // a cycle we can't easily fix (or clearly pin point) at present.
       //
       // it can be reproduced in partner tests by running
-      // node ./scripts/packages-for-commit.js && yarn test-external:ember-observer
+      // node ./scripts/packages-for-commit.js && pnpm test-external:ember-observer
       if (_RecordData === undefined) {
         _RecordData = (
           importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')

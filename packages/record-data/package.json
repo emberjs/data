@@ -33,6 +33,8 @@
     "ember-cli-typescript": "^5.1.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@babel/runtime": "^7.19.3",
     "@ember-data/model": "4.9.0-alpha.6",
     "@ember-data/unpublished-test-infra": "4.9.0-alpha.6",
     "@ember/optional-features": "^2.0.0",
@@ -74,6 +76,7 @@
   },
   "volta": {
     "node": "16.18.0",
-    "yarn": "1.22.19"
-  }
+    "pnpm": "7.12.2"
+  },
+	"packageManager": "pnpm@7.12.2"
 }

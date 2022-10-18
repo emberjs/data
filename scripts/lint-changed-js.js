@@ -32,7 +32,7 @@ if (LIST) {
       eslintInfo.extends.push('plugin:qunit/recommended');
       fs.writeFileSync(tmpEslint, `module.exports = ${JSON.stringify(eslintInfo)}`);
       // execut the linter with additional qunit rules
-      execa.sync(`yarn eslint --config ${tmpEslint} --ext=js,ts ${LIST}`, {
+      execa.sync(`pnpm eslint --config ${tmpEslint} --ext=js,ts ${LIST}`, {
         stdio: 'inherit',
         shell: true,
       });

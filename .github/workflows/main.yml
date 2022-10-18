@@ -22,51 +22,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
-      - name: Yarn install
-        run: yarn --frozen-lockfile
+          cache: 'pnpm'
+      - name: pnpm install
+        run: pnpm install
       - name: Lint features
-        run: yarn lint:features
+        run: pnpm lint:features
       - name: Lint js
-        run: yarn lint:js
+        run: pnpm lint:js
       - name: Check for TypeScript problems
-        run: yarn problems
+        run: pnpm problems
 
   test-infra:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
-      - name: Yarn install
-        run: yarn --frozen-lockfile
-      - name: Yarn test infra compatWith 3.0
+          cache: 'pnpm'
+      - name: pnpm install
+        run: pnpm install
+      - name: pnpm test infra compatWith 3.0
         env:
           COMPAT_WITH: '3.0'
-        run: yarn test:infra
-      - name: Yarn test infra compatWith 3.8
+        run: pnpm test:infra
+      - name: pnpm test infra compatWith 3.8
         env:
           COMPAT_WITH: '3.8'
-        run: yarn test:infra
-      - name: Yarn test infra compatWith 3.12
+        run: pnpm test:infra
+      - name: pnpm test infra compatWith 3.12
         env:
           COMPAT_WITH: '3.12'
-        run: yarn test:infra
-      - name: Yarn test infra compatWith 3.16
+        run: pnpm test:infra
+      - name: pnpm test infra compatWith 3.16
         env:
           COMPAT_WITH: '3.16'
-        run: yarn test:infra
-      - name: Yarn test infra compatWith 99.0
+        run: pnpm test:infra
+      - name: pnpm test infra compatWith 99.0
         env:
           COMPAT_WITH: '99.0'
-        run: yarn test:infra
-
+        run: pnpm test:infra
 
   basic-tests:
     timeout-minutes: 20
@@ -76,29 +81,32 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --network-timeout=300000
+        run: pnpm install --prefer-offline
       - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm build-v2-addons
       - name: Launcher Info
         run: |
-          yarn run testem launchers
+          pnpm exec testem launchers
       - name: Basic tests
-        run: yarn test
+        run: pnpm test
       - name: Production build
-        run: yarn test:production
+        run: pnpm test:production
       - name: Docs tests
-        run: yarn test:docs
+        run: pnpm test:docs
       - if: matrix.os != 'windows-latest'
         name: Node tests
-        run: yarn test:node
+        run: pnpm test:node
       - if: matrix.os == 'ubuntu-latest'
         name: Encapsulation tests
-        run: yarn test:encapsulation
+        run: pnpm test:encapsulation
       - if: |
           matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' && (
@@ -109,7 +117,7 @@ jobs:
         name: Enable All In progress features
         env:
           EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
-        run: yarn test
+        run: pnpm test
       - if: |
           matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' && (
@@ -120,7 +128,7 @@ jobs:
         name: Disabled All In progress features
         env:
           EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
-        run: yarn test
+        run: pnpm test
       - if: |
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
@@ -130,7 +138,7 @@ jobs:
         name: Remove All Deprecations
         env:
           EMBER_DATA_FULL_COMPAT: true
-        run: yarn test:production
+        run: pnpm test:production
 
   fastboot-tests:
     needs: [lint]
@@ -141,17 +149,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --network-timeout=300000
+        run: pnpm install --prefer-offline
       - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm build-v2-addons
       - name: Fastboot Test ${{ matrix.scenario }}
         timeout-minutes: 12
-        run: yarn test:fastboot ${{ matrix.scenario }}
+        run: pnpm test:fastboot ${{ matrix.scenario }}
 
   browser-tests:
     needs: [lint]
@@ -174,24 +185,26 @@ jobs:
     name: ${{matrix.launcher}} on ${{matrix.os}}
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --network-timeout=300000
-      - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm install --prefer-offline
+      - name: Build v2 Addons
+        run: pnpm build-v2-addons
       - name: Launcher Info
         run: |
-          yarn run testem launchers
+          pnpm exec testem launchers
       - name: Run Production Test
         timeout-minutes: 10
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
-        run:
-          yarn test:production
+        run: pnpm test:production
 
   floating-dependencies:
     timeout-minutes: 10
@@ -199,16 +212,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies w/o lockfile
-        run: yarn install --no-lockfile --non-interactive
+        run: pnpm install --no-lockfile
       - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm build-v2-addons
       - name: Basic Tests
-        run: yarn test
+        run: pnpm test
 
   lts:
     needs: [lint, basic-tests]
@@ -219,19 +235,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
       - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm build-v2-addons
       - name: Basic tests with ${{ matrix.scenario }}
         timeout-minutes: 10
         env:
           CI: true
-        run: yarn test:try-one ${{ matrix.scenario }}
+        run: pnpm test:try-one ${{ matrix.scenario }}
 
   releases:
     timeout-minutes: 10
@@ -252,18 +271,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
       - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm build-v2-addons
       - name: Basic tests with ${{ matrix.release }}
         env:
           CI: true
-        run: yarn test:try-one ${{ matrix.release }}
+        run: pnpm test:try-one ${{ matrix.release }}
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
 
   additional-scenarios:
@@ -271,28 +293,25 @@ jobs:
     needs: [lint, basic-tests]
     strategy:
       matrix:
-        scenario:
-          [
-            with-native-fetch,
-            with-ember-fetch-no-jquery,
-            with-ember-fetch-and-jquery,
-            with-jquery,
-          ]
+        scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --network-timeout=300000
+        run: pnpm install --prefer-offline
       - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm build-v2-addons
       - name: Basic tests with ${{ matrix.scenario }}
         env:
           CI: true
-        run: yarn test:try-one ${{ matrix.scenario }}
+        run: pnpm test:try-one ${{ matrix.scenario }}
 
   node-version-test:
     name: Use Node.js ${{ matrix.node-version }}
@@ -304,16 +323,19 @@ jobs:
         node-version: [14.x, 18.x]
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies w/o lockfile
-        run: yarn install --no-lockfile --non-interactive
+        run: pnpm install
       - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm build-v2-addons
       - name: Basic Tests
-        run: yarn test
+        run: pnpm test
 
   external-partners:
     needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
@@ -327,8 +349,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partner:
-          [
+        partner: [
             # ember-data-relationship-tracker,
             ember-m3,
             ember-observer,
@@ -356,14 +377,17 @@ jobs:
             continue-on-error: true
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
       - name: Build V2 Addons
-        run: yarn build-v2-addons
+        run: pnpm build-v2-addons
       - name: Generate package tarballs
         run: node ./scripts/packages-for-commit.js
       - name: Run Tests
@@ -371,7 +395,7 @@ jobs:
         timeout-minutes: 16
         env:
           CI: true
-        run: yarn test-external:${{ matrix.partner }}
+        run: pnpm test-external:${{ matrix.partner }}
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
       - name: Check on failures
         if: ${{ matrix['continue-on-error'] == true && steps.test-partner.outcome == 'success' }}

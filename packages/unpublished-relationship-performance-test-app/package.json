@@ -26,6 +26,8 @@
     "ember-data": "4.9.0-alpha.6"
   },
   "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@babel/runtime": "^7.19.3",
     "@ember-data/unpublished-test-infra": "4.9.0-alpha.6",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.7.0",
@@ -52,11 +54,11 @@
     "edition": "octane"
   },
   "engines": {
-    "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "node": "^14.8.0 || 16.* || >= 18.*"
   },
   "volta": {
     "node": "16.18.0",
-    "yarn": "1.22.19"
-  }
+    "pnpm": "7.12.2"
+  },
+	"packageManager": "pnpm@7.12.2"
 }

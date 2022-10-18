@@ -46,18 +46,18 @@ Twitter the Crosslinking the announcement to the following Discord channels.
 
    DO THIS PRIOR TO PUBLISHING THE NEXT RELEASE
 
-      ```
-      git fetch origin;
-      git checkout -b lts-<majorVersion>-<minorVersion> origin/release;
-      ```
+   ```
+   git fetch origin;
+   git checkout -b lts-<majorVersion>-<minorVersion> origin/release;
+   ```
 
    b. For subsequent releases of this `LTS`, ensure your local branch is in-sync with the remote.
 
-      ```
-      git fetch origin;
-      git checkout -b lts-<majorVersion>-<minorVersion>;
-      git reset --hard origin/lts-<majorVersion>-<minorVersion>;
-      ```
+   ```
+   git fetch origin;
+   git checkout -b lts-<majorVersion>-<minorVersion>;
+   git reset --hard origin/lts-<majorVersion>-<minorVersion>;
+   ```
 
 2. Generate the Changelog
 
@@ -73,13 +73,16 @@ For the first release of an LTS, `previous-version` will be the last released ve
 For subsequent versions it will be whatever version number we previously published for this LTS.
 
 To actually generate the changelog, run:
+
 ```
-yarn lerna-changelog --from=PREVIOUS_VERSION_TAG
+pnpm lerna-changelog --from=PREVIOUS_VERSION_TAG
 ```
+
 Note: if it is the first time that you use lerna-changelog, you might have to add a token to fetch from Github API:
-https://github.com/lerna/lerna-changelog#github-token 
+https://github.com/lerna/lerna-changelog#github-token
 
 Then:
+
 - insert lerna-changelog output to `CHANGELOG.md` underneath the document title
 - commit the changelog and push the change upstream:
 
@@ -91,17 +94,17 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 
 3. Publish the LTS
 
-    ```
-    node ./scripts/publish.js lts
-    ```
+   ```
+   node ./scripts/publish.js lts
+   ```
 
 4. Update the Release Notes on Github
 
-  - Visit [Ember Data Releases](https://github.com/emberjs/data/releases)
-    - Click on the "Tags"
-    - Click on the tag just published
-    - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
-    - Publish the release!
+- Visit [Ember Data Releases](https://github.com/emberjs/data/releases)
+  - Click on the "Tags"
+  - Click on the tag just published
+  - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
+  - Publish the release!
 
 ### Release
 
@@ -113,20 +116,20 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 
    DO THIS PRIOR TO PUBLISHING THE NEXT BETA
 
-      ```
-      git checkout release;
-      git fetch origin;
-      git reset --hard origin/beta;
-      git push origin release -f;
-      ```
+   ```
+   git checkout release;
+   git fetch origin;
+   git reset --hard origin/beta;
+   git push origin release -f;
+   ```
 
    b. For subsequent `release` releases during the cycle, we release from the `release` branch.
 
-      ```
-      git checkout release;
-      git fetch origin;
-      git reset --hard origin/release;
-      ```
+   ```
+   git checkout release;
+   git fetch origin;
+   git reset --hard origin/release;
+   ```
 
 2. Update associated lockstep dependencies
 
@@ -156,22 +159,22 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 
    `previous-version` will be whatever version we previously published as a `release`
 
-    ```
-    PRIOR_VERSION=<previous-version> HEAD=release ./bin/changelog
-    ```
+   ```
+   PRIOR_VERSION=<previous-version> HEAD=release ./bin/changelog
+   ```
 
-  - prepend a new section title for this version with Today's date to `CHANGELOG.md`
-  - insert changelog script output to `CHANGELOG.md` underneath this new section title
-  - edit changelog output to be as user-friendly as possible (drop [INTERNAL] changes, non-code changes, etc.)
-  - commit the changelog and push the change upstream
+- prepend a new section title for this version with Today's date to `CHANGELOG.md`
+- insert changelog script output to `CHANGELOG.md` underneath this new section title
+- edit changelog output to be as user-friendly as possible (drop [INTERNAL] changes, non-code changes, etc.)
+- commit the changelog and push the change upstream
 
-    ```
-    git add CHANGELOG.md;
-    git commit -m "Update Changelog for v<new-version>";
-    git push origin release;
-    ```
+  ```
+  git add CHANGELOG.md;
+  git commit -m "Update Changelog for v<new-version>";
+  git push origin release;
+  ```
 
-   Note it is prudent to make a PR to release to make sure there are no errors.
+Note it is prudent to make a PR to release to make sure there are no errors.
 
     ```
     git add CHANGELOG.md;
@@ -180,17 +183,17 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 
 5. Publish the release
 
-    ```
-    node ./scripts/publish.js release
-    ```
+   ```
+   node ./scripts/publish.js release
+   ```
 
 6. Update the Release Notes on Github
 
-  - Visit [Ember Data Releases](https://github.com/emberjs/data/releases)
-    - Click on the "more recent tags"
-    - Click on the tag just published
-    - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
-    - Publish the release!
+- Visit [Ember Data Releases](https://github.com/emberjs/data/releases)
+  - Click on the "more recent tags"
+  - Click on the tag just published
+  - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
+  - Publish the release!
 
 ### Beta
 
@@ -202,41 +205,41 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 
    DO THIS PRIOR TO PUBLISHING THE NEXT CANARY
 
-      ```
-      git checkout beta;
-      git fetch origin;
-      git reset --hard origin/master;
-      git push origin beta -f;
-      ```
+   ```
+   git checkout beta;
+   git fetch origin;
+   git reset --hard origin/master;
+   git push origin beta -f;
+   ```
 
    b. For subsequent `beta` releases during the cycle, we release from the beta branch.
 
-      ```
-      git checkout beta;
-      git fetch origin;
-      git reset --hard origin/beta;
-      ```
+   ```
+   git checkout beta;
+   git fetch origin;
+   git reset --hard origin/beta;
+   ```
 
 2. Generate the Changelog
 
    IT IS IMPORTANT THAT ALL CHANGES ARE ON THE REMOTE BRANCH SPECIFIED BY HEAD
 
-    ```
-    PRIOR_VERSION=<previous-beta-version> HEAD=beta ./bin/changelog
-    ```
+   ```
+   PRIOR_VERSION=<previous-beta-version> HEAD=beta ./bin/changelog
+   ```
 
-  - prepend a new section title for this version with Today's date to `CHANGELOG.md`
-  - insert changelog script output to `CHANGELOG.md` underneath this new section title
-  - edit changelog output to be as user-friendly as possible (drop [INTERNAL] changes, non-code changes, etc.)
-  - commit the changelog and push the change upstream
+- prepend a new section title for this version with Today's date to `CHANGELOG.md`
+- insert changelog script output to `CHANGELOG.md` underneath this new section title
+- edit changelog output to be as user-friendly as possible (drop [INTERNAL] changes, non-code changes, etc.)
+- commit the changelog and push the change upstream
 
-    ```
-    git add CHANGELOG.md;
-    git commit -m "Update Changelog for v<new-beta-version>";
-    git push origin beta;
-    ```
+  ```
+  git add CHANGELOG.md;
+  git commit -m "Update Changelog for v<new-beta-version>";
+  git push origin beta;
+  ```
 
-   Note it is prudent to make a PR to beta to make sure there are no errors.
+Note it is prudent to make a PR to beta to make sure there are no errors.
 
     ```
     git add CHANGELOG.md;
@@ -245,18 +248,18 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 
 3. Publish the weekly beta
 
-    ```
-    node ./scripts/publish.js beta
-    ```
+   ```
+   node ./scripts/publish.js beta
+   ```
 
 4. Update the Release Notes on Github
 
-  - Visit [Ember Data Releases](https://github.com/emberjs/data/releases)
-    - Click on the "more recent tags"
-    - Click on the tag just published
-    - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
-    - Click pre-release for beta releases
-    - Publish the release!
+- Visit [Ember Data Releases](https://github.com/emberjs/data/releases)
+  - Click on the "more recent tags"
+  - Click on the tag just published
+  - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
+  - Click pre-release for beta releases
+  - Publish the release!
 
 ### Canary
 
@@ -264,35 +267,36 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 
    DO NOT WORK FROM A LOCAL `master` branch THAT DIFFERS
 
-    ```js
-    git checkout master;
-    git fetch origin;
-    git reset --hard origin/master
-    ```
+   ```js
+   git checkout master;
+   git fetch origin;
+   git reset --hard origin/master
+   ```
 
 2. Publish the nightly.
 
    a. If this is the very first `canary` release for a new minor
 
-      ```
-      node ./scripts/publish.js canary --bumpMinor
-      ```
+   ```
+   node ./scripts/publish.js canary --bumpMinor
+   ```
 
    b. If this is the very first `canary` release for a new major
 
-      ```
-      node ./scripts/publish.js canary --bumpMajor
-      ```
+   ```
+   node ./scripts/publish.js canary --bumpMajor
+   ```
 
    c. For all other "nightly" canary releases
 
-      ```
-      node ./scripts/publish.js canary
-      ```
+   ```
+   node ./scripts/publish.js canary
+   ```
 
 Congrats, you are finished!
 
 #### Canary Auto Publish
+
 New canary versions are published to npm every Wednesday at 12pm PST by the `Alpha Release` GitHub action.
 It will always increment the pre-release version of what's currently in `lerna.json`. For example from `3.25.0-alpha.1`
 to `3.25.0-alpha.2`. **It requires a human to manually bump minor and major versions and publish**.
