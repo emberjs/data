@@ -109,7 +109,7 @@ importers:
       qunit-dom: ^2.0.0
       rimraf: ^3.0.2
       rsvp: ^4.8.5
-      semver: ^7.3.7
+      semver: ^7.3.8
       silent-error: ^1.1.1
       testem: ^3.9.0
       typescript: ~4.8.4
@@ -222,7 +222,7 @@ importers:
       qunit-dom: 2.0.0
       rimraf: 3.0.2
       rsvp: 4.8.5
-      semver: 7.3.7
+      semver: 7.3.8
       silent-error: 1.1.1
       testem: 3.9.0_debug@4.3.4
       typescript: 4.8.4
@@ -688,7 +688,7 @@ importers:
       npm-git-info: ^1.0.3
       rimraf: ^3.0.2
       rsvp: ^4.8.5
-      semver: ^7.3.7
+      semver: ^7.3.8
       silent-error: ^1.1.1
     dependencies:
       '@babel/core': 7.19.3
@@ -716,7 +716,7 @@ importers:
       npm-git-info: 1.0.3
       rimraf: 3.0.2
       rsvp: 4.8.5
-      semver: 7.3.7
+      semver: 7.3.8
       silent-error: 1.1.1
 
   packages/record-data:
@@ -5567,7 +5567,7 @@ packages:
   /@types/ember__controller/4.0.1:
     resolution: {integrity: sha512-4hX+CjjX2KBpcOyEpcs1SSBmxYlavdAZqcyR23JUnBS+dGjlku15BQu6ZXFKIf84x7izNhC+TrYvAOeLE/Af3w==}
     dependencies:
-      '@types/ember__object': 4.0.4_@babel+core@7.19.1
+      '@types/ember__object': 4.0.4_@babel+core@7.19.3
     dev: true
 
   /@types/ember__controller/4.0.1_@babel+core@7.19.1:
@@ -5637,7 +5637,7 @@ packages:
   /@types/ember__object/4.0.4:
     resolution: {integrity: sha512-RwiyzQXKTyFVfZvrYQYtZhfrYAXrNEvtO98vdlzak0MHaks/AkOSNxuTU4tjhfzto4dOcfr6mi8C5mN+yz7LFQ==}
     dependencies:
-      '@types/ember': 4.0.1_@babel+core@7.19.1
+      '@types/ember': 4.0.1_@babel+core@7.19.3
       '@types/rsvp': 4.0.4
     dev: true
 
@@ -9280,7 +9280,7 @@ packages:
       ember-cli: ^3.2.0 || ^4.0.0
     dependencies:
       chalk: 2.4.2
-      ember-cli: 4.7.0_debug@4.3.4
+      ember-cli: 4.7.0
       find-yarn-workspace-root: 1.2.1
       is-git-url: 1.0.0
       resolve: 1.22.1

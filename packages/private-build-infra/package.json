@@ -40,7 +40,7 @@
     "npm-git-info": "^1.0.3",
     "rimraf": "^3.0.2",
     "rsvp": "^4.8.5",
-    "semver": "^7.3.7",
+    "semver": "^7.3.8",
     "silent-error": "^1.1.1"
   },
   "engines": {
