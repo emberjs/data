@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   performance-checks:
-    if: github.event.label.name == 'changelog:perf'
+    if: github.event.label.name == 'ci-perf'
     name: 'Performance Check Against Release'
     runs-on: ubuntu-latest
     steps:
