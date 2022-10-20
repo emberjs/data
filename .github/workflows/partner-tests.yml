@@ -1,8 +1,9 @@
 name: Partner Tests
 
-pull_request:
-  types:
-    - labeled
+on:
+  pull_request:
+    types:
+      - labeled
 
 concurrency:
   group: partners-${{ github.head_ref }}
