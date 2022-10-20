@@ -24,13 +24,13 @@
   },
   "dependencies": {
     "ember-auto-import": "^2.4.3",
-    "ember-data": "4.9.0-alpha.6",
+    "ember-data": "workspace:4.9.0-alpha.6",
     "ember-inflector": "^4.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.3",
-    "@babel/runtime": "^7.19.3",
-    "@ember-data/unpublished-test-infra": "4.9.0-alpha.6",
+    "@babel/core": "^7.19.6",
+    "@babel/runtime": "^7.19.4",
+    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
     "@glimmer/component": "^1.1.2",
@@ -78,5 +78,5 @@
     "node": "16.18.0",
     "pnpm": "7.13.5"
   },
-	"packageManager": "pnpm@7.13.5"
+  "packageManager": "pnpm@7.13.5"
 }
