@@ -2,14 +2,15 @@ name: AssetSizeCheck
 
 on:
   pull_request:
-    branches:
-      - master
+    types:
+      - labeled
 
 concurrency:
   group: asset-size-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
+  if: github.event.label.name == 'ci-asset-size'
   asset-size-check:
     runs-on: ubuntu-latest
     steps:
