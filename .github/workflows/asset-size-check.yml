@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  if: github.event.label.name == 'ci-asset-size'
   asset-size-check:
+    if: github.event.label.name == 'ci-asset-size'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

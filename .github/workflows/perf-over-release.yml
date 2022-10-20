@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  performance-checks:
+  release-performance-checks:
     if: github.event.label.name == 'ci-perf'
     name: 'Performance Check Against Release'
     runs-on: ubuntu-latest
