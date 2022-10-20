@@ -2,6 +2,8 @@ name: Partner Tests
 
 on:
   pull_request:
+    branches:
+      - master
     types:
       - labeled
 
@@ -11,7 +13,7 @@ concurrency:
 
 jobs:
   partner-tests:
-    if: github.event.label.name == 'ci-partners'
+    if: contains(github.event.pull_request.labels.*.name, 'ci-partners')
     name: 'Partner Tests'
     runs-on: ubuntu-latest
     strategy:

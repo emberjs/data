@@ -2,6 +2,8 @@ name: AssetSizeCheck
 
 on:
   pull_request:
+    branches:
+      - master
     types:
       - labeled
 
@@ -11,7 +13,7 @@ concurrency:
 
 jobs:
   asset-size-check:
-    if: github.event.label.name == 'ci-asset-size'
+    if: contains(github.event.pull_request.labels.*.name, 'ci-asset-size')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

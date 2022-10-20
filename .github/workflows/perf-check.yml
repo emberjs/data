@@ -2,6 +2,8 @@ name: Performance Checks
 
 on:
   pull_request:
+    branches:
+      - master
     types:
       - labeled
 
@@ -11,7 +13,7 @@ concurrency:
 
 jobs:
   performance-checks:
-    if: github.event.label.name == 'ci-perf'
+    if: contains(github.event.pull_request.labels.*.name, 'ci-perf')
     name: 'Performance Checks'
     runs-on: ubuntu-latest
     steps:
