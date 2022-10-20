@@ -48,7 +48,7 @@
     "@babel/runtime": "^7.18.9",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "~2.7.0",
+    "@ember/test-helpers": "~2.8.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/env": "^0.1.7",
     "@types/ember": "^4.0.1",

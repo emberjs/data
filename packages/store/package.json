@@ -38,7 +38,7 @@
     "@babel/runtime": "^7.19.3",
     "@ember-data/unpublished-test-infra": "4.9.0-alpha.6",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "~2.7.0",
+    "@ember/test-helpers": "~2.8.1",
     "@types/ember": "^4.0.1",
     "@types/ember__service": "^4.0.0",
     "@types/ember__application": "^4.0.1",
