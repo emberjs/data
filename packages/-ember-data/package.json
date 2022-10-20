@@ -59,7 +59,7 @@
     "@types/ember__debug": "^4.0.1",
     "@types/ember__test-helpers": "^2.8.1",
     "@types/ember__utils": "^4.0.1",
-    "@types/qunit": "^2.19.2",
+    "@types/qunit": "^2.19.3",
     "@types/rsvp": "^4.0.4",
     "broccoli-concat": "^4.2.5",
     "broccoli-stew": "^3.0.0",
@@ -91,7 +91,7 @@
     "json-typescript": "^1.1.2",
     "loader.js": "^4.7.0",
     "pretender": "^3.4.7",
-    "qunit": "^2.19.1",
+    "qunit": "^2.19.2",
     "qunit-dom": "^2.0.0",
     "typescript": "~4.8.4",
     "webpack": "^5.74.0"
