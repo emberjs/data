@@ -44,7 +44,6 @@
     "ember-cli-terser": "~4.0.2",
     "ember-disable-prototype-extensions": "^1.1.3",
     "ember-export-application-global": "^2.0.1",
-    "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^6.0.0",
     "ember-resolver": "^8.0.3",

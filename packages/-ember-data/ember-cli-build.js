@@ -60,6 +60,7 @@ module.exports = function (defaults) {
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
       includeExternalHelpers: true,
+      enableTypeScriptTransform: true,
     },
     'ember-cli-terser': terserSettings,
     '@embroider/macros': {
