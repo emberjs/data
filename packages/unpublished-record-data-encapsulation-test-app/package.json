@@ -66,5 +66,5 @@
     "node": "16.18.0",
     "pnpm": "7.12.2"
   },
-	"packageManager": "pnpm@7.12.2"
+	"packageManager": "pnpm@7.13.5"
 }
