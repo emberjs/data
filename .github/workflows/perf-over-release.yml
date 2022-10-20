@@ -6,6 +6,8 @@ on:
       - master
     types:
       - labeled
+      - synchronize
+      - ready_for_review
 
 concurrency:
   group: perf-release-${{ github.head_ref }}
