@@ -50,7 +50,7 @@
     "@babel/core": "^7.18.9",
     "@babel/runtime": "^7.18.9",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "~2.7.0",
+    "@ember/test-helpers": "~2.8.1",
     "@glimmer/component": "^1.1.2",
     "@types/ember": "^4.0.1",
     "@types/ember__object": "^4.0.4",

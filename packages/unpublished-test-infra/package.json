@@ -39,7 +39,7 @@
     "@babel/core": "^7.18.9",
     "@babel/runtime": "^7.18.9",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "~2.7.0",
+    "@ember/test-helpers": "~2.8.1",
     "@types/semver": "^7.3.12",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",

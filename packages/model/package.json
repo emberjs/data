@@ -43,7 +43,7 @@
     "@babel/runtime": "^7.19.3",
     "@ember-data/unpublished-test-infra": "4.9.0-alpha.6",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "~2.7.0",
+    "@ember/test-helpers": "~2.8.1",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~4.7.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
