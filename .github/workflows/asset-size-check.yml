@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   asset-size-check:
-    if: contains(github.event.pull_request.labels.*.name, 'ci-asset-size')
+    if: contains(github.event.pull_request.labels.*.name, 'ci-assetsize')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
