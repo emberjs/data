@@ -28,7 +28,7 @@
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-cli-typescript": "^5.1.1",
     "ember-get-config": "^2.1.1",
-    "qunit": "^2.19.1",
+    "qunit": "^2.19.2",
     "qunit-dom": "^2.0.0",
     "rsvp": "^4.8.5",
     "semver": "^7.3.8",
