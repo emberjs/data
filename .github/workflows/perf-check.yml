@@ -2,8 +2,8 @@ name: Performance Checks
 
 on:
   pull_request:
-    branches:
-      - master
+    types:
+      - labeled
 
 concurrency:
   group: perf-${{ github.head_ref }}
@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   performance-checks:
+    if: github.event.label.name == 'changelog:perf'
     name: 'Performance Checks'
     runs-on: ubuntu-latest
     steps:

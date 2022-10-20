@@ -9,7 +9,6 @@
     "directory": "packages/unpublished-eslint-rules"
   },
   "volta": {
-    "node": "16.18.0",
-    "yarn": "1.22.19"
+    "node": "16.18.0"
   }
 }
