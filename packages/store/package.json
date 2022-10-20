@@ -41,7 +41,7 @@
     "@ember/test-helpers": "~2.8.1",
     "@types/ember": "^4.0.1",
     "@types/ember__service": "^4.0.0",
-    "@types/ember__application": "^4.0.1",
+    "@types/ember__application": "^4.0.2",
     "@types/ember__object": "^4.0.4",
     "@types/rsvp": "^4.0.4",
     "broccoli-asset-rev": "^3.0.0",
