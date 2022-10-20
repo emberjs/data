@@ -17,7 +17,7 @@ jobs:
           fi
       - uses: pnpm/action-setup@v2
         with:
-          version: '7.12.2'
+          version: '7.13.5'
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
         with:
-          version: '7.12.2'
+          version: '7.13.5'
       - uses: actions/setup-node@v3
         with:
           registry-url: 'https://registry.npmjs.org'
