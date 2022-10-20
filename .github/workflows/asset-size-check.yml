@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - master
+    types:
+      - labeled
+      - synchronize
+      - ready_for_review
 
 concurrency:
   group: asset-size-${{ github.head_ref }}
@@ -11,6 +15,7 @@ concurrency:
 
 jobs:
   asset-size-check:
+    if: contains(github.event.pull_request.labels.*.name, 'ci-assetsize')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -37,13 +42,11 @@ jobs:
       - name: Checkout master
         run: git checkout master
       - name: Install dependencies for master
-        run: yarn install
+        run: pnpm install
       - name: Build V2 Addons
-        run: npm run --if-present build-v2-addons
+        run: pnpm run --if-present build-v2-addons
       - name: Build Production master
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/control
-      - name: Build Production master (no rollup)
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/control-no-rollup
+        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/control
       - name: Checkout ${{github.ref}}
         run: |
           sha=$(cat tmp/sha-for-check.txt)
@@ -51,41 +54,25 @@ jobs:
       - name: Install dependencies for ${{github.ref}}
         run: pnpm install
       - name: Build V2 Addons
-        run: npm run --if-present build-v2-addons
+        run: pnpm run --if-present build-v2-addons
       - name: Build Production ${{github.ref}}
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" ember build -e production --output-path dists/experiment
-      - name: Build Production ${{github.ref}} (no rollup)
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false pnpm --filter "ember-data" ember build -e production --output-path dists/experiment-no-rollupgit
+        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/experiment
       - name: Analyze Master Assets
         run: |
           mkdir -p tmp
           mkdir -p tmp/asset-sizes
           node ./scripts/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/control ./control-data.json
           node ./scripts/asset-size-tracking/print-analysis.js ./control-data.json -show > tmp/asset-sizes/master-analysis.txt
-      - name: Analyze Master Assets (no rollup)
-        run: |
-          node ./scripts/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/control-no-rollup ./control-data-no-rollup.json
-          node ./scripts/asset-size-tracking/print-analysis.js ./control-data-no-rollup.json -show > tmp/asset-sizes/master-analysis-no-rollup.txt
       - name: Analyze ${{github.ref}} Assets
         run: |
           node ./scripts/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/experiment ./experiment-data.json
           node ./scripts/asset-size-tracking/print-analysis.js ./experiment-data.json -show > tmp/asset-sizes/experiment-analysis-full.txt
           node ./scripts/asset-size-tracking/print-analysis.js ./experiment-data.json > tmp/asset-sizes/experiment-analysis.txt
-      - name: Analyze ${{github.ref}} Assets
-        run: |
-          node ./scripts/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/experiment-no-rollup ./experiment-data-no-rollup.json
-          node ./scripts/asset-size-tracking/print-analysis.js ./experiment-data-no-rollup.json -show > tmp/asset-sizes/experiment-analysis-no-rollup-full.txt
-          node ./scripts/asset-size-tracking/print-analysis.js ./experiment-data-no-rollup.json > tmp/asset-sizes/experiment-analysis-no-rollup.txt
       - name: Test Asset Sizes
         if: failure() || success()
         run: |
           set -o pipefail
           node ./scripts/asset-size-tracking/generate-diff.js ./control-data.json ./experiment-data.json | tee tmp/asset-sizes/diff.txt
-      - name: Test Asset Sizes
-        if: failure() || success()
-        run: |
-          # we don't set -o pipefail as this should always pass, we just want the diff
-          node ./scripts/asset-size-tracking/generate-diff.js ./control-data-no-rollup.json ./experiment-data-no-rollup.json | tee tmp/asset-sizes/diff-no-rollup.txt
       - name: Upload Dist Artifacts
         if: failure() || success()
         uses: actions/upload-artifact@v3

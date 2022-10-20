@@ -1,0 +1,74 @@
+name: Partner Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - labeled
+      - synchronize
+      - ready_for_review
+
+concurrency:
+  group: partners-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  partner-tests:
+    if: contains(github.event.pull_request.labels.*.name, 'ci-partners')
+    name: 'Partner Tests'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        partner: [
+            # ember-data-relationship-tracker,
+            ember-m3,
+            ember-observer,
+            # ember-resource-metadata,
+            factory-guy,
+            ilios-frontend,
+            model-fragments,
+            storefront,
+            travis-web,
+          ]
+        include:
+          - partner: storefront
+            continue-on-error: true
+          - partner: factory-guy
+            continue-on-error: true
+          - partner: travis-web
+            continue-on-error: true
+          - partner: ilios-frontend
+            continue-on-error: true
+          - partner: model-fragments
+            continue-on-error: true
+          - partner: ember-observer
+            continue-on-error: true
+          - partner: ember-m3
+            continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: '7.12.2'
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build V2 Addons
+        run: pnpm build-v2-addons
+      - name: Generate package tarballs
+        run: node ./scripts/packages-for-commit.js
+      - name: Run Tests
+        id: test-partner
+        timeout-minutes: 16
+        env:
+          CI: true
+        run: pnpm test-external:${{ matrix.partner }}
+        continue-on-error: ${{ matrix['continue-on-error'] == true }}
+      - name: Check on failures
+        if: ${{ matrix['continue-on-error'] == true && steps.test-partner.outcome == 'success' }}
+        run: exit 1
