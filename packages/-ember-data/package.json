@@ -48,7 +48,7 @@
     "@babel/core": "^7.19.6",
     "@babel/plugin-transform-typescript": "^7.19.3",
     "@babel/runtime": "^7.19.4",
-    "@ember-data/unpublished-test-infra": "link:packages/unpublished-test-infra",
+    "@ember-data/unpublished-test-infra": "link:../unpublished-test-infra",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
     "@glimmer/component": "^1.1.2",

@@ -33,7 +33,7 @@
   "devDependencies": {
     "@babel/core": "^7.19.6",
     "@babel/runtime": "^7.19.4",
-    "@ember-data/unpublished-test-infra": "link:packages/unpublished-test-infra",
+    "@ember-data/unpublished-test-infra": "link:../unpublished-test-infra",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.0",
     "@ember/test-helpers": "~2.8.1",
