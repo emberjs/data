@@ -1,6 +1,12 @@
 const fs = require('fs');
+const path = require('path');
+
+const PGK_ROOT = path.join(__dirname, '../../');
 
 module.exports = function requireModule(modulePath) {
+  if (modulePath.startsWith('@ember-data/private-build-infra')) {
+    modulePath = modulePath.replace('@ember-data/private-build-infra', PGK_ROOT);
+  }
   const path = require.resolve(modulePath);
   const fileContents = fs.readFileSync(path, { encoding: 'utf8' });
   let newContents;
