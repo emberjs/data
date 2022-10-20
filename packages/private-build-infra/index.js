@@ -2,6 +2,11 @@
 
 module.exports = {
   name: require('./package').name,
+  options: {
+    'ember-cli-babel': {
+      enableTypeScriptTransform: true,
+    },
+  },
   treeFor() {
     // Nested addons don't call isEnabled automatically,
     // So this ensures that we return empty trees whenever
