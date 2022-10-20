@@ -35,7 +35,7 @@ jobs:
           git show --format=short --no-patch $originSha
       - uses: pnpm/action-setup@v2
         with:
-          version: '7.12.2'
+          version: '7.13.5'
       - uses: tracerbench/tracerbench-compare-action@master
         with:
           experiment-build-command: npm run --if-present build-v2-addons && pnpm --filter relationship-performance-test-app exec ember build -e production --output-path dist-experiment
