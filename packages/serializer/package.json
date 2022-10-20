@@ -19,7 +19,7 @@
     "test:node": "mocha"
   },
   "peerDependencies": {
-    "@ember-data/store": "4.9.0-alpha.4"
+    "@ember-data/store": "4.9.0-alpha.6"
   },
   "dependencies": {
     "@ember-data/private-build-infra": "4.9.0-alpha.6",
