@@ -41,9 +41,9 @@ jobs:
       - name: Build V2 Addons
         run: pnpm run --if-present build-v2-addons
       - name: Build Production master
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" ember build -e production --output-path dists/control
+        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/control
       - name: Build Production master (no rollup)
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false pnpm --filter "ember-data" ember build -e production --output-path dists/control-no-rollup
+        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false pnpm --filter "ember-data" exec ember build -e production --output-path dists/control-no-rollup
       - name: Checkout ${{github.ref}}
         run: |
           sha=$(cat tmp/sha-for-check.txt)
@@ -53,9 +53,9 @@ jobs:
       - name: Build V2 Addons
         run: pnpm run --if-present build-v2-addons
       - name: Build Production ${{github.ref}}
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" ember build -e production --output-path dists/experiment
+        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/experiment
       - name: Build Production ${{github.ref}} (no rollup)
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false pnpm --filter "ember-data" ember build -e production --output-path dists/experiment-no-rollup
+        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false pnpm --filter "ember-data" exec ember build -e production --output-path dists/experiment-no-rollup
       - name: Analyze Master Assets
         run: |
           mkdir -p tmp
