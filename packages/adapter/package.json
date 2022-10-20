@@ -35,7 +35,7 @@
   "devDependencies": {
     "@babel/core": "^7.19.6",
     "@babel/runtime": "^7.19.4",
-    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
+    "@ember-data/unpublished-test-infra": "link:packages/unpublished-test-infra",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
     "broccoli-asset-rev": "^3.0.0",
