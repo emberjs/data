@@ -26,6 +26,9 @@ function addonBuildConfigForDataPackage(PackageName) {
         '@embroider/macros': {
           setOwnConfig: {},
         },
+        'ember-cli-babel': {
+          enableTypeScriptTransform: true,
+        },
       });
     },
 

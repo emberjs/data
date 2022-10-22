@@ -33,7 +33,6 @@
     "ember-cli-babel": "^7.26.11",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
-    "ember-cli-typescript": "^5.1.1",
     "ember-cli-version-checker": "^5.1.2",
     "git-repo-info": "^2.1.1",
     "glob": "^8.0.3",
