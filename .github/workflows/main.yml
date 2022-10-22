@@ -36,41 +36,6 @@ jobs:
       - name: Check for TypeScript problems
         run: pnpm problems
 
-  test-infra:
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: pnpm install
-        run: pnpm install
-      - name: pnpm test infra compatWith 3.0
-        env:
-          COMPAT_WITH: '3.0'
-        run: pnpm test:infra
-      - name: pnpm test infra compatWith 3.8
-        env:
-          COMPAT_WITH: '3.8'
-        run: pnpm test:infra
-      - name: pnpm test infra compatWith 3.12
-        env:
-          COMPAT_WITH: '3.12'
-        run: pnpm test:infra
-      - name: pnpm test infra compatWith 3.16
-        env:
-          COMPAT_WITH: '3.16'
-        run: pnpm test:infra
-      - name: pnpm test infra compatWith 99.0
-        env:
-          COMPAT_WITH: '99.0'
-        run: pnpm test:infra
-
   basic-tests:
     timeout-minutes: 20
     strategy:

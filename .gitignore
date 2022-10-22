@@ -23,6 +23,7 @@ lerna-debug.log*
 npm-debug.log*
 testem.log
 yarn-error.log
+.broccoli-cache
 
 # Ignore artifacts of publishing
 *.tgz
