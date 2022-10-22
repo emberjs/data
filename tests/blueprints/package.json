@@ -1,0 +1,32 @@
+{
+  "name": "blueprint-tests",
+  "version": "4.9.0-alpha.6",
+  "private": true,
+  "description": "Provides tests for blueprints",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/blueprints"
+  },
+  "license": "MIT",
+  "author": "",
+  "scripts": {
+    "test:node": "mocha"
+  },
+  "devDependencies": {
+    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
+    "@ember-data/serializer": "workspace:4.9.0-alpha.6",
+    "ember-cli": "~4.8.0",
+    "ember-cli-blueprint-test-helpers": "^0.19.2",
+    "silent-error": "^1.1.1"
+  },
+  "engines": {
+    "node": "^14.8.0 || 16.* || >= 18.*"
+  },
+  "volta": {
+    "node": "16.18.0",
+    "pnpm": "7.13.5"
+  },
+	"packageManager": "pnpm@7.13.5"
+}

@@ -296,6 +296,7 @@ module.exports = {
         'tests/*/.template-lintrc.js',
         'tests/*/config/**/*.js',
         'tests/*/tests/dummy/config/**/*.js',
+        'tests/*/node-tests/**/*.js',
         'packages/-ember-data/lib/*.js',
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',
@@ -337,9 +338,16 @@ module.exports = {
 
     // node tests
     {
-      files: ['packages/*/node-tests/**', 'packages/unpublished-test-infra/src/node-test-helpers/**/*'],
+      files: [
+        'packages/*/node-tests/**',
+        'tests/*/node-tests/**',
+        'packages/unpublished-test-infra/src/node-test-helpers/**/*',
+      ],
       env: {
         mocha: true,
+      },
+      rules: {
+        'node/no-unpublished-require': 'off',
       },
     },
 

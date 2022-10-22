@@ -7,7 +7,8 @@
   },
   "devDependencies": {
     "ember-cli": "*",
-    "ember-data": "*"
+    "ember-data": "*",
+    "@ember-data/serializer": "*"
   },
   "keywords": [
     "ember-addon"
