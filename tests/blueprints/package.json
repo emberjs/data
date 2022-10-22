@@ -14,7 +14,7 @@
     "test:node": "mocha"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "link:../../packages/unpublished-test-infra",
+    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
     "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
     "@ember-data/serializer": "workspace:4.9.0-alpha.6",
     "ember-cli": "~4.8.0",
