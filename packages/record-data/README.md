@@ -1,21 +1,12 @@
 # @ember-data/record-data
 
-Provides the default RecordData implementation for EmberData.
-
-## Compatibility
-
-- Ember.js v3.4 or above
-- Ember CLI v2.13 or above
+Provides the default JSON:API Cache implementation for EmberData.
 
 ## Installation
 
 ```
 ember install @ember-data/record-data
 ```
-
-## Usage
-
-[Longer description of how to use the addon in apps.]
 
 ## License
 

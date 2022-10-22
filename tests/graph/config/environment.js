@@ -1,16 +1,21 @@
 'use strict';
 
 module.exports = function (environment) {
-  var ENV = {
-    modulePrefix: 'dummy',
-    podModulePrefix: 'dummy/routes',
-    environment: environment,
+  let ENV = {
+    modulePrefix: 'graph-test-app',
+    environment,
     rootURL: '/',
     locationType: 'auto',
     EmberENV: {
-      RAISE_ON_DEPRECATION: false,
+      FEATURES: {
+        // Here you can enable experimental features on an ember canary build
+        // e.g. EMBER_NATIVE_DECORATOR_SUPPORT: true
+      },
+      EXTEND_PROTOTYPES: {
+        // Prevent Ember Data from overriding Date.parse.
+        Date: false,
+      },
     },
-    ASSERT_ALL_DEPRECATIONS: process.env.ASSERT_ALL_DEPRECATIONS === 'true',
 
     APP: {
       // Here you can pass flags/options to your application instance
@@ -36,6 +41,10 @@ module.exports = function (environment) {
 
     ENV.APP.rootElement = '#ember-testing';
     ENV.APP.autoboot = false;
+  }
+
+  if (environment === 'production') {
+    // here you can enable a production-specific feature
   }
 
   return ENV;

@@ -56,6 +56,8 @@
       "@ember-data/unpublished-test-infra/test-support/*": ["packages/unpublished-test-infra/addon-test-support/*"],
       "fastboot-test-app/tests/*": ["tests/*"],
       "fastboot-test-app/*": ["app/*"],
+      "graph-test-app/tests/*": ["tests/graph/tests/*"],
+      "graph-test-app/*": ["tests/graph/app/*"],
       "*": ["@types/*", "packages/fastboot-test-app/types/*"]
     }
   },
@@ -67,7 +69,10 @@
     "packages/**/tests/**/*",
     "packages/fastboot-test-app/types/**/*",
     "packages/**/test-support/**/*",
-    "packages/**/addon-test-support/**/*"
+    "packages/**/addon-test-support/**/*",
+    "tests/**/app/**/*",
+    "tests/**/addon/**/*",
+    "tests/**/tests/**/*"
   ],
   "exclude": ["node_modules", "packages/**/node_modules",  "packages/**/dist",  "packages/**/DEBUG"]
 }

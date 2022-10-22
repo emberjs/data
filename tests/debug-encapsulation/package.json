@@ -6,7 +6,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
-    "directory": "packages/unpublished-debug-encapsulation-test-app"
+    "directory": "tests/debug-encapsulation"
   },
   "license": "MIT",
   "author": "",
