@@ -17,12 +17,6 @@ function addonBuildConfigForDataPackage(PackageName) {
   return {
     name: PackageName,
 
-    options: {
-      'ember-cli-babel': {
-        enableTypeScriptTransform: true,
-      },
-    },
-
     init() {
       this._super.init && this._super.init.apply(this, arguments);
       this._prodLikeWarning();
@@ -31,6 +25,9 @@ function addonBuildConfigForDataPackage(PackageName) {
       Object.assign(this.options, {
         '@embroider/macros': {
           setOwnConfig: {},
+        },
+        'ember-cli-babel': {
+          enableTypeScriptTransform: true,
         },
       });
     },
