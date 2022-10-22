@@ -22,15 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
         with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: pnpm install
-        run: pnpm install
+          restore-lint-caches: true
+          install: true
       - name: Lint js
         run: pnpm lint:js
       - name: Check for TypeScript problems
@@ -44,20 +39,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
         with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --prefer-offline
-      - name: Build V2 Addons
-        run: pnpm build-v2-addons
-      - name: Launcher Info
-        run: |
-          pnpm exec testem launchers
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
       - name: Basic tests
         run: pnpm test
       - name: Production build
@@ -112,17 +98,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
         with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --prefer-offline
-      - name: Build V2 Addons
-        run: pnpm build-v2-addons
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
       - name: Fastboot Test ${{ matrix.scenario }}
         timeout-minutes: 12
         run: pnpm test:fastboot ${{ matrix.scenario }}
@@ -148,20 +128,11 @@ jobs:
     name: ${{matrix.launcher}} on ${{matrix.os}}
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
         with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --prefer-offline
-      - name: Build v2 Addons
-        run: pnpm build-v2-addons
-      - name: Launcher Info
-        run: |
-          pnpm exec testem launchers
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
       - name: Run Production Test
         timeout-minutes: 10
         env:
@@ -175,13 +146,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
+      - uses: ./.github/actions/setup
       - name: Install dependencies w/o lockfile
         run: pnpm install --no-lockfile
       - name: Build V2 Addons
@@ -198,17 +163,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
         with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build V2 Addons
-        run: pnpm build-v2-addons
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
       - name: Basic tests with ${{ matrix.scenario }}
         timeout-minutes: 10
         env:
@@ -230,21 +189,15 @@ jobs:
         release: [ember-release, ember-beta]
         include:
           - release: ember-beta
-            continue-on-error: true
+            continue-on-error: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
         with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build V2 Addons
-        run: pnpm build-v2-addons
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
       - name: Basic tests with ${{ matrix.release }}
         env:
           CI: true
@@ -260,17 +213,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
         with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --prefer-offline
-      - name: Build V2 Addons
-        run: pnpm build-v2-addons
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
       - name: Basic tests with ${{ matrix.scenario }}
         env:
           CI: true

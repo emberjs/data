@@ -49,17 +49,11 @@ jobs:
             continue-on-error: true
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/setup
         with:
-          version: '7.13.5'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build V2 Addons
-        run: pnpm build-v2-addons
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
       - name: Generate package tarballs
         run: node ./scripts/packages-for-commit.js
       - name: Run Tests
