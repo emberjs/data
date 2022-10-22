@@ -46,7 +46,7 @@ jobs:
       - name: Build V2 Addons
         run: pnpm run --if-present build-v2-addons
       - name: Build Production master
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/control
+        run: EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/control
       - name: Checkout ${{github.ref}}
         run: |
           sha=$(cat tmp/sha-for-check.txt)
@@ -56,7 +56,7 @@ jobs:
       - name: Build V2 Addons
         run: pnpm run --if-present build-v2-addons
       - name: Build Production ${{github.ref}}
-        run: IS_ASSET_SIZE_CHECK=true EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/experiment
+        run: EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/experiment
       - name: Analyze Master Assets
         run: |
           mkdir -p tmp
