@@ -30,6 +30,7 @@ module.exports = function rollupPrivateModule(tree, options) {
     disablePresetEnv: false,
     disableDebugTooling: false,
     disableDecoratorTransforms: false,
+    enableTypeScriptTransform: true,
 
     throwUnlessParallelizable: true,
 

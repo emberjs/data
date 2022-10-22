@@ -17,6 +17,12 @@ function addonBuildConfigForDataPackage(PackageName) {
   return {
     name: PackageName,
 
+    options: {
+      'ember-cli-babel': {
+        enableTypeScriptTransform: true,
+      },
+    },
+
     init() {
       this._super.init && this._super.init.apply(this, arguments);
       this._prodLikeWarning();
