@@ -14,6 +14,7 @@
 # dependencies
 **/bower_components/
 **/node_modules/
+.broccoli-cache
 
 # misc
 **/coverage/

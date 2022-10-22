@@ -1,0 +1,88 @@
+name: Setup Test Environment
+description: Composable Action for ensuring speedy test setup
+
+inputs:
+  restore-lint-caches:
+    description: Whether to restore lint caches
+    required: false
+    default: false
+  restore-broccoli-cache:
+    description: Whether to restore broccoli
+    required: false
+    default: false
+  install:
+    description: Whether to install dependencies
+    required: false
+    default: false
+  build-addons:
+    description: Whether to build V2 Addons
+    required: false
+    default: false
+  parallel-build:
+    description: Whether to build in parallel
+    required: false
+    default: true
+  jobs:
+    description: How many Build Jobs to Run
+    required: false
+    default: 2
+  ref:
+    description: Ref to Setup
+    required: false
+    default: ${{ github.sha }}
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@c3b53f6a16e57305370b4ae5a540c2077a1d50dd # tag=v2.2.4
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: 'pnpm'
+    - name: Configure Parallel Builds
+      if: ${{ inputs.parallel-build == 'true' }}
+      shell: bash
+      run: |
+        echo "JOBS=${{ inputs.jobs }}" >> $GITHUB_ENV
+        echo "THROW_UNLESS_PARALLELIZABLE=1" >> $GITHUB_ENV
+
+    - name: Install Dependencies
+      if: ${{ inputs.install == 'true' }}
+      shell: bash
+      run: pnpm install --prefer-offline
+
+    - name: Setup Broccoli Caching
+      if: ${{ inputs.restore-broccoli-cache == 'true' }}
+      shell: bash
+      run: |
+        echo "FORCE_PERSISTENCE_IN_CI=true" >> $GITHUB_ENV
+        echo "BROCCOLI_PERSISTENT_FILTER_CACHE_ROOT=${{ github.workspace }}/.broccoli-cache" >> $GITHUB_ENV
+    - name: Restore Broccoli Cache
+      if: ${{ inputs.restore-broccoli-cache == 'true' }}
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ github.workspace }}/.broccoli-cache
+        key: broccoli-${{inputs.ref }}
+        restore-keys: |
+          broccoli-${{ github.head_ref }}
+          broccoli-master
+          broccoli-
+
+    - name: Exec Library Prepackage Steps
+      if: ${{ inputs.build-addons == 'true' }}
+      shell: bash
+      run: pnpm build-v2-addons
+
+    - name: Restore Lint Caches
+      if: ${{ inputs.restore-lint-caches == 'true' }}
+      uses: actions/cache@v3
+      with:
+        path: |
+          .eslintcache
+        key: lint-${{ inputs.ref }}
+        restore-keys: |
+          lint-${{ github.head_ref }}
+          lint-master
+          lint-
+
