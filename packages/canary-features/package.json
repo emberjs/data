@@ -17,29 +17,7 @@
   "dependencies": {
     "ember-cli-babel": "^7.26.11"
   },
-  "devDependencies": {
-    "@babel/core": "^7.19.3",
-    "@babel/runtime": "^7.19.4",
-    "babel-plugin-debug-macros": "^0.3.4",
-    "babel-plugin-filter-imports": "^4.0.0",
-    "babel6-plugin-strip-class-callcheck": "^6.0.0",
-    "broccoli-file-creator": "^2.1.1",
-    "broccoli-test-helper": "^2.0.0",
-    "calculate-cache-key-for-tree": "^2.0.0",
-    "co": "^4.6.0",
-    "common-tags": "^1.8.2",
-    "ember-cli-blueprint-test-helpers": "^0.19.2",
-    "ember-cli-path-utils": "^1.0.0",
-    "ember-cli-string-utils": "^1.1.0",
-    "ember-cli-version-checker": "^5.1.2",
-    "git-repo-info": "^2.1.1",
-    "glob": "^8.0.3",
-    "mocha": "^10.1.0",
-    "npm-git-info": "^1.0.3",
-    "rimraf": "^3.0.2",
-    "rsvp": "^4.8.5",
-    "silent-error": "^1.1.1"
-  },
+  "devDependencies": {},
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"
   },
