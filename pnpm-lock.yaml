@@ -16,6 +16,7 @@ importers:
       '@glimmer/env': ^0.1.7
       '@types/ember': ^4.0.1
       '@types/ember-qunit': ^5.0.2
+      '@types/ember-resolver': ^5.0.11
       '@types/ember-testing-helpers': ^0.0.4
       '@types/ember__application': ^4.0.2
       '@types/ember__array': ^4.0.2
@@ -127,6 +128,7 @@ importers:
       '@glimmer/env': 0.1.7
       '@types/ember': 4.0.1_@babel+core@7.19.3
       '@types/ember-qunit': 5.0.2_@babel+core@7.19.3
+      '@types/ember-resolver': 5.0.11_@babel+core@7.19.3
       '@types/ember-testing-helpers': 0.0.4
       '@types/ember__application': 4.0.2_@babel+core@7.19.3
       '@types/ember__array': 4.0.2_@babel+core@7.19.3
