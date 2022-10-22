@@ -14,7 +14,6 @@
     "sync-dev": "node ./scripts/sync-dev-dependency.js",
     "build": "pnpm --filter ember-data build",
     "build:production": "pnpm --filter ember-data build:production",
-    "lint:features": "node ./scripts/lint-features.js",
     "lint:js": "eslint --cache --ext=js,ts .",
     "lint:js:changed": "node ./scripts/lint-changed-js.js",
     "preinstall": "npx only-allow pnpm",
