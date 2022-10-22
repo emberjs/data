@@ -31,8 +31,6 @@ jobs:
           cache: 'pnpm'
       - name: pnpm install
         run: pnpm install
-      - name: Lint features
-        run: pnpm lint:features
       - name: Lint js
         run: pnpm lint:js
       - name: Check for TypeScript problems
