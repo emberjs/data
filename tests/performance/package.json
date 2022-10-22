@@ -1,12 +1,12 @@
 {
-  "name": "relationship-performance-test-app",
+  "name": "performance-test-app",
   "version": "4.9.0-alpha.6",
   "private": true,
-  "description": "Small description for relationship-performance-test-app goes here",
+  "description": "Small description for performance-test-app goes here",
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
-    "directory": "packages/unpublished-relationship-performance-test-app"
+    "directory": "tests/performance"
   },
   "license": "MIT",
   "author": "",

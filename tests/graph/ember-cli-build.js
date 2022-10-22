@@ -1,11 +1,12 @@
+/* eslint-disable node/no-unpublished-require */
 'use strict';
 
-const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
+const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function (defaults) {
   const isProd = process.env.EMBER_ENV === 'production';
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
-  let app = new EmberAddon(defaults, {
+  let app = new EmberApp(defaults, {
     emberData: {
       compatWith,
     },
