@@ -63,7 +63,6 @@ importers:
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.1.1
       ember-cli-inject-live-reload: ^2.1.0
-      ember-cli-path-utils: ^1.0.0
       ember-cli-sri: ^2.1.1
       ember-cli-string-utils: ^1.1.0
       ember-cli-terser: ~4.0.2
@@ -175,7 +174,6 @@ importers:
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
       ember-cli-htmlbars: 6.1.1
       ember-cli-inject-live-reload: 2.1.0
-      ember-cli-path-utils: 1.0.0
       ember-cli-sri: 2.1.1
       ember-cli-string-utils: 1.1.0
       ember-cli-terser: 4.0.2
@@ -440,52 +438,9 @@ importers:
 
   packages/canary-features:
     specifiers:
-      '@babel/core': ^7.19.3
-      '@babel/runtime': ^7.19.4
-      babel-plugin-debug-macros: ^0.3.4
-      babel-plugin-filter-imports: ^4.0.0
-      babel6-plugin-strip-class-callcheck: ^6.0.0
-      broccoli-file-creator: ^2.1.1
-      broccoli-test-helper: ^2.0.0
-      calculate-cache-key-for-tree: ^2.0.0
-      co: ^4.6.0
-      common-tags: ^1.8.2
       ember-cli-babel: ^7.26.11
-      ember-cli-blueprint-test-helpers: ^0.19.2
-      ember-cli-path-utils: ^1.0.0
-      ember-cli-string-utils: ^1.1.0
-      ember-cli-version-checker: ^5.1.2
-      git-repo-info: ^2.1.1
-      glob: ^8.0.3
-      mocha: ^10.1.0
-      npm-git-info: ^1.0.3
-      rimraf: ^3.0.2
-      rsvp: ^4.8.5
-      silent-error: ^1.1.1
     dependencies:
       ember-cli-babel: 7.26.11
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
-      babel-plugin-debug-macros: 0.3.4_@babel+core@7.19.3
-      babel-plugin-filter-imports: 4.0.0
-      babel6-plugin-strip-class-callcheck: 6.0.0
-      broccoli-file-creator: 2.1.1
-      broccoli-test-helper: 2.0.0
-      calculate-cache-key-for-tree: 2.0.0
-      co: 4.6.0
-      common-tags: 1.8.2
-      ember-cli-blueprint-test-helpers: 0.19.2
-      ember-cli-path-utils: 1.0.0
-      ember-cli-string-utils: 1.1.0
-      ember-cli-version-checker: 5.1.2
-      git-repo-info: 2.1.1
-      glob: 8.0.3
-      mocha: 10.1.0
-      npm-git-info: 1.0.3
-      rimraf: 3.0.2
-      rsvp: 4.8.5
-      silent-error: 1.1.1
 
   packages/debug:
     specifiers:
@@ -790,47 +745,16 @@ importers:
 
   packages/store:
     specifiers:
-      '@babel/core': ^7.19.3
-      '@babel/runtime': ^7.19.3
       '@ember-data/canary-features': 4.9.0-alpha.6
       '@ember-data/private-build-infra': 4.9.0-alpha.6
       '@ember-data/record-data': 4.9.0-alpha.6
       '@ember-data/tracking': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
-      '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.0
-      '@ember/test-helpers': ~2.8.1
       '@embroider/macros': ^1.9.0
       '@glimmer/tracking': ^1.1.2
-      '@types/ember': ^4.0.1
-      '@types/ember__application': ^4.0.2
-      '@types/ember__object': ^4.0.4
-      '@types/ember__service': ^4.0.0
-      '@types/rsvp': ^4.0.4
-      broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.4.3
       ember-cached-decorator-polyfill: ^0.1.4
-      ember-cli: ~4.8.0
       ember-cli-babel: ^7.26.11
-      ember-cli-dependency-checker: ^3.3.1
-      ember-cli-htmlbars: ^6.1.1
-      ember-cli-inject-live-reload: ^2.1.0
-      ember-cli-path-utils: ^1.0.0
-      ember-cli-sri: ^2.1.1
-      ember-cli-terser: ~4.0.2
-      ember-disable-prototype-extensions: ^1.1.3
-      ember-export-application-global: ^2.0.1
-      ember-load-initializers: ^2.1.2
-      ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
-      ember-resolver: ^8.0.3
-      ember-source: ~4.7.1
-      ember-source-channel-url: ^3.0.0
-      ember-try: ^2.0.0
-      loader.js: ^4.7.0
-      qunit: ^2.19.2
-      qunit-dom: ^2.0.0
-      webpack: ^5.74.0
     dependencies:
       '@ember-data/canary-features': link:../canary-features
       '@ember-data/private-build-infra': link:../private-build-infra
@@ -838,43 +762,11 @@ importers:
       '@ember/string': 3.0.0
       '@embroider/macros': 1.9.0
       '@glimmer/tracking': 1.1.2
-      ember-auto-import: 2.4.3_webpack@5.74.0
-      ember-cached-decorator-polyfill: 0.1.4_@babel+core@7.19.3
+      ember-auto-import: 2.4.3
+      ember-cached-decorator-polyfill: 0.1.4
       ember-cli-babel: 7.26.11
-      ember-cli-path-utils: 1.0.0
     optionalDependencies:
       '@ember-data/record-data': link:../record-data
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
-      '@ember-data/unpublished-test-infra': link:../unpublished-test-infra
-      '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
-      '@types/ember': 4.0.1_@babel+core@7.19.3
-      '@types/ember__application': 4.0.2_@babel+core@7.19.3
-      '@types/ember__object': 4.0.4_@babel+core@7.19.3
-      '@types/ember__service': 4.0.0_@babel+core@7.19.3
-      '@types/rsvp': 4.0.4
-      broccoli-asset-rev: 3.0.0
-      ember-cli: 4.8.0
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
-      ember-cli-htmlbars: 6.1.1
-      ember-cli-inject-live-reload: 2.1.0
-      ember-cli-sri: 2.1.1
-      ember-cli-terser: 4.0.2
-      ember-disable-prototype-extensions: 1.1.3
-      ember-export-application-global: 2.0.1
-      ember-load-initializers: 2.1.2_@babel+core@7.19.3
-      ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
-      ember-resolver: 8.0.3_@babel+core@7.19.3
-      ember-source: 4.7.1_wfdvla2jorjoj23kkavho2upde
-      ember-source-channel-url: 3.0.0
-      ember-try: 2.0.0
-      loader.js: 4.7.0
-      qunit: 2.19.2
-      qunit-dom: 2.0.0
-      webpack: 5.74.0
 
   packages/tracking:
     specifiers:
@@ -5610,6 +5502,15 @@ packages:
       schema-utils: 2.7.1
       webpack: 5.74.0
 
+  /babel-plugin-debug-macros/0.2.0:
+    resolution: {integrity: sha512-Wpmw4TbhR3Eq2t3W51eBAQSdKlr+uAyF0GI4GtPfMCD12Y4cIdpKC9l0RjNTH/P9isFypSqqewMPm7//fnZlNA==}
+    engines: {node: '>=4'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-beta.42
+    dependencies:
+      semver: 5.7.1
+    dev: false
+
   /babel-plugin-debug-macros/0.2.0_@babel+core@7.19.3:
     resolution: {integrity: sha512-Wpmw4TbhR3Eq2t3W51eBAQSdKlr+uAyF0GI4GtPfMCD12Y4cIdpKC9l0RjNTH/P9isFypSqqewMPm7//fnZlNA==}
     engines: {node: '>=4'}
@@ -8081,6 +7982,19 @@ packages:
       - supports-color
       - webpack
 
+  /ember-cache-primitive-polyfill/1.0.1:
+    resolution: {integrity: sha512-hSPcvIKarA8wad2/b6jDd/eU+OtKmi6uP+iYQbzi5TQpjsqV6b4QdRqrLk7ClSRRKBAtdTuutx+m+X+WlEd2lw==}
+    engines: {node: 10.* || >= 12}
+    dependencies:
+      ember-cli-babel: 7.26.11
+      ember-cli-version-checker: 5.1.2
+      ember-compatibility-helpers: 1.2.6
+      silent-error: 1.1.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+    dev: false
+
   /ember-cache-primitive-polyfill/1.0.1_@babel+core@7.19.3:
     resolution: {integrity: sha512-hSPcvIKarA8wad2/b6jDd/eU+OtKmi6uP+iYQbzi5TQpjsqV6b4QdRqrLk7ClSRRKBAtdTuutx+m+X+WlEd2lw==}
     engines: {node: 10.* || >= 12}
@@ -8092,6 +8006,19 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
+
+  /ember-cached-decorator-polyfill/0.1.4:
+    resolution: {integrity: sha512-JOK7kBCWsTVCzmCefK4nr9BACDJk0owt9oIUaVt6Q0UtQ4XeAHmoK5kQ/YtDcxQF1ZevHQFdGhsTR3JLaHNJgA==}
+    engines: {node: 10.* || >= 12}
+    dependencies:
+      '@glimmer/tracking': 1.1.2
+      ember-cache-primitive-polyfill: 1.0.1
+      ember-cli-babel: 7.26.11
+      ember-cli-babel-plugin-helpers: 1.1.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+    dev: false
 
   /ember-cached-decorator-polyfill/0.1.4_@babel+core@7.19.3:
     resolution: {integrity: sha512-JOK7kBCWsTVCzmCefK4nr9BACDJk0owt9oIUaVt6Q0UtQ4XeAHmoK5kQ/YtDcxQF1ZevHQFdGhsTR3JLaHNJgA==}
@@ -8803,6 +8730,20 @@ packages:
       - walrus
       - whiskers
     dev: true
+
+  /ember-compatibility-helpers/1.2.6:
+    resolution: {integrity: sha512-2UBUa5SAuPg8/kRVaiOfTwlXdeVweal1zdNPibwItrhR0IvPrXpaqwJDlEZnWKEoB+h33V0JIfiWleSG6hGkkA==}
+    engines: {node: 10.* || >= 12.*}
+    dependencies:
+      babel-plugin-debug-macros: 0.2.0
+      ember-cli-version-checker: 5.1.2
+      find-up: 5.0.0
+      fs-extra: 9.1.0
+      semver: 5.7.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+    dev: false
 
   /ember-compatibility-helpers/1.2.6_@babel+core@7.19.3:
     resolution: {integrity: sha512-2UBUa5SAuPg8/kRVaiOfTwlXdeVweal1zdNPibwItrhR0IvPrXpaqwJDlEZnWKEoB+h33V0JIfiWleSG6hGkkA==}
