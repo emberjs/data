@@ -44,5 +44,6 @@ benchmarks/results/*.json
 
 /DEBUG
 /packages/*/DEBUG
+/tests/*/DEBUG
 
 .vscode/
