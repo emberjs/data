@@ -13,17 +13,12 @@
   "scripts": {
     "test:node": "mocha"
   },
-  "dependencies": {
-    "@ember-data/private-build-infra": "4.9.0-alpha.6",
-    "@ember-data/store": "4.9.0-alpha.6",
-    "ember-auto-import": "^2.4.3",
-    "ember-cli-babel": "^7.26.11",
-    "ember-cli-test-info": "^1.0.0"
-  },
   "devDependencies": {
+    "@ember-data/unpublished-test-infra": "link:../../packages/unpublished-test-infra",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
+    "@ember-data/serializer": "workspace:4.9.0-alpha.6",
     "ember-cli": "~4.8.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
-    "ember-cli-dependency-checker": "^3.3.1",
     "silent-error": "^1.1.1"
   },
   "engines": {

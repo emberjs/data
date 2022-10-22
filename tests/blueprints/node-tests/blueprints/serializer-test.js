@@ -21,8 +21,9 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
 
   describe('classic', function () {
     enableClassic();
-    beforeEach(function () {
-      return emberNew();
+    beforeEach(async function () {
+      await emberNew();
+      await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
     });
 
     it('serializer', function () {
@@ -92,8 +93,9 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     describe('serializer-test with ember-cli-qunit@4.1.0', function () {
-      beforeEach(function () {
-        modifyPackages([
+      beforeEach(async function () {
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
+        await modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-qunit', delete: true },
         ]);
@@ -110,7 +112,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     describe('with ember-cli-mocha v0.12+', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-mocha', dev: true },
@@ -130,8 +133,9 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     describe('with ember-mocha v0.14+', function () {
-      beforeEach(function () {
-        modifyPackages([
+      beforeEach(async function () {
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
+        await modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-mocha', dev: true },
         ]);
@@ -153,8 +157,9 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
   describe('octane', function () {
     enableOctane();
 
-    beforeEach(function () {
-      return emberNew();
+    beforeEach(async function () {
+      await emberNew();
+      await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
     });
 
     it('serializer', function () {
@@ -224,7 +229,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     describe('serializer-test with ember-cli-qunit@4.1.0', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-qunit', delete: true },
@@ -242,7 +248,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     describe('with ember-cli-mocha v0.12+', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-mocha', dev: true },
@@ -262,7 +269,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     describe('with ember-mocha v0.14+', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-mocha', dev: true },
@@ -283,8 +291,9 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
   });
 
   describe('in addon', function () {
-    beforeEach(function () {
-      return emberNew({ target: 'addon' });
+    beforeEach(async function () {
+      await emberNew({ target: 'addon' });
+      await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
     });
 
     describe('with ember-qunit (default)', function () {
@@ -298,7 +307,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     describe('with ember-mocha', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-mocha', dev: true },

@@ -20,8 +20,9 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
   describe('classic', function () {
     enableClassic();
     describe('in app', function () {
-      beforeEach(function () {
-        return emberNew();
+      beforeEach(async function () {
+        await emberNew();
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
       });
 
       it('transform', function () {
@@ -47,7 +48,8 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       describe('transform-test with ember-cli-qunit@4.1.0', function () {
-        beforeEach(function () {
+        beforeEach(async function () {
+          await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
           modifyPackages([
             { name: 'ember-qunit', delete: true },
             { name: 'ember-cli-qunit', delete: true },
@@ -65,7 +67,8 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       describe('with ember-cli-mocha v0.12+', function () {
-        beforeEach(function () {
+        beforeEach(async function () {
+          await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
           modifyPackages([
             { name: 'ember-qunit', delete: true },
             { name: 'ember-cli-mocha', dev: true },
@@ -85,7 +88,8 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       describe('with ember-mocha v0.14+', function () {
-        beforeEach(function () {
+        beforeEach(async function () {
+          await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
           modifyPackages([
             { name: 'ember-qunit', delete: true },
             { name: 'ember-mocha', dev: true },
@@ -110,8 +114,9 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
     describe('in app', function () {
       enableOctane();
 
-      beforeEach(function () {
-        return emberNew();
+      beforeEach(async function () {
+        await emberNew();
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
       });
 
       it('transform', function () {
@@ -137,7 +142,8 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       describe('transform-test with ember-cli-qunit@4.1.0', function () {
-        beforeEach(function () {
+        beforeEach(async function () {
+          await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
           modifyPackages([
             { name: 'ember-qunit', delete: true },
             { name: 'ember-cli-qunit', delete: true },
@@ -155,7 +161,8 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       describe('with ember-cli-mocha v0.12+', function () {
-        beforeEach(function () {
+        beforeEach(async function () {
+          await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
           modifyPackages([
             { name: 'ember-qunit', delete: true },
             { name: 'ember-cli-mocha', dev: true },
@@ -175,7 +182,8 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       describe('with ember-mocha v0.14+', function () {
-        beforeEach(function () {
+        beforeEach(async function () {
+          await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
           modifyPackages([
             { name: 'ember-qunit', delete: true },
             { name: 'ember-mocha', dev: true },
@@ -197,8 +205,9 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
   });
 
   describe('in addon', function () {
-    beforeEach(function () {
-      return emberNew({ target: 'addon' });
+    beforeEach(async function () {
+      await emberNew({ target: 'addon' });
+      await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
     });
 
     describe('with ember-qunit (default)', function () {
@@ -212,7 +221,8 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
     });
 
     describe('with ember-mocha', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
+        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-mocha', dev: true },
