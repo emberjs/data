@@ -15,11 +15,17 @@
   "directories": {},
   "scripts": {},
   "peerDependencies": {
-    "@ember-data/store": "4.9.0-alpha.6"
+    "@ember-data/store": "workspace:4.9.0-alpha.6",
+    "ember-inflector": "^4.0.2",
+    "@ember/string": "^3.0.0"
+  },
+  "dependenciesMeta": {
+    "injected": {
+      "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6"
+    }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "4.9.0-alpha.6",
-    "@ember-data/store": "4.9.0-alpha.6",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
     "ember-auto-import": "^2.4.3",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-test-info": "^1.0.0"

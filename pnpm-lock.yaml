@@ -358,24 +358,33 @@ importers:
       qunit-dom: 2.0.0
       typescript: 4.8.4
       webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/adapter': workspace:4.9.0-alpha.6
+        '@ember-data/debug': workspace:4.9.0-alpha.6
+        '@ember-data/model': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+        '@ember-data/record-data': workspace:4.9.0-alpha.6
+        '@ember-data/serializer': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
 
   packages/adapter:
     specifiers:
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
-      '@ember/string': ^3.0.0
       ember-auto-import: ^2.4.3
       ember-cli-babel: ^7.26.11
       ember-cli-test-info: ^1.0.0
     dependencies:
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/store': link:../store
       '@ember/edition-utils': 1.2.0
-      '@ember/string': 3.0.0
       ember-auto-import: 2.4.3
       ember-cli-babel: 7.26.11
       ember-cli-test-info: 1.0.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/canary-features:
     specifiers:
@@ -385,26 +394,24 @@ importers:
 
   packages/debug:
     specifiers:
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
-      '@ember/string': ^3.0.0
       ember-auto-import: ^2.4.3
       ember-cli-babel: ^7.26.11
     dependencies:
       '@ember-data/private-build-infra': link:../private-build-infra
       '@ember/edition-utils': 1.2.0
-      '@ember/string': 3.0.0
       ember-auto-import: 2.4.3
       ember-cli-babel: 7.26.11
+    dependenciesMeta:
+      injected:
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/model:
     specifiers:
-      '@ember-data/canary-features': 4.9.0-alpha.6
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
-      '@ember-data/tracking': 4.9.0-alpha.6
+      '@ember-data/canary-features': workspace:4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
-      '@ember/string': ^3.0.0
       '@embroider/macros': ^1.9.0
       ember-auto-import: ^2.4.3
       ember-cached-decorator-polyfill: ^0.1.4
@@ -416,10 +423,7 @@ importers:
     dependencies:
       '@ember-data/canary-features': link:../canary-features
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/store': link:../store
-      '@ember-data/tracking': link:../tracking
       '@ember/edition-utils': 1.2.0
-      '@ember/string': 3.0.0
       '@embroider/macros': 1.9.0
       ember-auto-import: 2.4.3
       ember-cached-decorator-polyfill: 0.1.4
@@ -428,6 +432,12 @@ importers:
       ember-cli-test-info: 1.0.0
       ember-compatibility-helpers: 1.2.6
       inflection: 1.13.4
+    dependenciesMeta:
+      injected:
+        '@ember-data/canary-features': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
 
   packages/private-build-infra:
     specifiers:
@@ -487,58 +497,56 @@ importers:
 
   packages/record-data:
     specifiers:
-      '@ember-data/canary-features': 4.9.0-alpha.6
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
+      '@ember-data/canary-features': workspace:4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
       ember-auto-import: ^2.4.3
       ember-cli-babel: ^7.26.11
     dependencies:
       '@ember-data/canary-features': link:../canary-features
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/store': link:../store
       '@ember/edition-utils': 1.2.0
       ember-auto-import: 2.4.3
       ember-cli-babel: 7.26.11
+    dependenciesMeta:
+      injected:
+        '@ember-data/canary-features': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/serializer:
     specifiers:
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       ember-auto-import: ^2.4.3
       ember-cli-babel: ^7.26.11
       ember-cli-test-info: ^1.0.0
     dependencies:
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/store': link:../store
       ember-auto-import: 2.4.3
       ember-cli-babel: 7.26.11
       ember-cli-test-info: 1.0.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/store:
     specifiers:
-      '@ember-data/canary-features': 4.9.0-alpha.6
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/record-data': 4.9.0-alpha.6
-      '@ember-data/tracking': 4.9.0-alpha.6
-      '@ember/string': ^3.0.0
+      '@ember-data/canary-features': workspace:4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@embroider/macros': ^1.9.0
-      '@glimmer/tracking': ^1.1.2
       ember-auto-import: ^2.4.3
       ember-cached-decorator-polyfill: ^0.1.4
       ember-cli-babel: ^7.26.11
     dependencies:
       '@ember-data/canary-features': link:../canary-features
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/tracking': link:../tracking
-      '@ember/string': 3.0.0
       '@embroider/macros': 1.9.0
-      '@glimmer/tracking': 1.1.2
       ember-auto-import: 2.4.3
       ember-cached-decorator-polyfill: 0.1.4
       ember-cli-babel: 7.26.11
-    optionalDependencies:
-      '@ember-data/record-data': link:../record-data
+    dependenciesMeta:
+      injected:
+        '@ember-data/canary-features': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/tracking:
     specifiers:

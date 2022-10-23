@@ -18,7 +18,6 @@
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
     "test": "ember test --test-port=0",
-    "test:production": "ember test  --test-port=0 -e production",
     "test:try-one": "ember try:one --test-port=0 --config-path='../-ember-data/config/ember-try.js'"
   },
   "devDependencies": {
