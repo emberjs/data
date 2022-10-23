@@ -15,12 +15,11 @@
     "build": "ember build",
     "build:production": "ember build --environment=production",
     "start": "ember serve",
-    "docs": "mkdir -p dist && ember ember-cli-yuidoc",
+    "build:docs": "mkdir -p dist && ember ember-cli-yuidoc",
     "test": "ember test",
     "test:all": "ember try:each",
     "test:production": "ember test -e production",
     "test:try-one": "ember try:one",
-    "test:docs": "mkdir -p dist && qunit node-tests/docs/test-coverage.js",
     "prepublishOnly": "mkdir -p dist && ember ember-cli-yuidoc"
   },
   "author": "",

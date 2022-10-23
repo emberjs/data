@@ -1,0 +1,27 @@
+{
+  "name": "docs-tests",
+  "version": "4.9.0-alpha.6",
+  "private": true,
+  "description": "Provides tests for blueprints",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/blueprints"
+  },
+  "license": "MIT",
+  "author": "",
+  "scripts": {
+    "test": "qunit ./index.js"
+  },
+  "devDependencies": {
+    "qunit": "^2.19.3"
+  },
+  "engines": {
+    "node": "^14.8.0 || 16.* || >= 18.*"
+  },
+  "volta": {
+    "node": "16.18.0",
+    "pnpm": "7.13.5"
+  },
+	"packageManager": "pnpm@7.13.5"
+}

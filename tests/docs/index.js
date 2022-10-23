@@ -21,12 +21,9 @@ function linkItem(item) {
 }
 
 QUnit.module('Docs coverage', function (hooks) {
-  if (!process.env.REUSE_DOCS) {
-    buildDocs();
-  }
   // data.json is generated and not always present. So this disable needs to be preserved.
-  const docs = require('../../dist/docs/data.json'); // eslint-disable-line node/no-missing-require
-  const expected = require('../fixtures/expected');
+  const docs = require('../../packages/-ember-data/dist/docs/data.json'); // eslint-disable-line node/no-missing-require
+  const expected = require('./fixtures/expected');
 
   function classIsPublic(className) {
     return docs.classes[className].access !== 'private';
@@ -154,14 +151,6 @@ QUnit.module('Docs coverage', function (hooks) {
     });
   });
 });
-
-function buildDocs() {
-  let child = require('child_process');
-
-  child.execFileSync('node', [require.resolve('ember-cli/bin/ember'), 'ember-cli-yuidoc'], {
-    stdio: 'pipe',
-  });
-}
 
 function setDifference(setA, setB) {
   let difference = new Set(setA);

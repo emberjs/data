@@ -803,6 +803,12 @@ importers:
       qunit-dom: 2.0.0
       webpack: 5.74.0
 
+  tests/docs:
+    specifiers:
+      qunit: ^2.19.3
+    devDependencies:
+      qunit: 2.19.3
+
   tests/fastboot:
     specifiers:
       '@babel/core': ^7.19.3
@@ -13740,6 +13746,16 @@ packages:
       commander: 7.2.0
       node-watch: 0.7.3
       tiny-glob: 0.2.9
+
+  /qunit/2.19.3:
+    resolution: {integrity: sha512-vEnspSZ37u2oR01OA/IZ1Td5V7BvQYFECdKPv86JaBplDNa5IHg0v7jFSPoP5L5o78Dbi8sl7/ATtpRDAKlSdw==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      commander: 7.2.0
+      node-watch: 0.7.3
+      tiny-glob: 0.2.9
+    dev: true
 
   /rambda/7.2.1:
     resolution: {integrity: sha512-Wswj8ZvzdI3VhaGPkZAxaCTwuMmGtgWt7Zxsgyo4P+iTmVnkojvyWaOep5q3ZjMIecW0wtQa66GWxaKkZ24RAA==}

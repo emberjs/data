@@ -353,7 +353,7 @@ module.exports = {
 
     // docs
     {
-      files: ['packages/-ember-data/node-tests/docs/*.js'],
+      files: ['tests/docs/**/*.js'],
       env: {
         node: true,
         qunit: true,
@@ -362,6 +362,9 @@ module.exports = {
       parserOptions: {
         sourceType: 'script',
         ecmaVersion: 2018,
+      },
+      rules: {
+        'node/no-unpublished-require': 'off',
       },
     },
 
