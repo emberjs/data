@@ -48,11 +48,6 @@ jobs:
         run: pnpm test
       - name: Production build
         run: pnpm test:production
-      - name: Docs tests
-        run: pnpm test:docs
-      - if: matrix.os != 'windows-latest'
-        name: Node tests
-        run: pnpm test:node
       - if: matrix.os == 'ubuntu-latest'
         name: Encapsulation tests
         run: pnpm test:encapsulation

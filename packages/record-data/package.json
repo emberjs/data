@@ -13,7 +13,8 @@
   "license": "MIT",
   "author": "",
   "peerDependencies": {
-    "@ember-data/store": "workspace:4.9.0-alpha.6"
+    "@ember-data/store": "workspace:4.9.0-alpha.6",
+    "webpack": "^5.0.0"
   },
   "dependenciesMeta": {
     "injected": {
