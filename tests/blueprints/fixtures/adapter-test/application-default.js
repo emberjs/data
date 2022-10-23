@@ -1,11 +1,11 @@
-import { module, test } from 'qunit';
 import { setupTest } from 'my-app/tests/helpers';
+import { module, test } from 'qunit';
 
-module('Unit | Adapter | application', function(hooks) {
+module('Unit | Adapter | application', function (hooks) {
   setupTest(hooks);
 
   // Replace this with your real tests.
-  test('it exists', function(assert) {
+  test('it exists', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
     assert.ok(adapter);
   });

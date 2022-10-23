@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
 import { setupTest } from 'dummy/tests/helpers';
+import { describe, it } from 'mocha';
 
-describe('Unit | Adapter | foo', function() {
+describe('Unit | Adapter | foo', function () {
   setupTest();
 
   // Replace this with your real tests.
-  it('exists', function() {
+  it('exists', function () {
     let adapter = this.owner.lookup('adapter:foo');
     expect(adapter).to.be.ok;
   });
