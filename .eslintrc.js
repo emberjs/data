@@ -339,11 +339,12 @@ module.exports = {
     // node tests
     {
       files: [
-        'packages/*/node-tests/**',
-        'tests/*/node-tests/**',
+        'tests/blueprints/tests/**',
+        'tests/blueprints/fixtures/**',
         'packages/unpublished-test-infra/src/node-test-helpers/**/*',
       ],
       env: {
+        node: true,
         mocha: true,
       },
       rules: {

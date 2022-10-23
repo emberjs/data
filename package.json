@@ -135,7 +135,6 @@
     "lerna": "^5.6.2",
     "lerna-changelog": "^2.2.0",
     "loader.js": "^4.7.0",
-    "mocha": "^10.1.0",
     "npm-git-info": "^1.0.3",
     "pre-commit": "^1.2.2",
     "pretender": "^3.4.7",

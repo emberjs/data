@@ -22,8 +22,9 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
 
   describe('classic', function () {
     enableClassic();
-    beforeEach(function () {
-      return emberNew();
+    beforeEach(async function () {
+      await emberNew();
+      modifyPackages([{ name: '@ember-data/adapter', dev: true }]);
     });
 
     it('adapter', function () {
@@ -148,8 +149,9 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
   describe('octane', function () {
     enableOctane();
 
-    beforeEach(function () {
-      return emberNew();
+    beforeEach(async function () {
+      await emberNew();
+      modifyPackages([{ name: '@ember-data/adapter', dev: true }]);
     });
 
     it('adapter', function () {
@@ -268,8 +270,9 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
   });
 
   describe('in addon', function () {
-    beforeEach(function () {
-      return emberNew({ target: 'addon' });
+    beforeEach(async function () {
+      await emberNew({ target: 'addon' });
+      modifyPackages([{ name: '@ember-data/adapter', dev: true }]);
     });
 
     describe('with ember-qunit (default)', function () {

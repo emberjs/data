@@ -20,8 +20,9 @@ describe('Acceptance: generate and destroy model blueprints', function () {
   describe('classic', function () {
     enableClassic();
 
-    beforeEach(function () {
-      return emberNew();
+    beforeEach(async function () {
+      await emberNew();
+      modifyPackages([{ name: '@ember-data/model', dev: true }]);
     });
 
     it('model', function () {
@@ -161,8 +162,9 @@ describe('Acceptance: generate and destroy model blueprints', function () {
   describe('octane', function () {
     enableOctane();
 
-    beforeEach(function () {
-      return emberNew();
+    beforeEach(async function () {
+      await emberNew();
+      modifyPackages([{ name: '@ember-data/model', dev: true }]);
     });
 
     it('model', function () {
@@ -300,8 +302,9 @@ describe('Acceptance: generate and destroy model blueprints', function () {
   });
 
   describe('in addon', function () {
-    beforeEach(function () {
-      return emberNew({ target: 'addon' });
+    beforeEach(async function () {
+      await emberNew({ target: 'addon' });
+      modifyPackages([{ name: '@ember-data/model', dev: true }]);
     });
 
     describe('with ember-qunit (default)', function () {
