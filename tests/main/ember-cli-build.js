@@ -1,6 +1,7 @@
+/* eslint-disable node/no-unpublished-require */
 'use strict';
 
-const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
+const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function (defaults) {
   const isTest = process.env.EMBER_CLI_TEST_COMMAND;
@@ -8,7 +9,7 @@ module.exports = function (defaults) {
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
 
   const terserSettings = {
-    exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
+    exclude: ['assets/main-test-app.js', 'assets/tests.js', 'assets/test-support.js'],
 
     terser: {
       compress: {
@@ -50,7 +51,7 @@ module.exports = function (defaults) {
       LOG_INSTANCE_CACHE: process.env.DEBUG_DATA ? true : false,
     },
   };
-  let app = new EmberAddon(defaults, {
+  let app = new EmberApp(defaults, {
     emberData: config,
     babel: {
       // this ensures that the same build-time code stripping that is done
@@ -70,14 +71,10 @@ module.exports = function (defaults) {
         },
       },
     },
+    sourcemaps: {
+      enabled: false,
+    },
   });
-
-  /*
-    This build file specifies the options for the dummy test app of this
-    addon, located in `/tests/dummy`
-    This build file does *not* influence how the addon or the app using it
-    behave. You most likely want to be modifying `./index.js` or app's build file
-  */
 
   return app.toTree();
 };

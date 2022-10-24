@@ -2,8 +2,8 @@
 
 module.exports = function (environment) {
   var ENV = {
-    modulePrefix: 'dummy',
-    podModulePrefix: 'dummy/routes',
+    modulePrefix: 'main-test-app',
+    podModulePrefix: 'main-test-app',
     environment: environment,
     rootURL: '/',
     locationType: 'auto',
