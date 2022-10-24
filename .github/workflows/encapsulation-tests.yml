@@ -1,4 +1,4 @@
-name: Documentation & Blueprint Tests
+name: Encapsulation Tests
 
 on:
   pull_request:
@@ -17,8 +17,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
         with:
+          restore-broccoli-cache: true
           install: true
-      - name: Test Docs
-        run: pnpm test:docs
-      - name: Test Blueprints
-        run: pnpm --filter blueprint-tests run test
+          build-addons: true
+      - name: Run Tests
+        run: pnpm test:encapsulation
