@@ -1,5 +1,6 @@
-import { setupTest } from 'my-app/tests/helpers';
 import { module, test } from 'qunit';
+
+import { setupTest } from 'my-app/tests/helpers';
 
 module('Unit | Serializer | foo', function (hooks) {
   setupTest(hooks);

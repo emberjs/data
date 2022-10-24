@@ -1,5 +1,6 @@
-import { setupTest } from 'dummy/tests/helpers';
 import { module, test } from 'qunit';
+
+import { setupTest } from 'dummy/tests/helpers';
 
 module('Unit | Model | foo', function (hooks) {
   setupTest(hooks);

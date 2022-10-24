@@ -27,10 +27,10 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
       modifyPackages([{ name: '@ember-data/adapter', dev: true }]);
     });
 
-    it('adapter', function () {
+    it('adapter', async function () {
       let args = ['adapter', 'foo'];
 
-      return emberGenerateDestroy(args, (_file) => {
+      await emberGenerateDestroy(args, (_file) => {
         expect(_file('app/adapters/foo.js'))
           .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
           .to.contain('export default JSONAPIAdapter.extend({');
@@ -39,24 +39,23 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
       });
     });
 
-    it('adapter extends application adapter if it exists', function () {
+    it('adapter extends application adapter if it exists', async function () {
       let args = ['adapter', 'foo'];
 
-      return emberGenerate(['adapter', 'application']).then(() =>
-        emberGenerateDestroy(args, (_file) => {
-          expect(_file('app/adapters/foo.js'))
-            .to.contain("import ApplicationAdapter from './application';")
-            .to.contain('export default ApplicationAdapter.extend({');
+      await emberGenerate(['adapter', 'application']);
+      await emberGenerateDestroy(args, (_file) => {
+        expect(_file('app/adapters/foo.js'))
+          .to.contain("import ApplicationAdapter from './application';")
+          .to.contain('export default ApplicationAdapter.extend({');
 
-          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-        })
-      );
+        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
+      });
     });
 
-    it('adapter with --base-class', function () {
+    it('adapter with --base-class', async function () {
       let args = ['adapter', 'foo', '--base-class=bar'];
 
-      return emberGenerateDestroy(args, (_file) => {
+      await emberGenerateDestroy(args, (_file) => {
         expect(_file('app/adapters/foo.js'))
           .to.contain("import BarAdapter from './bar';")
           .to.contain('export default BarAdapter.extend({');

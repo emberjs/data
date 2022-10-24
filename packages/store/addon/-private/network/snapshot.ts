@@ -7,8 +7,8 @@ import { importSync } from '@embroider/macros';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
-import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
+import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { ChangedAttributesHash } from '@ember-data/types/q/record-data';

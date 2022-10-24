@@ -1,6 +1,7 @@
 import { expect } from 'chai';
-import { setupTest } from 'dummy/tests/helpers';
 import { describe, it } from 'mocha';
+
+import { setupTest } from 'dummy/tests/helpers';
 
 describe('Unit | Model | foo', function () {
   setupTest();
