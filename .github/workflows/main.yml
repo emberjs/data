@@ -48,9 +48,6 @@ jobs:
         run: pnpm test
       - name: Production build
         run: pnpm test:production
-      - if: matrix.os == 'ubuntu-latest'
-        name: Encapsulation tests
-        run: pnpm test:encapsulation
       - if: |
           matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' && (
