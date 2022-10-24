@@ -46,7 +46,7 @@ jobs:
       - name: Build V2 Addons
         run: pnpm run --if-present build-v2-addons
       - name: Build Production master
-        run: EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/control
+        run: pnpm --filter "full-data-asset-size-app" exec ember build -e production --output-path dists/control
       - name: Checkout ${{github.ref}}
         run: |
           sha=$(cat tmp/sha-for-check.txt)
@@ -56,16 +56,16 @@ jobs:
       - name: Build V2 Addons
         run: pnpm run --if-present build-v2-addons
       - name: Build Production ${{github.ref}}
-        run: EMBER_DATA_FULL_COMPAT=true pnpm --filter "ember-data" exec ember build -e production --output-path dists/experiment
+        run: pnpm --filter "full-data-asset-size-app" exec ember build -e production --output-path dists/experiment
       - name: Analyze Master Assets
         run: |
           mkdir -p tmp
           mkdir -p tmp/asset-sizes
-          node ./scripts/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/control ./control-data.json
+          node ./scripts/asset-size-tracking/generate-analysis.js tests/full-data-asset-size-app/dists/control ./control-data.json
           node ./scripts/asset-size-tracking/print-analysis.js ./control-data.json -show > tmp/asset-sizes/master-analysis.txt
       - name: Analyze ${{github.ref}} Assets
         run: |
-          node ./scripts/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/experiment ./experiment-data.json
+          node ./scripts/asset-size-tracking/generate-analysis.js tests/full-data-asset-size-app/dists/experiment ./experiment-data.json
           node ./scripts/asset-size-tracking/print-analysis.js ./experiment-data.json -show > tmp/asset-sizes/experiment-analysis-full.txt
           node ./scripts/asset-size-tracking/print-analysis.js ./experiment-data.json > tmp/asset-sizes/experiment-analysis.txt
       - name: Test Asset Sizes
@@ -78,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dists
-          path: packages/-ember-data/dists
+          path: tests/full-data-asset-size-app/dists
       - name: Upload Report Artifacts
         if: failure() || success()
         uses: actions/upload-artifact@v3

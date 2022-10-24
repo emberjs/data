@@ -271,11 +271,6 @@ module.exports = {
         'tests/main/tests/integration/identifiers/configuration-test.ts',
         'tests/main/tests/integration/identifiers/cache-test.ts',
         'tests/main/tests/helpers/accessors.ts',
-        'tests/main/tests/dummy/app/routes/application/route.ts',
-        'tests/main/tests/dummy/app/router.ts',
-        'tests/main/tests/dummy/app/resolver.ts',
-        'tests/main/tests/dummy/app/config/environment.d.ts',
-        'tests/main/tests/dummy/app/app.ts',
       ],
     },
 

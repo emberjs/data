@@ -813,6 +813,50 @@ importers:
       typescript: 4.8.4
       webpack: 5.74.0
 
+  tests/full-data-asset-size-app:
+    specifiers:
+      '@babel/core': ^7.19.3
+      '@babel/runtime': ^7.19.3
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+      '@ember/optional-features': ^2.0.0
+      broccoli-asset-rev: ^3.0.0
+      ember-auto-import: ^2.4.3
+      ember-cli: ~4.8.0
+      ember-cli-app-version: ^5.0.0
+      ember-cli-babel: ^7.26.11
+      ember-cli-dependency-checker: ^3.3.1
+      ember-cli-htmlbars: ^6.1.1
+      ember-data: workspace:4.9.0-alpha.6
+      ember-export-application-global: ^2.0.1
+      ember-load-initializers: ^2.1.2
+      ember-maybe-import-regenerator: ^1.0.0
+      ember-resolver: ^8.0.3
+      ember-source: ~4.7.1
+      loader.js: ^4.7.0
+      webpack: ^5.74.0
+      zlib: 1.0.5
+    devDependencies:
+      '@babel/core': 7.19.3
+      '@babel/runtime': 7.19.4
+      '@ember-data/private-build-infra': link:../../packages/private-build-infra
+      '@ember/optional-features': 2.0.0
+      broccoli-asset-rev: 3.0.0
+      ember-auto-import: 2.4.3_webpack@5.74.0
+      ember-cli: 4.8.0
+      ember-cli-app-version: 5.0.0
+      ember-cli-babel: 7.26.11
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
+      ember-cli-htmlbars: 6.1.1
+      ember-data: link:../../packages/-ember-data
+      ember-export-application-global: 2.0.1
+      ember-load-initializers: 2.1.2_@babel+core@7.19.3
+      ember-maybe-import-regenerator: 1.0.0
+      ember-resolver: 8.0.3_@babel+core@7.19.3
+      ember-source: 4.7.1_wfdvla2jorjoj23kkavho2upde
+      loader.js: 4.7.0
+      webpack: 5.74.0
+      zlib: 1.0.5
+
   tests/graph:
     specifiers:
       '@babel/core': ^7.19.3
@@ -1128,7 +1172,6 @@ importers:
     specifiers:
       '@babel/core': ^7.19.3
       '@babel/runtime': ^7.19.3
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.8.1
       broccoli-asset-rev: ^3.0.0
@@ -1138,17 +1181,13 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.1.1
-      ember-cli-inject-live-reload: ^2.1.0
-      ember-data: 4.9.0-alpha.6
+      ember-data: workspace:4.9.0-alpha.6
       ember-export-application-global: ^2.0.1
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
       ember-resolver: ^8.0.3
       ember-source: ~4.7.1
       loader.js: ^4.7.0
-      qunit: ^2.19.2
-      qunit-dom: ^2.0.0
       webpack: ^5.74.0
       zlib: 1.0.5
     dependencies:
@@ -1157,7 +1196,6 @@ importers:
     devDependencies:
       '@babel/core': 7.19.3
       '@babel/runtime': 7.19.4
-      '@ember-data/unpublished-test-infra': link:../../packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
       broccoli-asset-rev: 3.0.0
@@ -1166,16 +1204,12 @@ importers:
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
       ember-cli-htmlbars: 6.1.1
-      ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.19.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
       ember-resolver: 8.0.3_@babel+core@7.19.3
       ember-source: 4.7.1_wfdvla2jorjoj23kkavho2upde
       loader.js: 4.7.0
-      qunit: 2.19.2
-      qunit-dom: 2.0.0
       webpack: 5.74.0
       zlib: 1.0.5
 

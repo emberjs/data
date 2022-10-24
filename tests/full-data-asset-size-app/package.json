@@ -1,12 +1,12 @@
 {
-  "name": "performance-test-app",
+  "name": "full-data-asset-size-app",
   "version": "4.9.0-alpha.6",
   "private": true,
-  "description": "Small description for performance-test-app goes here",
+  "description": "An app for determining asset-size of the meta package",
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
-    "directory": "tests/performance"
+    "directory": "tests/full-data-asset-size-app"
   },
   "license": "MIT",
   "author": "",
@@ -18,15 +18,13 @@
     "build": "ember build",
     "start": "ember serve"
   },
-  "dependencies": {
-    "ember-auto-import": "^2.4.3",
-    "ember-data": "workspace:4.9.0-alpha.6"
-  },
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@babel/runtime": "^7.19.3",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "~2.8.1",
+    "ember-auto-import": "^2.4.3",
+    "ember-data": "workspace:4.9.0-alpha.6",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~4.8.0",
     "ember-cli-app-version": "^5.0.0",
