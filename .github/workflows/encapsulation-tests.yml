@@ -6,7 +6,7 @@ on:
       - master
 
 concurrency:
-  group: docs-${{ github.head_ref }}
+  group: encapsulation-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
