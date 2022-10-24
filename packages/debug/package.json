@@ -16,7 +16,7 @@
   "scripts": {},
   "peerDependencies": {
     "@ember/string": "^3.0.0",
-    "webpack": "^5.0.0"
+    "webpack": "^5.74.0"
   },
   "dependenciesMeta": {
     "injected": {
