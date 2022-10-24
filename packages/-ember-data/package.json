@@ -46,6 +46,9 @@
       "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6"
     }
   },
+  "devDependencies": {
+    "webpack": "^5.74.0"
+  },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"
   },

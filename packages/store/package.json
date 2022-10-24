@@ -18,8 +18,7 @@
     "@ember-data/model": "workspace:4.9.0-alpha.6",
     "@ember-data/tracking": "workspace:4.9.0-alpha.6",
     "@ember/string": "^3.0.0",
-    "@glimmer/tracking": "^1.1.2",
-    "webpack": "^5.0.0"
+    "@glimmer/tracking": "^1.1.2"
   },
   "peerDependenciesMeta": {
     "@ember-data/record-data": {
@@ -43,7 +42,10 @@
     "ember-cached-decorator-polyfill": "^0.1.4",
     "ember-cli-babel": "^7.26.11"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "webpack": "^5.74.0"
+  },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"
   },
