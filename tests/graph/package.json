@@ -18,7 +18,7 @@
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
     "test": "ember test --test-port=0",
-    "test:try-one": "ember try:one --test-port=0 --config-path='../../packages/-ember-data/config/ember-try.js'"
+    "test:try-one": "ember try:one --test-port=0 --config-path='../main/config/ember-try.js'"
   },
   "dependenciesMeta": {
     "injected": {
