@@ -18,8 +18,7 @@
     "ember-inflector": "^4.0.2",
     "@ember-data/tracking": "workspace:4.9.0-alpha.6",
     "@ember-data/store": "workspace:4.9.0-alpha.6",
-    "@ember/string": "^3.0.0",
-    "webpack": "^5.0.0"
+    "@ember/string": "^3.0.0"
   },
   "dependenciesMeta": {
     "injected": {
@@ -41,6 +40,10 @@
     "ember-cli-test-info": "^1.0.0",
     "ember-compatibility-helpers": "^1.2.6",
     "inflection": "~1.13.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "webpack": "^5.74.0"
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"
