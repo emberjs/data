@@ -58,7 +58,8 @@
       "fastboot-test-app/*": ["app/*"],
       "graph-test-app/tests/*": ["tests/graph/tests/*"],
       "graph-test-app/*": ["tests/graph/app/*"],
-      "*": ["@types/*", "packages/fastboot-test-app/types/*"]
+      "*": ["@types/*", "packages/fastboot-test-app/types/*"],
+      "ember-inflector": ["tests/main/node_modules/ember-inflector","packages/-ember-data/node_modules/ember-inflector"]
     }
   },
   "include": [

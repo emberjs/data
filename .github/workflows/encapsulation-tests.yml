@@ -1,0 +1,24 @@
+name: Encapsulation Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: encapsulation-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+        with:
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
+      - name: Run Tests
+        run: pnpm test:encapsulation

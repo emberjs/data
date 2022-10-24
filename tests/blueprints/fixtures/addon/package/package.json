@@ -1,0 +1,24 @@
+{
+  "name": "my-addon",
+  "version": "0.0.0",
+  "description": "Addon fixture package for ember-cli-blueprint-test-helpers",
+  "engines": {
+    "node": "^14.8.0 || 16.* || >= 18.*"
+  },
+  "devDependencies": {
+    "ember-cli": "*",
+    "ember-data": "*",
+    "@ember-data/adapter": "*",
+    "@ember-data/serializer": "*"
+  },
+  "keywords": [
+    "ember-addon"
+  ],
+  "dependencies": {
+    "ember-cli-htmlbars": "*",
+    "ember-cli-babel": "*"
+  },
+  "ember-addon": {
+    "configPath": "tests/dummy/config"
+  }
+}

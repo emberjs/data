@@ -1,0 +1,24 @@
+name: Documentation & Blueprint Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: docs-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+        with:
+          install: true
+      - name: Test Docs
+        run: pnpm test:docs
+      - name: Test Blueprints
+        run: pnpm --filter blueprint-tests run test

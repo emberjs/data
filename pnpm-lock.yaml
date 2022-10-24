@@ -98,7 +98,6 @@ importers:
       lerna: ^5.6.2
       lerna-changelog: ^2.2.0
       loader.js: ^4.7.0
-      mocha: ^10.1.0
       npm-git-info: ^1.0.3
       pre-commit: ^1.2.2
       pretender: ^3.4.7
@@ -209,7 +208,6 @@ importers:
       lerna: 5.6.2_debug@4.3.4
       lerna-changelog: 2.2.0
       loader.js: 4.7.0
-      mocha: 10.1.0
       npm-git-info: 1.0.3
       pre-commit: 1.2.2
       pretender: 3.4.7
@@ -360,81 +358,33 @@ importers:
       qunit-dom: 2.0.0
       typescript: 4.8.4
       webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/adapter': workspace:4.9.0-alpha.6
+        '@ember-data/debug': workspace:4.9.0-alpha.6
+        '@ember-data/model': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+        '@ember-data/record-data': workspace:4.9.0-alpha.6
+        '@ember-data/serializer': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
 
   packages/adapter:
     specifiers:
-      '@babel/core': ^7.19.3
-      '@babel/runtime': ^7.19.3
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
-      '@ember/optional-features': ^2.0.0
-      '@ember/string': ^3.0.0
-      '@ember/test-helpers': ~2.8.1
-      broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.4.3
-      ember-cli: ~4.8.0
       ember-cli-babel: ^7.26.11
-      ember-cli-blueprint-test-helpers: ^0.19.2
-      ember-cli-dependency-checker: ^3.3.1
-      ember-cli-htmlbars: ^6.1.1
-      ember-cli-inject-live-reload: ^2.1.0
-      ember-cli-sri: ^2.1.1
-      ember-cli-terser: ~4.0.2
       ember-cli-test-info: ^1.0.0
-      ember-disable-prototype-extensions: ^1.1.3
-      ember-export-application-global: ^2.0.1
-      ember-inflector: ^4.0.2
-      ember-load-initializers: ^2.1.2
-      ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
-      ember-resolver: ^8.0.3
-      ember-source: ~4.7.1
-      ember-source-channel-url: ^3.0.0
-      ember-try: ^2.0.0
-      loader.js: ^4.7.0
-      qunit: ^2.19.2
-      qunit-dom: ^2.0.0
-      silent-error: ^1.1.1
-      webpack: ^5.74.0
     dependencies:
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/store': link:../store
       '@ember/edition-utils': 1.2.0
-      '@ember/string': 3.0.0
-      ember-auto-import: 2.4.3_webpack@5.74.0
+      ember-auto-import: 2.4.3
       ember-cli-babel: 7.26.11
       ember-cli-test-info: 1.0.0
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
-      '@ember-data/unpublished-test-infra': link:../unpublished-test-infra
-      '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
-      broccoli-asset-rev: 3.0.0
-      ember-cli: 4.8.0
-      ember-cli-blueprint-test-helpers: 0.19.2
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
-      ember-cli-htmlbars: 6.1.1
-      ember-cli-inject-live-reload: 2.1.0
-      ember-cli-sri: 2.1.1
-      ember-cli-terser: 4.0.2
-      ember-disable-prototype-extensions: 1.1.3
-      ember-export-application-global: 2.0.1
-      ember-inflector: 4.0.2
-      ember-load-initializers: 2.1.2_@babel+core@7.19.3
-      ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
-      ember-resolver: 8.0.3_@babel+core@7.19.3
-      ember-source: 4.7.1_wfdvla2jorjoj23kkavho2upde
-      ember-source-channel-url: 3.0.0
-      ember-try: 2.0.0
-      loader.js: 4.7.0
-      qunit: 2.19.2
-      qunit-dom: 2.0.0
-      silent-error: 1.1.1
-      webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/canary-features:
     specifiers:
@@ -444,161 +394,50 @@ importers:
 
   packages/debug:
     specifiers:
-      '@babel/core': ^7.19.3
-      '@babel/runtime': ^7.19.3
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
-      '@ember/optional-features': ^2.0.0
-      '@ember/string': ^3.0.0
-      '@ember/test-helpers': ~2.8.1
-      broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.4.3
-      ember-cli: ~4.8.0
       ember-cli-babel: ^7.26.11
-      ember-cli-blueprint-test-helpers: ^0.19.2
-      ember-cli-dependency-checker: ^3.3.1
-      ember-cli-htmlbars: ^6.1.1
-      ember-cli-inject-live-reload: ^2.1.0
-      ember-cli-sri: ^2.1.1
-      ember-cli-terser: ~4.0.2
-      ember-disable-prototype-extensions: ^1.1.3
-      ember-export-application-global: ^2.0.1
-      ember-load-initializers: ^2.1.2
-      ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
-      ember-resolver: ^8.0.3
-      ember-source: ~4.7.1
-      ember-source-channel-url: ^3.0.0
-      ember-try: ^2.0.0
-      loader.js: ^4.7.0
-      qunit: ^2.19.2
-      qunit-dom: ^2.0.0
-      silent-error: ^1.1.1
-      webpack: ^5.74.0
     dependencies:
       '@ember-data/private-build-infra': link:../private-build-infra
       '@ember/edition-utils': 1.2.0
-      '@ember/string': 3.0.0
-      ember-auto-import: 2.4.3_webpack@5.74.0
+      ember-auto-import: 2.4.3
       ember-cli-babel: 7.26.11
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
-      '@ember-data/unpublished-test-infra': link:../unpublished-test-infra
-      '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
-      broccoli-asset-rev: 3.0.0
-      ember-cli: 4.8.0
-      ember-cli-blueprint-test-helpers: 0.19.2
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
-      ember-cli-htmlbars: 6.1.1
-      ember-cli-inject-live-reload: 2.1.0
-      ember-cli-sri: 2.1.1
-      ember-cli-terser: 4.0.2
-      ember-disable-prototype-extensions: 1.1.3
-      ember-export-application-global: 2.0.1
-      ember-load-initializers: 2.1.2_@babel+core@7.19.3
-      ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
-      ember-resolver: 8.0.3_@babel+core@7.19.3
-      ember-source: 4.7.1_wfdvla2jorjoj23kkavho2upde
-      ember-source-channel-url: 3.0.0
-      ember-try: 2.0.0
-      loader.js: 4.7.0
-      qunit: 2.19.2
-      qunit-dom: 2.0.0
-      silent-error: 1.1.1
-      webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/model:
     specifiers:
-      '@babel/core': ^7.19.3
-      '@babel/runtime': ^7.19.3
-      '@ember-data/canary-features': 4.9.0-alpha.6
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
-      '@ember-data/tracking': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
+      '@ember-data/canary-features': workspace:4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
-      '@ember/optional-features': ^2.0.0
-      '@ember/string': ^3.0.0
-      '@ember/test-helpers': ~2.8.1
       '@embroider/macros': ^1.9.0
-      broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.4.3
       ember-cached-decorator-polyfill: ^0.1.4
-      ember-cli: ~4.8.0
       ember-cli-babel: ^7.26.11
-      ember-cli-blueprint-test-helpers: ^0.19.2
-      ember-cli-dependency-checker: ^3.3.1
-      ember-cli-htmlbars: ^6.1.1
-      ember-cli-inject-live-reload: ^2.1.0
-      ember-cli-sri: ^2.1.1
       ember-cli-string-utils: ^1.1.0
-      ember-cli-terser: ~4.0.2
       ember-cli-test-info: ^1.0.0
       ember-compatibility-helpers: ^1.2.6
-      ember-disable-prototype-extensions: ^1.1.3
-      ember-export-application-global: ^2.0.1
-      ember-inflector: ^4.0.2
-      ember-load-initializers: ^2.1.2
-      ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
-      ember-resolver: ^8.0.3
-      ember-source: ~4.7.1
-      ember-source-channel-url: ^3.0.0
-      ember-try: ^2.0.0
       inflection: ~1.13.4
-      loader.js: ^4.7.0
-      qunit: ^2.19.2
-      qunit-dom: ^2.0.0
-      silent-error: ^1.1.1
-      webpack: ^5.74.0
     dependencies:
       '@ember-data/canary-features': link:../canary-features
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/store': link:../store
-      '@ember-data/tracking': link:../tracking
       '@ember/edition-utils': 1.2.0
-      '@ember/string': 3.0.0
       '@embroider/macros': 1.9.0
-      ember-auto-import: 2.4.3_webpack@5.74.0
-      ember-cached-decorator-polyfill: 0.1.4_@babel+core@7.19.3
+      ember-auto-import: 2.4.3
+      ember-cached-decorator-polyfill: 0.1.4
       ember-cli-babel: 7.26.11
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
-      ember-compatibility-helpers: 1.2.6_@babel+core@7.19.3
+      ember-compatibility-helpers: 1.2.6
       inflection: 1.13.4
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
-      '@ember-data/unpublished-test-infra': link:../unpublished-test-infra
-      '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
-      broccoli-asset-rev: 3.0.0
-      ember-cli: 4.8.0
-      ember-cli-blueprint-test-helpers: 0.19.2
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
-      ember-cli-htmlbars: 6.1.1
-      ember-cli-inject-live-reload: 2.1.0
-      ember-cli-sri: 2.1.1
-      ember-cli-terser: 4.0.2
-      ember-disable-prototype-extensions: 1.1.3
-      ember-export-application-global: 2.0.1
-      ember-inflector: 4.0.2
-      ember-load-initializers: 2.1.2_@babel+core@7.19.3
-      ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
-      ember-resolver: 8.0.3_@babel+core@7.19.3
-      ember-source: 4.7.1_wfdvla2jorjoj23kkavho2upde
-      ember-source-channel-url: 3.0.0
-      ember-try: 2.0.0
-      loader.js: 4.7.0
-      qunit: 2.19.2
-      qunit-dom: 2.0.0
-      silent-error: 1.1.1
-      webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/canary-features': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
 
   packages/private-build-infra:
     specifiers:
@@ -658,58 +497,56 @@ importers:
 
   packages/record-data:
     specifiers:
-      '@ember-data/canary-features': 4.9.0-alpha.6
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
+      '@ember-data/canary-features': workspace:4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
       ember-auto-import: ^2.4.3
       ember-cli-babel: ^7.26.11
     dependencies:
       '@ember-data/canary-features': link:../canary-features
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/store': link:../store
       '@ember/edition-utils': 1.2.0
       ember-auto-import: 2.4.3
       ember-cli-babel: 7.26.11
+    dependenciesMeta:
+      injected:
+        '@ember-data/canary-features': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/serializer:
     specifiers:
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       ember-auto-import: ^2.4.3
       ember-cli-babel: ^7.26.11
       ember-cli-test-info: ^1.0.0
     dependencies:
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/store': link:../store
       ember-auto-import: 2.4.3
       ember-cli-babel: 7.26.11
       ember-cli-test-info: 1.0.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/store:
     specifiers:
-      '@ember-data/canary-features': 4.9.0-alpha.6
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/record-data': 4.9.0-alpha.6
-      '@ember-data/tracking': 4.9.0-alpha.6
-      '@ember/string': ^3.0.0
+      '@ember-data/canary-features': workspace:4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@embroider/macros': ^1.9.0
-      '@glimmer/tracking': ^1.1.2
       ember-auto-import: ^2.4.3
       ember-cached-decorator-polyfill: ^0.1.4
       ember-cli-babel: ^7.26.11
     dependencies:
       '@ember-data/canary-features': link:../canary-features
       '@ember-data/private-build-infra': link:../private-build-infra
-      '@ember-data/tracking': link:../tracking
-      '@ember/string': 3.0.0
       '@embroider/macros': 1.9.0
-      '@glimmer/tracking': 1.1.2
       ember-auto-import: 2.4.3
       ember-cached-decorator-polyfill: 0.1.4
       ember-cli-babel: 7.26.11
-    optionalDependencies:
-      '@ember-data/record-data': link:../record-data
+    dependenciesMeta:
+      injected:
+        '@ember-data/canary-features': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
 
   packages/tracking:
     specifiers:
@@ -828,12 +665,13 @@ importers:
     specifiers:
       '@babel/core': ^7.19.3
       '@babel/runtime': ^7.19.3
-      '@ember-data/debug': 4.9.0-alpha.6
-      '@ember-data/model': 4.9.0-alpha.6
-      '@ember-data/record-data': 4.9.0-alpha.6
-      '@ember-data/serializer': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
+      '@ember-data/debug': workspace:4.9.0-alpha.6
+      '@ember-data/model': workspace:4.9.0-alpha.6
+      '@ember-data/record-data': workspace:4.9.0-alpha.6
+      '@ember-data/serializer': workspace:4.9.0-alpha.6
+      '@ember-data/store': workspace:4.9.0-alpha.6
+      '@ember-data/tracking': workspace:4.9.0-alpha.6
+      '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.8.1
       '@glimmer/component': ^1.1.2
@@ -857,23 +695,22 @@ importers:
       qunit: ^2.19.2
       qunit-dom: ^2.0.0
       webpack: ^5.74.0
-    dependencies:
+    devDependencies:
+      '@babel/core': 7.19.3
+      '@babel/runtime': 7.19.4
       '@ember-data/debug': link:../../packages/debug
       '@ember-data/model': link:../../packages/model
       '@ember-data/record-data': link:../../packages/record-data
       '@ember-data/serializer': link:../../packages/serializer
       '@ember-data/store': link:../../packages/store
-      ember-auto-import: 2.4.3_webpack@5.74.0
-      ember-inflector: 4.0.2
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
+      '@ember-data/tracking': link:../../packages/tracking
       '@ember-data/unpublished-test-infra': link:../../packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
       '@glimmer/component': 1.1.2_@babel+core@7.19.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
+      ember-auto-import: 2.4.3_webpack@5.74.0
       ember-cli: 4.8.0
       ember-cli-app-version: 5.0.0
       ember-cli-babel: 7.26.11
@@ -881,6 +718,7 @@ importers:
       ember-cli-htmlbars: 6.1.1
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
+      ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.19.3
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
@@ -890,21 +728,36 @@ importers:
       qunit: 2.19.2
       qunit-dom: 2.0.0
       webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/debug': workspace:4.9.0-alpha.6
+        '@ember-data/model': workspace:4.9.0-alpha.6
+        '@ember-data/record-data': workspace:4.9.0-alpha.6
+        '@ember-data/serializer': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
+        '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
 
   tests/blueprints:
     specifiers:
+      '@ember-data/adapter': workspace:4.9.0-alpha.6
+      '@ember-data/model': workspace:4.9.0-alpha.6
       '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
       '@ember-data/serializer': workspace:4.9.0-alpha.6
       '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
       ember-cli: ~4.8.0
       ember-cli-blueprint-test-helpers: ^0.19.2
+      mocha: ^10.1.0
       silent-error: ^1.1.1
     devDependencies:
+      '@ember-data/adapter': link:../../packages/adapter
+      '@ember-data/model': link:../../packages/model
       '@ember-data/private-build-infra': link:../../packages/private-build-infra
       '@ember-data/serializer': link:../../packages/serializer
       '@ember-data/unpublished-test-infra': link:../../packages/unpublished-test-infra
       ember-cli: 4.8.0
       ember-cli-blueprint-test-helpers: 0.19.2
+      mocha: 10.1.0
       silent-error: 1.1.1
 
   tests/debug-encapsulation:
@@ -971,6 +824,12 @@ importers:
       qunit: 2.19.2
       qunit-dom: 2.0.0
       webpack: 5.74.0
+
+  tests/docs:
+    specifiers:
+      qunit: ^2.19.3
+    devDependencies:
+      qunit: 2.19.3
 
   tests/fastboot:
     specifiers:
@@ -1055,12 +914,13 @@ importers:
     specifiers:
       '@babel/core': ^7.19.3
       '@babel/runtime': ^7.19.3
-      '@ember-data/canary-features': 4.9.0-alpha.6
-      '@ember-data/model': 4.9.0-alpha.6
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/record-data': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
+      '@ember-data/canary-features': workspace:4.9.0-alpha.6
+      '@ember-data/model': workspace:4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+      '@ember-data/record-data': workspace:4.9.0-alpha.6
+      '@ember-data/store': workspace:4.9.0-alpha.6
+      '@ember-data/tracking': workspace:4.9.0-alpha.6
+      '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.8.1
@@ -1099,6 +959,7 @@ importers:
       '@ember-data/private-build-infra': link:../../packages/private-build-infra
       '@ember-data/record-data': link:../../packages/record-data
       '@ember-data/store': link:../../packages/store
+      '@ember-data/tracking': link:../../packages/tracking
       '@ember-data/unpublished-test-infra': link:../../packages/unpublished-test-infra
       '@ember/edition-utils': 1.2.0
       '@ember/optional-features': 2.0.0
@@ -1130,17 +991,27 @@ importers:
       qunit-dom: 2.0.0
       silent-error: 1.1.1
       webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/canary-features': workspace:4.9.0-alpha.6
+        '@ember-data/model': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+        '@ember-data/record-data': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
+        '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
 
   tests/model-encapsulation:
     specifiers:
       '@babel/core': ^7.19.3
       '@babel/runtime': ^7.19.3
-      '@ember-data/adapter': 4.9.0-alpha.6
-      '@ember-data/canary-features': 4.9.0-alpha.6
-      '@ember-data/private-build-infra': 4.9.0-alpha.6
-      '@ember-data/serializer': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
+      '@ember-data/adapter': workspace:4.9.0-alpha.6
+      '@ember-data/canary-features': workspace:4.9.0-alpha.6
+      '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+      '@ember-data/serializer': workspace:4.9.0-alpha.6
+      '@ember-data/store': workspace:4.9.0-alpha.6
+      '@ember-data/tracking': workspace:4.9.0-alpha.6
+      '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.8.1
       '@glimmer/component': ^1.1.2
@@ -1164,23 +1035,22 @@ importers:
       qunit: ^2.19.2
       qunit-dom: ^2.0.0
       webpack: ^5.74.0
-    dependencies:
+    devDependencies:
+      '@babel/core': 7.19.3
+      '@babel/runtime': 7.19.4
       '@ember-data/adapter': link:../../packages/adapter
       '@ember-data/canary-features': link:../../packages/canary-features
       '@ember-data/private-build-infra': link:../../packages/private-build-infra
       '@ember-data/serializer': link:../../packages/serializer
       '@ember-data/store': link:../../packages/store
-      ember-auto-import: 2.4.3_webpack@5.74.0
-      ember-inflector: 4.0.2
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
+      '@ember-data/tracking': link:../../packages/tracking
       '@ember-data/unpublished-test-infra': link:../../packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
       '@glimmer/component': 1.1.2_@babel+core@7.19.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
+      ember-auto-import: 2.4.3_webpack@5.74.0
       ember-cli: 4.8.0
       ember-cli-app-version: 5.0.0
       ember-cli-babel: 7.26.11
@@ -1188,6 +1058,7 @@ importers:
       ember-cli-htmlbars: 6.1.1
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
+      ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.19.3
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
@@ -1197,6 +1068,15 @@ importers:
       qunit: 2.19.2
       qunit-dom: 2.0.0
       webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/adapter': workspace:4.9.0-alpha.6
+        '@ember-data/canary-features': workspace:4.9.0-alpha.6
+        '@ember-data/private-build-infra': workspace:4.9.0-alpha.6
+        '@ember-data/serializer': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
+        '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
 
   tests/performance:
     specifiers:
@@ -1257,12 +1137,13 @@ importers:
     specifiers:
       '@babel/core': ^7.19.3
       '@babel/runtime': ^7.19.3
-      '@ember-data/adapter': 4.9.0-alpha.6
-      '@ember-data/debug': 4.9.0-alpha.6
-      '@ember-data/model': 4.9.0-alpha.6
-      '@ember-data/serializer': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
+      '@ember-data/adapter': workspace:4.9.0-alpha.6
+      '@ember-data/debug': workspace:4.9.0-alpha.6
+      '@ember-data/model': workspace:4.9.0-alpha.6
+      '@ember-data/serializer': workspace:4.9.0-alpha.6
+      '@ember-data/store': workspace:4.9.0-alpha.6
+      '@ember-data/tracking': workspace:4.9.0-alpha.6
+      '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.8.1
       '@glimmer/component': ^1.1.2
@@ -1286,23 +1167,22 @@ importers:
       qunit: ^2.19.2
       qunit-dom: ^2.0.0
       webpack: ^5.74.0
-    dependencies:
+    devDependencies:
+      '@babel/core': 7.19.3
+      '@babel/runtime': 7.19.4
       '@ember-data/adapter': link:../../packages/adapter
       '@ember-data/debug': link:../../packages/debug
       '@ember-data/model': link:../../packages/model
       '@ember-data/serializer': link:../../packages/serializer
       '@ember-data/store': link:../../packages/store
-      ember-auto-import: 2.4.3_webpack@5.74.0
-      ember-inflector: 4.0.2
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
+      '@ember-data/tracking': link:../../packages/tracking
       '@ember-data/unpublished-test-infra': link:../../packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
       '@glimmer/component': 1.1.2_@babel+core@7.19.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
+      ember-auto-import: 2.4.3_webpack@5.74.0
       ember-cli: 4.8.0
       ember-cli-app-version: 5.0.0
       ember-cli-babel: 7.26.11
@@ -1310,6 +1190,7 @@ importers:
       ember-cli-htmlbars: 6.1.1
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
+      ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.19.3
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
@@ -1319,16 +1200,26 @@ importers:
       qunit: 2.19.2
       qunit-dom: 2.0.0
       webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/adapter': workspace:4.9.0-alpha.6
+        '@ember-data/debug': workspace:4.9.0-alpha.6
+        '@ember-data/model': workspace:4.9.0-alpha.6
+        '@ember-data/serializer': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
+        '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
 
   tests/serializer-encapsulation:
     specifiers:
       '@babel/core': ^7.19.3
       '@babel/runtime': ^7.19.3
-      '@ember-data/adapter': 4.9.0-alpha.6
-      '@ember-data/model': 4.9.0-alpha.6
-      '@ember-data/record-data': 4.9.0-alpha.6
-      '@ember-data/store': 4.9.0-alpha.6
-      '@ember-data/unpublished-test-infra': 4.9.0-alpha.6
+      '@ember-data/adapter': workspace:4.9.0-alpha.6
+      '@ember-data/model': workspace:4.9.0-alpha.6
+      '@ember-data/record-data': workspace:4.9.0-alpha.6
+      '@ember-data/store': workspace:4.9.0-alpha.6
+      '@ember-data/tracking': workspace:4.9.0-alpha.6
+      '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ~2.8.1
       '@glimmer/component': ^1.1.2
@@ -1352,22 +1243,21 @@ importers:
       qunit: ^2.19.2
       qunit-dom: ^2.0.0
       webpack: ^5.74.0
-    dependencies:
+    devDependencies:
+      '@babel/core': 7.19.3
+      '@babel/runtime': 7.19.4
       '@ember-data/adapter': link:../../packages/adapter
       '@ember-data/model': link:../../packages/model
       '@ember-data/record-data': link:../../packages/record-data
       '@ember-data/store': link:../../packages/store
-      ember-auto-import: 2.4.3_webpack@5.74.0
-      ember-inflector: 4.0.2
-    devDependencies:
-      '@babel/core': 7.19.3
-      '@babel/runtime': 7.19.4
+      '@ember-data/tracking': link:../../packages/tracking
       '@ember-data/unpublished-test-infra': link:../../packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/test-helpers': 2.8.1_7im6m2l4mwtzpmvk5fhkhm66gq
       '@glimmer/component': 1.1.2_@babel+core@7.19.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
+      ember-auto-import: 2.4.3_webpack@5.74.0
       ember-cli: 4.8.0
       ember-cli-app-version: 5.0.0
       ember-cli-babel: 7.26.11
@@ -1375,6 +1265,7 @@ importers:
       ember-cli-htmlbars: 6.1.1
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
+      ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.19.3
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
@@ -1384,6 +1275,14 @@ importers:
       qunit: 2.19.2
       qunit-dom: 2.0.0
       webpack: 5.74.0
+    dependenciesMeta:
+      injected:
+        '@ember-data/adapter': workspace:4.9.0-alpha.6
+        '@ember-data/model': workspace:4.9.0-alpha.6
+        '@ember-data/record-data': workspace:4.9.0-alpha.6
+        '@ember-data/store': workspace:4.9.0-alpha.6
+        '@ember-data/tracking': workspace:4.9.0-alpha.6
+        '@ember-data/unpublished-test-infra': workspace:4.9.0-alpha.6
 
 packages:
 
@@ -5479,6 +5378,7 @@ packages:
     dependencies:
       '@babel/core': 7.19.3
       semver: 5.7.1
+    dev: true
 
   /babel-plugin-debug-macros/0.3.4_@babel+core@7.19.3:
     resolution: {integrity: sha512-wfel/vb3pXfwIDZUrkoDrn5FHmlWI96PCJ3UCDv2a86poJ3EQrnArNW5KfHSVJ9IOgxHbo748cQt7sDU+0KCEw==}
@@ -7966,6 +7866,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
+    dev: true
 
   /ember-cached-decorator-polyfill/0.1.4:
     resolution: {integrity: sha512-JOK7kBCWsTVCzmCefK4nr9BACDJk0owt9oIUaVt6Q0UtQ4XeAHmoK5kQ/YtDcxQF1ZevHQFdGhsTR3JLaHNJgA==}
@@ -7973,19 +7874,6 @@ packages:
     dependencies:
       '@glimmer/tracking': 1.1.2
       ember-cache-primitive-polyfill: 1.0.1
-      ember-cli-babel: 7.26.11
-      ember-cli-babel-plugin-helpers: 1.1.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-    dev: false
-
-  /ember-cached-decorator-polyfill/0.1.4_@babel+core@7.19.3:
-    resolution: {integrity: sha512-JOK7kBCWsTVCzmCefK4nr9BACDJk0owt9oIUaVt6Q0UtQ4XeAHmoK5kQ/YtDcxQF1ZevHQFdGhsTR3JLaHNJgA==}
-    engines: {node: 10.* || >= 12}
-    dependencies:
-      '@glimmer/tracking': 1.1.2
-      ember-cache-primitive-polyfill: 1.0.1_@babel+core@7.19.3
       ember-cli-babel: 7.26.11
       ember-cli-babel-plugin-helpers: 1.1.1
     transitivePeerDependencies:
@@ -8717,6 +8605,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
+    dev: true
 
   /ember-decorators-polyfill/1.1.5_@babel+core@7.19.3:
     resolution: {integrity: sha512-O154i8sLoVjsiKzSqxGRfHGr+N+drT6mRrLDbNgJCnW/V5uLg/ppZFpUsrdxuXnp5Q9us3OfXV1nX2CH+7bUpA==}
@@ -13919,6 +13808,16 @@ packages:
       commander: 7.2.0
       node-watch: 0.7.3
       tiny-glob: 0.2.9
+
+  /qunit/2.19.3:
+    resolution: {integrity: sha512-vEnspSZ37u2oR01OA/IZ1Td5V7BvQYFECdKPv86JaBplDNa5IHg0v7jFSPoP5L5o78Dbi8sl7/ATtpRDAKlSdw==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      commander: 7.2.0
+      node-watch: 0.7.3
+      tiny-glob: 0.2.9
+    dev: true
 
   /rambda/7.2.1:
     resolution: {integrity: sha512-Wswj8ZvzdI3VhaGPkZAxaCTwuMmGtgWt7Zxsgyo4P+iTmVnkojvyWaOep5q3ZjMIecW0wtQa66GWxaKkZ24RAA==}

@@ -18,20 +18,31 @@
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
     "test": "ember test --test-port=0",
-    "test:production": "ember test  --test-port=0 -e production",
-    "test:try-one": "ember try:one --test-port=0 --config-path='../-ember-data/config/ember-try.js'"
+    "test:try-one": "ember try:one --test-port=0 --config-path='../../packages/-ember-data/config/ember-try.js'"
+  },
+  "dependenciesMeta": {
+    "injected": {
+      "@ember-data/model": "workspace:4.9.0-alpha.6",
+      "@ember-data/record-data": "workspace:4.9.0-alpha.6",
+      "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
+      "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
+      "@ember-data/store": "workspace:4.9.0-alpha.6",
+      "@ember-data/tracking": "workspace:4.9.0-alpha.6",
+      "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6"
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@babel/runtime": "^7.19.3",
-    "@ember-data/model": "4.9.0-alpha.6",
-    "@ember-data/record-data": "4.9.0-alpha.6",
-    "@ember-data/canary-features": "4.9.0-alpha.6",
-    "@ember-data/private-build-infra": "4.9.0-alpha.6",
-    "@ember-data/store": "4.9.0-alpha.6",
+    "@ember-data/model": "workspace:4.9.0-alpha.6",
+    "@ember-data/record-data": "workspace:4.9.0-alpha.6",
+    "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
+    "@ember-data/store": "workspace:4.9.0-alpha.6",
+    "@ember-data/tracking": "workspace:4.9.0-alpha.6",
+    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
     "@ember/edition-utils": "^1.2.0",
     "ember-auto-import": "^2.4.3",
-    "@ember-data/unpublished-test-infra": "4.9.0-alpha.6",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
     "broccoli-asset-rev": "^3.0.0",

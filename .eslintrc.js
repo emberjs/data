@@ -296,7 +296,6 @@ module.exports = {
         'tests/*/.template-lintrc.js',
         'tests/*/config/**/*.js',
         'tests/*/tests/dummy/config/**/*.js',
-        'tests/*/node-tests/**/*.js',
         'packages/-ember-data/lib/*.js',
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',
@@ -312,7 +311,6 @@ module.exports = {
         'packages/*/blueprints/*/index.js',
         'packages/*/config/**/*.js',
         'packages/*/tests/dummy/config/**/*.js',
-        'packages/*/node-tests/**/*.js',
       ],
       excludedFiles: [
         'packages/*/addon/**',
@@ -338,22 +336,32 @@ module.exports = {
 
     // node tests
     {
-      files: [
-        'packages/*/node-tests/**',
-        'tests/*/node-tests/**',
-        'packages/unpublished-test-infra/src/node-test-helpers/**/*',
-      ],
+      files: ['tests/blueprints/tests/**', 'packages/unpublished-test-infra/src/node-test-helpers/**/*'],
       env: {
+        node: true,
         mocha: true,
+        es6: true,
       },
+      plugins: ['node', 'import'],
+      extends: 'plugin:node/recommended',
       rules: {
+        'import/order': ['error', { 'newlines-between': 'always' }],
         'node/no-unpublished-require': 'off',
+      },
+    },
+
+    // node test fixtures
+    {
+      files: ['tests/blueprints/fixtures/**'],
+      rules: {
+        'import/order': 'off',
+        'simple-import-sort/imports': 'off',
       },
     },
 
     // docs
     {
-      files: ['packages/-ember-data/node-tests/docs/*.js'],
+      files: ['tests/docs/**/*.js'],
       env: {
         node: true,
         qunit: true,
@@ -362,6 +370,9 @@ module.exports = {
       parserOptions: {
         sourceType: 'script',
         ecmaVersion: 2018,
+      },
+      rules: {
+        'node/no-unpublished-require': 'off',
       },
     },
 

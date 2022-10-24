@@ -29,6 +29,21 @@ function addonBuildConfigForDataPackage(PackageName) {
         'ember-cli-babel': {
           enableTypeScriptTransform: true,
         },
+        autoImport: {
+          exclude: [
+            '@ember/string',
+            'ember-inflector',
+            '@ember-data/store',
+            '@ember-data/adapter',
+            '@ember-data/serializer',
+            '@ember-data/model',
+            '@ember-data/record-data',
+            '@ember-data/debug',
+            '@ember-data/canary-features',
+            '@ember-data/tracking',
+            '@glimmer/tracking',
+          ],
+        },
       });
     },
 

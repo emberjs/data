@@ -12,10 +12,19 @@
   },
   "license": "MIT",
   "author": "",
+  "peerDependencies": {
+    "@ember-data/store": "workspace:4.9.0-alpha.6",
+    "webpack": "^5.0.0"
+  },
+  "dependenciesMeta": {
+    "injected": {
+      "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
+      "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6"
+    }
+  },
   "dependencies": {
-    "@ember-data/canary-features": "4.9.0-alpha.6",
-    "@ember-data/private-build-infra": "4.9.0-alpha.6",
-    "@ember-data/store": "4.9.0-alpha.6",
+    "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
     "@ember/edition-utils": "^1.2.0",
     "ember-auto-import": "^2.4.3",
     "ember-cli-babel": "^7.26.11"
