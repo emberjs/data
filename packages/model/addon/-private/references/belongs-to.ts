@@ -101,9 +101,16 @@ export default class BelongsToReference {
     }
   }
 
+  /**
+   * The identifier of the record that this reference refers to.
+   * `null` if no related record is known.
+   *
+   * @property {StableRecordIdentifier | null} identifier
+   * @public
+   */
   @cached
   @dependentKeyCompat
-  get _relatedIdentifier(): StableRecordIdentifier | null {
+  get identifier(): StableRecordIdentifier | null {
     this._ref; // consume the tracked prop
     if (this.___relatedToken) {
       this.store._notificationManager.unsubscribe(this.___relatedToken);
@@ -165,11 +172,11 @@ export default class BelongsToReference {
    ```
 
    @method id
-    @public
+   @public
    @return {String} The id of the record in this belongsTo relationship.
    */
   id(): string | null {
-    return this._relatedIdentifier?.id || null;
+    return this.identifier?.id || null;
   }
 
   /**

@@ -102,9 +102,15 @@ export default class HasManyReference {
     this.___relatedTokenMap.clear();
   }
 
+  /**
+   * An array of identifiers for the records that this reference refers to.
+   *
+   * @property {StableRecordIdentifier[]} identifiers
+   * @public
+   */
   @cached
   @dependentKeyCompat
-  get _relatedIdentifiers(): StableRecordIdentifier[] {
+  get identifiers(): StableRecordIdentifier[] {
     this._ref; // consume the tracked prop
 
     let resource = this._resource();
@@ -236,7 +242,7 @@ export default class HasManyReference {
    @return {Array} The ids in this has-many relationship
    */
   ids(): Array<string | null> {
-    return this._relatedIdentifiers.map((identifier) => identifier.id);
+    return this.identifiers.map((identifier) => identifier.id);
   }
 
   /**
