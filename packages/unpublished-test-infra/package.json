@@ -67,7 +67,7 @@
     "configPath": "tests/dummy/config"
   },
   "volta": {
-    "node": "16.18.0",
+    "node": "18.12.0",
     "pnpm": "7.13.5"
   },
 	"packageManager": "pnpm@7.13.5"

@@ -9,6 +9,6 @@
     "directory": "packages/unpublished-eslint-rules"
   },
   "volta": {
-    "node": "16.18.0"
+    "node": "18.12.0"
   }
 }
