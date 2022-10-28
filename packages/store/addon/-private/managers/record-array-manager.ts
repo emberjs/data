@@ -61,7 +61,7 @@ export function fastPush<T>(target: T[], source: T[]) {
   let newLength = source.length;
   while (newLength - startLength > SLICE_BATCH_SIZE) {
     // eslint-disable-next-line prefer-spread
-    target.push.apply(target, source.slice(startLength, SLICE_BATCH_SIZE));
+    target.push.apply(target, source.slice(startLength, startLength + SLICE_BATCH_SIZE));
     startLength += SLICE_BATCH_SIZE;
   }
   // eslint-disable-next-line prefer-spread
