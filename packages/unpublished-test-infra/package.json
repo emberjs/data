@@ -39,7 +39,7 @@
     "@babel/runtime": "^7.20.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
-    "@types/semver": "^7.3.12",
+    "@types/semver": "^7.3.13",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "broccoli-merge-trees": "^4.2.0",
