@@ -15,7 +15,7 @@
   "scripts": {
     "build": "ember build",
     "test": "ember test --test-port=0",
-    "test:try-one": "ember try:one"
+    "test:try-one": "ember try:one --test-port=0"
   },
   "author": "",
   "license": "MIT",
