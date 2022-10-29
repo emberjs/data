@@ -15,12 +15,10 @@ jobs:
           if [[ "$(git name-rev --tags --name-only $(git rev-parse HEAD))" != "undefined" ]]; then
             exit 1
           fi
-      - uses: pnpm/action-setup@v2
-        with:
-          version: '7.13.5'
+      - uses: pnpm/action-setup@c3b53f6a16e57305370b4ae5a540c2077a1d50dd # tag=v2.2.4
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
           cache: 'pnpm'
       - name: Install dependencies for master
         run: pnpm install
@@ -37,13 +35,11 @@ jobs:
     environment: deployment
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: '7.13.5'
+      - uses: pnpm/action-setup@c3b53f6a16e57305370b4ae5a540c2077a1d50dd # tag=v2.2.4
       - uses: actions/setup-node@v3
         with:
           registry-url: 'https://registry.npmjs.org'
-          node-version: 16.x
+          node-version: 18.x
           cache: 'pnpm'
       - name: Install dependencies for master
         run: pnpm install

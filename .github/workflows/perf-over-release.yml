@@ -33,9 +33,11 @@ jobs:
           originSha=$(git rev-parse HEAD^2)
           echo $originSha > tmp/sha-for-commit.txt
           git show --format=short --no-patch $originSha
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@c3b53f6a16e57305370b4ae5a540c2077a1d50dd # tag=v2.2.4
+      - uses: actions/setup-node@v3
         with:
-          version: '7.13.5'
+          node-version: 18.x
+          cache: 'pnpm'
       - uses: tracerbench/tracerbench-compare-action@master
         with:
           experiment-build-command: npm run --if-present build-v2-addons && pnpm --filter performance-test-app exec ember build -e production --output-path dist-experiment
