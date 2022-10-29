@@ -4,10 +4,129 @@
     "config:base"
   ],
   "labels": ["target:canary", "skip-changelog", "dependencies"],
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "@types",
+        "typescript",
+        "eslint",
+        "glint",
+        "lint",
+        "prettier",
+        "stylelint"
+      ],
+      "groupName": "code-quality"
+    },
+    {
+      "matchPackageNames": [
+        "webpack",
+        "npm-run-all",
+        "ember-export-application-global",
+        "ember-cli",
+        "ember-cli-dotenv",
+        "ember-auto-import",
+        "broccoli-asset-rev",
+        "broccoli-debug",
+        "broccoli-funnel",
+        "broccoli-merge-trees",
+        "ember-cli-app-version",
+        "ember-cli-build-notifications",
+        "ember-cli-content-security-policy",
+        "ember-cli-dependency-checker",
+        "ember-cli-inject-live-reload",
+        "emner-cli-inline-content",
+        "ember-cli-sri",
+        "ember-css-modules"
+      ],
+      "matchPackagePatterns": [
+        "@embroider",
+        "postcss"
+      ],
+      "groupName": "build-tools"
+    },
+    {
+      "matchPackageNames": [
+        "ember-source",
+        "ember-resolver",
+        "loader.js",
+        "ember-classic-decorator",
+        "ember-cached-decorator",
+        "ember-modifier",
+        "ember-page-title",
+        "tracked-built-ins"
+      ],
+      "matchPackagePatterns": [
+        "glimmer",
+        "polyfill"
+      ],
+      "groupName": "ember-core"
+    },
+    {
+      "matchPackageNames": [
+        "ember-cli-babel",
+        "ember-cli-htmlbars",
+        "@embroider/macros",
+        "ember-cli-terser"
+      ],
+      "matchPackagePatterns": [
+        "babel",
+        "postcss"
+      ],
+      "groupName": "asset-compilation"
+    },
+    {
+      "matchPackageNames": [
+        "chai",
+        "mocha",
+        "qunit-dom",
+        "sinon",
+        "ember-exam",
+        "testem",
+        "ember-cli-mirage",
+        "ember-qunit",
+        "qunit",
+        "ember-cli-deprecation-workflow",
+        "ember-a11y-testing",
+        "@ember/test-helpers",
+        "@ember/test-waiters"
+      ],
+      "matchPackagePatterns": [
+        "percy",
+        "quality",
+        "test"
+      ],
+      "groupName": "testing"
+    },
+    {
+      "matchPackageNames": [
+        "ember-uuid",
+        "ember-ajax",
+        "ember-fetch",
+        "ember-inflector",
+        "ember-promise-helpers"
+      ],
+      "groupName": "data-utils"
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "github-actions"
+    }
+  ],
   "npm": {
     "stabilityDays": 3
   },
   "rangeStrategy": "bump",
-  "ignoreDeps": ["execa"],
-  "prHourlyLimit": 10
+  "prHourlyLimit": 10,
+  "vulnerabilityAlerts": {
+    "labels": [
+      "security"
+    ],
+    "automerge": false,
+    "assignees": [
+      "@runspired"
+    ],
+    "enabled": true
+  }
 }
