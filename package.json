@@ -52,7 +52,7 @@
     "@types/ember__component": "^4.0.11",
     "@types/ember__controller": "^4.0.3",
     "@types/ember__error": "^4.0.1",
-    "@types/ember__polyfills": "^4.0.0",
+    "@types/ember__polyfills": "^4.0.1",
     "@types/ember__runloop": "^4.0.2",
     "@types/ember__string": "^3.0.10",
     "@types/ember__template": "^4.0.1",

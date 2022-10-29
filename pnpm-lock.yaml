@@ -26,7 +26,7 @@ importers:
       '@types/ember__engine': ^4.0.3
       '@types/ember__error': ^4.0.1
       '@types/ember__object': ^4.0.5
-      '@types/ember__polyfills': ^4.0.0
+      '@types/ember__polyfills': ^4.0.1
       '@types/ember__routing': ^4.0.12
       '@types/ember__runloop': ^4.0.2
       '@types/ember__service': ^4.0.1
@@ -137,7 +137,7 @@ importers:
       '@types/ember__engine': 4.0.3_@babel+core@7.19.6
       '@types/ember__error': 4.0.1
       '@types/ember__object': 4.0.5_@babel+core@7.19.6
-      '@types/ember__polyfills': 4.0.0
+      '@types/ember__polyfills': 4.0.1
       '@types/ember__routing': 4.0.12_@babel+core@7.19.6
       '@types/ember__runloop': 4.0.2_@babel+core@7.19.6
       '@types/ember__service': 4.0.1_@babel+core@7.19.6
@@ -5575,7 +5575,7 @@ packages:
       '@types/ember__engine': 4.0.3_@babel+core@7.19.3
       '@types/ember__error': 4.0.1
       '@types/ember__object': 4.0.5_@babel+core@7.19.3
-      '@types/ember__polyfills': 4.0.0
+      '@types/ember__polyfills': 4.0.1
       '@types/ember__routing': 4.0.12_@babel+core@7.19.3
       '@types/ember__runloop': 4.0.2_@babel+core@7.19.3
       '@types/ember__service': 4.0.1_@babel+core@7.19.3
@@ -5601,7 +5601,7 @@ packages:
       '@types/ember__engine': 4.0.3_@babel+core@7.19.6
       '@types/ember__error': 4.0.1
       '@types/ember__object': 4.0.5_@babel+core@7.19.6
-      '@types/ember__polyfills': 4.0.0
+      '@types/ember__polyfills': 4.0.1
       '@types/ember__routing': 4.0.12_@babel+core@7.19.6
       '@types/ember__runloop': 4.0.2_@babel+core@7.19.6
       '@types/ember__service': 4.0.1_@babel+core@7.19.6
@@ -5777,6 +5777,7 @@ packages:
     resolution: {integrity: sha512-qrKk6Ujh6oev7TSB0eB7AEmQWKCt5t84k/K3hDvJXUiLU3YueN0kyt7aPoIAkVjC111A9FqDugl9n60+N5yeEw==}
     dependencies:
       '@types/ember-resolver': 5.0.11_@babel+core@7.19.3
+      '@types/ember__debug': 4.0.2_@babel+core@7.19.3
       '@types/ember__object': 4.0.4_@babel+core@7.19.3
     transitivePeerDependencies:
       - '@babel/core'
@@ -5849,6 +5850,7 @@ packages:
     resolution: {integrity: sha512-RwiyzQXKTyFVfZvrYQYtZhfrYAXrNEvtO98vdlzak0MHaks/AkOSNxuTU4tjhfzto4dOcfr6mi8C5mN+yz7LFQ==}
     dependencies:
       '@types/ember': 4.0.1_@babel+core@7.19.3
+      '@types/ember__object': 4.0.5_@babel+core@7.19.3
       '@types/rsvp': 4.0.4
     transitivePeerDependencies:
       - '@babel/core'
@@ -5888,6 +5890,10 @@ packages:
 
   /@types/ember__polyfills/4.0.0:
     resolution: {integrity: sha512-Yk85J18y1Ys6agoIBLdJWu6ZkWe68oaC9JPyW7BhOINVNKm89PXrR/yxdOJ1/vN1Hj7ZZQKq+4X6fz3sxebavA==}
+    dev: true
+
+  /@types/ember__polyfills/4.0.1:
+    resolution: {integrity: sha512-IT3oovEPxLiaNCcPqY5hdVlgiRaMT8gIIrJodFt5MDEashCZDYJMn2XlqUtTXcYIFaume32PbbTBCxuhd3rhHA==}
     dev: true
 
   /@types/ember__routing/4.0.11_@babel+core@7.19.3:
