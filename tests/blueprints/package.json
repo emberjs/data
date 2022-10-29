@@ -28,8 +28,7 @@
     "node": "^14.8.0 || 16.* || >= 18.*"
   },
   "volta": {
-    "node": "16.18.0",
-    "pnpm": "7.13.5"
+    "extends": "../../package.json"
   },
 	"packageManager": "pnpm@7.13.5"
 }
