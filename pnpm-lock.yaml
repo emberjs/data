@@ -528,7 +528,7 @@ importers:
       '@ember/test-helpers': ~2.8.1
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
-      '@types/semver': ^7.3.12
+      '@types/semver': ^7.3.13
       broccoli-merge-trees: ^4.2.0
       ember-auto-import: ^2.4.3
       ember-cli: ~4.8.0
@@ -573,7 +573,7 @@ importers:
       '@ember/test-helpers': 2.8.1_44zau4gslyki3rcm3qc4yjjvrq
       '@glimmer/component': 1.1.2_@babel+core@7.19.6
       '@glimmer/tracking': 1.1.2
-      '@types/semver': 7.3.12
+      '@types/semver': 7.3.13
       broccoli-merge-trees: 4.2.0
       ember-cli: 4.8.0
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
@@ -6283,8 +6283,8 @@ packages:
     resolution: {integrity: sha512-J3Ol++HCC7/hwZhanDvggFYU/GtxHxE/e7cGRWxR04BF7Tt3TqJZ84BkzQgDxmX0uu8IagiyfmfoUlBACh2Ilg==}
     dev: true
 
-  /@types/semver/7.3.12:
-    resolution: {integrity: sha512-WwA1MW0++RfXmCr12xeYOOC5baSC9mSb0ZqCquFzKhcoF4TvHu5MKOuXsncgZcpVFhB1pXd5hZmM0ryAoCp12A==}
+  /@types/semver/7.3.13:
+    resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
     dev: true
 
   /@types/serve-static/1.15.0:
@@ -6412,7 +6412,7 @@ packages:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       '@types/json-schema': 7.0.11
-      '@types/semver': 7.3.12
+      '@types/semver': 7.3.13
       '@typescript-eslint/scope-manager': 5.41.0
       '@typescript-eslint/types': 5.41.0
       '@typescript-eslint/typescript-estree': 5.41.0_typescript@4.8.4
