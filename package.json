@@ -63,7 +63,7 @@
     "@types/ember__service": "^4.0.0",
     "@types/ember__utils": "^4.0.1",
     "@types/ember__object": "^4.0.4",
-    "@types/ember__engine": "^4.0.2",
+    "@types/ember__engine": "^4.0.3",
     "@types/ember__test-helpers": "^2.8.1",
     "@types/ember__routing": "^4.0.11",
     "@types/qunit": "^2.19.3",
