@@ -22,7 +22,7 @@ importers:
       '@types/ember__array': ^4.0.3
       '@types/ember__component': ^4.0.10
       '@types/ember__controller': ^4.0.2
-      '@types/ember__debug': ^4.0.1
+      '@types/ember__debug': ^4.0.2
       '@types/ember__engine': ^4.0.2
       '@types/ember__error': ^4.0.0
       '@types/ember__object': ^4.0.4
@@ -133,7 +133,7 @@ importers:
       '@types/ember__array': 4.0.3_@babel+core@7.19.6
       '@types/ember__component': 4.0.10_@babel+core@7.19.6
       '@types/ember__controller': 4.0.2_@babel+core@7.19.6
-      '@types/ember__debug': 4.0.1_@babel+core@7.19.6
+      '@types/ember__debug': 4.0.2_@babel+core@7.19.6
       '@types/ember__engine': 4.0.2_@babel+core@7.19.6
       '@types/ember__error': 4.0.0
       '@types/ember__object': 4.0.4_@babel+core@7.19.6
@@ -5726,6 +5726,16 @@ packages:
       - supports-color
     dev: true
 
+  /@types/ember__debug/4.0.2_@babel+core@7.19.6:
+    resolution: {integrity: sha512-TrD47X7WQyAvXOCo003soMH6lc4X5+jg5sJ8r81Trk0I2AYVm/8Pn4YPRFECDl6TL/ceYiK3qSgeI8GnDlh7Cw==}
+    dependencies:
+      '@types/ember-resolver': 5.0.12_@babel+core@7.19.6
+      '@types/ember__object': 4.0.4_@babel+core@7.19.6
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+    dev: true
+
   /@types/ember__engine/4.0.2_@babel+core@7.19.3:
     resolution: {integrity: sha512-x9c8LtRpYwQnyUiUbGpF2+zrZiA0G3e0lPsprghllWEabnIyvN+GMdtnvt4DmpGQVeUz6JKVdoPAmENBUTTcyg==}
     dependencies:
@@ -10179,7 +10189,7 @@ packages:
       '@ember/test-helpers': ^2.4.0
       qunit: ^2.13.0
     dependencies:
-      '@ember/test-helpers': 2.8.1_44zau4gslyki3rcm3qc4yjjvrq
+      '@ember/test-helpers': 2.8.1_2h2t722bi4yw6y5yechgbjongi
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 3.0.2
       common-tags: 1.8.2
