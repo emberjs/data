@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",
-    "@babel/runtime": "^7.19.4",
+    "@babel/runtime": "^7.20.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
     "@types/semver": "^7.3.12",

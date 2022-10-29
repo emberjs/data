@@ -16,8 +16,8 @@
   "scripts": {},
   "dependencies": {
     "@babel/core": "^7.19.6",
-    "@babel/runtime": "^7.19.3",
-    "@babel/plugin-transform-block-scoping": "^7.19.4",
+    "@babel/runtime": "^7.20.0",
+    "@babel/plugin-transform-block-scoping": "^7.20.0",
     "@ember-data/canary-features": "4.9.0-alpha.6",
     "@ember/edition-utils": "^1.2.0",
     "babel-plugin-debug-macros": "^0.3.4",
