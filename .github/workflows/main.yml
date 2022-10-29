@@ -164,7 +164,7 @@ jobs:
         timeout-minutes: 10
         env:
           CI: true
-        run: pnpm test:try-one ${{ matrix.scenario }}
+        run: pnpm test:try-one ${{ matrix.scenario }} -- ember test --test-port=0
 
   releases:
     timeout-minutes: 10
@@ -193,7 +193,7 @@ jobs:
       - name: Basic tests with ${{ matrix.release }}
         env:
           CI: true
-        run: pnpm test:try-one ${{ matrix.release }}
+        run: pnpm test:try-one ${{ matrix.release }} -- ember test --test-port=0
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
 
   additional-scenarios:
@@ -213,7 +213,7 @@ jobs:
       - name: Basic tests with ${{ matrix.scenario }}
         env:
           CI: true
-        run: pnpm test:try-one ${{ matrix.scenario }}
+        run: pnpm test:try-one ${{ matrix.scenario }} -- ember test --test-port=0
 
   node-version-test:
     name: Use Node.js ${{ matrix.node-version }}

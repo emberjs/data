@@ -54,4 +54,4 @@ jobs:
         env:
           CI: true
           ASSERT_ALL_DEPRECATIONS: true
-        run: pnpm test:try-one ${{ matrix.scenario }}
+        run: pnpm test:try-one ${{ matrix.scenario }} -- ember test --test-port=0
