@@ -48,7 +48,7 @@
     "@types/ember-qunit": "^5.0.2",
     "@types/ember-testing-helpers": "^0.0.4",
     "@types/ember__debug": "^4.0.1",
-    "@types/ember__array": "^4.0.2",
+    "@types/ember__array": "^4.0.3",
     "@types/ember__component": "^4.0.10",
     "@types/ember__controller": "^4.0.2",
     "@types/ember__error": "^4.0.0",
