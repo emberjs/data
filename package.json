@@ -132,7 +132,7 @@
     "pre-commit": "^1.2.2",
     "pretender": "^3.4.7",
     "prettier": "^2.7.1",
-    "qunit": "^2.19.2",
+    "qunit": "^2.19.3",
     "qunit-dom": "^2.0.0",
     "rimraf": "^3.0.2",
     "rsvp": "^4.8.5",

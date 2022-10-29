@@ -102,7 +102,7 @@ importers:
       pre-commit: ^1.2.2
       pretender: ^3.4.7
       prettier: ^2.7.1
-      qunit: ^2.19.2
+      qunit: ^2.19.3
       qunit-dom: ^2.0.0
       rimraf: ^3.0.2
       rsvp: ^4.8.5
@@ -185,7 +185,7 @@ importers:
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.19.6
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
+      ember-qunit: 6.0.0_qlun7vkcguccocg2zpe7gp5kwa
       ember-resolver: 8.0.3_@babel+core@7.19.6
       ember-source: 4.8.0_qgwbsqca2eub3f4vd3hrm6flxy
       ember-source-channel-url: 3.0.0
@@ -213,7 +213,7 @@ importers:
       pre-commit: 1.2.2
       pretender: 3.4.7
       prettier: 2.7.1
-      qunit: 2.19.2
+      qunit: 2.19.3
       qunit-dom: 2.0.0
       rimraf: 3.0.2
       rsvp: 4.8.5
@@ -547,7 +547,7 @@ importers:
       ember-resolver: ^8.0.3
       ember-source: ~4.8.0
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.3
       qunit-dom: ^2.0.0
       rsvp: ^4.8.5
       semver: ^7.3.8
@@ -560,7 +560,7 @@ importers:
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
       ember-get-config: 2.1.1
-      qunit: 2.19.2
+      qunit: 2.19.3
       qunit-dom: 2.0.0
       rsvp: 4.8.5
       semver: 7.3.8
@@ -584,7 +584,7 @@ importers:
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.19.6
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.0.0_ftw4mxvf7ajeaaqqi4c4fr6hay
+      ember-qunit: 6.0.0_qlun7vkcguccocg2zpe7gp5kwa
       ember-resolver: 8.0.3_@babel+core@7.19.6
       ember-source: 4.8.0_qgwbsqca2eub3f4vd3hrm6flxy
       loader.js: 4.7.0
@@ -10134,7 +10134,7 @@ packages:
       '@ember/test-helpers': ^2.4.0
       qunit: ^2.13.0
     dependencies:
-      '@ember/test-helpers': 2.8.1_44zau4gslyki3rcm3qc4yjjvrq
+      '@ember/test-helpers': 2.8.1_2h2t722bi4yw6y5yechgbjongi
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 3.0.2
       common-tags: 1.8.2
@@ -10157,7 +10157,7 @@ packages:
       '@ember/test-helpers': ^2.4.0
       qunit: ^2.13.0
     dependencies:
-      '@ember/test-helpers': 2.8.1_2h2t722bi4yw6y5yechgbjongi
+      '@ember/test-helpers': 2.8.1_44zau4gslyki3rcm3qc4yjjvrq
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 3.0.2
       common-tags: 1.8.2
@@ -15319,6 +15319,7 @@ packages:
       commander: 7.2.0
       node-watch: 0.7.3
       tiny-glob: 0.2.9
+    dev: true
 
   /qunit/2.19.3:
     resolution: {integrity: sha512-vEnspSZ37u2oR01OA/IZ1Td5V7BvQYFECdKPv86JaBplDNa5IHg0v7jFSPoP5L5o78Dbi8sl7/ATtpRDAKlSdw==}
@@ -15328,7 +15329,6 @@ packages:
       commander: 7.2.0
       node-watch: 0.7.3
       tiny-glob: 0.2.9
-    dev: true
 
   /rambda/7.2.1:
     resolution: {integrity: sha512-Wswj8ZvzdI3VhaGPkZAxaCTwuMmGtgWt7Zxsgyo4P+iTmVnkojvyWaOep5q3ZjMIecW0wtQa66GWxaKkZ24RAA==}
