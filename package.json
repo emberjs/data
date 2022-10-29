@@ -35,10 +35,10 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.19.1",
-    "@babel/plugin-proposal-decorators": "^7.19.6",
-    "@babel/plugin-transform-typescript": "^7.19.3",
+    "@babel/plugin-proposal-decorators": "^7.20.0",
+    "@babel/plugin-transform-typescript": "^7.20.0",
     "@babel/core": "^7.19.6",
-    "@babel/runtime": "^7.19.4",
+    "@babel/runtime": "^7.20.0",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
