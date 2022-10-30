@@ -12,9 +12,9 @@ We have provided an [issue template](.github/bug.md) what will help guide you th
 If you are unsure if something is a bug, the `#ember-data` channel on [Discord](https://discord.gg/zT3asNS) is
 a great place to ask for help!
 
-#### Testing EmberData source directly
+#### Testing EmberData source directly in your Application
 
-You can use package linking to test checkouts of ember-data. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data. You can link to individual packages within this monorepo as well.
+You can use package linking to test checkouts of ember-data against your application locally. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data.
 
 1. clone this repository or another fork
 2. install dependencies: `pnpm install`
@@ -28,7 +28,12 @@ If using `pnpm`
 
 If you don't use pnpm in your application, using the appropriate `yarn link` and `npm link` commands within the respective directories for the project and your app may work.
 
-Then you can run `ember serve` as usual in your application. You should see something like the following printed to your terminal:
+You can link to individual packages within this monorepo as well, doing so however is likely to be brittle. If you need to test individual packages against your application and linking does not work
+you may run `node ./scripts/packages-for-commit.js` to generate tarballs that can be utilized locally
+on your machine. Read pnpm/yarn/npm docs as appropriate for how to install from tarball.
+
+Once you have linked EmberData to your application, you can run `ember serve` as usual
+in your application. You should see something like the following printed to your terminal:
 
 ```
 some-app $ ember serve
