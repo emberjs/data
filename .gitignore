@@ -3,6 +3,7 @@
 # compiled output
 /docs/
 /packages/-ember-data/docs/
+concat-stats-for
 dist
 tmp
 

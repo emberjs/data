@@ -942,6 +942,7 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.1.1
+      ember-cli-terser: ^4.0.2
       ember-data: workspace:4.9.0-alpha.6
       ember-export-application-global: ^2.0.1
       ember-load-initializers: ^2.1.2
@@ -965,6 +966,7 @@ importers:
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
       ember-cli-htmlbars: 6.1.1
+      ember-cli-terser: 4.0.2
       ember-data: file:packages/-ember-data_dxwsweiqejb3begtamuoosndyi
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.19.6
