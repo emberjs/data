@@ -45,6 +45,9 @@ module.exports = function (defaults) {
       throwUnlessParallelizable: true,
       includeExternalHelpers: true,
     },
+    fingerprint: {
+      enabled: false,
+    },
     'ember-cli-terser': terserSettings,
     '@embroider/macros': {
       setConfig: {
