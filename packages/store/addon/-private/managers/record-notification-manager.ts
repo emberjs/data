@@ -24,9 +24,11 @@ export interface NotificationCallback {
 // TODO this isn't importable anyway, remove and use a map on the manager?
 export function unsubscribe(token: UnsubscribeToken) {
   let identifier = Tokens.get(token);
-  if (LOG_NOTIFICATIONS && !identifier) {
-    // eslint-disable-next-line no-console
-    console.log('Passed unknown unsubscribe token to unsubscribe', identifier);
+  if (LOG_NOTIFICATIONS) {
+    if (!identifier) {
+      // eslint-disable-next-line no-console
+      console.log('Passed unknown unsubscribe token to unsubscribe', identifier);
+    }
   }
   if (identifier) {
     Tokens.delete(token);
