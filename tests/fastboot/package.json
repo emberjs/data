@@ -19,18 +19,21 @@
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
-    "test": "ember test --test-port=0",
-    "test:scenario": "ember try:one"
+    "test": "ember test --test-port=0"
   },
   "dependencies": {
     "ember-auto-import": "^2.4.3",
-    "ember-data": "4.9.0-alpha.6",
+    "ember-data": "workspace:4.9.0-alpha.6",
     "ember-inflector": "^4.0.2"
+  },
+  "dependenciesMeta": {
+    "ember-data": { "injected": true },
+    "@ember-data/unpublished-test-infra": { "injected": true }
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@babel/runtime": "^7.19.3",
-    "@ember-data/unpublished-test-infra": "4.9.0-alpha.6",
+    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
     "@glimmer/component": "^1.1.2",
@@ -52,11 +55,11 @@
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
+    "ember-fetch": "^8.1.2",
     "ember-qunit": "^6.0.0",
     "ember-resolver": "^8.0.3",
     "ember-simple-tree": "^0.8.3",
     "ember-source": "~4.8.0",
-    "ember-try": "^2.0.0",
     "loader.js": "^4.7.0",
     "qunit": "^2.19.2",
     "qunit-dom": "^2.0.0",

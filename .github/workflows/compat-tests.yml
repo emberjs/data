@@ -1,0 +1,54 @@
+name: Ecosystem Compat Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: compat-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  fastboot:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+        with:
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
+      - name: Run Tests
+        run: pnpm test:fastboot
+  floating-dependencies:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+      - name: Install dependencies w/o lockfile
+        run: pnpm install --no-lockfile
+      - name: Build V2 Addons
+        run: pnpm build-v2-addons && pnpm install
+      - name: Basic Tests
+        run: pnpm test
+  node-version-test:
+    name: Use Node.js ${{ matrix.node-version }}
+    timeout-minutes: 8
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x, 18.x]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+        with:
+          node-version: ${{ matrix.node-version }}
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
+      - name: Basic Tests
+        run: pnpm test
+

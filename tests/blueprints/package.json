@@ -13,6 +13,13 @@
   "scripts": {
     "test": "mocha tests"
   },
+  "dependenciesMeta": {
+    "@ember-data/unpublished-test-infra": { "injected": true },
+    "@ember-data/private-build-infra": { "injected": true },
+    "@ember-data/adapter": { "injected": true },
+    "@ember-data/model": { "injected": true },
+    "@ember-data/serializer": { "injected": true }
+  },
   "devDependencies": {
     "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
     "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
@@ -23,6 +30,20 @@
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "silent-error": "^1.1.1",
     "mocha": "^10.1.0"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@babel/core",
+        "@glimmer/*",
+        "ember-source",
+        "@ember/string",
+        "ember-inflector",
+        "@ember-data/store",
+        "@ember-data/tracking",
+        "webpack"
+      ]
+    }
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"

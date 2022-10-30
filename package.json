@@ -17,10 +17,10 @@
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "test": "pnpm --filter main-test-app --filter graph-test-app run test",
     "test:production": "pnpm --filter main-test-app --filter graph-test-app run test -e production",
-    "test:try-one": "pnpm --filter main-test-app --filter graph-test-app run test:try-one --",
+    "test:try-one": "pnpm --filter main-test-app run test:try-one",
     "test:docs": "pnpm build:docs && pnpm --filter docs-tests test",
     "test:encapsulation": "lerna run --stream --scope='*-encapsulation-test-app' test",
-    "test:fastboot": "pnpm --filter fastboot-test-app test:scenario",
+    "test:fastboot": "pnpm --filter fastboot-test-app test",
     "test:infra": "pnpm --filter @ember-data/unpublished-test-infra test",
     "test-external:ember-m3": "node ./scripts/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "node ./scripts/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
@@ -34,10 +34,10 @@
     "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
+    "@babel/core": "^7.19.6",
     "@babel/eslint-parser": "^7.19.1",
     "@babel/plugin-proposal-decorators": "^7.20.0",
     "@babel/plugin-transform-typescript": "^7.20.0",
-    "@babel/core": "^7.19.6",
     "@babel/runtime": "^7.20.0",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
@@ -46,26 +46,26 @@
     "@glimmer/env": "^0.1.7",
     "@types/ember": "^4.0.2",
     "@types/ember-qunit": "^5.0.2",
+    "@types/ember-resolver": "^5.0.12",
     "@types/ember-testing-helpers": "^0.0.4",
-    "@types/ember__debug": "^4.0.2",
+    "@types/ember__application": "^4.0.3",
     "@types/ember__array": "^4.0.3",
     "@types/ember__component": "^4.0.11",
     "@types/ember__controller": "^4.0.3",
+    "@types/ember__debug": "^4.0.2",
+    "@types/ember__engine": "^4.0.3",
     "@types/ember__error": "^4.0.1",
+    "@types/ember__object": "^4.0.5",
     "@types/ember__polyfills": "^4.0.1",
+    "@types/ember__routing": "^4.0.12",
     "@types/ember__runloop": "^4.0.2",
+    "@types/ember__service": "^4.0.1",
     "@types/ember__string": "^3.0.10",
     "@types/ember__template": "^4.0.1",
     "@types/ember__test": "^4.0.1",
-    "@types/ember-resolver": "^5.0.12",
-    "@types/htmlbars-inline-precompile": "^3.0.0",
-    "@types/ember__application": "^4.0.3",
-    "@types/ember__service": "^4.0.1",
-    "@types/ember__utils": "^4.0.2",
-    "@types/ember__object": "^4.0.5",
-    "@types/ember__engine": "^4.0.3",
     "@types/ember__test-helpers": "^2.8.2",
-    "@types/ember__routing": "^4.0.12",
+    "@types/ember__utils": "^4.0.2",
+    "@types/htmlbars-inline-precompile": "^3.0.0",
     "@types/qunit": "^2.19.3",
     "@types/rsvp": "^4.0.4",
     "@typescript-eslint/eslint-plugin": "^5.41.0",
@@ -145,7 +145,6 @@
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"
   },
-  "dependencies": {},
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
     "yarn": "use pnpm",
@@ -168,6 +167,11 @@
       "changelog:doc": ":memo: Documentation",
       "changelog:test": ":goal_net: Test",
       "changelog:chore": ":house: Internal"
+    }
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@embroider/macros@1.9.0": "patches/@embroider__macros@1.9.0.patch"
     }
   }
 }

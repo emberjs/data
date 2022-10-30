@@ -22,19 +22,18 @@
     "test": "ember test --test-port=0"
   },
   "dependenciesMeta": {
-    "injected": {
-      "@ember-data/adapter": "workspace:4.9.0-alpha.6",
-      "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
-      "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
-      "@ember-data/serializer": "workspace:4.9.0-alpha.6",
-      "@ember-data/store": "workspace:4.9.0-alpha.6",
-      "@ember-data/tracking": "workspace:4.9.0-alpha.6",
-      "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6"
-    }
+    "@ember-data/adapter": { "injected": true },
+    "@ember-data/canary-features": { "injected": true },
+    "@ember-data/private-build-infra": { "injected": true },
+    "@ember-data/serializer": { "injected": true },
+    "@ember-data/store": { "injected": true },
+    "@ember-data/tracking": { "injected": true },
+    "@ember-data/unpublished-test-infra": { "injected": true }
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@babel/runtime": "^7.19.3",
+    "@ember/string": "^3.0.0",
     "@ember-data/adapter": "workspace:4.9.0-alpha.6",
     "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
     "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",

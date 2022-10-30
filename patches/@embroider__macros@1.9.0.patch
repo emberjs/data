@@ -1,0 +1,21 @@
+diff --git a/src/babel/module-exists.js b/src/babel/module-exists.js
+index 4737d6ebd58e55fd22257a66bef08805be792eba..1774eb28c9407169b0859debf6e02457bde8f83a 100644
+--- a/src/babel/module-exists.js
++++ b/src/babel/module-exists.js
+@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ Object.defineProperty(exports, "__esModule", { value: true });
+ const error_1 = __importDefault(require("./error"));
+ const evaluate_json_1 = require("./evaluate-json");
+-const resolve_1 = __importDefault(require("resolve"));
+ const path_1 = require("path");
+ function moduleExists(path, state) {
+     if (path.node.arguments.length !== 1) {
+@@ -16,7 +15,7 @@ function moduleExists(path, state) {
+         throw (0, error_1.default)((0, evaluate_json_1.assertArray)(path.get('arguments'))[0], `the first argument to moduleExists must be a string literal`);
+     }
+     try {
+-        resolve_1.default.sync(moduleSpecifier.value, { basedir: (0, path_1.dirname)(state.sourceFile) });
++        require.resolve(moduleSpecifier.value, { paths: [process.cwd(), state.sourceFile, (0, path_1.dirname)(state.sourceFile)] });
+         return true;
+     }
+     catch (err) {

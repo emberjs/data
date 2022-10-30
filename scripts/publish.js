@@ -273,16 +273,8 @@ function packAllPackages() {
       // https://docs.npmjs.com/misc/scripts
       // https://github.com/npm/npm/issues/15363
       if (pkgInfo.scripts) {
-        if (pkgInfo.scripts.prepublishOnly) {
-          if (pkgInfo.scripts.prepublish || pkgInfo.scripts.prepare) {
-            console.log(
-              `⚠️ ` +
-                chalk.grey(
-                  `${pkgInfo.name} has both a 'prepublishOnly' and either 'prepare' or 'publish' scripts. Running prepublishOnly manually before instead of after publish and prepare. See https://github.com/npm/npm/issues/15363`
-                )
-            );
-          }
-          execWithLog(`cd ${pkgDir} && npm run prepublishOnly`);
+        if (pkgInfo.scripts.prepack) {
+          execWithLog(`cd ${pkgDir} && pnpm run prepack`);
         }
       }
       execWithLog(`npm pack ${pkgDir}`);
