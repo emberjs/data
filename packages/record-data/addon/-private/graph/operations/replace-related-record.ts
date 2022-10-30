@@ -1,8 +1,9 @@
 import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
-import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { assertPolymorphicType } from '../../debug/assert-polymorphic-type';
 import type { ReplaceRelatedRecordOperation } from '../-operations';
 import { isBelongsTo, isNew, notifyChange } from '../-utils';
 import type { Graph } from '../graph';
@@ -112,7 +113,9 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
       // but the record does turn out to be polymorphic
       // this should still assert if the user is relying on legacy inheritance/mixins to
       // provide polymorphic behavior and has not yet added the polymorphic flags
-      assertPolymorphicType(relationship.identifier, definition, op.value, graph.store);
+      if (DEBUG) {
+        assertPolymorphicType(relationship.identifier, definition, op.value, graph.store);
+      }
 
       graph.registerPolymorphicType(definition.type, op.value.type);
     }

@@ -1,5 +1,6 @@
 import { deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
+import { DEBUG } from '@glimmer/env';
 import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
@@ -9,7 +10,6 @@ import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/depre
 import type { Graph } from '@ember-data/record-data/-private/graph/graph';
 import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
 import type Store from '@ember-data/store';
-import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
 import type {
@@ -22,6 +22,7 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
 
@@ -417,13 +418,15 @@ export default class BelongsToReference {
     }
     let record = this.store.push(jsonApiDoc);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    assertPolymorphicType(
-      this.belongsToRelationship.identifier,
-      this.belongsToRelationship.definition,
-      recordIdentifierFor(record),
-      this.store
-    );
+    if (DEBUG) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      assertPolymorphicType(
+        this.belongsToRelationship.identifier,
+        this.belongsToRelationship.definition,
+        recordIdentifierFor(record),
+        this.store
+      );
+    }
 
     const { identifier } = this.belongsToRelationship;
     this.store._join(() => {

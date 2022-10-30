@@ -1,8 +1,9 @@
 import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
-import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { assertPolymorphicType } from '../../debug/assert-polymorphic-type';
 import type ManyRelationship from '../../relationships/state/has-many';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
@@ -103,7 +104,9 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
       // skip processing if we encounter a duplicate identifier in the array
       if (!newMembership.has(identifier)) {
         if (type !== identifier.type) {
-          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          if (DEBUG) {
+            assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          }
           graph.registerPolymorphicType(type, identifier.type);
         }
         newState[j] = identifier;
@@ -179,7 +182,9 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       const identifier = identifiers[i];
       if (!newMembership.has(identifier)) {
         if (type !== identifier.type) {
-          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          if (DEBUG) {
+            assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          }
           graph.registerPolymorphicType(type, identifier.type);
         }
         newState[j] = identifier;
@@ -243,7 +248,9 @@ export function addToInverse(
   const { type } = relationship.definition;
 
   if (type !== value.type) {
-    assertPolymorphicType(relationship.identifier, relationship.definition, value, graph.store);
+    if (DEBUG) {
+      assertPolymorphicType(relationship.identifier, relationship.definition, value, graph.store);
+    }
     graph.registerPolymorphicType(type, value.type);
   }
 
