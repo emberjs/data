@@ -1,3 +1,4 @@
+// ensure DS namespace is set
 import Application from '@ember/application';
 import Namespace from '@ember/application/namespace';
 import Controller from '@ember/controller';
@@ -6,6 +7,7 @@ import Service, { inject as service } from '@ember/service';
 import { module, test } from 'qunit';
 
 import { gte } from 'ember-compatibility-helpers';
+import DS from 'ember-data';
 import initializeEmberData from 'ember-data/setup-container';
 import { setupTest } from 'ember-qunit';
 import Resolver from 'ember-resolver';
@@ -93,6 +95,7 @@ module('integration/application - Injecting the Default Store', function (hooks)
 
   if (!gte('4.0.0')) {
     test('the DS namespace should be accessible', async function (assert) {
+      assert.ok(DS, 'DS is imported');
       assert.expectDeprecation(
         () => {
           assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');

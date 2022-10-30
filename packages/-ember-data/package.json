@@ -12,7 +12,7 @@
     "test": "tests"
   },
   "scripts": {
-    "prepublishOnly": "cd ../.. && pnpm build:docs"
+    "prepack": "cd ../../ && pnpm build:docs"
   },
   "author": "",
   "license": "MIT",
@@ -35,19 +35,21 @@
     "ember-inflector": "^4.0.2"
   },
   "dependenciesMeta": {
-    "injected": {
-      "@ember-data/adapter": "workspace:4.9.0-alpha.6",
-      "@ember-data/debug": "workspace:4.9.0-alpha.6",
-      "@ember-data/model": "workspace:4.9.0-alpha.6",
-      "@ember-data/record-data": "workspace:4.9.0-alpha.6",
-      "@ember-data/serializer": "workspace:4.9.0-alpha.6",
-      "@ember-data/store": "workspace:4.9.0-alpha.6",
-      "@ember-data/tracking": "workspace:4.9.0-alpha.6",
-      "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6"
-    }
+    "@ember-data/adapter": { "injected": true },
+    "@ember-data/debug": { "injected": true },
+    "@ember-data/model": { "injected": true },
+    "@ember-data/record-data": { "injected": true },
+    "@ember-data/serializer":{ "injected": true },
+    "@ember-data/store": { "injected": true },
+    "@ember-data/tracking": { "injected": true },
+    "@ember-data/private-build-infra": { "injected": true }
   },
   "devDependencies": {
-    "webpack": "^5.74.0"
+    "@babel/core": "^7.19.6",
+    "@glimmer/tracking": "^1.1.2",
+    "@glimmer/component": "^1.1.2",
+    "webpack": "^5.74.0",
+    "ember-source": "~4.8.0"
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"

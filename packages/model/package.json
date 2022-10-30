@@ -18,15 +18,17 @@
     "ember-inflector": "^4.0.2",
     "@ember-data/tracking": "workspace:4.9.0-alpha.6",
     "@ember-data/store": "workspace:4.9.0-alpha.6",
+    "@ember-data/record-data": "workspace:4.9.0-alpha.6",
     "@ember/string": "^3.0.0"
   },
-  "dependenciesMeta": {
-    "injected": {
-      "@ember-data/tracking": "workspace:4.9.0-alpha.6",
-      "@ember-data/store": "workspace:4.9.0-alpha.6",
-      "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
-      "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6"
+  "peerDependenciesMeta": {
+    "@ember-data/record-data": {
+      "optional": true
     }
+  },
+  "dependenciesMeta": {
+    "@ember-data/canary-features": { "injected": true },
+    "@ember-data/private-build-infra": { "injected": true }
   },
   "dependencies": {
     "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
@@ -42,8 +44,10 @@
     "inflection": "~1.13.4"
   },
   "devDependencies": {
+    "@glimmer/component": "^1.1.2",
     "@babel/core": "^7.19.6",
-    "webpack": "^5.74.0"
+    "webpack": "^5.74.0",
+    "ember-source": "~4.8.0"
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"

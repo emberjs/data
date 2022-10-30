@@ -30,6 +30,10 @@ inputs:
     description: Ref to Setup
     required: false
     default: ${{ github.sha }}
+  node-version:
+    description: Node Version to USe
+    required: false
+    default: 19.x
 
 runs:
   using: composite
@@ -37,7 +41,7 @@ runs:
     - uses: pnpm/action-setup@c3b53f6a16e57305370b4ae5a540c2077a1d50dd # tag=v2.2.4
     - uses: actions/setup-node@v3
       with:
-        node-version: 18.x
+        node-version: ${{inputs.node-version }}
         cache: 'pnpm'
     - name: Configure Parallel Builds
       if: ${{ inputs.parallel-build == 'true' }}
@@ -72,7 +76,7 @@ runs:
     - name: Exec Library Prepackage Steps
       if: ${{ inputs.build-addons == 'true' }}
       shell: bash
-      run: pnpm build-v2-addons
+      run: pnpm build-v2-addons && pnpm install
 
     - name: Restore Lint Caches
       if: ${{ inputs.restore-lint-caches == 'true' }}
