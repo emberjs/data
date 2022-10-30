@@ -1,14 +1,14 @@
 'use strict';
 
-module.exports = function debugMacros(app, isProd, config) {
+module.exports = function debugMacros(app, isProd) {
   const requireModule = require('./utilities/require-module');
 
   const PACKAGES = require('./packages')(app);
   const FEATURES = require('./features')(isProd);
-  const DEBUG = require('./debugging')(config.debug, isProd);
   const debugMacrosPath = require.resolve('babel-plugin-debug-macros');
   const TransformPackagePresence = require.resolve('./transforms/babel-plugin-convert-existence-checks-to-macros');
   const TransformDeprecations = require.resolve('./transforms/babel-plugin-transform-deprecations');
+  const TransformDebugLogging = require.resolve('./transforms/babel-plugin-convert-debug-flags-macros');
 
   const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
   const DEPRECATIONS = requireModule('@ember-data/private-build-infra/addon/current-deprecations.ts');
@@ -19,7 +19,6 @@ module.exports = function debugMacros(app, isProd, config) {
     HAS_DEBUG_PACKAGE: PACKAGES.HAS_DEBUG_PACKAGE,
   };
 
-  const ConvertDebugFlagsToMacros = require.resolve('./transforms/babel-plugin-convert-debug-flags-macros');
   let plugins = [
     [
       debugMacrosPath,
@@ -39,6 +38,7 @@ module.exports = function debugMacros(app, isProd, config) {
         source: '@ember-data/private-build-infra',
         flags: MACRO_PACKAGE_FLAGS,
       },
+      '@ember-data/package-stripping',
     ],
     [
       TransformDeprecations,
@@ -49,14 +49,9 @@ module.exports = function debugMacros(app, isProd, config) {
       '@ember-data/deprecation-stripping',
     ],
     [
-      debugMacrosPath,
+      TransformDebugLogging,
       {
-        flags: [
-          {
-            source: '@ember-data/private-build-infra/debugging',
-            flags: DEBUG,
-          },
-        ],
+        source: '@ember-data/private-build-inra/debugging',
       },
       '@ember-data/debugging',
     ],
@@ -71,16 +66,6 @@ module.exports = function debugMacros(app, isProd, config) {
         ],
       },
       '@ember-data/optional-packages-stripping',
-    ],
-    [
-      ConvertDebugFlagsToMacros,
-      {
-        flags: [
-          {
-            source: '@ember-data/private-build-inra/debugging',
-          },
-        ],
-      },
     ],
   ];
 
