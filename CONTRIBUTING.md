@@ -12,17 +12,21 @@ We have provided an [issue template](.github/bug.md) what will help guide you th
 If you are unsure if something is a bug, the `#ember-data` channel on [Discord](https://discord.gg/zT3asNS) is
 a great place to ask for help!
 
-#### Testing ember data source directly
+#### Testing EmberData source directly
 
-##### monolithic ember-data
-
-You can use package linking to test checkouts of ember-data. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data. You can link to divisions within ember-data as well.
+You can use package linking to test checkouts of ember-data. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data. You can link to individual packages within this monorepo as well.
 
 1. clone this repository or another fork
-1. run `pnpm install`
-1. run `pnpm --filter ember-data link`
-1. `cd` into your application
-1. run `pnpm link "ember-data"`. If you don't use pnpm in your application, `npm link "ember-data"` may work.
+2. install dependencies: `pnpm install`
+3. change into the `ember-data` package directory `cd packages/-ember-data`
+
+If using `pnpm`
+
+1. run `link`. `pnpm link -g`
+2. `cd` into your application
+3. run `pnpm link ember-data`
+
+If you don't use pnpm in your application, using the appropriate `yarn link` and `npm link` commands within the respective directories for the project and your app may work.
 
 Then you can run `ember serve` as usual in your application. You should see something like the following printed to your terminal:
 
