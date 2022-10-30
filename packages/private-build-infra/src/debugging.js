@@ -1,11 +1,9 @@
 'use strict';
 
-const path = require('path');
-
 const requireModule = require('./utilities/require-module');
 
 function getDebugFeatures(debugConfig, isProd) {
-  const { default: DEBUG_FEATURES } = requireModule(path.join(__dirname, '../addon/debugging.ts'));
+  const { default: DEBUG_FEATURES } = requireModule('@ember-data/private-build-infra/addon/debugging.ts');
   const flags = {};
 
   Object.keys(DEBUG_FEATURES).forEach((flag) => {
