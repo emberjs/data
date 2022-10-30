@@ -255,6 +255,7 @@ function addonBuildConfigForDataPackage(PackageName) {
         return this._emberDataConfig;
       }
       const app = this._findHost();
+      const isProd = /production/.test(process.env.EMBER_ENV);
 
       let options = (app.options = app.options || {});
       options.emberData = options.emberData || {};
@@ -274,13 +275,16 @@ function addonBuildConfigForDataPackage(PackageName) {
       );
       options.emberData.debug = debugOptions;
       const DEPRECATIONS = require('./deprecations')(options.emberData.compatWith || null);
+      const FEATURES = require('./features')(isProd);
       options.emberData.__DEPRECATIONS = DEPRECATIONS;
+      options.emberData.__FEATURES = FEATURES;
 
       // copy configs forward
       const ownConfig = this.options['@embroider/macros'].setOwnConfig;
       ownConfig.compatWith = options.emberData.compatWith || null;
       ownConfig.debug = debugOptions;
       ownConfig.deprecations = Object.assign(DEPRECATIONS, ownConfig.deprecations || {});
+      ownConfig.features = Object.assign({}, FEATURES);
 
       const returnedOptions = Object.assign({ compatWith: null }, options.emberData);
 
