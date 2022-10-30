@@ -1,3 +1,5 @@
+const path = require('path');
+
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 const Funnel = require('broccoli-funnel');
 const merge = require('broccoli-merge-trees');
@@ -144,7 +146,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       let existingPlugins = babelOptions.plugins || [];
       let config = this.getEmberDataConfig();
 
-      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost(), config);
+      let customPlugins = require('./stripped-build-plugins')(config);
       let plugins = existingPlugins.map((plugin) => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
@@ -274,6 +276,34 @@ function addonBuildConfigForDataPackage(PackageName) {
         options.emberData.debug
       );
       options.emberData.debug = debugOptions;
+      let HAS_DEBUG_PACKAGE, HAS_META_PACKAGE;
+
+      try {
+        // eslint-disable-next-line node/no-missing-require
+        require.resolve('@ember-data/debug', { paths: [process.cwd(), path.join(__dirname, '../')] });
+        HAS_DEBUG_PACKAGE = true;
+      } catch {
+        HAS_DEBUG_PACKAGE = false;
+      }
+      try {
+        // eslint-disable-next-line node/no-missing-require
+        require.resolve('ember-data', { paths: [process.cwd(), path.join(__dirname, '../')] });
+        HAS_META_PACKAGE = true;
+      } catch {
+        HAS_META_PACKAGE = false;
+      }
+      options.emberData.includeDataAdapterInProduction =
+        typeof options.emberData.includeDataAdapterInProduction === 'boolean'
+          ? options.emberData.includeDataAdapterInProduction
+          : HAS_META_PACKAGE;
+
+      const includeDataAdapter = HAS_DEBUG_PACKAGE
+        ? isProd
+          ? options.emberData.includeDataAdapterInProduction
+          : true
+        : false;
+      options.emberData.includeDataAdapter = includeDataAdapter;
+
       const DEPRECATIONS = require('./deprecations')(options.emberData.compatWith || null);
       const FEATURES = require('./features')(isProd);
       options.emberData.__DEPRECATIONS = DEPRECATIONS;
@@ -285,10 +315,10 @@ function addonBuildConfigForDataPackage(PackageName) {
       ownConfig.debug = debugOptions;
       ownConfig.deprecations = Object.assign(DEPRECATIONS, ownConfig.deprecations || {});
       ownConfig.features = Object.assign({}, FEATURES);
+      ownConfig.includeDataAdapter = includeDataAdapter;
 
-      const returnedOptions = Object.assign({ compatWith: null }, options.emberData);
-
-      return returnedOptions;
+      this._emberDataConfig = ownConfig;
+      return ownConfig;
     },
   };
 }

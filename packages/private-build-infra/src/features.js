@@ -7,7 +7,8 @@ const isCanary = version.includes('alpha');
 const requireModule = require('./utilities/require-module');
 
 function getFeatures(isProd) {
-  const { default: features } = requireModule('@ember-data/canary-features/addon/default-features.ts');
+  const { default: org_features } = requireModule('@ember-data/canary-features/addon/default-features.ts');
+  const features = Object.assign({}, org_features);
 
   if (!isCanary) {
     // disable all features with a current value of `null`

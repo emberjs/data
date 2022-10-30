@@ -33,13 +33,16 @@ module.exports = function (defaults) {
 
   let config = {
     compatWith: '99',
+    debug: {},
+    features: {},
+    deprecations: {},
   };
   let app = new EmberApp(defaults, {
     emberData: config,
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
-      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, true, config)],
+      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(config)],
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,

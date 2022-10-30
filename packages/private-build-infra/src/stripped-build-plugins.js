@@ -7,12 +7,13 @@ function isProduction(environment) {
   return /production/.test(environment);
 }
 
-module.exports = function (environment, app, config) {
-  const isProd = isProduction(environment);
+module.exports = function (config) {
   let plugins = [];
-  const DebugMacros = require('./debug-macros')(app, isProd, config);
+  const DebugMacros = require('./debug-macros')(config);
   let postTransformPlugins = [];
 
+  const environment = process.env.EMBER_ENV;
+  const isProd = isProduction(environment);
   if (isProd) {
     postTransformPlugins.push([StripClassCallCheck]);
     let filteredImports = {
