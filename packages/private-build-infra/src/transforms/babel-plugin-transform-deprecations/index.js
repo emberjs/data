@@ -36,7 +36,7 @@ module.exports = function (babel) {
                     t.callExpression(state.importer.import(p, '@embroider/macros', 'getOwnConfig'), []),
                     t.identifier('deprecations')
                   ),
-                  t.identifier(localBindingName)
+                  t.identifier(name)
                 );
                 node.replaceWith(
                   // if (DEPRECATE_FOO)
