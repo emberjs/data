@@ -86,7 +86,7 @@ importers:
       ember-try: ^2.0.0
       eslint: ^8.26.0
       eslint-config-prettier: ^8.5.0
-      eslint-plugin-ember: ^11.1.0
+      eslint-plugin-ember: ^11.2.0
       eslint-plugin-ember-data: link:./packages/unpublished-eslint-rules
       eslint-plugin-import: ^2.26.0
       eslint-plugin-mocha: ^10.1.0
@@ -16832,7 +16832,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_rpykdwgkz4zcxcz2o5cmxtopeu
+      '@ember-data/store': file:packages/store_7k3u5z7q6hjm75ita7ytfnh75a
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
       '@embroider/macros': 1.9.0_xahliinzuq7jqnkqqzon2ivk4y
@@ -16943,7 +16943,6 @@ packages:
       - ember-source
       - supports-color
       - webpack
-    dev: true
 
   file:packages/model_hzdaz7vqyuhpchz3iwxsxxzukm:
     resolution: {directory: packages/model, type: directory}
@@ -17116,7 +17115,6 @@ packages:
       - ember-source
       - supports-color
       - webpack
-    dev: true
 
   file:packages/store_rpykdwgkz4zcxcz2o5cmxtopeu:
     resolution: {directory: packages/store, type: directory}
