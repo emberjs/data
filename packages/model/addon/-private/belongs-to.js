@@ -13,8 +13,10 @@ import { lookupLegacySupport } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
 function normalizeType(type) {
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && !type) {
-    return;
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
+    if (!type) {
+      return;
+    }
   }
 
   return dasherize(type);
@@ -127,60 +129,69 @@ function normalizeType(type) {
 function belongsTo(modelName, options) {
   let opts = options;
   let userEnteredModelName = modelName;
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE && (typeof modelName !== 'string' || !modelName.length)) {
-    deprecate('belongsTo() must specify the string type of the related resource as the first parameter', false, {
-      id: 'ember-data:deprecate-non-strict-relationships',
-      for: 'ember-data',
-      until: '5.0',
-      since: { enabled: '4.7', available: '4.7' },
-    });
-
-    if (typeof modelName === 'object') {
-      opts = modelName;
-      userEnteredModelName = undefined;
-    } else {
-      opts = options;
-      userEnteredModelName = modelName;
-    }
-
-    assert(
-      'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
-        typeof userEnteredModelName +
-        ". E.g., to define a relation to the Person model, use belongsTo('person')",
-      typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
-    );
-  }
-
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC && (!opts || typeof opts.async !== 'boolean')) {
-    opts = opts || {};
-    if (!('async' in opts)) {
-      opts.async = true;
-    }
-    deprecate('belongsTo(<type>, <options>) must specify options.async as either `true` or `false`.', false, {
-      id: 'ember-data:deprecate-non-strict-relationships',
-      for: 'ember-data',
-      until: '5.0',
-      since: { enabled: '4.7', available: '4.7' },
-    });
-  } else {
-    assert(`Expected belongsTo options.async to be a boolean`, opts && typeof opts.async === 'boolean');
-  }
-
-  if (
-    DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE &&
-    opts.inverse !== null &&
-    (typeof opts.inverse !== 'string' || opts.inverse.length === 0)
-  ) {
-    deprecate(
-      'belongsTo(<type>, <options>) must specify options.inverse as either `null` or string type of the related resource.',
-      false,
-      {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
+    if (typeof modelName !== 'string' || !modelName.length) {
+      deprecate('belongsTo() must specify the string type of the related resource as the first parameter', false, {
         id: 'ember-data:deprecate-non-strict-relationships',
         for: 'ember-data',
         until: '5.0',
         since: { enabled: '4.7', available: '4.7' },
+      });
+
+      if (typeof modelName === 'object') {
+        opts = modelName;
+        userEnteredModelName = undefined;
+      } else {
+        opts = options;
+        userEnteredModelName = modelName;
       }
-    );
+
+      assert(
+        'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
+          typeof userEnteredModelName +
+          ". E.g., to define a relation to the Person model, use belongsTo('person')",
+        typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
+      );
+    }
+  }
+
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC) {
+    if (!opts || typeof opts.async !== 'boolean') {
+      opts = opts || {};
+      if (!('async' in opts)) {
+        opts.async = true;
+      }
+      deprecate('belongsTo(<type>, <options>) must specify options.async as either `true` or `false`.', false, {
+        id: 'ember-data:deprecate-non-strict-relationships',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.7', available: '4.7' },
+      });
+    } else {
+      assert(`Expected belongsTo options.async to be a boolean`, opts && typeof opts.async === 'boolean');
+    }
+  } else {
+    assert(`Expected belongsTo options.async to be a boolean`, opts && typeof opts.async === 'boolean');
+  }
+
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
+    if (opts.inverse !== null && (typeof opts.inverse !== 'string' || opts.inverse.length === 0)) {
+      deprecate(
+        'belongsTo(<type>, <options>) must specify options.inverse as either `null` or string type of the related resource.',
+        false,
+        {
+          id: 'ember-data:deprecate-non-strict-relationships',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.7', available: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Expected belongsTo options.inverse to be either null or the string type of the related resource.`,
+        opts.inverse === null || (typeof opts.inverse === 'string' && opts.inverse.length > 0)
+      );
+    }
   } else {
     assert(
       `Expected belongsTo options.inverse to be either null or the string type of the related resource.`,

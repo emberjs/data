@@ -49,19 +49,21 @@ if (DEBUG) {
       }
     }
 
-    if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM && !asserted) {
-      store = store._store ? store._store : store; // allow usage with storeWrapper
-      let addedModelName = addedIdentifier.type;
-      let parentModelName = parentIdentifier.type;
-      let key = parentDefinition.key;
-      let relationshipModelName = parentDefinition.type;
-      let relationshipClass = store.modelFor(relationshipModelName);
-      let addedClass = store.modelFor(addedModelName);
+    if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+      if (!asserted) {
+        store = store._store ? store._store : store; // allow usage with storeWrapper
+        let addedModelName = addedIdentifier.type;
+        let parentModelName = parentIdentifier.type;
+        let key = parentDefinition.key;
+        let relationshipModelName = parentDefinition.type;
+        let relationshipClass = store.modelFor(relationshipModelName);
+        let addedClass = store.modelFor(addedModelName);
 
-      let assertionMessage = `The '${addedModelName}' type does not implement '${relationshipModelName}' and thus cannot be assigned to the '${key}' relationship in '${parentModelName}'. Make it a descendant of '${relationshipModelName}' or use a mixin of the same name.`;
-      let isPolymorphic = checkPolymorphic(relationshipClass, addedClass);
+        let assertionMessage = `The '${addedModelName}' type does not implement '${relationshipModelName}' and thus cannot be assigned to the '${key}' relationship in '${parentModelName}'. Make it a descendant of '${relationshipModelName}' or use a mixin of the same name.`;
+        let isPolymorphic = checkPolymorphic(relationshipClass, addedClass);
 
-      assert(assertionMessage, isPolymorphic);
+        assert(assertionMessage, isPolymorphic);
+      }
     }
   };
 }

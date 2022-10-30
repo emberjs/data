@@ -260,8 +260,8 @@ export class InstanceCache {
   getRecordData(identifier: StableRecordIdentifier): RecordData {
     let recordData = this.__instances.recordData.get(identifier);
 
-    if (!recordData) {
-      if (DEPRECATE_V1CACHE_STORE_APIS && this.store.createRecordDataFor.length > 2) {
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      if (!recordData && this.store.createRecordDataFor.length > 2) {
         deprecate(
           `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
           false,
@@ -285,19 +285,22 @@ export class InstanceCache {
           recordData = this.__cacheManager =
             this.__cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
         }
+      }
+    }
+
+    if (!recordData) {
+      let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
+      if (DEPRECATE_V1_RECORD_DATA) {
+        recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
       } else {
-        let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
-        if (DEPRECATE_V1_RECORD_DATA) {
-          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        if (DEBUG) {
+          recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager();
+          (recordData as SingletonRecordDataManager)._addRecordData(identifier, recordDataInstance as RecordData);
         } else {
-          if (DEBUG) {
-            recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager();
-            (recordData as SingletonRecordDataManager)._addRecordData(identifier, recordDataInstance as RecordData);
-          } else {
-            recordData = recordDataInstance as RecordData;
-          }
+          recordData = recordDataInstance as RecordData;
         }
       }
+
       setRecordDataFor(identifier, recordData);
 
       this.__instances.recordData.set(identifier, recordData);

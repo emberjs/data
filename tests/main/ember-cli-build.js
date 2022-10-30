@@ -50,6 +50,7 @@ module.exports = function (defaults) {
       LOG_GRAPH: process.env.DEBUG_DATA ? true : false,
       LOG_INSTANCE_CACHE: process.env.DEBUG_DATA ? true : false,
     },
+    deprecations: require('@ember-data/private-build-infra/src/deprecations')(compatWith || null),
   };
   let app = new EmberApp(defaults, {
     emberData: config,
@@ -70,6 +71,7 @@ module.exports = function (defaults) {
           polyfillUUID: true,
         },
       },
+      setOwnConfig: config,
     },
     sourcemaps: {
       enabled: false,

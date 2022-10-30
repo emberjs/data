@@ -406,22 +406,24 @@ export default class HasManyReference {
     objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
   ): Promise<ManyArray> {
     let payload = objectOrPromise;
-    if (DEPRECATE_PROMISE_PROXIES && (objectOrPromise as unknown as { then: unknown }).then) {
-      payload = await resolve(objectOrPromise);
-      if (payload !== objectOrPromise) {
-        deprecate(
-          `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
-          false,
-          {
-            id: 'ember-data:deprecate-promise-proxies',
-            until: '5.0',
-            since: {
-              enabled: '4.7',
-              available: '4.7',
-            },
-            for: 'ember-data',
-          }
-        );
+    if (DEPRECATE_PROMISE_PROXIES) {
+      if ((objectOrPromise as unknown as { then: unknown }).then) {
+        payload = await resolve(objectOrPromise);
+        if (payload !== objectOrPromise) {
+          deprecate(
+            `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
+            false,
+            {
+              id: 'ember-data:deprecate-promise-proxies',
+              until: '5.0',
+              since: {
+                enabled: '4.7',
+                available: '4.7',
+              },
+              for: 'ember-data',
+            }
+          );
+        }
       }
     }
     let array: Array<ExistingResourceObject | SingleResourceDocument>;

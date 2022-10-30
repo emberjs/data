@@ -4,7 +4,7 @@ module.exports = function (babel) {
   const { types: t } = babel;
 
   return {
-    name: 'ast-transform', // not required
+    name: 'existence-checks',
     visitor: {
       ImportDeclaration(path, state) {
         const replacements = state.opts.flags;

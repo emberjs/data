@@ -6,13 +6,12 @@ module.exports = function debugMacros(app, isProd, config) {
   const PACKAGES = require('./packages')(app);
   const FEATURES = require('./features')(isProd);
   const DEBUG = require('./debugging')(config.debug, isProd);
-  const DEPRECATIONS = require('./deprecations')(config.compatWith, isProd);
   const debugMacrosPath = require.resolve('babel-plugin-debug-macros');
-  const ConvertExistenceChecksToMacros = require.resolve(
-    './transforms/babel-plugin-convert-existence-checks-to-macros'
-  );
+  const TransformPackagePresence = require.resolve('./transforms/babel-plugin-convert-existence-checks-to-macros');
+  const TransformDeprecations = require.resolve('./transforms/babel-plugin-transform-deprecations');
 
   const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
+  const DEPRECATIONS = requireModule('@ember-data/private-build-infra/addon/current-deprecations.ts');
   const MACRO_PACKAGE_FLAGS = Object.assign({}, ALL_PACKAGES.default);
   delete MACRO_PACKAGE_FLAGS['HAS_DEBUG_PACKAGE'];
 
@@ -34,21 +33,17 @@ module.exports = function debugMacros(app, isProd, config) {
       '@ember-data/canary-features-stripping',
     ],
     [
-      ConvertExistenceChecksToMacros,
+      TransformPackagePresence,
       {
         source: '@ember-data/private-build-infra',
         flags: MACRO_PACKAGE_FLAGS,
       },
     ],
     [
-      debugMacrosPath,
+      TransformDeprecations,
       {
-        flags: [
-          {
-            source: '@ember-data/private-build-infra/deprecations',
-            flags: DEPRECATIONS,
-          },
-        ],
+        source: '@ember-data/private-build-infra/deprecations',
+        flags: Object.assign({}, DEPRECATIONS.default),
       },
       '@ember-data/deprecation-stripping',
     ],

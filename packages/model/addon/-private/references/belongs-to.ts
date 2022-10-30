@@ -395,22 +395,24 @@ export default class BelongsToReference {
    */
   async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
     let jsonApiDoc: SingleResourceDocument = data as SingleResourceDocument;
-    if (DEPRECATE_PROMISE_PROXIES && (data as { then: unknown }).then) {
-      jsonApiDoc = await resolve(data);
-      if (jsonApiDoc !== data) {
-        deprecate(
-          `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
-          false,
-          {
-            id: 'ember-data:deprecate-promise-proxies',
-            until: '5.0',
-            since: {
-              enabled: '4.7',
-              available: '4.7',
-            },
-            for: 'ember-data',
-          }
-        );
+    if (DEPRECATE_PROMISE_PROXIES) {
+      if ((data as { then: unknown }).then) {
+        jsonApiDoc = await resolve(data);
+        if (jsonApiDoc !== data) {
+          deprecate(
+            `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
+            false,
+            {
+              id: 'ember-data:deprecate-promise-proxies',
+              until: '5.0',
+              since: {
+                enabled: '4.7',
+                available: '4.7',
+              },
+              for: 'ember-data',
+            }
+          );
+        }
       }
     }
     let record = this.store.push(jsonApiDoc);
