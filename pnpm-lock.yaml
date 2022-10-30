@@ -1130,7 +1130,6 @@ importers:
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.1.1
       ember-cli-inject-live-reload: ^2.1.0
-      ember-cli-sri: ^2.1.1
       ember-cli-terser: ~4.0.2
       ember-cli-test-loader: ^3.0.0
       ember-compatibility-helpers: ^1.2.6
@@ -1196,7 +1195,6 @@ importers:
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.8.0
       ember-cli-htmlbars: 6.1.1
       ember-cli-inject-live-reload: 2.1.0
-      ember-cli-sri: 2.1.1
       ember-cli-terser: 4.0.2
       ember-cli-test-loader: 3.0.0
       ember-compatibility-helpers: 1.2.6_@babel+core@7.19.6
