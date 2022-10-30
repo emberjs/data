@@ -20,6 +20,9 @@ module.exports = function (babel) {
           const specifiers = path.get('specifiers');
           specifiers.forEach((specifier) => {
             let name = specifier.node.imported.name;
+            if (!(name in state.opts.flags)) {
+              throw new Error(`Unexpected flag ${name} imported from ${state.opts.source}`);
+            }
             let localBindingName = specifier.node.local.name;
             let binding = specifier.scope.getBinding(localBindingName);
             binding.referencePaths.forEach((p) => {

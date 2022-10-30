@@ -1,5 +1,9 @@
 const { ImportUtil } = require('babel-import-util');
 
+const version = require('../../../package.json').version;
+
+const isCanary = version.includes('alpha');
+
 function parentIsUnary(node) {
   if (node.parent.type === 'UnaryExpression' && node.parent.operator === '!') {
     return true;
@@ -11,7 +15,7 @@ module.exports = function (babel) {
   const { types: t } = babel;
 
   return {
-    name: 'deprecation-flags',
+    name: 'ast-transform', // not required
     visitor: {
       ImportDeclaration(path, state) {
         const importPath = path.node.source.value;
@@ -25,9 +29,13 @@ module.exports = function (babel) {
             }
             let localBindingName = specifier.node.local.name;
             let binding = specifier.scope.getBinding(localBindingName);
-            binding.referencePaths.forEach((p, other) => {
+            binding.referencePaths.forEach((p) => {
               let negateStatement = false;
               let node = p;
+              if (!isCanary) {
+                p.replaceWith(t.boolean(state.opts.flags[name]));
+                return;
+              }
               if (parentIsUnary(p)) {
                 negateStatement = true;
                 node = p.parentPath;
@@ -35,14 +43,14 @@ module.exports = function (babel) {
               let getConfig = t.memberExpression(
                 t.memberExpression(
                   t.callExpression(state.importer.import(p, '@embroider/macros', 'getOwnConfig'), []),
-                  t.identifier('deprecations')
+                  t.identifier('features')
                 ),
                 t.identifier(name)
               );
               node.replaceWith(
-                // if (DEPRECATE_FOO)
+                // if (LOG_FOO)
                 // =>
-                // if (macroCondition(getOwnConfig().deprecations.DEPRECATE_FOO))
+                // if (macroCondition(getOwnConfig().debug.LOG_FOO))
                 t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
                   negateStatement ? t.unaryExpression('!', getConfig) : getConfig,
                 ])
