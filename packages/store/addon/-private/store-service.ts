@@ -73,6 +73,7 @@ import promiseRecord from './utils/promise-record';
 
 export { storeFor };
 
+// hello world
 type RecordDataConstruct = typeof RecordDataClass;
 let _RecordData: RecordDataConstruct | undefined;
 
@@ -2404,23 +2405,25 @@ class Store extends Service {
         ).RecordData;
       }
 
-      if (DEPRECATE_V1CACHE_STORE_APIS && arguments.length === 4) {
-        deprecate(
-          `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
-          false,
-          {
-            id: 'ember-data:deprecate-v1cache-store-apis',
-            for: 'ember-data',
-            until: '5.0',
-            since: { enabled: '4.7', available: '4.7' },
-          }
-        );
-        identifier = this.identifierCache.getOrCreateRecordIdentifier({
-          type: arguments[0],
-          id: arguments[1],
-          lid: arguments[2],
-        });
-        storeWrapper = arguments[3];
+      if (DEPRECATE_V1CACHE_STORE_APIS) {
+        if (arguments.length === 4) {
+          deprecate(
+            `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
+            false,
+            {
+              id: 'ember-data:deprecate-v1cache-store-apis',
+              for: 'ember-data',
+              until: '5.0',
+              since: { enabled: '4.7', available: '4.7' },
+            }
+          );
+          identifier = this.identifierCache.getOrCreateRecordIdentifier({
+            type: arguments[0],
+            id: arguments[1],
+            lid: arguments[2],
+          });
+          storeWrapper = arguments[3];
+        }
       }
 
       this.__private_singleton_recordData = this.__private_singleton_recordData || new _RecordData(storeWrapper);
@@ -2850,26 +2853,28 @@ function extractIdentifierFromRecord(
   }
   const extract = isForV1 ? recordDataFor : recordIdentifierFor;
 
-  if (DEPRECATE_PROMISE_PROXIES && isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.content;
-    assert(
-      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
-      content !== undefined
-    );
-    deprecate(
-      `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
-      false,
-      {
-        id: 'ember-data:deprecate-promise-proxies',
-        until: '5.0',
-        since: {
-          enabled: '4.7',
-          available: '4.7',
-        },
-        for: 'ember-data',
-      }
-    );
-    return content ? extract(content) : null;
+  if (DEPRECATE_PROMISE_PROXIES) {
+    if (isPromiseRecord(recordOrPromiseRecord)) {
+      let content = recordOrPromiseRecord.content;
+      assert(
+        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
+        content !== undefined
+      );
+      deprecate(
+        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-proxies',
+          until: '5.0',
+          since: {
+            enabled: '4.7',
+            available: '4.7',
+          },
+          for: 'ember-data',
+        }
+      );
+      return content ? extract(content) : null;
+    }
   }
 
   return extract(recordOrPromiseRecord);

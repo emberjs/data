@@ -705,26 +705,28 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
     return null;
   }
 
-  if (DEPRECATE_PROMISE_PROXIES && isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.content;
-    assert(
-      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
-      content !== undefined
-    );
-    deprecate(
-      `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
-      false,
-      {
-        id: 'ember-data:deprecate-promise-proxies',
-        until: '5.0',
-        since: {
-          enabled: '4.7',
-          available: '4.7',
-        },
-        for: 'ember-data',
-      }
-    );
-    return content ? recordIdentifierFor(content) : null;
+  if (DEPRECATE_PROMISE_PROXIES) {
+    if (isPromiseRecord(recordOrPromiseRecord)) {
+      let content = recordOrPromiseRecord.content;
+      assert(
+        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
+        content !== undefined
+      );
+      deprecate(
+        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-proxies',
+          until: '5.0',
+          since: {
+            enabled: '4.7',
+            available: '4.7',
+          },
+          for: 'ember-data',
+        }
+      );
+      return content ? recordIdentifierFor(content) : null;
+    }
   }
 
   return recordIdentifierFor(recordOrPromiseRecord);

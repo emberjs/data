@@ -39,18 +39,22 @@ export class DSModelSchemaDefinitionService {
   // Following the existing RD implementation
   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
     let modelName, attributes;
-    if (DEPRECATE_STRING_ARG_SCHEMAS && typeof identifier === 'string') {
-      deprecate(
-        `attributesDefinitionFor expects either a record identifier or an argument of shape { type: string }, received a string.`,
-        false,
-        {
-          id: 'ember-data:deprecate-string-arg-schemas',
-          for: 'ember-data',
-          until: '5.0',
-          since: { enabled: '4.5', available: '4.5' },
-        }
-      );
-      modelName = identifier;
+    if (DEPRECATE_STRING_ARG_SCHEMAS) {
+      if (typeof identifier === 'string') {
+        deprecate(
+          `attributesDefinitionFor expects either a record identifier or an argument of shape { type: string }, received a string.`,
+          false,
+          {
+            id: 'ember-data:deprecate-string-arg-schemas',
+            for: 'ember-data',
+            until: '5.0',
+            since: { enabled: '4.5', available: '4.5' },
+          }
+        );
+        modelName = identifier;
+      } else {
+        modelName = identifier.type;
+      }
     } else {
       modelName = identifier.type;
     }
@@ -72,18 +76,22 @@ export class DSModelSchemaDefinitionService {
   // Following the existing RD implementation
   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
     let modelName, relationships;
-    if (DEPRECATE_STRING_ARG_SCHEMAS && typeof identifier === 'string') {
-      deprecate(
-        `relationshipsDefinitionFor expects either a record identifier or an argument of shape { type: string }, received a string.`,
-        false,
-        {
-          id: 'ember-data:deprecate-string-arg-schemas',
-          for: 'ember-data',
-          until: '5.0',
-          since: { enabled: '4.5', available: '4.5' },
-        }
-      );
-      modelName = identifier;
+    if (DEPRECATE_STRING_ARG_SCHEMAS) {
+      if (typeof identifier === 'string') {
+        deprecate(
+          `relationshipsDefinitionFor expects either a record identifier or an argument of shape { type: string }, received a string.`,
+          false,
+          {
+            id: 'ember-data:deprecate-string-arg-schemas',
+            for: 'ember-data',
+            until: '5.0',
+            since: { enabled: '4.5', available: '4.5' },
+          }
+        );
+        modelName = identifier;
+      } else {
+        modelName = identifier.type;
+      }
     } else {
       modelName = identifier.type;
     }

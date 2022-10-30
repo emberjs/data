@@ -273,8 +273,18 @@ function addonBuildConfigForDataPackage(PackageName) {
         options.emberData.debug
       );
       options.emberData.debug = debugOptions;
+      const DEPRECATIONS = require('./deprecations')(options.emberData.compatWith || null);
+      options.emberData.__DEPRECATIONS = DEPRECATIONS;
 
-      return Object.assign({ compatWith: null }, options.emberData);
+      // copy configs forward
+      const ownConfig = this.options['@embroider/macros'].setOwnConfig;
+      ownConfig.compatWith = options.emberData.compatWith || null;
+      ownConfig.debug = debugOptions;
+      ownConfig.deprecations = Object.assign(DEPRECATIONS, ownConfig.deprecations || {});
+
+      const returnedOptions = Object.assign({ compatWith: null }, options.emberData);
+
+      return returnedOptions;
     },
   };
 }

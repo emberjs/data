@@ -334,9 +334,11 @@ function inverseForRelationship(store: Store, identifier: StableRecordIdentifier
     return null;
   }
 
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE && metaIsRelationshipDefinition(definition)) {
-    const modelClass = store.modelFor(identifier.type);
-    return definition._inverseKey(store, modelClass);
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
+    if (metaIsRelationshipDefinition(definition)) {
+      const modelClass = store.modelFor(identifier.type);
+      return definition._inverseKey(store, modelClass);
+    }
   }
 
   assert(
