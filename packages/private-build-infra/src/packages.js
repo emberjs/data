@@ -1,7 +1,5 @@
 'use strict';
 
-const path = require('path');
-
 const requireModule = require('./utilities/require-module');
 
 function detectPackage(dep, packageName, seen) {
@@ -36,7 +34,7 @@ function detectPackage(dep, packageName, seen) {
 }
 
 function getPackages(app) {
-  const { default: POSSIBLE_PACKAGES } = requireModule(path.join(__dirname, '../addon/available-packages.ts'));
+  const { default: POSSIBLE_PACKAGES } = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
   const flags = {};
   const excludeDebugInProduction =
     app && app.options && app.options.emberData && app.options.emberData.includeDataAdapterInProduction === false;

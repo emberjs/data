@@ -1,7 +1,5 @@
 'use strict';
 
-const path = require('path');
-
 const semver = require('semver');
 
 const requireModule = require('./utilities/require-module');
@@ -11,7 +9,9 @@ function deprecationIsResolved(deprecatedSince, compatVersion) {
 }
 
 function getDeprecations(compatVersion, isProd) {
-  const { default: CURRENT_DEPRECATIONS } = requireModule(path.join(__dirname, '../addon/current-deprecations.ts'));
+  const { default: CURRENT_DEPRECATIONS } = requireModule(
+    '@ember-data/private-build-infra/addon/current-deprecations.ts'
+  );
   const flags = {};
 
   Object.keys(CURRENT_DEPRECATIONS).forEach((flag) => {
