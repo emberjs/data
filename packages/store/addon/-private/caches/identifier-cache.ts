@@ -266,14 +266,16 @@ export class IdentifierCache {
           // one level up
           keyOptions.lid.set(identifier.lid, identifier);
 
-          if (LOG_IDENTIFIERS && shouldGenerate) {
-            // eslint-disable-next-line no-console
-            console.log(`Identifiers: generated ${String(identifier)} for`, resource);
-            if (resource[DEBUG_IDENTIFIER_BUCKET]) {
+          if (LOG_IDENTIFIERS) {
+            if (shouldGenerate) {
               // eslint-disable-next-line no-console
-              console.trace(
-                `[WARNING] Identifiers: generated a new identifier from a previously used identifier. This is likely a bug.`
-              );
+              console.log(`Identifiers: generated ${String(identifier)} for`, resource);
+              if (resource[DEBUG_IDENTIFIER_BUCKET]) {
+                // eslint-disable-next-line no-console
+                console.trace(
+                  `[WARNING] Identifiers: generated a new identifier from a previously used identifier. This is likely a bug.`
+                );
+              }
             }
           }
         }
