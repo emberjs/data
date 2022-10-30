@@ -2,6 +2,7 @@ import { registerDeprecationHandler } from '@ember/debug';
 import { VERSION } from '@ember/version';
 import { DEBUG } from '@glimmer/env';
 
+import { isDevelopingApp } from '@embroider/macros';
 import QUnit from 'qunit';
 import semver from 'semver';
 
@@ -173,7 +174,7 @@ export function configureDeprecationHandler() {
       };
     }
 
-    let skipAssert = !DEBUG;
+    let skipAssert = !isDevelopingApp();
     if (!skipAssert && config.when) {
       let libs = Object.keys(config.when);
       for (let i = 0; i < libs.length; i++) {

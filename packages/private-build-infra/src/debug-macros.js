@@ -7,6 +7,7 @@ module.exports = function debugMacros(app, isProd) {
   const TransformDeprecations = require.resolve('./transforms/babel-plugin-transform-deprecations');
   const TransformDebugLogging = require.resolve('./transforms/babel-plugin-convert-debug-flags-macros');
   const TransformFeatures = require.resolve('./transforms/babel-plugin-transform-features');
+  const TransformDebugEnv = require.resolve('./transforms/babel-plugin-transform-debug-env');
 
   const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
   const DEPRECATIONS = requireModule('@ember-data/private-build-infra/addon/current-deprecations.ts');
@@ -51,6 +52,14 @@ module.exports = function debugMacros(app, isProd) {
       {
         source: '@ember-data/private-build-infra/debugging',
         flags: DEBUG_FEATURES,
+      },
+      '@ember-data/debugging',
+    ],
+    [
+      TransformDebugEnv,
+      {
+        source: '@glimmer/env',
+        flags: { DEBUG: '' },
       },
       '@ember-data/debugging',
     ],

@@ -3,7 +3,6 @@
  */
 
 import { assert, deprecate, warn } from '@ember/debug';
-import EmberError from '@ember/error';
 import EmberObject from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
@@ -125,10 +124,12 @@ class Model extends EmberObject {
   ___private_notifications;
 
   init(options = {}) {
-    if (DEBUG && !options._secretInit && !options._createProps) {
-      throw new EmberError(
-        'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
-      );
+    if (DEBUG) {
+      if (!options._secretInit && !options._createProps) {
+        throw new Error(
+          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
+        );
+      }
     }
     const createProps = options._createProps;
     const _secretInit = options._secretInit;
@@ -521,8 +522,10 @@ class Model extends EmberObject {
     // when using legacy/classic ember classes. Basically: lazy in prod and eager in dev.
     // so we do this to try to steer folks to the nicer "dont user currentState"
     // error.
-    if (!DEBUG && !this.___recordState) {
-      this.___recordState = new RecordState(this);
+    if (!DEBUG) {
+      if (!this.___recordState) {
+        this.___recordState = new RecordState(this);
+      }
     }
     return this.___recordState;
   }
@@ -1489,56 +1492,60 @@ class Model extends EmberObject {
     }
 
     // ensure inverse is properly configured
-    if (DEBUG && isPolymorphic) {
-      if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
-        if (!inverseOptions.as) {
-          deprecate(
+    if (DEBUG) {
+      if (isPolymorphic) {
+        if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+          if (!inverseOptions.as) {
+            deprecate(
+              `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
+              false,
+              {
+                id: 'ember-data:non-explicit-relationships',
+                since: { enabled: '4.7', available: '4.7' },
+                until: '5.0',
+                for: 'ember-data',
+              }
+            );
+          }
+        } else {
+          assert(
             `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
-            false,
-            {
-              id: 'ember-data:non-explicit-relationships',
-              since: { enabled: '4.7', available: '4.7' },
-              until: '5.0',
-              for: 'ember-data',
-            }
+            inverseOptions.as
+          );
+          assert(
+            `options.as should match the expected type of the polymorphic relationship. Expected field '${fieldOnInverse}' on type '${inverseSchema.modelName}' to specify '${relationship.type}' but found '${inverseOptions.as}'`,
+            !!inverseOptions.as && relationship.type === inverseOptions.as
           );
         }
-      } else {
-        assert(
-          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
-          inverseOptions.as
-        );
-        assert(
-          `options.as should match the expected type of the polymorphic relationship. Expected field '${fieldOnInverse}' on type '${inverseSchema.modelName}' to specify '${relationship.type}' but found '${inverseOptions.as}'`,
-          !!inverseOptions.as && relationship.type === inverseOptions.as
-        );
       }
     }
 
     // ensure we are properly configured
-    if (DEBUG && inverseOptions.polymorphic) {
-      if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
-        if (!options.as) {
-          deprecate(
+    if (DEBUG) {
+      if (inverseOptions.polymorphic) {
+        if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+          if (!options.as) {
+            deprecate(
+              `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
+              false,
+              {
+                id: 'ember-data:non-explicit-relationships',
+                since: { enabled: '4.7', available: '4.7' },
+                until: '5.0',
+                for: 'ember-data',
+              }
+            );
+          }
+        } else {
+          assert(
             `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
-            false,
-            {
-              id: 'ember-data:non-explicit-relationships',
-              since: { enabled: '4.7', available: '4.7' },
-              until: '5.0',
-              for: 'ember-data',
-            }
+            options.as
+          );
+          assert(
+            `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${this.modelName}' to specify '${inverseRelationship.type}' but found '${options.as}'`,
+            !!options.as && inverseRelationship.type === options.as
           );
         }
-      } else {
-        assert(
-          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
-          options.as
-        );
-        assert(
-          `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${this.modelName}' to specify '${inverseRelationship.type}' but found '${options.as}'`,
-          !!options.as && inverseRelationship.type === options.as
-        );
       }
     }
 
@@ -2469,7 +2476,7 @@ if (DEBUG) {
       let idDesc = lookupDescriptor(this, 'id');
 
       if (idDesc.get !== ID_DESCRIPTOR.get) {
-        throw new EmberError(
+        throw new Error(
           `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: attr('<type>')\` from ${this.constructor.toString()}`
         );
       }

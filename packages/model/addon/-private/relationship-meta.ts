@@ -77,8 +77,10 @@ class RelationshipDefinition implements RelationshipSchema {
       inverse = modelClass.inverseFor(this.key, store);
     }
     // TODO make this error again for the non-polymorphic case
-    if (DEBUG && !this.options.polymorphic) {
-      modelClass.typeForRelationship(this.key, store);
+    if (DEBUG) {
+      if (!this.options.polymorphic) {
+        modelClass.typeForRelationship(this.key, store);
+      }
     }
 
     if (inverse) {

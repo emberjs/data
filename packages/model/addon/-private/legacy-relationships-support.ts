@@ -389,13 +389,15 @@ export class LegacySupport {
       const graph = graphFor(this.store);
       const relationship = graph.get(this.identifier, name);
 
-      if (DEBUG && kind) {
-        let modelName = this.identifier.type;
-        let actualRelationshipKind = relationship.definition.kind;
-        assert(
-          `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
-          actualRelationshipKind === kind
-        );
+      if (DEBUG) {
+        if (kind) {
+          let modelName = this.identifier.type;
+          let actualRelationshipKind = relationship.definition.kind;
+          assert(
+            `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
+            actualRelationshipKind === kind
+          );
+        }
       }
 
       let relationshipKind = relationship.definition.kind;
