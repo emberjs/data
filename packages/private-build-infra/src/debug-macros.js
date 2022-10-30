@@ -19,6 +19,7 @@ module.exports = function debugMacros(app, isProd, config) {
     HAS_DEBUG_PACKAGE: PACKAGES.HAS_DEBUG_PACKAGE,
   };
 
+  const ConvertDebugFlagsToMacros = require.resolve('./transforms/babel-plugin-convert-debug-flags-macros');
   let plugins = [
     [
       debugMacrosPath,
@@ -70,6 +71,16 @@ module.exports = function debugMacros(app, isProd, config) {
         ],
       },
       '@ember-data/optional-packages-stripping',
+    ],
+    [
+      ConvertDebugFlagsToMacros,
+      {
+        flags: [
+          {
+            source: '@ember-data/private-build-inra/debugging',
+          },
+        ],
+      },
     ],
   ];
 
