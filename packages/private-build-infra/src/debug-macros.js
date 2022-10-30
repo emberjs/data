@@ -51,7 +51,7 @@ module.exports = function debugMacros(app, isProd) {
     [
       TransformDebugLogging,
       {
-        source: '@ember-data/private-build-inra/debugging',
+        source: '@ember-data/private-build-infra/debugging',
       },
       '@ember-data/debugging',
     ],
