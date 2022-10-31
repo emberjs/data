@@ -296,6 +296,7 @@ module.exports = {
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',
         'packages/unpublished-eslint-rules/src/**/*.js',
+        'packages/*/babel.config.js',
         'packages/*/.ember-cli.js',
         'packages/*/.eslintrc.js',
         'packages/*/.template-lintrc.js',

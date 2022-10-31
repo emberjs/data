@@ -5,7 +5,7 @@
 import {
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
-} from '@ember-data/store/-private/utils/identifer-debug-consts';
+} from 'packages/store/src/-private/utils/identifer-debug-consts';
 
 import type { ExistingResourceObject, ResourceIdentifierObject } from './ember-data-json-api';
 

@@ -7,7 +7,7 @@ import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/depre
 import type Store from '@ember-data/store';
 import { IDENTIFIER_ARRAY_TAG, MUTATE, RecordArray, recordIdentifierFor, SOURCE } from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
+import { IdentifierArrayCreateOptions } from 'packages/store/src/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
