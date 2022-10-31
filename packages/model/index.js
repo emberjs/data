@@ -15,7 +15,6 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember-data/canary-features',
       '@ember-data/store',
       '@ember-data/store/-private',
-      '@ember-data/store/-debug',
       '@embroider/macros',
       '@ember/string',
       '@embroider/macros/es-compat',

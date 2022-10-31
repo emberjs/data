@@ -13,7 +13,6 @@ module.exports = Object.assign({}, addonBaseConfig, {
       'ember-cached-decorator-polyfill',
 
       '@ember-data/canary-features',
-      '@ember-data/store/-debug',
       '@ember-data/tracking/-private',
 
       '@ember/application',

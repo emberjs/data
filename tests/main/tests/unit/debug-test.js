@@ -1,14 +1,14 @@
 import { computed } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { has } from 'require';
 
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 
 // TODO move these tests to the @ember-data/debug package
-if (has('@ember-data/debug')) {
+if (HAS_DEBUG_PACKAGE) {
   module('Debug', function (hooks) {
     setupTest(hooks);
 
@@ -102,6 +102,12 @@ if (has('@ember-data/debug')) {
         ],
         expensiveProperties: ['maritalStatus', 'posts'],
       });
+    });
+  });
+} else {
+  module('Debug Skipped', function () {
+    test('Alert Skipped', function (assert) {
+      assert.ok(false, 'Debug Tests were Skipped');
     });
   });
 }

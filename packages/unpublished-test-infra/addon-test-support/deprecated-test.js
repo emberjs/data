@@ -39,8 +39,10 @@ export function deprecatedTest(testName, deprecation, testCallback) {
   if (COMPAT_VERSION && gte(COMPAT_VERSION, VERSION)) {
     testFn = skip;
   }
-  if (!DEBUG && deprecation.debugOnly) {
-    testFn = skip;
+  if (!DEBUG) {
+    if (deprecation.debugOnly) {
+      testFn = skip;
+    }
   }
 
   if (gte(VERSION, deprecation.until)) {

@@ -13,7 +13,6 @@ import type { Graph } from '@ember-data/record-data/-private/graph/graph';
 import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
 import type {
   CollectionResourceDocument,
@@ -28,6 +27,7 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
 

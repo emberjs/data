@@ -5,7 +5,7 @@ import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import { importSync } from '@embroider/macros';
+import { importSync, isDevelopingApp } from '@embroider/macros';
 import { default as RSVP, resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
@@ -147,7 +147,7 @@ export default class FetchManager {
 
   scheduleFetch(identifier: StableExistingRecordIdentifier, options: FindOptions): Promise<StableRecordIdentifier> {
     // TODO Probably the store should pass in the query object
-    let shouldTrace = DEBUG && this._store.generateStackTracesForTrackedRequests;
+    let shouldTrace = isDevelopingApp() && this._store.generateStackTracesForTrackedRequests;
 
     let query: FindRecordQuery = {
       op: 'findRecord',

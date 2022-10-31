@@ -40,6 +40,8 @@ module.exports = function (defaults) {
 
   let config = {
     compatWith,
+    // includeDataAdapterInProduction: false,
+    // includeDataAdapter: false,
     debug: {
       LOG_PAYLOADS: process.env.DEBUG_DATA ? true : false,
       LOG_OPERATIONS: process.env.DEBUG_DATA ? true : false,
@@ -51,13 +53,14 @@ module.exports = function (defaults) {
       LOG_INSTANCE_CACHE: process.env.DEBUG_DATA ? true : false,
     },
     deprecations: require('@ember-data/private-build-infra/src/deprecations')(compatWith || null),
+    features: require('@ember-data/private-build-infra/src/features')(isProd),
   };
   let app = new EmberApp(defaults, {
     emberData: config,
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
-      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd)],
+      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(config)],
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,

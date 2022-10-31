@@ -84,8 +84,10 @@ export function recordIdentifierFor(record: RecordInstance): StableRecordIdentif
 }
 
 export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
-  if (DEBUG && RecordCache.has(record) && RecordCache.get(record) !== identifier) {
-    throw new Error(`${String(record)} was already assigned an identifier`);
+  if (DEBUG) {
+    if (RecordCache.has(record) && RecordCache.get(record) !== identifier) {
+      throw new Error(`${String(record)} was already assigned an identifier`);
+    }
   }
 
   /*

@@ -1,8 +1,9 @@
 import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
-import { assertPolymorphicType } from '@ember-data/store/-debug';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { assertPolymorphicType } from '../../debug/assert-polymorphic-type';
 import type ManyRelationship from '../../relationships/state/has-many';
 import type { AddToRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
@@ -44,7 +45,9 @@ function addRelatedRecord(
 
   const { type } = relationship.definition;
   if (type !== value.type) {
-    assertPolymorphicType(record, relationship.definition, value, graph.store);
+    if (DEBUG) {
+      assertPolymorphicType(record, relationship.definition, value, graph.store);
+    }
     graph.registerPolymorphicType(value.type, type);
   }
 
