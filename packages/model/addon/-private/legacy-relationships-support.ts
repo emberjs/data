@@ -13,7 +13,7 @@ import type BelongsToRelationship from '@ember-data/record-data/-private/relatio
 import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { fastPush, isStableIdentifier, recordIdentifierFor, SOURCE, storeFor } from '@ember-data/store/-private';
-import type { NonSingletonRecordDataManager } from 'packages/store/src/-private/managers/record-data-manager';
+import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';

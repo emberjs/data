@@ -1,7 +1,7 @@
 import type Store from '@ember-data/store';
 import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type SnapshotRecordArray from '@ember-data/store/-private/network/snapshot-record-array';
-import type { Collection } from 'packages/store/src/-private/record-arrays/identifier-array';
+import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 
 import type { ModelSchema } from './ds-model';
 import type { RelationshipSchema } from './record-data-schemas';

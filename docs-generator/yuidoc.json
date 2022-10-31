@@ -16,7 +16,7 @@
       "../packages/adapter/addon",
       "../packages/model/addon",
       "../packages/serializer/addon",
-      "../packages/store/addon",
+      "../packages/store/src",
       "../packages/record-data/addon",
       "../packages/debug/addon",
       "../packages/private-build-infra/addon",

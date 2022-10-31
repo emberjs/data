@@ -1,5 +1,6 @@
 const pkg = require('../package.json');
 
+// eslint-disable-next-line import/order
 const requireModule = require('./utilities/require-module');
 
 const debugFlags = requireModule('@ember-data/private-build-infra/addon/debugging.ts');
