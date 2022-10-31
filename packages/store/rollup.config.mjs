@@ -47,9 +47,9 @@ export default {
     // addon. Anything not listed here may get optimized away.
     addon.publicEntrypoints(['index.js', '-private.js']),
 
-    nodeResolve({ extensions: ['.ts'] }),
+    nodeResolve({ extensions: ['.ts', '.js'] }),
     babel({
-      extensions: ['.ts'],
+      extensions: ['.ts', '.js'],
       babelHelpers: 'runtime', // we should consider "external",
     }),
 
