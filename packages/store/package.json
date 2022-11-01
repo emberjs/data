@@ -23,6 +23,15 @@
     "type": "addon",
     "version": 1
   },
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*",
+    "./addon-main.js": "./addon-main.js"
+  },
+  "files": [
+    "addon-main.js",
+    "dist"
+  ],
   "peerDependencies": {
     "@ember-data/model": "workspace:4.10.0-alpha.4",
     "@ember-data/record-data": "workspace:4.10.0-alpha.4",
