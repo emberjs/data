@@ -1,5 +1,72 @@
 # Ember Data Changelog
 
+
+## 4.8.0 (2022-11-04)
+
+#### :rocket: Enhancement
+
+* `model`
+  * [#8261](https://github.com/emberjs/data/pull/8261) feat: add identifier data to Reference public API ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `private-build-infra`, `store`, `tracking`, `unpublished-test-infra`
+  * [#8214](https://github.com/emberjs/data/pull/8214) feat: @ember-data/tracking primitives to prevent backtracking render errors ([@runspired](https://github.com/runspired))
+* `-ember-data`, `private-build-infra`, `record-data`, `store`
+  * [#8201](https://github.com/emberjs/data/pull/8201) feat: enhance debug logging abilities ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+* `-ember-data`, `private-build-infra`
+  * [#8198](https://github.com/emberjs/data/pull/8198) fix: thread config from host to nested deps ([@runspired](https://github.com/runspired))
+* `store`
+  * [#8264](https://github.com/emberjs/data/pull/8264) fix: fast-push should adjust end based on start ([@runspired](https://github.com/runspired))
+* `debug`
+  * [#8215](https://github.com/emberjs/data/pull/8215) fix: inspector type detection 2. attempt #8205 ([@patricklx](https://github.com/patricklx))
+  * [#8213](https://github.com/emberjs/data/pull/8213) fix: inspector type detection #8205 ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`
+  * [#8211](https://github.com/emberjs/data/pull/8211) fix: ManyReference.value should recompute when data is first received ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `store`
+  * [#8206](https://github.com/emberjs/data/pull/8206) fix: fix MandatorySetter error for Proxied PromiseProxy, silence ember-concurrency deprecations ([@runspired](https://github.com/runspired))
+* `-ember-data`, `private-build-infra`
+  * [#8198](https://github.com/emberjs/data/pull/8198) fix: thread config from host to nested deps ([@runspired](https://github.com/runspired))
+* `-ember-data`, `store`
+  * [#8189](https://github.com/emberjs/data/pull/8189) Use array notation instead of at for accessing object at values ([@jrjohnson](https://github.com/jrjohnson))
+* `-ember-data`, `store`
+  * [#8184](https://github.com/emberjs/data/pull/8184) Use array notation instead of at for accessing values ([@jrjohnson](https://github.com/jrjohnson))
+* `-ember-data`, `store`
+  * [#8171](https://github.com/emberjs/data/pull/8171) fix: filterBy should compare values ([@jrjohnson](https://github.com/jrjohnson))
+* `store`
+  * [#8172](https://github.com/emberjs/data/pull/8172) fix: correct deprecation message for toArray ([@jrjohnson](https://github.com/jrjohnson))
+
+#### Committers: 5
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Edward Faulkner ([@ef4](https://github.com/ef4))
+- Patrick Pircher ([@patricklx](https://github.com/patricklx))
+- Rich Glazerman ([@richgt](https://github.com/richgt))
+
+
+## 4.7.3 (2022-10-02)
+
+#### :bug: Bug Fix
+* `private-build-infra`
+  * [#8200](https://github.com/emberjs/data/pull/8200) [Backport Release]: fix: thread polyfillUUID config through nested deps ([@runspired](https://github.com/runspired))
+* `-ember-data`, `store`
+  * [#8191](https://github.com/emberjs/data/pull/8191) Use array notation instead of at for accessing object at values (#8189) ([@jrjohnson](https://github.com/jrjohnson))
+  * [#8185](https://github.com/emberjs/data/pull/8185) Use array notation instead of at for accessing values (#8184) ([@jrjohnson](https://github.com/jrjohnson))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+
+## 4.7.2 (2022-09-15)
+
+#### :bug: Bug Fix
+* `store`
+  * [#8176](https://github.com/emberjs/data/pull/8176) fix: correct deprecation message for toArray ([@jrjohnson](https://github.com/jrjohnson))
+* `-ember-data`, `store`
+  * [#8178](https://github.com/emberjs/data/pull/8178) fix: filterBy should compare values ([@jrjohnson](https://github.com/jrjohnson))
+
+#### Committers: 1
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+
 ## v4.7.1 (2022-09-06)
 #### :goal_net: Test
 * `-ember-data`, `model`, `store`

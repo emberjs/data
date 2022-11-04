@@ -1,6 +1,6 @@
 {
   "name": "serializer-encapsulation-test-app",
-  "version": "4.9.0-alpha.6",
+  "version": "4.8.0",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": {
@@ -22,30 +22,41 @@
     "test": "ember test --test-port=0"
   },
   "dependenciesMeta": {
-    "@ember-data/adapter": { "injected": true },
-    "@ember-data/model": { "injected": true },
-    "@ember-data/record-data": { "injected": true },
-    "@ember-data/store": { "injected": true },
-    "@ember-data/tracking": { "injected": true },
-    "@ember-data/unpublished-test-infra": { "injected": true }
+    "@ember-data/adapter": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/record-data": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@babel/runtime": "^7.19.3",
+    "@ember-data/adapter": "workspace:4.8.0",
+    "@ember-data/model": "workspace:4.8.0",
+    "@ember-data/record-data": "workspace:4.8.0",
+    "@ember-data/store": "workspace:4.8.0",
+    "@ember-data/tracking": "workspace:4.8.0",
+    "@ember-data/unpublished-test-infra": "workspace:4.8.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.0",
     "@ember/test-helpers": "~2.8.1",
-    "@ember-data/adapter": "workspace:4.9.0-alpha.6",
-    "@ember-data/model": "workspace:4.9.0-alpha.6",
-    "@ember-data/record-data": "workspace:4.9.0-alpha.6",
-    "@ember-data/store": "workspace:4.9.0-alpha.6",
-    "@ember-data/tracking": "workspace:4.9.0-alpha.6",
-    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-auto-import": "^2.4.3",
-    "ember-inflector": "^4.0.2",
     "broccoli-asset-rev": "^3.0.0",
+    "ember-auto-import": "^2.4.3",
     "ember-cli": "~4.8.0",
     "ember-cli-app-version": "^5.0.0",
     "ember-cli-babel": "^7.26.11",
@@ -53,6 +64,7 @@
     "ember-cli-htmlbars": "^6.1.1",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-export-application-global": "^2.0.1",
+    "ember-inflector": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^6.0.0",
@@ -72,5 +84,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-	"packageManager": "pnpm@7.14.1"
+  "packageManager": "pnpm@7.14.1"
 }
