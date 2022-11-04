@@ -2,5 +2,5 @@
   "npmClient": "pnpm",
   "useWorkspaces": true,
   "packages": ["packages/*", "tests/*"],
-  "version": "4.8.1"
+  "version": "4.8.2"
 }
