@@ -75,7 +75,7 @@ For subsequent versions it will be whatever version number we previously publish
 To actually generate the changelog, run:
 
 ```
-pnpm lerna-changelog --from=PREVIOUS_VERSION_TAG
+pnpm exec lerna-changelog --from=PREVIOUS_VERSION_TAG
 ```
 
 Note: if it is the first time that you use lerna-changelog, you might have to add a token to fetch from Github API:
@@ -160,7 +160,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    `previous-version` will be whatever version we previously published as a `release`
 
    ```
-   pnpm lerna-changelog --from=PREVIOUS_VERSION_TAG
+   pnpm exec lerna-changelog --from=PREVIOUS_VERSION_TAG
    ```
 
 - prepend a new section title for this version with Today's date to `CHANGELOG.md`
@@ -225,7 +225,7 @@ Note it is prudent to make a PR to release to make sure there are no errors.
    IT IS IMPORTANT THAT ALL CHANGES ARE ON THE REMOTE BRANCH SPECIFIED BY HEAD
 
    ```
-   pnpm lerna-changelog --from=PREVIOUS_VERSION_TAG
+   pnpm exec lerna-changelog --from=PREVIOUS_VERSION_TAG
    ```
 
 - prepend a new section title for this version with Today's date to `CHANGELOG.md`
