@@ -43,6 +43,21 @@ function cleanProject() {
   execWithLog(`cd ${projectRoot} && pnpm install`);
 }
 
+function scrubWorkspacesForHash(hash) {
+  Object.keys(hash).forEach(function (key) {
+    let val = hash[key];
+    if (val.startsWith('workspace:')) {
+      val = val.replace('workspace:', '');
+    }
+  });
+}
+function scrubWorkspaces(pkg, path) {
+  scrubWorkspacesForHash(pkg.dependencies);
+  scrubWorkspacesForHash(pkg.peerDependencies);
+  scrubWorkspacesForHash(pkg.devDependencies);
+  fs.writeFileSync(path, JSON.stringify(pkg, null, 2), { encoding: 'utf8' });
+}
+
 /**
  *
  * @param {*} command The command to execute
@@ -273,6 +288,11 @@ function packAllPackages() {
     const pkgPath = path.join(pkgDir, 'package.json');
     const pkgInfo = require(pkgPath);
     if (pkgInfo.private !== true) {
+      // pnpm pack / npm pack do not scrub `workspace:` prefixes when packing
+      // so we do this manually
+      // https://github.com/pnpm/pnpm/issues/5591
+      scrubWorkspaces(pkgInfo);
+
       // will pack into the project root directory
       // due to an issue where npm does not run prepublishOnly for pack, we run it here
       // however this is also a timing bug, as typically it would be run *after* prepublish
