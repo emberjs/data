@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## 4.8.2 (2022-11-04)
+
+#### :bug: Bug Fix
+* fix: (Actually fix) publish should use pnpm pack to remove `workspace:` prefix
+
+## 4.8.1 (2022-11-04)
+
+#### :bug: Bug Fix
+* fix: publish should use pnpm pack to remove `workspace:` prefix
 
 ## 4.8.0 (2022-11-04)
 
