@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/store",
-  "version": "4.9.0-alpha.6",
+  "version": "4.8.0",
   "description": "The core of EmberData. Provides the Store service which coordinates the cache with the network and presentation layers.",
   "keywords": [
     "ember-addon"
@@ -14,8 +14,8 @@
   "author": "",
   "directories": {},
   "peerDependencies": {
-    "@ember-data/record-data": "workspace:4.9.0-alpha.6",
     "@ember-data/model": "workspace:4.9.0-alpha.6",
+    "@ember-data/record-data": "workspace:4.9.0-alpha.6",
     "@ember-data/tracking": "workspace:4.9.0-alpha.6",
     "@ember/string": "^3.0.0",
     "@glimmer/tracking": "^1.1.2"
@@ -29,22 +29,26 @@
     }
   },
   "dependenciesMeta": {
-    "@ember-data/canary-features": { "injected": true },
-    "@ember-data/private-build-infra": { "injected": true }
+    "@ember-data/canary-features": {
+      "injected": true
+    },
+    "@ember-data/private-build-infra": {
+      "injected": true
+    }
   },
   "dependencies": {
-    "@ember-data/canary-features": "workspace:4.9.0-alpha.6",
-    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
+    "@ember-data/canary-features": "workspace:4.8.0",
+    "@ember-data/private-build-infra": "workspace:4.8.0",
     "@embroider/macros": "^1.9.0",
     "ember-auto-import": "^2.4.3",
     "ember-cached-decorator-polyfill": "^1.0.1",
     "ember-cli-babel": "^7.26.11"
   },
   "devDependencies": {
-    "@glimmer/component": "^1.1.2",
     "@babel/core": "^7.19.6",
-    "webpack": "^5.74.0",
-    "ember-source": "~4.8.0"
+    "@glimmer/component": "^1.1.2",
+    "ember-source": "~4.8.0",
+    "webpack": "^5.74.0"
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"
@@ -53,5 +57,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-	"packageManager": "pnpm@7.14.1"
+  "packageManager": "pnpm@7.14.1"
 }

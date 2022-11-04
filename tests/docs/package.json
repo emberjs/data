@@ -1,6 +1,6 @@
 {
   "name": "docs-tests",
-  "version": "4.9.0-alpha.6",
+  "version": "4.8.0",
   "private": true,
   "description": "Provides tests for blueprints",
   "repository": {
@@ -22,5 +22,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-	"packageManager": "pnpm@7.14.1"
+  "packageManager": "pnpm@7.14.1"
 }

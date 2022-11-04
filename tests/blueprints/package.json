@@ -1,6 +1,6 @@
 {
   "name": "blueprint-tests",
-  "version": "4.9.0-alpha.6",
+  "version": "4.8.0",
   "private": true,
   "description": "Provides tests for blueprints",
   "repository": {
@@ -14,22 +14,32 @@
     "test": "mocha tests"
   },
   "dependenciesMeta": {
-    "@ember-data/unpublished-test-infra": { "injected": true },
-    "@ember-data/private-build-infra": { "injected": true },
-    "@ember-data/adapter": { "injected": true },
-    "@ember-data/model": { "injected": true },
-    "@ember-data/serializer": { "injected": true }
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    },
+    "@ember-data/private-build-infra": {
+      "injected": true
+    },
+    "@ember-data/adapter": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/serializer": {
+      "injected": true
+    }
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.6",
-    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.6",
-    "@ember-data/adapter": "workspace:4.9.0-alpha.6",
-    "@ember-data/model": "workspace:4.9.0-alpha.6",
-    "@ember-data/serializer": "workspace:4.9.0-alpha.6",
+    "@ember-data/adapter": "workspace:4.8.0",
+    "@ember-data/model": "workspace:4.8.0",
+    "@ember-data/private-build-infra": "workspace:4.8.0",
+    "@ember-data/serializer": "workspace:4.8.0",
+    "@ember-data/unpublished-test-infra": "workspace:4.8.0",
     "ember-cli": "~4.8.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
-    "silent-error": "^1.1.1",
-    "mocha": "^10.1.0"
+    "mocha": "^10.1.0",
+    "silent-error": "^1.1.1"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -51,5 +61,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-	"packageManager": "pnpm@7.14.1"
+  "packageManager": "pnpm@7.14.1"
 }

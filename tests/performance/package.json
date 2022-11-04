@@ -1,6 +1,6 @@
 {
   "name": "performance-test-app",
-  "version": "4.9.0-alpha.6",
+  "version": "4.8.0",
   "private": true,
   "description": "Small description for performance-test-app goes here",
   "repository": {
@@ -20,16 +20,20 @@
   },
   "dependencies": {
     "ember-auto-import": "^2.4.3",
-    "ember-data": "workspace:4.9.0-alpha.6"
+    "ember-data": "workspace:4.8.0"
   },
   "dependenciesMeta": {
-    "ember-data": { "injected": true }
+    "ember-data": {
+      "injected": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@babel/runtime": "^7.19.3",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
+    "@glimmer/component": "^1.1.2",
+    "@glimmer/tracking": "^1.1.2",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~4.8.0",
     "ember-cli-app-version": "^5.0.0",
@@ -41,8 +45,6 @@
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-resolver": "^8.0.3",
     "ember-source": "~4.8.0",
-    "@glimmer/component": "^1.1.2",
-    "@glimmer/tracking": "^1.1.2",
     "loader.js": "^4.7.0",
     "webpack": "^5.74.0",
     "zlib": "1.0.5"
@@ -56,5 +58,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-	"packageManager": "pnpm@7.14.1"
+  "packageManager": "pnpm@7.14.1"
 }
