@@ -3,11 +3,11 @@
 /*
 Usage
 
-publish lts|release|beta|canary
+publish lts|release|beta|canary|release-<major>-<minor>|lts-<major>-<minor>
 
 Flags
 
---distTag=latest|lts-<major>-<minor>|lts|beta|canary|release-<major>-<minor>
+--distTag=latest|lts-<major>-<minor>|lts|beta|canary|release-<major>-<minor> defaults to latest if channel is release, else defaults to channel
 --version [optional] the exact version to tag these assets as
 --bumpMajor
 --bumpMinor
