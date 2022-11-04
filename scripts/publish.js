@@ -285,7 +285,7 @@ function packAllPackages() {
           execWithLog(`cd ${pkgDir} && pnpm run prepack`);
         }
       }
-      execWithLog(`npm pack ${pkgDir}`);
+      execWithLog(`cd ${pkgDir} && npm pack --pack-destination=${projectRoot}`);
     }
   });
 }

@@ -1,7 +1,6 @@
 {
   "name": "root",
   "private": true,
-  "version": "4.9.0-alpha.11",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git"
