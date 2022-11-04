@@ -6,7 +6,7 @@ some of the release gotchas and will hopefully result in a successful
 release.
 
 There are four release channels, `lts`, `release`, `beta` and `canary`.
-Each has it's own guide below.
+Each has it's own section below.
 
 In this guide, we are assuming that the remote `origin` is `git@github.com:emberjs/data.git`
 
@@ -18,7 +18,7 @@ In order to release `ember-data` you must first ensure the following things:
 - You have an account on `npm` and belongs to the `ember-data` organization on NPM
 - You have `publish` rights within the `ember-data` organization on NPM
 - You have configured your NPM account to use `2fa` (two factor authentication)
-- You have installed `lerna` `yarn` and `node` globally
+- You have installed `lerna` `pnpm` and `node` globally
 
 ## Release Order
 
@@ -55,7 +55,7 @@ Twitter the Crosslinking the announcement to the following Discord channels.
 
    ```
    git fetch origin;
-   git checkout -b lts-<majorVersion>-<minorVersion>;
+   git checkout lts-<majorVersion>-<minorVersion>;
    git reset --hard origin/lts-<majorVersion>-<minorVersion>;
    ```
 
@@ -160,7 +160,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    `previous-version` will be whatever version we previously published as a `release`
 
    ```
-   PRIOR_VERSION=<previous-version> HEAD=release ./bin/changelog
+   pnpm lerna-changelog --from=PREVIOUS_VERSION_TAG
    ```
 
 - prepend a new section title for this version with Today's date to `CHANGELOG.md`
@@ -225,7 +225,7 @@ Note it is prudent to make a PR to release to make sure there are no errors.
    IT IS IMPORTANT THAT ALL CHANGES ARE ON THE REMOTE BRANCH SPECIFIED BY HEAD
 
    ```
-   PRIOR_VERSION=<previous-beta-version> HEAD=beta ./bin/changelog
+   pnpm lerna-changelog --from=PREVIOUS_VERSION_TAG
    ```
 
 - prepend a new section title for this version with Today's date to `CHANGELOG.md`
