@@ -291,7 +291,7 @@ function packAllPackages() {
       // pnpm pack / npm pack do not scrub `workspace:` prefixes when packing
       // so we do this manually
       // https://github.com/pnpm/pnpm/issues/5591
-      scrubWorkspaces(pkgInfo);
+      //scrubWorkspaces(pkgInfo);
 
       // will pack into the project root directory
       // due to an issue where npm does not run prepublishOnly for pack, we run it here
