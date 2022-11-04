@@ -7,13 +7,15 @@ publish lts|release|beta|canary
 
 Flags
 
---distTag=latest|lts|beta|canary|release-<major>-<minor>
+--distTag=latest|lts-<major>-<minor>|lts|beta|canary|release-<major>-<minor>
+--version [optional] the exact version to tag these assets as
 --bumpMajor
 --bumpMinor
 --skipVersion
 --skipPack
 --skipPublish
 --skipSmokeTest
+--dryRun
 
 Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3200f183bffb7d520a3c71249#diff-19fef6f3236e72e3b5af7c884eef67a0
 */
@@ -83,6 +85,12 @@ function getConfig() {
       alias: 't',
       type: String,
       defaultValue: mainOptions.channel === 'release' ? 'latest' : mainOptions.channel,
+    },
+    {
+      name: 'version',
+      alias: 'v',
+      type: String,
+      defaultValue: null,
     },
     { name: 'skipVersion', type: Boolean, defaultValue: false },
     { name: 'skipPack', type: Boolean, defaultValue: false },
@@ -362,7 +370,7 @@ async function main() {
     // --force-publish ensures that all packages release a new version regardless
     // of whether changes have occurred in them
     // --yes skips the prompt for confirming the version
-    nextVersion = retrieveNextVersion(options);
+    nextVersion = options.version || retrieveNextVersion(options);
     let lernaCommand = `lerna version ${nextVersion} --force-publish --exact --yes`;
     if (options.dryRun) {
       lernaCommand += ' --no-git-tag-version --no-push';
