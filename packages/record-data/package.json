@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/record-data",
-  "version": "4.9.0-alpha.10",
+  "version": "4.9.0-alpha.11",
   "description": "Provides the default resource cache (RecordData) implementation for ember-data",
   "keywords": [
     "ember-addon"
@@ -24,8 +24,8 @@
     }
   },
   "dependencies": {
-    "@ember-data/canary-features": "workspace:4.9.0-alpha.10",
-    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.10",
+    "@ember-data/canary-features": "workspace:4.9.0-alpha.11",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.9.0",
     "ember-auto-import": "^2.4.3",
