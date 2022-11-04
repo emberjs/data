@@ -43,20 +43,20 @@ function cleanProject() {
   execWithLog(`cd ${projectRoot} && pnpm install`);
 }
 
-function scrubWorkspacesForHash(hash) {
-  Object.keys(hash).forEach(function (key) {
-    let val = hash[key];
-    if (val.startsWith('workspace:')) {
-      val = val.replace('workspace:', '');
-    }
-  });
-}
-function scrubWorkspaces(pkg, path) {
-  scrubWorkspacesForHash(pkg.dependencies);
-  scrubWorkspacesForHash(pkg.peerDependencies);
-  scrubWorkspacesForHash(pkg.devDependencies);
-  fs.writeFileSync(path, JSON.stringify(pkg, null, 2), { encoding: 'utf8' });
-}
+// function scrubWorkspacesForHash(hash) {
+//   Object.keys(hash).forEach(function (key) {
+//     let val = hash[key];
+//     if (val.startsWith('workspace:')) {
+//       val = val.replace('workspace:', '');
+//     }
+//   });
+// }
+// function scrubWorkspaces(pkg, path) {
+//   scrubWorkspacesForHash(pkg.dependencies);
+//   scrubWorkspacesForHash(pkg.peerDependencies);
+//   scrubWorkspacesForHash(pkg.devDependencies);
+//   fs.writeFileSync(path, JSON.stringify(pkg, null, 2), { encoding: 'utf8' });
+// }
 
 /**
  *
