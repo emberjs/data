@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/adapter",
-  "version": "4.9.0-alpha.13",
+  "version": "4.9.0-beta.2",
   "description": "Reference Adapter Implementations for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -25,7 +25,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.13",
+    "@ember-data/private-build-infra": "workspace:4.9.0-beta.2",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.9.0",
     "ember-auto-import": "^2.4.3",
