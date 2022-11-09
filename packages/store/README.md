@@ -71,19 +71,21 @@ import Store from '@ember-data/store';
 import Cache from '@ember-data/record-data';
 
 class extends Store {
-  #cache = null;
-
-  createRecordDataFor(identifier, storeWrapper) {
-    this.#cache = this.#cache || new Cache(storeWrapper);
-    this.#cache.createCache(identifier);
-    return this.#cache;
+  createCache(storeWrapper) {
+    return new Cache(storeWrapper);
   }
 }
 ````
 
 Now that we have a `cache` let's setup something to handle fetching and saving data via our API.
 
+> Note: [1] `@ember-data/record-data` is a special cache: if the package is present the `createRecordDataFor` hook will automatically do the above wiring if the hook is not implemented. We still recommend implementing the hook.
+>
+> Note: [2] The `ember-data` package automatically includes the `@ember-data/record-data` cache for you.
+
 ### Adding An Adapter
+
+When \*Ember**\*Data** needs to fetch or save data it will pass that request to your application's `Adapter` for fulfillment. How this fulfillment occurs (in-memory, device storage, via single or multiple API requests, etc.) is up to that Adapter.
 
 To start, let's install a `JSON:API` adapter. If your app uses `GraphQL` or `REST` other adapters may better fit your data. You can author your own adapter by creating one that conforms to the [spec]().
 
@@ -101,6 +103,8 @@ class extends Store {
   }
 }
 ```
+
+If you want to know more about using Adapters with Ember read the next section, else lets skip to [Presenting Data from the Cache](#presenting-data-from-the-cache) to configure how our application will interact with our data.
 
 #### Using with Ember
 
@@ -128,4 +132,48 @@ class extends Store {
 }
 ```
 
-By default when using with Ember you only need to implement this hook if you want your adapter usage to be statically analyzeable. \*Ember**\*Data** will attempt to resolve adapters using Ember's resolver.
+By default when using with Ember you only need to implement this hook if you want your adapter usage to be statically analyzeable. \*Ember**\*Data** will attempt to resolve adapters using Ember's resolver. To provide a single Adapter for your application like the above you would provide it as the default export of the file `app/adapters/application.{js/ts}`
+
+### Presenting Data from the Cache
+
+Now that we have a source and a cach for our data, we need to configure how the Store delivers that data back to our application. We do this via the hook `instantiateRecord`, which allows us to transform the data for a resource before handing it to the application.
+
+A naive way to present the data would be to return it as JSON. Typically instead this hook will be used to add reactivity and make each uniue resource a singleton, ensuring that if the cache updates our presented data will reflect the new state.
+
+Below is an example of using the hooks `instantiateRecord` and a `teardownRecord` to provide minimal read-only reactive state for simple resources.
+
+```ts
+import Store, { recordIdentifierFor } from '@ember-data/store';
+import { TrackedObject } from 'tracked-built-ins';
+
+class extends Store {
+  instantiateRecord(identifier) {
+    const { cache, notifications } = this;
+
+    // create a TrackedObject with our attributes, id and type
+    const record = new TrackedObject(Object.assign({}, cache.peek(identifier)));
+    record.type = identifier.type;
+    record.id = identifier.id;
+
+    notifications.subscribe(identifier, (_, change) => {
+      if (change === 'attributes') {
+        Object.assign(record, cache.peek(identifier));
+      }
+    });
+
+    return record;
+  }
+}
+```
+
+Because `instantiateRecord` is opaque to the nature of the record, an implementation can be anything from a fairly simple object to a robust proxy that intelligently links together associated records through relationships.
+
+This also enables creating a record that separates `edit` flows from `create` flows entirely. A record class might choose to implement a `checkout`method that gives access to an editable instance while the primary record continues to be read-only and reflect only persisted (non-mutated) state.
+
+Typically you will choose an existing record implementation such as `@ember-data/model` for your application.
+
+Because of the boundaries around instantiation and the cache, record implementations should be capable of interop both with each other and with any `Cache`. Due to this, if needed an application can utilize multiple record implementations and multiple cache implementations either to support enhanced features for only a subset of records or to be able to incrementally migrate from one record/cache to another record or cache.
+
+> Note: [1] `@ember-data/model` is a special record implementation: if the package is present the `instantiateRecord` hook will automatically do the above wiring if the hook is not implemented. Due to the complexity of this legacy package's use of Ember's resolver, we do not recommend wiring this package manually.
+>
+> Note: [2] The `ember-data` package automatically includes the `@ember-data/model` implementation for you.

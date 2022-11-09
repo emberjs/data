@@ -170,7 +170,7 @@ class Store extends Service {
 
   declare recordArrayManager: RecordArrayManager;
 
-  declare _notificationManager: NotificationManager;
+  declare notifications: NotificationManager;
   declare identifierCache: IdentifierCache;
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
@@ -209,8 +209,17 @@ class Store extends Service {
     // private but maybe useful to be here, somewhat intimate
     this.recordArrayManager = new RecordArrayManager({ store: this });
 
-    // private, TODO consider taking public as the instance is public to instantiateRecord anyway
-    this._notificationManager = new NotificationManager(this);
+    /**
+     * Provides access to the NotificationManager instance
+     * for this store.
+     *
+     * The NotificationManager can be used to subscribe to changes
+     * for any identifier.
+     *
+     * @property {NotificationManager} notifications
+     * @public
+     */
+    this.notifications = new NotificationManager(this);
 
     // private
     this._fetchManager = new FetchManager(this);
@@ -325,7 +334,7 @@ class Store extends Service {
    * @param identifier
    * @param createRecordArgs
    * @param recordDataFor
-   * @param notificationManager
+   * @param notifications
    * @returns A record instance
    * @public
    */
@@ -333,7 +342,7 @@ class Store extends Service {
     identifier: StableRecordIdentifier,
     createRecordArgs: { [key: string]: unknown },
     recordDataFor: (identifier: StableRecordIdentifier) => RecordData,
-    notificationManager: NotificationManager
+    notifications: NotificationManager
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
       let modelName = identifier.type;
@@ -1891,7 +1900,7 @@ class Store extends Service {
             graph.identifiers.clear();
           }
         }
-        this._notificationManager.destroy();
+        this.notifications.destroy();
 
         this.recordArrayManager.clear();
         this._instanceCache.clear();

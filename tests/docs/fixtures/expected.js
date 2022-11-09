@@ -423,7 +423,6 @@ module.exports = {
     '(public) @ember-data/store SchemaDefinitionService#relationshipsDefinitionFor',
     '(public) @ember-data/adapter/error @ember-data/adapter/error#errorsArrayToHash',
     '(public) @ember-data/adapter/error @ember-data/adapter/error#errorsHashToArray',
-    '(public) @ember-data/store Store#identifierCache',
     '(private) @ember-data/model PromiseManyArray#forEach',
     '(public) @ember-data/model PromiseManyArray#isFulfilled',
     '(public) @ember-data/model PromiseManyArray#isPending',
@@ -438,5 +437,6 @@ module.exports = {
     '(public) @ember-data/model PromiseManyArray#then',
     '(public) @ember-data/store ManyArray#links',
     '(public) @ember-data/store Store#identifierCache',
+    '(public) @ember-data/store Store#notifications',
   ],
 };
