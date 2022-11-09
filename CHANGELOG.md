@@ -1,5 +1,9 @@
 # Ember Data Changelog
 
+## 4.8.3 (2022-11-09)
+
+* fix: ensure correct peer-dependency versions are updated during release
+
 ## 4.8.2 (2022-11-04)
 
 #### :bug: Bug Fix
