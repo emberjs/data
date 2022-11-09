@@ -34,6 +34,8 @@ const debug = require('debug')('publish-packages');
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
+const testsDir = path.join(projectRoot, './tests');
+const tests = fs.readdirSync(testsDir);
 const PreviousReleasePattern = /^release-(\d)-(\d+)$/;
 
 let isBugfixRelease = false;
@@ -50,7 +52,7 @@ function scrubWorkspacesForHash(hash, newVersion) {
   Object.keys(hash).forEach(function (key) {
     let val = hash[key];
     if (val.startsWith('workspace:')) {
-      hash[key] = newVersion;
+      hash[key] = `workspace:${newVersion}`;
     }
   });
 }
@@ -286,13 +288,15 @@ function collectTarballPaths() {
 }
 
 function bumpAllPackages(nextVersion) {
-  packages.forEach((localName) => {
+  function bump(localName) {
     const pkgDir = path.join(packagesDir, localName);
     const pkgPath = path.join(pkgDir, 'package.json');
     const pkgInfo = require(pkgPath);
     pkgInfo.version = nextVersion;
     scrubWorkspaces(pkgInfo, pkgPath, nextVersion);
-  });
+  }
+  packages.forEach(bump);
+  tests.forEach(bump);
 }
 
 function packAllPackages() {
@@ -393,7 +397,7 @@ async function main() {
   let nextVersion = options.currentVersion;
   if (!options.skipVersion) {
     nextVersion = options.version || retrieveNextVersion(options);
-    bumpAllPackages();
+    bumpAllPackages(nextVersion);
     let commitCommand = `git commit -am "Release v${nextVersion}"`;
     if (!options.dryRun) {
       commitCommand += ` && git tag v${nextVersion}`;
