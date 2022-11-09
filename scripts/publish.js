@@ -288,15 +288,15 @@ function collectTarballPaths() {
 }
 
 function bumpAllPackages(nextVersion) {
-  function bump(localName) {
-    const pkgDir = path.join(packagesDir, localName);
+  function bump(baseDir, localName) {
+    const pkgDir = path.join(baseDir, localName);
     const pkgPath = path.join(pkgDir, 'package.json');
     const pkgInfo = require(pkgPath);
     pkgInfo.version = nextVersion;
     scrubWorkspaces(pkgInfo, pkgPath, nextVersion);
   }
-  packages.forEach(bump);
-  tests.forEach(bump);
+  packages.forEach((l) => bump(packagesDir, l));
+  tests.forEach((l) => bump(testsDir, l));
 }
 
 function packAllPackages() {
