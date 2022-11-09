@@ -44,6 +44,9 @@ function cleanProject() {
 }
 
 function scrubWorkspacesForHash(hash, newVersion) {
+  if (!hash) {
+    return;
+  }
   Object.keys(hash).forEach(function (key) {
     let val = hash[key];
     if (val.startsWith('workspace:')) {
