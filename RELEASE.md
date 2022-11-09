@@ -18,7 +18,7 @@ In order to release `ember-data` you must first ensure the following things:
 - You have an account on `npm` and belongs to the `ember-data` organization on NPM
 - You have `publish` rights within the `ember-data` organization on NPM
 - You have configured your NPM account to use `2fa` (two factor authentication)
-- You have installed `lerna` `pnpm` and `node` globally
+- You have installed `pnpm` and `node` globally
 
 ## Release Order
 
