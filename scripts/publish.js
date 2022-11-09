@@ -34,6 +34,8 @@ const debug = require('debug')('publish-packages');
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
+const testsDir = path.join(projectRoot, './tests');
+const tests = fs.readdirSync(testsDir);
 const PreviousReleasePattern = /^release-(\d)-(\d+)$/;
 
 let isBugfixRelease = false;
@@ -43,20 +45,23 @@ function cleanProject() {
   execWithLog(`cd ${projectRoot} && pnpm install`);
 }
 
-// function scrubWorkspacesForHash(hash) {
-//   Object.keys(hash).forEach(function (key) {
-//     let val = hash[key];
-//     if (val.startsWith('workspace:')) {
-//       val = val.replace('workspace:', '');
-//     }
-//   });
-// }
-// function scrubWorkspaces(pkg, path) {
-//   scrubWorkspacesForHash(pkg.dependencies);
-//   scrubWorkspacesForHash(pkg.peerDependencies);
-//   scrubWorkspacesForHash(pkg.devDependencies);
-//   fs.writeFileSync(path, JSON.stringify(pkg, null, 2), { encoding: 'utf8' });
-// }
+function scrubWorkspacesForHash(hash, newVersion) {
+  if (!hash) {
+    return;
+  }
+  Object.keys(hash).forEach(function (key) {
+    let val = hash[key];
+    if (val.startsWith('workspace:')) {
+      hash[key] = `workspace:${newVersion}`;
+    }
+  });
+}
+function scrubWorkspaces(pkg, path, newVersion) {
+  scrubWorkspacesForHash(pkg.dependencies, newVersion);
+  scrubWorkspacesForHash(pkg.peerDependencies, newVersion);
+  scrubWorkspacesForHash(pkg.devDependencies, newVersion);
+  fs.writeFileSync(path, JSON.stringify(pkg, null, 2), { encoding: 'utf8' });
+}
 
 /**
  *
@@ -117,7 +122,7 @@ function getConfig() {
     { name: 'dryRun', type: Boolean, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
-  const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
+  const currentProjectVersion = require(path.join(__dirname, '../package.json')).version;
 
   if (isBugfixRelease && (options.bumpMajor || options.bumpMinor)) {
     throw new Error(`Cannot bump major or minor version of a past release`);
@@ -223,13 +228,13 @@ function retrieveNextVersion(options) {
 
   See RELEASE.md for more about this
 
-  #master lerna.json 3.11.0-canary.x
+  #master 3.11.0-canary.x
     releases with `canary`
-  #beta lerna.json 3.10.0-beta.x
+  #beta 3.10.0-beta.x
     cuts from last 3.10.0-canary.x master with `beta`
-  #release lerna.json 3.9.0
+  #release 3.9.0
     cuts from last 3.9.0-beta.x
-  #lts lerna.json 3.8.x
+  #lts 3.8.x
      cuts from last 3.8.x on release
 */
   let v;
@@ -282,17 +287,26 @@ function collectTarballPaths() {
   return tarballs;
 }
 
+function bumpAllPackages(nextVersion) {
+  function bump(baseDir, localName) {
+    const pkgDir = path.join(baseDir, localName);
+    const pkgPath = path.join(pkgDir, 'package.json');
+    const pkgInfo = require(pkgPath);
+    pkgInfo.version = nextVersion;
+    scrubWorkspaces(pkgInfo, pkgPath, nextVersion);
+  }
+  packages.forEach((l) => bump(packagesDir, l));
+  tests.forEach((l) => bump(testsDir, l));
+  const pkgJsonPath = path.join(projectRoot, './package.json');
+  scrubWorkspaces(require(pkgJsonPath), pkgJsonPath, nextVersion);
+}
+
 function packAllPackages() {
   packages.forEach((localName) => {
     const pkgDir = path.join(packagesDir, localName);
     const pkgPath = path.join(pkgDir, 'package.json');
     const pkgInfo = require(pkgPath);
     if (pkgInfo.private !== true) {
-      // pnpm pack / npm pack do not scrub `workspace:` prefixes when packing
-      // so we do this manually
-      // https://github.com/pnpm/pnpm/issues/5591
-      //scrubWorkspaces(pkgInfo);
-
       // will pack into the project root directory
       // due to an issue where npm does not run prepublishOnly for pack, we run it here
       // however this is also a timing bug, as typically it would be run *after* prepublish
@@ -384,24 +398,19 @@ async function main() {
 
   let nextVersion = options.currentVersion;
   if (!options.skipVersion) {
-    // https://github.com/lerna/lerna/tree/master/commands/version#--exact
-    // We use exact to ensure that our consumers always use the appropriate
-    // versions published with each other
-    // --force-publish ensures that all packages release a new version regardless
-    // of whether changes have occurred in them
-    // --yes skips the prompt for confirming the version
     nextVersion = options.version || retrieveNextVersion(options);
-    let lernaCommand = `lerna version ${nextVersion} --force-publish --exact --yes`;
-    if (options.dryRun) {
-      lernaCommand += ' --no-git-tag-version --no-push';
+    bumpAllPackages(nextVersion);
+    let commitCommand = `git commit -am "Release v${nextVersion}"`;
+    if (!options.dryRun) {
+      commitCommand += ` && git tag v${nextVersion}`;
     }
 
     // Let the github action determine whether to push the tag to remote
-    if (process.env.CI) {
-      lernaCommand += ' --no-push';
+    if (!process.env.CI) {
+      commitCommand += ` && git push`;
     }
 
-    execWithLog(lernaCommand, true);
+    execWithLog(commitCommand, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
