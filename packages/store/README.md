@@ -64,11 +64,11 @@ To use a `Store` we will need to do few things: add a `Cache` to store data **in
 
 To start, let's install a `JSON:API` cache. If your app uses `GraphQL` or `REST` other caches may better fit your data. You can author your own cache by creating one that conforms to the [spec]().
 
-The package `@ember-data/record-data` provides a `JSON:API` cache we can use. After installing it, we can configure the store to use this cache.
+The package `@ember-data/json-api` provides a `JSON:API` cache we can use. After installing it, we can configure the store to use this cache.
 
 ```js
 import Store from '@ember-data/store';
-import Cache from '@ember-data/record-data';
+import { Cache } from '@ember-data/json-api';
 
 class extends Store {
   createCache(storeWrapper) {
@@ -79,9 +79,9 @@ class extends Store {
 
 Now that we have a `cache` let's setup something to handle fetching and saving data via our API.
 
-> Note: [1] `@ember-data/record-data` is a special cache: if the package is present the `createRecordDataFor` hook will automatically do the above wiring if the hook is not implemented. We still recommend implementing the hook.
+> Note: [1] the cache from `@ember-data/json-api` is a special cache: if the package is present the `createCache` hook will automatically do the above wiring if the hook is not implemented. We still recommend implementing the hook.
 >
-> Note: [2] The `ember-data` package automatically includes the `@ember-data/record-data` cache for you.
+> Note: [2] The `ember-data` package automatically includes the `@ember-data/json-api` cache for you.
 
 ### Adding An Adapter
 
