@@ -363,6 +363,24 @@ export default class SingletonRecordData implements RecordData {
     }
   }
 
+  peek(identifier: StableRecordIdentifier): Record<string, unknown> {
+    const cached = this.__peek(identifier, true);
+    const data = Object.assign({}, cached.remoteAttrs, cached.inflightAttrs, cached.localAttrs);
+
+    const attrDefs = this.__storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+
+    if (attrDefs) {
+      Object.keys(attrDefs).forEach((key) => {
+        if (!(key in data)) {
+          const attrSchema = attrDefs[key];
+          data[key] = getDefaultValue(attrSchema?.options);
+        }
+      });
+    }
+
+    return data;
+  }
+
   getAttr(identifier: StableRecordIdentifier, attr: string): unknown {
     const cached = this.__peek(identifier, true);
     if (cached.localAttrs && attr in cached.localAttrs) {

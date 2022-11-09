@@ -50,7 +50,7 @@ module('unit/model - Custom Class Model', function (hooks) {
         },
       });
     }
-    instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+    instantiateRecord(identifier, createOptions, recordDataFor, notifications) {
       return new Person(this);
     }
     teardownRecord(record) {}
@@ -86,10 +86,10 @@ module('unit/model - Custom Class Model', function (hooks) {
         id: StableRecordIdentifier,
         createRecordArgs,
         recordDataFor,
-        notificationManager: NotificationManager
+        notifications: NotificationManager
       ): Object {
         identifier = id;
-        notificationManager.subscribe(identifier, (passedId, key) => {
+        notifications.subscribe(identifier, (passedId, key) => {
           notificationCount++;
           assert.strictEqual(passedId, identifier, 'passed the identifier to the callback');
           if (notificationCount === 1) {
@@ -121,7 +121,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.expect(5);
     let returnValue;
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createRecordArgs, recordDataFor, notifications) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
@@ -142,7 +142,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.expect(1);
     let rd;
     class CreationStore extends Store {
-      instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createRecordArgs, recordDataFor, notifications) {
         rd = recordDataFor(identifier);
         assert.strictEqual(rd.getAttr(identifier, 'name'), 'chris', 'Can look up record data from recordDataFor');
         return {};
@@ -232,7 +232,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     class CustomStore extends Store {
-      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createOptions, recordDataFor, notifications) {
         return new Person(this);
       }
       teardownRecord(record) {}
@@ -330,11 +330,11 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     let CreationStore = CustomStore.extend({
-      instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createRecordArgs, recordDataFor, notifications) {
         ident = identifier;
         rd = recordDataFor(identifier);
         assert.false(rd.isDeleted(identifier), 'we are not deleted when we start');
-        notificationManager.subscribe(identifier, (passedId, key) => {
+        notifications.subscribe(identifier, (passedId, key) => {
           assert.strictEqual(key, 'state', 'state change to deleted has been notified');
           assert.true(recordDataFor(identifier).isDeleted(identifier), 'we have been marked as deleted');
         });
@@ -365,7 +365,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     class CustomStore extends Store {
-      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createOptions, recordDataFor, notifications) {
         return new Person(this);
       }
       teardownRecord(record) {}

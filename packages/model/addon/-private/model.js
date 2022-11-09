@@ -146,7 +146,7 @@ class Model extends EmberObject {
 
     this.setProperties(createProps);
 
-    let notifications = store._notificationManager;
+    let notifications = store.notifications;
     this.___private_notifications = notifications.subscribe(identity, (identifier, type, key) => {
       notifyChanges(identifier, type, key, this, store);
     });
@@ -156,7 +156,7 @@ class Model extends EmberObject {
     const identifier = recordIdentifierFor(this);
     this.___recordState?.destroy();
     const store = storeFor(this);
-    store._notificationManager.unsubscribe(this.___private_notifications);
+    store.notifications.unsubscribe(this.___private_notifications);
     // Legacy behavior is to notify the relationships on destroy
     // such that they "clear". It's uncertain this behavior would
     // be good for a new model paradigm, likely cheaper and safer
@@ -501,7 +501,7 @@ class Model extends EmberObject {
 
     if (normalizedId !== null && didChange) {
       this.store._instanceCache.setRecordId(identifier, normalizedId);
-      this.store._notificationManager.notify(identifier, 'identity');
+      this.store.notifications.notify(identifier, 'identity');
     }
   }
 
