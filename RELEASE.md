@@ -298,7 +298,7 @@ Congrats, you are finished!
 #### Canary Auto Publish
 
 New canary versions are published to npm every Wednesday at 12pm PST by the `Alpha Release` GitHub action.
-It will always increment the pre-release version of what's currently in `lerna.json`. For example from `3.25.0-alpha.1`
+It will always increment the pre-release version of what's currently in the root `package.json`. For example from `3.25.0-alpha.1`
 to `3.25.0-alpha.2`. **It requires a human to manually bump minor and major versions and publish**.
 
 To try out the script that will be executed in the GitHub action, use:
