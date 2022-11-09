@@ -22,8 +22,10 @@ This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `Sto
 The `Store` coordinates interaction between your application, the `Cache`, and sources of data (such as your `API` or a local persistence layer).
 
 ```mermaid
-stateDiagram-v2
-  [*] --> 
+graph LR
+    A[App] <--> B{Store}
+    B <--> C(Source)
+    B <--> D(Cache)
 ```
 
 ## Installation
