@@ -122,7 +122,7 @@ function getConfig() {
     { name: 'dryRun', type: Boolean, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
-  const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
+  const currentProjectVersion = require(path.join(__dirname, '../package.json')).version;
 
   if (isBugfixRelease && (options.bumpMajor || options.bumpMinor)) {
     throw new Error(`Cannot bump major or minor version of a past release`);
@@ -298,8 +298,6 @@ function bumpAllPackages(nextVersion) {
   packages.forEach((l) => bump(packagesDir, l));
   tests.forEach((l) => bump(testsDir, l));
   const pkgJsonPath = path.join(projectRoot, './package.json');
-  const lernaPath = path.join(projectRoot, './lerna.json');
-  scrubWorkspaces(require(lernaPath), lernaPath, nextVersion);
   scrubWorkspaces(require(pkgJsonPath), pkgJsonPath, nextVersion);
 }
 
