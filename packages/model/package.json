@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "4.9.0-alpha.14",
+  "version": "4.8.3",
   "description": "A presentation layer for apps built with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -15,9 +15,9 @@
   "directories": {},
   "scripts": {},
   "peerDependencies": {
-    "@ember-data/record-data": "workspace:4.9.0-alpha.14",
-    "@ember-data/store": "workspace:4.9.0-alpha.14",
-    "@ember-data/tracking": "workspace:4.9.0-alpha.14",
+    "@ember-data/record-data": "workspace:4.8.3",
+    "@ember-data/store": "workspace:4.8.3",
+    "@ember-data/tracking": "workspace:4.8.3",
     "@ember/string": "^3.0.0",
     "ember-inflector": "^4.0.2"
   },
@@ -35,8 +35,8 @@
     }
   },
   "dependencies": {
-    "@ember-data/canary-features": "workspace:4.9.0-alpha.14",
-    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.14",
+    "@ember-data/canary-features": "workspace:4.8.3",
+    "@ember-data/private-build-infra": "workspace:4.8.3",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.9.0",
     "ember-auto-import": "^2.4.3",
