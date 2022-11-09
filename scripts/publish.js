@@ -407,7 +407,7 @@ async function main() {
 
     // Let the github action determine whether to push the tag to remote
     if (!process.env.CI) {
-      commitCommand += ` && git push`;
+      commitCommand += ` && git push && git push v${nextVersion}`;
     }
 
     execWithLog(commitCommand, true);
