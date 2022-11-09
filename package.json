@@ -1,5 +1,6 @@
 {
   "name": "root",
+  "version": "4.9.0-alpha.13",
   "private": true,
   "repository": {
     "type": "git",

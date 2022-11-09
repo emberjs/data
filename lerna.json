@@ -1,6 +1,0 @@
-{
-  "npmClient": "pnpm",
-  "useWorkspaces": true,
-  "packages": ["packages/*", "tests/*"],
-  "version": "4.9.0-alpha.13"
-}
