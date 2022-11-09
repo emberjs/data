@@ -297,6 +297,10 @@ function bumpAllPackages(nextVersion) {
   }
   packages.forEach((l) => bump(packagesDir, l));
   tests.forEach((l) => bump(testsDir, l));
+  const pkgJsonPath = path.join(projectRoot, './package.json');
+  const lernaPath = path.join(projectRoot, './lerna.json');
+  scrubWorkspaces(require(lernaPath), lernaPath, nextVersion);
+  scrubWorkspaces(require(pkgJsonPath), pkgJsonPath, nextVersion);
 }
 
 function packAllPackages() {
