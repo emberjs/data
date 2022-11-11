@@ -45,7 +45,7 @@
     "ember-cli-babel": "^7.26.11"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.6",
+    "@babel/core": "^7.20.2",
     "@glimmer/component": "^1.1.2",
     "ember-source": "~4.8.0",
     "webpack": "^5.74.0"
