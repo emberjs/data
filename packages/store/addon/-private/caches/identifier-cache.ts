@@ -41,6 +41,10 @@ if (macroCondition(getOwnConfig<{ polyfillUUID: boolean }>().polyfillUUID)) {
 }
 
 function uuidv4(): string {
+  assert(
+    'crypto.randomUUID needs to be avaliable. Some browsers incorrectly disallow it in insecure contexts. You maybe want to enable the polyfill: https://github.com/emberjs/data#randomuuid-polyfill',
+    _crypto.randomUUID
+  );
   return _crypto.randomUUID();
 }
 
