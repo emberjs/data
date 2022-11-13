@@ -391,7 +391,7 @@ importers:
       '@ember-data/canary-features': workspace:4.9.0-alpha.14
       '@ember/edition-utils': ^1.2.0
       '@embroider/macros': ^1.9.0
-      babel-import-util: ^1.2.2
+      babel-import-util: ^1.3.0
       babel-plugin-debug-macros: ^0.3.4
       babel-plugin-filter-imports: ^4.0.0
       babel6-plugin-strip-class-callcheck: ^6.0.0
@@ -420,7 +420,7 @@ importers:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.9.0_xahliinzuq7jqnkqqzon2ivk4y
-      babel-import-util: 1.2.2
+      babel-import-util: 1.3.0
       babel-plugin-debug-macros: 0.3.4_@babel+core@7.20.2
       babel-plugin-filter-imports: 4.0.0
       babel6-plugin-strip-class-callcheck: 6.0.0
@@ -3190,7 +3190,7 @@ packages:
       '@embroider/macros': 1.9.0_xahliinzuq7jqnkqqzon2ivk4y
       '@embroider/shared-internals': 1.8.3
       assert-never: 1.2.1
-      babel-import-util: 1.2.2
+      babel-import-util: 1.3.0
       babel-plugin-ember-template-compilation: 1.0.2
       broccoli-node-api: 1.7.0
       broccoli-persistent-filter: 3.1.3
@@ -3239,7 +3239,7 @@ packages:
     resolution: {integrity: sha512-N5Gho6Qk8z5u+mxLCcMYAoQMbN4MmH+z2jXwQHVs859bxuZTxwF6kKtsybDAASCtd2YGxEmzcc1Ja/wM28824w==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
-      babel-import-util: 1.2.2
+      babel-import-util: 1.3.0
       ember-rfc176-data: 0.3.17
       fs-extra: 9.1.0
       js-string-escape: 1.0.1
@@ -5123,6 +5123,10 @@ packages:
     resolution: {integrity: sha512-8HgkHWt5WawRFukO30TuaL9EiDUOdvyKtDwLma4uBNeUSDbOO0/hiPfavrOWxSS6J6TKXfukWHZ3wiqZhJ8ONQ==}
     engines: {node: '>= 12.*'}
 
+  /babel-import-util/1.3.0:
+    resolution: {integrity: sha512-PPzUT17eAI18zn6ek1R3sB4Krc/MbnmT1MkZQFmyhjoaEGBVwNABhfVU9+EKcDSKrrOm9OIpGhjxukx1GCiy1g==}
+    engines: {node: '>= 12.*'}
+
   /babel-loader/8.2.5_@babel+core@7.20.2:
     resolution: {integrity: sha512-OSiFfH89LrEMiWd4pLNqGz4CwJDtbs2ZVc+iGu2HrkRfPxId9F2anQj38IxWpmRfsUY0aBZYi1EFcd3mhtRMLQ==}
     engines: {node: '>= 8.9'}
@@ -5212,7 +5216,7 @@ packages:
     resolution: {integrity: sha512-4HBMksmlYsWEf/C/n3uW5rkBRbUp4FNaspzdQTAHgLbfCJnkLze8R6i6sUSge48y/Wne7mx+vcImI1o6rlUwXQ==}
     engines: {node: '>= 12.*'}
     dependencies:
-      babel-import-util: 1.2.2
+      babel-import-util: 1.3.0
       line-column: 1.0.2
       magic-string: 0.26.7
       string.prototype.matchall: 4.0.7
@@ -15286,7 +15290,7 @@ packages:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.9.0_xahliinzuq7jqnkqqzon2ivk4y
-      babel-import-util: 1.2.2
+      babel-import-util: 1.3.0
       babel-plugin-debug-macros: 0.3.4_@babel+core@7.20.2
       babel-plugin-filter-imports: 4.0.0
       babel6-plugin-strip-class-callcheck: 6.0.0
