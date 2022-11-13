@@ -1,19 +1,15 @@
 {
   "name": "root",
-  "version": "4.9.0-alpha.13",
+  "version": "4.9.0-alpha.14",
   "private": true,
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git"
   },
-  "pre-commit": [
-    "lint:js:changed"
-  ],
   "scripts": {
     "build-v2-addons": "pnpm --filter @ember-data/tracking build",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint:js": "eslint --cache --ext=js,ts .",
-    "lint:js:changed": "node ./scripts/lint-changed-js.js",
     "preinstall": "npx only-allow pnpm",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "test": "pnpm --filter main-test-app --filter graph-test-app run test",
@@ -128,9 +124,6 @@
     "json-typescript": "^1.1.2",
     "lerna-changelog": "^2.2.0",
     "loader.js": "^4.7.0",
-    "npm-git-info": "^1.0.3",
-    "pre-commit": "^1.2.2",
-    "pretender": "^3.4.7",
     "prettier": "^2.7.1",
     "qunit": "^2.19.3",
     "qunit-dom": "^2.0.0",
