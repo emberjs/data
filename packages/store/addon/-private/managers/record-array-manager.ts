@@ -211,7 +211,10 @@ class RecordArrayManager {
     // during unloadAll we can ignore removes since we've already
     // cleared the array.
     if (liveArray && liveArray[SOURCE].length === 0 && isRemove) {
-      return pending;
+      const pendingLive = allPending.get(liveArray);
+      if (!pendingLive || pendingLive.size === 0) {
+        return pending;
+      }
     }
 
     if (!liveArray) {
