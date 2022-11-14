@@ -89,4 +89,89 @@ module('integration/peek-all - DS.Store#peekAll()', function (hooks) {
     store.createRecord('person', { name: 'Tomster' });
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
   });
+
+  test('Newly created records properly cleanup peekAll state when calling destroyRecord (first peek post create)', async function (assert) {
+    this.owner.register(
+      'model:company',
+      class extends Model {
+        @attr name;
+      }
+    );
+    const store = this.owner.lookup('service:store');
+
+    const company1 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+    await company1.destroyRecord();
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+
+    const company2 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+
+    assert.strictEqual(store.peekAll('company').length, 1, 'one company loaded');
+
+    await company2.destroyRecord();
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+
+    const company3 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+    await company3.destroyRecord();
+
+    const peeked = store.peekAll('company');
+    assert.strictEqual(peeked.length, 0, 'no company loaded');
+  });
+
+  test('Newly created records properly cleanup peekAll state when calling destroyRecord (first peek prior to create)', async function (assert) {
+    this.owner.register(
+      'model:company',
+      class extends Model {
+        @attr name;
+      }
+    );
+    const store = this.owner.lookup('service:store');
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+
+    const company1 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+    await company1.destroyRecord();
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+
+    const company2 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+
+    assert.strictEqual(store.peekAll('company').length, 1, 'one company loaded');
+
+    await company2.destroyRecord();
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+
+    const company3 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+    await company3.destroyRecord();
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+  });
+
+  test('Newly created records properly cleanup peekAll state when calling destroyRecord (always peek prior to destroy)', async function (assert) {
+    this.owner.register(
+      'model:company',
+      class extends Model {
+        @attr name;
+      }
+    );
+    const store = this.owner.lookup('service:store');
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+
+    const company1 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+    assert.strictEqual(store.peekAll('company').length, 1, 'one company loaded');
+    await company1.destroyRecord();
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+
+    const company2 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+    assert.strictEqual(store.peekAll('company').length, 1, 'one company loaded');
+    await company2.destroyRecord();
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+
+    const company3 = store.createRecord('company', { id: 'c1', name: 'IPC' });
+    assert.strictEqual(store.peekAll('company').length, 1, 'one company loaded');
+    await company3.destroyRecord();
+    assert.strictEqual(store.peekAll('company').length, 0, 'no company loaded');
+  });
 });
