@@ -42,7 +42,7 @@ jobs:
         with:
           experiment-build-command: npm run --if-present build-v2-addons && pnpm install && pnpm --filter performance-test-app exec ember build -e production --output-path dist-experiment
           experiment-serve-command: pnpm --filter performance-test-app exec ember s --path dist-experiment --port 4201
-          control-build-command: npm run --if-present build-v2-addons && && pnpm install pnpm --filter performance-test-app exec ember build -e production --output-path dist-control
+          control-build-command: npm run --if-present build-v2-addons && pnpm install && pnpm --filter performance-test-app exec ember build -e production --output-path dist-control
           control-serve-command: pnpm --filter performance-test-app exec ember s --path dist-control
           sample-timeout: 60
           use-pnpm: true
