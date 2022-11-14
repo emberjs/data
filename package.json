@@ -1,19 +1,15 @@
 {
   "name": "root",
-  "version": "4.9.0-alpha.13",
+  "version": "4.9.0-alpha.14",
   "private": true,
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git"
   },
-  "pre-commit": [
-    "lint:js:changed"
-  ],
   "scripts": {
     "build-v2-addons": "pnpm --filter @ember-data/tracking build",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint:js": "eslint --cache --ext=js,ts .",
-    "lint:js:changed": "node ./scripts/lint-changed-js.js",
     "preinstall": "npx only-allow pnpm",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "test": "pnpm --filter main-test-app --filter graph-test-app run test",
@@ -107,7 +103,7 @@
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^6.0.0",
     "ember-resolver": "^8.0.3",
-    "ember-source": "~4.8.0",
+    "ember-source": "~4.8.2",
     "ember-source-channel-url": "^3.0.0",
     "ember-try": "^2.0.0",
     "eslint": "^8.27.0",
@@ -128,9 +124,6 @@
     "json-typescript": "^1.1.2",
     "lerna-changelog": "^2.2.0",
     "loader.js": "^4.7.0",
-    "npm-git-info": "^1.0.3",
-    "pre-commit": "^1.2.2",
-    "pretender": "^3.4.7",
     "prettier": "^2.7.1",
     "qunit": "^2.19.3",
     "qunit-dom": "^2.0.0",
@@ -141,7 +134,7 @@
     "testem": "^3.9.0",
     "typescript": "~4.8.4",
     "url": "^0.11.0",
-    "webpack": "^5.74.0",
+    "webpack": "^5.75.0",
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"
   },
@@ -149,13 +142,13 @@
     "node": "^14.8.0 || 16.* || >= 18.*",
     "yarn": "use pnpm",
     "npm": "use pnpm",
-    "pnpm": "7.14.1"
+    "pnpm": "7.15.0"
   },
   "volta": {
     "node": "19.0.0",
-    "pnpm": "7.14.1"
+    "pnpm": "7.15.0"
   },
-  "packageManager": "pnpm@7.14.1",
+  "packageManager": "pnpm@7.15.0",
   "changelog": {
     "labels": {
       "changelog:breaking": ":boom: Breaking Change",
