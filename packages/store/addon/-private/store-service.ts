@@ -3,7 +3,7 @@
  */
 import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
-import { _backburner as emberBackburner, run } from '@ember/runloop';
+import { _backburner as emberBackburner } from '@ember/runloop';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { DEBUG } from '@glimmer/env';
@@ -642,7 +642,7 @@ class Store extends Service {
       recordData.setIsDeleted(identifier, true);
 
       if (recordData.isNew(identifier)) {
-        run(() => {
+        emberBackburner.join(() => {
           this._instanceCache.unloadRecord(identifier);
         });
       }

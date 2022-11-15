@@ -2,7 +2,7 @@ import ArrayProxy from '@ember/array/proxy';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { click, find, findAll, render } from '@ember/test-helpers';
+import { click, find, findAll, render, rerender } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import Ember from 'ember';
 
@@ -1209,6 +1209,101 @@ module('autotracking has-many', function (hooks) {
 
     names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+  });
+
+  test('We can re-render hasMany with filter after deleting a record', async function (assert) {
+    this.owner.register(
+      'model:person',
+      class extends Model {
+        @attr name;
+        @hasMany('person', { async: false, inverse: 'parent' })
+        children;
+        @belongsTo('person', { async: false, inverse: 'children' })
+        parent;
+      }
+    );
+    class ChildrenList extends Component {
+      @service store;
+
+      get children() {
+        return this.args.children.filter((x) => !x.isDeleted);
+      }
+
+      @action
+      createChild() {
+        const parent = this.args.person;
+        const name = 'RGB';
+        this.store.createRecord('person', { name, parent });
+      }
+
+      @action
+      deleteChild(child) {
+        child.deleteRecord();
+      }
+    }
+
+    let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.children.length}}</h2>
+      <ul>
+        {{#each this.children as |child|}}
+          <li><span>{{child.name}}</span><button class="delete-child" {{on "click" (fn this.deleteChild child)}}>X</button></li>
+        {{/each}}
+      </ul>
+    `;
+    this.owner.register('component:children-list', ChildrenList);
+    this.owner.register('template:components/children-list', layout);
+
+    this.person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: { name: 'Doodad' },
+      },
+    });
+    this.children = await this.person.children;
+
+    await render(hbs`<ChildrenList @children={{this.children}} @person={{this.person}} />`);
+
+    let names = findAll('li > span').map((e) => e.textContent);
+
+    assert.deepEqual(names, [], 'rendered no children');
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: { name: 'Rey' },
+        relationships: {
+          parent: { data: { id: '1', type: 'person' } },
+        },
+      },
+    });
+    await rerender();
+
+    names = findAll('li > span').map((e) => e.textContent);
+    assert.deepEqual(names, ['Rey'], 'rendered one child');
+
+    await click('#createChild');
+
+    names = findAll('li > span').map((e) => e.textContent);
+    assert.deepEqual(names, ['Rey', 'RGB'], 'rendered 1 existing and 1 created child');
+
+    await click('#createChild');
+
+    names = findAll('li > span').map((e) => e.textContent);
+    assert.deepEqual(names, ['Rey', 'RGB', 'RGB'], 'rendered 1 existing and 2 created children');
+
+    await click(find('.delete-child'));
+
+    names = findAll('li > span').map((e) => e.textContent);
+    assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 created children after deleting existing');
+
+    await click(find('.delete-child'));
+
+    names = findAll('li > span').map((e) => e.textContent);
+    assert.deepEqual(names, ['RGB'], 'rendered 1 created children after deleting existing');
   });
 
   test('We can re-render hasMany with peekAll', async function (assert) {
