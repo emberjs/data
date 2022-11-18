@@ -15,9 +15,9 @@
     />
 </p>
 
-<p align="center">⚡️ a simple abstraction over [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to enable easy management of request/response flows</p>
+<p align="center">⚡️ a simple abstraction over fetch to enable easy management of request/response flows</p>
 
-This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `RequestManager`, a standalone library that can be integrated with any Javascript application to make fetch happen.
+This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `RequestManager`, a standalone library that can be integrated with any Javascript application to make [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) happen.
 
 ## Basic Installation
 
