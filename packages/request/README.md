@@ -19,6 +19,26 @@
 
 This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `RequestManager`, a standalone library that can be integrated with any Javascript application to make fetch happen.
 
+### Basic Usage
+
+The RequestManager on its own does not know how to fulfill requests. For this we must register at least one handler. A basic `Fetch` handler is provided that
+will take the request options provided and execute `fetch`.
+
+```ts
+import RequestManager, { Fetch } from '@ember-data/request';
+import { apiUrl } from './config';
+
+// ... create manager and add our Fetch handler
+const manager = new RequestManager();
+manager.use([Auth, Fetch]);
+
+// ... execute a request
+const response = await manager.request({
+  url: `${apiUrl}/users`
+});
+```
+
+
 ### How It Fits
 
 A `RequestManager` may be used standalone from the rest of *Ember***Data**.
