@@ -38,7 +38,7 @@ import { apiUrl } from './config';
 
 // ... create manager and add our Fetch handler
 const manager = new RequestManager();
-manager.use([Auth, Fetch]);
+manager.use([Fetch]);
 
 // ... execute a request
 const response = await manager.request({
