@@ -17,7 +17,7 @@
 
 <p align="center">⚡️ a simple abstraction over fetch to enable easy management of request/response flows</p>
 
-This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `RequestManager`, a standalone library that can be integrated with any Javascript application to make [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) happen.
+This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `RequestManager`, a framework agnostic library that can be integrated with any Javascript application to make [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) happen.
 
 ## Installation
 
@@ -50,12 +50,25 @@ const response = await manager.request({
 
 ## 🪜 Architecture
 
-A `RequestManager` may be used standalone from the rest of *Ember***Data**.
+A `RequestManager` receives a request and manages fulfillment via configured handlers. It may be used standalone from the rest of *Ember***Data** and is not specific to any library or framework.
 
 ```mermaid
 flowchart LR
     A[fa:fa-terminal App] <--> B{{fa:fa-sitemap RequestManager}}
     B <--> C[(fa:fa-database Source)]
+```
+
+Each handler may choose to fulfill the request using some source of data or to pass the request along to other handlers.
+
+```mermaid
+flowchart LR
+    A[fa:fa-terminal App] <--> B{{fa:fa-sitemap RequestManager}}
+    B <--> C(handler)
+    C <--> E(handler)
+    E <--> F(handler)
+    C <--> D[(fa:fa-database Source)]
+    E <--> G[(fa:fa-database Source)]
+    F <--> H[(fa:fa-database Source)]
 ```
 
 The same or a separate instance of a `RequestManager` may also be used to fulfill requests issued by [*Ember***Data**{Store}](https://github.com/emberjs/data/tree/master/packages/store)
@@ -276,4 +289,59 @@ In the case of the `Future` being returned, `Stream` proxying is automatic and i
 
 </details>
 
-## Usage With `@ember-data/store`
+### Using as a Service
+
+Most applications will desire to have a single `RequestManager` instance, which can be achieved using module-state patterns for singletons, or for [Ember](https://emberjs.com) applications by exporting the manager as a [service](https://guides.emberjs.com/release/services/).
+
+*services/request.ts*
+```ts
+import RequestManager, { Fetch } from '@ember-data/request';
+import Auth from 'ember-simple-auth/ember-data-handler';
+
+export default class extends RequestManager {
+  constructor(createArgs) {
+    super(createArgs);
+    this.use([Auth, Fetch]);
+  }
+}
+```
+
+### Using with `@ember-data/store`
+
+To have a request service unique to a Store:
+
+```ts
+import Store from '@ember-data/store';
+import RequestManager, { Fetch } from '@ember-data/request';
+
+class extends Store {
+  requestManager = new RequestManager();
+
+  constructor(args) {
+    super(args);
+    this.requestManager.use([Fetch]);
+  }
+}
+```
+
+### Using with `ember-data`
+
+If using the package [ember-data](https://github.com/emberjs/data/tree/master/packages/-ember-data), the following configuration will automatically be done in order to preserve the legacy [Adapter](https://github.com/emberjs/data/tree/master/packages/adapter) and [Serializer](https://github.com/emberjs/data/tree/master/packages/serializer) behavior. Additional handlers or a service injection like the above would need to be done by the consuming application in order to make broader use of `RequestManager`.
+
+```ts
+import Store from '@ember-data/store';
+import RequestManager from '@ember-data/request';
+
+export default class extends Store {
+  requestManager = new RequestManager();
+
+  constructor(args) {
+    super(args);
+    this.requestManager.use([LegacyHandler]);
+  }
+}
+```
+
+Because the application's store service (if present) will override the store supplied by `ember-data`, all that is required to define your own ordering and handlers is to supply a store service extending from `@ember-data/store` and configure as shown above.
+
+For usage of the store's `requestManager` via `store.request(<req>)` see the [Store](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fstore) documentation.
