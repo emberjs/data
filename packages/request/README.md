@@ -161,16 +161,31 @@ A Future resolves or rejects with a `StructuredDocument`.
 ```ts
 interface StructuredDocument<T> {
   request: RequestInfo;
-  response: {
-    status: HTTPStatusCode;
-    headers: Record<string, string>;
-  }
+  response: ResponseInfo | null;
   data?: T;
   error?: Error;
 }
 ```
 
 The `RequestInfo` specified by `document.request` is the same as originally provided to `manager.request`. If any handler fulfilled this request using different request info it is not represented here. This contract helps to ensure that `retry` and `caching` are possible since the original arguments are correctly preserved. This also allows handlers to "fork" the request or fulfill from multiple sources without the details of fulfillment muddying the original request.
+
+The `ResponseInfo` is a serializable fulfilled subset of a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) if set via `setResponse`. If no response was ever set this will be `null`.
+
+```ts
+/**
+ * All readonly properties available on a Response
+ * 
+ */
+interface ResponseInfo {
+  headers?: Record<string, string>;
+  ok?: boolean;
+  redirected?: boolean;
+  status?: HTTPStatusCode;
+  statusText?: string;
+  type?: 'basic' | 'cors';
+  url?: string;
+}
+```
 
 </details>
 
@@ -204,7 +219,7 @@ interface RequestContext<T> {
   readonly request: RequestInfo;
 
   setStream(stream: ReadableStream | Promise<ReadableStream>): void;
-  setResponse(response: Response): void;
+  setResponse(response: Response | ResponseInfo): void;
 }
 ```
 
