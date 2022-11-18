@@ -91,7 +91,8 @@ flowchart LR
 
 ## Usage
 
-### Making Requests
+<details>
+  <summary><strong>Making Requests</strong></summary>
 
 `RequestManager` has a single asyncronous method as it's API: `request`
 
@@ -124,6 +125,10 @@ interface RequestInfo extends FetchOptions {
 
 > **note:** providing a `signal` is unnecessary as an `AbortController` is automatically provided if none is present.
 
+</details>
+<details>
+  <summary><strong>Using the Response</strong></summary><br>
+
 `manager.request` returns a `Future`, which allows access to limited information about the request while it is still pending and fulfills with the final state when the request completes and the response has been read.
 
 A `Future` is cancellable via `abort`.
@@ -154,8 +159,11 @@ interface StructuredDocument<T> {
 
 The `RequestInfo` specified by `document.request` is the same as originally provided to `manager.request`. If any handler fulfilled this request using different request info it is not represented here. This contract helps to ensure that `retry` and `caching` are possible since the original arguments are correctly preserved. This also allows handlers to "fork" the request or fulfill from multiple sources without the details of fulfillment muddying the original request.
 
+</details>
 
-### Handling Requests
+<h3>Handling Requests</h3>
+<details>
+  <summary><code>{ async request(context, next): T; }</code></summary><br>
 
 Requests are fulfilled by handlers. A handler receives the request context
 as well as a `next` function with which to pass along a request to the next
@@ -171,8 +179,8 @@ that it can then compose how it sees fit with its own response.
 
 type NextFn<P> = (req: RequestInfo) => Future<P>;
 
-interface Handler<T> {
-  async request(context: RequestContext, next: NextFn<P>): T;
+interface Handler {
+  async request<T>(context: RequestContext, next: NextFn<P>): T;
 }
 ```
 
@@ -214,9 +222,10 @@ manager.use([Handler1, Handler2])
 
 Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
 
----
+</details>
 
-**Stream Currying**
+<details>
+  <summary><strong>Stream Currying</strong></summary><br>
 
 `RequestManager.request` and `next` differ from `fetch` in one **crucial detail** in that the outer Promise resolves only once the response stream has been processed.
 
@@ -252,7 +261,10 @@ Handlers that either call `next` multiple times or otherwise have reason to crea
 
 Of course, any handler may choose to read and handle the stream, and return either no stream or a different stream in the process.
 
-**Automatic Currying of Stream and Response**
+</details>
+
+<details>
+  <summary><strong>Automatic Currying of Stream and Response</strong></summary><br>
 
 In order to simplify the common case for handlers which decorate a request, if `next` is called only a single time and `setResponse` was never called by the handler, the response set by the next handler in the chain will be applied to that handler's outcome. For instance, this makes the following pattern possible `return (await next(<req>)).data;`.
 
@@ -261,5 +273,7 @@ Similarly, if `next` is called only a single time and neither `setStream` nor `g
 Finally, if the return value of a handler is a `Future`, we curry `data` and `errors` as well, thus enabling the simplest form `return next(<req>)`.
 
 In the case of the `Future` being returned, `Stream` proxying is automatic and immediate and does not wait for the `Future` to resolve.
+
+</details>
 
 ## Usage With `@ember-data/store`
