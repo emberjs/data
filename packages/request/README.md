@@ -21,6 +21,28 @@ This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `Req
 
 ### How It Fits
 
+A `RequestManager` may be used standalone from the rest of *Ember***Data**.
+
+```mermaid
+flowchart LR
+    A[App] <--> B(RequestManager)
+    B <--> C(Source)
+```
+
+The same or a separate `RequestManager` may also be used to fulfill requests issued by [*Ember***Data**{Store}](https://github.com/emberjs/data/tree/master/packages/store)
+
+```mermaid
+flowchart LR
+    A[App] <--> D{Store}
+    B(RequestManager) <--> C(Source)
+    D <--> E(Cache)
+    D <--> B
+```
+
+When the same instance is used by both this allows for simple coordination throughout the application. Requests issued by the Store will use the in-memory cache
+and return hydrated responses, requests issued directly to the RequestManager
+will skip the in-memory cache and return raw responses.
+
 ```mermaid
 flowchart LR
     A[App] <--> B(RequestManager)
