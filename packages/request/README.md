@@ -19,7 +19,15 @@
 
 This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `RequestManager`, a standalone library that can be integrated with any Javascript application to make fetch happen.
 
-### Basic Usage
+## Basic Installation
+
+Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
+
+```no-highlight
+pnpm add -D @ember-data/request
+```
+
+## Basic Usage
 
 The RequestManager on its own does not know how to fulfill requests. For this we must register at least one handler. A basic `Fetch` handler is provided that
 will take the request options provided and execute `fetch`.
