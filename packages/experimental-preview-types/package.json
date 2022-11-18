@@ -1,0 +1,33 @@
+{
+  "name": "@ember-data/experimental-preview-types",
+  "description": "Unstable experimental typescript declarations for EmberData",
+  "version": "4.9.0-alpha.14",
+  "private": false,
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/experimental-preview-types"
+  },
+  "homepage": "https://github.com/emberjs/data",
+  "bugs": "https://github.com/emberjs/data/issues",
+  "engines": {
+    "node": "14.* || 16.* || >= 18"
+  },
+  "keywords": ["ember-addon"],
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "dependencies": {},
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {},
+  "peerDependencies": {},
+  "devDependencies": {}
+}
