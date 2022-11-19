@@ -26,11 +26,10 @@
   },
   "files": [
     "addon-main.js",
-    "dist",
     "addon"
   ],
   "scripts": {
-    "build": "rollup --config && babel ./dist --out-dir addon --plugins=./lib/transform-ext.js",
+    "build": "rollup --config",
     "start": "rollup --config --watch",
     "prepack": "pnpm build"
   },
@@ -41,7 +40,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
-    "@babel/cli": "^7.19.3",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-decorators": "^7.20.2",
     "@babel/plugin-transform-runtime": "^7.19.6",
@@ -49,6 +47,7 @@
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.18.6",
     "@babel/runtime": "^7.20.1",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.14",
     "@embroider/addon-dev": "^2.0.0",
     "@rollup/plugin-babel": "^6.0.2",
     "@rollup/plugin-node-resolve": "^15.0.1",
