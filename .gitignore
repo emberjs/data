@@ -6,6 +6,7 @@
 concat-stats-for
 dist
 tmp
+packages/tracking/addon
 
 # dependencies
 bower_components
