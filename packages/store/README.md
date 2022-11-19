@@ -22,10 +22,27 @@ This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `Sto
 The `Store` coordinates interaction between your application, the `Cache`, and sources of data (such as your `API` or a local persistence layer).
 
 ```mermaid
-graph LR
-    A[App] <--> B{Store}
-    B <--> C(Source)
-    B <--> D(Cache)
+flowchart LR
+    A[fa:fa-terminal App] ===> D{fa:fa-code-fork Store}
+    B{{fa:fa-sitemap RequestManager}} <--> C[(fa:fa-database Source)]
+    D <--> E[(fa:fa-archive Cache)]
+    D <--> B
+    click B href "https://github.com/emberjs/data/tree/master/packages/request" "Go to @ember-data/request" _blank
+    click E href "https://github.com/emberjs/data/tree/master/packages/record-data" "Go to @ember-data/record-data" _blank
+    style B color:#58a6ff;
+    style E color:#58a6ff;
+```
+
+Optionally, the Store can be configured to hydrate the response data into rich presentation classes.
+
+```mermaid
+flowchart LR
+    B(Model) -->A[fa:fa-terminal App] 
+    A ====> C{fa:fa-code-fork Store}
+    C --> B
+
+    click B href "https://github.com/emberjs/data/tree/master/packages/model" "Go to @ember-data/model" _blank
+    style B color:#58a6ff;
 ```
 
 ## Installation
