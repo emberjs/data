@@ -4,7 +4,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 const addon = new Addon({
   srcDir: 'src',
-  destDir: 'dist',
+  destDir: 'addon',
 });
 
 export default {

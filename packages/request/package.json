@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/request",
-  "description": "Network Primitive for coordinating and configuring `fetch` usage",
+  "description": "⚡️ A simple, small and fast framework-agnostic library to make `fetch` happen",
   "version": "4.9.0-alpha.14",
   "private": false,
   "license": "MIT",
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "addons/tracking"
+    "directory": "packages/request"
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
@@ -20,18 +20,16 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "broccoli-funnel": "^3.0.8",
     "ember-cli-babel": "^7.26.11"
   },
   "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*",
+    ".": "./addon/index.js",
+    "./*": "./addon/*",
     "./addon-main.js": "./addon-main.js"
   },
   "files": [
-    "lib",
     "addon-main.js",
-    "dist"
+    "addon"
   ],
   "scripts": {
     "build": "rollup --config",
@@ -47,6 +45,7 @@
   "devDependencies": {
     "@embroider/addon-dev": "^2.0.0",
     "@embroider/macros": "^1.9.0",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.14",
     "rollup": "^3.2.3",
     "@babel/core": "^7.19.6",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
