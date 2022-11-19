@@ -17,7 +17,7 @@
 
 <p align="center">⚡️ The lightweight reactive data library for JavaScript applications</p>
 
-This package provides [\*Ember**\*Data**](https://github.com/emberjs/data/)'s `Store` class.
+This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `Store` class.
 
 The `Store` coordinates interaction between your application, the `Cache`, and sources of data (such as your `API` or a local persistence layer).
 
@@ -32,31 +32,16 @@ graph LR
 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
-```js
-import Store from '@ember-data/store';
-import Cache from '@ember-data/record-data';
-
-class extends Store {
-  #cache = null;
-
-  createRecordDataFor(identifier, storeWrapper) {
-    this.#cache = this.#cache || new Cache(storeWrapper);
-    this.#cache.createCache(identifier);
-    return this.#cache;
-  }
-}
 ```
-
 pnpm add @ember-data/store
-
-````
+```
 
 After installing you will want to configure your first `Store`. Read more below for how to create and configure stores for your application.
 
 
 ## 🛠 Creating A Store
 
-To use a `Store` we will need to do few things: add a `Cache` to store data **in-memory**, add an `Adapter` to fetch data from a source, and implement `instantiateRecord` to tell the store how to display the data for individual resources.
+To use a `Store` we will need to do few things: add a `Cache` to store data **in-memory**, add an `Adapter` to fetch data from a source, and implement `instantiateRecord` to tell the store how to display the data for individual resources. 
 
 > **Note** If you are using the package `ember-data` then a `JSON:API` cache and `instantiateRecord` are configured for you by default.
 
@@ -75,7 +60,7 @@ class extends Store {
     return new Cache(storeWrapper);
   }
 }
-````
+```
 
 Now that we have a `cache` let's setup something to handle fetching and saving data via our API.
 
@@ -85,7 +70,7 @@ Now that we have a `cache` let's setup something to handle fetching and saving d
 
 ### Adding An Adapter
 
-When \*Ember**\*Data** needs to fetch or save data it will pass that request to your application's `Adapter` for fulfillment. How this fulfillment occurs (in-memory, device storage, via single or multiple API requests, etc.) is up to that Adapter.
+When *Ember***Data** needs to fetch or save data it will pass that request to your application's `Adapter` for fulfillment. How this fulfillment occurs (in-memory, device storage, via single or multiple API requests, etc.) is up to that Adapter.
 
 To start, let's install a `JSON:API` adapter. If your app uses `GraphQL` or `REST` other adapters may better fit your data. You can author your own adapter by creating one that conforms to the [spec]().
 
@@ -104,7 +89,7 @@ class extends Store {
 }
 ```
 
-If you want to know more about using Adapters with Ember read the next section, else lets skip to [Presenting Data from the Cache](#presenting-data-from-the-cache) to configure how our application will interact with our data.
+If you want to know more about using Adapters with Ember read the next section, else lets skip to [Presenting Data from the Cache](#presenting-data-from-the-cache) to configure how our application will interact with our data. 
 
 #### Using with Ember
 
@@ -132,7 +117,7 @@ class extends Store {
 }
 ```
 
-By default when using with Ember you only need to implement this hook if you want your adapter usage to be statically analyzeable. \*Ember**\*Data** will attempt to resolve adapters using Ember's resolver. To provide a single Adapter for your application like the above you would provide it as the default export of the file `app/adapters/application.{js/ts}`
+By default when using with Ember you only need to implement this hook if you want your adapter usage to be statically analyzeable. *Ember***Data** will attempt to resolve adapters using Ember's resolver. To provide a single Adapter for your application like the above you would provide it as the default export of the file `app/adapters/application.{js/ts}`
 
 ### Presenting Data from the Cache
 
@@ -154,7 +139,7 @@ class extends Store {
     const record = new TrackedObject(Object.assign({}, cache.peek(identifier)));
     record.type = identifier.type;
     record.id = identifier.id;
-
+    
     notifications.subscribe(identifier, (_, change) => {
       if (change === 'attributes') {
         Object.assign(record, cache.peek(identifier));
