@@ -1,7 +1,5 @@
 import { isDevelopingApp, isTesting, macroCondition } from '@embroider/macros';
 
-import { createFuture, Future } from './-private/future';
-
 interface Request {
   /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. */
   readonly cache: RequestCache;
@@ -30,6 +28,35 @@ interface Request {
   /** Returns the URL of request as a string. */
   readonly url: string;
 }
+
+interface GodContext {
+  response: ResponseInfo | Response | null;
+  stream: ReadableStream | Promise<ReadableStream | null> | null;
+}
+
+interface StructuredDocument<T> {
+  request: RequestInfo;
+  response: Response | ResponseInfo | null;
+  data?: T;
+  error?: Error;
+}
+
+type Deferred<T> = {
+  resolve(v: T): void;
+  reject(v: unknown): void;
+  promise: Promise<T>;
+};
+
+type Future<T> = Promise<StructuredDocument<T>> & {
+  abort(): void;
+  getStream(): Promise<ReadableStream | null>;
+};
+
+type DeferredFuture<T> = {
+  resolve(v: StructuredDocument<T>): void;
+  reject(v: unknown): void;
+  promise: Future<T>;
+};
 
 interface RequestInfo extends Request {
   /**
@@ -87,7 +114,7 @@ export default class RequestManager {
         Object.freeze(handlers);
       }
     }
-    let promise = perform<T>(handlers, request);
+    let promise = executeNextHandler<T>(handlers, request, 0, { response: null, stream: null });
     if (macroCondition(isTesting())) {
       // const { waitForPromise } = importSync('ember-test-waiters');
       // promise = waitForPromise(promise);
@@ -100,49 +127,150 @@ export default class RequestManager {
   }
 }
 
-function createContext(request: RequestInfo): RequestContext {
-  const context = {
-    request,
-    setStream() {},
-    setResponse() {},
-  };
-  return context;
-}
+const IS_FUTURE = Symbol('IS_FUTURE');
 
 function isFuture<T>(maybe: Future<T> | Promise<T>): maybe is Future<T> {
-  return false;
+  return maybe[IS_FUTURE] === true;
 }
 
-async function perform<T>(wares: Readonly<Handler[]>, request: RequestInfo, i: number = 0): Future<T> {
+function createDeferred<T>(): Deferred<T> {
+  let resolve!: (v: T) => void;
+  let reject!: (v: unknown) => void;
+  let promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { resolve, reject, promise };
+}
+class ContextOwner {
+  hasSetStream = false;
+  hasSetResponse = false;
+  stream: ReadableStream | Promise<ReadableStream | null> | null = null;
+  response: ResponseInfo | Response | null = null;
+  request: RequestInfo;
+  nextCalled: number = 0;
+  god: GodContext;
+
+  constructor(request: RequestInfo, god: GodContext) {
+    this.request = request;
+    this.god = god;
+  }
+
+  getResponse(): ResponseInfo | Response | null;
+  getStream(): Promise<ReadableStream | null> {}
+  abort() {}
+
+  setStream(stream: ReadableStream | Promise<ReadableStream | null>) {
+    this.hasSetStream = true;
+    this.stream = stream;
+  }
+
+  setResponse(response: ResponseInfo | Response) {
+    this.hasSetResponse = true;
+    this.response = response;
+  }
+}
+
+function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
+  const deferred = createDeferred<T>() as unknown as DeferredFuture<T>;
+  const { promise } = deferred;
+  promise[IS_FUTURE] = true;
+  promise.getStream = () => {
+    return owner.getStream();
+  };
+  promise.abort = () => {
+    owner.abort();
+  };
+
+  return deferred;
+}
+
+class Context {
+  #owner: ContextOwner;
+  request: RequestInfo;
+
+  constructor(owner: ContextOwner) {
+    this.#owner = owner;
+    this.request = owner.request;
+  }
+  setStream(stream: ReadableStream) {
+    this.#owner.setStream(stream);
+  }
+  setResponse(response: ResponseInfo | Response) {
+    this.#owner.setResponse(response);
+  }
+}
+
+function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
+  owner.setStream(inbound.getStream());
+
+  inbound.then(
+    (doc: StructuredDocument<T>) => {
+      const document = {
+        request: owner.request,
+        response: doc.response,
+        data: doc.data!,
+      };
+      outbound.resolve(document);
+    },
+    (doc: StructuredDocument<T>) => {
+      const document = {
+        request: owner.request,
+        response: doc.response,
+        error: doc.error,
+      };
+      outbound.reject(document);
+    }
+  );
+  return outbound.promise;
+}
+
+function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbound: DeferredFuture<T>): Future<T> {
+  inbound.then(
+    (data: T) => {
+      const document = {
+        request: owner.request,
+        response: owner.getResponse(),
+        data,
+      };
+      outbound.resolve(document);
+    },
+    (error: Error) => {
+      outbound.reject({
+        request: owner.request,
+        response: owner.getResponse(),
+        error,
+      });
+    }
+  );
+  return outbound.promise;
+}
+
+function executeNextHandler<T>(
+  wares: Readonly<Handler[]>,
+  request: RequestInfo,
+  i: number,
+  god: GodContext
+): Future<T> {
   if (macroCondition(isDevelopingApp())) {
     if (i === wares.length) {
       throw new Error(`No handler was able to handle this request.`);
     }
   }
+  const owner = new ContextOwner(request, god);
 
-  let nextCalled = 0;
   function next(r: RequestInfo): Future<T> {
-    nextCalled++;
-    return perform(wares, r, i + 1);
-  }
-  const context = createContext(request);
-  const maybeFuture = wares[i].request<T>(context, next);
-
-  // if we immediately receive a Future, we curry in full
-  if (isFuture<T>(maybeFuture) && nextCalled === 1) {
-    // curry the future
-    // TODO don't curry request,
-    // return a new future
-    return maybeFuture;
+    owner.nextCalled++;
+    return executeNextHandler(wares, r, i + 1, owner);
   }
 
-  // create a new future
-  const future = createFuture<T>(maybeFuture);
+  const context = new Context(owner);
+  const outcome = wares[i].request<T>(context, next);
+  const future = createFuture<T>(owner);
 
-  const result = await maybeFuture;
-
-  if (nextCalled === 1) {
+  if (isFuture<T>(outcome)) {
+    return curryFuture(owner, outcome, future);
   }
 
-  return future;
+  return handleOutcome(owner, outcome, future);
 }

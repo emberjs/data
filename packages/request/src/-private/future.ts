@@ -2,7 +2,10 @@
  * @module @ember-data/request
  */
 export interface StructuredDocument<T> {
+  request: RequestInfo;
+  response: Response;
   data?: T;
+  error?: Error;
 }
 
 /**

@@ -37,10 +37,9 @@ Optionally, the Store can be configured to hydrate the response data into rich p
 
 ```mermaid
 flowchart LR
-    B(Model) -->A[fa:fa-terminal App] 
-    A ====> C{fa:fa-code-fork Store}
-    C --> B
-
+    A[fa:fa-terminal App] --- B(Model)
+    A === C{fa:fa-code-fork Store}
+    B --- C
     click B href "https://github.com/emberjs/data/tree/master/packages/model" "Go to @ember-data/model" _blank
     style B color:#58a6ff;
 ```
@@ -56,7 +55,7 @@ pnpm add @ember-data/store
 After installing you will want to configure your first `Store`. Read more below for how to create and configure stores for your application.
 
 
-## 🛠 Creating A Store
+## 🔨 Creating A Store
 
 To use a `Store` we will need to do few things: add a `Cache` to store data **in-memory**, add an `Adapter` to fetch data from a source, and implement `instantiateRecord` to tell the store how to display the data for individual resources. 
 

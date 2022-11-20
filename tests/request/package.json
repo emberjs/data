@@ -1,0 +1,87 @@
+{
+  "name": "request-test-app",
+  "version": "4.9.0-alpha.14",
+  "private": true,
+  "description": "Provides tests for the RequestManager",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/request"
+  },
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "ember build",
+    "start": "ember test --port=0 --serve --no-launch",
+    "test": "ember test --test-port=0"
+  },
+  "dependenciesMeta": {
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/canary-features": {
+      "injected": true
+    },
+    "@ember-data/private-build-infra": {
+      "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@babel/runtime": "^7.19.3",
+    "@ember-data/canary-features": "workspace:4.9.0-alpha.14",
+    "@ember-data/request": "workspace:4.9.0-alpha.14",
+    "@ember-data/private-build-infra": "workspace:4.9.0-alpha.14",
+    "@ember-data/unpublished-test-infra": "workspace:4.9.0-alpha.14",
+    "@ember/edition-utils": "^1.2.0",
+    "@ember/optional-features": "^2.0.0",
+    "@ember/string": "^3.0.0",
+    "@ember/test-helpers": "~2.8.1",
+    "@glimmer/component": "^1.1.2",
+    "@glimmer/tracking": "^1.1.2",
+    "broccoli-asset-rev": "^3.0.0",
+    "ember-auto-import": "^2.4.3",
+    "ember-cli": "~4.8.0",
+    "ember-cli-babel": "^7.26.11",
+    "ember-cli-blueprint-test-helpers": "^0.19.2",
+    "ember-cli-dependency-checker": "^3.3.1",
+    "ember-cli-htmlbars": "^6.1.1",
+    "ember-cli-inject-live-reload": "^2.1.0",
+    "ember-cli-sri": "^2.1.1",
+    "ember-cli-terser": "~4.0.2",
+    "ember-cli-test-loader": "^3.0.0",
+    "ember-disable-prototype-extensions": "^1.1.3",
+    "ember-export-application-global": "^2.0.1",
+    "ember-inflector": "^4.0.2",
+    "ember-load-initializers": "^2.1.2",
+    "ember-maybe-import-regenerator": "^1.0.0",
+    "ember-qunit": "^6.0.0",
+    "ember-resolver": "^8.0.3",
+    "ember-source": "~4.8.0",
+    "ember-source-channel-url": "^3.0.0",
+    "ember-try": "^2.0.0",
+    "loader.js": "^4.7.0",
+    "qunit": "^2.19.2",
+    "qunit-console-grouper": "^0.3.0",
+    "qunit-dom": "^2.0.0",
+    "silent-error": "^1.1.1",
+    "webpack": "^5.74.0"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "engines": {
+    "node": "^14.8.0 || 16.* || >= 18.*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@7.15.0"
+}
