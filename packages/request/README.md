@@ -346,6 +346,7 @@ If using the package [ember-data](https://github.com/emberjs/data/tree/master/pa
 ```ts
 import Store from '@ember-data/store';
 import RequestManager from '@ember-data/request';
+import LegacyHandler from '@ember-data/legacy-network-handler';
 
 export default class extends Store {
   requestManager = new RequestManager();

@@ -120,7 +120,7 @@ class extends Store {
   #adapter = null;
 
   adapterFor() {
-    let adapter = thsi.#adapter;
+    let adapter = this.#adapter;
     if (!adapter) {
       const owner = getOwner(this);
       adapter = new Adapter();
