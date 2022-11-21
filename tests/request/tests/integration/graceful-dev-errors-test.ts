@@ -118,4 +118,16 @@ module('RequestManager | Graceful Errors', function () {
       );
     }
   });
+
+  test('We error meaningfully for empty requests', function (assert) {
+    assert.ok(false, 'Not Implemented');
+  });
+
+  test('We error meaningfully for misshapen requests', function (assert) {
+    assert.ok(false, 'Not Implemented');
+  });
+
+  test('We error meaningfully for invalid properties', function (assert) {
+    assert.ok(false, 'Not Implemented');
+  });
 });
