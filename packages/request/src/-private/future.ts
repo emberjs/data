@@ -1,34 +1,32 @@
-/**
- * @module @ember-data/request
- */
-export interface StructuredDocument<T> {
-  request: RequestInfo;
-  response: Response;
-  data?: T;
-  error?: Error;
+import type { ContextOwner } from './context';
+import type { Deferred, DeferredFuture, Future } from './types';
+
+const IS_FUTURE = Symbol('IS_FUTURE');
+
+export function isFuture<T>(maybe: Future<T> | Promise<T>): maybe is Future<T> {
+  return maybe[IS_FUTURE] === true;
 }
 
-/**
- * @class Future
- */
-export interface Future<T> extends Promise<StructuredDocument<T>> {
-  /**
-   * Cancel this request by firing the AbortController's signal.
-   *
-   * @method abort
-   * @public
-   * @returns {void}
-   */
-  abort(): void;
-
-  /**
-   * Get the response stream, if any, once made available.
-   *
-   * @method getStream
-   * @public
-   * @returns {Promise<ReadableStream | null>}
-   */
-  getStream(): Promise<ReadableStream | null>;
+export function createDeferred<T>(): Deferred<T> {
+  let resolve!: (v: T) => void;
+  let reject!: (v: unknown) => void;
+  let promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { resolve, reject, promise };
 }
 
-export function createFuture<T>(promise: Promise<T>): Future<T> {}
+export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
+  const deferred = createDeferred<T>() as unknown as DeferredFuture<T>;
+  const { promise } = deferred;
+  promise[IS_FUTURE] = true;
+  promise.getStream = () => {
+    return owner.getStream();
+  };
+  promise.abort = () => {
+    owner.abort();
+  };
+
+  return deferred;
+}

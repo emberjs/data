@@ -20,7 +20,8 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "ember-cli-babel": "^7.26.11"
+    "ember-cli-babel": "^7.26.11",
+    "@embroider/macros": "^1.9.0"
   },
   "exports": {
     ".": "./addon/index.js",
@@ -44,7 +45,6 @@
   "peerDependencies": {},
   "devDependencies": {
     "@embroider/addon-dev": "^2.0.0",
-    "@embroider/macros": "^1.9.0",
     "rollup": "^3.2.3",
     "@babel/core": "^7.19.6",
     "@babel/cli": "^7.19.3",

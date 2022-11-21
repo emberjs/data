@@ -64,6 +64,8 @@
       "main-test-app/*": ["tests/main/app/*"],
       "graph-test-app/tests/*": ["tests/graph/tests/*"],
       "graph-test-app/*": ["tests/graph/app/*"],
+      "request-test-app/tests/*": ["tests/request/tests/*"],
+      "request-test-app/*": ["tests/request/app/*"],
       "*": ["@types/*", "packages/fastboot-test-app/types/*"],
       "ember-inflector": ["tests/main/node_modules/ember-inflector","packages/-ember-data/node_modules/ember-inflector"]
     }
