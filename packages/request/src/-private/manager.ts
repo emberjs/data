@@ -1,5 +1,6 @@
 import { isDevelopingApp, isTesting, macroCondition } from '@embroider/macros';
 
+import { assertValidRequest } from './debug';
 import { Future, GenericCreateArgs, Handler, RequestInfo } from './types';
 import { executeNextHandler } from './utils';
 
@@ -38,6 +39,7 @@ export class RequestManager {
       if (!Object.isFrozen(handlers)) {
         Object.freeze(handlers);
       }
+      assertValidRequest(request, true);
     }
     let promise = executeNextHandler<T>(handlers, request, 0, {
       controller: new AbortController(),

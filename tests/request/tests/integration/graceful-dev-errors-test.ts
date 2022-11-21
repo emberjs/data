@@ -119,8 +119,52 @@ module('RequestManager | Graceful Errors', function () {
     }
   });
 
-  test('We error meaningfully for empty requests', function (assert) {
-    assert.ok(false, 'Not Implemented');
+  test('We error meaningfully for empty requests', async function (assert) {
+    const manager = new RequestManager();
+    const handler = {
+      request<T>() {
+        return Promise.resolve('done' as T);
+      },
+    };
+    manager.use([handler]);
+
+    try {
+      // @ts-expect-error
+      await manager.request();
+      assert.ok(false, 'we should error when the request is missing');
+    } catch (e: unknown) {
+      assert.true(e instanceof Error, 'We throw an error when the request is missing');
+      assert.strictEqual(
+        (e as Error).message,
+        'Expected RequestManager.request(<request>) to be called with a request, but none was provided.',
+        `Expected: ${(e as Error).message} - to match the expected error`
+      );
+    }
+
+    try {
+      // @ts-expect-error
+      await manager.request([]);
+      assert.ok(false, 'we should error when the request is not an object');
+    } catch (e: unknown) {
+      assert.true(e instanceof Error, 'We throw an error when the request is not an object');
+      assert.strictEqual(
+        (e as Error).message,
+        'The `request` passed to `RequestManager.request(<request>)` should be an object, received `array`',
+        `Expected: ${(e as Error).message} - to match the expected error`
+      );
+    }
+
+    try {
+      await manager.request({});
+      assert.ok(false, 'we should error when the request has no keys');
+    } catch (e: unknown) {
+      assert.true(e instanceof Error, 'We throw an error when the request has no keys');
+      assert.strictEqual(
+        (e as Error).message,
+        'The `request` passed to `RequestManager.request(<request>)` was empty (`{}`). Requests need at least one valid key.',
+        `Expected: ${(e as Error).message} - to match the expected error`
+      );
+    }
   });
 
   test('We error meaningfully for misshapen requests', function (assert) {
