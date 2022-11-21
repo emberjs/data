@@ -20,7 +20,7 @@ module('RequestManager | Basic Setup', function () {
     let calls = 0;
     manager.use([
       {
-        request<T>(req, next) {
+        request<T>(req: HandlerRequestContext, next: NextFn<T>) {
           calls++;
           return Promise.resolve('success!' as T);
         },

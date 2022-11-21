@@ -1,6 +1,7 @@
 import { isDevelopingApp, macroCondition } from '@embroider/macros';
 
 import { Context, ContextOwner } from './context';
+import { assertValidRequest } from './debug';
 import { createFuture, isFuture } from './future';
 import type {
   DeferredFuture,
@@ -66,6 +67,7 @@ export function executeNextHandler<T>(
     if (i === wares.length) {
       throw new Error(`No handler was able to handle this request.`);
     }
+    assertValidRequest(request, false);
   }
   const owner = new ContextOwner(request, god);
 
@@ -75,7 +77,7 @@ export function executeNextHandler<T>(
   }
 
   const context = new Context(owner);
-  let outcome: Promise<T>;
+  let outcome: Promise<T> | Future<T>;
   try {
     outcome = wares[i].request<T>(context, next);
     if (macroCondition(isDevelopingApp())) {
@@ -89,7 +91,7 @@ export function executeNextHandler<T>(
       }
     }
   } catch (e) {
-    outcome = Promise.reject(e);
+    outcome = Promise.reject<T>(e);
   }
   const future = createFuture<T>(owner);
 

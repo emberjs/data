@@ -104,7 +104,7 @@ export interface RequestContext {
 
 export type NextFn<P = unknown> = (req: RequestInfo) => Future<P>;
 export interface Handler {
-  request<T = unknown>(context: RequestContext, next: NextFn<T>): Promise<T>;
+  request<T = unknown>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T>;
 }
 
 export interface RequestResponse<T> {

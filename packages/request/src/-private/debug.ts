@@ -67,6 +67,43 @@ function isMaybeContext(request: unknown) {
   return false;
 }
 
+function niceTypeOf(v: unknown) {
+  if (v === null) {
+    return 'null';
+  }
+  if (typeof v === 'string') {
+    return v ? 'non-empty-string' : 'empty-string';
+  }
+  if (!v) {
+    return typeof v;
+  }
+  if (Array.isArray(v)) {
+    return 'array';
+  }
+  if (v instanceof Date) {
+    return 'date';
+  }
+  if (v instanceof Map) {
+    return 'map';
+  }
+  if (v instanceof Set) {
+    return 'set';
+  }
+  if (v instanceof Error) {
+    return 'error';
+  }
+  if (v instanceof ReadableStream || v instanceof WritableStream || v instanceof TransformStream) {
+    return 'stream';
+  }
+  if (v instanceof Headers) {
+    return 'headers';
+  }
+  if (typeof v === 'object' && v.constructor) {
+    return v.constructor.name;
+  }
+  return typeof v;
+}
+
 function validateKey(key: string, value: unknown, errors: string[]) {
   const schema = ValidKeys.get(key);
   if (!schema && !IgnoredKeys.has(key)) {
@@ -78,7 +115,7 @@ function validateKey(key: string, value: unknown, errors: string[]) {
       if (!schema.includes(value as string)) {
         errors.push(
           `InvalidValue: key ${key} should be a one of '${schema.join("', '")}', received ${
-            typeof value === 'string' ? value : '<a value of type ' + typeof value + '>'
+            typeof value === 'string' ? value : '<a value of type ' + niceTypeOf(value) + '>'
           }`
         );
       }
@@ -96,20 +133,22 @@ function validateKey(key: string, value: unknown, errors: string[]) {
       return;
     } else if (schema === 'record') {
       const _type = typeof value;
-      if (!value || _type !== 'object' || Array.isArray(value)) {
+      // record must extend plain object or Object.create(null)
+      if (!value || _type !== 'object' || (value.constructor && value.constructor !== Object)) {
         errors.push(
-          `InvalidValue: key ${key} should be a dictionary of string keys to string values, received ${
-            value ? (Array.isArray(value) ? 'array' : _type) : 'null'
-          }`
+          `InvalidValue: key ${key} should be a dictionary of string keys to string values, received ${niceTypeOf(
+            value
+          )}`
         );
         return;
       }
       const keys = Object.keys(value);
       keys.forEach((k) => {
+        let v: unknown = value[k];
         if (typeof k !== 'string') {
           errors.push(`\tThe key ${String(k)} on ${key} should be a string key`);
-        } else if (typeof value[k] !== 'string') {
-          errors.push(`\tThe value of ${key}.${k} should be a string`);
+        } else if (typeof v !== 'string') {
+          errors.push(`\tThe value of ${key}.${k} should be a string not ${niceTypeOf(v)}`);
         }
       });
       return;
@@ -155,7 +194,7 @@ export function assertValidRequest(
       throw new Error(
         `The \`request\` passed to \`${
           isTopLevel ? 'RequestManager.request' : 'next'
-        }(<request>)\` should be an object, received \`${Array.isArray(request) ? 'array' : typeof request}\``
+        }(<request>)\` should be an object, received \`${niceTypeOf(request)}\``
       );
     }
     if (Object.keys(request).length === 0) {
