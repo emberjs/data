@@ -13,12 +13,15 @@ import type {
   StructuredErrorDocument,
 } from './types';
 
+const STRUCTURED = Symbol('DOC');
+
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());
 
   inbound.then(
     (doc: StructuredDataDocument<T>) => {
       const document = {
+        [STRUCTURED]: true,
         request: owner.request,
         response: doc.response,
         data: doc.data,
@@ -27,6 +30,7 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
     },
     (doc: StructuredErrorDocument) => {
       const document = new Error(doc.message) as unknown as StructuredErrorDocument;
+      document[STRUCTURED] = true;
       document.stack = doc.stack;
       document.request = owner.request;
       document.response = owner.response;
@@ -38,10 +42,19 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
   return outbound.promise;
 }
 
+function isDoc<T>(doc: T | StructuredDataDocument<T>): doc is StructuredDataDocument<T> {
+  return doc[STRUCTURED] === true;
+}
+
 export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbound: DeferredFuture<T>): Future<T> {
   inbound.then(
     (data: T) => {
+      if (isDoc(data)) {
+        owner.setStream(owner.god.stream);
+        data = data.data;
+      }
       const document = {
+        [STRUCTURED]: true,
         request: owner.request,
         response: owner.getResponse(),
         data,
@@ -49,6 +62,10 @@ export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbo
       outbound.resolve(document);
     },
     (error: Error & StructuredErrorDocument) => {
+      if (isDoc(error)) {
+        owner.setStream(owner.god.stream);
+      }
+      error[STRUCTURED] = true;
       error.request = owner.request;
       error.response = owner.getResponse();
       error.error = error.error || error.message;

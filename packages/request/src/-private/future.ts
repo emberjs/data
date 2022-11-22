@@ -3,7 +3,7 @@ import type { Deferred, DeferredFuture, Future } from './types';
 
 const IS_FUTURE = Symbol('IS_FUTURE');
 
-export function isFuture<T>(maybe: Future<T> | Promise<T>): maybe is Future<T> {
+export function isFuture<T>(maybe: T | Future<T> | Promise<T>): maybe is Future<T> {
   return maybe[IS_FUTURE] === true;
 }
 
@@ -19,7 +19,10 @@ export function createDeferred<T>(): Deferred<T> {
 
 export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   const deferred = createDeferred<T>() as unknown as DeferredFuture<T>;
-  const { promise } = deferred;
+  let { promise } = deferred;
+  promise = promise.finally(() => {
+    owner.resolveStream();
+  }) as Future<T>;
   promise[IS_FUTURE] = true;
   promise.getStream = () => {
     return owner.getStream();
@@ -27,6 +30,6 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   promise.abort = () => {
     owner.abort();
   };
-
+  deferred.promise = promise;
   return deferred;
 }

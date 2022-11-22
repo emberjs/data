@@ -35,14 +35,12 @@ module('RequestManager | Error Propagation', function () {
     assert.strictEqual(data, 'We are happy', 'we caught and handled the error');
   });
 
-  test('Errors thrown by a handler curry the requestproperly', async function (assert) {
+  test('Errors thrown by a handler curry the request properly', async function (assert) {
     assert.expect(4);
     const manager = new RequestManager();
     const curryingHandler: Handler = {
-      // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.ok(true, 'catching handler triggered');
-        // await to catch, else error is curried
         return next({ url: '/curried' });
       },
     };
@@ -65,7 +63,7 @@ module('RequestManager | Error Propagation', function () {
     }
   });
 
-  test('The `request` and `response` on errors is update correctly when an error is not caught by the preceding handler', async function (assert) {
+  test('The `request` and `response` on errors is updated correctly when an error is not caught by the preceding handler', async function (assert) {
     assert.expect(4);
     const manager = new RequestManager();
     const catchingHandler: Handler = {

@@ -7,6 +7,7 @@ import type { Deferred, GodContext, ImmutableHeaders, ImmutableRequestInfo, Requ
 export class ContextOwner {
   hasSetStream = false;
   hasSetResponse = false;
+  hasSubscribers = false;
   stream: Deferred<ReadableStream | null> = createDeferred<ReadableStream | null>();
   response: ResponseInfo | Response | null = null;
   request: ImmutableRequestInfo;
@@ -25,23 +26,39 @@ export class ContextOwner {
     }
     this.request = request as ImmutableRequestInfo;
     this.god = god;
+    this.stream.promise = this.stream.promise.then((stream: ReadableStream | null) => {
+      if (this.god.stream === stream && this.hasSubscribers) {
+        this.god.stream = null;
+      }
+      return stream;
+    });
   }
 
   getResponse(): ResponseInfo | Response | null {
     return this.response;
   }
   getStream(): Promise<ReadableStream | null> {
+    this.hasSubscribers = true;
     return this.stream.promise;
   }
   abort() {
     this.god.controller.abort();
   }
 
-  setStream(stream: ReadableStream | Promise<ReadableStream | null>) {
+  setStream(stream: ReadableStream | Promise<ReadableStream | null> | null) {
     if (!this.hasSetStream) {
       this.hasSetStream = true;
-      this.stream;
+
+      if (!(stream instanceof Promise)) {
+        this.god.stream = stream;
+      }
+      // @ts-expect-error
+      this.stream.resolve(stream);
     }
+  }
+
+  resolveStream() {
+    this.setStream(this.nextCalled === 1 ? this.god.stream : null);
   }
 
   setResponse(response: ResponseInfo | Response) {
@@ -58,7 +75,7 @@ export class Context {
     this.#owner = owner;
     this.request = owner.request;
   }
-  setStream(stream: ReadableStream) {
+  setStream(stream: ReadableStream | Promise<ReadableStream | null>) {
     this.#owner.setStream(stream);
   }
   setResponse(response: ResponseInfo | Response) {
