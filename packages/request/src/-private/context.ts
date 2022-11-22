@@ -2,22 +2,28 @@ import { isDevelopingApp, macroCondition } from '@embroider/macros';
 
 import { deepFreeze } from './debug';
 import { createDeferred } from './future';
-import type { Deferred, GodContext, RequestInfo, ResponseInfo } from './types';
+import type { Deferred, GodContext, ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from './types';
 
 export class ContextOwner {
   hasSetStream = false;
   hasSetResponse = false;
   stream: Deferred<ReadableStream | null> = createDeferred<ReadableStream | null>();
   response: ResponseInfo | Response | null = null;
-  request: RequestInfo;
+  request: ImmutableRequestInfo;
   nextCalled: number = 0;
   god: GodContext;
 
   constructor(request: RequestInfo, god: GodContext) {
     if (macroCondition(isDevelopingApp())) {
-      request = deepFreeze(request) as RequestInfo;
+      request = deepFreeze(request) as ImmutableRequestInfo;
+    } else {
+      if (request.headers) {
+        (request.headers as ImmutableHeaders).clone = () => {
+          return new Headers([...request.headers!.entries()]);
+        };
+      }
     }
-    this.request = request;
+    this.request = request as ImmutableRequestInfo;
     this.god = god;
   }
 
@@ -46,7 +52,7 @@ export class ContextOwner {
 
 export class Context {
   #owner: ContextOwner;
-  request: RequestInfo;
+  request: ImmutableRequestInfo;
 
   constructor(owner: ContextOwner) {
     this.#owner = owner;

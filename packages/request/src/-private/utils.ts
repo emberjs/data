@@ -26,11 +26,12 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
       outbound.resolve(document);
     },
     (doc: StructuredErrorDocument) => {
-      const document = {
-        request: owner.request,
-        response: doc.response,
-        error: doc.error,
-      };
+      const document = new Error(doc.message) as unknown as StructuredErrorDocument;
+      document.stack = doc.stack;
+      document.request = owner.request;
+      document.response = owner.response;
+      document.error = doc.error || doc.message;
+
       outbound.reject(document);
     }
   );
@@ -50,7 +51,7 @@ export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbo
     (error: Error & StructuredErrorDocument) => {
       error.request = owner.request;
       error.response = owner.getResponse();
-      error.error = error;
+      error.error = error.error || error.message;
       outbound.reject(error);
     }
   );

@@ -1,7 +1,7 @@
 import { isDevelopingApp, macroCondition } from '@embroider/macros';
 
 import { Context } from './context';
-import type { RequestInfo } from './types';
+import type { ImmutableHeaders, RequestInfo } from './types';
 
 const ValidKeys = new Map<string, string | string[]>([
   ['data', 'json'],
@@ -57,7 +57,6 @@ const ValidKeys = new Map<string, string | string[]>([
   ],
 ]);
 
-type ImmutableHeaders = Headers & { clone(): Headers };
 const IS_FROZEN = Symbol('FROZEN');
 
 function freezeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
