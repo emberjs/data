@@ -352,7 +352,7 @@ importers:
       ember-cli-test-info: ^1.0.0
       ember-compatibility-helpers: ^1.2.6
       ember-source: ~4.8.2
-      inflection: ~1.13.4
+      inflection: ~2.0.0
       webpack: ^5.75.0
     dependencies:
       '@ember-data/canary-features': file:packages/canary-features
@@ -365,7 +365,7 @@ importers:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-compatibility-helpers: 1.2.6_@babel+core@7.20.2
-      inflection: 1.13.4
+      inflection: 2.0.0
     devDependencies:
       '@babel/core': 7.20.2
       '@glimmer/component': 1.1.2_@babel+core@7.20.2
@@ -10515,6 +10515,10 @@ packages:
     resolution: {integrity: sha512-6I/HUDeYFfuNCVS3td055BaXBwKYuzw7K3ExVMStBowKo9oOAMJIXIHvdyR3iboTCp1b+1i5DSkIZTcwIktuDw==}
     engines: {'0': node >= 0.4.0}
 
+  /inflection/2.0.0:
+    resolution: {integrity: sha512-omnh6uoxorVM2tC8hDAjs2gUAqP2riJO8ZZc/TIgXIMZjR7a+/HMU+KtuAZYkMb5S6oqsZilr9du3r72eFdgjA==}
+    engines: {node: '>=14.0.0'}
+
   /inflight/1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
     dependencies:
@@ -15330,7 +15334,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-compatibility-helpers: 1.2.6
-      inflection: 1.13.4
+      inflection: 2.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - ember-source
@@ -15368,7 +15372,7 @@ packages:
       ember-cli-test-info: 1.0.0
       ember-compatibility-helpers: 1.2.6_@babel+core@7.19.6
       ember-inflector: 4.0.2
-      inflection: 1.13.4
+      inflection: 2.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - ember-source
@@ -15406,7 +15410,7 @@ packages:
       ember-cli-test-info: 1.0.0
       ember-compatibility-helpers: 1.2.6_@babel+core@7.20.2
       ember-inflector: 4.0.2
-      inflection: 1.13.4
+      inflection: 2.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - ember-source
@@ -15445,7 +15449,7 @@ packages:
       ember-cli-test-info: 1.0.0
       ember-compatibility-helpers: 1.2.6_@babel+core@7.19.6
       ember-inflector: 4.0.2
-      inflection: 1.13.4
+      inflection: 2.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - ember-source
