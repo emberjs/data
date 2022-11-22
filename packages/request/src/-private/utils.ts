@@ -49,6 +49,11 @@ function isDoc<T>(doc: T | StructuredDataDocument<T>): doc is StructuredDataDocu
 export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbound: DeferredFuture<T>): Future<T> {
   inbound.then(
     (data: T) => {
+      if (owner.controller.signal.aborted) {
+        // the next function did not respect the signal, we handle it here
+        outbound.reject(new DOMException((owner.controller.signal.reason as string) || 'AbortError'));
+        return;
+      }
       if (isDoc(data)) {
         owner.setStream(owner.god.stream);
         data = data.data;

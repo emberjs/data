@@ -4,14 +4,18 @@ import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Future, Handler, NextFn, RequestInfo } from '@ember-data/request/-private/types';
 
-module('RequestManager | Abort', function () {
+module('RequestManager | Custom Abort', function () {
   test('We can abort requests', async function (assert) {
-    assert.expect(2);
+    assert.expect(4);
     const manager = new RequestManager();
+    const controller = new AbortController();
     const handler: Handler = {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal');
+        assert.strictEqual(context.request.signal, controller.signal, 'we receive the correct signal');
+        // @ts-expect-error
+        assert.strictEqual(context.request.controller, undefined, 'we do not receive the controller');
         const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
@@ -19,7 +23,7 @@ module('RequestManager | Abort', function () {
     };
     manager.use([handler]);
 
-    const future = manager.request({ url: '../assets/demo-fetch.json' });
+    const future = manager.request({ url: '../assets/demo-fetch.json', controller });
 
     try {
       future.abort();
@@ -31,14 +35,17 @@ module('RequestManager | Abort', function () {
   });
 
   test('We can abort requests called via next', async function (assert) {
-    assert.expect(3);
+    assert.expect(7);
     const manager = new RequestManager();
+    const controller = new AbortController();
     const handler1: Handler = {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         const future = next(context.request);
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler1');
-
+        assert.strictEqual(context.request.signal, controller.signal, 'we receive the correct signal');
+        // @ts-expect-error
+        assert.strictEqual(context.request.controller, undefined, 'we do not receive the controller');
         return (await future).data;
       },
     };
@@ -46,6 +53,9 @@ module('RequestManager | Abort', function () {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler2');
+        assert.strictEqual(context.request.signal, controller.signal, 'we receive the correct signal');
+        // @ts-expect-error
+        assert.strictEqual(context.request.controller, undefined, 'we do not receive the controller');
         const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
@@ -53,7 +63,7 @@ module('RequestManager | Abort', function () {
     };
     manager.use([handler1, handler2]);
 
-    const future = manager.request({ url: '../assets/demo-fetch.json' });
+    const future = manager.request({ url: '../assets/demo-fetch.json', controller });
 
     try {
       future.abort();
@@ -64,17 +74,15 @@ module('RequestManager | Abort', function () {
     }
   });
 
-  test("We can abort tee'd requests called via next", async function (assert) {
-    assert.expect(5);
+  test('We can provide a different abort controller from a handler', async function (assert) {
+    assert.expect(3);
     const manager = new RequestManager();
     const handler1: Handler = {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
-        const future = next(context.request);
-        const future2 = next(context.request);
-        const future3 = next(context.request);
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler1');
-        await Promise.all([future, future2, future3]);
+        const controller = new AbortController();
+        const future = next(Object.assign({ controller }, context.request, { signal: controller.signal }));
 
         return (await future).data;
       },
@@ -107,7 +115,8 @@ module('RequestManager | Abort', function () {
     const handler1: Handler = {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
-        const future = next(context.request);
+        const controller = new AbortController();
+        const future = next(Object.assign({ controller }, context.request));
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler1');
 
         return (await future).data;

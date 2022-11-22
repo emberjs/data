@@ -41,6 +41,8 @@ const ValidKeys = new Map<string, string | string[]>([
   ['mode', ['same-origin', 'cors', 'navigate', 'no-cors']],
   ['redirect', ['error', 'follow', 'manual']],
   ['referrer', 'string'],
+  ['signal', 'AbortSignal'],
+  ['controller', 'AbortController'],
   [
     'referrerPolicy',
     [
@@ -105,6 +107,8 @@ export function deepFreeze<T = unknown>(value: T): unknown {
           return Object.freeze(value);
         case 'headers':
           return freezeHeaders(value as Headers);
+        case 'AbortSignal':
+          return value;
         case 'date':
         case 'map':
         case 'set':
@@ -240,7 +244,7 @@ function validateKey(key: string, value: unknown, errors: string[]) {
   }
 }
 
-const IgnoredKeys = new Set(['signal']);
+const IgnoredKeys = new Set<string>([]);
 
 export function assertValidRequest(
   request: RequestInfo | Context,

@@ -11,12 +11,28 @@ export class ContextOwner {
   stream: Deferred<ReadableStream | null> = createDeferred<ReadableStream | null>();
   response: ResponseInfo | Response | null = null;
   request: ImmutableRequestInfo;
+  enhancedRequest: ImmutableRequestInfo;
   nextCalled: number = 0;
   god: GodContext;
+  controller: AbortController;
 
   constructor(request: RequestInfo, god: GodContext) {
+    this.controller = request.controller || god.controller;
+    if (request.controller) {
+      if (request.controller !== god.controller) {
+        god.controller.signal.addEventListener('abort', () => {
+          this.controller.abort();
+        });
+      }
+      delete request.controller;
+    }
+    let enhancedRequest: ImmutableRequestInfo = Object.assign(
+      { signal: god.controller.signal },
+      request
+    ) as ImmutableRequestInfo;
     if (macroCondition(isDevelopingApp())) {
       request = deepFreeze(request) as ImmutableRequestInfo;
+      enhancedRequest = deepFreeze(enhancedRequest) as ImmutableRequestInfo;
     } else {
       if (request.headers) {
         (request.headers as ImmutableHeaders).clone = () => {
@@ -24,6 +40,7 @@ export class ContextOwner {
         };
       }
     }
+    this.enhancedRequest = enhancedRequest;
     this.request = request as ImmutableRequestInfo;
     this.god = god;
     this.stream.promise = this.stream.promise.then((stream: ReadableStream | null) => {
@@ -42,7 +59,7 @@ export class ContextOwner {
     return this.stream.promise;
   }
   abort() {
-    this.god.controller.abort();
+    this.controller.abort();
   }
 
   setStream(stream: ReadableStream | Promise<ReadableStream | null> | null) {
@@ -73,7 +90,7 @@ export class Context {
 
   constructor(owner: ContextOwner) {
     this.#owner = owner;
-    this.request = owner.request;
+    this.request = owner.enhancedRequest;
   }
   setStream(stream: ReadableStream | Promise<ReadableStream | null>) {
     this.#owner.setStream(stream);

@@ -2,6 +2,7 @@
  * @module @ember-data/request
  */
 interface Request {
+  controller?: AbortController;
   /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. */
   cache?: RequestCache;
   /** Returns the credentials mode associated with request, which is a string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. */
