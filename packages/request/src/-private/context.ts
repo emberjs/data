@@ -1,3 +1,6 @@
+import { isDevelopingApp, macroCondition } from '@embroider/macros';
+
+import { deepFreeze } from './debug';
 import { createDeferred } from './future';
 import type { Deferred, GodContext, RequestInfo, ResponseInfo } from './types';
 
@@ -11,6 +14,9 @@ export class ContextOwner {
   god: GodContext;
 
   constructor(request: RequestInfo, god: GodContext) {
+    if (macroCondition(isDevelopingApp())) {
+      request = deepFreeze(request) as RequestInfo;
+    }
     this.request = request;
     this.god = god;
   }

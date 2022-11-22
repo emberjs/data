@@ -9,7 +9,7 @@ interface Request {
   /** Returns the kind of resource requested by request, e.g., "document" or "script". */
   destination?: RequestDestination;
   /** Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header. */
-  headers?: Record<string, string>;
+  headers?: Headers;
   /** Returns request's subresource integrity metadata, which is a cryptographic hash of the resource being fetched. Its value consists of multiple hashes separated by whitespace. [SRI] */
   integrity?: string;
   /** Returns a boolean indicating whether or not request can outlive the global in which it was created. */

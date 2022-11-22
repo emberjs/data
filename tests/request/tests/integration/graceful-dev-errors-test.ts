@@ -208,6 +208,12 @@ module('RequestManager | Graceful Errors', function () {
 
   test('We error meaningfully for misshapen requests', async function (assert) {
     const manager = new RequestManager();
+    const handler: Handler = {
+      request<T>(_context: Context, _next: NextFn<T>): Promise<T> {
+        return Promise.resolve<T>('done' as T);
+      },
+    };
+    manager.use([handler]);
 
     try {
       await manager.request({
@@ -252,7 +258,7 @@ The following issues were found:
 \tInvalidValue: key cache should be a one of 'default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload', received bogus
 \tInvalidValue: key credentials should be a one of 'include', 'omit', 'same-origin', received never
 \tInvalidValue: key destination should be a one of '', 'object', 'audio', 'audioworklet', 'document', 'embed', 'font', 'frame', 'iframe', 'image', 'manifest', 'paintworklet', 'report', 'script', 'sharedworker', 'style', 'track', 'video', 'worker', 'xslt', received space
-\tInvalidValue: key headers should be a dictionary of string keys to string values, received map
+\tInvalidValue: key headers should be an instance of Headers, received map
 \tInvalidValue: key integrity should be a non-empty string, received boolean
 \tInvalidValue: key keepalive should be a boolean, received string
 \tInvalidValue: key method should be a one of 'GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS', received get
@@ -260,52 +266,6 @@ The following issues were found:
 \tInvalidValue: key redirect should be a one of 'error', 'follow', 'manual', received of course
 \tInvalidValue: key referrer should be a non-empty string, received object
 \tInvalidValue: key referrerPolicy should be a one of '', 'same-origin', 'no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'strict-origin', 'strict-origin-when-cross-origin', 'unsafe-url', received do-whatever`,
-        (e as Error).message,
-        `Expected\n\`\`\`\n${(e as Error).message}\n\`\`\` to match the expected error`
-      );
-    }
-  });
-
-  test('We error meaningfully for misshapen headers', async function (assert) {
-    const manager = new RequestManager();
-
-    try {
-      await manager.request({
-        headers: {
-          // @ts-expect-error
-          '1': true,
-          // @ts-expect-error
-          '2': null,
-          // @ts-expect-error
-          '3': false,
-          // @ts-expect-error
-          '4': 0,
-          // @ts-expect-error
-          a: {},
-          // @ts-expect-error
-          b: [],
-          // @ts-expect-error
-          c: undefined,
-          // @ts-expect-error
-          d: new Map(),
-        },
-      });
-      assert.ok(false, 'we should error when the handler returns undefined');
-    } catch (e: unknown) {
-      assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
-        `Invalid Request passed to \`RequestManager.request(<request>)\`.
-
-The following issues were found:
-
-\t\tThe value of headers.1 should be a string not boolean
-\t\tThe value of headers.2 should be a string not null
-\t\tThe value of headers.3 should be a string not boolean
-\t\tThe value of headers.4 should be a string not number
-\t\tThe value of headers.a should be a string not Object
-\t\tThe value of headers.b should be a string not array
-\t\tThe value of headers.c should be a string not undefined
-\t\tThe value of headers.d should be a string not map`,
         (e as Error).message,
         `Expected\n\`\`\`\n${(e as Error).message}\n\`\`\` to match the expected error`
       );

@@ -34,7 +34,7 @@ const ValidKeys = new Map<string, string | string[]>([
       'xslt',
     ],
   ],
-  ['headers', 'record'],
+  ['headers', 'headers'],
   ['integrity', 'string'],
   ['keepalive', 'boolean'],
   ['method', ['GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS']],
@@ -56,6 +56,67 @@ const ValidKeys = new Map<string, string | string[]>([
     ],
   ],
 ]);
+
+type ImmutableHeaders = Headers & { clone(): Headers };
+const IS_FROZEN = Symbol('FROZEN');
+
+function freezeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
+  headers.delete =
+    headers.set =
+    headers.append =
+      () => {
+        throw new Error(`Cannot Mutate Immutatable Headers, use headers.clone to get a copy`);
+      };
+  (headers as ImmutableHeaders).clone = () => {
+    return new Headers([...headers.entries()]);
+  };
+  return headers as ImmutableHeaders;
+}
+
+export function deepFreeze<T = unknown>(value: T): unknown {
+  if (value && value[IS_FROZEN]) {
+    return value;
+  }
+  const _type = typeof value;
+  switch (_type) {
+    case 'boolean':
+    case 'string':
+    case 'number':
+    case 'symbol':
+    case 'undefined':
+    case 'bigint':
+      return value;
+    case 'function':
+      throw new Error(`Cannot deep-freeze a function`);
+    case 'object': {
+      const _niceType = niceTypeOf(value);
+      switch (_niceType) {
+        case 'array': {
+          const arr = (value as unknown[]).map(deepFreeze);
+          arr[IS_FROZEN] = true;
+          return Object.freeze(arr);
+        }
+        case 'null':
+          return value;
+        case 'object':
+          Object.keys(value as {}).forEach((key) => {
+            (value as {})[key] = deepFreeze((value as {})[key]);
+          });
+          value[IS_FROZEN] = true;
+          return Object.freeze(value);
+        case 'headers':
+          return freezeHeaders(value as Headers);
+        case 'date':
+        case 'map':
+        case 'set':
+        case 'error':
+        case 'stream':
+        default:
+          throw new Error(`Cannot deep-freeze ${_niceType}`);
+      }
+    }
+  }
+}
 
 function isMaybeContext(request: unknown) {
   if (request && typeof request === 'object') {
@@ -98,7 +159,7 @@ function niceTypeOf(v: unknown) {
   if (v instanceof Headers) {
     return 'headers';
   }
-  if (typeof v === 'object' && v.constructor) {
+  if (typeof v === 'object' && v.constructor && v.constructor.name !== 'Object') {
     return v.constructor.name;
   }
   return typeof v;
@@ -129,6 +190,11 @@ function validateKey(key: string, value: unknown, errors: string[]) {
             (e as Error).message
           }`
         );
+      }
+      return;
+    } else if (schema === 'headers') {
+      if (!(value instanceof Headers)) {
+        errors.push(`InvalidValue: key ${key} should be an instance of Headers, received ${niceTypeOf(value)}`);
       }
       return;
     } else if (schema === 'record') {

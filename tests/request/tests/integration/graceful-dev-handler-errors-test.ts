@@ -113,7 +113,7 @@ The following issues were found:
 \tInvalidValue: key cache should be a one of 'default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload', received bogus
 \tInvalidValue: key credentials should be a one of 'include', 'omit', 'same-origin', received never
 \tInvalidValue: key destination should be a one of '', 'object', 'audio', 'audioworklet', 'document', 'embed', 'font', 'frame', 'iframe', 'image', 'manifest', 'paintworklet', 'report', 'script', 'sharedworker', 'style', 'track', 'video', 'worker', 'xslt', received space
-\tInvalidValue: key headers should be a dictionary of string keys to string values, received map
+\tInvalidValue: key headers should be an instance of Headers, received map
 \tInvalidValue: key integrity should be a non-empty string, received boolean
 \tInvalidValue: key keepalive should be a boolean, received string
 \tInvalidValue: key method should be a one of 'GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS', received get
@@ -121,56 +121,6 @@ The following issues were found:
 \tInvalidValue: key redirect should be a one of 'error', 'follow', 'manual', received of course
 \tInvalidValue: key referrer should be a non-empty string, received object
 \tInvalidValue: key referrerPolicy should be a one of '', 'same-origin', 'no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'strict-origin', 'strict-origin-when-cross-origin', 'unsafe-url', received do-whatever`,
-        (e as Error).message,
-        `Expected\n\`\`\`\n${(e as Error).message}\n\`\`\` to match the expected error`
-      );
-    }
-  });
-
-  test('We error meaningfully for misshapen headers', async function (assert) {
-    const manager = new RequestManager();
-    let called = false;
-    let nextArg: unknown = undefined;
-    const handler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
-        called = true;
-        // @ts-expect-error
-        return nextArg ? next(nextArg) : next();
-      },
-    };
-    manager.use([handler, handler]);
-
-    try {
-      nextArg = {
-        headers: {
-          '1': true,
-          '2': null,
-          '3': false,
-          '4': 0,
-          a: {},
-          b: [],
-          c: undefined,
-          d: new Map(),
-        },
-      };
-      await manager.request({ url: '/wat' });
-      assert.ok(false, 'we should error when the handler returns undefined');
-    } catch (e: unknown) {
-      assert.true(called, 'we invoked the handler');
-      assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
-        `Invalid Request passed to \`next(<request>)\`.
-
-The following issues were found:
-
-\t\tThe value of headers.1 should be a string not boolean
-\t\tThe value of headers.2 should be a string not null
-\t\tThe value of headers.3 should be a string not boolean
-\t\tThe value of headers.4 should be a string not number
-\t\tThe value of headers.a should be a string not Object
-\t\tThe value of headers.b should be a string not array
-\t\tThe value of headers.c should be a string not undefined
-\t\tThe value of headers.d should be a string not map`,
         (e as Error).message,
         `Expected\n\`\`\`\n${(e as Error).message}\n\`\`\` to match the expected error`
       );
