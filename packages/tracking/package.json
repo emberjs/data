@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "addons/tracking"
+    "directory": "packages/tracking"
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
@@ -23,11 +23,6 @@
   },
   "dependencies": {
     "ember-cli-babel": "^7.26.11"
-  },
-  "exports": {
-    ".": "./addon/index.js",
-    "./*": "./addon/*",
-    "./addon-main.js": "./addon-main.js"
   },
   "files": [
     "addon-main.js",
