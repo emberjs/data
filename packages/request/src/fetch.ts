@@ -1,7 +1,8 @@
 /**
  * @module @ember-data/request/fetch
  */
-import type { RequestContext } from './index';
+
+import type { Context } from './-private/context';
 
 /**
  * A basic handler which onverts a request into a
@@ -17,8 +18,8 @@ import type { RequestContext } from './index';
  * @public
  */
 export default {
-  async request(context: RequestContext) {
-    const response = await fetch(context.request.url, context.request);
+  async request(context: Context) {
+    const response = await fetch(context.request.url!, context.request);
     context.setResponse(response);
 
     return response.json();
