@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "addons/tracking"
+    "directory": "packages/tracking"
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
@@ -24,15 +24,10 @@
   "dependencies": {
     "ember-cli-babel": "^7.26.11"
   },
-  "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*",
-    "./addon-main.js": "./addon-main.js"
-  },
   "files": [
-    "lib",
     "addon-main.js",
-    "dist"
+    "dist",
+    "addon"
   ],
   "scripts": {
     "build": "rollup --config && babel ./dist --out-dir addon --plugins=./lib/transform-ext.js",

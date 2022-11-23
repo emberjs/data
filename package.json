@@ -18,6 +18,7 @@
     "test:docs": "pnpm build:docs && pnpm --filter docs-tests test",
     "test:encapsulation": "pnpm --filter '*-encapsulation-test-app' run test",
     "test:fastboot": "pnpm --filter fastboot-test-app test",
+    "test:embroider": "pnpm --filter embroider-basic-compat test",
     "test:infra": "pnpm --filter @ember-data/unpublished-test-infra test",
     "test-external:ember-m3": "node ./scripts/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "node ./scripts/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",

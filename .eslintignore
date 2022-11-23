@@ -8,6 +8,7 @@
 **/dist-experiment/
 **/tmp/
 /packages/-ember-data/docs/
+/packages/tracking/addon/
 
 **/DEBUG/
 
