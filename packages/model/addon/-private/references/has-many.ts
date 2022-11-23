@@ -82,7 +82,7 @@ export default class HasManyReference {
 
     this.store = store;
     this.___identifier = parentIdentifier;
-    this.___token = store.notifications.subscribe(
+    this.___token = store._notificationManager.subscribe(
       parentIdentifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'relationships' && notifiedKey === key) {
@@ -95,9 +95,9 @@ export default class HasManyReference {
   }
 
   destroy() {
-    this.store.notifications.unsubscribe(this.___token);
+    this.store._notificationManager.unsubscribe(this.___token);
     this.___relatedTokenMap.forEach((token) => {
-      this.store.notifications.unsubscribe(token);
+      this.store._notificationManager.unsubscribe(token);
     });
     this.___relatedTokenMap.clear();
   }
@@ -126,7 +126,7 @@ export default class HasManyReference {
         if (token) {
           map.delete(identifier);
         } else {
-          token = this.store.notifications.subscribe(
+          token = this.store._notificationManager.subscribe(
             identifier,
             (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
               if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
@@ -142,7 +142,7 @@ export default class HasManyReference {
     }
 
     map.forEach((token) => {
-      this.store.notifications.unsubscribe(token);
+      this.store._notificationManager.unsubscribe(token);
     });
     map.clear();
 

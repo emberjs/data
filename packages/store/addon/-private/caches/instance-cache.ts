@@ -243,7 +243,7 @@ export class InstanceCache {
         identifier,
         properties || {},
         this.__recordDataFor,
-        this.store.notifications
+        this.store._notificationManager
       );
       setRecordIdentifier(record, identifier);
       setRecordDataFor(record, recordData);
@@ -411,8 +411,6 @@ export class InstanceCache {
       const recordData = this.__instances.recordData.get(identifier);
 
       if (record) {
-        // TODO consider automatically unsubscribing records
-        // to ease ergonomics of using the notifications
         this.store.teardownRecord(record);
         this.__instances.record.delete(identifier);
         StoreMap.delete(record);
@@ -540,7 +538,7 @@ export class InstanceCache {
 
     // TODO update recordData if needed ?
     // TODO handle consequences of identifier merge for notifications
-    this.store.notifications.notify(identifier, 'identity');
+    this.store._notificationManager.notify(identifier, 'identity');
   }
 
   // TODO this should move into something coordinating operations
@@ -577,7 +575,7 @@ export class InstanceCache {
 
     const recordData = this.getRecordData(identifier);
     if (recordData.isNew(identifier)) {
-      this.store.notifications.notify(identifier, 'identity');
+      this.store._notificationManager.notify(identifier, 'identity');
     }
 
     const hasRecord = this.__instances.record.has(identifier);

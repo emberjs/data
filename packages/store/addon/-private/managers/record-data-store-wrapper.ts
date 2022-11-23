@@ -70,7 +70,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
 
     pending.forEach((set, identifier) => {
       set.forEach((key) => {
-        this._store.notifications.notify(identifier, 'relationships', key);
+        this._store._notificationManager.notify(identifier, 'relationships', key);
       });
     });
   }
@@ -84,7 +84,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
       return;
     }
 
-    this._store.notifications.notify(identifier, namespace, key);
+    this._store._notificationManager.notify(identifier, namespace, key);
 
     if (namespace === 'state') {
       this._store.recordArrayManager.identifierChanged(identifier);
@@ -105,7 +105,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
-    this._store.notifications.notify(identifier, 'errors');
+    this._store._notificationManager.notify(identifier, 'errors');
   }
 
   attributesDefinitionFor(type: string): AttributesSchema {
@@ -158,7 +158,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
-    this._store.notifications.notify(identifier, 'attributes', key);
+    this._store._notificationManager.notify(identifier, 'attributes', key);
   }
 
   notifyHasManyChange(type: string, id: string | null, lid: string, key: string): void;
@@ -208,7 +208,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     const resource = constructResource(type, id, lid);
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
-    this._store.notifications.notify(identifier, 'state');
+    this._store._notificationManager.notify(identifier, 'state');
     this._store.recordArrayManager.identifierChanged(identifier);
   }
 
@@ -374,7 +374,7 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
 
     pending.forEach((set, identifier) => {
       set.forEach((key) => {
-        this._store.notifications.notify(identifier, 'relationships', key);
+        this._store._notificationManager.notify(identifier, 'relationships', key);
       });
     });
   }
@@ -388,7 +388,7 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
       return;
     }
 
-    this._store.notifications.notify(identifier, namespace, key);
+    this._store._notificationManager.notify(identifier, namespace, key);
 
     if (namespace === 'state') {
       this._store.recordArrayManager.identifierChanged(identifier);

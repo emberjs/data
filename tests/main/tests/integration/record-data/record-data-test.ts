@@ -119,9 +119,6 @@ class V2TestRecordData implements RecordData {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
-  peek(identifier: StableRecordIdentifier): Record<string, unknown> {
-    throw new Error('Method not implemented.');
-  }
   sync(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }

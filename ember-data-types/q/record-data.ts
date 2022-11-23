@@ -85,7 +85,6 @@ export interface RecordData {
   // Attrs
   // =====
 
-  peek(identifier: StableRecordIdentifier): Record<string, unknown>;
   getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown;
   setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void;
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash;

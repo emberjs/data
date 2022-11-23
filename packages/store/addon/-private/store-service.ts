@@ -22,8 +22,6 @@ import {
   DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
 import type { RecordData as RecordDataClass } from '@ember-data/record-data/-private';
-import type RequestManager from '@ember-data/request';
-import { Future, RequestInfo } from '@ember-data/request/-private/types';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -162,6 +160,7 @@ export interface CreateRecordProperties {
   will automatically be synced to include the new or updated record
   values.
 
+  @main @ember-data/store
   @class Store
   @public
   @extends Ember.Service
@@ -172,7 +171,7 @@ class Store extends Service {
 
   declare recordArrayManager: RecordArrayManager;
 
-  declare notifications: NotificationManager;
+  declare _notificationManager: NotificationManager;
   declare identifierCache: IdentifierCache;
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
@@ -188,7 +187,6 @@ class Store extends Service {
   declare _trackAsyncRequestEnd: (token: AsyncTrackingToken) => void;
   declare __asyncWaiter: () => boolean;
   declare DISABLE_WAITER?: boolean;
-  declare requestManager: RequestManager;
 
   /**
     @method init
@@ -212,17 +210,8 @@ class Store extends Service {
     // private but maybe useful to be here, somewhat intimate
     this.recordArrayManager = new RecordArrayManager({ store: this });
 
-    /**
-     * Provides access to the NotificationManager instance
-     * for this store.
-     *
-     * The NotificationManager can be used to subscribe to changes
-     * for any identifier.
-     *
-     * @property {NotificationManager} notifications
-     * @public
-     */
-    this.notifications = new NotificationManager(this);
+    // private, TODO consider taking public as the instance is public to instantiateRecord anyway
+    this._notificationManager = new NotificationManager(this);
 
     // private
     this._fetchManager = new FetchManager(this);
@@ -325,22 +314,6 @@ class Store extends Service {
   }
 
   /**
-   * Issue a request via the configured RequestManager,
-   * inserting the response into the cache and handing
-   * back a Future which resolves to a ResponseDocument
-   *
-   * @method request
-   * @returns {Future}
-   * @public
-   */
-  request<T>(req: RequestInfo): Future<ResponseDocument<T>> {
-    return this.requestManager.request(req).then(
-      (doc) => {},
-      (error) => {}
-    );
-  }
-
-  /**
    * A hook which an app or addon may implement. Called when
    * the Store is attempting to create a Record Instance for
    * a resource.
@@ -353,7 +326,7 @@ class Store extends Service {
    * @param identifier
    * @param createRecordArgs
    * @param recordDataFor
-   * @param notifications
+   * @param notificationManager
    * @returns A record instance
    * @public
    */
@@ -361,7 +334,7 @@ class Store extends Service {
     identifier: StableRecordIdentifier,
     createRecordArgs: { [key: string]: unknown },
     recordDataFor: (identifier: StableRecordIdentifier) => RecordData,
-    notifications: NotificationManager
+    notificationManager: NotificationManager
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
       let modelName = identifier.type;
@@ -767,10 +740,12 @@ class Store extends Service {
 
     **Example 1**
 
-    ```js
-    class {
-      getPostData(store, id) {
-        return store.findRecord('post', id);
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+
+    export default class PostRoute extends Route {
+      model({ post_id }) {
+        return this.store.findRecord('post', post_id);
       }
     }
     ```
@@ -781,10 +756,12 @@ class Store extends Service {
     of `type` (modelName) and `id` as separate arguments. You may recognize this combo as
     the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
 
-    ```js
-    class {
-      getPostData(store, id) {
-        return store.findRecord({ type: 'post', id });
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+
+    export default class PostRoute extends Route {
+      model({ post_id: id }) {
+        return this.store.findRecord({ type: 'post', id });
       }
     }
     ```
@@ -794,30 +771,30 @@ class Store extends Service {
     If you have previously received an lid via an Identifier for this record, and the record
     has already been assigned an id, you can find the record again using just the lid.
 
-    ```js
+    ```app/routes/post.js
     store.findRecord({ lid });
     ```
 
-    If the record is not yet available – or options for `reload` or `backgroundReload` are provided –
-    the store will issue a `findRecord` query against the configured [fetch-manager]() to retrieve
-    and supply the necessary data.
+    If the record is not yet available, the store will ask the adapter's `findRecord`
+    method to retrieve and supply the necessary data. If the record is already present
+    in the store, it depends on the reload behavior _when_ the returned promise
+    resolves.
 
     ### Preloading
 
     You can optionally `preload` specific attributes and relationships that you know of
-    by passing them via the passed `options`. When preloading relationships, you may pass
-    either the id/ids of the related records or an existing record instance. Preload
-    information is ignored if the record already exists in the store.
+    by passing them via the passed `options`.
 
     For example, if your Ember route looks like `/posts/1/comments/2` and your API route
-    for the comment also looks like `/posts/1/comments/2` if you want to post to be available
-    on the snapshot provided to the query to fetch the comment you could pass in the post
-    to the `findRecord` call:
+    for the comment also looks like `/posts/1/comments/2` if you want to fetch the comment
+    without also fetching the post you can pass in the post to the `findRecord` call:
 
-    ```js
-    class {
-      getComments(store, post, id) {
-        return store.findRecord({ type: 'comment', id }, { preload: { post } });
+    ```app/routes/post-comments.js
+    import Route from '@ember/routing/route';
+
+    export default class PostRoute extends Route {
+      model({ post_id, comment_id: id }) {
+        return this.store.findRecord({ type: 'comment', id, { preload: { post: post_id }} });
       }
     }
     ```
@@ -825,31 +802,60 @@ class Store extends Service {
     In your adapter you can then access this id without triggering a network request via the
     snapshot:
 
-    ```js
-    const postId = snapshot.belongsTo('post', { id: true });
-    const data = await fetch(`./posts/${postId}/comments/${id}`).then(r => r.json());
-    ```
+    ```app/adapters/application.js
+    import EmberObject from '@ember/object';
 
-    Generally speaking, preloading is rarely a good solution as it can have unintended
-    consequences on the state of your application should the network take a while or error
-    during the fetch.
+    export default class Adapter extends EmberObject {
 
-    If the use-case is to provide additional information to the request this can be done via
-    options without using the `preload` feature.
+      findRecord(store, schema, id, snapshot) {
+        let type = schema.modelName;
 
-    ```js
-        class {
-      getComments(store, post, id) {
-        return store.findRecord({ type: 'comment', id }, { adapterOptions: { post } });
+        if (type === 'comment')
+          let postId = snapshot.belongsTo('post', { id: true });
+
+          return fetch(`./posts/${postId}/comments/${id}`)
+            .then(response => response.json())
+        }
       }
     }
     ```
 
-    Similarly to access this from the snapshot
+    This could also be achieved by supplying the post id to the adapter via the adapterOptions
+    property on the options hash.
 
-    ```js
-    const postId = snapshot.adapterOptions.post.id;
-    const data = await fetch(`./posts/${postId}/comments/${id}`).then(r => r.json());
+    ```app/routes/post-comments.js
+    import Route from '@ember/routing/route';
+
+    export default class PostRoute extends Route {
+      model({ post_id, comment_id: id }) {
+        return this.store.findRecord({ type: 'comment', id, { adapterOptions: { post: post_id }} });
+      }
+    }
+    ```
+
+    ```app/adapters/application.js
+    import EmberObject from '@ember/object';
+
+    export default class Adapter extends EmberObject {
+
+      findRecord(store, schema, id, snapshot) {
+        let type = schema.modelName;
+
+        if (type === 'comment')
+          let postId = snapshot.adapterOptions.post;
+
+          return fetch(`./posts/${postId}/comments/${id}`)
+            .then(response => response.json())
+        }
+      }
+    }
+    ```
+
+    If you have access to the post model you can also pass the model itself to preload:
+
+    ```javascript
+    let post = await store.findRecord('post', 1);
+    let comment = await store.findRecord('comment', 2, { post: myPostModel });
     ```
 
     ### Reloading
@@ -1919,7 +1925,7 @@ class Store extends Service {
             graph.identifiers.clear();
           }
         }
-        this.notifications.destroy();
+        this._notificationManager.destroy();
 
         this.recordArrayManager.clear();
         this._instanceCache.clear();

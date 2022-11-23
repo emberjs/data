@@ -115,9 +115,6 @@ class V1TestRecordData implements RecordDataV1 {
   }
 }
 class V2TestRecordData implements RecordData {
-  peek(identifier: StableRecordIdentifier): Record<string, unknown> {
-    throw new Error('Method not implemented.');
-  }
   sync(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }

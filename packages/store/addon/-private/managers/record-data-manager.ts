@@ -313,28 +313,6 @@ export class NonSingletonRecordDataManager implements RecordData {
   // =====
 
   /**
-   * Retrieve all attributes for a resource from the cache
-   *
-   * @method peek
-   * @public
-   * @param identifier
-   * @returns {object}
-   */
-  peek(identifier: StableRecordIdentifier): Record<string, unknown> {
-    const recordData = this.#recordData;
-
-    if (this.#isDeprecated(recordData)) {
-      const attrs = this.#store.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-      const ret = {};
-      Object.keys(attrs).forEach((key) => {
-        ret[key] = recordData.getAttr(key);
-      });
-      return ret;
-    }
-    return recordData.peek(identifier);
-  }
-
-  /**
    * Retrieve the data for an attribute from the cache
    *
    * @method getAttr
@@ -807,10 +785,6 @@ export class SingletonRecordDataManager implements RecordData {
 
   // Attrs
   // =====
-
-  peek(identifier: StableRecordIdentifier): Record<string, unknown> {
-    return this.#recordData(identifier).peek(identifier);
-  }
 
   getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
     return this.#recordData(identifier).getAttr(identifier, propertyName);

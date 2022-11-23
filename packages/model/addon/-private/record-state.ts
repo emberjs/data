@@ -170,7 +170,7 @@ export default class RecordState {
     this._lastError = null;
 
     let requests = store.getRequestStateService();
-    let notifications = store.notifications;
+    let notifications = store._notificationManager;
 
     const handleRequest = (req) => {
       if (req.type === 'mutation') {
@@ -256,7 +256,7 @@ export default class RecordState {
   }
 
   destroy() {
-    storeFor(this.record)!.notifications.unsubscribe(this.handler);
+    storeFor(this.record)!._notificationManager.unsubscribe(this.handler);
   }
 
   notify(key) {

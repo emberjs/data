@@ -26,9 +26,6 @@ if (!DEPRECATE_V1_RECORD_DATA) {
   }
 
   class TestRecordData implements RecordData {
-    peek(identifier: StableRecordIdentifier): Record<string, unknown> {
-      throw new Error('Method not implemented.');
-    }
     sync(op: MergeOperation): void {
       throw new Error('Method not implemented.');
     }
