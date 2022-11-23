@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 
-import RequestManager from '@ember-data/request';
+import { RequestManager } from '@ember-data/request';
 import type { Context as HandlerRequestContext } from '@ember-data/request/-private/context';
 import type { NextFn } from '@ember-data/request/-private/types';
 

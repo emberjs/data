@@ -9,7 +9,7 @@ import type { Context } from './-private/context';
  * `fetch` call presuming the response to be `json`.
  *
  * ```ts
- * import Fetch from '@ember-data/request/fetch';
+ * import { Fetch } from '@ember-data/request/fetch';
  *
  * manager.use([Fetch]);
  * ```
@@ -17,7 +17,7 @@ import type { Context } from './-private/context';
  * @class Fetch
  * @public
  */
-export default {
+export const Fetch = {
   async request(context: Context) {
     const response = await fetch(context.request.url!, context.request);
     context.setResponse(response);

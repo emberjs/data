@@ -1,1 +1,1 @@
-export { RequestManager as default } from './-private/manager';
+export { RequestManager } from './-private/manager';

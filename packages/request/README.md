@@ -34,7 +34,8 @@ A `RequestManager` provides a request/response flow in which configured handlers
 The RequestManager on its own does not know how to fulfill requests. For this we must register at least one handler. A basic `Fetch` handler is provided that will take the request options provided and execute `fetch`.
 
 ```ts
-import RequestManager, { Fetch } from '@ember-data/request';
+import { RequestManager } from '@ember-data/request';
+import { Fetch } from '@ember-data/request/fetch';
 import { apiUrl } from './config';
 
 // ... create manager and add our Fetch handler
@@ -310,7 +311,8 @@ Most applications will desire to have a single `RequestManager` instance, which 
 
 *services/request.ts*
 ```ts
-import RequestManager, { Fetch } from '@ember-data/request';
+import { RequestManager } from '@ember-data/request';
+import { Fetch } from '@ember-data/request/fetch';
 import Auth from 'ember-simple-auth/ember-data-handler';
 
 export default class extends RequestManager {
@@ -327,7 +329,8 @@ To have a request service unique to a Store:
 
 ```ts
 import Store from '@ember-data/store';
-import RequestManager, { Fetch } from '@ember-data/request';
+import { RequestManager } from '@ember-data/request';
+import { Fetch } from '@ember-data/request/fetch';
 
 class extends Store {
   requestManager = new RequestManager();
@@ -345,8 +348,8 @@ If using the package [ember-data](https://github.com/emberjs/data/tree/master/pa
 
 ```ts
 import Store from '@ember-data/store';
-import RequestManager from '@ember-data/request';
-import LegacyHandler from '@ember-data/legacy-network-handler';
+import { RequestManager } from '@ember-data/request';
+import { LegacyHandler } from '@ember-data/legacy-network-handler';
 
 export default class extends Store {
   requestManager = new RequestManager();
