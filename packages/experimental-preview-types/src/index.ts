@@ -1,3 +1,0 @@
-/*
- * Experimental Preview Types
- */
