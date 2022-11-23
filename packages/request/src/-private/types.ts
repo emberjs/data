@@ -30,10 +30,10 @@ interface Request {
   /** Returns the URL of request as a string. */
   url?: string;
 }
-export type ImmutableHeaders = Headers & { clone(): Headers };
+export type ImmutableHeaders = Headers & { clone(): Headers; toJSON(): [string, string][] };
 export interface GodContext {
   controller: AbortController;
-  response: ResponseInfo | Response | null;
+  response: ResponseInfo | null;
   stream: ReadableStream | Promise<ReadableStream | null> | null;
 }
 
@@ -134,7 +134,16 @@ export interface ImmutableRequestInfo {
   readonly options?: Record<string, unknown>;
 }
 
-export interface ResponseInfo {}
+export interface ResponseInfo {
+  readonly headers: ImmutableHeaders; // to do, maybe not this?
+  readonly ok: boolean;
+  readonly redirected: boolean;
+  readonly status: number;
+  readonly statusText: string;
+  readonly type: string;
+  readonly url: string;
+}
+
 export interface RequestContext {
   request: ImmutableRequestInfo;
 

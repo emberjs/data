@@ -74,7 +74,7 @@ function freezeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
   return headers as ImmutableHeaders;
 }
 
-export function deepFreeze<T = unknown>(value: T): unknown {
+export function deepFreeze<T = unknown>(value: T): T {
   if (value && value[IS_FROZEN]) {
     return value;
   }
@@ -95,18 +95,18 @@ export function deepFreeze<T = unknown>(value: T): unknown {
         case 'array': {
           const arr = (value as unknown[]).map(deepFreeze);
           arr[IS_FROZEN] = true;
-          return Object.freeze(arr);
+          return Object.freeze(arr) as T;
         }
         case 'null':
           return value;
         case 'object':
           Object.keys(value as {}).forEach((key) => {
-            (value as {})[key] = deepFreeze((value as {})[key]);
+            (value as {})[key] = deepFreeze((value as {})[key]) as {};
           });
           value[IS_FROZEN] = true;
           return Object.freeze(value);
         case 'headers':
-          return freezeHeaders(value as Headers);
+          return freezeHeaders(value as Headers) as T;
         case 'AbortSignal':
           return value;
         case 'date':

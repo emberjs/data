@@ -35,15 +35,15 @@ export class RequestManager {
 
   request<T = unknown>(request: RequestInfo): Future<T> {
     const handlers = this.#handlers;
-    const controller = request.controller || new AbortController();
-    if (request.controller) {
-      delete request.controller;
-    }
     if (macroCondition(isDevelopingApp())) {
       if (!Object.isFrozen(handlers)) {
         Object.freeze(handlers);
       }
       assertValidRequest(request, true);
+    }
+    const controller = request.controller || new AbortController();
+    if (request.controller) {
+      delete request.controller;
     }
     let promise = executeNextHandler<T>(handlers, request, 0, {
       controller,
