@@ -27,7 +27,7 @@ module('RequestManager | Response Currying', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['date', 'etag', 'last-modified'].includes(v[0]);
+      return !['content-length', 'date', 'etag', 'last-modified'].includes(v[0]);
     });
     // @ts-expect-error port is unstable in CI
     delete serialized.url;
@@ -40,7 +40,6 @@ module('RequestManager | Response Currying', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
-          ['content-length', '57'],
           ['content-type', 'application/json; charset=UTF-8'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
@@ -100,7 +99,7 @@ module('RequestManager | Response Currying', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['date', 'etag', 'last-modified'].includes(v[0]);
+      return !['content-length', 'date', 'etag', 'last-modified'].includes(v[0]);
     });
     // @ts-expect-error port is unstable in CI
     delete serialized.url;
@@ -113,7 +112,6 @@ module('RequestManager | Response Currying', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
-          ['content-length', '57'],
           ['content-type', 'application/json; charset=UTF-8'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
@@ -155,7 +153,7 @@ module('RequestManager | Response Currying', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['date', 'etag', 'last-modified'].includes(v[0]);
+      return !['content-length', 'date', 'etag', 'last-modified'].includes(v[0]);
     });
     // @ts-expect-error port is unstable in CI
     delete serialized.url;
@@ -168,7 +166,6 @@ module('RequestManager | Response Currying', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
-          ['content-length', '57'],
           ['content-type', 'application/json; charset=UTF-8'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
@@ -223,7 +220,7 @@ module('RequestManager | Response Currying', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['date', 'etag', 'last-modified'].includes(v[0]);
+      return !['content-length', 'date', 'etag', 'last-modified'].includes(v[0]);
     });
     // @ts-expect-error port is unstable in CI
     delete serialized.url;
@@ -236,7 +233,6 @@ module('RequestManager | Response Currying', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
-          ['content-length', '57'],
           ['content-type', 'application/json; charset=UTF-8'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
