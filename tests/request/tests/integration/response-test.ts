@@ -21,10 +21,8 @@ module('RequestManager | Response', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['date', 'etag', 'last-modified'].includes(v[0]);
+      return !['url', 'date', 'etag', 'last-modified'].includes(v[0]);
     });
-    // @ts-expect-error port is unstable in CI
-    delete serialized.url;
 
     assert.deepEqual(
       serialized,
