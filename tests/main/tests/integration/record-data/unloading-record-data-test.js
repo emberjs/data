@@ -260,8 +260,8 @@ module('RecordData Compatibility', function (hooks) {
   });
 
   test(`store.unloadRecord on a record with custom RecordData with relationship to a record with default RecordData does not error`, async function (assert) {
-    const originalCreateRecordDataFor = store.createRecordDataFor;
-    store.createRecordDataFor = function provideCustomRecordData(identifier, storeWrapper) {
+    const originalCreateRecordDataFor = store.createModelDataFor;
+    store.createModelDataFor = function provideCustomRecordData(identifier, storeWrapper) {
       if (identifier.type === 'pet') {
         return new CustomRecordData(identifier, storeWrapper);
       } else {
