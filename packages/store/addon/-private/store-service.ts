@@ -22,6 +22,8 @@ import {
   DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
 import type { RecordData as RecordDataClass } from '@ember-data/record-data/-private';
+import type RequestManager from '@ember-data/request';
+import { Future, RequestInfo } from '@ember-data/request/-private/types';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -187,6 +189,7 @@ class Store extends Service {
   declare _trackAsyncRequestEnd: (token: AsyncTrackingToken) => void;
   declare __asyncWaiter: () => boolean;
   declare DISABLE_WAITER?: boolean;
+  declare requestManager: RequestManager;
 
   /**
     @method init
@@ -311,6 +314,22 @@ class Store extends Service {
    */
   getRequestStateService(): RequestCache {
     return this._fetchManager.requestCache;
+  }
+
+  /**
+   * Issue a request via the configured RequestManager,
+   * inserting the response into the cache and handing
+   * back a Future which resolves to a ResponseDocument
+   *
+   * @method request
+   * @returns {Future}
+   * @public
+   */
+  request<T>(req: RequestInfo): Future<ResponseDocument<T>> {
+    return this.requestManager.request(req).then(
+      (doc) => {},
+      (error) => {}
+    );
   }
 
   /**
