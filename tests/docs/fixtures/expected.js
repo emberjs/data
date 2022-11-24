@@ -9,11 +9,14 @@ module.exports = {
     '@ember-data/deprecations',
     '@ember-data/model',
     '@ember-data/record-data',
+    '@ember-data/request',
+    '@ember-data/request/fetch',
     '@ember-data/serializer',
     '@ember-data/serializer/json',
     '@ember-data/serializer/json-api',
     '@ember-data/serializer/rest',
     '@ember-data/store',
+    '@ember-data/tracking',
     'ember-data-overview',
   ],
   classitems: [
@@ -438,5 +441,8 @@ module.exports = {
     '(public) @ember-data/model PromiseManyArray#then',
     '(public) @ember-data/store ManyArray#links',
     '(public) @ember-data/store Store#identifierCache',
+    '(public) @ember-data/tracking @ember-data/tracking#memoTransact',
+    '(public) @ember-data/tracking @ember-data/tracking#transact',
+    '(public) @ember-data/tracking @ember-data/tracking#untracked',
   ],
 };

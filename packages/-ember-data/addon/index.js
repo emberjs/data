@@ -1,11 +1,56 @@
 /**
- # Overview
+ <p align="center">
+  <img
+    class="project-logo"
+    src="https://raw.githubusercontent.com/emberjs/data/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
+    alt="EmberData"
+    width="240px"
+    title="EmberData"
+    />
+</p>
 
-`EmberData` is a lightweight reactive data library for javascript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation that you can plug-and-play as desired for any api  structure and format.
+<p align="center">The lightweight reactive data library for JavaScript applications</p>
 
-It was designed for robustly managing data in applications built with [Ember](https://github.com/emberjs/ember.js/) and is agnostic to the underlying persistence mechanism, so it works just as well with [JSON:API](https://jsonapi.org/) or [GraphQL](https://graphql.org/) over `HTTPS` as it does with streaming `WebSockets` or local `IndexedDB` storage.
+---
 
-It provides many of the facilities you'd find in server-side `ORM`s like `ActiveRecord`, but is designed specifically for the unique environment of `JavaScript` in the browser.
+Wrangle your application's data management with scalable patterns for developer productivity.
+
+- ⚡️  Committed to Best-In-Class Performance
+- 🌲 Focused on being as svelte as possible
+- 🚀 SSR Ready
+- 🔜 Typescript Support
+- 🐹 Built with ♥️ by [Ember](https://emberjs.com)
+- ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
+
+
+# Overview
+
+*Ember***Data** is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation.
+
+## 🪜 Architecture
+
+*Ember***Data** is both *resource* centric and *document* centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
+
+The `Store` is a **coordinator**. When using a `Store` you configure what cache to use, how cache data should be presented to the UI, and where it should look for requested data when it is not available in the cache.
+
+This coordination is handled opaquely to the nature of the requests issued and the format of the data being handled. This approach gives applications broad flexibility to configure *Ember***Data** to best suite their needs. This makes *Ember***Data** a powerful solution for applications regardless of their size and complexity.
+
+*Ember***Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. It's goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
+
+*Ember***Data**'s power comes not from specific features, data formats, or adherence to specific API specs such as `JSON:API` `trpc` or `GraphQL`, but from solid conventions around requesting and mutating data developed over decades of experience scaling developer productivity.
+
+## Basic Installation
+
+Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
+
+```no-highlight
+pnpm add ember-data
+```
+
+`ember-data` is installed by default for new applications generated with `ember-cli`. You can check what version is installed by looking in the `devDependencies` hash of your project's [package.json](https://docs.npmjs.com/cli/v8/configuring-npm/package-json) file.
+
+If you have generated a new `Ember` application using `ember-cli` but do
+not wish to use `ember-data`, remove `ember-data` from your project's `package.json` file and run your package manager's install command to update your lockfile.
 
 EmberData is organized into primitives that compose together via public APIs.
 

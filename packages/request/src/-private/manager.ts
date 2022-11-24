@@ -1,9 +1,92 @@
+/**
+ * # RequestManager
+ *
+ * A RequestManager provides a request/response flow in which configured
+ * handlers are successively given the opportunity to handle, modify, or
+ * pass-along a request.
+ *
+ * ```ts
+ * interface RequestManager {
+ *   request<T>(req: RequestInfo): Future<T>;
+ * }
+ * ```
+ *
+ * For example:
+ *
+ * ```ts
+ * import { RequestManager } from '@ember-data/request';
+ * import { Fetch } from '@ember/data/request/fetch';
+ * import Auth from 'ember-simple-auth/ember-data-handler';
+ * import Config from './config';
+ *
+ * const { apiUrl } = Config;
+ *
+ * // ... create manager
+ * const manager = new RequestManager();
+ * manager.use([Auth, Fetch]);
+ *
+ * // ... execute a request
+ * const response = await manager.request({
+ *   url: `${apiUrl}/users`
+ * });
+ * ```
+ *
+ * ### Futures
+ *
+ * The return value of `manager.request` is a `Future`, which allows
+ * access to limited information about the request while it is still
+ * pending and fulfills with the final state when the request completes.
+ *
+ * A `Future` is cancellable via `abort`.
+ *
+ * Handlers may optionally expose a `ReadableStream` to the `Future` for
+ * streaming data; however, when doing so the future should not resolve
+ * until the response stream is fully read.
+ *
+ * ```ts
+ * interface Future<T> extends Promise<StructuredDocument<T>> {
+ *   abort(): void;
+ *
+ *   async getStream(): ReadableStream | null;
+ * }
+ * ```
+ *
+ * ## StructuredDocuments
+ *
+ * A Future resolves with a `StructuredDataDocument` or rejects with a `StructuredErrorDocument`.
+ *
+ * ```ts
+ * interface StructuredDataDocument<T> {
+ *   request: ImmutableRequestInfo;
+ *   response: ImmutableResponseInfo;
+ *   data: T;
+ * }
+ * interface StructuredErrorDocument extends Error {
+ *   request: ImmutableRequestInfo;
+ *   response: ImmutableResponseInfo;
+ *   error: string | object;
+ * }
+ * type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument;
+ * ```
+ *
+ * @module @ember-data/request
+ * @main @ember-data/request
+ */
 import { isDevelopingApp, isTesting, macroCondition } from '@embroider/macros';
 
 import { assertValidRequest } from './debug';
 import { Future, GenericCreateArgs, Handler, RequestInfo } from './types';
 import { executeNextHandler } from './utils';
 
+/**
+ *
+ * ```js
+ * import { RequestManager } from '@ember-data/request';
+ * ```
+ *
+ * @class RequestManager
+ * @public
+ */
 export class RequestManager {
   #handlers: Handler[] = [];
 

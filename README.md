@@ -67,7 +67,7 @@ This coordination is handled opaquely to the nature of the requests issued and t
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
 ```no-highlight
-pnpm add -D ember-data
+pnpm add ember-data
 ```
 
 `ember-data` is installed by default for new applications generated with `ember-cli`. You can check what version is installed by looking in the `devDependencies` hash of your project's [package.json](https://docs.npmjs.com/cli/v8/configuring-npm/package-json) file.

@@ -1,5 +1,10 @@
 /**
+ * # @ember-data/request/fetch
+ *
+ * A very basic Fetch Handler
+ *
  * @module @ember-data/request/fetch
+ * @main @ember-data/request/fetch
  */
 
 import type { Context } from './-private/context';
