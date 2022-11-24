@@ -51,7 +51,7 @@
  * }
  * ```
  *
- * ## StructuredDocuments
+ * ### StructuredDocuments
  *
  * A Future resolves with a `StructuredDataDocument` or rejects with a `StructuredErrorDocument`.
  *
@@ -94,6 +94,18 @@ export class RequestManager {
     Object.assign(this, options);
   }
 
+  /**
+   * Register handler(s) to use when a request is issued.
+   *
+   * Handlers will be invoked in the order they are registered.
+   * Each Handler is given the opportunity to handle the request,
+   * curry the request, or pass along a modified request.
+   *
+   * @method use
+   * @public
+   * @param {Hanlder[]} newHandlers
+   * @returns {void}
+   */
   use(newHandlers: Handler[]) {
     const handlers = this.#handlers;
     if (macroCondition(isDevelopingApp())) {
@@ -116,6 +128,16 @@ export class RequestManager {
     handlers.push(...newHandlers);
   }
 
+  /**
+   * Issue a Request.
+   *
+   * Returns a Future that fulfills with a StructuredDocument
+   *
+   * @method request
+   * @public
+   * @param {RequestInfo} request
+   * @returns {Future}
+   */
   request<T = unknown>(request: RequestInfo): Future<T> {
     const handlers = this.#handlers;
     if (macroCondition(isDevelopingApp())) {

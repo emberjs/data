@@ -444,5 +444,7 @@ module.exports = {
     '(public) @ember-data/tracking @ember-data/tracking#memoTransact',
     '(public) @ember-data/tracking @ember-data/tracking#transact',
     '(public) @ember-data/tracking @ember-data/tracking#untracked',
+    '(public) @ember-data/request RequestManager#request',
+    '(public) @ember-data/request RequestManager#use',
   ],
 };

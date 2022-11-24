@@ -33,6 +33,18 @@ Wrangle your application's data management with scalable patterns for developer 
 - 🐹 Built with ♥️ by [Ember](https://emberjs.com)
 - ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
 
+### 📖 On This Page 
+
+- [Overview](./#overview)
+  - [Architecture](./#-architecture)
+  - [Basic Installation](./#basic-installation)
+  - [Advanced Installation](./#advanced-installation)
+- [Configuration](./#configuration)
+  - [Deprecation Stripping](./#deprecation-stripping)
+  - [randomUUID polyfill](./#randomuuid-polyfill)
+  - [Removing inspector support in production](./#removing-inspector-support-in-production)
+  - [Debugging](./#debugging)
+- [Contributing](./#contributing)
 
 # Overview
 
