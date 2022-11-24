@@ -27,8 +27,10 @@ module('RequestManager | Response Currying', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['url', 'date', 'etag', 'last-modified'].includes(v[0]);
+      return !['date', 'etag', 'last-modified'].includes(v[0]);
     });
+    // @ts-expect-error port is unstable in CI
+    delete serialized.url;
 
     assert.deepEqual(
       serialized,
@@ -98,8 +100,10 @@ module('RequestManager | Response Currying', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['url', 'date', 'etag', 'last-modified'].includes(v[0]);
+      return !['date', 'etag', 'last-modified'].includes(v[0]);
     });
+    // @ts-expect-error port is unstable in CI
+    delete serialized.url;
 
     assert.deepEqual(
       serialized,
@@ -151,8 +155,10 @@ module('RequestManager | Response Currying', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['url', 'date', 'etag', 'last-modified'].includes(v[0]);
+      return !['date', 'etag', 'last-modified'].includes(v[0]);
     });
+    // @ts-expect-error port is unstable in CI
+    delete serialized.url;
 
     assert.deepEqual(
       serialized,
@@ -217,8 +223,10 @@ module('RequestManager | Response Currying', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['url', 'date', 'etag', 'last-modified'].includes(v[0]);
+      return !['date', 'etag', 'last-modified'].includes(v[0]);
     });
+    // @ts-expect-error port is unstable in CI
+    delete serialized.url;
 
     assert.deepEqual(
       serialized,
