@@ -90,7 +90,7 @@ let app = new EmberApp(defaults, {
 
 ### removing inspector support in production
 
-If you do not with to ship inspector support in your production application, you can specify
+If you do not want to ship inspector support in your production application, you can specify
 that all support for it should be stripped from the build.
 
 ```ts
