@@ -7,12 +7,12 @@
     "url": "git+ssh://git@github.com:emberjs/data.git"
   },
   "scripts": {
-    "build-v2-addons": "pnpm --filter @ember-data/tracking build",
+    "build-v2-addons": "pnpm --filter @ember-data/tracking --filter @ember-data/request build",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint:js": "eslint --cache --ext=js,ts .",
     "preinstall": "npx only-allow pnpm",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
-    "test": "pnpm --filter main-test-app --filter graph-test-app run test",
+    "test": "pnpm --filter main-test-app --filter graph-test-app --filter request-test-app run test",
     "test:production": "pnpm --filter main-test-app --filter graph-test-app run test -e production",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
     "test:docs": "pnpm build:docs && pnpm --filter docs-tests test",

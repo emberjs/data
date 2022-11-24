@@ -1,26 +1,77 @@
-EmberData
-==============================================================================
+<p align="center">
+  <img
+    class="project-logo"
+    src="./ember-data-logo-light.svg#gh-light-mode-only"
+    alt="EmberData"
+    width="240px"
+    title="EmberData"
+    />
+  <img
+    class="project-logo"
+    src="./ember-data-logo-dark.svg#gh-dark-mode-only"
+    alt="EmberData"
+    width="240px"
+    title="EmberData"
+    />
+</p>
+
+
+<p align="center">The lightweight reactive data library for JavaScript applications</p>
 
 [![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
 [![Code Climate](https://codeclimate.com/github/emberjs/data/badges/gpa.svg)](https://codeclimate.com/github/emberjs/data)
 [![Discord Community Server](https://img.shields.io/discord/480462759797063690.svg?logo=discord)](https://discord.gg/zT3asNS)
 
+---
+
+Wrangle your application's data management with scalable patterns for developer productivity.
+
+- ⚡️  Committed to Best-In-Class Performance
+- 🌲 Focused on being as svelte as possible
+- 🚀 SSR Ready
+- 🔜 Typescript Support
+- 🐹 Built with ♥️ by [Ember](https://emberjs.com)
+- ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
+
+### 📖 On This Page 
+
+- [Overview](./#overview)
+  - [Architecture](./#-architecture)
+  - [Basic Installation](./#basic-installation)
+  - [Advanced Installation](./#advanced-installation)
+- [Configuration](./#configuration)
+  - [Deprecation Stripping](./#deprecation-stripping)
+  - [randomUUID polyfill](./#randomuuid-polyfill)
+  - [Removing inspector support in production](./#removing-inspector-support-in-production)
+  - [Debugging](./#debugging)
+- [Contributing](./#contributing)
 
 # Overview
 
-`EmberData` is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation. You can plug-and-play as desired for any api  structure and format.
+*Ember***Data** is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation.
 
-It was designed for robustly managing data in applications built with [Ember](https://github.com/emberjs/ember.js/) and is agnostic to the underlying persistence mechanism, so it works just as well with [JSON:API](https://jsonapi.org/) or [GraphQL](https://graphql.org/) over `HTTPS` as it does with streaming `WebSockets` or local `IndexedDB` storage.
-
-It provides many of the features you'd find in server-side `ORM`s like `ActiveRecord`, but is designed specifically for the unique environment of `JavaScript` in the browser.
-
-- [Usage Guide](https://guides.emberjs.com/release/models/)
 - [API Documentation](https://api.emberjs.com/ember-data/release)
+- [Community & Help](https://emberjs.com/community)
 - [Contributing Guide](./CONTRIBUTING.md)
+- [Usage Guide](https://guides.emberjs.com/release/models/)
 - [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data)
-- [Community](https://emberjs.com/community)
 - [Team](https://emberjs.com/team)
 - [Blog](https://emberjs.com/blog)
+
+
+
+## 🪜 Architecture
+
+*Ember***Data** is both *resource* centric and *document* centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
+
+The `Store` is a **coordinator**. When using a `Store` you configure what cache to use, how cache data should be presented to the UI, and where it should look for requested data when it is not available in the cache.
+
+This coordination is handled opaquely to the nature of the requests issued and the format of the data being handled. This approach gives applications broad flexibility to configure *Ember***Data** to best suite their needs. This makes *Ember***Data** a powerful solution for applications regardless of their size and complexity.
+
+*Ember***Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. It's goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
+
+*Ember***Data**'s power comes not from specific features, data formats, or adherence to specific API specs such as `JSON:API` `trpc` or `GraphQL`, but from solid conventions around requesting and mutating data developed over decades of experience scaling developer productivity.
+
 
 
 ## Basic Installation
@@ -28,7 +79,7 @@ It provides many of the features you'd find in server-side `ORM`s like `ActiveRe
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
 ```no-highlight
-pnpm add -D ember-data
+pnpm add ember-data
 ```
 
 `ember-data` is installed by default for new applications generated with `ember-cli`. You can check what version is installed by looking in the `devDependencies` hash of your project's [package.json](https://docs.npmjs.com/cli/v8/configuring-npm/package-json) file.
@@ -38,7 +89,7 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 
 ## Advanced Installation
 
-EmberData is organized into primitives that compose together via public APIs.
+*Ember***Data** is organized into primitives that compose together via public APIs.
 
 - [@ember-data/store](./packages/store) is the core and handles coordination
 - [@ember-data/record-data](./packages/record-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
@@ -56,7 +107,7 @@ public APIs, other libraries or applications may provide their own implementatio
 
 ### Deprecation Stripping
 
-EmberData allows users to opt-in and remove code that exists to support deprecated behaviors.
+*Ember***Data** allows users to opt-in and remove code that exists to support deprecated behaviors.
 
 If your app has resolved all deprecations present in a given version, you may specify that version as your "compatibility" version to remove the code that supported the deprecated behavior from your app.
 
@@ -72,7 +123,7 @@ let app = new EmberApp(defaults, {
 
 ### randomUUID polyfill
 
-EmberData uses `UUID V4` by default to generate identifiers for new data created on the client. Identifier generation is configurable, but we also for convenience will polyfill
+*Ember***Data** uses `UUID V4` by default to generate identifiers for new data created on the client. Identifier generation is configurable, but we also for convenience will polyfill
 the necessary feature if your browser support or deployment environment demands it. To
 activate this polyfill:
 

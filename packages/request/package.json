@@ -1,6 +1,6 @@
 {
-  "name": "@ember-data/tracking",
-  "description": "Tracking Primitives for controlling change notification of Tracked properties when working with EmberData",
+  "name": "@ember-data/request",
+  "description": "⚡️ A simple, small and fast framework-agnostic library to make `fetch` happen",
   "version": "4.9.0-alpha.14",
   "private": false,
   "license": "MIT",
@@ -8,21 +8,20 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "packages/tracking"
+    "directory": "packages/request"
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "engines": {
     "node": "14.* || 16.* || >= 18"
   },
-  "keywords": [
-    "ember-addon"
-  ],
+  "keywords": ["ember-addon"],
   "volta": {
     "extends": "../../package.json"
   },
   "dependencies": {
-    "ember-cli-babel": "^7.26.11"
+    "ember-cli-babel": "^7.26.11",
+    "@embroider/macros": "^1.9.0"
   },
   "files": [
     "addon-main.js",
@@ -38,23 +37,24 @@
     "type": "addon",
     "version": 1
   },
+  "peerDependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.20.2",
+    "@embroider/addon-dev": "^2.0.0",
+    "rollup": "^3.2.3",
+    "@babel/core": "^7.19.6",
     "@babel/cli": "^7.19.3",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-decorators": "^7.20.2",
+    "@babel/plugin-proposal-decorators": "^7.20.0",
+    "@babel/plugin-transform-typescript": "^7.20.0",
     "@babel/plugin-transform-runtime": "^7.19.6",
-    "@babel/plugin-transform-typescript": "^7.20.2",
-    "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.18.6",
-    "@babel/runtime": "^7.20.1",
-    "@embroider/addon-dev": "^2.0.0",
-    "@rollup/plugin-babel": "^6.0.2",
+    "@babel/preset-env": "^7.19.4",
+    "@babel/runtime": "^7.20.0",
+    "@rollup/plugin-babel":"^6.0.2",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "rollup": "^3.3.0",
-    "tslib": "^2.4.1",
-    "typescript": "^4.8.4",
-    "walk-sync": "^3.0.0"
+    "tslib": "^2.4.0",
+    "walk-sync": "^3.0.0",
+    "typescript": "^4.8.4"
   },
   "ember": {
     "edition": "octane"

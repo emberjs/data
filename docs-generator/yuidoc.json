@@ -20,7 +20,9 @@
       "../packages/record-data/addon",
       "../packages/debug/addon",
       "../packages/private-build-infra/addon",
-      "../packages/canary-features/addon"
+      "../packages/canary-features/addon",
+      "../packages/tracking/src",
+      "../packages/request/src"
     ],
     "exclude": "vendor",
     "outdir": "../packages/-ember-data/dist/docs"
