@@ -23,11 +23,6 @@
     "ember-cli-babel": "^7.26.11",
     "@embroider/macros": "^1.9.0"
   },
-  "exports": {
-    ".": "./addon/index.js",
-    "./*": "./addon/*",
-    "./addon-main.js": "./addon-main.js"
-  },
   "files": [
     "addon-main.js",
     "addon"

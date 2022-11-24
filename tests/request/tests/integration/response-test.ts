@@ -23,6 +23,8 @@ module('RequestManager | Response', function () {
       // don't test headers that change every time
       return !['date', 'etag', 'last-modified'].includes(v[0]);
     });
+    // @ts-expect-error port is unstable in CI
+    delete serialized.url;
 
     assert.deepEqual(
       serialized,
@@ -43,7 +45,6 @@ module('RequestManager | Response', function () {
         status: 200,
         statusText: 'OK',
         type: 'basic',
-        url: 'http://localhost:7357/1502/assets/demo-fetch.json',
       },
       'The response is processed correctly'
     );
