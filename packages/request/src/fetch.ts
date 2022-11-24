@@ -1,6 +1,4 @@
 /**
- * # @ember-data/request/fetch
- *
  * A very basic Fetch Handler
  *
  * @module @ember-data/request/fetch
