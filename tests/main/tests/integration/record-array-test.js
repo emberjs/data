@@ -400,4 +400,67 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     assert.true(people.isLoaded, 'The array is now loaded');
   });
+
+  test('a record array should only remove object(s) if found in collection', async function (assert) {
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Scumbag Dale',
+          },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Scumbag Katz',
+          },
+        },
+        {
+          type: 'person',
+          id: '3',
+          attributes: {
+            name: 'Scumbag Bryn',
+          },
+        },
+      ],
+    });
+
+    const personNotInData = {
+      type: 'person',
+      id: '5',
+      attributes: {
+        name: 'Scumbag Ross',
+      },
+    };
+
+    let recordArray = store.peekAll('person');
+
+    assert.strictEqual(recordArray.at(2).id, '3', 'should retrieve correct record at index 2');
+    assert.strictEqual(recordArray.at(1).id, '2', 'should retrieve correct record at index 1');
+    assert.strictEqual(recordArray.at(0).id, '1', 'should retrieve correct record at index 0');
+
+    recordArray.removeObject(personNotInData);
+
+    assert.strictEqual(recordArray.at(2).id, '3', 'should retrieve correct record at index 2');
+    assert.strictEqual(recordArray.at(1).id, '2', 'should retrieve correct record at index 1');
+    assert.strictEqual(recordArray.at(0).id, '1', 'should retrieve correct record at index 0');
+
+    let personInData = recordArray.at(0);
+    recordArray.removeObject(personInData);
+
+    assert.notOk(recordArray.includes(personInData), 'expected record was removed from record array');
+    assert.strictEqual(recordArray.at(1).id, '3', 'should retrieve correct record at index 1');
+    assert.strictEqual(recordArray.at(0).id, '2', 'should retrieve correct record at index 0');
+
+    personInData = recordArray.at(1);
+    const peopleToRemove = [personInData, personNotInData];
+
+    recordArray.removeObjects(peopleToRemove);
+
+    assert.notOk(recordArray.includes(personInData), 'expected record was removed from record array');
+    assert.strictEqual(recordArray.at(0).id, '2', 'should retrieve correct record at index 0');
+  });
 });
