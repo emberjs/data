@@ -39,7 +39,7 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "@embroider/addon-dev": "^2.0.0",
+    "@embroider/addon-dev": "^3.0.0",
     "rollup": "^3.4.0",
     "@babel/core": "^7.20.2",
     "@babel/cli": "^7.19.3",
