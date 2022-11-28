@@ -33,7 +33,7 @@
     "qunit-dom": "^2.0.0",
     "rsvp": "^4.8.5",
     "semver": "^7.3.8",
-    "testem": "^3.9.0",
+    "testem": "^3.10.0",
     "webpack": "^5.75.0"
   },
   "dependenciesMeta": {
