@@ -41,6 +41,7 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 EmberData is organized into primitives that compose together via public APIs.
 
 - [@ember-data/store](./packages/store) is the core and handles coordination
+- [@ember-data/tracking](./packages/tracking) is required when using the core and provides tracking primitives for change notification of Tracked properties
 - [@ember-data/record-data](./packages/record-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
 - [@ember-data/model](./packages/model) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
 - [@ember-data/adapter](./packages/adapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
