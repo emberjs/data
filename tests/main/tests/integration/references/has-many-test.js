@@ -1054,4 +1054,84 @@ module('integration/references/has-many', function (hooks) {
       assert.strictEqual(pets.length, 2);
     });
   });
+
+  deprecatedTest(
+    'removeObject(promise)',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const deferred = defer();
+
+      const family = store.push({
+        data: {
+          type: 'family',
+          id: '1',
+          relationships: {
+            persons: {
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
+            },
+          },
+        },
+      });
+      const personsReference = family.hasMany('persons');
+      let removeObjectResult = personsReference.removeObject(deferred.promise);
+
+      assert.ok(removeObjectResult.then, 'HasManyReference.removeObject returns a promise');
+
+      const payload = {
+        data: [{ data: { type: 'person', id: '1', attributes: { name: 'Vito' } } }],
+      };
+
+      deferred.resolve(payload);
+
+      const records = await removeObjectResult;
+      assert.strictEqual(get(records, 'length'), 1);
+      assert.strictEqual(records.at(0).name, 'Michael');
+    }
+  );
+
+  deprecatedTest(
+    'removeObjects(promise)',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const deferred = defer();
+
+      const family = store.push({
+        data: {
+          type: 'family',
+          id: '1',
+          relationships: {
+            persons: {
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
+            },
+          },
+        },
+      });
+      const personsReference = family.hasMany('persons');
+      let removeObjectsResult = personsReference.removeObjects(deferred.promise);
+
+      assert.ok(removeObjectsResult.then, 'HasManyReference.removeObjects returns a promise');
+
+      const payload = {
+        data: [
+          {
+            data: [{ type: 'person', id: '1', attributes: { name: 'Vito' } }],
+          },
+        ],
+      };
+
+      deferred.resolve(payload);
+
+      const records = await removeObjectsResult;
+      assert.strictEqual(get(records, 'length'), 1);
+      assert.strictEqual(records.at(0).name, 'Michael');
+    }
+  );
 });

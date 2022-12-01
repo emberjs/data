@@ -401,7 +401,12 @@ module('unit/record-array - RecordArray', function (hooks) {
     assert.true(people.isLoaded, 'The array is now loaded');
   });
 
-  test('a record array should only remove object(s) if found in collection', async function (assert) {
+  test('a hasMany record array should only remove object(s) if found in collection', async function (assert) {
+    class AsyncTag extends Model {
+      @hasMany('person', { async: true, inverse: 'tag' })
+      people;
+    }
+
     store.push({
       data: [
         {
@@ -415,52 +420,80 @@ module('unit/record-array - RecordArray', function (hooks) {
           type: 'person',
           id: '2',
           attributes: {
-            name: 'Scumbag Katz',
+            name: 'Scumbag Tom',
           },
         },
         {
           type: 'person',
           id: '3',
           attributes: {
-            name: 'Scumbag Bryn',
+            name: 'Scumbag Ross',
+          },
+        },
+        {
+          type: 'tag',
+          id: '1',
+          relationships: {
+            people: {
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
+            },
           },
         },
       ],
     });
 
-    const personNotInData = {
-      type: 'person',
-      id: '5',
-      attributes: {
-        name: 'Scumbag Ross',
-      },
-    };
+    let tag = await store.findRecord('tag', '1');
+    let recordArray = tag.people;
+    let scumbagInRecordArray = await store.findRecord('person', '1');
+    let scumbagNotInRecordArray = await store.findRecord('person', '3');
 
-    let recordArray = store.peekAll('person');
+    recordArray.removeObject(scumbagNotInRecordArray);
 
-    assert.strictEqual(recordArray.at(2).id, '3', 'should retrieve correct record at index 2');
-    assert.strictEqual(recordArray.at(1).id, '2', 'should retrieve correct record at index 1');
-    assert.strictEqual(recordArray.at(0).id, '1', 'should retrieve correct record at index 0');
+    assert.strictEqual(
+      recordArray.length,
+      2,
+      'sync record array unchanged after attempting to remove object not found in collection'
+    );
 
-    recordArray.removeObject(personNotInData);
+    recordArray.removeObject(scumbagInRecordArray);
 
-    assert.strictEqual(recordArray.at(2).id, '3', 'should retrieve correct record at index 2');
-    assert.strictEqual(recordArray.at(1).id, '2', 'should retrieve correct record at index 1');
-    assert.strictEqual(recordArray.at(0).id, '1', 'should retrieve correct record at index 0');
+    let didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+    assert.true(didRemoveObject, 'sync record array successfully removed expected object from collection');
 
-    let personInData = recordArray.at(0);
-    recordArray.removeObject(personInData);
+    recordArray.push(scumbagInRecordArray);
 
-    assert.notOk(recordArray.includes(personInData), 'expected record was removed from record array');
-    assert.strictEqual(recordArray.at(1).id, '3', 'should retrieve correct record at index 1');
-    assert.strictEqual(recordArray.at(0).id, '2', 'should retrieve correct record at index 0');
+    let scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+    recordArray.removeObjects(scumbagsToRemove);
 
-    personInData = recordArray.at(1);
-    const peopleToRemove = [personInData, personNotInData];
+    didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+    assert.true(didRemoveObject, 'sync record array only removes objects in list that are found in collection');
 
-    recordArray.removeObjects(peopleToRemove);
+    recordArray.push(scumbagInRecordArray);
+    this.owner.unregister('model:tag');
+    this.owner.register('model:tag', AsyncTag);
 
-    assert.notOk(recordArray.includes(personInData), 'expected record was removed from record array');
-    assert.strictEqual(recordArray.at(0).id, '2', 'should retrieve correct record at index 0');
+    recordArray.removeObject(scumbagNotInRecordArray);
+
+    assert.strictEqual(
+      recordArray.length,
+      2,
+      'async record array unchanged after attempting to remove object not found in collection'
+    );
+
+    recordArray.removeObject(scumbagInRecordArray);
+
+    didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+    assert.true(didRemoveObject, 'async record array successfully removed expected object from collection');
+
+    recordArray.push(scumbagInRecordArray);
+
+    scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+    recordArray.removeObjects(scumbagsToRemove);
+
+    didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+    assert.true(didRemoveObject, 'async record array only removes objects in list that are found in collection');
   });
 });
