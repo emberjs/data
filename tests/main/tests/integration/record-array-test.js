@@ -401,11 +401,80 @@ module('unit/record-array - RecordArray', function (hooks) {
     assert.true(people.isLoaded, 'The array is now loaded');
   });
 
-  test('a hasMany record array should only remove object(s) if found in collection', async function (assert) {
+  test('a synchronous hasMany record array should only remove object(s) if found in collection', async function (assert) {
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Scumbag Dale',
+          },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Scumbag Tom',
+          },
+        },
+        {
+          type: 'person',
+          id: '3',
+          attributes: {
+            name: 'Scumbag Ross',
+          },
+        },
+        {
+          type: 'tag',
+          id: '1',
+          relationships: {
+            people: {
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
+            },
+          },
+        },
+      ],
+    });
+
+    let tag = await store.findRecord('tag', '1');
+    let recordArray = tag.people;
+    let scumbagInRecordArray = await store.findRecord('person', '1');
+    let scumbagNotInRecordArray = await store.findRecord('person', '3');
+
+    recordArray.removeObject(scumbagNotInRecordArray);
+
+    assert.strictEqual(
+      recordArray.length,
+      2,
+      'Record array unchanged after attempting to remove object not found in collection'
+    );
+
+    recordArray.removeObject(scumbagInRecordArray);
+
+    let didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+    assert.true(didRemoveObject, 'Record array successfully removed expected object from collection');
+
+    recordArray.push(scumbagInRecordArray);
+
+    let scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+    recordArray.removeObjects(scumbagsToRemove);
+
+    didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+    assert.true(didRemoveObject, 'Record array only removes objects in list that are found in collection');
+  });
+
+  test('an asynchronous hasMany record array should only remove object(s) if found in collection', async function (assert) {
     class AsyncTag extends Model {
       @hasMany('person', { async: true, inverse: 'tag' })
       people;
     }
+
+    this.owner.unregister('model:tag');
+    this.owner.register('model:tag', AsyncTag);
 
     store.push({
       data: [
@@ -455,13 +524,13 @@ module('unit/record-array - RecordArray', function (hooks) {
     assert.strictEqual(
       recordArray.length,
       2,
-      'sync record array unchanged after attempting to remove object not found in collection'
+      'Record array unchanged after attempting to remove object not found in collection'
     );
 
     recordArray.removeObject(scumbagInRecordArray);
 
     let didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
-    assert.true(didRemoveObject, 'sync record array successfully removed expected object from collection');
+    assert.true(didRemoveObject, 'Record array successfully removed expected object from collection');
 
     recordArray.push(scumbagInRecordArray);
 
@@ -469,31 +538,6 @@ module('unit/record-array - RecordArray', function (hooks) {
     recordArray.removeObjects(scumbagsToRemove);
 
     didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
-    assert.true(didRemoveObject, 'sync record array only removes objects in list that are found in collection');
-
-    recordArray.push(scumbagInRecordArray);
-    this.owner.unregister('model:tag');
-    this.owner.register('model:tag', AsyncTag);
-
-    recordArray.removeObject(scumbagNotInRecordArray);
-
-    assert.strictEqual(
-      recordArray.length,
-      2,
-      'async record array unchanged after attempting to remove object not found in collection'
-    );
-
-    recordArray.removeObject(scumbagInRecordArray);
-
-    didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
-    assert.true(didRemoveObject, 'async record array successfully removed expected object from collection');
-
-    recordArray.push(scumbagInRecordArray);
-
-    scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
-    recordArray.removeObjects(scumbagsToRemove);
-
-    didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
-    assert.true(didRemoveObject, 'async record array only removes objects in list that are found in collection');
+    assert.true(didRemoveObject, 'Record array only removes objects in list that are found in collection');
   });
 });
