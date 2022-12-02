@@ -35,16 +35,16 @@ Wrangle your application's data management with scalable patterns for developer 
 
 ### 📖 On This Page 
 
-- [Overview](./#overview)
-  - [Architecture](./#-architecture)
-  - [Basic Installation](./#basic-installation)
-  - [Advanced Installation](./#advanced-installation)
-- [Configuration](./#configuration)
-  - [Deprecation Stripping](./#deprecation-stripping)
-  - [randomUUID polyfill](./#randomuuid-polyfill)
-  - [Removing inspector support in production](./#removing-inspector-support-in-production)
-  - [Debugging](./#debugging)
-- [Contributing](./#contributing)
+- [Overview](#overview)
+  - [Architecture](#-architecture)
+  - [Basic Installation](#basic-installation)
+  - [Advanced Installation](#advanced-installation)
+- [Configuration](#configuration)
+  - [Deprecation Stripping](#deprecation-stripping)
+  - [randomUUID polyfill](#randomuuid-polyfill)
+  - [Removing inspector support in production](#removing-inspector-support-in-production)
+  - [Debugging](#debugging)
+- [Contributing](#contributing)
 
 # Overview
 
