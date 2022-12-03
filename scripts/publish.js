@@ -410,7 +410,7 @@ async function main() {
     bumpAllPackages(nextVersion);
     let commitCommand = `git commit -am "Release v${nextVersion}"`;
     if (!options.dryRun) {
-      commitCommand = `pnpm install && ` + commitCommand;
+      commitCommand = `pnpm install --no-frozen-lockfile && ` + commitCommand;
       commitCommand += ` && git tag v${nextVersion}`;
     }
 
