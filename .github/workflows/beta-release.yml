@@ -1,30 +1,24 @@
-name: Alpha Releases
+name: Canary-Mirror-Beta Release
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 20 * * 2' # weekly (Tuesday) 12 PM PST
-    - cron: '0 20 * * 5' # weekly (Friday) 12 PM PST
 
 jobs:
-  test:
-    name: Test latest code
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Check should run if HEAD is untagged
-        run: |
-          if [[ "$(git name-rev --tags --name-only $(git rev-parse HEAD))" != "undefined" ]]; then
-            exit 1
-          fi
-
   release:
     name: Run publish script
     runs-on: ubuntu-latest
-    needs: [test]
     environment: deployment
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: beta
+      - name: Get last beta version from package.json
+        uses: sergeysova/jq-action@v2
+        id: version
+        with:
+          cmd: 'jq .version package.json -r'
+      - name: Reset the Beta Branch
+        run: git reset --hard origin/master && git push origin beta -f
       - uses: ./.github/actions/setup
         with:
           build-addons: true
@@ -34,7 +28,7 @@ jobs:
           git config --local user.email 'tomster@emberjs.com'
           git config --local user.name 'Ember.js Alpha Releaser'
       - name: Publish with script
-        run: node scripts/publish.js canary --skipSmokeTest
+        run: node scripts/publish.js beta --skipSmokeTest --fromVersion=${{ steps.version.outputs.value }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Push branch + tag
