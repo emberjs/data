@@ -1,5 +1,35 @@
 # Ember Data Changelog
 
+## 4.9.1 (2022-12-03)
+
+#### :bug: Bug Fix
+* `tracking`
+  * [#8314](https://github.com/emberjs/data/pull/8314) fix: tracking package should not declare exports while v1 ([@runspired](https://github.com/runspired))
+  * [#8308](https://github.com/emberjs/data/pull/8308) fix: prepack addon tree for embroider ([@runspired](https://github.com/runspired))
+* `store`
+  * [#8307](https://github.com/emberjs/data/pull/8307) fix: use join vs run for deleteRecord destroy of new records ([@runspired](https://github.com/runspired))
+  * [#8306](https://github.com/emberjs/data/pull/8306) fix: dont skip LiveArray remove if pending queue is not empty ([@runspired](https://github.com/runspired))
+
+#### :memo: Documentation
+* Other
+  * [#8324](https://github.com/emberjs/data/pull/8324) add @ember-data/tracking to Advanced Installation ([@luxzeitlos](https://github.com/luxzeitlos))
+  * [#8316](https://github.com/emberjs/data/pull/8316) docs: fix typo in README.md ([@SergeAstapov](https://github.com/SergeAstapov))
+* `store`
+  * [#8301](https://github.com/emberjs/data/pull/8301) assert missing crypto.randomUUID ([@luxzeitlos](https://github.com/luxzeitlos))
+
+#### Committers: 3
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Lukas Kohler ([@luxzeitlos](https://github.com/luxzeitlos))
+- Sergey Astapov ([@SergeAstapov](https://github.com/SergeAstapov))
+
+## 4.9.0 (2022-12-03)
+
+* This release was an accidental publish of 4.8.4 LTS
+
+## 4.8.4 (2022-12-03)
+
+* feat: Promote 4.8 to LTS
+
 ## 4.8.3 (2022-11-09)
 
 * fix: ensure correct peer-dependency versions are updated during release
