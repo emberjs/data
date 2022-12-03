@@ -298,7 +298,9 @@ function bumpAllPackages(nextVersion) {
   packages.forEach((l) => bump(packagesDir, l));
   tests.forEach((l) => bump(testsDir, l));
   const pkgJsonPath = path.join(projectRoot, './package.json');
-  scrubWorkspaces(require(pkgJsonPath), pkgJsonPath, nextVersion);
+  const pkgInfo = require(pkgJsonPath);
+  pkgInfo.version = nextVersion;
+  scrubWorkspaces(pkgInfo, pkgJsonPath, nextVersion);
 }
 
 function packAllPackages() {
