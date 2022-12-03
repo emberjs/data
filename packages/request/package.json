@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request",
   "description": "⚡️ A simple, small and fast framework-agnostic library to make `fetch` happen",
-  "version": "4.9.0-alpha.14",
+  "version": "4.10.0-alpha.0",
   "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -15,7 +15,9 @@
   "engines": {
     "node": "14.* || 16.* || >= 18"
   },
-  "keywords": ["ember-addon"],
+  "keywords": [
+    "ember-addon"
+  ],
   "volta": {
     "extends": "../../package.json"
   },
@@ -50,7 +52,7 @@
     "@babel/preset-typescript": "^7.18.6",
     "@babel/preset-env": "^7.20.2",
     "@babel/runtime": "^7.20.1",
-    "@rollup/plugin-babel":"^6.0.3",
+    "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "tslib": "^2.4.0",
     "walk-sync": "^3.0.0",
