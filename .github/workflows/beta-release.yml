@@ -11,6 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          fetch-depth: 2
           ref: beta
       - name: Get last beta version from package.json
         uses: sergeysova/jq-action@v2
