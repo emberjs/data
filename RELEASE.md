@@ -8,7 +8,8 @@ release.
 There are four release channels, `lts`, `release`, `beta` and `canary`.
 Each has it's own section below.
 
-In this guide, we are assuming that the remote `origin` is `git@github.com:emberjs/data.git`
+In this guide, we are assuming that the remote `origin` is `git@github.com:emberjs/data.git`,
+this remote needs to exist and `origin/master` `origin/beta` `origin/release` etc. need to be the upstreams of the local `master` `beta` `release` branches etc.
 
 ## Getting Setup To Do A Release
 
@@ -18,7 +19,9 @@ In order to release `ember-data` you must first ensure the following things:
 - You have an account on `npm` and belongs to the `ember-data` organization on NPM
 - You have `publish` rights within the `ember-data` organization on NPM
 - You have configured your NPM account to use `2fa` (two factor authentication)
-- You have installed `pnpm` and `node` globally
+- You have logged into your NPM account on your machine (typically sessions preserve nearly forever once you have)
+- You have configured `GITHUB_AUTH` token for `lerna-changelog` to be able to gather info for the release notes.
+- You have installed `pnpm` and `node` globally (or better, via `volta`)
 
 ## Release Order
 
@@ -38,7 +41,7 @@ Twitter the Crosslinking the announcement to the following Discord channels.
 - [#dev-ember-data](https://discordapp.com/channels/480462759797063690/480501977931972608)
 - [#ember-data](https://discordapp.com/channels/480462759797063690/486549196837486592)
 
-### LTS
+### LTS Release
 
 1. Checkout the correct branch
 
@@ -61,14 +64,13 @@ Twitter the Crosslinking the announcement to the following Discord channels.
 
 2. Generate the Changelog
 
+> Note: If this is the first release of the LTS and there are no changes, just add an entry for the next patch version stating we are promoting the release to LTS.
+
 The Changelog is generated with [lerna-changelog](https://github.com/lerna/lerna-changelog).
 
-The primary task prior to generating the changelog is confirming that all pull requests that have been merged since the
-last release have been labeled with the appropriate lerna-changelog labels and the titles have been updated to ensure
-they represent something that would make sense to our users. Some great information on why this is important can be
-found at keepachangelog.com, but the overall guiding principle here is that changelogs are for humans, not machines.
+The changelog is generated based on labels applied to PRs since the last release. These labels are configured in the root `package.json`. Before merging PRs reviewers should always ensure a meaningful title for the changelog exists.
 
-For the first release of an LTS, `previous-version` will be the last released version of the `release` channel.
+For the first release of an LTS, `previous-version` will be the last released version of the `release` channel: e.g. `v4.8.1`
 
 For subsequent versions it will be whatever version number we previously published for this LTS.
 
@@ -106,7 +108,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
   - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
   - Publish the release!
 
-### Release
+### Latest / Stable Release
 
 1. Checkout the `release` branch and ensure it is in-sync with `origin/release`.
 
@@ -131,33 +133,11 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    git reset --hard origin/release;
    ```
 
-2. Update associated lockstep dependencies
-
-   **For our first release of the cycle only, we must also update our test harness:**
-
-   a. ensure that the `ember-source` version in `package.json` and relevant `packages/` matches only the minor range for the `ember-data` version we are releasing
-
-   E.G. `"ember-data": "3.4.1"` should have `"ember-source": "~3.4.0"`. For betas/canary, pointing at the last minor release is OK.
-
-   See https://github.com/emberjs/data/issues/5607 for the importance of this step.
-
-   b. ensure that the last two LTS releases of Ember (and only the last two) are included in `ember-try.js`.
-
-   See https://github.com/emberjs/data/issues/5607 for the importance of this step.
-
-   c. ensure the same for `azure-pipelines.yml`
-   d. ensure the same for `.github/workflows/main.yml`
-
-3. Delete the Beta Changelog
-
-   If this is the first stable release for this major/minor, in `CHANGELOG.md` delete
-   the `beta` version entries associated with this release.
-
-4. Generate the Changelog
+2. Generate the Changelog
 
    IT IS IMPORTANT THAT ALL CHANGES ARE ON THE REMOTE BRANCH SPECIFIED BY HEAD
 
-   `previous-version` will be whatever version we previously published as a `release`
+   `previous-version` will be whatever version we previously published as a `release`. E.g. if our last release was `4.8.4` and now we are publishing `4.9.0` then we would use `--from=v4.8.4`
 
    ```
    pnpm exec lerna-changelog --from=PREVIOUS_VERSION_TAG
@@ -174,13 +154,6 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
   git push origin release;
   ```
 
-Note it is prudent to make a PR to release to make sure there are no errors.
-
-    ```
-    git add CHANGELOG.md;
-    git commit -m "Update Changelog for v<new-version>";
-    git push origin name/release-new-version;
-
 5. Publish the release
 
    ```
@@ -195,7 +168,9 @@ Note it is prudent to make a PR to release to make sure there are no errors.
   - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
   - Publish the release!
 
-### Beta
+### Manual Beta Releases
+
+> Note: Most Beta Releases should be handled by the `Canary-Mirror-Beta Release` workflow, which should be manually triggered from the actions page.
 
 1. Checkout the `#beta` branch and ensure it is in-sync with `origin/beta`.
 
@@ -220,48 +195,12 @@ Note it is prudent to make a PR to release to make sure there are no errors.
    git reset --hard origin/beta;
    ```
 
-2. Generate the Changelog
-
-   IT IS IMPORTANT THAT ALL CHANGES ARE ON THE REMOTE BRANCH SPECIFIED BY HEAD
-
-   ```
-   pnpm exec lerna-changelog --from=PREVIOUS_VERSION_TAG
-   ```
-
-- prepend a new section title for this version with Today's date to `CHANGELOG.md`
-- insert changelog script output to `CHANGELOG.md` underneath this new section title
-- edit changelog output to be as user-friendly as possible (drop [INTERNAL] changes, non-code changes, etc.)
-- commit the changelog and push the change upstream
-
-  ```
-  git add CHANGELOG.md;
-  git commit -m "Update Changelog for v<new-beta-version>";
-  git push origin beta;
-  ```
-
-Note it is prudent to make a PR to beta to make sure there are no errors.
-
-    ```
-    git add CHANGELOG.md;
-    git commit -m "Update Changelog for v<new-beta-version>";
-    git push origin name/beta-new-beta-version;
-
-3. Publish the weekly beta
+2. Publish the weekly beta
 
    ```
    node ./scripts/publish.js beta
    ```
-
-4. Update the Release Notes on Github
-
-- Visit [Ember Data Releases](https://github.com/emberjs/data/releases)
-  - Click on the "more recent tags"
-  - Click on the tag just published
-  - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
-  - Click pre-release for beta releases
-  - Publish the release!
-
-### Canary
+### Canary Releases
 
 1. Checkout the `#master` branch and ensure it is in-sync with `origin/master`.
 
@@ -297,9 +236,9 @@ Congrats, you are finished!
 
 #### Canary Auto Publish
 
-New canary versions are published to npm every Wednesday at 12pm PST by the `Alpha Release` GitHub action.
-It will always increment the pre-release version of what's currently in the root `package.json`. For example from `3.25.0-alpha.1`
-to `3.25.0-alpha.2`. **It requires a human to manually bump minor and major versions and publish**.
+New canary versions are published to npm every Tuesday and Friday at 12pm PST by the `Alpha Release` GitHub action. They can also be published using the workflow trigger.
+
+It will always increment the pre-release version of what's currently in the root `package.json`. For example from `3.25.0-alpha.1` to `3.25.0-alpha.2`. **It requires a human to manually bump minor and major versions and publish**.
 
 To try out the script that will be executed in the GitHub action, use:
 `node scripts/publish.js canary --dryRun --force --skipSmokeTest`. The `--dryRun` param will skip auto committing the
