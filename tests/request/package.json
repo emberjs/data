@@ -1,6 +1,6 @@
 {
   "name": "request-test-app",
-  "version": "4.10.0-alpha.2",
+  "version": "4.10.0-alpha.3",
   "private": true,
   "description": "Provides tests for the RequestManager",
   "keywords": [],
@@ -36,10 +36,10 @@
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@babel/runtime": "^7.19.3",
-    "@ember-data/canary-features": "workspace:4.10.0-alpha.2",
-    "@ember-data/request": "workspace:4.10.0-alpha.2",
-    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.2",
-    "@ember-data/unpublished-test-infra": "workspace:4.10.0-alpha.2",
+    "@ember-data/canary-features": "workspace:4.10.0-alpha.3",
+    "@ember-data/request": "workspace:4.10.0-alpha.3",
+    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.3",
+    "@ember-data/unpublished-test-infra": "workspace:4.10.0-alpha.3",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.0",
