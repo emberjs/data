@@ -119,7 +119,7 @@ export class NonSingletonRecordDataManager implements RecordData {
     // called by something V1
     if (!isStableIdentifier(identifier)) {
       data = identifier as JsonApiResource;
-      hasRecord = data as boolean;
+      hasRecord = data as unknown as boolean;
       identifier = this.#identifier;
     }
     if (this.#isDeprecated(recordData)) {

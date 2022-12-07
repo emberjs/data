@@ -271,7 +271,7 @@ class IdentifierArray {
               const args: unknown[] = Array.prototype.slice.call(arguments);
               assert(`Cannot start a new array transaction while a previous transaction is underway`, !transaction);
               transaction = true;
-              let result = Reflect.apply(target[prop] as ProxiedMethod, receiver, args) as unknown;
+              let result: unknown = Reflect.apply(target[prop] as ProxiedMethod, receiver, args);
               self[MUTATE]!(prop as string, args, result);
               addToTransaction(_TAG);
               // TODO handle cache updates
