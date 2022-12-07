@@ -183,6 +183,51 @@ module('unit/record-array - RecordArray', function (hooks) {
     assert.strictEqual(recordArray.length, 0, 'record is removed from the array when it is saved');
   });
 
+  test('destroying a record that is in a live record array only removes itself', async function (assert) {
+    class Person extends Model {
+      @attr name;
+    }
+    const { owner } = this;
+    owner.register('model:person', Person);
+    owner.register(
+      'adapter:application',
+      class extends JSONAPIAdapter {
+        deleteRecord() {
+          return new Promise((resolve) => {
+            setTimeout(resolve, 1);
+          }).then(() => {
+            return { data: null };
+          });
+        }
+      }
+    );
+    const store = owner.lookup('service:store');
+    const recordArray = store.peekAll('person');
+
+    assert.strictEqual(recordArray.length, 0, 'initial length 0');
+
+    const rey = store.createRecord('person', { name: 'Rey' });
+
+    const [one, two, three] = store.push({
+      data: [
+        { type: 'person', id: '1', attributes: { name: 'Chris' } },
+        { type: 'person', id: '2', attributes: { name: 'Ross' } },
+        { type: 'person', id: '3', attributes: { name: 'Cajun' } },
+      ],
+    });
+
+    assert.strictEqual(recordArray.length, 4, 'populated length 4');
+
+    three.deleteRecord();
+    assert.strictEqual(recordArray.length, 4, 'populated length 4');
+    await three.save();
+    assert.strictEqual(recordArray.length, 3, 'after save persisted length 3');
+    three.unloadRecord();
+    await settled();
+
+    assert.strictEqual(recordArray.length, 3, 'updated length 3');
+  });
+
   test("a loaded record is not removed from a relationship ManyArray when it is deleted even if the belongsTo side isn't defined", async function (assert) {
     class Person extends Model {
       @attr()
