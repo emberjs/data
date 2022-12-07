@@ -28,7 +28,7 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import type { LegacySupport } from '../legacy-relationships-support';
+import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
 
 /**
@@ -607,7 +607,11 @@ export default class HasManyReference {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
-    return support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray; // this cast is necessary because typescript does not work properly with custom thenables;
+    const fetchSyncRel =
+      !this.hasManyRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
+    return fetchSyncRel
+      ? (support.reloadHasMany(this.key, options) as Promise<ManyArray>)
+      : (support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray); // this cast is necessary because typescript does not work properly with custom thenables;
   }
 
   /**

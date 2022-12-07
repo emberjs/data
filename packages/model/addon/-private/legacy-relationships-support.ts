@@ -749,7 +749,7 @@ function anyUnloaded(store: Store, relationship: ManyRelationship) {
   return unloaded || false;
 }
 
-function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship): boolean {
+export function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelationship): boolean {
   const instanceCache = store._instanceCache;
   const identifiers = resource.data;
 
