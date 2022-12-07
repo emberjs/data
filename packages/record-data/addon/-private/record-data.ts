@@ -402,7 +402,11 @@ export default class SingletonRecordData implements RecordData {
   }
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
-    return cached.localAttrs !== null && Object.keys(cached.localAttrs).length > 0;
+
+    return (
+      (cached.inflightAttrs !== null && Object.keys(cached.inflightAttrs).length > 0) ||
+      (cached.localAttrs !== null && Object.keys(cached.localAttrs).length > 0)
+    );
   }
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
     const cached = this.__peek(identifier);
