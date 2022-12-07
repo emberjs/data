@@ -4069,4 +4069,181 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     assert.strictEqual(person.phoneNumbers.length, 1);
   });
+
+  deprecatedTest(
+    'a synchronous hasMany record array should only remove object(s) if found in collection',
+    {
+      id: 'ember-data:deprecate-array-like',
+      count: 3,
+      until: '5.0',
+    },
+    async function (assert) {
+      class Person extends Model {
+        @attr()
+        name;
+        @belongsTo('tag', { async: false, inverse: 'people' })
+        tag;
+      }
+
+      class Tag extends Model {
+        @hasMany('person', { async: false, inverse: 'tag' })
+        people;
+      }
+
+      this.owner.register('model:person', Person);
+      this.owner.register('model:tag', Tag);
+
+      const store = this.owner.lookup('service:store');
+      // eslint-disable-next-line no-unused-vars
+      const [tag, scumbagInRecordArray, _person2, scumbagNotInRecordArray] = store.push({
+        data: [
+          {
+            type: 'tag',
+            id: '1',
+            relationships: {
+              people: {
+                data: [
+                  { type: 'person', id: '1' },
+                  { type: 'person', id: '2' },
+                ],
+              },
+            },
+          },
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'Scumbag Dale',
+            },
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'Scumbag Tom',
+            },
+          },
+          {
+            type: 'person',
+            id: '3',
+            attributes: {
+              name: 'Scumbag Ross',
+            },
+          },
+        ],
+      });
+
+      let recordArray = tag.people;
+
+      recordArray.removeObject(scumbagNotInRecordArray);
+
+      assert.strictEqual(
+        recordArray.length,
+        2,
+        'Record array unchanged after attempting to remove object not found in collection'
+      );
+
+      recordArray.removeObject(scumbagInRecordArray);
+
+      let didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+      assert.true(didRemoveObject, 'Record array successfully removed expected object from collection');
+
+      recordArray.push(scumbagInRecordArray);
+
+      let scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+      recordArray.removeObjects(scumbagsToRemove);
+
+      didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+      assert.true(didRemoveObject, 'Record array only removes objects in list that are found in collection');
+    }
+  );
+
+  deprecatedTest(
+    'an asynchronous hasMany record array should only remove object(s) if found in collection',
+    {
+      id: 'ember-data:deprecate-promise-many-array-behaviors',
+      count: 6,
+      until: '5.0',
+    },
+    async function (assert) {
+      class Person extends Model {
+        @attr()
+        name;
+        @belongsTo('tag', { async: false, inverse: 'people' })
+        tag;
+      }
+
+      class Tag extends Model {
+        @hasMany('person', { async: true, inverse: 'tag' })
+        people;
+      }
+
+      const store = this.owner.lookup('service:store');
+      this.owner.register('model:person', Person);
+      this.owner.register('model:tag', Tag);
+
+      // eslint-disable-next-line no-unused-vars
+      const [tag, scumbagInRecordArray, _person2, scumbagNotInRecordArray] = store.push({
+        data: [
+          {
+            type: 'tag',
+            id: '1',
+            relationships: {
+              people: {
+                data: [
+                  { type: 'person', id: '1' },
+                  { type: 'person', id: '2' },
+                ],
+              },
+            },
+          },
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'Scumbag Dale',
+            },
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'Scumbag Tom',
+            },
+          },
+          {
+            type: 'person',
+            id: '3',
+            attributes: {
+              name: 'Scumbag Ross',
+            },
+          },
+        ],
+      });
+
+      let recordArray = tag.people;
+
+      recordArray.removeObject(scumbagNotInRecordArray);
+
+      assert.strictEqual(
+        recordArray.length,
+        2,
+        'Record array unchanged after attempting to remove object not found in collection'
+      );
+
+      recordArray.removeObject(scumbagInRecordArray);
+
+      let didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+      assert.true(didRemoveObject, 'Record array successfully removed expected object from collection');
+
+      recordArray.pushObject(scumbagInRecordArray);
+
+      let scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+      recordArray.removeObjects(scumbagsToRemove);
+
+      didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+      assert.true(didRemoveObject, 'Record array only removes objects in list that are found in collection');
+      assert.expectDeprecation({ id: 'ember-data:deprecate-array-like', count: 4 });
+    }
+  );
 });
