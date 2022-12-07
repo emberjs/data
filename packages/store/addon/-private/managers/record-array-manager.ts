@@ -357,7 +357,10 @@ function sync(array: IdentifierArray, changes: Map<StableRecordIdentifier, 'add'
       // state = array[SOURCE] = [];
     } else {
       removes.forEach((i) => {
-        state.splice(state.indexOf(i), 1);
+        const index = state.indexOf(i);
+        if (index !== -1) {
+          state.splice(index, 1);
+        }
       });
     }
   }
