@@ -23,7 +23,7 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import type { LegacySupport } from '../legacy-relationships-support';
+import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
 
 /**
@@ -562,7 +562,11 @@ export default class BelongsToReference {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
-    return support.getBelongsTo(this.key, options);
+    const fetchSyncRel =
+      !this.belongsToRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
+    return fetchSyncRel
+      ? support.reloadBelongsTo(this.key, options).then(() => this.value())
+      : support.getBelongsTo(this.key, options);
   }
 
   /**
