@@ -1217,6 +1217,46 @@ module('unit/model - Model', function (hooks) {
       await cat.save();
     });
 
+    test('changedAttributes() reset after save', async function (assert) {
+      adapter.updateRecord = function (store, type, snapshot) {
+        return resolve({
+          data: {
+            id: '1',
+            type: 'person',
+            attributes: {
+              name: snapshot.attr('name'),
+            },
+          },
+        });
+      };
+
+      const originalName = 'the original name';
+      const newName = 'a new name';
+
+      const person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: originalName,
+          },
+        },
+      });
+
+      person.name = newName;
+
+      assert.deepEqual(
+        person.changedAttributes().name,
+        [originalName, newName],
+        'changedAttributes() reports old/new values before save'
+      );
+
+      await person.save();
+
+      const changes = person.changedAttributes();
+      assert.deepEqual(changes, {}, 'changedAttributes() reset after save');
+    });
+
     if (gte('3.10.0')) {
       test('@attr decorator works without parens', async function (assert) {
         assert.expect(1);
