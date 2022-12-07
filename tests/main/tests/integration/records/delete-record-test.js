@@ -1,6 +1,6 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|dave|cersei)" }]*/
 
-import { get } from '@ember/object';
+import EmberObject, { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
@@ -27,6 +27,29 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
+  });
+
+  test('Updates to the remote state of a locally-deleted (not persisted deletion) should not error', async function (assert) {
+    const { owner } = this;
+    owner.register(
+      'model:user',
+      class extends Model {
+        @attr name;
+      }
+    );
+    owner.register(
+      'adapter:application',
+      class extends EmberObject {
+        findRecord() {
+          return { data: { type: 'user', id: '1', attributes: { name: 'James' } } };
+        }
+      }
+    );
+    const store = owner.lookup('service:store');
+    const record = store.push({ data: { type: 'user', id: '1', attributes: { name: 'Chris' } } });
+    record.deleteRecord();
+    await store.findRecord('user', '1', { reload: true });
+    assert.strictEqual(record.name, 'James');
   });
 
   test('records should not be removed from record arrays just after deleting, but only after committing them', async function (assert) {
