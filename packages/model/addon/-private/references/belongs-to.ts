@@ -112,7 +112,6 @@ export default class BelongsToReference {
   @cached
   @dependentKeyCompat
   get identifier(): StableRecordIdentifier | null {
-    this._ref; // consume the tracked prop
     if (this.___relatedToken) {
       this.store._notificationManager.unsubscribe(this.___relatedToken);
       this.___relatedToken = null;
@@ -293,6 +292,7 @@ export default class BelongsToReference {
   }
 
   _resource() {
+    this._ref; // subscribe
     return this.store._instanceCache
       .getRecordData(this.___identifier)
       .getRelationship(this.___identifier, this.key) as SingleResourceRelationship;

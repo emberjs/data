@@ -96,6 +96,44 @@ module('integration/references/autotracking', function (hooks) {
     assert.strictEqual(testContext.bestFriendId, '6', 'the id is correct when the record is saved');
   });
 
+  test('BelongsToReference.value() is autotracked when value is initially null', async function (assert) {
+    const user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            data: null,
+          },
+        },
+      },
+    });
+    class TestContext {
+      user = user;
+
+      get bestFriend() {
+        return this.user.belongsTo('bestFriend').value();
+      }
+    }
+
+    const testContext = new TestContext();
+    this.set('context', testContext);
+    await render(hbs`id: {{if this.context.bestFriend this.context.bestFriend.id 'null'}}`);
+
+    assert.strictEqual(getRootElement().textContent, 'id: null', 'the value is initially correct');
+    assert.strictEqual(testContext.bestFriend, null, 'the value is initially correct');
+    const record = store.push({
+      data: { type: 'user', id: '2', attributes: { name: 'Igor' } },
+    });
+    user.bestFriend = record;
+    await settled();
+    assert.strictEqual(getRootElement().textContent, 'id: 2', 'the value updates when we associate a record');
+    assert.strictEqual(testContext.bestFriend, record, 'the value is correct after the update');
+  });
+
   test('BelongsToReference.id() autotracking works with null value changes', async function (assert) {
     class TestContext {
       user = user;
