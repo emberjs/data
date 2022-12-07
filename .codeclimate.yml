@@ -12,12 +12,14 @@ exclude_paths:
   - 'packages/*/blueprints/*'
   - 'packages/*/bin/*'
   - 'packages/*/lib/*'
+  - 'packages/unpublished-test-infra/*'
+  - 'packages/private-build-infra/*'
 
 version: '2' # required to adjust maintainability checks
 checks:
   argument-count:
     config:
-      threshold: 4
+      threshold: 5
   complex-logic:
     config:
       threshold: 4
@@ -28,6 +30,8 @@ checks:
   method-count:
     config:
       threshold: 50
+  return-statements:
+    enabled: false
   method-lines:
     config:
       threshold: 100
