@@ -35,6 +35,82 @@ module('Editing a Record', function (hooks) {
     store = owner.lookup('service:store');
   });
 
+  test('pushedData in the uncommitted state should move a record to committed', async function (assert) {
+    const { owner } = this;
+    owner.register(
+      'model:user',
+      class extends Model {
+        @attr firstName;
+        @attr lastName;
+      }
+    );
+    const store = owner.lookup('service:store');
+    const record = store.push({
+      data: { type: 'user', id: '1', attributes: { firstName: 'Chris', lastName: 'Thoburn' } },
+    });
+    record.firstName = 'James';
+    assert.true(record.hasDirtyAttributes, 'we are dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.updated.uncommitted', 'stateName is correct');
+    store.push({
+      data: { type: 'user', id: '1', attributes: { firstName: 'James', lastName: 'Thoburn' } },
+    });
+    assert.false(record.hasDirtyAttributes, 'we are not dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'stateName is correct');
+    record.firstName = 'Chris';
+    record.lastName = 'Youman';
+    assert.true(record.hasDirtyAttributes, 'we are dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.updated.uncommitted', 'stateName is correct');
+    store.push({
+      data: { type: 'user', id: '1', attributes: { firstName: 'Chris', lastName: 'Thoburn' } },
+    });
+    assert.true(record.hasDirtyAttributes, 'we are dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.updated.uncommitted', 'stateName is correct');
+    store.push({
+      data: { type: 'user', id: '1', attributes: { firstName: 'Chris', lastName: 'Youman' } },
+    });
+
+    assert.false(record.hasDirtyAttributes, 'we are not dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'stateName is correct');
+  });
+
+  test('pushedData in the created.uncommitted state should move a record to committed', async function (assert) {
+    const { owner } = this;
+    owner.register(
+      'model:user',
+      class extends Model {
+        @attr firstName;
+        @attr lastName;
+      }
+    );
+    const store = owner.lookup('service:store');
+    const record = store.createRecord('user', { id: '1' });
+    record.firstName = 'James';
+    assert.true(record.isNew, 'we are new');
+    assert.true(record.hasDirtyAttributes, 'we are dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.created.uncommitted', 'stateName is correct');
+    store.push({
+      data: { type: 'user', id: '1', attributes: { firstName: 'James', lastName: 'Thoburn' } },
+    });
+    assert.false(record.isNew, 'we are no longer new');
+    assert.false(record.hasDirtyAttributes, 'we are not dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'stateName is correct');
+    record.firstName = 'Chris';
+    record.lastName = 'Youman';
+    assert.true(record.hasDirtyAttributes, 'we are dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.updated.uncommitted', 'stateName is correct');
+    store.push({
+      data: { type: 'user', id: '1', attributes: { firstName: 'Chris', lastName: 'Thoburn' } },
+    });
+    assert.true(record.hasDirtyAttributes, 'we are dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.updated.uncommitted', 'stateName is correct');
+    store.push({
+      data: { type: 'user', id: '1', attributes: { firstName: 'Chris', lastName: 'Youman' } },
+    });
+
+    assert.false(record.hasDirtyAttributes, 'we are not dirty');
+    assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'stateName is correct');
+  });
+
   test('Change parent relationship then unload original child', async function (assert) {
     let chris = store.push({
       data: {
