@@ -136,12 +136,12 @@ export interface CreateRecordProperties {
   The store provides multiple ways to create new record objects. They have
   some subtle differences in their use which are detailed below:
 
-  [createRecord](../methods/createRecord?anchor=createRecord) is used for creating new
+  [createRecord](./classes/Store/methods?anchor=createRecord) is used for creating new
   records on the client side. This will return a new record in the
   `created.uncommitted` state. In order to persist this record to the
   backend, you will need to call `record.save()`.
 
-  [push](../methods/push?anchor=push) is used to notify Ember Data's store of new or
+  [push](./methods/push?anchor=push) is used to notify Ember Data's store of new or
   updated records that exist in the backend. This will return a record
   in the `loaded.saved` state. The primary use-case for `store#push` is
   to notify Ember Data about record updates (full or partial) that happen
@@ -149,7 +149,7 @@ export interface CreateRecordProperties {
   [SSE](http://dev.w3.org/html5/eventsource/) or [Web
   Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
 
-  [pushPayload](../methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
+  [pushPayload](./methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
   `store#push` that will deserialize payloads if the
   Serializer implements a `pushPayload` method.
 
