@@ -599,6 +599,7 @@ function setupRelationships(
 function patchLocalAttributes(cached: CachedResource): boolean {
   const { localAttrs, remoteAttrs, inflightAttrs, changes } = cached;
   if (!localAttrs) {
+    cached.changes = null;
     return false;
   }
   let hasAppliedPatch = false;

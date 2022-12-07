@@ -1233,7 +1233,7 @@ module('unit/model - Model', function (hooks) {
       const originalName = 'the original name';
       const newName = 'a new name';
 
-      store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -1243,8 +1243,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let person = await store.findRecord('person', '1');
-      person.set('name', newName);
+      person.name = newName;
 
       assert.deepEqual(
         person.changedAttributes().name,
@@ -1254,7 +1253,8 @@ module('unit/model - Model', function (hooks) {
 
       await person.save();
 
-      assert.deepEqual(person.changedAttributes(), {}, 'changedAttributes() reset after save');
+      const changes = person.changedAttributes();
+      assert.deepEqual(changes, {}, 'changedAttributes() reset after save');
     });
 
     if (gte('3.10.0')) {
