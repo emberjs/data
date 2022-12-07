@@ -264,6 +264,48 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
     assert.strictEqual(pirate.bestHuman, null, 'scene 3 - pirate no longer has Chris as best human');
     assert.strictEqual(bestDog, null, 'scene 3 - Chris has no best dog');
   });
+
+  test('async belongsTo id is accessible during load', async function (assert) {
+    this.owner.register(
+      'adapter:application',
+      class extends JSONAPIAdapter {
+        findRecord() {
+          return new Promise((resolve) => setTimeout(resolve, 1)).then(() => {
+            return {
+              data: {
+                type: 'pet',
+                id: '2',
+                attributes: { name: 'Shen' },
+                relationships: {
+                  bestHuman: {
+                    data: { type: 'person', id: '1' },
+                  },
+                },
+              },
+            };
+          });
+        }
+      }
+    );
+
+    const person = store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: { name: 'Chris' },
+        relationships: {
+          bestDog: { data: { type: 'pet', id: '2' } },
+        },
+      },
+    });
+
+    const req = person.bestDog;
+    assert.strictEqual(req.get('id'), '2', 'the id is present on the proxy');
+    const dog = await req;
+
+    assert.strictEqual(dog.id, '2', 'We loaded');
+    assert.strictEqual(dog.name, 'Shen', 'We loaded');
+  });
 });
 
 module('integration/relationship/belongs_to Belongs-To Relationships', function (hooks) {

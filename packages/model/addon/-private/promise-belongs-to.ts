@@ -2,6 +2,7 @@ import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
+import { cached } from '@glimmer/tracking';
 
 import type Store from '@ember-data/store';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -9,6 +10,7 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import { LegacySupport } from './legacy-relationships-support';
 import { PromiseObject } from './promise-proxy-base';
+import type BelongsToReference from './references/belongs-to';
 
 export interface BelongsToProxyMeta {
   key: string;
@@ -45,6 +47,15 @@ const Extended: PromiseObjectType<RecordInstance> = PromiseObject as unknown as 
 */
 class PromiseBelongsTo extends Extended<RecordInstance> {
   declare _belongsToState: BelongsToProxyMeta;
+
+  @cached
+  get id() {
+    const { key, legacySupport } = this._belongsToState;
+    const ref = legacySupport.referenceFor('belongsTo', key) as BelongsToReference;
+
+    return ref.id();
+  }
+
   // we don't proxy meta because we would need to proxy it to the relationship state container
   //  however, meta on relationships does not trigger change notifications.
   //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`
