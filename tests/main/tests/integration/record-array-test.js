@@ -206,9 +206,8 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     assert.strictEqual(recordArray.length, 0, 'initial length 0');
 
-    const rey = store.createRecord('person', { name: 'Rey' });
-
-    const [one, two, three] = store.push({
+    // eslint-disable-next-line no-unused-vars
+    const [_one, _two, three] = store.push({
       data: [
         { type: 'person', id: '1', attributes: { name: 'Chris' } },
         { type: 'person', id: '2', attributes: { name: 'Ross' } },
@@ -216,16 +215,16 @@ module('unit/record-array - RecordArray', function (hooks) {
       ],
     });
 
-    assert.strictEqual(recordArray.length, 4, 'populated length 4');
+    assert.strictEqual(recordArray.length, 3, 'populated length 3');
 
     three.deleteRecord();
-    assert.strictEqual(recordArray.length, 4, 'populated length 4');
+    assert.strictEqual(recordArray.length, 3, 'populated length 3');
     await three.save();
-    assert.strictEqual(recordArray.length, 3, 'after save persisted length 3');
+    assert.strictEqual(recordArray.length, 2, 'after save persisted length 2');
     three.unloadRecord();
     await settled();
 
-    assert.strictEqual(recordArray.length, 3, 'updated length 3');
+    assert.strictEqual(recordArray.length, 2, 'updated length 2');
   });
 
   test("a loaded record is not removed from a relationship ManyArray when it is deleted even if the belongsTo side isn't defined", async function (assert) {
