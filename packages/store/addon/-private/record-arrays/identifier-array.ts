@@ -658,13 +658,21 @@ if (DEPRECATE_ARRAY_LIKE) {
 
   IdentifierArray.prototype.removeObject = function (obj: RecordInstance) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeObject', 'splice');
-    this.splice(this.indexOf(obj), 1);
+    const index = this.indexOf(obj);
+    if (index !== -1) {
+      this.splice(index, 1);
+    }
     return this;
   };
 
   IdentifierArray.prototype.removeObjects = function (objs: RecordInstance[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeObjects', 'splice');
-    objs.forEach((obj) => this.splice(this.indexOf(obj), 1));
+    objs.forEach((obj) => {
+      const index = this.indexOf(obj);
+      if (index !== -1) {
+        this.splice(index, 1);
+      }
+    });
     return this;
   };
 
