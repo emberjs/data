@@ -1016,11 +1016,13 @@ module('unit/model - Model', function (hooks) {
         .catch(() => {
           assert.false(person.isValid, 'record is not valid');
           assert.true(person.hasDirtyAttributes, 'record still has dirty attributes');
+          assert.strictEqual(person.errors.get('name')[0].message, 'Invalid Attribute');
 
           person.set('name', 'Peter');
 
           assert.true(person.isValid, 'record is valid after resetting attribute to old value');
           assert.false(person.hasDirtyAttributes, 'record becomes clean after resetting property to the old value');
+          assert.strictEqual(person.errors.length, 0, 'no errors remain');
         });
     });
 
@@ -1063,11 +1065,13 @@ module('unit/model - Model', function (hooks) {
         .catch(() => {
           assert.false(person.isValid, 'record is not valid');
           assert.true(person.hasDirtyAttributes, 'record still has dirty attributes');
+          assert.strictEqual(person.errors.get('name')[0].message, 'Invalid Attribute');
 
           person.set('name', 'Peter');
 
           assert.true(person.isValid, 'record is valid after resetting invalid attribute to old value');
           assert.true(person.hasDirtyAttributes, 'record still has dirty attributes');
+          assert.strictEqual(person.errors.length, 0, 'no errors remain');
         });
     });
 
