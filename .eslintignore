@@ -10,8 +10,12 @@
 /packages/tracking/addon/
 /packages/request/addon/
 /packages/store/addon/
+/packages/adapter/addon/
 /packages/-ember-data/docs/
 /packages/tracking/addon/
+/packages/serializer/addon/
+/packages/model/addon/
+/packages/record-data/addon/
 
 **/DEBUG/
 

@@ -8,8 +8,9 @@ import { DEBUG } from '@glimmer/env';
 
 import { singularize } from 'ember-inflector';
 
-import JSONSerializer from '@ember-data/serializer/json';
 import { coerceId } from '@ember-data/store/-private';
+
+import JSONSerializer from './json';
 
 function makeArray(value) {
   return Array.isArray(value) ? value : [value];
