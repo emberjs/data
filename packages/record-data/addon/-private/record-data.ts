@@ -3,7 +3,6 @@
  */
 import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
-import { isEqual } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
 import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
@@ -579,7 +578,7 @@ function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash) 
         continue;
       }
 
-      if (!isEqual(original[key], value)) {
+      if (original[key] !== value) {
         changedKeys.push(key);
       }
     }
