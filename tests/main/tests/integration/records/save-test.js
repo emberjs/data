@@ -1,7 +1,7 @@
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { defer, reject, resolve } from 'rsvp';
+import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -10,17 +10,18 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/records/save - Save Record', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Post = Model.extend({
-      title: attr('string'),
-    });
+    class Post extends Model {
+      @attr title;
+    }
 
     this.owner.register('model:post', Post);
-    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('adapter:application', class extends Adapter {});
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
@@ -74,7 +75,7 @@ module('integration/records/save - Save Record', function (hooks) {
 
     adapter.createRecord = function (store, type, snapshot) {
       let error = new InvalidError([{ title: 'not valid' }]);
-      return reject(error);
+      return Promise.reject(error);
     };
 
     try {
@@ -85,7 +86,34 @@ module('integration/records/save - Save Record', function (hooks) {
     }
   });
 
-  test('Retry is allowed in a failure handler', function (assert) {
+  testInDebug('createRecord id asserts during commit are gracefully handled', async function (assert) {
+    this.owner.register(
+      'adapter:application',
+      class extends Adapter {
+        createRecord() {
+          return {
+            data: {
+              type: 'post',
+              attributes: {
+                title: 'Adjunctivitis (revised)',
+              },
+            },
+          };
+        }
+      }
+    );
+    const store = this.owner.lookup('service:store');
+    const post = store.createRecord('post', { title: 'Adjunctivitis' });
+    try {
+      await post.save();
+      assert.ok(false, 'error should be catchable');
+    } catch (e) {
+      assert.ok(true, `error ${e.message} was catchable`);
+      assert.false(post.isValid, 'post should be in an invalid state');
+    }
+  });
+
+  test('Retry is allowed in a failure handler', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     let post = store.createRecord('post', { title: 'toto' });
@@ -96,28 +124,21 @@ module('integration/records/save - Save Record', function (hooks) {
       let error = new InvalidError([{ title: 'not valid' }]);
 
       if (count++ === 0) {
-        return reject(error);
+        return Promise.reject(error);
       } else {
-        return resolve({ data: { id: '123', type: 'post' } });
+        return Promise.resolve({ data: { id: '123', type: 'post' } });
       }
     };
 
-    run(function () {
-      post
-        .save()
-        .then(
-          function () {},
-          function () {
-            return post.save();
-          }
-        )
-        .then(function (post) {
-          assert.strictEqual(post.id, '123', 'The post ID made it through');
-        });
-    });
+    try {
+      await post.save();
+    } catch {
+      await post.save();
+    }
+    assert.strictEqual(post.id, '123', 'The post ID made it through');
   });
 
-  test('Repeated failed saves keeps the record in uncommited state', function (assert) {
+  test('Repeated failed saves keeps the record in uncommited state', async function (assert) {
     assert.expect(4);
 
     let store = this.owner.lookup('service:store');
@@ -125,23 +146,27 @@ module('integration/records/save - Save Record', function (hooks) {
     let post = store.createRecord('post', { title: 'toto' });
 
     adapter.createRecord = function (store, type, snapshot) {
-      return reject();
+      return Promise.reject();
     };
 
-    run(function () {
-      post.save().then(null, function () {
-        assert.ok(post.isError);
-        assert.strictEqual(post.currentState.stateName, 'root.loaded.created.uncommitted');
+    try {
+      await post.save();
+      assert.ok(false, 'we should error');
+    } catch {
+      assert.true(post.isError);
+      assert.strictEqual(post.currentState.stateName, 'root.loaded.created.uncommitted');
+    }
 
-        post.save().then(null, function () {
-          assert.ok(post.isError);
-          assert.strictEqual(post.currentState.stateName, 'root.loaded.created.uncommitted');
-        });
-      });
-    });
+    try {
+      await post.save();
+      assert.ok(false, 'we should error');
+    } catch {
+      assert.true(post.isError);
+      assert.strictEqual(post.currentState.stateName, 'root.loaded.created.uncommitted');
+    }
   });
 
-  test('Repeated failed saves with invalid error marks the record as invalid', function (assert) {
+  test('Repeated failed saves with invalid error marks the record as invalid', async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -156,21 +181,24 @@ module('integration/records/save - Save Record', function (hooks) {
         },
       ]);
 
-      return reject(error);
+      return Promise.reject(error);
     };
 
-    run(function () {
-      post.save().then(null, function () {
-        assert.false(post.isValid);
-
-        post.save().then(null, function () {
-          assert.false(post.isValid);
-        });
-      });
-    });
+    try {
+      await post.save();
+      assert.ok(false, 'we should error');
+    } catch {
+      assert.false(post.isValid);
+    }
+    try {
+      await post.save();
+      assert.ok(false, 'we should error');
+    } catch {
+      assert.false(post.isValid);
+    }
   });
 
-  test('Repeated failed saves with invalid error without payload marks the record as invalid', function (assert) {
+  test('Repeated failed saves with invalid error without payload marks the record as invalid', async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -179,21 +207,24 @@ module('integration/records/save - Save Record', function (hooks) {
 
     adapter.createRecord = function (store, type, snapshot) {
       let error = new InvalidError();
-      return reject(error);
+      return Promise.reject(error);
     };
 
-    run(function () {
-      post.save().then(null, function () {
-        assert.false(post.isValid);
-
-        post.save().then(null, function () {
-          assert.false(post.isValid);
-        });
-      });
-    });
+    try {
+      await post.save();
+      assert.ok(false, 'we should error');
+    } catch {
+      assert.false(post.isValid);
+    }
+    try {
+      await post.save();
+      assert.ok(false, 'we should error');
+    } catch {
+      assert.false(post.isValid);
+    }
   });
 
-  test('Will reject save on invalid', function (assert) {
+  test('Will reject save on invalid', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -202,17 +233,15 @@ module('integration/records/save - Save Record', function (hooks) {
 
     adapter.createRecord = function (store, type, snapshot) {
       var error = new InvalidError([{ title: 'not valid' }]);
-      return reject(error);
+      return Promise.reject(error);
     };
 
-    run(function () {
-      post.save().then(
-        function () {},
-        function () {
-          assert.ok(true, 'save operation was rejected');
-        }
-      );
-    });
+    try {
+      await post.save();
+      assert.ok(false, 'we should error');
+    } catch {
+      assert.ok(true, 'save operation was rejected');
+    }
   });
 
   test('Will error when saving after unloading record via the store', async function (assert) {
@@ -231,9 +260,8 @@ module('integration/records/save - Save Record', function (hooks) {
       };
     };
 
-    run(() => {
-      store.unloadAll('post');
-    });
+    store.unloadAll('post');
+    await settled();
 
     await assert.expectAssertion(
       () => post.save(),
@@ -257,9 +285,8 @@ module('integration/records/save - Save Record', function (hooks) {
       };
     };
 
-    run(() => {
-      post.unloadRecord();
-    });
+    post.unloadRecord();
+    await settled();
 
     await assert.expectAssertion(
       () => post.save(),

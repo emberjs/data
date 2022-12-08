@@ -2310,8 +2310,8 @@ class Store extends Service {
 
     const saveOptions = Object.assign({ [SaveOp]: operation }, options);
     let fetchManagerPromise = this._fetchManager.scheduleSave(identifier, saveOptions);
-    return fetchManagerPromise.then(
-      (payload) => {
+    return fetchManagerPromise
+      .then((payload) => {
         if (LOG_PAYLOADS) {
           try {
             let data = payload ? JSON.parse(JSON.stringify(payload)) : payload;
@@ -2366,8 +2366,8 @@ class Store extends Service {
           }
         });
         return record;
-      },
-      (e) => {
+      })
+      .catch((e) => {
         let err = e;
         if (!e) {
           err = new Error(`Unknown Error Occurred During Request`);
@@ -2376,8 +2376,7 @@ class Store extends Service {
         }
         adapterDidInvalidate(this, identifier, err);
         throw err;
-      }
-    );
+      });
   }
 
   /**
