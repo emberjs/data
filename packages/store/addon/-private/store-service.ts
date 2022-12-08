@@ -45,6 +45,7 @@ import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
   peekRecordIdentifier,
+  preloadData,
   recordDataIsFullyDeleted,
   recordIdentifierFor,
   setRecordIdentifier,
@@ -1127,6 +1128,12 @@ class Store extends Service {
     let promise;
     options = options || {};
 
+    if (options.preload) {
+      this._join(() => {
+        preloadData(this, identifier, options!.preload!);
+      });
+    }
+
     // if not loaded start loading
     if (!this._instanceCache.recordIsLoaded(identifier)) {
       promise = this._instanceCache._fetchDataIfNeededForIdentifier(identifier, options);
@@ -1134,6 +1141,7 @@ class Store extends Service {
       // Refetch if the reload option is passed
     } else if (options.reload) {
       assertIdentifierHasId(identifier);
+
       promise = this._fetchManager.scheduleFetch(identifier, options);
     } else {
       let snapshot: Snapshot | null = null;

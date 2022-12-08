@@ -476,12 +476,6 @@ export class InstanceCache {
     const isEmpty = _isEmpty(this, identifier);
     const isLoading = _isLoading(this, identifier);
 
-    if (options.preload) {
-      this.store._join(() => {
-        preloadData(this.store, identifier, options.preload!);
-      });
-    }
-
     let promise: Promise<StableRecordIdentifier>;
     if (isEmpty) {
       assertIdentifierHasId(identifier);
@@ -617,7 +611,7 @@ export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: Stabl
     models.
   */
 type PreloadRelationshipValue = RecordInstance | string;
-function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Dict<unknown>) {
+export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Dict<unknown>) {
   let jsonPayload: JsonApiResource = {};
   //TODO(Igor) consider the polymorphic case
   const schemas = store.getSchemaDefinitionService();

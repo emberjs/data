@@ -1,3 +1,4 @@
+import EmberObject from '@ember/object';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -25,6 +26,9 @@ class Person extends Model {
   @attr()
   name;
 
+  @attr lastName;
+  @attr firstName;
+
   @belongsTo('person', { async: true, inverse: 'bestFriend' })
   bestFriend;
 }
@@ -38,6 +42,86 @@ module('integration/load - Loading Records', function (hooks) {
     owner.register('service:store', Store);
     owner.register('model:person', Person);
     store = owner.lookup('service:store');
+  });
+
+  test('Preload works as expected', async function (assert) {
+    this.owner.register(
+      'adapter:application',
+      class extends EmberObject {
+        findRecord() {
+          return Promise.resolve({
+            data: {
+              type: 'person',
+              id: '1',
+              attributes: {
+                name: 'Chris',
+                lastName: 'Thoburn',
+              },
+            },
+          });
+        }
+      }
+    );
+    const promise = store.findRecord('person', '1', {
+      preload: {
+        name: '@runspired',
+        firstName: 'James',
+      },
+    });
+    const person = store.peekRecord('person', '1');
+    assert.strictEqual(person.name, '@runspired', 'name correct on preload');
+    assert.strictEqual(person.firstName, 'James', 'firstName correct on preload');
+
+    await promise;
+    assert.strictEqual(person.name, 'Chris', 'name correct on load');
+    assert.strictEqual(person.firstName, 'James', 'firstName correct on load');
+    assert.strictEqual(person.lastName, 'Thoburn', 'lastName correct on load');
+  });
+
+  test('Preload works even when the record is loaded', async function (assert) {
+    this.owner.register(
+      'adapter:application',
+      class extends EmberObject {
+        findRecord() {
+          return Promise.resolve({
+            data: {
+              type: 'person',
+              id: '1',
+              attributes: {
+                name: 'Chris',
+                lastName: 'Thoburn',
+              },
+            },
+          });
+        }
+      }
+    );
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Wes',
+          firstName: 'Wesley',
+          lastName: 'Youman',
+        },
+      },
+    });
+    const promise = store.findRecord('person', '1', {
+      reload: true,
+      preload: {
+        name: '@runspired',
+        firstName: 'James',
+      },
+    });
+    assert.strictEqual(person.name, '@runspired', 'name correct on preload');
+    assert.strictEqual(person.firstName, 'James', 'firstName correct on preload');
+    assert.strictEqual(person.lastName, 'Youman', 'lastName correct on preload');
+
+    await promise;
+    assert.strictEqual(person.name, 'Chris', 'name correct on load');
+    assert.strictEqual(person.firstName, 'James', 'firstName correct on load');
+    assert.strictEqual(person.lastName, 'Thoburn', 'lastName correct on load');
   });
 
   test('When loading a record fails, the record is not left behind', async function (assert) {
