@@ -252,7 +252,6 @@ module.exports = {
         'packages/adapter/src/-private/utils/fetch.ts',
         'packages/adapter/src/-private/utils/determine-body-promise.ts',
         'packages/adapter/src/-private/utils/continue-on-reject.ts',
-        'packages/adapter/src/-private/index.ts',
         'packages/adapter/src/-private/fastboot-interface.ts',
         'packages/adapter/src/-private/build-url-mixin.ts',
         'packages/-ember-data/addon/store.ts',

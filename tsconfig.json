@@ -62,7 +62,6 @@
       "packages/record-data/addon/-private/relationships/state/belongs-to.ts",
       "packages/record-data/addon/-private/record-data.ts",
       "packages/record-data/addon/-private/normalize-link.ts",
-      "packages/record-data/addon/-private/index.ts",
       "packages/record-data/addon/-private/graph/operations/update-relationship.ts",
       "packages/record-data/addon/-private/graph/operations/replace-related-records.ts",
       "packages/record-data/addon/-private/graph/operations/replace-related-record.ts",
