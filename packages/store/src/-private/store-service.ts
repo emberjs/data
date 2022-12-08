@@ -68,6 +68,7 @@ import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './prox
 import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
+import { assertIdentifierHasId } from './utils/identifier-has-id';
 import normalizeModelName from './utils/normalize-model-name';
 import promiseRecord from './utils/promise-record';
 
@@ -2699,12 +2700,6 @@ function isMaybeIdentifier(
       (('id' in maybeIdentifier && 'type' in maybeIdentifier && maybeIdentifier.id && maybeIdentifier.type) ||
         maybeIdentifier.lid)
   );
-}
-
-export function assertIdentifierHasId(
-  identifier: StableRecordIdentifier
-): asserts identifier is StableExistingRecordIdentifier {
-  assert(`Attempted to schedule a fetch for a record without an id.`, identifier.id !== null);
 }
 
 function isDSModel(record: RecordInstance | null): record is DSModel {

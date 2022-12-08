@@ -31,7 +31,8 @@
   "scripts": {
     "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "start": "rollup --config --watch",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "prepare": "pnpm build"
   },
   "ember-addon": {
     "main": "addon-main.js",

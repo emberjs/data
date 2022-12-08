@@ -7,7 +7,6 @@
     "url": "git+ssh://git@github.com:emberjs/data.git"
   },
   "scripts": {
-    "build-v2-addons": "pnpm --filter @ember-data/tracking --filter @ember-data/request build",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint:js": "eslint --cache --ext=js,ts .",
     "preinstall": "npx only-allow pnpm",

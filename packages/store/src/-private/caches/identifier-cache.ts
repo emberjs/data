@@ -22,7 +22,7 @@ import type {
 import type { ConfidentDict } from '@ember-data/types/q/utils';
 
 import coerceId from '../utils/coerce-id';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifer-debug-consts';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifier-debug-consts';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import normalizeModelName from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';

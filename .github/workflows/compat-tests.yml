@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies w/o lockfile
         run: pnpm install --no-lockfile
       - name: Build V2 Addons
-        run: pnpm build-v2-addons && pnpm install
+        run: pnpm install
       - name: Basic Tests
         run: pnpm test
   node-version-test:

@@ -10,11 +10,11 @@ export class ContextOwner {
   hasSubscribers = false;
   stream: Deferred<ReadableStream | null> = createDeferred<ReadableStream | null>();
   response: ResponseInfo | null = null;
-  request: ImmutableRequestInfo;
-  enhancedRequest: ImmutableRequestInfo;
+  declare request: ImmutableRequestInfo;
+  declare enhancedRequest: ImmutableRequestInfo;
   nextCalled: number = 0;
-  god: GodContext;
-  controller: AbortController;
+  declare god: GodContext;
+  declare controller: AbortController;
 
   constructor(request: RequestInfo, god: GodContext) {
     this.controller = request.controller || god.controller;
@@ -126,7 +126,7 @@ export class ContextOwner {
 
 export class Context {
   #owner: ContextOwner;
-  request: ImmutableRequestInfo;
+  declare request: ImmutableRequestInfo;
 
   constructor(owner: ContextOwner) {
     this.#owner = owner;
