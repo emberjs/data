@@ -483,6 +483,7 @@ class Store extends Service {
     @return {subclass of Model | ShimModelClass}
     */
   // TODO @deprecate in favor of schema APIs, requires adapter/serializer overhaul or replacement
+  declare _forceShim: boolean;
   modelFor(modelName: string): ShimModelClass | DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
@@ -498,7 +499,7 @@ class Store extends Service {
 
       // for factorFor factory/class split
       let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
-      if (!klass || !klass.isModel) {
+      if (!klass || !klass.isModel || this._forceShim) {
         assert(
           `No model was found for '${modelName}' and no schema handles the type`,
           this.getSchemaDefinitionService().doesTypeExist(modelName)
