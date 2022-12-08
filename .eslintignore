@@ -13,6 +13,7 @@
 /packages/adapter/addon/
 /packages/-ember-data/docs/
 /packages/tracking/addon/
+/packages/serializer/addon/
 
 **/DEBUG/
 

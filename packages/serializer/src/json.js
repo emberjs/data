@@ -6,8 +6,9 @@ import { assert, warn } from '@ember/debug';
 import { dasherize } from '@ember/string';
 import { isNone, typeOf } from '@ember/utils';
 
-import Serializer from '@ember-data/serializer';
 import { coerceId } from '@ember-data/store/-private';
+
+import Serializer from '.';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;

@@ -8,7 +8,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { pluralize, singularize } from 'ember-inflector';
 
-import JSONSerializer from '@ember-data/serializer/json';
+import JSONSerializer from './json';
 
 /**
   Ember Data 2.0 Serializer:

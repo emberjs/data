@@ -49,7 +49,7 @@
       "packages/store/src/-private/utils/coerce-id.ts",
       "packages/store/src/-private/index.ts",
       "packages/store/src/-private/caches/identifier-cache.ts",
-      "packages/serializer/addon/index.ts",
+      "packages/serializer/src/index.ts",
       "tests/graph/tests/integration/graph/polymorphism/implicit-keys-test.ts",
       "tests/graph/tests/integration/graph/graph-test.ts",
       "tests/graph/tests/integration/graph/operations-test.ts",

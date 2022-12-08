@@ -10,6 +10,7 @@ packages/tracking/addon
 packages/request/addon
 packages/store/addon
 packages/adapter/addon
+packages/serializer/addon
 
 # dependencies
 bower_components
