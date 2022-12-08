@@ -270,7 +270,7 @@ export default class SingletonRecordData implements RecordData {
     }
 
     if (DEBUG) {
-      if (cached.isNew && (typeof data?.id !== 'string' || data.id.length > 0)) {
+      if (cached.isNew && !identifier.id && (typeof data?.id !== 'string' || data.id.length > 0)) {
         const error = new Error(`Expected an id ${String(identifier)} in response ${JSON.stringify(data)}`);
         //@ts-expect-error
         error.isAdapterError = true;
