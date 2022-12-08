@@ -1,5 +1,6 @@
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { assert } from '@ember/debug';
+
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 export function assertIdentifierHasId(
   identifier: StableRecordIdentifier
