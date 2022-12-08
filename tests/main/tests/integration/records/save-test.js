@@ -15,12 +15,12 @@ module('integration/records/save - Save Record', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Post = Model.extend({
-      title: attr('string'),
-    });
+    class Post extends Model {
+      @attr title;
+    }
 
     this.owner.register('model:post', Post);
-    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('adapter:application', class extends Adapter {});
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
