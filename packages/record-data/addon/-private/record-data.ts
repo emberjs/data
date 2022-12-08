@@ -4,6 +4,7 @@
 import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
+import { DEBUG } from '@glimmer/env';
 
 import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
 import type {
@@ -266,6 +267,17 @@ export default class SingletonRecordData implements RecordData {
         isNew: false,
       });
       cached.isDeletionCommitted = true;
+    }
+
+    if (DEBUG) {
+      if (cached.isNew && (typeof data?.id !== 'string' || data.id.length > 0)) {
+        const error = new Error(`Expected an id ${String(identifier)} in response ${JSON.stringify(data)}`);
+        //@ts-expect-error
+        error.isAdapterError = true;
+        //@ts-expect-error
+        error.code = 'InvalidError';
+        throw error;
+      }
     }
 
     cached.isNew = false;

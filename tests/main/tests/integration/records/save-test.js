@@ -10,6 +10,7 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/records/save - Save Record', function (hooks) {
   setupTest(hooks);
@@ -82,6 +83,33 @@ module('integration/records/save - Save Record', function (hooks) {
       assert.ok(false, 'we should err');
     } catch (error) {
       assert.ok(true, 'we errored during save');
+    }
+  });
+
+  testInDebug('createRecord id asserts during commit are gracefully handled', async function (assert) {
+    this.owner.register(
+      'adapter:application',
+      class extends Adapter {
+        createRecord() {
+          return {
+            data: {
+              type: 'post',
+              attributes: {
+                title: 'Adjunctivitis (revised)',
+              },
+            },
+          };
+        }
+      }
+    );
+    const store = this.owner.lookup('service:store');
+    const post = store.createRecord('post', { title: 'Adjunctivitis' });
+    try {
+      await post.save();
+      assert.ok(false, 'error should be catchable');
+    } catch (e) {
+      assert.ok(true, `error ${e.message} was catchable`);
+      assert.false(post.isValid, 'post should be in an invalid state');
     }
   });
 
