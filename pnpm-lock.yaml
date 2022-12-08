@@ -253,7 +253,7 @@ importers:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/record-data': file:packages/record-data_ogssen3petzlrxu2jp77kbd7ka
       '@ember-data/serializer': file:packages/serializer_5er2ksmzjrpz2hfjbfgxrw6bey
-      '@ember-data/store': file:packages/store_f7zcyxyxu7apacjefnjp4w4zha
+      '@ember-data/store': file:packages/store_ay2ghmofe4mzaykjgvdh6vhjpu
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
@@ -543,7 +543,6 @@ importers:
       '@glimmer/component': ^1.1.2
       '@rollup/plugin-babel': ^6.0.2
       '@rollup/plugin-node-resolve': ^15.0.1
-      ember-auto-import: ^2.5.0
       ember-cached-decorator-polyfill: ^1.0.1
       ember-cli-babel: ^7.26.11
       ember-source: ~4.8.2
@@ -555,7 +554,6 @@ importers:
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@embroider/macros': 1.10.0
-      ember-auto-import: 2.5.0_webpack@5.75.0
       ember-cached-decorator-polyfill: 1.0.1_o6vra3atesdmwivzf2sf5xbdmm
       ember-cli-babel: 7.26.11
     devDependencies:
@@ -745,7 +743,7 @@ importers:
       '@ember-data/model': file:packages/model_fgniduetvjrxwopb2vf7gj7uwy
       '@ember-data/record-data': file:packages/record-data_dgwrkmq7r6qfk3frqvisd56iue
       '@ember-data/serializer': file:packages/serializer_mlvxpb5zsngkdj4s77tymgcgtq
-      '@ember-data/store': file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy
+      '@ember-data/store': file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -861,7 +859,7 @@ importers:
       '@ember-data/adapter': file:packages/adapter_mlvxpb5zsngkdj4s77tymgcgtq
       '@ember-data/model': file:packages/model_hf6aecxwqw7ngtlnvt3h57gcfe
       '@ember-data/serializer': file:packages/serializer_mlvxpb5zsngkdj4s77tymgcgtq
-      '@ember-data/store': file:packages/store_krukdbndhhlkrgilkm6boc4g5y
+      '@ember-data/store': file:packages/store_wycyuvyoee33ls5puf5kocpemy
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -1188,7 +1186,7 @@ importers:
       '@ember-data/model': file:packages/model_fgniduetvjrxwopb2vf7gj7uwy
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/record-data': file:packages/record-data_dgwrkmq7r6qfk3frqvisd56iue
-      '@ember-data/store': file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy
+      '@ember-data/store': file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/edition-utils': 1.2.0
@@ -1316,7 +1314,7 @@ importers:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/record-data': file:packages/record-data_dgwrkmq7r6qfk3frqvisd56iue
       '@ember-data/serializer': file:packages/serializer_mlvxpb5zsngkdj4s77tymgcgtq
-      '@ember-data/store': file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy
+      '@ember-data/store': file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/edition-utils': 1.2.0
@@ -1435,7 +1433,7 @@ importers:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/serializer': file:packages/serializer_mlvxpb5zsngkdj4s77tymgcgtq
-      '@ember-data/store': file:packages/store_x5xppcsvbeyvm3cilovbje5aqi
+      '@ember-data/store': file:packages/store_24rwhycbxndajgnmpq7gbevzqy
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -1572,7 +1570,7 @@ importers:
       '@ember-data/debug': file:packages/debug_kmsc2736dkhfkaunrjhq23icem
       '@ember-data/model': file:packages/model_hf6aecxwqw7ngtlnvt3h57gcfe
       '@ember-data/serializer': file:packages/serializer_mlvxpb5zsngkdj4s77tymgcgtq
-      '@ember-data/store': file:packages/store_krukdbndhhlkrgilkm6boc4g5y
+      '@ember-data/store': file:packages/store_wycyuvyoee33ls5puf5kocpemy
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -1746,7 +1744,7 @@ importers:
       '@ember-data/adapter': file:packages/adapter_mlvxpb5zsngkdj4s77tymgcgtq
       '@ember-data/model': file:packages/model_fgniduetvjrxwopb2vf7gj7uwy
       '@ember-data/record-data': file:packages/record-data_dgwrkmq7r6qfk3frqvisd56iue
-      '@ember-data/store': file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy
+      '@ember-data/store': file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -16471,7 +16469,7 @@ packages:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/record-data': file:packages/record-data_dgwrkmq7r6qfk3frqvisd56iue
       '@ember-data/serializer': file:packages/serializer_mlvxpb5zsngkdj4s77tymgcgtq
-      '@ember-data/store': file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy
+      '@ember-data/store': file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
@@ -16501,7 +16499,7 @@ packages:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/record-data': file:packages/record-data_ogssen3petzlrxu2jp77kbd7ka
       '@ember-data/serializer': file:packages/serializer_5er2ksmzjrpz2hfjbfgxrw6bey
-      '@ember-data/store': file:packages/store_f7zcyxyxu7apacjefnjp4w4zha
+      '@ember-data/store': file:packages/store_ay2ghmofe4mzaykjgvdh6vhjpu
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
@@ -16552,7 +16550,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_f7zcyxyxu7apacjefnjp4w4zha
+      '@ember-data/store': file:packages/store_ay2ghmofe4mzaykjgvdh6vhjpu
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0
@@ -16577,7 +16575,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_krukdbndhhlkrgilkm6boc4g5y
+      '@ember-data/store': file:packages/store_wycyuvyoee33ls5puf5kocpemy
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0
@@ -16691,7 +16689,7 @@ packages:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/record-data': file:packages/record-data_dgwrkmq7r6qfk3frqvisd56iue
-      '@ember-data/store': file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy
+      '@ember-data/store': file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
@@ -16728,7 +16726,7 @@ packages:
     dependencies:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_krukdbndhhlkrgilkm6boc4g5y
+      '@ember-data/store': file:packages/store_wycyuvyoee33ls5puf5kocpemy
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
@@ -16766,7 +16764,7 @@ packages:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/record-data': file:packages/record-data_ogssen3petzlrxu2jp77kbd7ka
-      '@ember-data/store': file:packages/store_f7zcyxyxu7apacjefnjp4w4zha
+      '@ember-data/store': file:packages/store_ay2ghmofe4mzaykjgvdh6vhjpu
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.0
@@ -16834,7 +16832,7 @@ packages:
     dependencies:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy
+      '@ember-data/store': file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0
       ember-auto-import: 2.5.0_webpack@5.74.0
@@ -16854,7 +16852,7 @@ packages:
     dependencies:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_f7zcyxyxu7apacjefnjp4w4zha
+      '@ember-data/store': file:packages/store_ay2ghmofe4mzaykjgvdh6vhjpu
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0
       ember-auto-import: 2.5.0_webpack@5.75.0
@@ -16908,7 +16906,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_f7zcyxyxu7apacjefnjp4w4zha
+      '@ember-data/store': file:packages/store_ay2ghmofe4mzaykjgvdh6vhjpu
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0
       ember-auto-import: 2.5.0_webpack@5.75.0
@@ -16932,7 +16930,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy
+      '@ember-data/store': file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0
       ember-auto-import: 2.5.0_webpack@5.74.0
@@ -16943,7 +16941,7 @@ packages:
       - supports-color
       - webpack
 
-  file:packages/store_6rvvm535ip7b34aaqcs2jvsdfy:
+  file:packages/store_24rwhycbxndajgnmpq7gbevzqy:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
@@ -16961,24 +16959,20 @@ packages:
       '@ember-data/record-data':
         optional: true
     dependencies:
-      '@ember-data/canary-features': file:packages/canary-features
-      '@ember-data/model': file:packages/model_fgniduetvjrxwopb2vf7gj7uwy
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/record-data': file:packages/record-data_dgwrkmq7r6qfk3frqvisd56iue
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0
       '@glimmer/tracking': 1.1.2
-      ember-auto-import: 2.5.0_webpack@5.74.0
       ember-cached-decorator-polyfill: 1.0.1_44zau4gslyki3rcm3qc4yjjvrq
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - '@babel/core'
       - ember-source
       - supports-color
-      - webpack
+    dev: true
 
-  file:packages/store_f7zcyxyxu7apacjefnjp4w4zha:
+  file:packages/store_ay2ghmofe4mzaykjgvdh6vhjpu:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
@@ -16996,7 +16990,6 @@ packages:
       '@ember-data/record-data':
         optional: true
     dependencies:
-      '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/model': file:packages/model_ioy3abppj7zef5o734fhdefjli
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/record-data': file:packages/record-data_ogssen3petzlrxu2jp77kbd7ka
@@ -17004,17 +16997,15 @@ packages:
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0
       '@glimmer/tracking': 1.1.2
-      ember-auto-import: 2.5.0_webpack@5.75.0
       ember-cached-decorator-polyfill: 1.0.1_o6vra3atesdmwivzf2sf5xbdmm
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - '@babel/core'
       - ember-source
       - supports-color
-      - webpack
     dev: false
 
-  file:packages/store_krukdbndhhlkrgilkm6boc4g5y:
+  file:packages/store_wycyuvyoee33ls5puf5kocpemy:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
@@ -17032,23 +17023,20 @@ packages:
       '@ember-data/record-data':
         optional: true
     dependencies:
-      '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/model': file:packages/model_hf6aecxwqw7ngtlnvt3h57gcfe
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0
       '@glimmer/tracking': 1.1.2
-      ember-auto-import: 2.5.0_webpack@5.74.0
       ember-cached-decorator-polyfill: 1.0.1_44zau4gslyki3rcm3qc4yjjvrq
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - '@babel/core'
       - ember-source
       - supports-color
-      - webpack
 
-  file:packages/store_x5xppcsvbeyvm3cilovbje5aqi:
+  file:packages/store_xqskmitp2kk2xfyxvp7fbxiypy:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
@@ -17066,21 +17054,19 @@ packages:
       '@ember-data/record-data':
         optional: true
     dependencies:
-      '@ember-data/canary-features': file:packages/canary-features
+      '@ember-data/model': file:packages/model_fgniduetvjrxwopb2vf7gj7uwy
       '@ember-data/private-build-infra': file:packages/private-build-infra
+      '@ember-data/record-data': file:packages/record-data_dgwrkmq7r6qfk3frqvisd56iue
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0
       '@glimmer/tracking': 1.1.2
-      ember-auto-import: 2.5.0_webpack@5.74.0
       ember-cached-decorator-polyfill: 1.0.1_44zau4gslyki3rcm3qc4yjjvrq
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - '@babel/core'
       - ember-source
       - supports-color
-      - webpack
-    dev: true
 
   file:packages/tracking:
     resolution: {directory: packages/tracking, type: directory}
