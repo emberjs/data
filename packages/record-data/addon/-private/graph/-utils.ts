@@ -224,21 +224,25 @@ export function assertRelationshipData(store, identifier, data, meta) {
   assert(
     `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on <${
       identifier.type
-    }:${identifier.id}>, expected a json-api identifier with type '${meta.type}' but found '${JSON.stringify(
-      data
-    )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+    }:${identifier.id}>, expected an identifier with type '${meta.type}' but found\n\n'${JSON.stringify(
+      data,
+      null,
+      2
+    )}'\n\nPlease check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
     data === null || (typeof data.type === 'string' && data.type.length)
   );
   assert(
     `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on <${
       identifier.type
-    }:${identifier.id}>, expected a json-api identifier but found '${JSON.stringify(
-      data
-    )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+    }:${identifier.id}>, expected an identifier but found\n\n'${JSON.stringify(
+      data,
+      null,
+      2
+    )}'\n\nPlease check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
     data === null || !!coerceId(data.id)
   );
   assert(
-    `Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on <${identifier.type}:${identifier.id}>, Expected a json-api identifier with type '${meta.type}'. No model was found for '${data.type}'.`,
+    `Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on <${identifier.type}:${identifier.id}>, Expected an identifier with type '${meta.type}'. No model was found for '${data.type}'.`,
     data === null || !data.type || store.getSchemaDefinitionService().doesTypeExist(data.type)
   );
 }
