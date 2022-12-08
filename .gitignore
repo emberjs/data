@@ -11,6 +11,8 @@ packages/request/addon
 packages/store/addon
 packages/adapter/addon
 packages/serializer/addon
+packages/model/addon
+packages/record-data/addon
 
 # dependencies
 bower_components

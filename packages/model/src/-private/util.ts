@@ -1,5 +1,3 @@
-import { gte } from 'ember-compatibility-helpers';
-
 export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: any }) | undefined;
 
 export function isElementDescriptor(args: any[]): args is [object, string, DecoratorPropertyDescriptor] {
@@ -23,9 +21,5 @@ export function isElementDescriptor(args: any[]): args is [object, string, Decor
 }
 
 export function computedMacroWithOptionalParams(fn) {
-  if (gte('3.10.0')) {
-    return (...maybeDesc: any[]) => (isElementDescriptor(maybeDesc) ? fn()(...maybeDesc) : fn(...maybeDesc));
-  } else {
-    return fn;
-  }
+  return (...maybeDesc: any[]) => (isElementDescriptor(maybeDesc) ? fn()(...maybeDesc) : fn(...maybeDesc));
 }
