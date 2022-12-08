@@ -177,7 +177,7 @@ function belongsTo(modelName, options) {
   if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
     if (opts.inverse !== null && (typeof opts.inverse !== 'string' || opts.inverse.length === 0)) {
       deprecate(
-        'belongsTo(<type>, <options>) must specify options.inverse as either `null` or string type of the related resource.',
+        'belongsTo(<type>, <options>) must specify options.inverse as either `null` or the name of the field on the related resource type.',
         false,
         {
           id: 'ember-data:deprecate-non-strict-relationships',

@@ -218,7 +218,7 @@ function hasMany(type, options) {
   if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
     if (options.inverse !== null && (typeof options.inverse !== 'string' || options.inverse.length === 0)) {
       deprecate(
-        'hasMany(<type>, <options>) must specify options.inverse as either `null` or string type of the related resource.',
+        'hasMany(<type>, <options>) must specify options.inverse as either `null` or the name of the field on the related resource type.',
         false,
         {
           id: 'ember-data:deprecate-non-strict-relationships',
