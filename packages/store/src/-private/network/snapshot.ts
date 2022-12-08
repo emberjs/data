@@ -8,8 +8,10 @@ import { importSync } from '@embroider/macros';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
-import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
+import {
+  DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
+  DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
+} from '@ember-data/private-build-infra/deprecations';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
@@ -127,7 +129,9 @@ export default class Snapshot implements Snapshot {
      */
     this.modelName = identifier.type;
     if (hasRecord) {
-      this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttrs(identifier);
+      this._changedAttributes = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+        ? this._store._instanceCache.getRecordData(identifier).changedAttrs(identifier)
+        : this._store.cache.changedAttrs(identifier);
     }
   }
 
@@ -156,10 +160,12 @@ export default class Snapshot implements Snapshot {
     let attributes = (this.__attributes = Object.create(null));
     const { identifier } = this;
     let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
-    let recordData = this._store._instanceCache.getRecordData(identifier);
+    let cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+      ? this._store._instanceCache.getRecordData(identifier)
+      : this._store.cache;
 
     attrs.forEach((keyName) => {
-      attributes[keyName] = recordData.getAttr(identifier, keyName);
+      attributes[keyName] = cache.getAttr(identifier, keyName);
     });
 
     return attributes;
@@ -338,7 +344,10 @@ export default class Snapshot implements Snapshot {
     let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted(inverseIdentifier)) {
+      const cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+        ? inverseIdentifier && store._instanceCache.getRecordData(inverseIdentifier)
+        : store.cache;
+      if (inverseIdentifier && !cache!.isDeleted(inverseIdentifier)) {
         if (returnModeIsId) {
           result = inverseIdentifier.id;
         } else {
@@ -438,7 +447,10 @@ export default class Snapshot implements Snapshot {
       results = [];
       value.data.forEach((member) => {
         let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
-        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted(inverseIdentifier)) {
+        let cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+          ? store._instanceCache.getRecordData(inverseIdentifier)
+          : store.cache;
+        if (!cache.isDeleted(inverseIdentifier)) {
           if (returnModeIsIds) {
             (results as RecordId[]).push(inverseIdentifier.id);
           } else {

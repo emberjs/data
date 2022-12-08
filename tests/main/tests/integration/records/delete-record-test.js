@@ -230,11 +230,11 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    let recordData = store._instanceCache.getRecordData(identifier);
+    let cache = store.cache;
 
     record.deleteRecord();
 
-    assert.true(recordData.isEmpty(identifier), 'new person state is empty');
+    assert.true(cache.isEmpty(identifier), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -273,11 +273,10 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    let recordData = store._instanceCache.getRecordData(identifier);
 
     await record.destroyRecord();
 
-    assert.true(recordData.isEmpty(identifier), 'new person state is empty');
+    assert.true(store.cache.isEmpty(identifier), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -329,11 +328,10 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    let recordData = store._instanceCache.getRecordData(identifier);
 
     record.deleteRecord();
 
-    assert.true(recordData.isEmpty(identifier), 'We reached the correct persisted saved state');
+    assert.true(store.cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
     assert.strictEqual(
       store._instanceCache.peek({ identifier, bucket: 'recordData' }),
@@ -363,12 +361,11 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    let recordData = store._instanceCache.getRecordData(identifier);
 
     record.deleteRecord();
     await settled();
 
-    assert.true(recordData.isEmpty(identifier), 'We reached the correct persisted saved state');
+    assert.true(store.cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
     assert.strictEqual(
       store._instanceCache.peek({ identifier, bucket: 'recordData' }),

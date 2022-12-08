@@ -119,6 +119,9 @@ class V2TestRecordData implements Cache {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
+  peek(identifier: StableRecordIdentifier): Record<string, unknown> {
+    throw new Error('Method not implemented.');
+  }
   sync(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }
@@ -568,7 +571,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
-          return super.createRecordDataFor(identifier, storeWrapper);
+          return this.cache;
         }
       }
     }
@@ -638,7 +641,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
-          return super.createRecordDataFor(identifier, storeWrapper);
+          return this.cache;
         }
       }
     }
@@ -733,7 +736,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
           houseIdentifier = identifier;
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
-          return super.createRecordDataFor(identifier, storeWrapper);
+          return this.cache;
         }
       }
     }
@@ -876,7 +879,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
-          return super.createRecordDataFor(identifier, storeWrapper);
+          return this.cache;
         }
       }
     }

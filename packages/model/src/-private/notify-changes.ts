@@ -1,5 +1,6 @@
 import { cacheFor } from '@ember/object/internals';
 
+import { DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -66,7 +67,13 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
 function notifyAttribute(store: Store, identifier: StableRecordIdentifier, key: string, record: Model) {
   let currentValue = cacheFor(record, key);
 
-  if (currentValue !== store._instanceCache.getRecordData(identifier).getAttr(identifier, key)) {
-    record.notifyPropertyChange(key);
+  if (DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+    if (currentValue !== store._instanceCache.getRecordData(identifier).getAttr(identifier, key)) {
+      record.notifyPropertyChange(key);
+    }
+  } else {
+    if (currentValue !== store.cache.getAttr(identifier, key)) {
+      record.notifyPropertyChange(key);
+    }
   }
 }

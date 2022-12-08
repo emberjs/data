@@ -15,14 +15,16 @@ import type DSModelClass from '@ember-data/model';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
 import {
+  DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
-  DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
-import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
+import type { RequestManager } from '@ember-data/request';
+import type { Cache } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+// import { Future, RequestInfo } from '@ember-data/request/-private/types';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -51,7 +53,7 @@ import {
   storeFor,
   StoreMap,
 } from './caches/instance-cache';
-import recordDataFor, { setRecordDataFor } from './caches/record-data-for';
+import peekCache, { setRecordDataFor } from './caches/record-data-for';
 import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
@@ -167,9 +169,11 @@ export interface CreateRecordProperties {
   @extends Ember.Service
 */
 
-class Store {
-  __private_singleton_recordData!: Cache;
+interface Store {
+  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache;
+}
 
+class Store {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -198,6 +202,7 @@ class Store {
   declare _trackAsyncRequestEnd: (token: AsyncTrackingToken) => void;
   declare __asyncWaiter: () => boolean;
   declare DISABLE_WAITER?: boolean;
+  declare requestManager: RequestManager;
 
   isDestroying: boolean = false;
   isDestroyed: boolean = false;
@@ -327,6 +332,22 @@ class Store {
   }
 
   /**
+   * Issue a request via the configured RequestManager,
+   * inserting the response into the cache and handing
+   * back a Future which resolves to a ResponseDocument
+   *
+   * @method request
+   * @returns {Future}
+   * @public
+   */
+  // request<T>(req: RequestInfo): Future<ResponseDocument<T>> {
+  //   return this.requestManager.request(req).then(
+  //     (doc) => {},
+  //     (error) => {}
+  //   );
+  // }
+
+  /**
    * A hook which an app or addon may implement. Called when
    * the Store is attempting to create a Record Instance for
    * a resource.
@@ -338,28 +359,26 @@ class Store {
    * @method instantiateRecord (hook)
    * @param identifier
    * @param createRecordArgs
-   * @param recordDataFor
-   * @param notificationManager
+   * @param recordDataFor deprecated use this.cache
+   * @param notificationManager deprecated use this.notifications
    * @returns A record instance
    * @public
    */
   instantiateRecord(
     identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown },
-    recordDataFor: (identifier: StableRecordIdentifier) => Cache,
-    notificationManager: NotificationManager
+    createRecordArgs: { [key: string]: unknown }
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
       let modelName = identifier.type;
 
-      let recordData = this._instanceCache.getRecordData(identifier);
+      let cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK ? this._instanceCache.getRecordData(identifier) : this.cache;
       // TODO deprecate allowing unknown args setting
       let createOptions: any = {
         _createProps: createRecordArgs,
         // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
         _secretInit: {
           identifier,
-          recordData,
+          cache,
           store: this,
           cb: secretInit,
         },
@@ -610,15 +629,17 @@ class Store {
         }
 
         const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
-        const recordData = this._instanceCache.getRecordData(identifier);
+        const cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+          ? this._instanceCache.getRecordData(identifier)
+          : this.cache;
 
         const createOptions = normalizeProperties(
           this,
           identifier,
           properties,
-          (recordData as NonSingletonCacheManager).managedVersion === '1'
+          (cache as NonSingletonCacheManager).managedVersion === '1'
         );
-        const resultProps = recordData.clientDidCreate(identifier, createOptions);
+        const resultProps = cache.clientDidCreate(identifier, createOptions);
         this.recordArrayManager.identifierAdded(identifier);
 
         record = this._instanceCache.getRecord(identifier, resultProps);
@@ -2137,7 +2158,7 @@ class Store {
     @param {Object} jsonApiDoc
     @return {StableRecordIdentifier|Array<StableRecordIdentifier>} identifiers for the primary records that had data loaded
   */
-  _push(jsonApiDoc): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
+  _push(jsonApiDoc: JsonApiDocument): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
@@ -2151,45 +2172,8 @@ class Store {
         console.log('EmberData | Payload - push', jsonApiDoc);
       }
     }
-    let ret;
-    this._join(() => {
-      let included = jsonApiDoc.included;
-      let i, length;
-
-      if (included) {
-        for (i = 0, length = included.length; i < length; i++) {
-          this._instanceCache.loadData(included[i]);
-        }
-      }
-
-      if (Array.isArray(jsonApiDoc.data)) {
-        length = jsonApiDoc.data.length;
-        let identifiers = new Array(length);
-
-        for (i = 0; i < length; i++) {
-          identifiers[i] = this._instanceCache.loadData(jsonApiDoc.data[i]);
-        }
-        ret = identifiers;
-        return;
-      }
-
-      if (jsonApiDoc.data === null) {
-        ret = null;
-        return;
-      }
-
-      assert(
-        `Expected an object in the 'data' property in a call to 'push' for ${
-          jsonApiDoc.type
-        }, but was ${typeof jsonApiDoc.data}`,
-        typeof jsonApiDoc.data === 'object'
-      );
-
-      ret = this._instanceCache.loadData(jsonApiDoc.data);
-      return;
-    });
-
-    return ret;
+    const result = this.cache.put({ data: jsonApiDoc });
+    return 'data' in result ? result.data : null;
   }
 
   /**
@@ -2367,15 +2351,17 @@ class Store {
             );
           }
 
-          const cache = this.identifierCache;
+          const identifierCache = this.identifierCache;
           let actualIdentifier = identifier;
           if (operation !== 'deleteRecord' && data) {
-            actualIdentifier = cache.updateRecordIdentifier(identifier, data);
+            actualIdentifier = identifierCache.updateRecordIdentifier(identifier, data);
           }
 
           //We first make sure the primary data has been updated
-          const recordData = this._instanceCache.getRecordData(actualIdentifier);
-          recordData.didCommit(identifier, data);
+          const cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+            ? this._instanceCache.getRecordData(actualIdentifier)
+            : this.cache;
+          cache.didCommit(identifier, data);
 
           if (operation === 'deleteRecord') {
             this.recordArrayManager.identifierRemoved(actualIdentifier);
@@ -2401,14 +2387,14 @@ class Store {
 
   /**
    * Instantiation hook allowing applications or addons to configure the store
-   * to utilize a custom RecordData implementation.
+   * to utilize a custom Cache implementation.
    *
-   * @method createRecordDataFor (hook)
+   * @method createCache (hook)
    * @public
-   * @param identifier
    * @param storeWrapper
+   * @returns {Cache}
    */
-  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper): Cache | CacheV1 {
+  createCache(storeWrapper: CacheStoreWrapper): Cache {
     if (HAS_JSON_API_PACKAGE) {
       // we can't greedily use require as this causes
       // a cycle we can't easily fix (or clearly pin point) at present.
@@ -2416,39 +2402,39 @@ class Store {
       // it can be reproduced in partner tests by running
       // node ./scripts/packages-for-commit.js && pnpm test-external:ember-observer
       if (_Cache === undefined) {
-        _Cache = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private')).Cache;
+        _Cache = (importSync('@ember-data/json-api') as typeof import('@ember-data/json-api')).Cache;
       }
 
-      if (DEPRECATE_V1CACHE_STORE_APIS) {
-        if (arguments.length === 4) {
-          deprecate(
-            `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
-            false,
-            {
-              id: 'ember-data:deprecate-v1cache-store-apis',
-              for: 'ember-data',
-              until: '5.0',
-              since: { enabled: '4.7', available: '4.7' },
-            }
-          );
-          identifier = this.identifierCache.getOrCreateRecordIdentifier({
-            type: arguments[0],
-            id: arguments[1],
-            lid: arguments[2],
-          });
-          storeWrapper = arguments[3];
-        }
-      }
-
-      this.__private_singleton_recordData = this.__private_singleton_recordData || new _Cache(storeWrapper);
-      (
-        this.__private_singleton_recordData as Cache & { createCache(identifier: StableRecordIdentifier): void }
-      ).createCache(identifier);
-      return this.__private_singleton_recordData;
+      return new _Cache(storeWrapper);
     }
 
-    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
+    assert(`Expected store.createCache to be implemented but it wasn't`);
   }
+
+  get cache(): Cache {
+    let { cache } = this._instanceCache;
+    if (!cache) {
+      cache = this._instanceCache.cache = this.createCache(this._instanceCache._storeWrapper);
+      if (DEBUG) {
+        cache = new SingletonCacheManager(cache);
+      }
+    }
+    return cache;
+  }
+
+  /**
+   * [DEPRECATED] use Store.createCache
+   *
+   * Instantiation hook allowing applications or addons to configure the store
+   * to utilize a custom RecordData implementation.
+   *
+   * @method createRecordDataFor (hook)
+   * @deprecated
+   * @public
+   * @param identifier
+   * @param storeWrapper
+   * @returns {Cache}
+   */
 
   /**
     `normalize` converts a json payload into the normalized form that
@@ -2734,21 +2720,21 @@ function adapterDidInvalidate(
       error.errors = errorsHashToArray(errorsHash);
     }
   }
-  const recordData = store._instanceCache.getRecordData(identifier);
+  const cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK ? store._instanceCache.getRecordData(identifier) : store.cache;
 
   if (error.errors) {
     assert(
       `Expected the RecordData implementation for ${identifier} to have a getErrors(identifier) method for retreiving errors.`,
-      typeof recordData.getErrors === 'function'
+      typeof cache.getErrors === 'function'
     );
 
     let jsonApiErrors: JsonApiValidationError[] = error.errors;
     if (jsonApiErrors.length === 0) {
       jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
     }
-    recordData.commitWasRejected(identifier, jsonApiErrors);
+    cache.commitWasRejected(identifier, jsonApiErrors);
   } else {
-    recordData.commitWasRejected(identifier);
+    cache.commitWasRejected(identifier);
   }
 }
 
@@ -2864,7 +2850,7 @@ function extractIdentifierFromRecord(
   if (!recordOrPromiseRecord) {
     return null;
   }
-  const extract = isForV1 ? recordDataFor : recordIdentifierFor;
+  const extract = isForV1 ? peekCache : recordIdentifierFor;
 
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
@@ -2897,8 +2883,8 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
   return !!record.then;
 }
 
-function secretInit(record: RecordInstance, recordData: Cache, identifier: StableRecordIdentifier, store: Store): void {
+function secretInit(record: RecordInstance, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {
   setRecordIdentifier(record, identifier);
   StoreMap.set(record, store);
-  setRecordDataFor(record, recordData);
+  setRecordDataFor(record, cache);
 }

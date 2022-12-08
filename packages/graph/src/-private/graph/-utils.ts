@@ -2,7 +2,7 @@ import { assert, inspect, warn } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { Store } from '@ember-data/store/-private';
-import { recordDataFor as peekRecordData } from '@ember-data/store/-private';
+import { peekCache as peekRecordData } from '@ember-data/store/-private';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';

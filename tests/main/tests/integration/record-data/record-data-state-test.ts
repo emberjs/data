@@ -11,6 +11,11 @@ import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import { Change } from '@ember-data/types/cache/change';
+import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import { Mutation } from '@ember-data/types/cache/mutations';
+import { Operation } from '@ember-data/types/cache/operations';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
@@ -115,6 +120,44 @@ class V1TestRecordData implements CacheV1 {
   }
 }
 class V2TestRecordData implements Cache {
+  put<T>(doc: StructuredDocument<T>): ResourceDocument {
+    throw new Error('Method not implemented.');
+  }
+  patch(op: Operation): void {
+    throw new Error('Method not implemented.');
+  }
+  mutate(mutation: Mutation): void {
+    throw new Error('Method not implemented.');
+  }
+  peek(identifier: StableRecordIdentifier): unknown;
+  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: unknown): unknown {
+    throw new Error('Method not implemented.');
+  }
+  peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null {
+    throw new Error('Method not implemented.');
+  }
+  upsert(identifier: StableRecordIdentifier, data: unknown, hasRecord: boolean): void | string[] {
+    throw new Error('Method not implemented.');
+  }
+  fork(): globalThis.Promise<Cache> {
+    throw new Error('Method not implemented.');
+  }
+  merge(cache: Cache): globalThis.Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  diff(): globalThis.Promise<Change[]> {
+    throw new Error('Method not implemented.');
+  }
+  dump(): globalThis.Promise<ReadableStream<unknown>> {
+    throw new Error('Method not implemented.');
+  }
+  hydrate(stream: ReadableStream<unknown>): globalThis.Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  peek(identifier: StableRecordIdentifier): Record<string, unknown> {
+    throw new Error('Method not implemented.');
+  }
   sync(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }

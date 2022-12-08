@@ -23,9 +23,9 @@ export function removeRecordDataFor(identifier: StableRecordIdentifier | RecordI
   RecordDataForIdentifierCache.delete(identifier);
 }
 
-export default function recordDataFor(instance: StableRecordIdentifier): Cache | null;
-export default function recordDataFor(instance: RecordInstance): Cache;
-export default function recordDataFor(instance: StableRecordIdentifier | RecordInstance): Cache | null {
+export default function peekCache(instance: StableRecordIdentifier): Cache | null;
+export default function peekCache(instance: RecordInstance): Cache;
+export default function peekCache(instance: StableRecordIdentifier | RecordInstance): Cache | null {
   if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier)) {
     return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier) as Cache;
   }

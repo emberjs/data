@@ -403,6 +403,7 @@ module.exports = {
     '(public) @ember-data/store Store#unloadAll',
     '(public) @ember-data/store Store#unloadRecord',
     '(public) @ember-data/store Store#saveRecord',
+    '(public) @ember-data/store Store#createCache (hook)',
     '(public) @ember-data/store Store#createRecordDataFor (hook)',
     '(public) @ember-data/store Store#instantiateRecord (hook)',
     '(public) @ember-data/store Store#teardownRecord (hook)',

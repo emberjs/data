@@ -56,4 +56,4 @@ export { default as RecordArrayManager, fastPush } from './managers/record-array
 export { default as SnapshotRecordArray } from './network/snapshot-record-array';
 
 // leaked for private use / test use, should investigate removing
-export { default as recordDataFor, removeRecordDataFor } from './caches/record-data-for';
+export { default as peekCache, removeRecordDataFor } from './caches/record-data-for';

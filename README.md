@@ -15,7 +15,6 @@
     />
 </p>
 
-
 <p align="center">The lightweight reactive data library for JavaScript applications</p>
 
 [![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
@@ -25,14 +24,14 @@
 
 Wrangle your application's data management with scalable patterns for developer productivity.
 
-- ⚡️  Committed to Best-In-Class Performance
+- ⚡️ Committed to Best-In-Class Performance
 - 🌲 Focused on being as svelte as possible
 - 🚀 SSR Ready
 - 🔜 Typescript Support
 - 🐹 Built with ♥️ by [Ember](https://emberjs.com)
 - ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
 
-### 📖 On This Page 
+### 📖 On This Page
 
 - [Overview](#overview)
   - [Architecture](#-architecture)
@@ -47,7 +46,7 @@ Wrangle your application's data management with scalable patterns for developer 
 
 # Overview
 
-*Ember***Data** is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation.
+\*Ember**\*Data** is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation.
 
 - [API Documentation](https://api.emberjs.com/ember-data/release)
 - [Community & Help](https://emberjs.com/community)
@@ -57,21 +56,17 @@ Wrangle your application's data management with scalable patterns for developer 
 - [Team](https://emberjs.com/team)
 - [Blog](https://emberjs.com/blog)
 
-
-
 ## 🪜 Architecture
 
-*Ember***Data** is both *resource* centric and *document* centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
+\*Ember**\*Data** is both _resource_ centric and _document_ centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
 
 The `Store` is a **coordinator**. When using a `Store` you configure what cache to use, how cache data should be presented to the UI, and where it should look for requested data when it is not available in the cache.
 
-This coordination is handled opaquely to the nature of the requests issued and the format of the data being handled. This approach gives applications broad flexibility to configure *Ember***Data** to best suite their needs. This makes *Ember***Data** a powerful solution for applications regardless of their size and complexity.
+This coordination is handled opaquely to the nature of the requests issued and the format of the data being handled. This approach gives applications broad flexibility to configure \*Ember**\*Data** to best suite their needs. This makes \*Ember**\*Data** a powerful solution for applications regardless of their size and complexity.
 
-*Ember***Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. It's goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
+\*Ember**\*Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. It's goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
 
-*Ember***Data**'s power comes not from specific features, data formats, or adherence to specific API specs such as `JSON:API` `trpc` or `GraphQL`, but from solid conventions around requesting and mutating data developed over decades of experience scaling developer productivity.
-
-
+\*Ember**\*Data**'s power comes not from specific features, data formats, or adherence to specific API specs such as `JSON:API` `trpc` or `GraphQL`, but from solid conventions around requesting and mutating data developed over decades of experience scaling developer productivity.
 
 ## Basic Installation
 
@@ -83,12 +78,12 @@ pnpm add ember-data
 
 `ember-data` is installed by default for new applications generated with `ember-cli`. You can check what version is installed by looking in the `devDependencies` hash of your project's [package.json](https://docs.npmjs.com/cli/v8/configuring-npm/package-json) file.
 
-If you have generated a new `Ember` application using `ember-cli` but do 
+If you have generated a new `Ember` application using `ember-cli` but do
 not wish to use `ember-data`, remove `ember-data` from your project's `package.json` file and run your package manager's install command to update your lockfile.
 
 ## Advanced Installation
 
-*Ember***Data** is organized into primitives that compose together via public APIs.
+\*Ember**\*Data** is organized into primitives that compose together via public APIs.
 
 - [@ember-data/store](./packages/store) is the core and handles coordination
 - [@ember-data/tracking](./packages/tracking) is required when using the core and provides tracking primitives for change notification of Tracked properties
@@ -107,7 +102,7 @@ public APIs, other libraries or applications may provide their own implementatio
 
 ### Deprecation Stripping
 
-*Ember***Data** allows users to opt-in and remove code that exists to support deprecated behaviors.
+\*Ember**\*Data** allows users to opt-in and remove code that exists to support deprecated behaviors.
 
 If your app has resolved all deprecations present in a given version, you may specify that version as your "compatibility" version to remove the code that supported the deprecated behavior from your app.
 
@@ -123,7 +118,7 @@ let app = new EmberApp(defaults, {
 
 ### randomUUID polyfill
 
-*Ember***Data** uses `UUID V4` by default to generate identifiers for new data created on the client. Identifier generation is configurable, but we also for convenience will polyfill
+\*Ember**\*Data** uses `UUID V4` by default to generate identifiers for new data created on the client. Identifier generation is configurable, but we also for convenience will polyfill
 the necessary feature if your browser support or deployment environment demands it. To
 activate this polyfill:
 
@@ -132,7 +127,7 @@ let app = new EmberApp(defaults, {
   '@embroider/macros': {
     setConfig: {
       '@ember-data/store': {
-        polyfillUUID: true
+        polyfillUUID: true,
       },
     },
   },
@@ -147,8 +142,8 @@ that all support for it should be stripped from the build.
 ```ts
 let app = new EmberApp(defaults, {
   emberData: {
-    includeDataAdapterInProduction: false
-  }
+    includeDataAdapterInProduction: false,
+  },
 });
 ```
 
@@ -161,26 +156,25 @@ at build time. This instrumentation is always removed from production builds or 
 that has not explicitly activated it. To activate it set the appropriate flag to `true`.
 
 ```ts
-  let app = new EmberApp(defaults, {
-    emberData: {
-      debug: {
-          LOG_PAYLOADS: false, // data store received to update cache with
-          LOG_OPERATIONS: false, // updates to cache remote state
-          LOG_MUTATIONS: false, // updates to cache local state
-          LOG_NOTIFICATIONS: false,
-          LOG_REQUEST_STATUS: false,
-          LOG_IDENTIFIERS: false,
-          LOG_GRAPH: false, // relationship storage
-          LOG_INSTANCE_CACHE: false, // instance creation/deletion
-      }
-    }
-  });
-  ```
+let app = new EmberApp(defaults, {
+  emberData: {
+    debug: {
+      LOG_PAYLOADS: false, // data store received to update cache with
+      LOG_OPERATIONS: false, // updates to cache remote state
+      LOG_MUTATIONS: false, // updates to cache local state
+      LOG_NOTIFICATIONS: false,
+      LOG_REQUEST_STATUS: false,
+      LOG_IDENTIFIERS: false,
+      LOG_GRAPH: false, // relationship storage
+      LOG_INSTANCE_CACHE: false, // instance creation/deletion
+    },
+  },
+});
+```
 
 ## Contributing
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
-
 
 ### License
 

@@ -1,9 +1,14 @@
 import { assert, deprecate } from '@ember/debug';
 
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import { StructuredDataDocument } from '@ember-data/request/-private/types';
+import { Change } from '@ember-data/types/cache/change';
+import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type {
   CollectionResourceRelationship,
+  JsonApiDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -12,6 +17,47 @@ import type { Dict } from '@ember-data/types/q/utils';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
+
+function legacyCachePut(store: Store, doc: StructuredDataDocument<JsonApiDocument>): ResourceDocument {
+  const jsonApiDoc = doc.data;
+  let ret: ResourceDocument;
+  store._join(() => {
+    let included = jsonApiDoc.included;
+    let i: number, length: number;
+
+    if (included) {
+      for (i = 0, length = included.length; i < length; i++) {
+        store._instanceCache.loadData(included[i]);
+      }
+    }
+
+    if (Array.isArray(jsonApiDoc.data)) {
+      length = jsonApiDoc.data.length;
+      let identifiers: StableExistingRecordIdentifier[] = [];
+
+      for (i = 0; i < length; i++) {
+        identifiers.push(store._instanceCache.loadData(jsonApiDoc.data[i]));
+      }
+      ret = { data: identifiers };
+      return;
+    }
+
+    if (jsonApiDoc.data === null) {
+      ret = { data: null };
+      return;
+    }
+
+    assert(
+      `Expected an object in the 'data' property in a call to 'push', but was ${typeof jsonApiDoc.data}`,
+      typeof jsonApiDoc.data === 'object'
+    );
+
+    ret = { data: store._instanceCache.loadData(jsonApiDoc.data) };
+    return;
+  });
+
+  return ret!;
+}
 
 /**
  * The CacheManager wraps a Cache
@@ -104,17 +150,29 @@ export class NonSingletonCacheManager implements Cache {
     return this.#identifier;
   }
 
+  put<T>(doc: StructuredDocument<T>): ResourceDocument {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      if (doc instanceof Error) {
+        // in legacy we don't know how to handle this
+        throw doc;
+      }
+      return legacyCachePut(this.#store, doc as StructuredDataDocument<JsonApiDocument>);
+    }
+    return recordData.put(doc);
+  }
+
   /**
    * Push resource data from a remote source into the cache for this identifier
    *
-   * @method pushData
+   * @method upsert
    * @public
    * @param identifier
    * @param data
    * @param hasRecord
    * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
-  pushData(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
+  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord: boolean): void | string[] {
     const recordData = this.#recordData;
     // called by something V1
     if (!isStableIdentifier(identifier)) {
@@ -125,7 +183,7 @@ export class NonSingletonCacheManager implements Cache {
     if (this.#isDeprecated(recordData)) {
       return recordData.pushData(data, hasRecord);
     }
-    return recordData.pushData(identifier, data, hasRecord);
+    return recordData.upsert(identifier, data, hasRecord);
   }
 
   /**
@@ -139,24 +197,24 @@ export class NonSingletonCacheManager implements Cache {
    * @param op the operation to perform
    * @returns {void}
    */
-  sync(op: MergeOperation): void {
+  patch(op: MergeOperation): void {
     const recordData = this.#recordData;
     if (this.#isDeprecated(recordData)) {
       return;
     }
-    recordData.sync(op);
+    recordData.patch(op);
   }
 
   /**
    * Update resource data with a local mutation. Currently supports operations
    * on relationships only.
    *
-   * @method update
+   * @method mutate
    * @public
    * @param operation
    */
   // isCollection is only needed for interop with v1 cache
-  update(operation: LocalRelationshipOperation, isResource?: boolean): void {
+  mutate(operation: LocalRelationshipOperation, isResource?: boolean): void {
     if (this.#isDeprecated(this.#recordData)) {
       const cache = this.#store._instanceCache;
       switch (operation.op) {
@@ -196,8 +254,60 @@ export class NonSingletonCacheManager implements Cache {
           return;
       }
     } else {
-      this.#recordData.update(operation);
+      this.#recordData.mutate(operation);
     }
+  }
+
+  peek(identifier: StableRecordIdentifier): unknown;
+  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      throw new Error(`Expected cache to implement peek`);
+    }
+    return recordData.peek(identifier);
+  }
+  peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      throw new Error(`Expected cache to implement peekRequest`);
+    }
+    return recordData.peekRequest(identifier);
+  }
+  fork(): Promise<Cache> {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      throw new Error(`Expected cache to implement fork`);
+    }
+    return recordData.fork();
+  }
+  merge(cache: Cache): Promise<void> {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      throw new Error(`Expected cache to implement merge`);
+    }
+    return recordData.merge(cache);
+  }
+  diff(): Promise<Change[]> {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      throw new Error(`Expected cache to implement diff`);
+    }
+    return recordData.diff();
+  }
+  dump(): Promise<ReadableStream<unknown>> {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      throw new Error(`Expected cache to implement dump`);
+    }
+    return recordData.dump();
+  }
+  hydrate(stream: ReadableStream<unknown>): Promise<void> {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      throw new Error(`Expected cache to implement hydrate`);
+    }
+    return recordData.hydrate(stream);
   }
 
   /**
@@ -559,7 +669,7 @@ export class NonSingletonCacheManager implements Cache {
 
     this.#isDeprecated(recordData)
       ? recordData.setDirtyBelongsTo(propertyName, value)
-      : recordData.update({
+      : recordData.mutate({
           op: 'replaceRelatedRecord',
           record: this.#identifier,
           field: propertyName,
@@ -587,7 +697,7 @@ export class NonSingletonCacheManager implements Cache {
 
     this.#isDeprecated(recordData)
       ? recordData.addToHasMany(propertyName, value, idx)
-      : recordData.update({
+      : recordData.mutate({
           op: 'addToRelatedRecords',
           field: propertyName,
           record: identifier,
@@ -612,7 +722,7 @@ export class NonSingletonCacheManager implements Cache {
 
     this.#isDeprecated(recordData)
       ? recordData.removeFromHasMany(propertyName, value)
-      : recordData.update({
+      : recordData.mutate({
           op: 'removeFromRelatedRecords',
           record: identifier,
           field: propertyName,
@@ -636,7 +746,7 @@ export class NonSingletonCacheManager implements Cache {
 
     this.#isDeprecated(recordData)
       ? recordData.setDirtyHasMany(propertyName, value)
-      : recordData.update({
+      : recordData.mutate({
           op: 'replaceRelatedRecords',
           record: this.#identifier,
           field: propertyName,
@@ -738,9 +848,14 @@ export class SingletonCacheManager implements Cache {
   version: '2' = '2';
 
   #recordDatas: Map<StableRecordIdentifier, Cache>;
+  #cache: Cache;
 
-  constructor() {
+  constructor(cache: Cache) {
+    this.#cache = cache;
     this.#recordDatas = new Map();
+  }
+  put<T>(doc: StructuredDocument<T>): ResourceDocument {
+    throw new Error('Method not implemented.');
   }
 
   _addRecordData(identifier: StableRecordIdentifier, recordData: Cache) {
@@ -755,12 +870,37 @@ export class SingletonCacheManager implements Cache {
   // Cache
   // =====
 
-  pushData(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
-    return this.#recordData(identifier).pushData(identifier, data, hasRecord);
+  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord: boolean): void | string[] {
+    return this.#recordData(identifier).upsert(identifier, data, hasRecord);
   }
 
-  sync(op: MergeOperation): void {
-    this.#recordData(op.record).sync(op);
+  patch(op: MergeOperation): void {
+    this.#recordData(op.record).patch(op);
+  }
+
+  peek(identifier: StableRecordIdentifier): unknown;
+  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+    return this.#cache.peek(identifier);
+  }
+  peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null {
+    return this.#cache.peekRequest(identifier);
+  }
+
+  fork(): Promise<Cache> {
+    return this.#cache.fork();
+  }
+  merge(cache: Cache): Promise<void> {
+    return this.#cache.merge(cache);
+  }
+  diff(): Promise<Change[]> {
+    return this.#cache.diff();
+  }
+  dump(): Promise<ReadableStream<unknown>> {
+    return this.#cache.dump();
+  }
+  hydrate(stream: ReadableStream<unknown>): Promise<void> {
+    return this.#cache.hydrate(stream);
   }
 
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown> {
@@ -812,8 +952,9 @@ export class SingletonCacheManager implements Cache {
   ): SingleResourceRelationship | CollectionResourceRelationship {
     return this.#recordData(identifier).getRelationship(identifier, propertyName);
   }
-  update(operation: LocalRelationshipOperation): void {
-    this.#recordData(operation.record).update(operation);
+
+  mutate(operation: LocalRelationshipOperation): void {
+    this.#recordData(operation.record).mutate(operation);
   }
 
   // State

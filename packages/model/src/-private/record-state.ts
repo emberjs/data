@@ -3,6 +3,7 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { DEBUG } from '@glimmer/env';
 import { cached, tracked } from '@glimmer/tracking';
 
+import { DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
@@ -161,7 +162,7 @@ export default class RecordState {
 
     this.identifier = identity;
     this.record = record;
-    this.cache = store._instanceCache.getRecordData(identity);
+    this.cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK ? store._instanceCache.getRecordData(identity) : store.cache;
 
     this.pendingCount = 0;
     this.fulfilledCount = 0;

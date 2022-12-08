@@ -6,12 +6,16 @@ import { schedule } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { graphFor } from '@ember-data/graph/-private';
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
+import { Change } from '@ember-data/types/cache/change';
+import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import { Mutation } from '@ember-data/types/cache/mutations';
+import { Operation } from '@ember-data/types/cache/operations';
+import type { Cache, ChangedAttributesHash } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper, V2CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceRelationship,
@@ -26,6 +30,11 @@ function isImplicit(
   relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
 ): relationship is ImplicitRelationship {
   return relationship.definition.isImplicit;
+}
+function isBelongsTo(
+  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
+): relationship is BelongsToRelationship {
+  return relationship.definition.kind === 'belongsTo';
 }
 
 const EMPTY_ITERATOR = {
@@ -86,23 +95,88 @@ export default class SingletonCache implements Cache {
     this.__storeWrapper = storeWrapper;
   }
 
+  peek(identifier: StableRecordIdentifier): unknown;
+  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: unknown): unknown {
+    throw new Error('Method not implemented.');
+  }
+  peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null {
+    throw new Error('Method not implemented.');
+  }
+  fork(): Promise<Cache> {
+    throw new Error('Method not implemented.');
+  }
+  merge(cache: Cache): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  diff(): Promise<Change[]> {
+    throw new Error('Method not implemented.');
+  }
+  dump(): Promise<ReadableStream<unknown>> {
+    throw new Error('Method not implemented.');
+  }
+  hydrate(stream: ReadableStream<unknown>): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  put<T>(doc: StructuredDocument<T>): ResourceDocument {
+    const jsonApiDoc = doc.data;
+    let included = jsonApiDoc.included;
+    let i: number, length: number;
+
+    if (included) {
+      for (i = 0, length = included.length; i < length; i++) {
+        const resource = included[i];
+        let identifier = this.__storeWrapper.identifierCache.getOrCreateRecordIdentifier(resource);
+        this.upsert(identifier, resource, false);
+      }
+    }
+
+    if (Array.isArray(jsonApiDoc.data)) {
+      length = jsonApiDoc.data.length;
+      let identifiers: StableExistingRecordIdentifier[] = [];
+
+      for (i = 0; i < length; i++) {
+        identifiers.push(store._instanceCache.loadData(jsonApiDoc.data[i]));
+      }
+      return { data: identifiers };
+    }
+
+    if (jsonApiDoc.data === null) {
+      return { data: null };
+    }
+
+    assert(
+      `Expected an object in the 'data' property in a call to 'push', but was ${typeof jsonApiDoc.data}`,
+      typeof jsonApiDoc.data === 'object'
+    );
+
+    return { data: store._instanceCache.loadData(jsonApiDoc.data) };
+  }
+
   /**
-   * Private method used when the store's `createRecordDataFor` hook is called
-   * to populate an entry for the identifier into the singleton.
+   * Private method used to populate an entry for the identifier
+   * into the singleton.
    *
    * @method createCache
-   * @private
+   * @internal
    * @param identifier
    */
-  createCache(identifier: StableRecordIdentifier): void {
+  _createCache(identifier: StableRecordIdentifier): void {
+    assert(`Expected no resource data to yet exist in the cache`, !this.__cache.has(identifier));
     this.__cache.set(identifier, makeCache());
   }
 
-  __peek(identifier: StableRecordIdentifier, allowDestroyed = false): CachedResource {
+  __safePeek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource | undefined {
     let resource = this.__cache.get(identifier);
     if (!resource && allowDestroyed) {
       resource = this.__destroyedCache.get(identifier);
     }
+    return resource;
+  }
+
+  __peek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource {
+    let resource = this.__safePeek(identifier, allowDestroyed);
     assert(
       `Expected Cache to have a resource entry for the identifier ${String(identifier)} but none was found`,
       resource
@@ -110,17 +184,16 @@ export default class SingletonCache implements Cache {
     return resource;
   }
 
-  pushData(
-    identifier: StableRecordIdentifier,
-    data: JsonApiResource,
-    calculateChanges?: boolean | undefined
-  ): void | string[] {
+  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, calculateChanges: boolean): void | string[] {
     let changedKeys: string[] | undefined;
-    const cached = this.__peek(identifier);
+    if (!this.__cache.has(identifier)) {
+      this._createCache(identifier);
+    }
+    const cached = this.__peek(identifier, false);
 
     if (LOG_OPERATIONS) {
       try {
-        let _data = JSON.parse(JSON.stringify(data));
+        let _data = JSON.parse(JSON.stringify(data)) as object;
         // eslint-disable-next-line no-console
         console.log('EmberData | Operation - pushData (upsert)', _data);
       } catch (e) {
@@ -138,7 +211,7 @@ export default class SingletonCache implements Cache {
       changedKeys = calculateChangedKeys(cached, data.attributes);
     }
 
-    cached.remoteAttrs = Object.assign(cached.remoteAttrs || Object.create(null), data.attributes);
+    cached.remoteAttrs = Object.assign(cached.remoteAttrs || Object.create(null), data.attributes) as Dict<unknown>;
     if (cached.localAttrs) {
       if (patchLocalAttributes(cached)) {
         this.__storeWrapper.notifyChange(identifier, 'state');
@@ -156,10 +229,10 @@ export default class SingletonCache implements Cache {
     return changedKeys;
   }
 
-  sync(op: MergeOperation): void {
+  patch(op: Operation): void {
     if (LOG_OPERATIONS) {
       try {
-        let _data = JSON.parse(JSON.stringify(op));
+        let _data = JSON.parse(JSON.stringify(op)) as object;
         // eslint-disable-next-line no-console
         console.log(`EmberData | Operation - sync ${op.op}`, _data);
       } catch (e) {
@@ -177,10 +250,10 @@ export default class SingletonCache implements Cache {
     }
   }
 
-  update(op: LocalRelationshipOperation): void {
+  mutate(op: Mutation): void {
     if (LOG_MUTATIONS) {
       try {
-        let _data = JSON.parse(JSON.stringify(op));
+        let _data = JSON.parse(JSON.stringify(op)) as object;
         // eslint-disable-next-line no-console
         console.log(`EmberData | Mutation - update ${op.op}`, _data);
       } catch (e) {
@@ -194,7 +267,7 @@ export default class SingletonCache implements Cache {
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
     if (LOG_MUTATIONS) {
       try {
-        let _data = options ? JSON.parse(JSON.stringify(options)) : options;
+        let _data = (options ? JSON.parse(JSON.stringify(options)) : options) as object;
         // eslint-disable-next-line no-console
         console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, _data);
       } catch (e) {
@@ -202,7 +275,8 @@ export default class SingletonCache implements Cache {
         console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, options);
       }
     }
-    const cached = this.__peek(identifier);
+    this._createCache(identifier);
+    const cached = this.__peek(identifier, false);
     cached.isNew = true;
     let createOptions = {};
 
@@ -224,31 +298,31 @@ export default class SingletonCache implements Cache {
         const fieldType: AttributeSchema | RelationshipSchema | undefined =
           relationshipDefs[name] || attributeDefs[name];
         let kind = fieldType !== undefined ? ('kind' in fieldType ? fieldType.kind : 'attribute') : null;
-        let relationship;
+        let relationship: BelongsToRelationship | ManyRelationship;
 
         switch (kind) {
           case 'attribute':
             this.setAttr(identifier, name, propertyValue);
             break;
           case 'belongsTo':
-            this.update({
+            this.mutate({
               op: 'replaceRelatedRecord',
               field: name,
               record: identifier,
               value: propertyValue as StableRecordIdentifier | null,
             });
-            relationship = graph.get(identifier, name);
+            relationship = graph.get(identifier, name) as BelongsToRelationship | ManyRelationship;
             relationship.state.hasReceivedData = true;
             relationship.state.isEmpty = false;
             break;
           case 'hasMany':
-            this.update({
+            this.mutate({
               op: 'replaceRelatedRecords',
               field: name,
               record: identifier,
               value: propertyValue as StableRecordIdentifier[],
             });
-            relationship = graph.get(identifier, name);
+            relationship = graph.get(identifier, name) as BelongsToRelationship | ManyRelationship;
             relationship.state.hasReceivedData = true;
             relationship.state.isEmpty = false;
             break;
@@ -262,12 +336,12 @@ export default class SingletonCache implements Cache {
     return createOptions;
   }
   willCommit(identifier: StableRecordIdentifier): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     cached.inflightAttrs = cached.localAttrs;
     cached.localAttrs = null;
   }
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     if (cached.isDeleted) {
       graphFor(this.__storeWrapper).push({
         op: 'deleteRecord',
@@ -310,7 +384,7 @@ export default class SingletonCache implements Cache {
       cached.remoteAttrs || Object.create(null),
       cached.inflightAttrs,
       newCanonicalAttributes
-    );
+    ) as Dict<unknown>;
     cached.inflightAttrs = null;
     patchLocalAttributes(cached);
 
@@ -324,11 +398,11 @@ export default class SingletonCache implements Cache {
   }
 
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
       let keys = Object.keys(cached.inflightAttrs);
       if (keys.length > 0) {
-        let attrs = (cached.localAttrs = cached.localAttrs || Object.create(null));
+        let attrs = (cached.localAttrs = (cached.localAttrs || Object.create(null)) as Dict<unknown>);
         for (let i = 0; i < keys.length; i++) {
           if (attrs[keys[i]] === undefined) {
             attrs[keys[i]] = cached.inflightAttrs[keys[i]];
@@ -344,7 +418,14 @@ export default class SingletonCache implements Cache {
   }
 
   unloadRecord(identifier: StableRecordIdentifier): void {
-    const cached = this.__peek(identifier);
+    // TODO this is necessary because
+    // we maintain memebership inside InstanceCache
+    // for peekAll, so even though we haven't created
+    // any data we think this exists.
+    if (!this.__cache.has(identifier)) {
+      return;
+    }
+    const cached = this.__peek(identifier, false);
     const storeWrapper = this.__storeWrapper;
     graphFor(storeWrapper).unload(identifier);
 
@@ -401,7 +482,7 @@ export default class SingletonCache implements Cache {
     }
   }
   setAttr(identifier: StableRecordIdentifier, attr: string, value: unknown): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     const existing =
       cached.inflightAttrs && attr in cached.inflightAttrs
         ? cached.inflightAttrs[attr]
@@ -409,10 +490,10 @@ export default class SingletonCache implements Cache {
         ? cached.remoteAttrs[attr]
         : undefined;
     if (existing !== value) {
-      cached.localAttrs = cached.localAttrs || Object.create(null);
-      cached.localAttrs![attr] = value;
-      cached.changes = cached.changes || Object.create(null);
-      cached.changes![attr] = [existing, value];
+      cached.localAttrs = (cached.localAttrs || Object.create(null)) as Dict<unknown>;
+      cached.localAttrs[attr] = value;
+      cached.changes = (cached.changes || Object.create(null)) as Dict<unknown[]>;
+      cached.changes[attr] = [existing, value];
     } else if (cached.localAttrs) {
       delete cached.localAttrs[attr];
       delete cached.changes![attr];
@@ -422,7 +503,7 @@ export default class SingletonCache implements Cache {
   }
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     // TODO freeze in dev
-    return this.__peek(identifier).changes || Object.create(null);
+    return (this.__peek(identifier, false).changes || Object.create(null)) as ChangedAttributesHash;
   }
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
@@ -433,7 +514,7 @@ export default class SingletonCache implements Cache {
     );
   }
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     let dirtyKeys: string[] | undefined;
     cached.isDeleted = false;
 
@@ -477,7 +558,7 @@ export default class SingletonCache implements Cache {
   }
 
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     cached.isDeleted = isDeleted;
     if (cached.isNew) {
       // TODO can we delete this since we will do this in unload?
@@ -493,17 +574,17 @@ export default class SingletonCache implements Cache {
     return this.__peek(identifier, true).errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {
-    const cached = this.__peek(identifier, true);
-    return cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null;
+    const cached = this.__safePeek(identifier, true);
+    return cached ? cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null : true;
   }
   isNew(identifier: StableRecordIdentifier): boolean {
-    return this.__peek(identifier, true).isNew;
+    return this.__safePeek(identifier, true)?.isNew || false;
   }
   isDeleted(identifier: StableRecordIdentifier): boolean {
-    return this.__peek(identifier, true).isDeleted;
+    return this.__safePeek(identifier, true)?.isDeleted || false;
   }
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
-    return this.__peek(identifier, true).isDeletionCommitted;
+    return this.__safePeek(identifier, true)?.isDeletionCommitted || false;
   }
 }
 
@@ -517,20 +598,20 @@ function areAllModelsUnloaded(wrapper: V2CacheStoreWrapper, identifiers: StableR
   return true;
 }
 
-function getLocalState(rel) {
-  if (rel.definition.kind === 'belongsTo') {
+function getLocalState(rel: BelongsToRelationship | ManyRelationship): StableRecordIdentifier[] {
+  if (isBelongsTo(rel)) {
     return rel.localState ? [rel.localState] : [];
   }
   return rel.localState;
 }
-function getRemoteState(rel) {
-  if (rel.definition.kind === 'belongsTo') {
+function getRemoteState(rel: BelongsToRelationship | ManyRelationship): StableRecordIdentifier[] {
+  if (isBelongsTo(rel)) {
     return rel.remoteState ? [rel.remoteState] : [];
   }
   return rel.remoteState;
 }
 
-function getDefaultValue(options: { defaultValue?: unknown } | undefined) {
+function getDefaultValue(options: { defaultValue?: unknown } | undefined): unknown {
   if (!options) {
     return;
   }
@@ -573,7 +654,7 @@ function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash) 
     const length = keys.length;
     const localAttrs = cached.localAttrs;
 
-    const original = Object.assign(Object.create(null), cached.remoteAttrs, cached.inflightAttrs);
+    const original = Object.assign(Object.create(null), cached.remoteAttrs, cached.inflightAttrs) as Dict<unknown>;
 
     for (let i = 0; i < length; i++) {
       let key = keys[i];

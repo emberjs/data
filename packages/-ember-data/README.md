@@ -1,14 +1,12 @@
-EmberData
-==============================================================================
+# EmberData
 
 [![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
 [![Code Climate](https://codeclimate.com/github/emberjs/data/badges/gpa.svg)](https://codeclimate.com/github/emberjs/data)
 [![Discord Community Server](https://img.shields.io/discord/480462759797063690.svg?logo=discord)](https://discord.gg/zT3asNS)
 
-
 # Overview
 
-`EmberData` is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation. You can plug-and-play as desired for any api  structure and format.
+`EmberData` is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation. You can plug-and-play as desired for any api structure and format.
 
 It was designed for robustly managing data in applications built with [Ember](https://github.com/emberjs/ember.js/) and is agnostic to the underlying persistence mechanism, so it works just as well with [JSON:API](https://jsonapi.org/) or [GraphQL](https://graphql.org/) over `HTTPS` as it does with streaming `WebSockets` or local `IndexedDB` storage.
 
@@ -22,7 +20,6 @@ It provides many of the features you'd find in server-side `ORM`s like `ActiveRe
 - [Team](https://emberjs.com/team)
 - [Blog](https://emberjs.com/blog)
 
-
 ## Basic Installation
 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
@@ -33,7 +30,7 @@ pnpm add -D ember-data
 
 `ember-data` is installed by default for new applications generated with `ember-cli`. You can check what version is installed by looking in the `devDependencies` hash of your project's [package.json](https://docs.npmjs.com/cli/v8/configuring-npm/package-json) file.
 
-If you have generated a new `Ember` application using `ember-cli` but do 
+If you have generated a new `Ember` application using `ember-cli` but do
 not wish to use `ember-data`, remove `ember-data` from your project's `package.json` file and run your package manager's install command to update your lockfile.
 
 ## Advanced Installation
@@ -41,7 +38,7 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 EmberData is organized into primitives that compose together via public APIs.
 
 - [@ember-data/store](https://github.com/emberjs/data/tree/master/packages/store) is the core and handles coordination
-- [@ember-data/json-api](https://github.com/emberjs/data/tree/master/packages/record-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
+- [@ember-data/json-api](https://github.com/emberjs/data/tree/master/packages/json-api) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createCache`
 - [@ember-data/model](https://github.com/emberjs/data/tree/master/packages/model) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
 - [@ember-data/adapter](https://github.com/emberjs/data/tree/master/packages/adapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
 - [@ember-data/serializer](https://github.com/emberjs/data/tree/master/packages/serializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/json-api`.
@@ -81,7 +78,7 @@ let app = new EmberApp(defaults, {
   '@embroider/macros': {
     setConfig: {
       '@ember-data/store': {
-        polyfillUUID: true
+        polyfillUUID: true,
       },
     },
   },
@@ -96,8 +93,8 @@ that all support for it should be stripped from the build.
 ```ts
 let app = new EmberApp(defaults, {
   emberData: {
-    includeDataAdapterInProduction: false
-  }
+    includeDataAdapterInProduction: false,
+  },
 });
 ```
 
@@ -110,26 +107,25 @@ at build time. This instrumentation is always removed from production builds or 
 that has not explicitly activated it. To activate it set the appropriate flag to `true`.
 
 ```ts
-  let app = new EmberApp(defaults, {
-    emberData: {
-      debug: {
-          LOG_PAYLOADS: false, // data store received to update cache with
-          LOG_OPERATIONS: false, // updates to cache remote state
-          LOG_MUTATIONS: false, // updates to cache local state
-          LOG_NOTIFICATIONS: false,
-          LOG_REQUEST_STATUS: false,
-          LOG_IDENTIFIERS: false,
-          LOG_GRAPH: false, // relationship storage
-          LOG_INSTANCE_CACHE: false, // instance creation/deletion
-      }
-    }
-  });
-  ```
+let app = new EmberApp(defaults, {
+  emberData: {
+    debug: {
+      LOG_PAYLOADS: false, // data store received to update cache with
+      LOG_OPERATIONS: false, // updates to cache remote state
+      LOG_MUTATIONS: false, // updates to cache local state
+      LOG_NOTIFICATIONS: false,
+      LOG_REQUEST_STATUS: false,
+      LOG_IDENTIFIERS: false,
+      LOG_GRAPH: false, // relationship storage
+      LOG_INSTANCE_CACHE: false, // instance creation/deletion
+    },
+  },
+});
+```
 
 ## Contributing
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
-
 
 ### License
 

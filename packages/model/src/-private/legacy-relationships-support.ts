@@ -10,7 +10,10 @@ import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/inde
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
+import {
+  DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
+  DEPRECATE_PROMISE_PROXIES,
+} from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { fastPush, isStableIdentifier, recordIdentifierFor, SOURCE, storeFor } from '@ember-data/store/-private';
 import type { NonSingletonCacheManager } from '@ember-data/store/-private/managers/cache-manager';
@@ -38,7 +41,7 @@ type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): Promise
 export class LegacySupport {
   declare record: DSModel;
   declare store: Store;
-  declare recordData: Cache;
+  declare cache: Cache;
   declare references: Dict<BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
   declare _manyArrayCache: Dict<RelatedCollection>;
@@ -52,7 +55,9 @@ export class LegacySupport {
     this.record = record;
     this.store = storeFor(record)!;
     this.identifier = recordIdentifierFor(record);
-    this.recordData = this.store._instanceCache.getRecordData(this.identifier);
+    this.cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+      ? this.store._instanceCache.getRecordData(this.identifier)
+      : this.store.cache;
 
     this._manyArrayCache = Object.create(null) as Dict<RelatedCollection>;
     this._relationshipPromisesCache = Object.create(null) as Dict<Promise<RelatedCollection | RecordInstance>>;
@@ -83,7 +88,7 @@ export class LegacySupport {
   }
 
   updateCache(operation: LocalRelationshipOperation): void {
-    this.recordData.update(operation);
+    this.cache.update(operation);
   }
 
   _findBelongsTo(
@@ -111,7 +116,7 @@ export class LegacySupport {
     const relationship = graphFor(this.store).get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
 
-    let resource = this.recordData.getRelationship(this.identifier, key) as SingleResourceRelationship;
+    let resource = this.cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
     relationship.state.hasFailedLoadAttempt = false;
     relationship.state.shouldForceReload = true;
     let promise = this._findBelongsTo(key, resource, relationship, options);
@@ -122,7 +127,7 @@ export class LegacySupport {
   }
 
   getBelongsTo(key: string, options?: FindOptions): PromiseBelongsTo | RecordInstance | null {
-    const { identifier, recordData } = this;
+    const { identifier, cache: recordData } = this;
     let resource = recordData.getRelationship(this.identifier, key) as SingleResourceRelationship;
     let relatedIdentifier = resource && resource.data ? resource.data : null;
     assert(`Expected a stable identifier`, !relatedIdentifier || isStableIdentifier(relatedIdentifier));
@@ -170,7 +175,7 @@ export class LegacySupport {
   }
 
   setDirtyBelongsTo(key: string, value: RecordInstance | null) {
-    return this.recordData.update(
+    return this.cache.update(
       {
         op: 'replaceRelatedRecord',
         record: this.identifier,
@@ -186,7 +191,7 @@ export class LegacySupport {
     identifier: StableRecordIdentifier,
     field: string
   ): [StableRecordIdentifier[], CollectionResourceRelationship] {
-    let jsonApi = (this.recordData as NonSingletonCacheManager).getRelationship(
+    let jsonApi = (this.cache as NonSingletonCacheManager).getRelationship(
       identifier,
       field,
       true
@@ -222,7 +227,7 @@ export class LegacySupport {
           store: this.store,
           type: definition.type,
           identifier: this.identifier,
-          recordData: this.recordData,
+          recordData: this.cache,
           identifiers,
           key,
           meta: doc.meta || null,
@@ -254,7 +259,7 @@ export class LegacySupport {
         return loadingPromise;
       }
 
-      const jsonApi = this.recordData.getRelationship(this.identifier, key) as CollectionResourceRelationship;
+      const jsonApi = this.cache.getRelationship(this.identifier, key) as CollectionResourceRelationship;
       const promise = this._findHasManyByJsonApiResource(jsonApi, this.identifier, relationship, options);
 
       if (!promise) {

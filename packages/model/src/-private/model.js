@@ -21,7 +21,7 @@ import {
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId, recordDataFor } from '@ember-data/store/-private';
+import { coerceId, peekCache } from '@ember-data/store/-private';
 
 import { deprecatedPromiseObject } from './deprecated-promise-proxy';
 import Errors from './errors';
@@ -140,7 +140,7 @@ class Model extends EmberObject {
     super.init(options);
 
     let identity = _secretInit.identifier;
-    _secretInit.cb(this, _secretInit.recordData, identity, _secretInit.store);
+    _secretInit.cb(this, _secretInit.cache, identity, _secretInit.store);
 
     this.___recordState = DEBUG ? new RecordState(this) : null;
 
@@ -827,7 +827,7 @@ class Model extends EmberObject {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes() {
-    return recordDataFor(this).changedAttrs(recordIdentifierFor(this));
+    return peekCache(this).changedAttrs(recordIdentifierFor(this));
   }
 
   /**
@@ -853,7 +853,7 @@ class Model extends EmberObject {
     const { isNew } = currentState;
 
     storeFor(this)._join(() => {
-      recordDataFor(this).rollbackAttrs(recordIdentifierFor(this));
+      peekCache(this).rollbackAttrs(recordIdentifierFor(this));
       this.errors.clear();
       currentState.cleanErrorRequests();
       if (isNew) {
