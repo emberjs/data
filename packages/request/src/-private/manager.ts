@@ -341,7 +341,7 @@ import { executeNextHandler } from './utils';
  *
  * ```ts
  * import { RequestManager } from '@ember-data/request';
- * import { Fetch } from '@ember/data/request/fetch';
+ * import { Fetch } from '@ember-data/request/fetch';
  * import Auth from 'ember-simple-auth/ember-data-handler';
  * import Config from './config';
  *
