@@ -401,11 +401,11 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       }
     }
 
-    let CustomStore = Store.extend({
+    class CustomStore extends Store {
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         return new TestRecordData();
-      },
-    });
+      }
+    }
 
     hooks.beforeEach(function () {
       let { owner } = this;
@@ -436,11 +436,11 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         }
       }
 
-      let TestStore = Store.extend({
+      class TestStore extends Store {
         createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
           return new LifecycleRecordData();
-        },
-      });
+        }
+      }
 
       let TestAdapter = EmberObject.extend({
         updateRecord() {
@@ -496,11 +496,11 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         }
       }
 
-      let TestStore = Store.extend({
+      class TestStore extends Store {
         createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
           return new LifecycleRecordData();
-        },
-      });
+        }
+      }
 
       let TestAdapter = EmberObject.extend({
         updateRecord() {
@@ -557,11 +557,11 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         }
       }
 
-      let TestStore = Store.extend({
+      class TestStore extends Store {
         createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
           return new LifecycleRecordData(wrapper);
-        },
-      });
+        }
+      }
 
       owner.register('service:store', TestStore);
       store = owner.lookup('service:store');
