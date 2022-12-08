@@ -339,7 +339,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       resetMethodCalled = true;
     });
 
-    const store = this.owner.lookup('service:store') as Store;
+    const store = new Store();
     run(() => store.destroy());
     assert.ok(resetMethodCalled, 'We called the reset method when the application was torn down');
   });

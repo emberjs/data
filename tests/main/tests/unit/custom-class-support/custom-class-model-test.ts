@@ -29,8 +29,8 @@ module('unit/model - Custom Class Model', function (hooks) {
   }
 
   class CustomStore extends Store {
-    init() {
-      super.init();
+    constructor(args) {
+      super(args);
       this.registerSchemaDefinitionService({
         attributesDefinitionFor() {
           let schema: AttributesSchema = {};
