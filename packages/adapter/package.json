@@ -13,32 +13,64 @@
   "license": "MIT",
   "author": "",
   "directories": {},
-  "scripts": {},
+  "scripts": {
+    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "start": "rollup --config --watch",
+    "prepack": "pnpm build",
+    "prepare": "pnpm build"
+  },
+  "ember-addon": {
+    "main": "addon-main.js",
+    "type": "addon",
+    "version": 1
+  },
+  "files": [
+    "addon-main.js",
+    "addon"
+  ],
   "peerDependencies": {
     "@ember-data/store": "workspace:4.10.0-alpha.4",
     "@ember/string": "^3.0.0",
     "ember-inflector": "^4.0.2"
   },
   "dependenciesMeta": {
+    "@ember-data/canary-features": {
+      "injected": true
+    },
     "@ember-data/private-build-infra": {
       "injected": true
     }
   },
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:4.10.0-alpha.4",
-    "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
-    "ember-auto-import": "^2.5.0",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-test-info": "^1.0.0"
   },
   "devDependencies": {
-    "webpack": "^5.75.0"
+    "@babel/core": "^7.20.2",
+    "@babel/cli": "^7.19.3",
+    "@glimmer/component": "^1.1.2",
+    "ember-source": "~4.8.2",
+    "@embroider/addon-dev": "^2.0.0",
+    "rollup": "^3.2.3",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-private-methods": "^7.18.6",
+    "@babel/plugin-proposal-decorators": "^7.20.0",
+    "@babel/plugin-transform-typescript": "^7.20.0",
+    "@babel/plugin-transform-runtime": "^7.19.6",
+    "@babel/preset-typescript": "^7.18.6",
+    "@babel/preset-env": "^7.19.4",
+    "@babel/runtime": "^7.20.0",
+    "@rollup/plugin-babel":"^6.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "tslib": "^2.4.0",
+    "walk-sync": "^3.0.0",
+    "typescript": "^4.8.4"
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"
   },
-  "ember-addon": {},
   "volta": {
     "extends": "../../package.json"
   },

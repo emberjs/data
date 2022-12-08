@@ -9,6 +9,7 @@ tmp
 packages/tracking/addon
 packages/request/addon
 packages/store/addon
+packages/adapter/addon
 
 # dependencies
 bower_components
