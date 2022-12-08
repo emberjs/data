@@ -285,6 +285,10 @@ export default class SingletonRecordData implements RecordData {
     if (data) {
       if (data.id) {
         // didCommit provided an ID, notify the store of it
+        assert(
+          `Expected resource id to be a string, got a value of type ${typeof data.id}`,
+          typeof data.id === 'string'
+        );
         this.__storeWrapper.setRecordId(identifier, data.id);
       }
       if (data.relationships) {
