@@ -543,7 +543,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         });
         post.user;
       });
-    }, `Assertion Failed: Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected a json-api identifier but found '{"id":null,"type":"user"}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`);
+    }, /Assertion Failed: Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected an identifier but found/);
   });
 
   testInDebug('Invalid belongsTo relationship identifiers throw errors for null type', function (assert) {
@@ -570,7 +570,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         });
         post.user;
       });
-    }, `Assertion Failed: Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected a json-api identifier with type 'user' but found '{"id":"1","type":null}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`);
+    }, /Assertion Failed: Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected an identifier with type 'user' but found/);
   });
 
   testInDebug(
@@ -1993,7 +1993,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         });
         chapter.book;
       });
-    }, /Encountered a relationship identifier without a type for the belongsTo relationship 'book' on <chapter:1>, expected a json-api identifier with type 'book'/);
+    }, /Encountered a relationship identifier without a type for the belongsTo relationship 'book' on <chapter:1>, expected an identifier with type 'book'/);
   });
 
   test("belongsTo relationship with links doesn't trigger extra change notifications - #4942", function (assert) {
