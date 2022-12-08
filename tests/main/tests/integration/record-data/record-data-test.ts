@@ -186,11 +186,12 @@ const TestRecordData: typeof V2TestRecordData | typeof V1TestRecordData = !DEPRE
   ? V2TestRecordData
   : V1TestRecordData;
 
-const CustomStore = Store.extend({
+class CustomStore extends Store {
+  // @ts-expect-error
   createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     return new TestRecordData(storeWrapper, identifier);
-  },
-});
+  }
+}
 
 let houseHash, davidHash, runspiredHash, igorHash;
 
@@ -350,11 +351,12 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         return new LifecycleRecordData(storeWrapper, identifier);
-      },
-    });
+      }
+    }
 
     let TestAdapter = EmberObject.extend({
       updateRecord() {
@@ -491,11 +493,12 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         return new AttributeRecordData(storeWrapper, identifier);
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
 
@@ -559,15 +562,16 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
-          return this._super(identifier, storeWrapper);
+          return super.createRecordDataFor(identifier, storeWrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
 
@@ -629,16 +633,15 @@ module('integration/record-data - Custom RecordData Implementations', function (
         }
       };
     }
-
-    let TestStore = Store.extend({
+    class TestStore extends Store {
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
-          return this._super(identifier, storeWrapper);
+          return super.createRecordDataFor(identifier, storeWrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
 
@@ -722,17 +725,18 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           notifier = storeWrapper;
           houseIdentifier = identifier;
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
-          return this._super(identifier, storeWrapper);
+          return super.createRecordDataFor(identifier, storeWrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
 
@@ -866,15 +870,16 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
-          return this._super(identifier, storeWrapper);
+          return super.createRecordDataFor(identifier, storeWrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
 

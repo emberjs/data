@@ -95,11 +95,12 @@ class TestRecordData {
   _initRecordCreateOptions(options) {}
 }
 
-const CustomStore = Store.extend({
+class CustomStore extends Store {
+  // @ts-expect-error
   createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
     return new TestRecordData();
-  },
-});
+  }
+}
 
 let houseHash, houseHash2;
 
@@ -202,15 +203,16 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RelationshipRD(identifier, wrapper);
         } else {
-          return this._super(identifier, wrapper);
+          return super.createRecordDataFor(identifier, wrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
     store = owner.lookup('service:store');
@@ -256,15 +258,16 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(identifier, wrapper);
+          return super.createRecordDataFor(identifier, wrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
     store = owner.lookup('service:store');
@@ -316,15 +319,16 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       }
     }
 
-    const TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(identifier, wrapper);
+          return super.createRecordDataFor(identifier, wrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
     store = owner.lookup('service:store');
@@ -365,15 +369,16 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(identifier, wrapper);
+          return super.createRecordDataFor(identifier, wrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
     store = owner.lookup('service:store');
@@ -408,15 +413,16 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(identifier, wrapper);
+          return super.createRecordDataFor(identifier, wrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
     store = owner.lookup('service:store');
@@ -450,15 +456,16 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return this._super(identifier, wrapper);
+          return super.createRecordDataFor(identifier, wrapper);
         }
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
     store = owner.lookup('service:store');

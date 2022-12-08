@@ -29,8 +29,8 @@ module('unit/model - Custom Class Model', function (hooks) {
   }
 
   class CustomStore extends Store {
-    init() {
-      super.init();
+    constructor(args) {
+      super(args);
       this.registerSchemaDefinitionService({
         attributesDefinitionFor() {
           let schema: AttributesSchema = {};
@@ -329,7 +329,7 @@ module('unit/model - Custom Class Model', function (hooks) {
         },
       })
     );
-    let CreationStore = CustomStore.extend({
+    class CreationStore extends CustomStore {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         ident = identifier;
         rd = recordDataFor(identifier);
@@ -339,11 +339,11 @@ module('unit/model - Custom Class Model', function (hooks) {
           assert.true(recordDataFor(identifier).isDeleted(identifier), 'we have been marked as deleted');
         });
         return {};
-      },
+      }
       teardownRecord(record) {
         assert.strictEqual(record, person, 'Passed in person to teardown');
-      },
-    });
+      }
+    }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
     let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });

@@ -195,11 +195,11 @@ class V2TestRecordData implements RecordData {
 }
 const TestRecordData = DEPRECATE_V1_RECORD_DATA ? V1TestRecordData : V2TestRecordData;
 
-const CustomStore = Store.extend({
+class CustomStore extends Store {
   createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
     return new TestRecordData();
-  },
-});
+  }
+}
 
 module('integration/record-data - Record Data State', function (hooks) {
   setupTest(hooks);
@@ -250,11 +250,12 @@ module('integration/record-data - Record Data State', function (hooks) {
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         return new LifecycleRecordData();
-      },
-    });
+      }
+    }
 
     let TestAdapter = EmberObject.extend({
       deleteRecord() {
@@ -345,11 +346,12 @@ module('integration/record-data - Record Data State', function (hooks) {
       }
     }
 
-    let TestStore = Store.extend({
+    class TestStore extends Store {
+      // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
         return new LifecycleRecordData(wrapper);
-      },
-    });
+      }
+    }
 
     owner.register('service:store', TestStore);
 

@@ -4,7 +4,6 @@
 import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
-import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { DEBUG } from '@glimmer/env';
 
@@ -167,7 +166,7 @@ export interface CreateRecordProperties {
   @extends Ember.Service
 */
 
-class Store extends Service {
+class Store {
   __private_singleton_recordData!: RecordData;
 
   declare recordArrayManager: RecordArrayManager;
@@ -189,12 +188,15 @@ class Store extends Service {
   declare __asyncWaiter: () => boolean;
   declare DISABLE_WAITER?: boolean;
 
+  isDestroying: boolean = false;
+  isDestroyed: boolean = false;
+
   /**
     @method init
     @private
   */
-  constructor() {
-    super(...arguments);
+  constructor(createArgs?: Record<string, unknown>) {
+    Object.assign(this, createArgs);
 
     /**
      * Provides access to the IdentifierCache instance
@@ -2612,6 +2614,11 @@ class Store extends Service {
   }
 
   destroy() {
+    if (this.isDestroyed) {
+      // @ember/test-helpers will call destroy multiple times
+      return;
+    }
+    this.isDestroying = true;
     // enqueue destruction of any adapters/serializers we have created
     for (let adapterName in this._adapterCache) {
       let adapter = this._adapterCache[adapterName]!;
@@ -2637,11 +2644,6 @@ class Store extends Service {
       }
     }
 
-    return super.destroy();
-  }
-
-  willDestroy() {
-    super.willDestroy();
     this.recordArrayManager.destroy();
     this.identifierCache.destroy();
 
@@ -2659,6 +2661,12 @@ class Store extends Service {
         );
       }
     }
+
+    this.isDestroyed = true;
+  }
+
+  static create(args?: Record<string, unknown>) {
+    return new this(args);
   }
 }
 

@@ -22,7 +22,12 @@ module('integration/application - Injecting a Custom Store', function (hooks) {
     let { owner } = this;
 
     owner.unregister('service:store');
-    owner.register('service:store', Store.extend({ isCustom: true }));
+    owner.register(
+      'service:store',
+      class extends Store {
+        isCustom = true;
+      }
+    );
     owner.register('controller:foo', Controller.extend({ store: service() }));
     owner.register(
       'controller:baz',
@@ -180,9 +185,9 @@ module('integration/application - Attaching initializer', function (hooks) {
   });
 
   test('ember-data initializer does not register the store service when it was already registered', async function (assert) {
-    let AppStore = Store.extend({
-      isCustomStore: true,
-    });
+    class AppStore extends Store {
+      isCustomStore = true;
+    }
 
     this.TestApplication.initializer({
       name: 'before-ember-data',
