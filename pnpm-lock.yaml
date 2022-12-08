@@ -548,7 +548,7 @@ importers:
       ember-source: ~4.8.2
       rollup: ^3.2.3
       tslib: ^2.4.0
-      typescript: ^4.8.4
+      typescript: ^4.9.3
       walk-sync: ^3.0.0
       webpack: ^5.75.0
     dependencies:
@@ -4564,7 +4564,7 @@ packages:
   /@types/ember__controller/4.0.4:
     resolution: {integrity: sha512-+f0knTIJJkRX5xijeSI/n4FvLfhMFFxIxODyFFFFB483EryYuts3QzpTwU5D66WQ5rAbZvpPRXRMPTTCNJoUhg==}
     dependencies:
-      '@types/ember__object': 4.0.5_@babel+core@7.20.2
+      '@types/ember__object': 4.0.5_@babel+core@7.19.6
     dev: true
 
   /@types/ember__controller/4.0.4_@babel+core@7.19.6:
