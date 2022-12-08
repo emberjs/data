@@ -20,12 +20,12 @@ import type {
   StableRecordIdentifier,
 } from '@ember-data/types/q/identifier';
 import type { RecordData } from '@ember-data/types/q/record-data';
-import { JsonApiRelationship, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import type { JsonApiRelationship, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordDataStoreWrapper as StoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
-import { Dict } from '@ember-data/types/q/utils';
+import type { Dict } from '@ember-data/types/q/utils';
 
 import RecordReference from '../legacy-model-support/record-reference';
 import { NonSingletonRecordDataManager, SingletonRecordDataManager } from '../managers/record-data-manager';
@@ -33,9 +33,9 @@ import { RecordDataStoreWrapper } from '../managers/record-data-store-wrapper';
 import Snapshot from '../network/snapshot';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
-import { assertIdentifierHasId } from '../store-service';
 import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
+import { assertIdentifierHasId } from '../utils/identifier-has-id';
 import normalizeModelName from '../utils/normalize-model-name';
 import { removeRecordDataFor, setRecordDataFor } from './record-data-for';
 

@@ -8,6 +8,7 @@ dist
 tmp
 packages/tracking/addon
 packages/request/addon
+packages/store/addon
 
 # dependencies
 bower_components

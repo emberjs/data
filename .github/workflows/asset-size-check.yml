@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies for master
         run: pnpm install
       - name: Build V2 Addons
-        run: pnpm run --if-present build-v2-addons && pnpm install
+        run: pnpm install
       - name: Build Production master
         run: pnpm --filter "full-data-asset-size-app" exec ember build -e production --output-path dists/control
       - name: Checkout ${{github.ref}}
@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies for ${{github.ref}}
         run: pnpm install
       - name: Build V2 Addons
-        run: pnpm run --if-present build-v2-addons && pnpm install
+        run: pnpm install
       - name: Build Production ${{github.ref}}
         run: pnpm --filter "full-data-asset-size-app" exec ember build -e production --output-path dists/experiment
       - name: Analyze Master Assets

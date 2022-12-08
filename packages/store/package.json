@@ -14,23 +14,19 @@
   "author": "",
   "directories": {},
   "scripts": {
-    "build": "rollup --config",
+    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "start": "rollup --config --watch",
-    "prepack": "rollup --config"
+    "prepack": "pnpm build",
+    "prepare": "pnpm build"
   },
   "ember-addon": {
     "main": "addon-main.js",
     "type": "addon",
     "version": 1
   },
-  "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*",
-    "./addon-main.js": "./addon-main.js"
-  },
   "files": [
     "addon-main.js",
-    "dist"
+    "addon"
   ],
   "peerDependencies": {
     "@ember-data/model": "workspace:4.10.0-alpha.4",
@@ -56,7 +52,6 @@
     }
   },
   "dependencies": {
-    "broccoli-funnel": "^3.0.8",
     "ember-cli-babel": "^7.26.11",
     "@ember-data/private-build-infra": "workspace:4.10.0-alpha.4",
     "@embroider/macros": "^1.10.0",
@@ -65,6 +60,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
+    "@babel/cli": "^7.19.3",
     "@glimmer/component": "^1.1.2",
     "webpack": "^5.75.0",
     "ember-source": "~4.8.2",

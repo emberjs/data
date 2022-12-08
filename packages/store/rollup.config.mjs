@@ -4,7 +4,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 const addon = new Addon({
   srcDir: 'src',
-  destDir: 'dist',
+  destDir: 'addon',
 });
 
 export default {
@@ -22,9 +22,9 @@ export default {
     // to eliminate
     '@ember/object/compat',
     '@ember/runloop',
-    '@ember/service',
     '@ember/string',
     'ember',
+    'rsvp',
 
     // investigate why these are present
     '@ember/utils',

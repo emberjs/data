@@ -527,27 +527,57 @@ importers:
 
   packages/store:
     specifiers:
+      '@babel/cli': ^7.19.3
       '@babel/core': ^7.20.2
-      '@ember-data/canary-features': workspace:4.10.0-alpha.4
+      '@babel/plugin-proposal-class-properties': ^7.18.6
+      '@babel/plugin-proposal-decorators': ^7.20.0
+      '@babel/plugin-proposal-private-methods': ^7.18.6
+      '@babel/plugin-transform-runtime': ^7.19.6
+      '@babel/plugin-transform-typescript': ^7.20.0
+      '@babel/preset-env': ^7.19.4
+      '@babel/preset-typescript': ^7.18.6
+      '@babel/runtime': ^7.20.0
       '@ember-data/private-build-infra': workspace:4.10.0-alpha.4
+      '@embroider/addon-dev': ^2.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
+      '@rollup/plugin-babel': ^6.0.2
+      '@rollup/plugin-node-resolve': ^15.0.1
       ember-auto-import: ^2.5.0
       ember-cached-decorator-polyfill: ^1.0.1
       ember-cli-babel: ^7.26.11
       ember-source: ~4.8.2
+      rollup: ^3.2.3
+      tslib: ^2.4.0
+      typescript: ^4.8.4
+      walk-sync: ^3.0.0
       webpack: ^5.75.0
     dependencies:
-      '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@embroider/macros': 1.10.0
       ember-auto-import: 2.5.0_webpack@5.75.0
       ember-cached-decorator-polyfill: 1.0.1_o6vra3atesdmwivzf2sf5xbdmm
       ember-cli-babel: 7.26.11
     devDependencies:
+      '@babel/cli': 7.19.3_@babel+core@7.20.2
       '@babel/core': 7.20.2
+      '@babel/plugin-proposal-class-properties': 7.18.6_@babel+core@7.20.2
+      '@babel/plugin-proposal-decorators': 7.20.2_@babel+core@7.20.2
+      '@babel/plugin-proposal-private-methods': 7.18.6_@babel+core@7.20.2
+      '@babel/plugin-transform-runtime': 7.19.6_@babel+core@7.20.2
+      '@babel/plugin-transform-typescript': 7.20.2_@babel+core@7.20.2
+      '@babel/preset-env': 7.20.2_@babel+core@7.20.2
+      '@babel/preset-typescript': 7.18.6_@babel+core@7.20.2
+      '@babel/runtime': 7.20.1
+      '@embroider/addon-dev': 2.0.0_jgqpuikonnnyxxj34ossexjace
       '@glimmer/component': 1.1.2_@babel+core@7.20.2
+      '@rollup/plugin-babel': 6.0.3_ilus2vz5zuhvfvn5o2dsrag2wi
+      '@rollup/plugin-node-resolve': 15.0.1_rollup@3.7.0
       ember-source: 4.8.2_rzt62hinieo7pkbxqnerr4utxi
+      rollup: 3.7.0
+      tslib: 2.4.1
+      typescript: 4.9.3
+      walk-sync: 3.0.0
       webpack: 5.75.0
     dependenciesMeta:
       '@ember-data/canary-features':
@@ -1861,6 +1891,7 @@ packages:
       semver: 6.3.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@babel/eslint-parser/7.19.1_hojp5sdiorqnqfvcamcc5sgvyi:
     resolution: {integrity: sha512-AqNf2QWt1rtu2/1rLswy6CDP7H9Oh3mMhk177Y67Rg8d7RD9WfOLLv8CGn6tisFvS2htm86yIe1yLF6I1UDaGQ==}
@@ -2102,6 +2133,7 @@ packages:
       '@babel/types': 7.20.2
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@babel/helper-optimise-call-expression/7.18.6:
     resolution: {integrity: sha512-HP59oD9/fEHQkdcbgFCnbmgH5vIQTJbxh2yf+CdM89/glUNnuzr87Q8GIjGEnOktTROemO0Pe0iPAYbqZuOUiA==}
@@ -2213,6 +2245,7 @@ packages:
       '@babel/types': 7.20.2
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@babel/highlight/7.18.6:
     resolution: {integrity: sha512-u7stbOuYjaPezCuLj29hNW1v64M2Md2qupEKP1fHc7WdOA3DgLh37suiSrZYY7haUB7iBeQZ9P1uiRF359do3g==}
@@ -2384,7 +2417,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.20.2_supports-color@8.1.1
+      '@babel/core': 7.20.2
       '@babel/helper-plugin-utils': 7.20.2
       '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3_@babel+core@7.20.2
 
@@ -2427,7 +2460,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.20.2_supports-color@8.1.1
+      '@babel/core': 7.20.2
       '@babel/helper-plugin-utils': 7.20.2
       '@babel/helper-skip-transparent-expression-wrappers': 7.20.0
       '@babel/plugin-syntax-optional-chaining': 7.8.3_@babel+core@7.20.2
@@ -2548,7 +2581,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.20.2_supports-color@8.1.1
+      '@babel/core': 7.20.2
       '@babel/helper-plugin-utils': 7.20.2
 
   /@babel/plugin-syntax-numeric-separator/7.10.4_@babel+core@7.20.2:
@@ -2580,7 +2613,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.20.2_supports-color@8.1.1
+      '@babel/core': 7.20.2
       '@babel/helper-plugin-utils': 7.20.2
 
   /@babel/plugin-syntax-private-property-in-object/7.14.5_@babel+core@7.20.2:
@@ -2899,7 +2932,7 @@ packages:
     dependencies:
       '@babel/core': 7.20.2
       '@babel/helper-module-imports': 7.18.6
-      '@babel/helper-plugin-utils': 7.19.0
+      '@babel/helper-plugin-utils': 7.20.2
       babel-plugin-polyfill-corejs2: 0.3.3_@babel+core@7.20.2
       babel-plugin-polyfill-corejs3: 0.6.0_@babel+core@7.20.2
       babel-plugin-polyfill-regenerator: 0.4.1_@babel+core@7.20.2
@@ -3335,6 +3368,7 @@ packages:
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@babel/types/7.20.0:
     resolution: {integrity: sha512-Jlgt3H0TajCW164wkTOTzHkZb075tMQMULzrLUoUeKmO7eFL96GgDxf7/Axhc5CAuKE3KFyVW1p6ysKsi2oXAg==}
@@ -3446,6 +3480,34 @@ packages:
       semver: 7.3.8
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /@embroider/addon-dev/2.0.0_jgqpuikonnnyxxj34ossexjace:
+    resolution: {integrity: sha512-XOThXF6/4rQWmKOaD20xFsdPkNzmSCRUsLG2Qb9z/NpNonN9AFjo385OkUgMju2bp1E+U2QQNqCEsZLH9jdG9w==}
+    engines: {node: 12.* || 14.* || >= 16}
+    hasBin: true
+    peerDependencies:
+      ember-source: '*'
+    peerDependenciesMeta:
+      ember-source:
+        optional: true
+    dependencies:
+      '@embroider/core': 1.9.0
+      '@rollup/pluginutils': 4.2.1
+      assert-never: 1.2.1
+      ember-source: 4.8.2_rzt62hinieo7pkbxqnerr4utxi
+      fs-extra: 10.1.0
+      minimatch: 3.1.2
+      rollup-plugin-copy-assets: 2.0.3_rollup@3.7.0
+      rollup-plugin-delete: 2.0.0
+      walk-sync: 3.0.0
+      yargs: 17.6.0
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - rollup
+      - supports-color
+      - utf-8-validate
     dev: true
 
   /@embroider/addon-dev/3.0.0_rollup@3.7.0:
@@ -7561,7 +7623,7 @@ packages:
       - supports-color
 
   /concat-map/0.0.1:
-    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+    resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
 
   /configstore/5.0.1:
     resolution: {integrity: sha512-aMKprgk5YhBNyH25hj8wGt2+D52Sw1DRRIzqBwLp2Ya9mFmY8KPvvtvmna8SxVR9JMZ4kzMD68N22vlaRpkeFA==}
@@ -8056,6 +8118,7 @@ packages:
     dependencies:
       ms: 2.1.2
       supports-color: 8.1.1
+    dev: true
 
   /decamelize/4.0.0:
     resolution: {integrity: sha512-9iE1PgSik9HeIIw2JO94IidnE3eBoQrFJ3w7sFuzSX4DpmZ3v5sZpUiV5Swcf6mQEF+Y0ru8Neo+p+nyh2J+hQ==}
@@ -8285,8 +8348,8 @@ packages:
     dependencies:
       '@babel/core': 7.20.2
       '@babel/plugin-proposal-class-properties': 7.18.6_@babel+core@7.20.2
-      '@babel/plugin-proposal-decorators': 7.20.0_@babel+core@7.20.2
-      '@babel/preset-env': 7.19.4_@babel+core@7.20.2
+      '@babel/plugin-proposal-decorators': 7.20.2_@babel+core@7.20.2
+      '@babel/preset-env': 7.20.2_@babel+core@7.20.2
       '@embroider/macros': 1.10.0
       '@embroider/shared-internals': 1.8.3
       babel-loader: 8.2.5_hkczypimj4evef4hfazf6yfxte
@@ -8323,8 +8386,8 @@ packages:
     dependencies:
       '@babel/core': 7.20.2
       '@babel/plugin-proposal-class-properties': 7.18.6_@babel+core@7.20.2
-      '@babel/plugin-proposal-decorators': 7.20.0_@babel+core@7.20.2
-      '@babel/preset-env': 7.19.4_@babel+core@7.20.2
+      '@babel/plugin-proposal-decorators': 7.20.2_@babel+core@7.20.2
+      '@babel/preset-env': 7.20.2_@babel+core@7.20.2
       '@embroider/macros': 1.10.0
       '@embroider/shared-internals': 1.8.3
       babel-loader: 8.2.5_npabyccmuonwo2rku4k53xo3hi

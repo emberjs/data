@@ -4,10 +4,10 @@ module.exports = {
   plugins: [
     ...macros,
     // '@embroider/macros/src/babel/macros-babel-plugin.js',
-    '@babel/plugin-transform-runtime',
+    ['@babel/plugin-transform-runtime', { loose: true }],
     ['@babel/plugin-transform-typescript', { allowDeclareFields: true }],
-    ['@babel/plugin-proposal-decorators', { legacy: true }],
-    '@babel/plugin-proposal-private-methods',
-    '@babel/plugin-proposal-class-properties',
+    ['@babel/plugin-proposal-decorators', { legacy: true, loose: true }],
+    ['@babel/plugin-proposal-private-methods', { loose: true }],
+    ['@babel/plugin-proposal-class-properties', { loose: true }],
   ],
 };

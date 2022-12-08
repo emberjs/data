@@ -16,8 +16,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies for master
         run: pnpm install
-      - name: Build V2 Addons
-        run: pnpm build-v2-addons
       - name: Basic Tests
         env:
           CI: true
@@ -44,8 +42,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies for ${{ matrix.scenario }}
         run: pnpm install
-      - name: Build V2 Addons
-        run: pnpm build-v2-addons
       - name: Basic Tests
         env:
           CI: true
