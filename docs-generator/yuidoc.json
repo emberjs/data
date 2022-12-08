@@ -15,7 +15,7 @@
       "../packages/-ember-data/addon",
       "../packages/adapter/src",
       "../packages/model/addon",
-      "../packages/serializer/addon",
+      "../packages/serializer/src",
       "../packages/store/src",
       "../packages/record-data/addon",
       "../packages/debug/addon",
