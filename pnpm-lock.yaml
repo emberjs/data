@@ -1332,6 +1332,7 @@ importers:
       '@babel/core': ^7.19.3
       '@babel/runtime': ^7.19.3
       '@ember-data/canary-features': workspace:4.10.0-alpha.4
+      '@ember-data/graph': workspace:4.10.0-alpha.4
       '@ember-data/json-api': workspace:4.10.0-alpha.4
       '@ember-data/model': workspace:4.10.0-alpha.4
       '@ember-data/private-build-infra': workspace:4.10.0-alpha.4
@@ -1375,7 +1376,8 @@ importers:
       '@babel/core': 7.19.6
       '@babel/runtime': 7.20.0
       '@ember-data/canary-features': file:packages/canary-features
-      '@ember-data/json-api': file:packages/json-api_2q6jgbjyzqvo2aignqdupq2k3q
+      '@ember-data/graph': file:packages/graph_2q6jgbjyzqvo2aignqdupq2k3q
+      '@ember-data/json-api': file:packages/json-api_flbrx5jm7x4gtv4d4cq3cip2ju
       '@ember-data/model': file:packages/model_gwkc2ypkqp4n2vhoy3lfmzya3m
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/store': file:packages/store_7fgkrf2jqtsl77xodn3fwsav7e
@@ -1416,6 +1418,8 @@ importers:
       webpack: 5.74.0
     dependenciesMeta:
       '@ember-data/canary-features':
+        injected: true
+      '@ember-data/graph':
         injected: true
       '@ember-data/json-api':
         injected: true
