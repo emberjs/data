@@ -375,7 +375,7 @@ export class InstanceCache {
       !record || record.isDestroyed || record.isDestroying
     );
 
-    if (HAS_JSON_API_PACKAGE) {
+    if (HAS_GRAPH_PACKAGE) {
       let graph = _peekGraph(this.store);
       if (graph) {
         graph.remove(identifier);
