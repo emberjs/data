@@ -12,7 +12,7 @@ import { reject, resolve } from 'rsvp';
 
 import type { RecordData as RecordDataClass } from '@ember-data/json-api/-private';
 import type DSModelClass from '@ember-data/model';
-import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
 import {
   DEPRECATE_HAS_RECORD,
@@ -1928,7 +1928,7 @@ class Store {
         // destroy the graph before unloadAll
         // since then we avoid churning relationships
         // during unload
-        if (HAS_RECORD_DATA_PACKAGE) {
+        if (HAS_GRAPH_PACKAGE) {
           const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
             .peekGraph;
           let graph = peekGraph(this);
@@ -2403,7 +2403,7 @@ class Store {
     identifier: StableRecordIdentifier,
     storeWrapper: RecordDataStoreWrapper
   ): RecordData | RecordDataV1 {
-    if (HAS_RECORD_DATA_PACKAGE) {
+    if (HAS_JSON_API_PACKAGE) {
       // we can't greedily use require as this causes
       // a cycle we can't easily fix (or clearly pin point) at present.
       //
@@ -2633,7 +2633,7 @@ class Store {
       }
     }
 
-    if (HAS_RECORD_DATA_PACKAGE) {
+    if (HAS_GRAPH_PACKAGE) {
       const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
         .peekGraph;
       let graph = peekGraph(this);

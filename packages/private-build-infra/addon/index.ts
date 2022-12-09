@@ -13,4 +13,4 @@ export const HAS_MODEL_PACKAGE = flagState('HAS_MODEL_PACKAGE');
 export const HAS_ADAPTER_PACKAGE = flagState('HAS_ADAPTER_PACKAGE');
 export const HAS_SERIALIZER_PACKAGE = flagState('HAS_SERIALIZER_PACKAGE');
 export const HAS_DEBUG_PACKAGE = flagState('HAS_DEBUG_PACKAGE');
-export const HAS_RECORD_DATA_PACKAGE = flagState('HAS_RECORD_DATA_PACKAGE');
+export const HAS_JSON_API_PACKAGE = flagState('HAS_JSON_API_PACKAGE');

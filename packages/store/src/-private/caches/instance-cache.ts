@@ -6,7 +6,7 @@ import { resolve } from 'rsvp';
 
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { peekGraph } from '@ember-data/graph/-private/graph/index';
-import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
 import type {
@@ -40,7 +40,7 @@ import normalizeModelName from '../utils/normalize-model-name';
 import { removeRecordDataFor, setRecordDataFor } from './record-data-for';
 
 let _peekGraph: peekGraph;
-if (HAS_RECORD_DATA_PACKAGE) {
+if (HAS_GRAPH_PACKAGE) {
   let __peekGraph: peekGraph;
   _peekGraph = (wrapper: Store | StoreWrapper): Graph | undefined => {
     let a = (importSync('@ember-data/graph/-private') as { peekGraph: peekGraph }).peekGraph;
@@ -192,7 +192,7 @@ export class InstanceCache {
             record: staleIdentifier,
             value: keptIdentifier,
           });
-        } else if (HAS_RECORD_DATA_PACKAGE) {
+        } else if (HAS_JSON_API_PACKAGE) {
           // TODO notify cache always, this requires it always being a singleton
           // and not ever specific to one record-data
           this.store.__private_singleton_recordData?.sync({
@@ -208,7 +208,7 @@ export class InstanceCache {
 
         /*
       TODO @runspired consider adding this to make polymorphism even nicer
-      if (HAS_RECORD_DATA_PACKAGE) {
+      if (HAS_GRAPH_PACKAGE) {
         if (identifier.type !== matchedIdentifier.type) {
           const graphFor = importSync('@ember-data/graph/-private').graphFor;
           graphFor(this).registerPolymorphicType(identifier.type, matchedIdentifier.type);
@@ -375,7 +375,7 @@ export class InstanceCache {
       !record || record.isDestroyed || record.isDestroying
     );
 
-    if (HAS_RECORD_DATA_PACKAGE) {
+    if (HAS_JSON_API_PACKAGE) {
       let graph = _peekGraph(this.store);
       if (graph) {
         graph.remove(identifier);
