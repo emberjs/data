@@ -25,6 +25,7 @@
     "@ember-data/serializer": "workspace:4.10.0-alpha.4",
     "@ember-data/store": "workspace:4.10.0-alpha.4",
     "@ember-data/tracking": "workspace:4.10.0-alpha.4",
+    "@ember-data/graph": "workspace:4.10.0-alpha.4",
     "@ember/edition-utils": "^1.2.0",
     "@ember/string": "^3.0.0",
     "@embroider/macros": "^1.10.0",
@@ -36,6 +37,9 @@
   },
   "dependenciesMeta": {
     "@ember-data/adapter": {
+      "injected": true
+    },
+    "@ember-data/graph":{
       "injected": true
     },
     "@ember-data/debug": {
