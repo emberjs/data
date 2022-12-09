@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "4.10.0-alpha.4",
+  "version": "4.10.0-alpha.5",
   "description": "A presentation layer for apps built with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -29,10 +29,10 @@
     "addon"
   ],
   "peerDependencies": {
-    "@ember-data/json-api": "workspace:4.10.0-alpha.4",
-    "@ember-data/graph": "workspace:4.10.0-alpha.4",
-    "@ember-data/store": "workspace:4.10.0-alpha.4",
-    "@ember-data/tracking": "workspace:4.10.0-alpha.4",
+    "@ember-data/json-api": "workspace:4.10.0-alpha.5",
+    "@ember-data/graph": "workspace:4.10.0-alpha.5",
+    "@ember-data/store": "workspace:4.10.0-alpha.5",
+    "@ember-data/tracking": "workspace:4.10.0-alpha.5",
     "@ember/string": "^3.0.0",
     "ember-inflector": "^4.0.2"
   },
@@ -53,8 +53,8 @@
     }
   },
   "dependencies": {
-    "@ember-data/canary-features": "workspace:4.10.0-alpha.4",
-    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.4",
+    "@ember-data/canary-features": "workspace:4.10.0-alpha.5",
+    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.5",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
     "ember-cached-decorator-polyfill": "^1.0.1",
@@ -78,7 +78,7 @@
     "@babel/preset-typescript": "^7.18.6",
     "@babel/preset-env": "^7.19.4",
     "@babel/runtime": "^7.20.0",
-    "@rollup/plugin-babel":"^6.0.2",
+    "@rollup/plugin-babel": "^6.0.2",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "tslib": "^2.4.0",
     "walk-sync": "^3.0.0",
