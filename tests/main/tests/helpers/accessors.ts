@@ -1,7 +1,7 @@
-import { graphFor } from '@ember-data/json-api/-private';
-import type { ImplicitRelationship } from '@ember-data/json-api/-private/graph';
-import type BelongsToRelationship from '@ember-data/json-api/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/json-api/-private/relationships/state/has-many';
+import { graphFor } from '@ember-data/graph/-private';
+import type { ImplicitRelationship } from '@ember-data/graph/-private/graph';
+import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';

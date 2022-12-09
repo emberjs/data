@@ -13,6 +13,7 @@ packages/adapter/addon
 packages/serializer/addon
 packages/model/addon
 packages/json-api/addon
+packages/graph/addon
 
 # dependencies
 bower_components

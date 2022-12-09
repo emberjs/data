@@ -2,7 +2,7 @@ import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { graphFor } from '@ember-data/json-api/-private';
+import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';

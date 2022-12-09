@@ -8,8 +8,8 @@ import { resolve } from 'rsvp';
 
 import { ManyArray } from 'ember-data/-private';
 
-import type { Graph } from '@ember-data/json-api/-private/graph/graph';
-import type ManyRelationship from '@ember-data/json-api/-private/relationships/state/has-many';
+import type { Graph } from '@ember-data/graph/-private/graph/graph';
+import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';

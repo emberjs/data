@@ -5,8 +5,8 @@ import { assert, deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import type BelongsToRelationship from '@ember-data/json-api/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/json-api/-private/relationships/state/has-many';
+import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -319,8 +319,7 @@ export default class Snapshot implements Snapshot {
       assert(`snapshot.belongsTo only supported when using the package @ember-data/json-api`);
     }
 
-    const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
-      .graphFor;
+    const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
     const { identifier } = this;
     const relationship = graphFor(this._store).get(identifier, keyName) as BelongsToRelationship;
 
@@ -421,8 +420,7 @@ export default class Snapshot implements Snapshot {
       assert(`snapshot.hasMany only supported when using the package @ember-data/json-api`);
     }
 
-    const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
-      .graphFor;
+    const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
     const { identifier } = this;
     const relationship = graphFor(this._store).get(identifier, keyName) as ManyRelationship;
     assert(

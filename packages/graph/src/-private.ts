@@ -1,4 +1,4 @@
-export { default as RecordData } from './-private/record-data';
+export { graphFor, peekGraph } from './-private/graph/index';
 
 /**
   This package provides the default cache implementation used

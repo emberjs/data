@@ -1,5 +1,5 @@
 {
-  "name": "@ember-data/json-api",
+  "name": "@ember-data/graph",
   "version": "4.10.0-alpha.4",
   "description": "Provides the default resource cache (RecordData) implementation for ember-data",
   "keywords": [
@@ -28,17 +28,13 @@
     "addon"
   ],
   "peerDependencies": {
-    "@ember-data/store": "workspace:4.10.0-alpha.4",
-    "@ember-data/graph": "workspace:4.10.0-alpha.4"
+    "@ember-data/store": "workspace:4.10.0-alpha.4"
   },
   "dependenciesMeta": {
     "@ember-data/canary-features": {
       "injected": true
     },
     "@ember-data/private-build-infra": {
-      "injected": true
-    },
-    "@ember-data/graph": {
       "injected": true
     }
   },

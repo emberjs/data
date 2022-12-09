@@ -1929,9 +1929,8 @@ class Store {
         // since then we avoid churning relationships
         // during unload
         if (HAS_RECORD_DATA_PACKAGE) {
-          const peekGraph = (
-            importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private')
-          ).peekGraph;
+          const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
+            .peekGraph;
           let graph = peekGraph(this);
           if (graph) {
             graph.identifiers.clear();
@@ -2635,7 +2634,7 @@ class Store {
     }
 
     if (HAS_RECORD_DATA_PACKAGE) {
-      const peekGraph = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+      const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
         .peekGraph;
       let graph = peekGraph(this);
       if (graph) {
