@@ -9,6 +9,8 @@ import type { peekGraph } from '@ember-data/graph/-private/graph/index';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
+import type { Cache } from '@ember-data/types/q/cache';
+import type { CacheStoreWrapper as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   ExistingResourceIdentifierObject,
   ExistingResourceObject,
@@ -19,17 +21,15 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiRelationship, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { RecordDataStoreWrapper as StoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import RecordReference from '../legacy-model-support/record-reference';
-import { NonSingletonRecordDataManager, SingletonRecordDataManager } from '../managers/record-data-manager';
-import { RecordDataStoreWrapper } from '../managers/record-data-store-wrapper';
+import { NonSingletonCacheManager, SingletonCacheManager } from '../managers/cache-manager';
+import { CacheStoreWrapper } from '../managers/cache-store-wrapper';
 import Snapshot from '../network/snapshot';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
@@ -115,26 +115,26 @@ export function storeFor(record: RecordInstance): Store | undefined {
 
 type Caches = {
   record: Map<StableRecordIdentifier, RecordInstance>;
-  recordData: Map<StableRecordIdentifier, RecordData>;
+  recordData: Map<StableRecordIdentifier, Cache>;
   reference: WeakMap<StableRecordIdentifier, RecordReference>;
 };
 
 export class InstanceCache {
   declare store: Store;
-  declare _storeWrapper: RecordDataStoreWrapper;
-  declare __recordDataFor: (resource: RecordIdentifier) => RecordData;
+  declare _storeWrapper: CacheStoreWrapper;
+  declare __recordDataFor: (resource: RecordIdentifier) => Cache;
 
-  declare __cacheManager: NonSingletonRecordDataManager;
+  declare __cacheManager: NonSingletonCacheManager;
   __instances: Caches = {
     record: new Map<StableRecordIdentifier, RecordInstance>(),
-    recordData: new Map<StableRecordIdentifier, RecordData>(),
+    recordData: new Map<StableRecordIdentifier, Cache>(),
     reference: new WeakMap<StableRecordIdentifier, RecordReference>(),
   };
 
   constructor(store: Store) {
     this.store = store;
 
-    this._storeWrapper = new RecordDataStoreWrapper(this.store);
+    this._storeWrapper = new CacheStoreWrapper(this.store);
     this.__recordDataFor = (resource: RecordIdentifier) => {
       // TODO enforce strict
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
@@ -222,14 +222,14 @@ export class InstanceCache {
     );
   }
   peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'record' }): RecordInstance | undefined;
-  peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'recordData' }): RecordData | undefined;
+  peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'recordData' }): Cache | undefined;
   peek({
     identifier,
     bucket,
   }: {
     identifier: StableRecordIdentifier;
     bucket: 'record' | 'recordData';
-  }): RecordData | RecordInstance | undefined {
+  }): Cache | RecordInstance | undefined {
     return this.__instances[bucket]?.get(identifier);
   }
 
@@ -259,7 +259,7 @@ export class InstanceCache {
     return record;
   }
 
-  getRecordData(identifier: StableRecordIdentifier): RecordData {
+  getRecordData(identifier: StableRecordIdentifier): Cache {
     let recordData = this.__instances.recordData.get(identifier);
 
     if (DEPRECATE_V1CACHE_STORE_APIS) {
@@ -282,10 +282,10 @@ export class InstanceCache {
           this._storeWrapper
         );
         if (DEPRECATE_V1_RECORD_DATA) {
-          recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+          recordData = new NonSingletonCacheManager(this.store, recordDataInstance, identifier);
         } else {
           recordData = this.__cacheManager =
-            this.__cacheManager || new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+            this.__cacheManager || new NonSingletonCacheManager(this.store, recordDataInstance, identifier);
         }
       }
     }
@@ -293,13 +293,13 @@ export class InstanceCache {
     if (!recordData) {
       let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
       if (DEPRECATE_V1_RECORD_DATA) {
-        recordData = new NonSingletonRecordDataManager(this.store, recordDataInstance, identifier);
+        recordData = new NonSingletonCacheManager(this.store, recordDataInstance, identifier);
       } else {
         if (DEBUG) {
-          recordData = this.__cacheManager = this.__cacheManager || new SingletonRecordDataManager();
-          (recordData as SingletonRecordDataManager)._addRecordData(identifier, recordDataInstance as RecordData);
+          recordData = this.__cacheManager = this.__cacheManager || new SingletonCacheManager();
+          (recordData as SingletonCacheManager)._addRecordData(identifier, recordDataInstance as Cache);
         } else {
-          recordData = recordDataInstance as RecordData;
+          recordData = recordDataInstance as Cache;
         }
       }
 
@@ -588,7 +588,7 @@ export class InstanceCache {
   }
 }
 
-function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData: RecordData): boolean {
+function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData: Cache): boolean {
   return (
     recordData.isDeletionCommitted(identifier) || (recordData.isNew(identifier) && recordData.isDeleted(identifier))
   );

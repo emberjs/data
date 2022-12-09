@@ -227,7 +227,7 @@ module.exports = {
         'packages/graph/src/-private/graph/-operations.ts',
         'packages/graph/src/-private/graph/-edge-definition.ts',
         'packages/graph/src/-private/coerce-id.ts',
-        'packages/json-api/src/-private/record-data.ts',
+        'packages/json-api/src/-private/cache.ts',
         'packages/private-build-infra/addon/index.ts',
         'packages/private-build-infra/addon/deprecations.ts',
         'packages/private-build-infra/addon/current-deprecations.ts',

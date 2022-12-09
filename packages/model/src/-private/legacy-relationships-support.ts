@@ -13,11 +13,11 @@ import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { fastPush, isStableIdentifier, recordIdentifierFor, SOURCE, storeFor } from '@ember-data/store/-private';
-import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
+import type { NonSingletonCacheManager } from '@ember-data/store/-private/managers/cache-manager';
+import type { Cache } from '@ember-data/types/q/cache';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
@@ -38,7 +38,7 @@ type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): Promise
 export class LegacySupport {
   declare record: DSModel;
   declare store: Store;
-  declare recordData: RecordData;
+  declare recordData: Cache;
   declare references: Dict<BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
   declare _manyArrayCache: Dict<RelatedCollection>;
@@ -186,7 +186,7 @@ export class LegacySupport {
     identifier: StableRecordIdentifier,
     field: string
   ): [StableRecordIdentifier[], CollectionResourceRelationship] {
-    let jsonApi = (this.recordData as NonSingletonRecordDataManager).getRelationship(
+    let jsonApi = (this.recordData as NonSingletonCacheManager).getRelationship(
       identifier,
       field,
       true

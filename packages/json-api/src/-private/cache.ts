@@ -11,15 +11,15 @@ import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/inde
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
+import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
+import type { CacheStoreWrapper, V2CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceRelationship,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, MergeOperation, RecordData } from '@ember-data/types/q/record-data';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { RecordDataStoreWrapper, V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { Dict } from '@ember-data/types/q/utils';
 
 function isImplicit(
@@ -37,15 +37,6 @@ const EMPTY_ITERATOR = {
     };
   },
 };
-
-/**
-  The default cache implementation used by ember-data. The cache
-  is configurable and using a different implementation can be
-  achieved by implementing the store's createRecordDataFor hook.
-
-  @class RecordDataDefault
-  @public
- */
 
 interface CachedResource {
   remoteAttrs: Dict<unknown> | null;
@@ -71,14 +62,27 @@ function makeCache(): CachedResource {
   };
 }
 
-export default class SingletonRecordData implements RecordData {
+/**
+  A JSON:API Cache implementation.
+
+  What cache the store uses is configurable. Using a different
+  implementation can be achieved by implementing the store's
+  createCache hook.
+
+  This is the cache implementation used by `ember-data`.
+
+  @class Cache
+  @public
+ */
+
+export default class SingletonCache implements Cache {
   version: '2' = '2';
 
-  __storeWrapper: V2RecordDataStoreWrapper;
+  __storeWrapper: V2CacheStoreWrapper;
   __cache: Map<StableRecordIdentifier, CachedResource> = new Map();
   __destroyedCache: Map<StableRecordIdentifier, CachedResource> = new Map();
 
-  constructor(storeWrapper: V2RecordDataStoreWrapper) {
+  constructor(storeWrapper: V2CacheStoreWrapper) {
     this.__storeWrapper = storeWrapper;
   }
 
@@ -100,7 +104,7 @@ export default class SingletonRecordData implements RecordData {
       resource = this.__destroyedCache.get(identifier);
     }
     assert(
-      `Expected RecordData Cache to have a resource cache for the identifier ${String(identifier)} but none was found`,
+      `Expected Cache to have a resource entry for the identifier ${String(identifier)} but none was found`,
       resource
     );
     return resource;
@@ -350,7 +354,7 @@ export default class SingletonRecordData implements RecordData {
     cached.remoteAttrs = null;
     cached.inflightAttrs = null;
 
-    let relatedIdentifiers = _allRelatedRecordDatas(storeWrapper, identifier);
+    let relatedIdentifiers = _allRelatedIdentifiers(storeWrapper, identifier);
     if (areAllModelsUnloaded(storeWrapper, relatedIdentifiers)) {
       for (let i = 0; i < relatedIdentifiers.length; ++i) {
         let identifier = relatedIdentifiers[i];
@@ -366,7 +370,7 @@ export default class SingletonRecordData implements RecordData {
      * from blowing up during teardown. Accessing state
      * on a destroyed record is not safe, but historically
      * was possible due to a combination of teardown timing
-     * and retention of a RecordData instance directly on the
+     * and retention of cached state directly on the
      * record itself.
      *
      * Once we have deprecated accessing state on a destroyed
@@ -503,7 +507,7 @@ export default class SingletonRecordData implements RecordData {
   }
 }
 
-function areAllModelsUnloaded(wrapper: V2RecordDataStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
+function areAllModelsUnloaded(wrapper: V2CacheStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
     let identifier = identifiers[i];
     if (wrapper.hasRecord(identifier)) {
@@ -545,7 +549,7 @@ function getDefaultValue(options: { defaultValue?: unknown } | undefined) {
   }
 }
 
-function notifyAttributes(storeWrapper: RecordDataStoreWrapper, identifier: StableRecordIdentifier, keys?: string[]) {
+function notifyAttributes(storeWrapper: CacheStoreWrapper, identifier: StableRecordIdentifier, keys?: string[]) {
   if (!keys) {
     storeWrapper.notifyChange(identifier, 'attributes');
     return;
@@ -593,7 +597,7 @@ function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash) 
 }
 
 function setupRelationships(
-  storeWrapper: RecordDataStoreWrapper,
+  storeWrapper: CacheStoreWrapper,
   identifier: StableRecordIdentifier,
   data: JsonApiResource
 ) {
@@ -651,10 +655,7 @@ function patchLocalAttributes(cached: CachedResource): boolean {
     Iterates over the set of internal models reachable from `this` across exactly one
     relationship.
   */
-function _directlyRelatedRecordDatasIterable(
-  storeWrapper: RecordDataStoreWrapper,
-  originating: StableRecordIdentifier
-) {
+function _directlyRelatedIdentifiersIterable(storeWrapper: CacheStoreWrapper, originating: StableRecordIdentifier) {
   const graph = graphFor(storeWrapper);
   const initializedRelationships = graph.identifiers.get(originating);
 
@@ -716,8 +717,8 @@ function _directlyRelatedRecordDatasIterable(
       Returns an array including `this` and all identifiers reachable
       from `this.identifier`.
     */
-function _allRelatedRecordDatas(
-  storeWrapper: RecordDataStoreWrapper,
+function _allRelatedIdentifiers(
+  storeWrapper: CacheStoreWrapper,
   originating: StableRecordIdentifier
 ): StableRecordIdentifier[] {
   let array: StableRecordIdentifier[] = [];
@@ -729,7 +730,7 @@ function _allRelatedRecordDatas(
     array.push(identifier);
     seen.add(identifier);
 
-    const iterator = _directlyRelatedRecordDatasIterable(storeWrapper, originating).iterator();
+    const iterator = _directlyRelatedIdentifiersIterable(storeWrapper, originating).iterator();
     for (let obj = iterator.next(); !obj.done; obj = iterator.next()) {
       const identifier = obj.value;
       if (identifier && !seen.has(identifier)) {

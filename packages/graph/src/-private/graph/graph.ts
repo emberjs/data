@@ -2,9 +2,9 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
+import { MergeOperation } from '@ember-data/types/q/cache';
+import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { MergeOperation } from '@ember-data/types/q/record-data';
-import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
@@ -44,7 +44,7 @@ export interface ImplicitRelationship {
 
 export type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
-export const Graphs = new Map<RecordDataStoreWrapper, Graph>();
+export const Graphs = new Map<CacheStoreWrapper, Graph>();
 
 /*
  * Graph acts as the cache for relationship data. It allows for
@@ -69,7 +69,7 @@ export class Graph {
   declare _definitionCache: EdgeCache;
   declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
   declare identifiers: Map<StableRecordIdentifier, Dict<RelationshipEdge>>;
-  declare store: RecordDataStoreWrapper;
+  declare store: CacheStoreWrapper;
   declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
@@ -82,7 +82,7 @@ export class Graph {
   declare _transaction: Set<ManyRelationship | BelongsToRelationship> | null;
   declare _removing: StableRecordIdentifier | null;
 
-  constructor(store: RecordDataStoreWrapper) {
+  constructor(store: CacheStoreWrapper) {
     this._definitionCache = Object.create(null) as EdgeCache;
     this._potentialPolymorphicTypes = Object.create(null) as Dict<Dict<boolean>>;
     this.identifiers = new Map();
@@ -409,11 +409,11 @@ export class Graph {
     Graphs.delete(this.store);
 
     if (DEBUG) {
-      Graphs.delete(getStore(this.store) as unknown as RecordDataStoreWrapper);
+      Graphs.delete(getStore(this.store) as unknown as CacheStoreWrapper);
     }
 
     this.identifiers.clear();
-    this.store = null as unknown as RecordDataStoreWrapper;
+    this.store = null as unknown as CacheStoreWrapper;
     this.isDestroyed = true;
   }
 }

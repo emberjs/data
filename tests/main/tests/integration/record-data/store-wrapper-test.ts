@@ -5,8 +5,8 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import Store from '@ember-data/store';
+import { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import publicProps from '@ember-data/unpublished-test-infra/test-support/public-props';
 
 class Person extends Model {
@@ -97,7 +97,7 @@ class TestRecordData {
 
 class CustomStore extends Store {
   // @ts-expect-error
-  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
     return new TestRecordData();
   }
 }
@@ -139,7 +139,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     let { owner } = this;
 
     class RelationshipRD extends TestRecordData {
-      constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      constructor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         super();
         let houseAttrs = {
           name: {
@@ -205,7 +205,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RelationshipRD(identifier, wrapper);
         } else {
@@ -234,7 +234,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     class RecordDataForTest extends TestRecordData {
       id: string;
 
-      constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      constructor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         super();
         count++;
         this.id = identifier.id!;
@@ -260,7 +260,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
@@ -294,7 +294,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       id: string;
       _isNew: boolean = false;
 
-      constructor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      constructor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         super();
         count++;
         this.id = identifier.id!;
@@ -321,7 +321,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
@@ -362,7 +362,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     class RecordDataForTest extends TestRecordData {
       id: string;
 
-      constructor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      constructor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         super();
         wrapper.setRecordId(identifier, '17');
         this.id = '17';
@@ -371,7 +371,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
@@ -400,7 +400,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     let { owner } = this;
 
     class RecordDataForTest extends TestRecordData {
-      constructor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      constructor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         super();
         if (!identifier.id) {
           const id1 = wrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '1' });
@@ -415,7 +415,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
@@ -449,7 +449,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     let identifier;
 
     class RecordDataForTest extends TestRecordData {
-      constructor(stableIdentifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      constructor(stableIdentifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         super();
         wrapper = storeWrapper;
         identifier = stableIdentifier;
@@ -458,7 +458,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {

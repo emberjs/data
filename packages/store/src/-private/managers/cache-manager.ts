@@ -1,12 +1,12 @@
 import { assert, deprecate } from '@ember/debug';
 
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type {
   CollectionResourceRelationship,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, MergeOperation, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -14,14 +14,14 @@ import { isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 
 /**
- * The RecordDataManager wraps a RecordData cache
+ * The CacheManager wraps a Cache
  * enforcing that only the public API surface area
  * is exposed.
  *
  * This class is the the return value of both the
  * `recordDataFor` function supplied to the store
  * hook `instantiateRecord`, and the `recordDataFor`
- * method on the `RecordDataStoreWrapper`. It is not
+ * method on the `CacheStoreWrapper`. It is not
  * directly instantiatable.
  *
  * It handles translating between cache versions when
@@ -30,7 +30,7 @@ import type Store from '../store-service';
  * heuristic.
  *
  * Starting with the v2 spec, the cache is designed such
- * that it may be implemented as a singleton. However,
+ * that it must be implemented as a singleton. However,
  * because the v1 spec was not designed for this whenever
  * we encounter any v1 cache we must wrap all caches, even
  * singletons, in non-singleton managers to preserve v1
@@ -50,21 +50,21 @@ import type Store from '../store-service';
  * });
  * ```
  *
- * @class RecordDataManager
+ * @class CacheManager
  * @public
  */
-export class NonSingletonRecordDataManager implements RecordData {
+export class NonSingletonCacheManager implements Cache {
   version: '2' = '2';
 
   #store: Store;
-  #recordData: RecordData | RecordDataV1;
+  #recordData: Cache | CacheV1;
   #identifier: StableRecordIdentifier;
 
   get managedVersion() {
     return this.#recordData.version || '1';
   }
 
-  constructor(store: Store, recordData: RecordData | RecordDataV1, identifier: StableRecordIdentifier) {
+  constructor(store: Store, recordData: Cache | CacheV1, identifier: StableRecordIdentifier) {
     this.#store = store;
     this.#recordData = recordData;
     this.#identifier = identifier;
@@ -83,7 +83,7 @@ export class NonSingletonRecordDataManager implements RecordData {
     }
   }
 
-  #isDeprecated(recordData: RecordData | RecordDataV1): recordData is RecordDataV1 {
+  #isDeprecated(recordData: Cache | CacheV1): recordData is CacheV1 {
     let version = recordData.version || '1';
     return version !== this.version;
   }
@@ -554,7 +554,7 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @param propertyName
    * @param value
    */
-  setDirtyBelongsTo(propertyName: string, value: NonSingletonRecordDataManager | null) {
+  setDirtyBelongsTo(propertyName: string, value: NonSingletonCacheManager | null) {
     const recordData = this.#recordData;
 
     this.#isDeprecated(recordData)
@@ -581,7 +581,7 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @param value
    * @param idx
    */
-  addToHasMany(propertyName: string, value: NonSingletonRecordDataManager[], idx?: number): void {
+  addToHasMany(propertyName: string, value: NonSingletonCacheManager[], idx?: number): void {
     const identifier = this.#identifier;
     const recordData = this.#recordData;
 
@@ -606,7 +606,7 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @param propertyName
    * @param value
    */
-  removeFromHasMany(propertyName: string, value: RecordData[]): void {
+  removeFromHasMany(propertyName: string, value: Cache[]): void {
     const identifier = this.#identifier;
     const recordData = this.#recordData;
 
@@ -616,7 +616,7 @@ export class NonSingletonRecordDataManager implements RecordData {
           op: 'removeFromRelatedRecords',
           record: identifier,
           field: propertyName,
-          value: (value as unknown as NonSingletonRecordDataManager[]).map((v) => v.getResourceIdentifier()),
+          value: (value as unknown as NonSingletonCacheManager[]).map((v) => v.getResourceIdentifier()),
         });
   }
 
@@ -631,7 +631,7 @@ export class NonSingletonRecordDataManager implements RecordData {
    * @param propertyName
    * @param value
    */
-  setDirtyHasMany(propertyName: string, value: NonSingletonRecordDataManager[]) {
+  setDirtyHasMany(propertyName: string, value: NonSingletonCacheManager[]) {
     let recordData = this.#recordData;
 
     this.#isDeprecated(recordData)
@@ -734,20 +734,20 @@ export class NonSingletonRecordDataManager implements RecordData {
   }
 }
 
-export class SingletonRecordDataManager implements RecordData {
+export class SingletonCacheManager implements Cache {
   version: '2' = '2';
 
-  #recordDatas: Map<StableRecordIdentifier, RecordData>;
+  #recordDatas: Map<StableRecordIdentifier, Cache>;
 
   constructor() {
     this.#recordDatas = new Map();
   }
 
-  _addRecordData(identifier: StableRecordIdentifier, recordData: RecordData) {
+  _addRecordData(identifier: StableRecordIdentifier, recordData: Cache) {
     this.#recordDatas.set(identifier, recordData);
   }
 
-  #recordData(identifier: StableRecordIdentifier): RecordData {
+  #recordData(identifier: StableRecordIdentifier): Cache {
     assert(`No RecordData Yet Exists!`, this.#recordDatas.has(identifier));
     return this.#recordDatas.get(identifier)!;
   }

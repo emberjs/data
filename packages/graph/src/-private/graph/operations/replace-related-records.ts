@@ -366,14 +366,14 @@ export function removeFromInverse(
 
 export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
   let toSet = rel.remoteState;
-  let newRecordDatas = rel.localState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
+  let newIdentifiers = rel.localState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
   let existingState = rel.localState;
-  rel.localState = toSet.concat(newRecordDatas);
+  rel.localState = toSet.concat(newIdentifiers);
 
   let localMembers = (rel.localMembers = new Set<StableRecordIdentifier>());
   rel.remoteMembers.forEach((v) => localMembers.add(v));
-  for (let i = 0; i < newRecordDatas.length; i++) {
-    localMembers.add(newRecordDatas[i]);
+  for (let i = 0; i < newIdentifiers.length; i++) {
+    localMembers.add(newIdentifiers[i]);
   }
 
   // TODO always notifying fails only one test and we should probably do away with it

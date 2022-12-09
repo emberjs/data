@@ -1,4 +1,4 @@
-import type { MergeOperation } from '@ember-data/types/q/record-data';
+import type { MergeOperation } from '@ember-data/types/q/cache';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import type BelongsToRelationship from '../../relationships/state/belongs-to';

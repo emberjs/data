@@ -9,9 +9,9 @@ import { IDENTIFIER_ARRAY_TAG, MUTATE, RecordArray, recordIdentifierFor, SOURCE 
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
+import type { Cache } from '@ember-data/types/q/cache';
 import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -26,7 +26,7 @@ export interface ManyArrayCreateArgs {
   manager: LegacySupport;
 
   identifier: StableRecordIdentifier;
-  recordData: RecordData;
+  recordData: Cache;
   meta: Dict<unknown> | null;
   links: Links | PaginationLinks | null;
   key: string;
@@ -142,7 +142,7 @@ export default class RelatedCollection extends RecordArray {
      */
   declare links: Links | PaginationLinks | null;
   declare identifier: StableRecordIdentifier;
-  declare recordData: RecordData;
+  declare recordData: Cache;
   // @ts-expect-error
   declare _manager: LegacySupport;
   declare store: Store;
@@ -341,7 +341,7 @@ export default class RelatedCollection extends RecordArray {
 RelatedCollection.prototype.isAsync = false;
 RelatedCollection.prototype.isPolymorphic = false;
 RelatedCollection.prototype.identifier = null as unknown as StableRecordIdentifier;
-RelatedCollection.prototype.recordData = null as unknown as RecordData;
+RelatedCollection.prototype.recordData = null as unknown as Cache;
 RelatedCollection.prototype._inverseIsAsync = false;
 RelatedCollection.prototype.key = '';
 RelatedCollection.prototype.DEPRECATED_CLASS_NAME = 'ManyArray';
