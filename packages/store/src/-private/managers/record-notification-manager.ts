@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/store
+ */
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
@@ -39,6 +42,17 @@ export function unsubscribe(token: UnsubscribeToken) {
 /*
   Currently only support a single callback per identifier
 */
+
+/**
+ * The NotificationManager provides the ability to subscribe to
+ * changes to Cache state.
+ *
+ * This Feature is what allows EmberData to create subscriptions that
+ * work with any framework or change notification system.
+ *
+ * @class NotificationManager
+ * @public
+ */
 export default class NotificationManager {
   declare store: Store;
   declare isDestroyed: boolean;
@@ -47,6 +61,23 @@ export default class NotificationManager {
     this.isDestroyed = false;
   }
 
+  /**
+   * Subscribe to changes for a given resource identifier
+   *
+   * ```ts
+   * interface NotificationCallback {
+   *   (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
+   *   (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+   *   (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+   * }
+   * ```
+   *
+   * @method subscribe
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @param {NotificationCallback} callback
+   * @returns {UnsubscribeToken} an opaque token to be used with unsubscribe
+   */
   subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     assert(`Expected to receive a stable Identifier to subscribe to`, isStableIdentifier(identifier));
     let map = Cache.get(identifier);
@@ -62,6 +93,13 @@ export default class NotificationManager {
     return unsubToken;
   }
 
+  /**
+   * remove a previous subscription
+   *
+   * @method unsubscribe
+   * @public
+   * @param {UnsubscribeToken} token
+   */
   unsubscribe(token: UnsubscribeToken) {
     if (!this.isDestroyed) {
       unsubscribe(token);
