@@ -1,12 +1,12 @@
 {
-  "name": "record-data-encapsulation-test-app",
+  "name": "json-api-encapsulation-test-app",
   "version": "4.10.0-alpha.4",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
-    "directory": "tests/record-data-encapsulation"
+    "directory": "tests/json-api-encapsulation"
   },
   "license": "MIT",
   "author": "",
