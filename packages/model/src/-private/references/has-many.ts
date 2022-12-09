@@ -8,9 +8,9 @@ import { resolve } from 'rsvp';
 
 import { ManyArray } from 'ember-data/-private';
 
+import type { Graph } from '@ember-data/json-api/-private/graph/graph';
+import type ManyRelationship from '@ember-data/json-api/-private/relationships/state/has-many';
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
-import type { Graph } from '@ember-data/record-data/-private/graph/graph';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';

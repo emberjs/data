@@ -45,7 +45,7 @@ function addonBuildConfigForDataPackage(PackageName) {
             '@ember-data/adapter',
             '@ember-data/serializer',
             '@ember-data/model',
-            '@ember-data/record-data',
+            '@ember-data/json-api',
             '@ember-data/debug',
             '@ember-data/canary-features',
             '@ember-data/tracking',

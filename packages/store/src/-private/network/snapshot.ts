@@ -5,10 +5,10 @@ import { assert, deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
+import type BelongsToRelationship from '@ember-data/json-api/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/json-api/-private/relationships/state/has-many';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
-import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { ChangedAttributesHash } from '@ember-data/types/q/record-data';
@@ -316,12 +316,11 @@ export default class Snapshot implements Snapshot {
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
     if (!HAS_RECORD_DATA_PACKAGE) {
-      assert(`snapshot.belongsTo only supported when using the package @ember-data/record-data`);
+      assert(`snapshot.belongsTo only supported when using the package @ember-data/json-api`);
     }
 
-    const graphFor = (
-      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-    ).graphFor;
+    const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+      .graphFor;
     const { identifier } = this;
     const relationship = graphFor(this._store).get(identifier, keyName) as BelongsToRelationship;
 
@@ -419,12 +418,11 @@ export default class Snapshot implements Snapshot {
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
     if (!HAS_RECORD_DATA_PACKAGE) {
-      assert(`snapshot.hasMany only supported when using the package @ember-data/record-data`);
+      assert(`snapshot.hasMany only supported when using the package @ember-data/json-api`);
     }
 
-    const graphFor = (
-      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-    ).graphFor;
+    const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+      .graphFor;
     const { identifier } = this;
     const relationship = graphFor(this._store).get(identifier, keyName) as ManyRelationship;
     assert(

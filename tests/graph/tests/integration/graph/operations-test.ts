@@ -2,9 +2,9 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import { graphFor } from '@ember-data/json-api/-private';
+import type ManyRelationship from '@ember-data/json-api/-private/relationships/state/has-many';
 import Model, { attr, hasMany } from '@ember-data/model';
-import { graphFor } from '@ember-data/record-data/-private';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import Store from '@ember-data/store';
 
 module('Integration | Graph | Operations', function (hooks: NestedHooks) {

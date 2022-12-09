@@ -72,10 +72,10 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 *Ember*‍**Data** is organized into primitives that compose together via public APIs.
 
 - [@ember-data/store](/ember-data/release/modules/@ember-data%2Fstore) is the core and handles coordination
-- [@ember-data/record-data](/ember-data/release/modules/@ember-data%2Frecord-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
+- [@ember-data/json-api](/ember-data/release/modules/@ember-data%2Fjson-api) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
 - [@ember-data/model](/ember-data/release/modules/@ember-data%2Fmodel) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
 - [@ember-data/adapter](/ember-data/release/modules/@ember-data%2Fadapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
-- [@ember-data/serializer](/ember-data/release/modules/@ember-data%2Fserializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/record-data`.
+- [@ember-data/serializer](/ember-data/release/modules/@ember-data%2Fserializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/json-api`.
 - [@ember-data/debug](/ember-data/release/modules/@ember-data%2Fdebug) provides debugging support for the `ember-inspector`.
 - **ember-data** is a "meta" package which bundles all of these together for convenience
 

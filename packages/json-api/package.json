@@ -1,5 +1,5 @@
 {
-  "name": "@ember-data/record-data",
+  "name": "@ember-data/json-api",
   "version": "4.10.0-alpha.4",
   "description": "Provides the default resource cache (RecordData) implementation for ember-data",
   "keywords": [

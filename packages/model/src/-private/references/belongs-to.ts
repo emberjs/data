@@ -6,9 +6,9 @@ import { cached, tracked } from '@glimmer/tracking';
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { resolve } from 'rsvp';
 
+import type { Graph } from '@ember-data/json-api/-private/graph/graph';
+import type BelongsToRelationship from '@ember-data/json-api/-private/relationships/state/belongs-to';
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
-import type { Graph } from '@ember-data/record-data/-private/graph/graph';
-import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';

@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'record-data-encapsulation-test-app',
+    modulePrefix: 'json-api-encapsulation-test-app',
     environment,
     rootURL: '/',
     locationType: 'auto',

@@ -41,10 +41,10 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 EmberData is organized into primitives that compose together via public APIs.
 
 - [@ember-data/store](https://github.com/emberjs/data/tree/master/packages/store) is the core and handles coordination
-- [@ember-data/record-data](https://github.com/emberjs/data/tree/master/packages/record-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
+- [@ember-data/json-api](https://github.com/emberjs/data/tree/master/packages/record-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
 - [@ember-data/model](https://github.com/emberjs/data/tree/master/packages/model) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
 - [@ember-data/adapter](https://github.com/emberjs/data/tree/master/packages/adapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
-- [@ember-data/serializer](https://github.com/emberjs/data/tree/master/packages/serializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/record-data`.
+- [@ember-data/serializer](https://github.com/emberjs/data/tree/master/packages/serializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/json-api`.
 - [@ember-data/debug](https://github.com/emberjs/data/tree/master/packages/debug) provides debugging support for the `ember-inspector`.
 - [ember-data](https://github.com/emberjs/data/tree/master/packages/-ember-data) is a "meta" package which bundles all of these together for convenience
 

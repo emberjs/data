@@ -23,7 +23,7 @@
     "@ember-data/model": {
       "injected": true
     },
-    "@ember-data/record-data": {
+    "@ember-data/json-api": {
       "injected": true
     },
     "@ember-data/canary-features": {
@@ -48,7 +48,7 @@
     "@ember-data/canary-features": "workspace:4.10.0-alpha.4",
     "@ember-data/model": "workspace:4.10.0-alpha.4",
     "@ember-data/private-build-infra": "workspace:4.10.0-alpha.4",
-    "@ember-data/record-data": "workspace:4.10.0-alpha.4",
+    "@ember-data/json-api": "workspace:4.10.0-alpha.4",
     "@ember-data/store": "workspace:4.10.0-alpha.4",
     "@ember-data/tracking": "workspace:4.10.0-alpha.4",
     "@ember-data/unpublished-test-infra": "workspace:4.10.0-alpha.4",

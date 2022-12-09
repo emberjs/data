@@ -81,7 +81,7 @@ flowchart LR
     D <--> E[(fa:fa-archive Cache)]
     D <--> B
     click D href "https://github.com/emberjs/data/tree/master/packages/store" "Go to @ember-data/store" _blank
-    click E href "https://github.com/emberjs/data/tree/master/packages/record-data" "Go to @ember-data/record-data" _blank
+    click E href "https://github.com/emberjs/data/tree/master/packages/json-api" "Go to @ember-data/json-api" _blank
     style D color:#58a6ff;
     style E color:#58a6ff;
 ```
@@ -98,7 +98,7 @@ flowchart LR
     D <--> E[(fa:fa-archive Cache)]
     D <--> B
     click D href "https://github.com/emberjs/data/tree/master/packages/store" "Go to @ember-data/store" _blank
-    click E href "https://github.com/emberjs/data/tree/master/packages/record-data" "Go to @ember-data/record-data" _blank
+    click E href "https://github.com/emberjs/data/tree/master/packages/json-api" "Go to @ember-data/json-api" _blank
     style D color:#58a6ff;
     style E color:#58a6ff;
 ```

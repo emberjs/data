@@ -1,5 +1,5 @@
 /**
- * @module @ember-data/record-data
+ * @module @ember-data/json-api
  */
 import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';

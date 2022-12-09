@@ -17,7 +17,7 @@
       "../packages/model/src",
       "../packages/serializer/src",
       "../packages/store/src",
-      "../packages/record-data/src",
+      "../packages/json-api/src",
       "../packages/debug/addon",
       "../packages/private-build-infra/addon",
       "../packages/canary-features/addon",
