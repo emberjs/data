@@ -6,7 +6,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import type { LocalRelationshipOperation } from '@ember-data/json-api/-private/graph/-operations';
+import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';

@@ -16,6 +16,7 @@
 /packages/serializer/addon/
 /packages/model/addon/
 /packages/json-api/addon/
+/packages/graph/addon/
 
 **/DEBUG/
 

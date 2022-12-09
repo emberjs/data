@@ -18,6 +18,7 @@
       "../packages/serializer/src",
       "../packages/store/src",
       "../packages/json-api/src",
+      "../packages/graph/src",
       "../packages/debug/addon",
       "../packages/private-build-infra/addon",
       "../packages/canary-features/addon",

@@ -26,6 +26,9 @@
     "@ember-data/json-api": {
       "injected": true
     },
+    "@ember-data/graph": {
+      "injected": true
+    },
     "@ember-data/canary-features": {
       "injected": true
     },
@@ -49,6 +52,7 @@
     "@ember-data/model": "workspace:4.10.0-alpha.4",
     "@ember-data/private-build-infra": "workspace:4.10.0-alpha.4",
     "@ember-data/json-api": "workspace:4.10.0-alpha.4",
+    "@ember-data/graph": "workspace:4.10.0-alpha.4",
     "@ember-data/store": "workspace:4.10.0-alpha.4",
     "@ember-data/tracking": "workspace:4.10.0-alpha.4",
     "@ember-data/unpublished-test-infra": "workspace:4.10.0-alpha.4",

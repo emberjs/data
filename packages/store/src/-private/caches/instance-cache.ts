@@ -4,8 +4,8 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { resolve } from 'rsvp';
 
-import type { Graph } from '@ember-data/json-api/-private/graph/graph';
-import type { peekGraph } from '@ember-data/json-api/-private/graph/index';
+import type { Graph } from '@ember-data/graph/-private/graph/graph';
+import type { peekGraph } from '@ember-data/graph/-private/graph/index';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
@@ -43,7 +43,7 @@ let _peekGraph: peekGraph;
 if (HAS_RECORD_DATA_PACKAGE) {
   let __peekGraph: peekGraph;
   _peekGraph = (wrapper: Store | StoreWrapper): Graph | undefined => {
-    let a = (importSync('@ember-data/json-api/-private') as { peekGraph: peekGraph }).peekGraph;
+    let a = (importSync('@ember-data/graph/-private') as { peekGraph: peekGraph }).peekGraph;
     __peekGraph = __peekGraph || a;
     return __peekGraph(wrapper);
   };
@@ -210,7 +210,7 @@ export class InstanceCache {
       TODO @runspired consider adding this to make polymorphism even nicer
       if (HAS_RECORD_DATA_PACKAGE) {
         if (identifier.type !== matchedIdentifier.type) {
-          const graphFor = importSync('@ember-data/json-api/-private').graphFor;
+          const graphFor = importSync('@ember-data/graph/-private').graphFor;
           graphFor(this).registerPolymorphicType(identifier.type, matchedIdentifier.type);
         }
       }

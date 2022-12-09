@@ -5,6 +5,11 @@ import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
+import { graphFor } from '@ember-data/graph/-private';
+import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
+import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
 import type {
   CollectionResourceRelationship,
@@ -13,15 +18,15 @@ import type {
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { ChangedAttributesHash, MergeOperation, RecordData } from '@ember-data/types/q/record-data';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import { RecordDataStoreWrapper, V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
-import { Dict } from '@ember-data/types/q/utils';
+import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import type { RecordDataStoreWrapper, V2RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
+import type { Dict } from '@ember-data/types/q/utils';
 
-import { LocalRelationshipOperation } from './graph/-operations';
-import { isImplicit } from './graph/-utils';
-import { graphFor } from './graph/index';
-import type BelongsToRelationship from './relationships/state/belongs-to';
-import type ManyRelationship from './relationships/state/has-many';
+function isImplicit(
+  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
+): relationship is ImplicitRelationship {
+  return relationship.definition.isImplicit;
+}
 
 const EMPTY_ITERATOR = {
   iterator() {
