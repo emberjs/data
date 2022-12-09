@@ -34,6 +34,9 @@
     "@ember-data/store": {
       "injected": true
     },
+    "@ember-data/graph": {
+      "injected": true
+    },
     "@ember-data/tracking": {
       "injected": true
     },
@@ -47,6 +50,7 @@
     "@ember-data/adapter": "workspace:4.10.0-alpha.4",
     "@ember-data/model": "workspace:4.10.0-alpha.4",
     "@ember-data/json-api": "workspace:4.10.0-alpha.4",
+    "@ember-data/graph": "workspace:4.10.0-alpha.4",
     "@ember-data/store": "workspace:4.10.0-alpha.4",
     "@ember-data/tracking": "workspace:4.10.0-alpha.4",
     "@ember-data/unpublished-test-infra": "workspace:4.10.0-alpha.4",
