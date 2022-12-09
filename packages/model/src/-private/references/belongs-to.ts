@@ -79,7 +79,7 @@ export default class BelongsToReference {
     this.store = store;
     this.___identifier = parentIdentifier;
 
-    this.___token = store._notificationManager.subscribe(
+    this.___token = store.notifications.subscribe(
       parentIdentifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'relationships' && notifiedKey === key) {
@@ -94,10 +94,10 @@ export default class BelongsToReference {
   destroy() {
     // TODO @feature we need the notification manager often enough
     // we should potentially just expose it fully public
-    this.store._notificationManager.unsubscribe(this.___token);
+    this.store.notifications.unsubscribe(this.___token);
     this.___token = null as unknown as object;
     if (this.___relatedToken) {
-      this.store._notificationManager.unsubscribe(this.___relatedToken);
+      this.store.notifications.unsubscribe(this.___relatedToken);
       this.___relatedToken = null;
     }
   }
@@ -113,14 +113,14 @@ export default class BelongsToReference {
   @dependentKeyCompat
   get identifier(): StableRecordIdentifier | null {
     if (this.___relatedToken) {
-      this.store._notificationManager.unsubscribe(this.___relatedToken);
+      this.store.notifications.unsubscribe(this.___relatedToken);
       this.___relatedToken = null;
     }
 
     let resource = this._resource();
     if (resource && resource.data) {
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
-      this.___relatedToken = this.store._notificationManager.subscribe(
+      this.___relatedToken = this.store.notifications.subscribe(
         identifier,
         (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
           if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {

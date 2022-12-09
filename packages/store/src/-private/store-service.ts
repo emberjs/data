@@ -172,7 +172,17 @@ class Store {
 
   declare recordArrayManager: RecordArrayManager;
 
-  declare _notificationManager: NotificationManager;
+  /**
+   * Provides access to the NotificationManager associated
+   * with this Store instance.
+   *
+   * The NotificationManager can be used to subscribe to
+   * changes to the cache.
+   *
+   * @property {NotificationManager} notifications
+   * @public
+   */
+  declare notifications: NotificationManager;
   declare identifierCache: IdentifierCache;
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
@@ -214,8 +224,7 @@ class Store {
     // private but maybe useful to be here, somewhat intimate
     this.recordArrayManager = new RecordArrayManager({ store: this });
 
-    // private, TODO consider taking public as the instance is public to instantiateRecord anyway
-    this._notificationManager = new NotificationManager(this);
+    this.notifications = new NotificationManager(this);
 
     // private
     this._fetchManager = new FetchManager(this);
@@ -1936,7 +1945,7 @@ class Store {
             graph.identifiers.clear();
           }
         }
-        this._notificationManager.destroy();
+        this.notifications.destroy();
 
         this.recordArrayManager.clear();
         this._instanceCache.clear();
