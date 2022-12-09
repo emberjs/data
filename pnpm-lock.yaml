@@ -898,6 +898,7 @@ importers:
       '@babel/core': ^7.19.3
       '@babel/runtime': ^7.19.3
       '@ember-data/debug': workspace:4.10.0-alpha.4
+      '@ember-data/graph': workspace:4.10.0-alpha.4
       '@ember-data/json-api': workspace:4.10.0-alpha.4
       '@ember-data/model': workspace:4.10.0-alpha.4
       '@ember-data/serializer': workspace:4.10.0-alpha.4
@@ -932,7 +933,8 @@ importers:
       '@babel/core': 7.19.6
       '@babel/runtime': 7.20.0
       '@ember-data/debug': file:packages/debug_kmsc2736dkhfkaunrjhq23icem
-      '@ember-data/json-api': file:packages/json-api_2q6jgbjyzqvo2aignqdupq2k3q
+      '@ember-data/graph': file:packages/graph_2q6jgbjyzqvo2aignqdupq2k3q
+      '@ember-data/json-api': file:packages/json-api_flbrx5jm7x4gtv4d4cq3cip2ju
       '@ember-data/model': file:packages/model_gwkc2ypkqp4n2vhoy3lfmzya3m
       '@ember-data/serializer': file:packages/serializer_se6ahmk4jzdpfav7ntt26kzw4q
       '@ember-data/store': file:packages/store_7fgkrf2jqtsl77xodn3fwsav7e
@@ -964,6 +966,8 @@ importers:
       webpack: 5.74.0
     dependenciesMeta:
       '@ember-data/debug':
+        injected: true
+      '@ember-data/graph':
         injected: true
       '@ember-data/json-api':
         injected: true
@@ -4635,7 +4639,7 @@ packages:
   /@types/ember__controller/4.0.4:
     resolution: {integrity: sha512-+f0knTIJJkRX5xijeSI/n4FvLfhMFFxIxODyFFFFB483EryYuts3QzpTwU5D66WQ5rAbZvpPRXRMPTTCNJoUhg==}
     dependencies:
-      '@types/ember__object': 4.0.5_@babel+core@7.20.2
+      '@types/ember__object': 4.0.5_@babel+core@7.19.6
     dev: true
 
   /@types/ember__controller/4.0.4_@babel+core@7.19.6:
@@ -16746,6 +16750,7 @@ packages:
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   file:packages/json-api_flbrx5jm7x4gtv4d4cq3cip2ju:
     resolution: {directory: packages/json-api, type: directory}
@@ -16850,7 +16855,7 @@ packages:
         optional: true
     dependencies:
       '@ember-data/canary-features': file:packages/canary-features
-      '@ember-data/json-api': file:packages/json-api_2q6jgbjyzqvo2aignqdupq2k3q
+      '@ember-data/json-api': file:packages/json-api_flbrx5jm7x4gtv4d4cq3cip2ju
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/store': file:packages/store_7fgkrf2jqtsl77xodn3fwsav7e
       '@ember-data/tracking': file:packages/tracking
@@ -17108,7 +17113,7 @@ packages:
       '@ember-data/model':
         optional: true
     dependencies:
-      '@ember-data/json-api': file:packages/json-api_2q6jgbjyzqvo2aignqdupq2k3q
+      '@ember-data/json-api': file:packages/json-api_flbrx5jm7x4gtv4d4cq3cip2ju
       '@ember-data/model': file:packages/model_gwkc2ypkqp4n2vhoy3lfmzya3m
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
