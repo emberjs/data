@@ -4,13 +4,13 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { all, resolve } from 'rsvp';
 
+import type { UpgradedMeta } from '@ember-data/json-api/-private/graph/-edge-definition';
+import type { LocalRelationshipOperation } from '@ember-data/json-api/-private/graph/-operations';
+import type { ImplicitRelationship } from '@ember-data/json-api/-private/graph/index';
+import type BelongsToRelationship from '@ember-data/json-api/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/json-api/-private/relationships/state/has-many';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
-import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
-import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
-import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph/index';
-import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { fastPush, isStableIdentifier, recordIdentifierFor, SOURCE, storeFor } from '@ember-data/store/-private';
 import type { NonSingletonRecordDataManager } from '@ember-data/store/-private/managers/record-data-manager';
@@ -107,9 +107,8 @@ export class LegacySupport {
       return loadingPromise;
     }
 
-    const graphFor = (
-      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-    ).graphFor;
+    const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+      .graphFor;
     const relationship = graphFor(this.store).get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
 
@@ -130,9 +129,8 @@ export class LegacySupport {
     assert(`Expected a stable identifier`, !relatedIdentifier || isStableIdentifier(relatedIdentifier));
 
     const store = this.store;
-    const graphFor = (
-      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-    ).graphFor;
+    const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+      .graphFor;
     const relationship = graphFor(store).get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
 
@@ -214,9 +212,8 @@ export class LegacySupport {
     if (HAS_RECORD_DATA_PACKAGE) {
       let manyArray: RelatedCollection | undefined = this._manyArrayCache[key];
       if (!definition) {
-        const graphFor = (
-          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-        ).graphFor;
+        const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+          .graphFor;
         definition = graphFor(this.store).get(this.identifier, key).definition;
       }
 
@@ -244,7 +241,7 @@ export class LegacySupport {
 
       return manyArray;
     }
-    assert('hasMany only works with the @ember-data/record-data package');
+    assert('hasMany only works with the @ember-data/json-api package');
   }
 
   fetchAsyncHasMany(
@@ -274,7 +271,7 @@ export class LegacySupport {
       this._relationshipPromisesCache[key] = loadingPromise;
       return loadingPromise;
     }
-    assert('hasMany only works with the @ember-data/record-data package');
+    assert('hasMany only works with the @ember-data/json-api package');
   }
 
   reloadHasMany(key: string, options?: FindOptions) {
@@ -283,9 +280,8 @@ export class LegacySupport {
       if (loadingPromise) {
         return loadingPromise;
       }
-      const graphFor = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-      ).graphFor;
+      const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+        .graphFor;
       const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
 
@@ -300,14 +296,13 @@ export class LegacySupport {
 
       return promise;
     }
-    assert(`hasMany only works with the @ember-data/record-data package`);
+    assert(`hasMany only works with the @ember-data/json-api package`);
   }
 
   getHasMany(key: string, options?: FindOptions): PromiseManyArray | RelatedCollection {
     if (HAS_RECORD_DATA_PACKAGE) {
-      const graphFor = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-      ).graphFor;
+      const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+        .graphFor;
       const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
       let manyArray = this.getManyArray(key, definition);
@@ -331,7 +326,7 @@ export class LegacySupport {
         return manyArray;
       }
     }
-    assert(`hasMany only works with the @ember-data/record-data package`);
+    assert(`hasMany only works with the @ember-data/json-api package`);
   }
 
   _updatePromiseProxyFor(kind: 'hasMany', key: string, args: HasManyProxyCreateArgs): PromiseManyArray;
@@ -381,11 +376,10 @@ export class LegacySupport {
         // TODO @runspired while this feels odd, it is not a regression in capability because we do
         // not today support references pulling from RecordDatas other than our own
         // because of the intimate API access involved. This is something we will need to redesign.
-        assert(`snapshot.belongsTo only supported for @ember-data/record-data`);
+        assert(`snapshot.belongsTo only supported for @ember-data/json-api`);
       }
-      const graphFor = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-      ).graphFor;
+      const graphFor = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+        .graphFor;
       const graph = graphFor(this.store);
       const relationship = graph.get(this.identifier, name);
 
@@ -519,7 +513,7 @@ export class LegacySupport {
       //   TODO if the relationshipIsStale, should we hit the adapter anyway?
       return;
     }
-    assert(`hasMany only works with the @ember-data/record-data package`);
+    assert(`hasMany only works with the @ember-data/json-api package`);
   }
 
   _findBelongsToByJsonApiResource(

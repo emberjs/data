@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo } from '@ember-data/model';
-import { graphFor } from '@ember-data/record-data/-private';
+import { graphFor } from '@ember-data/json-api/-private';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
 module('Integration | Graph | Implicit Keys', function (hooks) {

@@ -8,6 +8,6 @@ export { graphFor, peekGraph } from './-private/graph/index';
   and providing a class that conforms to the current record-data
   interface specification.
 
-  @module @ember-data/record-data
-  @main @ember-data/record-data
+  @module @ember-data/json-api
+  @main @ember-data/json-api
 */

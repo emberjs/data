@@ -1,6 +1,6 @@
 import { assert, deprecate } from '@ember/debug';
 
-import type { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
+import type { LocalRelationshipOperation } from '@ember-data/json-api/-private/graph/-operations';
 import type {
   CollectionResourceRelationship,
   SingleResourceRelationship,

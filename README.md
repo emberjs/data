@@ -92,10 +92,10 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 
 - [@ember-data/store](./packages/store) is the core and handles coordination
 - [@ember-data/tracking](./packages/tracking) is required when using the core and provides tracking primitives for change notification of Tracked properties
-- [@ember-data/record-data](./packages/record-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
+- [@ember-data/json-api](./packages/record-data) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
 - [@ember-data/model](./packages/model) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
 - [@ember-data/adapter](./packages/adapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
-- [@ember-data/serializer](./packages/serializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/record-data`.
+- [@ember-data/serializer](./packages/serializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/json-api`.
 - [@ember-data/debug](./packages/debug) provides debugging support for the `ember-inspector`.
 - [ember-data](./packages/-ember-data) is a "meta" package which bundles all of these together for convenience
 

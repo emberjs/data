@@ -10,6 +10,7 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { reject, resolve } from 'rsvp';
 
+import type { RecordData as RecordDataClass } from '@ember-data/json-api/-private';
 import type DSModelClass from '@ember-data/model';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
@@ -20,7 +21,6 @@ import {
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
-import type { RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -1930,7 +1930,7 @@ class Store {
         // during unload
         if (HAS_RECORD_DATA_PACKAGE) {
           const peekGraph = (
-            importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+            importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private')
           ).peekGraph;
           let graph = peekGraph(this);
           if (graph) {
@@ -2411,9 +2411,8 @@ class Store {
       // it can be reproduced in partner tests by running
       // node ./scripts/packages-for-commit.js && pnpm test-external:ember-observer
       if (_RecordData === undefined) {
-        _RecordData = (
-          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-        ).RecordData;
+        _RecordData = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+          .RecordData;
       }
 
       if (DEPRECATE_V1CACHE_STORE_APIS) {
@@ -2636,9 +2635,8 @@ class Store {
     }
 
     if (HAS_RECORD_DATA_PACKAGE) {
-      const peekGraph = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-      ).peekGraph;
+      const peekGraph = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
+        .peekGraph;
       let graph = peekGraph(this);
       if (graph) {
         graph.destroy();

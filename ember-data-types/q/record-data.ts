@@ -1,4 +1,4 @@
-import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
+import { LocalRelationshipOperation } from '@ember-data/json-api/-private/graph/-operations';
 
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from './identifier';

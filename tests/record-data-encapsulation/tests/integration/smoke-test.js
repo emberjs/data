@@ -40,8 +40,8 @@ module('Record-data Encapsulation - Smoke Tests', function (hooks) {
     this.owner.register('service:store', Store);
   });
 
-  test('No @ember-data/record-data modules are present', function (assert) {
-    assertPackageNotPresent('@ember-data/record-data', assert);
+  test('No @ember-data/json-api modules are present', function (assert) {
+    assertPackageNotPresent('@ember-data/json-api', assert);
   });
 
   test('No ember-data modules are present', function (assert) {

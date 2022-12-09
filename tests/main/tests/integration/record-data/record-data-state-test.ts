@@ -8,7 +8,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
-import { LocalRelationshipOperation } from '@ember-data/record-data/-private/graph/-operations';
+import { LocalRelationshipOperation } from '@ember-data/json-api/-private/graph/-operations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
