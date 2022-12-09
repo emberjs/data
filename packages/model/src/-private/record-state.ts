@@ -9,8 +9,8 @@ import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
 import type RequestCache from '@ember-data/store/-private/network/request-cache';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
+import type { Cache } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
 
 type Model = InstanceType<typeof import('./model')>;
 
@@ -150,7 +150,7 @@ export default class RecordState {
   declare pendingCount: number;
   declare fulfilledCount: number;
   declare rejectedCount: number;
-  declare recordData: RecordData;
+  declare cache: Cache;
   declare _errorRequests: any[];
   declare _lastError: any;
   declare handler: object;
@@ -161,7 +161,7 @@ export default class RecordState {
 
     this.identifier = identity;
     this.record = record;
-    this.recordData = store._instanceCache.getRecordData(identity);
+    this.cache = store._instanceCache.getRecordData(identity);
 
     this.pendingCount = 0;
     this.fulfilledCount = 0;
@@ -265,10 +265,10 @@ export default class RecordState {
 
   updateInvalidErrors(errors) {
     assert(
-      `Expected the RecordData instance for ${this.identifier}  to implement getErrors(identifier)`,
-      typeof this.recordData.getErrors === 'function'
+      `Expected the Cache instance for ${this.identifier}  to implement getErrors(identifier)`,
+      typeof this.cache.getErrors === 'function'
     );
-    let jsonApiErrors = this.recordData.getErrors(this.identifier);
+    let jsonApiErrors = this.cache.getErrors(this.identifier);
 
     errors.clear();
 
@@ -318,9 +318,9 @@ export default class RecordState {
 
   @tagged
   get isSaved() {
-    let rd = this.recordData;
+    let rd = this.cache;
     if (this.isDeleted) {
-      assert(`Expected RecordData to implement isDeletionCommitted()`, rd.isDeletionCommitted);
+      assert(`Expected Cache to implement isDeletionCommitted()`, rd.isDeletionCommitted);
       return rd.isDeletionCommitted(this.identifier);
     }
     if (this.isNew || this.isEmpty || !this.isValid || this.isDirty || this.isLoading) {
@@ -331,24 +331,24 @@ export default class RecordState {
 
   @tagged
   get isEmpty() {
-    let rd = this.recordData;
+    let rd = this.cache;
     // TODO this is not actually an RFC'd concept. Determine the
     // correct heuristic to replace this with.
-    assert(`Expected RecordData to implement isEmpty()`, rd.isEmpty);
+    assert(`Expected Cache to implement isEmpty()`, rd.isEmpty);
     return !this.isNew && rd.isEmpty(this.identifier);
   }
 
   @tagged
   get isNew() {
-    let rd = this.recordData;
-    assert(`Expected RecordData to implement isNew()`, rd.isNew);
+    let rd = this.cache;
+    assert(`Expected Cache to implement isNew()`, rd.isNew);
     return rd.isNew(this.identifier);
   }
 
   @tagged
   get isDeleted() {
-    let rd = this.recordData;
-    assert(`Expected RecordData to implement isDeleted()`, rd.isDeleted);
+    let rd = this.cache;
+    assert(`Expected Cache to implement isDeleted()`, rd.isDeleted);
     return rd.isDeleted(this.identifier);
   }
 
@@ -359,7 +359,7 @@ export default class RecordState {
 
   @tagged
   get isDirty() {
-    let rd = this.recordData;
+    let rd = this.cache;
     if (rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
     }

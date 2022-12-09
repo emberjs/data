@@ -19,7 +19,7 @@ export interface MergeOperation {
   value: StableRecordIdentifier; // new
 }
 
-export interface RecordDataV1 {
+export interface CacheV1 {
   version?: '1';
 
   // Cache
@@ -51,10 +51,10 @@ export interface RecordDataV1 {
   getBelongsTo(key: string): SingleResourceRelationship;
   getHasMany(key: string): CollectionResourceRelationship;
 
-  setDirtyBelongsTo(name: string, recordData: RecordData | null): void;
-  setDirtyHasMany(key: string, recordDatas: RecordData[]): void;
-  addToHasMany(key: string, recordDatas: RecordData[], idx?: number): void;
-  removeFromHasMany(key: string, recordDatas: RecordData[]): void;
+  setDirtyBelongsTo(name: string, recordData: Cache | null): void;
+  setDirtyHasMany(key: string, recordDatas: Cache[]): void;
+  addToHasMany(key: string, recordDatas: Cache[], idx?: number): void;
+  removeFromHasMany(key: string, recordDatas: Cache[]): void;
 
   // State
   // =============
@@ -66,7 +66,7 @@ export interface RecordDataV1 {
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
 }
 
-export interface RecordData {
+export interface Cache {
   version: '2';
 
   // Cache

@@ -11,11 +11,11 @@ import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
+import { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, MergeOperation, RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import { Dict } from '@ember-data/types/q/utils';
 
 class Person extends Model {
@@ -31,7 +31,7 @@ class TestRecordIdentifier implements NewRecordIdentifier {
   constructor(public id: string | null, public lid: string, public type: string) {}
 }
 
-class V1TestRecordData implements RecordDataV1 {
+class V1TestRecordData implements CacheV1 {
   setIsDeleted(isDeleted: boolean): void {
     throw new Error('Method not implemented.');
   }
@@ -98,15 +98,15 @@ class V1TestRecordData implements RecordDataV1 {
     return false;
   }
 
-  addToHasMany(key: string, recordDatas: RecordData[], idx?: number) {}
-  removeFromHasMany(key: string, recordDatas: RecordData[]) {}
-  setDirtyHasMany(key: string, recordDatas: RecordData[]) {}
+  addToHasMany(key: string, recordDatas: Cache[], idx?: number) {}
+  removeFromHasMany(key: string, recordDatas: Cache[]) {}
+  setDirtyHasMany(key: string, recordDatas: Cache[]) {}
 
   getBelongsTo(key: string) {
     return {};
   }
 
-  setDirtyBelongsTo(name: string, recordData: RecordData | null) {}
+  setDirtyBelongsTo(name: string, recordData: Cache | null) {}
 
   didCommit(data) {}
 
@@ -114,7 +114,7 @@ class V1TestRecordData implements RecordDataV1 {
     return {};
   }
 }
-class V2TestRecordData implements RecordData {
+class V2TestRecordData implements Cache {
   sync(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }
@@ -196,7 +196,7 @@ class V2TestRecordData implements RecordData {
 const TestRecordData = DEPRECATE_V1_RECORD_DATA ? V1TestRecordData : V2TestRecordData;
 
 class CustomStore extends Store {
-  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
     return new TestRecordData();
   }
 }
@@ -252,7 +252,7 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         return new LifecycleRecordData();
       }
     }
@@ -348,7 +348,7 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         return new LifecycleRecordData(wrapper);
       }
     }

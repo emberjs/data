@@ -8,10 +8,10 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
 import type NotificationManager from '@ember-data/store/-private/managers/record-notification-manager';
+import { Cache } from '@ember-data/types/q/cache';
+import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { RecordData } from '@ember-data/types/q/record-data';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
-import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
 
@@ -77,7 +77,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     let identifier;
     let storeWrapper;
     class CreationStore extends CustomStore {
-      createRecordDataFor(identifier: StableRecordIdentifier, sw: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, sw: CacheStoreWrapper) {
         let rd = super.createRecordDataFor(identifier, sw);
         storeWrapper = sw;
         return rd;
@@ -316,7 +316,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   });
 
   test('store.deleteRecord', async function (assert) {
-    let rd: RecordData;
+    let rd: Cache;
     let ident: StableRecordIdentifier;
     assert.expect(9);
     this.owner.register(

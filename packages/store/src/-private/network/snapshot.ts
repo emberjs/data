@@ -9,9 +9,9 @@ import type BelongsToRelationship from '@ember-data/graph/-private/relationships
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
-import type { ChangedAttributesHash } from '@ember-data/types/q/record-data';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';

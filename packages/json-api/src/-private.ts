@@ -1,4 +1,4 @@
-export { default as RecordData } from './-private/record-data';
+export { default as Cache } from './-private/cache';
 
 /**
   This package provides the default cache implementation used

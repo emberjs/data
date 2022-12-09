@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/graph",
   "version": "4.10.0-alpha.4",
-  "description": "Provides the default resource cache (RecordData) implementation for ember-data",
+  "description": "Provides a normalized graph for managing relationships between resources",
   "keywords": [
     "ember-addon"
   ],

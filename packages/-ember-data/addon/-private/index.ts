@@ -11,7 +11,6 @@ export { Snapshot } from '@ember-data/store/-private';
 // `ember-data-model-fragments' and `ember-data-change-tracker` rely on `normalizeModelName`
 export { RecordArrayManager, SnapshotRecordArray, normalizeModelName, coerceId } from '@ember-data/store/-private';
 export { ManyArray, PromiseManyArray } from '@ember-data/model/-private';
-export { RecordData } from '@ember-data/json-api/-private';
 
 export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin);
 export const PromiseObject = ObjectProxy.extend(PromiseProxyMixin);

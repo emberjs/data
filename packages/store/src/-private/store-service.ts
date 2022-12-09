@@ -10,7 +10,7 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { reject, resolve } from 'rsvp';
 
-import type { RecordData as RecordDataClass } from '@ember-data/json-api/-private';
+import type { Cache as CacheClass } from '@ember-data/json-api/-private';
 import type DSModelClass from '@ember-data/model';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
@@ -21,6 +21,8 @@ import {
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
+import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
+import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -32,9 +34,7 @@ import type {
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { RecordData, RecordDataV1 } from '@ember-data/types/q/record-data';
 import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
 import type { FindOptions } from '@ember-data/types/q/store';
@@ -56,8 +56,8 @@ import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
+import type { NonSingletonCacheManager } from './managers/cache-manager';
 import RecordArrayManager from './managers/record-array-manager';
-import type { NonSingletonRecordDataManager } from './managers/record-data-manager';
 import NotificationManager from './managers/record-notification-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
 import { _findAll, _query, _queryRecord } from './network/finders';
@@ -75,8 +75,8 @@ import promiseRecord from './utils/promise-record';
 export { storeFor };
 
 // hello world
-type RecordDataConstruct = typeof RecordDataClass;
-let _RecordData: RecordDataConstruct | undefined;
+type CacheConstruct = typeof CacheClass;
+let _Cache: CacheConstruct | undefined;
 
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
 
@@ -168,7 +168,7 @@ export interface CreateRecordProperties {
 */
 
 class Store {
-  __private_singleton_recordData!: RecordData;
+  __private_singleton_recordData!: Cache;
 
   declare recordArrayManager: RecordArrayManager;
 
@@ -346,7 +346,7 @@ class Store {
   instantiateRecord(
     identifier: StableRecordIdentifier,
     createRecordArgs: { [key: string]: unknown },
-    recordDataFor: (identifier: StableRecordIdentifier) => RecordData,
+    recordDataFor: (identifier: StableRecordIdentifier) => Cache,
     notificationManager: NotificationManager
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
@@ -616,7 +616,7 @@ class Store {
           this,
           identifier,
           properties,
-          (recordData as NonSingletonRecordDataManager).managedVersion === '1'
+          (recordData as NonSingletonCacheManager).managedVersion === '1'
         );
         const resultProps = recordData.clientDidCreate(identifier, createOptions);
         this.recordArrayManager.identifierAdded(identifier);
@@ -2408,19 +2408,15 @@ class Store {
    * @param identifier
    * @param storeWrapper
    */
-  createRecordDataFor(
-    identifier: StableRecordIdentifier,
-    storeWrapper: RecordDataStoreWrapper
-  ): RecordData | RecordDataV1 {
+  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper): Cache | CacheV1 {
     if (HAS_JSON_API_PACKAGE) {
       // we can't greedily use require as this causes
       // a cycle we can't easily fix (or clearly pin point) at present.
       //
       // it can be reproduced in partner tests by running
       // node ./scripts/packages-for-commit.js && pnpm test-external:ember-observer
-      if (_RecordData === undefined) {
-        _RecordData = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private'))
-          .RecordData;
+      if (_Cache === undefined) {
+        _Cache = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private')).Cache;
       }
 
       if (DEPRECATE_V1CACHE_STORE_APIS) {
@@ -2444,9 +2440,9 @@ class Store {
         }
       }
 
-      this.__private_singleton_recordData = this.__private_singleton_recordData || new _RecordData(storeWrapper);
+      this.__private_singleton_recordData = this.__private_singleton_recordData || new _Cache(storeWrapper);
       (
-        this.__private_singleton_recordData as RecordData & { createCache(identifier: StableRecordIdentifier): void }
+        this.__private_singleton_recordData as Cache & { createCache(identifier: StableRecordIdentifier): void }
       ).createCache(identifier);
       return this.__private_singleton_recordData;
     }
@@ -2901,12 +2897,7 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
   return !!record.then;
 }
 
-function secretInit(
-  record: RecordInstance,
-  recordData: RecordData,
-  identifier: StableRecordIdentifier,
-  store: Store
-): void {
+function secretInit(record: RecordInstance, recordData: Cache, identifier: StableRecordIdentifier, store: Store): void {
   setRecordIdentifier(record, identifier);
   StoreMap.set(record, store);
   setRecordDataFor(record, recordData);

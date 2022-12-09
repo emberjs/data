@@ -11,14 +11,14 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
+import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceRelationship,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ChangedAttributesHash, MergeOperation, RecordData } from '@ember-data/types/q/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import type { RecordDataStoreWrapper } from '@ember-data/types/q/record-data-store-wrapper';
 import type { Dict } from '@ember-data/types/q/utils';
 
 class Person extends Model {
@@ -42,10 +42,10 @@ class House extends Model {
 // TODO: this should work
 // class TestRecordData implements RecordDatav1
 class V1TestRecordData {
-  _storeWrapper: RecordDataStoreWrapper;
+  _storeWrapper: CacheStoreWrapper;
   _identifier: StableRecordIdentifier;
 
-  constructor(wrapper: RecordDataStoreWrapper, identifier: StableRecordIdentifier) {
+  constructor(wrapper: CacheStoreWrapper, identifier: StableRecordIdentifier) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
@@ -107,15 +107,15 @@ class V1TestRecordData {
   }
 }
 
-class V2TestRecordData implements RecordData {
+class V2TestRecordData implements Cache {
   version: '2' = '2';
 
   _errors?: JsonApiValidationError[];
   _isNew: boolean = false;
-  _storeWrapper: RecordDataStoreWrapper;
+  _storeWrapper: CacheStoreWrapper;
   _identifier: StableRecordIdentifier;
 
-  constructor(wrapper: RecordDataStoreWrapper, identifier: StableRecordIdentifier) {
+  constructor(wrapper: CacheStoreWrapper, identifier: StableRecordIdentifier) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
@@ -188,7 +188,7 @@ const TestRecordData: typeof V2TestRecordData | typeof V1TestRecordData = !DEPRE
 
 class CustomStore extends Store {
   // @ts-expect-error
-  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
     return new TestRecordData(storeWrapper, identifier);
   }
 }
@@ -353,7 +353,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         return new LifecycleRecordData(storeWrapper, identifier);
       }
     }
@@ -495,7 +495,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         return new AttributeRecordData(storeWrapper, identifier);
       }
     }
@@ -564,7 +564,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
@@ -634,7 +634,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       };
     }
     class TestStore extends Store {
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {
@@ -727,7 +727,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           notifier = storeWrapper;
           houseIdentifier = identifier;
@@ -872,7 +872,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     class TestStore extends Store {
       // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         if (identifier.type === 'house') {
           return new RelationshipRecordData(storeWrapper, identifier);
         } else {

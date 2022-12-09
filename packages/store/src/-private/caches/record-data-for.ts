@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
+import type { Cache } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 /*
@@ -9,9 +9,9 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
  * Model or Identifier
  */
 
-const RecordDataForIdentifierCache = new Map<StableRecordIdentifier | RecordInstance, RecordData>();
+const RecordDataForIdentifierCache = new Map<StableRecordIdentifier | RecordInstance, Cache>();
 
-export function setRecordDataFor(identifier: StableRecordIdentifier | RecordInstance, recordData: RecordData): void {
+export function setRecordDataFor(identifier: StableRecordIdentifier | RecordInstance, recordData: Cache): void {
   assert(
     `Illegal set of identifier`,
     !RecordDataForIdentifierCache.has(identifier) || RecordDataForIdentifierCache.get(identifier) === recordData
@@ -23,11 +23,11 @@ export function removeRecordDataFor(identifier: StableRecordIdentifier | RecordI
   RecordDataForIdentifierCache.delete(identifier);
 }
 
-export default function recordDataFor(instance: StableRecordIdentifier): RecordData | null;
-export default function recordDataFor(instance: RecordInstance): RecordData;
-export default function recordDataFor(instance: StableRecordIdentifier | RecordInstance): RecordData | null {
+export default function recordDataFor(instance: StableRecordIdentifier): Cache | null;
+export default function recordDataFor(instance: RecordInstance): Cache;
+export default function recordDataFor(instance: StableRecordIdentifier | RecordInstance): Cache | null {
   if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier)) {
-    return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier) as RecordData;
+    return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier) as Cache;
   }
 
   return null;

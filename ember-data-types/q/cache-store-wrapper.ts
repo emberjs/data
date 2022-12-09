@@ -1,8 +1,8 @@
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
 
+import type { Cache } from './cache';
 import { StableRecordIdentifier } from './identifier';
-import type { RecordData } from './record-data';
 import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
 import { SchemaDefinitionService } from './schema-definition-service';
 
@@ -11,19 +11,19 @@ import { SchemaDefinitionService } from './schema-definition-service';
 */
 
 /**
- * RecordDataStoreWrapper provides encapsulated API access to the minimal
- * subset of the Store's functionality that cache (RecordData) implementations
- * should interact with. It is provided to the Store's `createRecordDataFor`
+ * CacheStoreWrapper provides encapsulated API access to the minimal
+ * subset of the Store's functionality that Cache implementations
+ * should interact with. It is provided to the Store's `createCache`
  * hook.
  *
  * Cache implementations should not need more than this API provides.
  *
  * This class cannot be directly instantiated.
  *
- * @class RecordDataStoreWrapper
+ * @class CacheStoreWrapper
  * @public
  */
-export interface LegacyRecordDataStoreWrapper {
+export interface LegacyCacheStoreWrapper {
   /**
    * Provides access to the IdentifierCache instance
    * for this Store instance.
@@ -171,14 +171,14 @@ export interface LegacyRecordDataStoreWrapper {
    *
    * @method recordDataFor
    * @param {StableRecordIdentifier} identifier
-   * @return {RecordData} the RecordData cache instance associated with the identifier
+   * @return {Cache} the RecordData cache instance associated with the identifier
    * @public
    */
-  recordDataFor(type: string, id: string, lid?: string | null): RecordData;
-  recordDataFor(type: string, id: string | null, lid: string): RecordData;
-  recordDataFor(type: string): RecordData;
-  recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData;
-  recordDataFor(identifier: StableRecordIdentifier): RecordData;
+  recordDataFor(type: string, id: string, lid?: string | null): Cache;
+  recordDataFor(type: string, id: string | null, lid: string): Cache;
+  recordDataFor(type: string): Cache;
+  recordDataFor(type: string, id?: string | null, lid?: string | null): Cache;
+  recordDataFor(identifier: StableRecordIdentifier): Cache;
 
   /**
    * Use notifyChange
@@ -237,7 +237,7 @@ export interface LegacyRecordDataStoreWrapper {
   notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void;
 }
 
-export interface V2RecordDataStoreWrapper {
+export interface V2CacheStoreWrapper {
   identifierCache: IdentifierCache;
   getSchemaDefinitionService(): SchemaDefinitionService;
 
@@ -247,9 +247,9 @@ export interface V2RecordDataStoreWrapper {
 
   hasRecord(identifier: StableRecordIdentifier): boolean;
 
-  recordDataFor(identifier: StableRecordIdentifier): RecordData;
+  recordDataFor(identifier: StableRecordIdentifier): Cache;
 
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
 }
 
-export type RecordDataStoreWrapper = LegacyRecordDataStoreWrapper | V2RecordDataStoreWrapper;
+export type CacheStoreWrapper = LegacyCacheStoreWrapper | V2CacheStoreWrapper;

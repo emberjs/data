@@ -1,13 +1,13 @@
 import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordData } from '@ember-data/types/q/record-data';
-import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type { Cache } from '@ember-data/types/q/cache';
 import type {
-  LegacyRecordDataStoreWrapper,
-  V2RecordDataStoreWrapper as StoreWrapper,
-} from '@ember-data/types/q/record-data-store-wrapper';
+  LegacyCacheStoreWrapper,
+  V2CacheStoreWrapper as StoreWrapper,
+} from '@ember-data/types/q/cache-store-wrapper';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 import { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
 
 import { IdentifierCache, isStableIdentifier } from '../caches/identifier-cache';
@@ -21,7 +21,7 @@ import { NotificationType } from './record-notification-manager';
   @module @ember-data/store
 */
 
-class LegacyWrapper implements LegacyRecordDataStoreWrapper {
+class LegacyWrapper implements LegacyCacheStoreWrapper {
   declare _willNotify: boolean;
   declare _pendingNotifies: Map<StableRecordIdentifier, Set<string>>;
   declare _store: Store;
@@ -212,11 +212,11 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
     this._store.recordArrayManager.identifierChanged(identifier);
   }
 
-  recordDataFor(type: string, id: string, lid?: string | null): RecordData;
-  recordDataFor(type: string, id: string | null, lid: string): RecordData;
-  recordDataFor(type: string): RecordData;
-  recordDataFor(type: StableRecordIdentifier): RecordData;
-  recordDataFor(type: string | StableRecordIdentifier, id?: string | null, lid?: string | null): RecordData {
+  recordDataFor(type: string, id: string, lid?: string | null): Cache;
+  recordDataFor(type: string, id: string | null, lid: string): Cache;
+  recordDataFor(type: string): Cache;
+  recordDataFor(type: StableRecordIdentifier): Cache;
+  recordDataFor(type: string | StableRecordIdentifier, id?: string | null, lid?: string | null): Cache {
     let identifier: StableRecordIdentifier;
     if (DEPRECATE_V1CACHE_STORE_APIS) {
       if (!isStableIdentifier(type)) {
@@ -264,7 +264,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
       identifier = type;
     }
 
-    assert(`Unable to find an identifier to update the ID for for ${lid}`, identifier);
+    assert(`Unable to find an identifier to update the ID for for ${String(lid)}`, identifier);
 
     this._store._instanceCache.setRecordId(identifier, id);
   }
@@ -312,7 +312,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
         let resource = constructResource(type, id, lid) as RecordIdentifier;
         identifier = this.identifierCache.peekRecordIdentifier(resource)!;
       } else {
-        identifier = type as StableRecordIdentifier;
+        identifier = type;
       }
     } else {
       identifier = type as StableRecordIdentifier;
@@ -325,7 +325,7 @@ class LegacyWrapper implements LegacyRecordDataStoreWrapper {
   }
 }
 
-class V2RecordDataStoreWrapper implements StoreWrapper {
+class V2CacheStoreWrapper implements StoreWrapper {
   declare _willNotify: boolean;
   declare _pendingNotifies: Map<StableRecordIdentifier, Set<string>>;
   declare _store: Store;
@@ -354,7 +354,7 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
     }
 
     this._willNotify = true;
-    // it's possible a RecordData adhoc notifies us,
+    // it's possible a cache adhoc notifies us,
     // in which case we sync flush
     if (this._store._cbs) {
       this._store._schedule('notify', () => this._flushNotifications());
@@ -399,7 +399,7 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
     return this._store.getSchemaDefinitionService();
   }
 
-  recordDataFor(identifier: StableRecordIdentifier): RecordData {
+  recordDataFor(identifier: StableRecordIdentifier): Cache {
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
 
     return this._store._instanceCache.getRecordData(identifier);
@@ -420,6 +420,6 @@ class V2RecordDataStoreWrapper implements StoreWrapper {
     this._pendingNotifies.delete(identifier);
   }
 }
-export type RecordDataStoreWrapper = LegacyWrapper | V2RecordDataStoreWrapper;
+export type CacheStoreWrapper = LegacyWrapper | V2CacheStoreWrapper;
 
-export const RecordDataStoreWrapper = DEPRECATE_V1CACHE_STORE_APIS ? LegacyWrapper : V2RecordDataStoreWrapper;
+export const CacheStoreWrapper = DEPRECATE_V1CACHE_STORE_APIS ? LegacyWrapper : V2CacheStoreWrapper;
