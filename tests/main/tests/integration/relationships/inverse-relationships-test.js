@@ -2,8 +2,8 @@ import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { graphFor } from '@ember-data/json-api/-private';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';

@@ -2,8 +2,8 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Model, { attr, belongsTo } from '@ember-data/model';
 import { graphFor } from '@ember-data/json-api/-private';
+import Model, { attr, belongsTo } from '@ember-data/model';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
 module('Integration | Graph | Implicit Keys', function (hooks) {
