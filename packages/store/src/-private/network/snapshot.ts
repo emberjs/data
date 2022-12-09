@@ -7,7 +7,7 @@ import { importSync } from '@embroider/macros';
 
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
@@ -315,7 +315,7 @@ export default class Snapshot implements Snapshot {
     // function without access to intimate API contracts between RecordData and Model.
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
-    if (!HAS_RECORD_DATA_PACKAGE) {
+    if (!HAS_JSON_API_PACKAGE) {
       assert(`snapshot.belongsTo only supported when using the package @ember-data/json-api`);
     }
 
@@ -416,7 +416,7 @@ export default class Snapshot implements Snapshot {
     // function without access to intimate API contracts between RecordData and Model.
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
-    if (!HAS_RECORD_DATA_PACKAGE) {
+    if (!HAS_JSON_API_PACKAGE) {
       assert(`snapshot.hasMany only supported when using the package @ember-data/json-api`);
     }
 

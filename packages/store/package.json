@@ -31,12 +31,16 @@
   "peerDependencies": {
     "@ember-data/model": "workspace:4.10.0-alpha.4",
     "@ember-data/json-api": "workspace:4.10.0-alpha.4",
+    "@ember-data/graph": "workspace:4.10.0-alpha.4",
     "@ember-data/tracking": "workspace:4.10.0-alpha.4",
     "@ember/string": "^3.0.0",
     "@glimmer/tracking": "^1.1.2"
   },
   "peerDependenciesMeta": {
     "@ember-data/json-api": {
+      "optional": true
+    },
+    "@ember-data/graph": {
       "optional": true
     },
     "@ember-data/model": {

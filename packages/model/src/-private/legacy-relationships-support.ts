@@ -9,7 +9,7 @@ import type { LocalRelationshipOperation } from '@ember-data/graph/-private/grap
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { fastPush, isStableIdentifier, recordIdentifierFor, SOURCE, storeFor } from '@ember-data/store/-private';
@@ -207,7 +207,7 @@ export class LegacySupport {
   }
 
   getManyArray(key: string, definition?: UpgradedMeta): RelatedCollection {
-    if (HAS_RECORD_DATA_PACKAGE) {
+    if (HAS_JSON_API_PACKAGE) {
       let manyArray: RelatedCollection | undefined = this._manyArrayCache[key];
       if (!definition) {
         const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
@@ -248,7 +248,7 @@ export class LegacySupport {
     manyArray: RelatedCollection,
     options?: FindOptions
   ): Promise<RelatedCollection> {
-    if (HAS_RECORD_DATA_PACKAGE) {
+    if (HAS_JSON_API_PACKAGE) {
       let loadingPromise = this._relationshipPromisesCache[key] as Promise<RelatedCollection> | undefined;
       if (loadingPromise) {
         return loadingPromise;
@@ -273,7 +273,7 @@ export class LegacySupport {
   }
 
   reloadHasMany(key: string, options?: FindOptions) {
-    if (HAS_RECORD_DATA_PACKAGE) {
+    if (HAS_JSON_API_PACKAGE) {
       let loadingPromise = this._relationshipPromisesCache[key];
       if (loadingPromise) {
         return loadingPromise;
@@ -298,7 +298,7 @@ export class LegacySupport {
   }
 
   getHasMany(key: string, options?: FindOptions): PromiseManyArray | RelatedCollection {
-    if (HAS_RECORD_DATA_PACKAGE) {
+    if (HAS_JSON_API_PACKAGE) {
       const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
         .graphFor;
       const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
@@ -370,7 +370,7 @@ export class LegacySupport {
     let reference = this.references[name];
 
     if (!reference) {
-      if (!HAS_RECORD_DATA_PACKAGE) {
+      if (!HAS_JSON_API_PACKAGE) {
         // TODO @runspired while this feels odd, it is not a regression in capability because we do
         // not today support references pulling from RecordDatas other than our own
         // because of the intimate API access involved. This is something we will need to redesign.
@@ -418,7 +418,7 @@ export class LegacySupport {
     relationship: ManyRelationship,
     options: FindOptions = {}
   ): Promise<void | unknown[]> | void {
-    if (HAS_RECORD_DATA_PACKAGE) {
+    if (HAS_JSON_API_PACKAGE) {
       if (!resource) {
         return;
       }

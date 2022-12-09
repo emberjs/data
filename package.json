@@ -164,7 +164,8 @@
   },
   "pnpm": {
     "patchedDependencies": {
-      "@embroider/macros@1.9.0": "patches/@embroider__macros@1.9.0.patch"
+      "@embroider/macros@1.9.0": "patches/@embroider__macros@1.9.0.patch",
+      "@embroider/macros@1.10.0": "patches/@embroider__macros@1.10.0.patch"
     }
   }
 }
