@@ -128,5 +128,6 @@
       "@runspired"
     ],
     "enabled": true
-  }
+  },
+  "ignorePaths": ["node_modules/**", "**/node_modules/**"]
 }
