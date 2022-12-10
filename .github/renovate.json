@@ -128,11 +128,5 @@
       "@runspired"
     ],
     "enabled": true
-  },
-  "includePaths": [
-    ".github",
-    "packages",
-    "tests",
-    "package.json"
-  ]
+  }
 }
