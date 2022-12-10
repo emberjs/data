@@ -58,7 +58,7 @@ importers:
       broccoli-test-helper: ^2.0.0
       broccoli-uglify-sourcemap: ^4.0.0
       calculate-cache-key-for-tree: ^2.0.0
-      chalk: ^4.1.2
+      chalk: ^5.1.2
       co: ^4.6.0
       command-line-args: ^5.2.1
       common-tags: ^1.8.2
@@ -165,7 +165,7 @@ importers:
       broccoli-test-helper: 2.0.0
       broccoli-uglify-sourcemap: 4.0.0
       calculate-cache-key-for-tree: 2.0.0
-      chalk: 4.1.2
+      chalk: 5.2.0
       co: 4.6.0
       command-line-args: 5.2.1
       common-tags: 1.8.2
@@ -580,7 +580,7 @@ importers:
       broccoli-merge-trees: ^4.2.0
       broccoli-rollup: ^5.0.0
       calculate-cache-key-for-tree: ^2.0.0
-      chalk: ^4.1.2
+      chalk: ^5.1.2
       ember-cli-babel: ^7.26.11
       ember-cli-path-utils: ^1.0.0
       ember-cli-string-utils: ^1.1.0
@@ -609,7 +609,7 @@ importers:
       broccoli-merge-trees: 4.2.0
       broccoli-rollup: 5.0.0
       calculate-cache-key-for-tree: 2.0.0
-      chalk: 4.1.2
+      chalk: 5.2.0
       ember-cli-babel: 7.26.11
       ember-cli-path-utils: 1.0.0
       ember-cli-string-utils: 1.1.0
@@ -2096,6 +2096,7 @@ packages:
       semver: 6.3.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@babel/eslint-parser/7.19.1_hojp5sdiorqnqfvcamcc5sgvyi:
     resolution: {integrity: sha512-AqNf2QWt1rtu2/1rLswy6CDP7H9Oh3mMhk177Y67Rg8d7RD9WfOLLv8CGn6tisFvS2htm86yIe1yLF6I1UDaGQ==}
@@ -2320,6 +2321,7 @@ packages:
       '@babel/types': 7.20.2
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@babel/helper-optimise-call-expression/7.18.6:
     resolution: {integrity: sha512-HP59oD9/fEHQkdcbgFCnbmgH5vIQTJbxh2yf+CdM89/glUNnuzr87Q8GIjGEnOktTROemO0Pe0iPAYbqZuOUiA==}
@@ -2432,6 +2434,7 @@ packages:
       '@babel/types': 7.20.2
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@babel/highlight/7.18.6:
     resolution: {integrity: sha512-u7stbOuYjaPezCuLj29hNW1v64M2Md2qupEKP1fHc7WdOA3DgLh37suiSrZYY7haUB7iBeQZ9P1uiRF359do3g==}
@@ -2588,7 +2591,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.20.2_supports-color@8.1.1
+      '@babel/core': 7.20.2
       '@babel/helper-plugin-utils': 7.20.2
       '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3_@babel+core@7.20.2
 
@@ -2631,7 +2634,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.20.2_supports-color@8.1.1
+      '@babel/core': 7.20.2
       '@babel/helper-plugin-utils': 7.20.2
       '@babel/helper-skip-transparent-expression-wrappers': 7.20.0
       '@babel/plugin-syntax-optional-chaining': 7.8.3_@babel+core@7.20.2
@@ -2752,7 +2755,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.20.2_supports-color@8.1.1
+      '@babel/core': 7.20.2
       '@babel/helper-plugin-utils': 7.20.2
 
   /@babel/plugin-syntax-numeric-separator/7.10.4_@babel+core@7.20.2:
@@ -2784,7 +2787,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.20.2_supports-color@8.1.1
+      '@babel/core': 7.20.2
       '@babel/helper-plugin-utils': 7.20.2
 
   /@babel/plugin-syntax-private-property-in-object/7.14.5_@babel+core@7.20.2:
@@ -3441,6 +3444,7 @@ packages:
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@babel/types/7.20.0:
     resolution: {integrity: sha512-Jlgt3H0TajCW164wkTOTzHkZb075tMQMULzrLUoUeKmO7eFL96GgDxf7/Axhc5CAuKE3KFyVW1p6ysKsi2oXAg==}
@@ -7415,6 +7419,10 @@ packages:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
+  /chalk/5.2.0:
+    resolution: {integrity: sha512-ree3Gqw/nazQAPuJJEy+avdl7QfZMcUvmHIKgEZkGL+xOBzRvup5Hxo6LHuMceSxOabuJLJm5Yp/92R9eMmMvA==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
   /chardet/0.7.0:
     resolution: {integrity: sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==}
     dev: true
@@ -8193,6 +8201,7 @@ packages:
     dependencies:
       ms: 2.1.2
       supports-color: 8.1.1
+    dev: true
 
   /decamelize/4.0.0:
     resolution: {integrity: sha512-9iE1PgSik9HeIIw2JO94IidnE3eBoQrFJ3w7sFuzSX4DpmZ3v5sZpUiV5Swcf6mQEF+Y0ru8Neo+p+nyh2J+hQ==}
@@ -16661,7 +16670,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_nyftbizp5wvgoaf2yzjmlcm3bq
+      '@ember-data/store': file:packages/store_kgq7csw3b6caonwsgwejyogehq
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
@@ -16729,7 +16738,7 @@ packages:
       '@ember-data/store': workspace:4.10.0-alpha.5
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_onewk3jah27x2t4vnqlghamt5a
+      '@ember-data/store': file:packages/store_kgq7csw3b6caonwsgwejyogehq
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
@@ -16767,7 +16776,7 @@ packages:
     dependencies:
       '@ember-data/graph': file:packages/graph_pdjfxbfdx57tog5ewcd3qjxmcu
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_onewk3jah27x2t4vnqlghamt5a
+      '@ember-data/store': file:packages/store_kgq7csw3b6caonwsgwejyogehq
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
@@ -16884,6 +16893,7 @@ packages:
       - '@babel/core'
       - ember-source
       - supports-color
+    dev: true
 
   file:packages/model_suvunj7xlcpbworuim4q2fz6pe:
     resolution: {directory: packages/model, type: directory}
@@ -17000,7 +17010,6 @@ packages:
       - '@babel/core'
       - ember-source
       - supports-color
-    dev: false
 
   file:packages/private-build-infra:
     resolution: {directory: packages/private-build-infra, type: directory}
@@ -17024,7 +17033,7 @@ packages:
       broccoli-merge-trees: 4.2.0
       broccoli-rollup: 5.0.0
       calculate-cache-key-for-tree: 2.0.0
-      chalk: 4.1.2
+      chalk: 5.2.0
       ember-cli-babel: 7.26.11
       ember-cli-path-utils: 1.0.0
       ember-cli-string-utils: 1.1.0
@@ -17082,7 +17091,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_onewk3jah27x2t4vnqlghamt5a
+      '@ember-data/store': file:packages/store_kgq7csw3b6caonwsgwejyogehq
       '@ember/string': 3.0.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
@@ -17231,7 +17240,6 @@ packages:
       - '@babel/core'
       - ember-source
       - supports-color
-    dev: false
 
   file:packages/store_nyftbizp5wvgoaf2yzjmlcm3bq:
     resolution: {directory: packages/store, type: directory}
@@ -17266,6 +17274,7 @@ packages:
       - '@babel/core'
       - ember-source
       - supports-color
+    dev: true
 
   file:packages/store_onewk3jah27x2t4vnqlghamt5a:
     resolution: {directory: packages/store, type: directory}
