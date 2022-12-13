@@ -128,7 +128,7 @@ export interface CreateRecordProperties {
   }
   ```
 
-  You can learn more about writing a custom adapter by reading the `Adapter`
+  You can learn more about writing a custom adapter by reading the [Adapter](https://guides.emberjs.com/release/models/customizing-adapters/)
   documentation.
 
   ### Store createRecord() vs. push() vs. pushPayload()
