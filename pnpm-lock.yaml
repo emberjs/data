@@ -64,7 +64,7 @@ importers:
       common-tags: ^1.8.2
       debug: ^4.3.4
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
@@ -834,7 +834,7 @@ importers:
       '@types/semver': ^7.3.13
       broccoli-merge-trees: ^4.2.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
       ember-cli-dependency-checker: ^3.3.1
@@ -915,7 +915,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -992,7 +992,7 @@ importers:
       '@ember-data/private-build-infra': workspace:4.10.0-alpha.6
       '@ember-data/serializer': workspace:4.10.0-alpha.6
       '@ember-data/unpublished-test-infra': workspace:4.10.0-alpha.6
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-blueprint-test-helpers: ^0.19.2
       mocha: ^10.1.0
       silent-error: ^1.1.1
@@ -1035,7 +1035,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1124,7 +1124,7 @@ importers:
       '@types/rsvp': ^4.0.4
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1211,7 +1211,7 @@ importers:
       '@types/rsvp': ^4.0.4
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1289,7 +1289,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1354,7 +1354,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
       ember-cli-dependency-checker: ^3.3.1
@@ -1459,7 +1459,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1565,7 +1565,7 @@ importers:
       broccoli-uglify-sourcemap: ^4.0.0
       ember-auto-import: ^2.5.0
       ember-cached-decorator-polyfill: ^1.0.1
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1697,7 +1697,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1774,7 +1774,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1832,7 +1832,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
       ember-cli-dependency-checker: ^3.3.1
@@ -1925,7 +1925,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.5.0
-      ember-cli: ~4.9.1
+      ember-cli: ~4.9.2
       ember-cli-app-version: ^5.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
