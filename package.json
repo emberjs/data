@@ -142,13 +142,13 @@
     "node": "^14.8.0 || 16.* || >= 18.*",
     "yarn": "use pnpm",
     "npm": "use pnpm",
-    "pnpm": "7.18.1"
+    "pnpm": "7.18.2"
   },
   "volta": {
     "node": "19.0.0",
     "pnpm": "7.18.0"
   },
-  "packageManager": "pnpm@7.18.1",
+  "packageManager": "pnpm@7.18.2",
   "changelog": {
     "labels": {
       "changelog:breaking": ":boom: Breaking Change",
