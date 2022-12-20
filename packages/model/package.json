@@ -80,7 +80,7 @@
     "@babel/runtime": "^7.20.6",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "tslib": "^2.4.0",
+    "tslib": "^2.4.1",
     "walk-sync": "^3.0.0",
     "typescript": "^4.9.4"
   },
