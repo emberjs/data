@@ -64,7 +64,7 @@
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^6.0.0",
-    "ember-resolver": "^8.0.3",
+    "ember-resolver": "^9.0.1",
     "ember-simple-tree": "^0.8.3",
     "ember-source": "~4.9.3",
     "loader.js": "^4.7.0",
