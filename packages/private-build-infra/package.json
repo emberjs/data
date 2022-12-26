@@ -20,9 +20,9 @@
     }
   },
   "dependencies": {
-    "@babel/core": "^7.20.5",
-    "@babel/plugin-transform-block-scoping": "^7.20.5",
-    "@babel/runtime": "^7.20.6",
+    "@babel/core": "^7.20.7",
+    "@babel/plugin-transform-block-scoping": "^7.20.9",
+    "@babel/runtime": "^7.20.7",
     "@ember-data/canary-features": "workspace:4.10.0-alpha.9",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
