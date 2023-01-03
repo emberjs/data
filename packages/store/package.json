@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/store",
-  "version": "4.10.0-alpha.11",
+  "version": "4.10.0-alpha.12",
   "description": "The core of EmberData. Provides the Store service which coordinates the cache with the network and presentation layers.",
   "keywords": [
     "ember-addon"
@@ -29,10 +29,10 @@
     "addon"
   ],
   "peerDependencies": {
-    "@ember-data/model": "workspace:4.10.0-alpha.11",
-    "@ember-data/json-api": "workspace:4.10.0-alpha.11",
-    "@ember-data/graph": "workspace:4.10.0-alpha.11",
-    "@ember-data/tracking": "workspace:4.10.0-alpha.11",
+    "@ember-data/model": "workspace:4.10.0-alpha.12",
+    "@ember-data/json-api": "workspace:4.10.0-alpha.12",
+    "@ember-data/graph": "workspace:4.10.0-alpha.12",
+    "@ember-data/tracking": "workspace:4.10.0-alpha.12",
     "@ember/string": "^3.0.0",
     "@glimmer/tracking": "^1.1.2"
   },
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "ember-cli-babel": "^7.26.11",
-    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.11",
+    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.12",
     "@embroider/macros": "^1.10.0",
     "ember-cached-decorator-polyfill": "^1.0.1"
   },
