@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/private-build-infra",
-  "version": "4.10.0-alpha.12",
+  "version": "4.10.0-alpha.13",
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
     "ember-addon"
@@ -23,7 +23,7 @@
     "@babel/core": "^7.20.7",
     "@babel/plugin-transform-block-scoping": "^7.20.9",
     "@babel/runtime": "^7.20.7",
-    "@ember-data/canary-features": "workspace:4.10.0-alpha.12",
+    "@ember-data/canary-features": "workspace:4.10.0-alpha.13",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
     "babel-import-util": "^1.3.0",
