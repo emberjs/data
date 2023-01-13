@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "4.10.0-alpha.14",
+  "version": "4.10.0-alpha.15",
   "description": "Provides reference Serializer implementations for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -29,7 +29,7 @@
     "addon"
   ],
   "peerDependencies": {
-    "@ember-data/store": "workspace:4.10.0-alpha.14",
+    "@ember-data/store": "workspace:4.10.0-alpha.15",
     "@ember/string": "^3.0.0",
     "ember-inflector": "^4.0.2"
   },
@@ -42,7 +42,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.14",
+    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.15",
     "@embroider/macros": "^1.10.0",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-test-info": "^1.0.0"
