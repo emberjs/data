@@ -217,6 +217,11 @@ if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
       deprecate('Accessing the internalModel property of Reference is deprecated', false, {
         id: 'ember-data:reference-internal-model',
         until: '3.21',
+        for: '@ember-data/store',
+        since: {
+          available: '3.19',
+          enabled: '3.19',
+        },
       });
 
       return REFERENCE_CACHE.get(this);

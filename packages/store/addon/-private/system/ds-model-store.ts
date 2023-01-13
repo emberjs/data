@@ -299,6 +299,11 @@ if (DEBUG) {
         {
           id: 'ember-data:method-calls-on-destroyed-store',
           until: '3.8',
+          for: '@ember-data/store',
+          since: {
+            available: '3.8',
+            enabled: '3.8',
+          },
         }
       );
     } else {
@@ -316,6 +321,11 @@ if (DEBUG) {
         {
           id: 'ember-data:method-calls-on-destroyed-store',
           until: '3.8',
+          for: '@ember-data/store',
+          since: {
+            available: '3.8',
+            enabled: '3.8',
+          },
         }
       );
     } else {

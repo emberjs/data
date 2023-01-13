@@ -194,6 +194,11 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
       deprecate(message + '\n', false, {
         id: 'mismatched-inverse-relationship-data-from-payload',
         until: '3.8',
+        for: '@ember-data/store',
+        since: {
+          available: '3.8',
+          enabled: '3.8',
+        },
       });
     }
 

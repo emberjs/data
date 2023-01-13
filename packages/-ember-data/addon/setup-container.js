@@ -20,6 +20,11 @@ function initializeStore(application) {
       {
         id: 'ember-data:legacy-test-helper-support',
         until: '3.17',
+        for: 'ember-data',
+        since: {
+          available: '3.15',
+          enabled: '3.15',
+        },
       }
     );
 

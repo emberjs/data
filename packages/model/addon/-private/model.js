@@ -748,7 +748,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
         this.model.destroyRecord().then(function() {
           this.transitionToRoute('model.index');
         });
-      } 
+      }
     }
     ```
 
@@ -1325,6 +1325,11 @@ if (DEPRECATE_MODEL_TOJSON) {
           id: 'ember-data:model.toJSON',
           until: '4.0',
           url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-toJSON',
+          for: '@ember-data/model',
+          since: {
+            available: '3.15',
+            enabled: '3.15',
+          },
         }
       );
       let serializer = this._internalModel.store.serializerFor('-default');
@@ -1455,6 +1460,11 @@ if (DEBUG) {
                 id: 'ember-data:record-lifecycle-event-methods',
                 until: '4.0',
                 url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-lifecycle-event-methods',
+                for: '@ember-data/model',
+                since: {
+                  available: '3.12',
+                  enabled: '3.12',
+                },
               }
             );
 

@@ -139,6 +139,11 @@ export default class BelongsToReference extends Reference {
         deprecate('Pushing a record into a BelongsToReference is deprecated', false, {
           id: 'ember-data:belongs-to-reference-push-record',
           until: '4.0',
+          for: '@ember-data/store',
+          since: {
+            available: '3.16',
+            enabled: '3.16',
+          },
         });
         record = data;
       } else {

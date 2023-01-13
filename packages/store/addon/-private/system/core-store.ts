@@ -140,6 +140,11 @@ function deprecateTestRegistration(
     {
       id: 'ember-data:-legacy-test-registrations',
       until: '3.17',
+      for: '@ember-data/store',
+      since: {
+        available: '3.15',
+        enabled: '3.15',
+      },
     }
   );
 }
@@ -350,6 +355,11 @@ abstract class CoreStore extends Service {
             {
               id: 'ember-data:-legacy-test-registrations',
               until: '3.17',
+              for: '@ember-data/store',
+              since: {
+                available: '3.15',
+                enabled: '3.15',
+              },
             }
           );
         }
@@ -3462,6 +3472,11 @@ abstract class CoreStore extends Service {
           id: 'ember-data:default-serializer',
           until: '4.0',
           url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-serializers',
+          for: '@ember-data/store',
+          since: {
+            available: '3.15',
+            enabled: '3.15',
+          },
         }
       );
 
@@ -3518,6 +3533,11 @@ abstract class CoreStore extends Service {
           id: 'ember-data:default-serializer',
           until: '4.0',
           url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-serializers',
+          for: '@ember-data/store',
+          since: {
+            available: '3.15',
+            enabled: '3.15',
+          },
         }
       );
 
@@ -3644,6 +3664,11 @@ if (DEPRECATE_DEFAULT_ADAPTER) {
           id: 'ember-data:default-adapter',
           until: '4.0',
           url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-adapter',
+          for: '@ember-data/store',
+          since: {
+            available: '3.15',
+            enabled: '3.15',
+          },
         }
       );
       let adapter = this.adapter || '-json-api';
@@ -3744,6 +3769,11 @@ if (DEBUG) {
         {
           id: 'ember-data:method-calls-on-destroyed-store',
           until: '3.8',
+          for: '@ember-data/store',
+          since: {
+            available: '3.8',
+            enabled: '3.8',
+          },
         }
       );
     } else {
@@ -3761,6 +3791,11 @@ if (DEBUG) {
         {
           id: 'ember-data:method-calls-on-destroyed-store',
           until: '3.8',
+          for: '@ember-data/store',
+          since: {
+            available: '3.8',
+            enabled: '3.8',
+          },
         }
       );
     } else {
