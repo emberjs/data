@@ -881,12 +881,12 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.rejectBy = function (key: string, value?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'rejectBy', 'filter');
     if (arguments.length === 2) {
-      return this.filter((value) => {
-        return !get(value, key);
+      return this.filter((record) => {
+        return get(record, key) !== value;
       });
     }
-    return this.filter((value) => {
-      return !get(value, key);
+    return this.filter((record) => {
+      return !get(record, key);
     });
   };
 
