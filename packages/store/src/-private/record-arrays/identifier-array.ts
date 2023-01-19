@@ -865,16 +865,11 @@ if (DEPRECATE_ARRAY_LIKE) {
     );
   };
 
-  // @ts-expect-error
-  IdentifierArray.prototype.reject = function (key: string, value?: unknown) {
+  IdentifierArray.prototype.reject = function (callback, target?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reject', 'filter');
-    if (arguments.length === 2) {
-      return this.filter((value) => {
-        return !get(value, key);
-      });
-    }
-    return this.filter((value) => {
-      return !get(value, key);
+    assert('`reject` expects a function as first argument.', typeof callback === 'function');
+    return this.filter((...args) => {
+      return !callback.apply(target, args);
     });
   };
 
