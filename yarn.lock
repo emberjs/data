@@ -2445,14 +2445,14 @@
     "@types/ember__engine" "*"
     "@types/ember__object" "*"
 
-"@types/ember__debug@3.0.7":
-  version "3.0.7"
-  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.0.7.tgz#775eb0ec94b143860151a8fa922b3f948e72cbd4"
-  integrity sha512-GtS8vwt0t1KwzFvOllKCJ0k8gGzhohsCjlfeksmR1rnMuzb/tiuKKXWOP5UszTRg+OK68bSzZMuw1SQKFAZE4w==
+"@types/ember__debug@^3", "@types/ember__debug@^3.16.3":
+  version "3.16.7"
+  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.16.7.tgz#f891fd193bb75741afd9ce27b12fcd222c144dbb"
+  integrity sha512-UkneQ/QoylmVeTc9A+MuvNIkwlAiGg6/u06a1gimbZXbFSGezCdX4rABkKjlTo9AScTa7Z9egbGteMfR/AwSJA==
   dependencies:
-    "@types/ember__debug" "*"
-    "@types/ember__engine" "*"
-    "@types/ember__object" "*"
+    "@types/ember__debug" "^3"
+    "@types/ember__engine" "^3"
+    "@types/ember__object" "^3"
 
 "@types/ember__engine@*":
   version "3.16.2"
@@ -2461,6 +2461,14 @@
   dependencies:
     "@types/ember__engine" "*"
     "@types/ember__object" "*"
+
+"@types/ember__engine@^3":
+  version "3.16.4"
+  resolved "https://registry.npmjs.org/@types/ember__engine/-/ember__engine-3.16.4.tgz#d89a5ebacc1c04bfde33010ddbe5477e902f0931"
+  integrity sha512-0RSTJtrNzD6R+jjXNVm/NEdr74z/ThAGwwGJTNkD6a75eRxeiBeyX8kk3hmKC4/tcPHH0AUgoWHSWBn6vXOI4Q==
+  dependencies:
+    "@types/ember__engine" "^3"
+    "@types/ember__object" "^3"
 
 "@types/ember__error@*":
   version "3.16.1"
@@ -2473,6 +2481,14 @@
   integrity sha512-IToStKZ6bNfkiqjhpnpf24NADNIqrSd3pmpc0ktRilrMZPoHyexcXW6zyGENtpFJE7O7dVjtPh/MzUYYH0urww==
   dependencies:
     "@types/ember__object" "*"
+    "@types/rsvp" "*"
+
+"@types/ember__object@^3":
+  version "3.12.8"
+  resolved "https://registry.npmjs.org/@types/ember__object/-/ember__object-3.12.8.tgz#09ee156160cec81620d6dab2d5fa836aed212a6c"
+  integrity sha512-xfmJdmkTwPo2gyaVMUgkEZ6w2L/vNTfp/RpI8JG8qJY+b43nEyaxtaSVQ78racfcZMUqXeVfOyH/GGeB7NU1Hg==
+  dependencies:
+    "@types/ember__object" "^3"
     "@types/rsvp" "*"
 
 "@types/ember__polyfills@*":
