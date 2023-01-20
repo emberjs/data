@@ -21,7 +21,7 @@ import {
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
-import type { RecordData as RecordDataClass } from '@ember-data/record-data/-private';
+import type { RecordData as RecordDataClass } from '@ember-data/record-data';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -1918,7 +1918,7 @@ class Store extends Service {
         // during unload
         if (HAS_RECORD_DATA_PACKAGE) {
           const peekGraph = (
-            importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+            importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
           ).peekGraph;
           let graph = peekGraph(this);
           if (graph) {
@@ -2401,7 +2401,7 @@ class Store extends Service {
       // node ./scripts/packages-for-commit.js && pnpm test-external:ember-observer
       if (_RecordData === undefined) {
         _RecordData = (
-          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+          importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
         ).RecordData;
       }
 
@@ -2621,7 +2621,7 @@ class Store extends Service {
 
     if (HAS_RECORD_DATA_PACKAGE) {
       const peekGraph = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+        importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
       ).peekGraph;
       let graph = peekGraph(this);
       if (graph) {

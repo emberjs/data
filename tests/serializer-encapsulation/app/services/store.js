@@ -1,4 +1,4 @@
-import { RecordData } from '@ember-data/record-data/-private';
+import { RecordData } from '@ember-data/record-data';
 import Store from '@ember-data/store';
 
 export default class DefaultStore extends Store {

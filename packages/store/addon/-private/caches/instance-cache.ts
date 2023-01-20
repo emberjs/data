@@ -43,7 +43,7 @@ let _peekGraph: peekGraph;
 if (HAS_RECORD_DATA_PACKAGE) {
   let __peekGraph: peekGraph;
   _peekGraph = (wrapper: Store | StoreWrapper): Graph | undefined => {
-    let a = (importSync('@ember-data/record-data/-private') as { peekGraph: peekGraph }).peekGraph;
+    let a = (importSync('@ember-data/record-data') as { peekGraph: peekGraph }).peekGraph;
     __peekGraph = __peekGraph || a;
     return __peekGraph(wrapper);
   };
@@ -210,7 +210,7 @@ export class InstanceCache {
       TODO @runspired consider adding this to make polymorphism even nicer
       if (HAS_RECORD_DATA_PACKAGE) {
         if (identifier.type !== matchedIdentifier.type) {
-          const graphFor = importSync('@ember-data/record-data/-private').graphFor;
+          const graphFor = importSync('@ember-data/record-data').graphFor;
           graphFor(this).registerPolymorphicType(identifier.type, matchedIdentifier.type);
         }
       }

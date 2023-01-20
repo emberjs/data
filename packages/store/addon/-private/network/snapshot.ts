@@ -320,7 +320,7 @@ export default class Snapshot implements Snapshot {
     }
 
     const graphFor = (
-      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
     ).graphFor;
     const { identifier } = this;
     const relationship = graphFor(this._store).get(identifier, keyName) as BelongsToRelationship;
@@ -423,7 +423,7 @@ export default class Snapshot implements Snapshot {
     }
 
     const graphFor = (
-      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
     ).graphFor;
     const { identifier } = this;
     const relationship = graphFor(this._store).get(identifier, keyName) as ManyRelationship;

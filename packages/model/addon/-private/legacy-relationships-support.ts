@@ -108,7 +108,7 @@ export class LegacySupport {
     }
 
     const graphFor = (
-      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
     ).graphFor;
     const relationship = graphFor(this.store).get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
@@ -131,7 +131,7 @@ export class LegacySupport {
 
     const store = this.store;
     const graphFor = (
-      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
     ).graphFor;
     const relationship = graphFor(store).get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
@@ -215,7 +215,7 @@ export class LegacySupport {
       let manyArray: RelatedCollection | undefined = this._manyArrayCache[key];
       if (!definition) {
         const graphFor = (
-          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+          importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
         ).graphFor;
         definition = graphFor(this.store).get(this.identifier, key).definition;
       }
@@ -284,7 +284,7 @@ export class LegacySupport {
         return loadingPromise;
       }
       const graphFor = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+        importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
       ).graphFor;
       const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
@@ -306,7 +306,7 @@ export class LegacySupport {
   getHasMany(key: string, options?: FindOptions): PromiseManyArray | RelatedCollection {
     if (HAS_RECORD_DATA_PACKAGE) {
       const graphFor = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+        importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
       ).graphFor;
       const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
@@ -384,7 +384,7 @@ export class LegacySupport {
         assert(`snapshot.belongsTo only supported for @ember-data/record-data`);
       }
       const graphFor = (
-        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+        importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
       ).graphFor;
       const graph = graphFor(this.store);
       const relationship = graph.get(this.identifier, name);

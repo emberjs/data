@@ -12,6 +12,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       'ember',
       '@ember/application/namespace',
       '@ember-data/record-data/-private',
+      '@ember-data/record-data',
       'ember-data/version',
       '@ember-data/store/-private',
       '@ember-data/store',

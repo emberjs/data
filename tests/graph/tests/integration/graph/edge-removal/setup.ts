@@ -1,6 +1,6 @@
 import { setupTest } from 'ember-qunit';
 
-import { graphFor } from '@ember-data/record-data/-private';
+import { graphFor } from '@ember-data/record-data';
 import type { ImplicitRelationship } from '@ember-data/record-data/-private/graph';
 import type BelongsToRelationship from '@ember-data/record-data/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/record-data/-private/relationships/state/has-many';

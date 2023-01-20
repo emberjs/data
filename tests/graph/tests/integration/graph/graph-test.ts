@@ -2,7 +2,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { graphFor } from '@ember-data/record-data/-private';
+import { graphFor } from '@ember-data/record-data';
 import Store from '@ember-data/store';
 
 module('Integration | Graph | Configuration', function (hooks) {

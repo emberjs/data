@@ -219,7 +219,7 @@ export default class FetchManager {
           let isReleasable = true;
           if (!recordData && HAS_RECORD_DATA_PACKAGE) {
             const graphFor = (
-              importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+              importSync('@ember-data/record-data') as typeof import('@ember-data/record-data')
             ).graphFor;
             const graph = graphFor(store);
             isReleasable = graph.isReleasable(identifier);
