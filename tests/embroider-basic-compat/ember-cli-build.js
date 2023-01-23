@@ -50,7 +50,7 @@ module.exports = function (defaults) {
         package: '@ember-data/store',
         addonModules: {
           '-private.js': {
-            dependsOnModules: ['@ember-data/json-api/-private'],
+            dependsOnModules: ['@ember-data/json-api'],
           },
         },
       },

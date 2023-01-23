@@ -10,7 +10,7 @@ import { DEBUG } from '@glimmer/env';
 import { importSync } from '@embroider/macros';
 import { reject, resolve } from 'rsvp';
 
-import type { Cache as CacheClass } from '@ember-data/json-api/-private';
+import type { Cache as CacheClass } from '@ember-data/json-api';
 import type DSModelClass from '@ember-data/model';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
@@ -2416,7 +2416,7 @@ class Store {
       // it can be reproduced in partner tests by running
       // node ./scripts/packages-for-commit.js && pnpm test-external:ember-observer
       if (_Cache === undefined) {
-        _Cache = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private')).Cache;
+        _Cache = (importSync('@ember-data/json-api') as typeof import('@ember-data/json-api')).Cache;
       }
 
       if (DEPRECATE_V1CACHE_STORE_APIS) {
