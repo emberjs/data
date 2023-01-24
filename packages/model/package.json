@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "4.10.0-alpha.17",
+  "version": "4.10.0-alpha.18",
   "description": "A presentation layer for apps built with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -29,10 +29,10 @@
     "addon"
   ],
   "peerDependencies": {
-    "@ember-data/json-api": "workspace:4.10.0-alpha.17",
-    "@ember-data/graph": "workspace:4.10.0-alpha.17",
-    "@ember-data/store": "workspace:4.10.0-alpha.17",
-    "@ember-data/tracking": "workspace:4.10.0-alpha.17",
+    "@ember-data/json-api": "workspace:4.10.0-alpha.18",
+    "@ember-data/graph": "workspace:4.10.0-alpha.18",
+    "@ember-data/store": "workspace:4.10.0-alpha.18",
+    "@ember-data/tracking": "workspace:4.10.0-alpha.18",
     "@ember/string": "^3.0.0",
     "ember-inflector": "^4.0.2"
   },
@@ -53,8 +53,8 @@
     }
   },
   "dependencies": {
-    "@ember-data/canary-features": "workspace:4.10.0-alpha.17",
-    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.17",
+    "@ember-data/canary-features": "workspace:4.10.0-alpha.18",
+    "@ember-data/private-build-infra": "workspace:4.10.0-alpha.18",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
     "ember-cached-decorator-polyfill": "^1.0.1",
