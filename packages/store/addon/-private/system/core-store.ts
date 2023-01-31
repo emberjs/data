@@ -2488,7 +2488,7 @@ abstract class CoreStore extends Service {
     @public
     @param {String} modelName
   */
-  unloadAll(modelName?: string) {
+  unloadAll(modelName?: string, isDestroying?: boolean) {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'unloadAll');
     }

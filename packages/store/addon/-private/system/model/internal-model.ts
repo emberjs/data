@@ -373,7 +373,7 @@ export default class InternalModel {
     return this._record;
   }
 
-  dematerializeRecord() {
+  dematerializeRecord(isDestroyingStore?: boolean) {
     this._isDematerializing = true;
 
     // TODO IGOR add a test that fails when this is missing, something that involves canceling a destroy
@@ -391,7 +391,11 @@ export default class InternalModel {
         this._record.destroy();
       }
     }
-
+    // if we're destroying the store, we don't care about inFlight records, so just change state first
+    if (isDestroyingStore) {
+      this._previousState = this.currentState;
+      this.currentState = RootState.empty;
+    }
     // move to an empty never-loaded state
     // ensure any record notifications happen prior to us
     // unseting the record but after we've triggered
@@ -506,12 +510,17 @@ export default class InternalModel {
     This means that this internal model will be freed up for garbage collection
     once all models that refer to it via some relationship are also unloaded.
   */
-  unloadRecord() {
+  unloadRecord(destroyingStore?: boolean) {
     if (this.isDestroyed) {
       return;
     }
-    this.send('unloadRecord');
-    this.dematerializeRecord();
+    if (destroyingStore) {
+      this.dematerializeRecord(destroyingStore);
+      this.send('unloadRecord');
+    } else {
+      this.send('unloadRecord');
+      this.dematerializeRecord();
+    }
     if (this._scheduledDestroy === null) {
       this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
     }

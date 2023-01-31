@@ -113,7 +113,7 @@ export default class InternalModelMap {
 
     for (let i = 0; i < internalModels.length; i++) {
       let internalModel = internalModels[i];
-      internalModel.unloadRecord();
+      internalModel.unloadRecord(true);
     }
   }
 }
