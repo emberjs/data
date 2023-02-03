@@ -329,6 +329,9 @@ const InheritedProxyMethods = [
 ];
 InheritedProxyMethods.forEach((method) => {
   PromiseManyArray.prototype[method] = function proxiedMethod(...args) {
+    if (this.isDestroyed) {
+      return [];
+    }
     assert(`Cannot call ${method} before content is assigned.`, this.content);
     return this.content[method](...args);
   };
