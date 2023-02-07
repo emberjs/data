@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/canary-features",
-  "version": "4.10.0-alpha.21",
+  "version": "4.10.0-alpha.22",
   "description": "Canary features",
   "keywords": [
     "ember-addon"
