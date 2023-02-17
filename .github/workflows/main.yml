@@ -169,7 +169,7 @@ jobs:
     needs: [lint, basic-tests]
     strategy:
       matrix:
-        scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
+        scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery, embroider-safe, embroider-optimized]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

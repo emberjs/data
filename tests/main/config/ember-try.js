@@ -2,6 +2,7 @@
 'use strict';
 
 const getChannelURL = require('ember-source-channel-url');
+const { embroiderSafe, embroiderOptimized } = require('@embroider/test-setup');
 
 module.exports = function () {
   return Promise.all([getChannelURL('release'), getChannelURL('beta'), getChannelURL('canary')]).then((urls) => {
@@ -91,6 +92,8 @@ module.exports = function () {
             },
           },
         },
+        embroiderSafe(),
+        embroiderOptimized(),
       ],
     };
   });

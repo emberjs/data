@@ -1540,6 +1540,7 @@ importers:
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
       '@embroider/macros': ^1.10.0
+      '@embroider/test-setup': ^2.1.0
       '@glimmer/component': ^1.1.2
       '@glimmer/env': ^0.1.7
       '@glimmer/tracking': ^1.1.2
@@ -1604,6 +1605,7 @@ importers:
       '@ember/string': 3.0.1
       '@ember/test-helpers': 2.9.3_tdbzy47nbsiytitk6ukbodh4zu
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
+      '@embroider/test-setup': 2.1.1
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/env': 0.1.7
       '@glimmer/tracking': 1.1.2
@@ -3597,6 +3599,14 @@ packages:
       resolve-package-path: 4.0.3
       semver: 7.3.8
       typescript-memoize: 1.1.1
+
+  /@embroider/test-setup/2.1.1:
+    resolution: {integrity: sha512-t81a2z2OEFAOZVbV7wkgiDuCyZ3ajD7J7J+keaTfNSRiXoQgeFFASEECYq1TCsH8m/R+xHMRiY59apF2FIeFhw==}
+    engines: {node: 12.* || 14.* || >= 16}
+    dependencies:
+      lodash: 4.17.21
+      resolve: 1.22.1
+    dev: true
 
   /@embroider/util/1.10.0_ember-source@4.11.0:
     resolution: {integrity: sha512-utAFKoq6ajI27jyqjvX3PiGL4m+ZyGVlVNbSbE/nOqi2llRyAkh5ltH1WkIK7jhdwQFJouo1NpOSj9J3/HDa3A==}
