@@ -81,5 +81,42 @@ module.exports = function (defaults) {
     },
   });
 
-  return app.toTree();
+  /*
+    This build file specifies the options for the dummy test app of this
+    addon, located in `/tests/dummy`
+    This build file does *not* influence how the addon or the app using it
+    behave. You most likely want to be modifying `./index.js` or app's build file
+  */
+
+  const { maybeEmbroider } = require('@embroider/test-setup');
+  return maybeEmbroider(app, {
+    skipBabel: [
+      {
+        package: 'qunit',
+      },
+    ],
+    compatAdapters: new Map([
+      ['@ember-data/store', null],
+      ['@ember-data/record-data', null],
+      ['@ember-data/serializer', null],
+      ['@ember-data/adapter', null],
+      ['@ember-data/model', null],
+      ['@ember-data/debug', null],
+      ['@ember-data/tracking', null],
+      ['@ember-data/request', null],
+      ['@ember-data/private-build-infra', null],
+      ['@ember-data/canary-features', null],
+      ['ember-data', null],
+    ]),
+    packageRules: [
+      {
+        package: '@ember-data/store',
+        addonModules: {
+          '-private.js': {
+            dependsOnModules: ['@ember-data/json-api/-private'],
+          },
+        },
+      },
+    ],
+  });
 };
