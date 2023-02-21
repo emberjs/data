@@ -32,7 +32,6 @@ export default {
     '@ember/array/proxy',
     '@ember/string',
     '@ember/object',
-    '@ember/error',
     '@ember/object/mixin',
     '@ember/application',
     '@glimmer/env',
