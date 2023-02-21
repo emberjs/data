@@ -1,6 +1,6 @@
 {
   "name": "json-api-encapsulation-test-app",
-  "version": "4.10.0-alpha.25",
+  "version": "4.10.0-alpha.26",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": {
@@ -47,13 +47,13 @@
   "devDependencies": {
     "@babel/core": "^7.20.7",
     "@babel/runtime": "^7.20.7",
-    "@ember-data/adapter": "workspace:4.10.0-alpha.25",
-    "@ember-data/debug": "workspace:4.10.0-alpha.25",
-    "@ember-data/model": "workspace:4.10.0-alpha.25",
-    "@ember-data/serializer": "workspace:4.10.0-alpha.25",
-    "@ember-data/store": "workspace:4.10.0-alpha.25",
-    "@ember-data/tracking": "workspace:4.10.0-alpha.25",
-    "@ember-data/unpublished-test-infra": "workspace:4.10.0-alpha.25",
+    "@ember-data/adapter": "workspace:4.10.0-alpha.26",
+    "@ember-data/debug": "workspace:4.10.0-alpha.26",
+    "@ember-data/model": "workspace:4.10.0-alpha.26",
+    "@ember-data/serializer": "workspace:4.10.0-alpha.26",
+    "@ember-data/store": "workspace:4.10.0-alpha.26",
+    "@ember-data/tracking": "workspace:4.10.0-alpha.26",
+    "@ember-data/unpublished-test-infra": "workspace:4.10.0-alpha.26",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.0",
     "@ember/test-helpers": "~2.8.1",
