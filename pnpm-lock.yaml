@@ -316,7 +316,7 @@ importers:
       ember-cli-test-info: ^1.0.0
       ember-source: ~4.9.3
       rollup: ^3.17.2
-      tslib: ^2.4.1
+      tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
     dependencies:
@@ -341,7 +341,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       ember-source: 4.9.3_xqzulijf55dnoz7upcct63icoq
       rollup: 3.17.2
-      tslib: 2.4.1
+      tslib: 2.5.0
       typescript: 4.9.5
       walk-sync: 3.0.0
     dependenciesMeta:
@@ -401,7 +401,7 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-source: ~4.9.3
       rollup: ^3.17.2
-      tslib: ^2.4.1
+      tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
     dependencies:
@@ -427,7 +427,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       ember-source: 4.9.3_xqzulijf55dnoz7upcct63icoq
       rollup: 3.17.2
-      tslib: 2.4.1
+      tslib: 2.5.0
       typescript: 4.9.5
       walk-sync: 3.0.0
     dependenciesMeta:
@@ -459,7 +459,7 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-source: ~4.9.3
       rollup: ^3.17.2
-      tslib: ^2.4.1
+      tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
     dependencies:
@@ -485,7 +485,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       ember-source: 4.9.3_xqzulijf55dnoz7upcct63icoq
       rollup: 3.17.2
-      tslib: 2.4.1
+      tslib: 2.5.0
       typescript: 4.9.5
       walk-sync: 3.0.0
     dependenciesMeta:
@@ -523,7 +523,7 @@ importers:
       ember-source: ~4.9.3
       inflection: ~2.0.0
       rollup: ^3.17.2
-      tslib: ^2.4.1
+      tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
     dependencies:
@@ -553,7 +553,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       ember-source: 4.9.3_xqzulijf55dnoz7upcct63icoq
       rollup: 3.17.2
-      tslib: 2.4.1
+      tslib: 2.5.0
       typescript: 4.9.5
       walk-sync: 3.0.0
     dependenciesMeta:
@@ -642,7 +642,7 @@ importers:
       '@rollup/plugin-node-resolve': ^15.0.1
       ember-cli-babel: ^7.26.11
       rollup: ^3.17.2
-      tslib: ^2.4.1
+      tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
     dependencies:
@@ -662,7 +662,7 @@ importers:
       '@rollup/plugin-babel': 6.0.3_i2c64rvhtfddz7wu43ensrifce
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       rollup: 3.17.2
-      tslib: 2.4.1
+      tslib: 2.5.0
       typescript: 4.9.5
       walk-sync: 3.0.0
 
@@ -688,7 +688,7 @@ importers:
       ember-cli-test-info: ^1.0.0
       ember-source: ~4.9.3
       rollup: ^3.17.2
-      tslib: ^2.4.1
+      tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
     dependencies:
@@ -713,7 +713,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       ember-source: 4.9.3_xqzulijf55dnoz7upcct63icoq
       rollup: 3.17.2
-      tslib: 2.4.1
+      tslib: 2.5.0
       typescript: 4.9.5
       walk-sync: 3.0.0
     dependenciesMeta:
@@ -744,7 +744,7 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-source: ~4.9.3
       rollup: ^3.17.2
-      tslib: ^2.4.1
+      tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
     dependencies:
@@ -769,7 +769,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       ember-source: 4.9.3_xqzulijf55dnoz7upcct63icoq
       rollup: 3.17.2
-      tslib: 2.4.1
+      tslib: 2.5.0
       typescript: 4.9.5
       walk-sync: 3.0.0
     dependenciesMeta:
@@ -794,7 +794,7 @@ importers:
       '@rollup/plugin-node-resolve': ^15.0.1
       ember-cli-babel: ^7.26.11
       rollup: ^3.17.2
-      tslib: ^2.4.1
+      tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
     dependencies:
@@ -813,7 +813,7 @@ importers:
       '@rollup/plugin-babel': 6.0.3_i2c64rvhtfddz7wu43ensrifce
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       rollup: 3.17.2
-      tslib: 2.4.1
+      tslib: 2.5.0
       typescript: 4.9.5
       walk-sync: 3.0.0
 
@@ -7934,7 +7934,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /dot-prop/5.3.0:
@@ -12043,7 +12043,7 @@ packages:
   /lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /lowercase-keys/1.0.1:
@@ -12612,7 +12612,7 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /nock/13.2.9:
@@ -13896,7 +13896,7 @@ packages:
   /rxjs/7.6.0:
     resolution: {integrity: sha512-DDa7d8TFNUalGC9VqXvQ1euWNN7sc63TrUCuM9J998+ViviahMIjKSOU7rfcgFOF+FCD71BhDRv4hrFz+ImDLQ==}
     dependencies:
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /safe-buffer/5.1.2:
@@ -14141,7 +14141,7 @@ packages:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /snapdragon-node/2.1.1:
@@ -15046,8 +15046,8 @@ packages:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: true
 
-  /tslib/2.4.1:
-    resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
+  /tslib/2.5.0:
+    resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
     dev: true
 
   /tsutils/3.21.0_typescript@4.9.5:
