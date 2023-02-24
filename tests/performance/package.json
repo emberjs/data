@@ -28,8 +28,8 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.20.7",
-    "@babel/runtime": "^7.20.7",
+    "@babel/core": "^7.21.0",
+    "@babel/runtime": "^7.21.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.8.1",
     "@glimmer/component": "^1.1.2",
@@ -39,7 +39,7 @@
     "ember-cli-app-version": "^5.0.0",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-dependency-checker": "^3.3.1",
-    "ember-cli-htmlbars": "^6.1.1",
+    "ember-cli-htmlbars": "^6.2.0",
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
