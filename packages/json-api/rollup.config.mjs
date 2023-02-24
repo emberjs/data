@@ -23,7 +23,6 @@ export default {
     '@ember/debug',
     '@ember/string',
     '@ember/object',
-    '@ember/error',
     '@ember/object/mixin',
     '@ember/application',
     '@glimmer/env',
