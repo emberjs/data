@@ -1,12 +1,23 @@
 {
   "compilerOptions": {
-    "target": "es2022",
+    "target": "ES2022",
+    "module": "ES2020",
+    "moduleResolution": "node",
+
+    // Enable faster builds
+    "incremental": true,
+
     "allowJs": false,
     "checkJs": false,
-    "moduleResolution": "node",
+
     "alwaysStrict": true,
     "strict": true,
     "allowSyntheticDefaultImports": true,
+
+    // TypeScript also supplies some lint-style checks; nearly all of them are
+    // better handled by ESLint with the `@typescript-eslint`. This one is more
+    // like a safety check, though, so we leave it on.
+    "noPropertyAccessFromIndexSignature": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictBindCallApply": true,
@@ -22,10 +33,15 @@
     "pretty": true,
     "noEmit": true,
     "skipLibCheck": true,
+
+    // Support generation of source maps. Note: you must *also* enable source
+    // maps in your `ember-cli-babel` config and/or `babel.config.js`.
+    "declaration": true,
+    "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
+
     "baseUrl": ".",
-    "module": "esnext",
     "paths": {
       "ember-data": ["packages/-ember-data/addon"],
       "ember-data/*": ["packages/-ember-data/addon/*"],

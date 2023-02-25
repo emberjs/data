@@ -1,5 +1,5 @@
 {
-    "extends": "./root-tsconfig.json",
+    "extends": "./tsconfig.root.json",
     "compilerOptions": {
       "noImplicitAny": false
     },

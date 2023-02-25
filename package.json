@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
-    "lint:js": "eslint --cache --ext=js,ts .",
+    "lint:js": "eslint --quiet --cache --cache-strategy=content --ext=js,ts .",
     "preinstall": "npx only-allow pnpm",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "test": "pnpm --filter main-test-app --filter graph-test-app --filter request-test-app run test",
