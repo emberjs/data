@@ -45,7 +45,7 @@
       "@ember-data/model/*": ["packages/model/src/*"],
       "@ember-data/graph": ["packages/graph/src"],
       "@ember-data/graph/*": ["packages/graph/src/*"],
-      "@ember-data/adapter": ["packages/adapter/addon"],
+      "@ember-data/adapter": ["packages/adapter/src"],
       "@ember-data/adapter/*": ["packages/adapter/src/*"],
       "@ember-data/adapter/error": ["packages/adapter/src/error"],
       "@ember-data/serializer": ["packages/serializer/src"],
