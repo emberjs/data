@@ -19,7 +19,7 @@ importers:
       '@babel/runtime': ^7.21.0
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/env': ^0.1.7
       '@types/ember': ^4.0.3
@@ -41,7 +41,6 @@ importers:
       '@types/ember__string': ^3.0.10
       '@types/ember__template': ^4.0.1
       '@types/ember__test': ^4.0.1
-      '@types/ember__test-helpers': ^2.8.2
       '@types/ember__utils': ^4.0.2
       '@types/htmlbars-inline-precompile': ^3.0.0
       '@types/qunit': ^2.19.4
@@ -126,7 +125,7 @@ importers:
       '@babel/runtime': 7.21.0
       '@ember/edition-utils': 1.2.0
       '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/env': 0.1.7
       '@types/ember': 4.0.3_@babel+core@7.21.0
@@ -148,7 +147,6 @@ importers:
       '@types/ember__string': 3.0.10
       '@types/ember__template': 4.0.1
       '@types/ember__test': 4.0.1_@babel+core@7.21.0
-      '@types/ember__test-helpers': 2.9.1_u5ljfdudqv6c6sfgup4ke2kf6a
       '@types/ember__utils': 4.0.2_@babel+core@7.21.0
       '@types/htmlbars-inline-precompile': 3.0.0
       '@types/qunit': 2.19.4
@@ -825,7 +823,7 @@ importers:
       '@ember-data/private-build-infra': workspace:4.10.0-alpha.26
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
@@ -873,7 +871,7 @@ importers:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
       '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       '@types/semver': 7.3.13
@@ -908,7 +906,7 @@ importers:
       '@ember-data/unpublished-test-infra': workspace:4.10.0-alpha.26
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
@@ -943,7 +941,7 @@ importers:
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/string': 3.0.1
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
@@ -1028,7 +1026,7 @@ importers:
       '@ember-data/unpublished-test-infra': workspace:4.10.0-alpha.26
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
@@ -1061,7 +1059,7 @@ importers:
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/string': 3.0.1
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
@@ -1110,7 +1108,7 @@ importers:
       '@ember-data/unpublished-test-infra': workspace:4.10.0-alpha.26
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@embroider/compat': ^1.9.0
       '@embroider/core': ^1.9.0
       '@embroider/webpack': ^1.9.0
@@ -1156,7 +1154,7 @@ importers:
       '@babel/runtime': 7.21.0
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@embroider/compat': 1.9.0_@embroider+core@1.9.0
       '@embroider/core': 1.9.0
       '@embroider/webpack': 1.9.0_7vpsovwo6agsyjst3za4w5nvma
@@ -1202,7 +1200,7 @@ importers:
       '@ember-data/unpublished-test-infra': workspace:4.10.0-alpha.26
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       '@types/ember': ^4.0.3
@@ -1245,7 +1243,7 @@ importers:
       '@babel/runtime': 7.21.0
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       '@types/ember': 4.0.3_@babel+core@7.21.0
@@ -1353,7 +1351,7 @@ importers:
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
@@ -1397,7 +1395,7 @@ importers:
       '@ember/edition-utils': 1.2.0
       '@ember/optional-features': 2.0.0
       '@ember/string': 3.0.1
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
@@ -1458,7 +1456,7 @@ importers:
       '@ember-data/unpublished-test-infra': workspace:4.10.0-alpha.26
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
@@ -1492,7 +1490,7 @@ importers:
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/string': 3.0.1
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
@@ -1547,7 +1545,7 @@ importers:
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
       '@glimmer/env': ^0.1.7
@@ -1612,7 +1610,7 @@ importers:
       '@ember/edition-utils': 1.2.0
       '@ember/optional-features': 2.0.0
       '@ember/string': 3.0.1
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/env': 0.1.7
@@ -1696,7 +1694,7 @@ importers:
       '@ember-data/unpublished-test-infra': workspace:4.10.0-alpha.26
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
@@ -1730,7 +1728,7 @@ importers:
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/string': 3.0.1
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
@@ -1774,7 +1772,7 @@ importers:
       '@babel/runtime': ^7.21.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
@@ -1801,7 +1799,7 @@ importers:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
       '@ember/optional-features': 2.0.0
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
@@ -1833,7 +1831,7 @@ importers:
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
@@ -1873,7 +1871,7 @@ importers:
       '@ember/edition-utils': 1.2.0
       '@ember/optional-features': 2.0.0
       '@ember/string': 3.0.1
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
@@ -1926,7 +1924,7 @@ importers:
       '@ember-data/unpublished-test-infra': workspace:4.10.0-alpha.26
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
-      '@ember/test-helpers': ~2.8.1
+      '@ember/test-helpers': ^2.9.3
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
@@ -1960,7 +1958,7 @@ importers:
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/string': 3.0.1
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
@@ -3307,8 +3305,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@ember/test-helpers/2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a:
-    resolution: {integrity: sha512-jbsYwWyAdhL/pdPu7Gb3SG1gvIXY70FWMtC/Us0Kmvk82Y+5YUQ1SOC0io75qmOGYQmH7eQrd/bquEVd+4XtdQ==}
+  /@ember/test-helpers/2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a:
+    resolution: {integrity: sha512-ejVg4Dj+G/6zyLvQsYOvmGiOLU6AS94tY4ClaO1E2oVvjjtVJIRmVLFN61I+DuyBg9hS3cFoPjQRTZB9MRIbxQ==}
     engines: {node: 10.* || 12.* || 14.* || 15.* || >= 16.*}
     peerDependencies:
       ember-source: '>=3.8.0'
@@ -3319,7 +3317,7 @@ packages:
       broccoli-debug: 0.6.5
       broccoli-funnel: 3.0.8
       ember-cli-babel: 7.26.11
-      ember-cli-htmlbars: 5.7.2
+      ember-cli-htmlbars: 6.2.0
       ember-destroyable-polyfill: 2.0.3_@babel+core@7.21.0
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
     transitivePeerDependencies:
@@ -4299,7 +4297,7 @@ packages:
     resolution: {integrity: sha512-KZ6jYr0ZiQHlklLcfyuy1j+FkvygEayf5mZ9FcaSOahw9ghK3K5TYSRDCuIBELRw//OB/WP9J7v9NduFRNfRgg==}
     deprecated: This is a stub types definition. @ember/test-helpers provides its own type definitions, so you do not need this installed.
     dependencies:
-      '@ember/test-helpers': 2.8.1_u5ljfdudqv6c6sfgup4ke2kf6a
+      '@ember/test-helpers': 2.9.3_u5ljfdudqv6c6sfgup4ke2kf6a
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
