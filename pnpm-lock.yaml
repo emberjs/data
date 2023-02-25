@@ -81,7 +81,7 @@ importers:
       ember-export-application-global: ^2.0.1
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       ember-source-channel-url: ^3.0.0
@@ -105,13 +105,13 @@ importers:
       lerna-changelog: ^2.2.0
       loader.js: ^4.7.0
       prettier: ^2.8.4
-      qunit: ^2.19.3
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       rimraf: ^4.1.2
       rsvp: ^4.8.5
       semver: ^7.3.8
       silent-error: ^1.1.1
-      testem: ^3.10.0
+      testem: ^3.10.1
       typescript: ~4.9.5
       url: ^0.11.0
       webpack: ^5.75.0
@@ -842,15 +842,15 @@ importers:
       ember-get-config: ^2.1.1
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
-      qunit: ^2.19.3
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       rsvp: ^4.8.5
       semver: ^7.3.8
-      testem: ^3.10.0
+      testem: ^3.10.1
       webpack: ^5.75.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -921,11 +921,11 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       webpack: ^5.75.0
     devDependencies:
@@ -990,7 +990,7 @@ importers:
       '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.0
       ember-cli: ~4.10.0
       ember-cli-blueprint-test-helpers: ^0.19.2
-      mocha: ^10.1.0
+      mocha: ^10.2.0
       silent-error: ^1.1.1
     devDependencies:
       '@ember-data/adapter': file:packages/adapter
@@ -1041,11 +1041,11 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       webpack: ^5.75.0
     devDependencies:
@@ -1097,7 +1097,7 @@ importers:
 
   tests/docs:
     specifiers:
-      qunit: ^2.19.3
+      qunit: ^2.19.4
     devDependencies:
       qunit: 2.19.4
 
@@ -1117,7 +1117,7 @@ importers:
       '@types/ember': ^4.0.3
       '@types/ember-qunit': ^5.0.2
       '@types/ember-testing-helpers': ^0.0.4
-      '@types/ember__test-helpers': ^2.8.1
+      '@types/ember__test-helpers': ^2.8.3
       '@types/rsvp': ^4.0.4
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
@@ -1135,12 +1135,12 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-simple-tree: ^0.8.3
       ember-source: ~4.9.3
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
       webpack: ^5.75.0
@@ -1206,7 +1206,7 @@ importers:
       '@types/ember': ^4.0.3
       '@types/ember-qunit': ^5.0.2
       '@types/ember-testing-helpers': ^0.0.4
-      '@types/ember__test-helpers': ^2.8.1
+      '@types/ember__test-helpers': ^2.8.3
       '@types/rsvp': ^4.0.4
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
@@ -1224,12 +1224,12 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-simple-tree: ^0.8.3
       ember-source: ~4.9.3
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
       webpack: ^5.75.0
@@ -1370,13 +1370,13 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       ember-source-channel-url: ^3.0.0
       ember-try: ^2.0.0
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-console-grouper: ^0.3.0
       qunit-dom: ^2.0.0
       silent-error: ^1.1.1
@@ -1471,11 +1471,11 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       webpack: ^5.75.0
     devDependencies:
@@ -1555,7 +1555,7 @@ importers:
       '@types/ember-testing-helpers': ^0.0.4
       '@types/ember__debug': ^4.0.3
       '@types/ember__object': ^4.0.5
-      '@types/ember__test-helpers': ^2.8.1
+      '@types/ember__test-helpers': ^2.8.3
       '@types/ember__utils': ^4.0.2
       '@types/qunit': ^2.19.4
       '@types/rsvp': ^4.0.4
@@ -1583,14 +1583,14 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       ember-source-channel-url: ^3.0.0
       ember-try: ^2.0.0
       loader.js: ^4.7.0
       pretender: ^3.4.7
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
       webpack: ^5.75.0
@@ -1709,11 +1709,11 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       webpack: ^5.75.0
     devDependencies:
@@ -1850,13 +1850,13 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       ember-source-channel-url: ^3.0.0
       ember-try: ^2.0.0
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-console-grouper: ^0.3.0
       qunit-dom: ^2.0.0
       silent-error: ^1.1.1
@@ -1939,11 +1939,11 @@ importers:
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-qunit: ^6.0.0
+      ember-qunit: ^6.1.1
       ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
-      qunit: ^2.19.2
+      qunit: ^2.19.4
       qunit-dom: ^2.0.0
       webpack: ^5.75.0
     devDependencies:
