@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## 4.10.0 (2023-02-25)
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `debug`, `model`, `serializer`, `store`
+  * [#8422](https://github.com/emberjs/data/pull/8422) fix @ember/error and @ember/string deprecations ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## 4.9.1 (2022-12-03)
 
 #### :bug: Bug Fix
