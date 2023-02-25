@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/debug",
-  "version": "4.10.0-beta.4",
+  "version": "4.12.0-beta.0",
   "description": "Provides developer ergonomics and dev-mode enhancements for apps built with ember-data",
   "keywords": [
     "ember-addon"
@@ -23,7 +23,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:4.10.0-beta.4",
+    "@ember-data/private-build-infra": "workspace:4.12.0-beta.0",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
     "ember-auto-import": "^2.6.0",
