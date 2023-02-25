@@ -19,7 +19,6 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Run Tests
         run: pnpm test:fastboot
   embroider:
@@ -31,7 +30,6 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Run Tests
         run: pnpm test:embroider
   floating-dependencies:
@@ -42,8 +40,6 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Install dependencies w/o lockfile
         run: pnpm install --no-lockfile
-      - name: Build V2 Addons
-        run: pnpm install
       - name: Basic Tests
         run: pnpm test
   node-version-test:
@@ -60,6 +56,5 @@ jobs:
           node-version: ${{ matrix.node-version }}
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Basic Tests
         run: pnpm test

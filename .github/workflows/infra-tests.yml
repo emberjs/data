@@ -23,7 +23,6 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           restore-broccoli-cache: true
-          build-addons: true
           install: true
       - name: pnpm test infra compatWith 3.0
         env:
