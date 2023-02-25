@@ -44,7 +44,7 @@
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-resolver": "^9.0.1",
+    "ember-resolver": "^10.0.0",
     "ember-source": "~4.9.3",
     "loader.js": "^4.7.0",
     "webpack": "^5.75.0",
