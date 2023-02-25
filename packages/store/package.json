@@ -17,7 +17,7 @@
     "@ember-data/model": "workspace:4.9.1",
     "@ember-data/record-data": "workspace:4.9.1",
     "@ember-data/tracking": "workspace:4.9.1",
-    "@ember/string": "^3.0.0",
+    "@ember/string": "^3.0.1",
     "@glimmer/tracking": "^1.1.2"
   },
   "peerDependenciesMeta": {

@@ -1,5 +1,3 @@
-import EmberError from '@ember/error';
-
 import { module, test } from 'qunit';
 
 import AdapterError, {
@@ -22,7 +20,6 @@ module('unit/adapter-errors - AdapterError', function () {
     let error = new AdapterError();
 
     assert.ok(error instanceof Error);
-    assert.ok(error instanceof EmberError);
     assert.ok(error.isAdapterError);
     assert.strictEqual(error.message, 'Adapter operation failed');
   });
