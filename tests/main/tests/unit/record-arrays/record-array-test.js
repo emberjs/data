@@ -141,6 +141,45 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     }
   );
 
+  deprecatedTest('#reject', { id: 'ember-data:deprecate-array-like', until: '5.0', count: 3 }, async function (assert) {
+    this.owner.register('model:tag', Tag);
+    let store = this.owner.lookup('service:store');
+
+    let records = store.push({
+      data: [
+        {
+          type: 'tag',
+          id: '1',
+          attributes: {
+            name: 'first',
+          },
+        },
+        {
+          type: 'tag',
+          id: '3',
+        },
+        {
+          type: 'tag',
+          id: '5',
+          attributes: {
+            name: 'fifth',
+          },
+        },
+      ],
+    });
+
+    let recordArray = new RecordArray({
+      type: 'recordType',
+      identifiers: records.map(recordIdentifierFor),
+      store,
+    });
+
+    assert.strictEqual(recordArray.length, 3);
+    assert.strictEqual(recordArray.reject(({ id }) => id === '3').length, 2);
+    assert.strictEqual(recordArray.reject(({ id }) => id).length, 0);
+    assert.strictEqual(recordArray.reject(({ name }) => name).length, 1);
+  });
+
   deprecatedTest(
     '#rejectBy',
     { id: 'ember-data:deprecate-array-like', until: '5.0', count: 3 },
