@@ -11,4 +11,13 @@ module('it works', function (hooks) {
     await visit('/');
     assert.ok('it works!');
   });
+
+  test('we can use the store', async function (assert) {
+    const { owner } = this;
+    const store = owner.lookup('service:store');
+
+    const record = store.createRecord('user', { name: 'Chris' });
+
+    assert.strictEqual(record.name, 'Chris', 'correct name');
+  });
 });

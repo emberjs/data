@@ -20,8 +20,9 @@ module.exports = function (babel) {
               binding.referencePaths.forEach((p) => {
                 p.replaceWith(
                   // t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
-                  t.callExpression(state.importer.import(p, '@embroider/macros', 'moduleExists'), [
+                  t.callExpression(state.importer.import(p, '@embroider/macros', 'dependencySatisfies'), [
                     t.stringLiteral(replacements[name]),
+                    t.stringLiteral('*'),
                   ])
                   // ])
                 );
