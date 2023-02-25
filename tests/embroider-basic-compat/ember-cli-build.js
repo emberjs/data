@@ -44,7 +44,6 @@ module.exports = function (defaults) {
       ['@ember-data/private-build-infra', null],
       ['@ember-data/canary-features', null],
       ['ember-data', null],
-      ['@ember-data/unpublished-test-infra', null],
     ]),
     packageRules: [
       {
