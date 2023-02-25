@@ -1,5 +1,15 @@
 # Ember Data Changelog
 
+## 3.28.13 (2023-02-25)
+
+#### :bug: Bug Fix
+* `model`
+  * [#8413](https://github.com/emberjs/data/pull/8413) Notify on length when notifying that many-array has changed ([@richgt](https://github.com/richgt))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Rich Glazerman ([@richgt](https://github.com/richgt))
+
 ## 3.28.12 (2022-09-12)
 
 #### :bug: Bug Fix
