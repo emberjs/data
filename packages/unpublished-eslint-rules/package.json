@@ -4,7 +4,7 @@
   "version": "3.28.12",
   "private": true,
   "volta": {
-    "node": "14.17.0",
+    "node": "19.7.0",
     "yarn": "1.22.4"
   }
 }
