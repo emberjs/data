@@ -129,7 +129,6 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
       }
     }
 
-
     if (!factory) {
       // we don't cache misses in case someone wants to register a missing model
       return null;
