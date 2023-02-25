@@ -61,7 +61,7 @@ importers:
       debug: ^4.3.4
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
       ember-cli-dependency-checker: ^3.3.1
@@ -167,7 +167,7 @@ importers:
       debug: 4.3.4
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cli: 4.10.0_debug@4.3.4
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
@@ -300,7 +300,7 @@ importers:
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
       '@ember-data/private-build-infra': workspace:4.12.0-alpha.1
-      '@embroider/addon-dev': ^2.0.0
+      '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
       '@rollup/plugin-babel': ^6.0.3
@@ -328,7 +328,7 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.21.0
       '@babel/preset-typescript': 7.21.0_@babel+core@7.21.0
       '@babel/runtime': 7.21.0
-      '@embroider/addon-dev': 2.0.0_uagmotdsn6lrkiqycwjcjcl73y
+      '@embroider/addon-dev': 3.0.0_rollup@3.17.2
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@rollup/plugin-babel': 6.0.3_zckbjdef7bo4amsla2acrs7s4i
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
@@ -386,7 +386,7 @@ importers:
       '@ember-data/canary-features': workspace:4.12.0-alpha.1
       '@ember-data/private-build-infra': workspace:4.12.0-alpha.1
       '@ember/edition-utils': ^1.2.0
-      '@embroider/addon-dev': ^2.0.0
+      '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
       '@rollup/plugin-babel': ^6.0.3
@@ -414,7 +414,7 @@ importers:
       '@babel/preset-typescript': 7.21.0_@babel+core@7.21.0
       '@babel/runtime': 7.21.0
       '@ember-data/canary-features': file:packages/canary-features
-      '@embroider/addon-dev': 2.0.0_uagmotdsn6lrkiqycwjcjcl73y
+      '@embroider/addon-dev': 3.0.0_rollup@3.17.2
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@rollup/plugin-babel': 6.0.3_zckbjdef7bo4amsla2acrs7s4i
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
@@ -444,7 +444,7 @@ importers:
       '@ember-data/canary-features': workspace:4.12.0-alpha.1
       '@ember-data/private-build-infra': workspace:4.12.0-alpha.1
       '@ember/edition-utils': ^1.2.0
-      '@embroider/addon-dev': ^2.0.0
+      '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
       '@rollup/plugin-babel': ^6.0.3
@@ -472,7 +472,7 @@ importers:
       '@babel/preset-typescript': 7.21.0_@babel+core@7.21.0
       '@babel/runtime': 7.21.0
       '@ember-data/canary-features': file:packages/canary-features
-      '@embroider/addon-dev': 2.0.0_uagmotdsn6lrkiqycwjcjcl73y
+      '@embroider/addon-dev': 3.0.0_rollup@3.17.2
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@rollup/plugin-babel': 6.0.3_zckbjdef7bo4amsla2acrs7s4i
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
@@ -504,7 +504,7 @@ importers:
       '@ember-data/canary-features': workspace:4.12.0-alpha.1
       '@ember-data/private-build-infra': workspace:4.12.0-alpha.1
       '@ember/edition-utils': ^1.2.0
-      '@embroider/addon-dev': ^2.0.0
+      '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
       '@rollup/plugin-babel': ^6.0.3
@@ -540,7 +540,7 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.21.0
       '@babel/preset-typescript': 7.21.0_@babel+core@7.21.0
       '@babel/runtime': 7.21.0
-      '@embroider/addon-dev': 2.0.0_uagmotdsn6lrkiqycwjcjcl73y
+      '@embroider/addon-dev': 3.0.0_rollup@3.17.2
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@rollup/plugin-babel': 6.0.3_zckbjdef7bo4amsla2acrs7s4i
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
@@ -672,7 +672,7 @@ importers:
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
       '@ember-data/private-build-infra': workspace:4.12.0-alpha.1
-      '@embroider/addon-dev': ^2.0.0
+      '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
       '@rollup/plugin-babel': ^6.0.3
@@ -700,7 +700,7 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.21.0
       '@babel/preset-typescript': 7.21.0_@babel+core@7.21.0
       '@babel/runtime': 7.21.0
-      '@embroider/addon-dev': 2.0.0_uagmotdsn6lrkiqycwjcjcl73y
+      '@embroider/addon-dev': 3.0.0_rollup@3.17.2
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@rollup/plugin-babel': 6.0.3_zckbjdef7bo4amsla2acrs7s4i
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
@@ -728,7 +728,7 @@ importers:
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
       '@ember-data/private-build-infra': workspace:4.12.0-alpha.1
-      '@embroider/addon-dev': ^2.0.0
+      '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
       '@rollup/plugin-babel': ^6.0.3
@@ -756,7 +756,7 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.21.0
       '@babel/preset-typescript': 7.21.0_@babel+core@7.21.0
       '@babel/runtime': 7.21.0
-      '@embroider/addon-dev': 2.0.0_uagmotdsn6lrkiqycwjcjcl73y
+      '@embroider/addon-dev': 3.0.0_rollup@3.17.2
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@rollup/plugin-babel': 6.0.3_zckbjdef7bo4amsla2acrs7s4i
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
@@ -909,7 +909,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
@@ -944,7 +944,7 @@ importers:
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-htmlbars: 6.2.0
@@ -1029,7 +1029,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
@@ -1062,7 +1062,7 @@ importers:
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-htmlbars: 6.2.0
@@ -1106,9 +1106,9 @@ importers:
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
-      '@embroider/compat': ^1.9.0
-      '@embroider/core': ^1.9.0
-      '@embroider/webpack': ^1.9.0
+      '@embroider/compat': ^2.1.1
+      '@embroider/core': ^2.1.1
+      '@embroider/webpack': ^2.1.1
       '@glimmer/component': ^1.1.2
       '@glimmer/tracking': ^1.1.2
       '@types/ember': ^4.0.3
@@ -1118,7 +1118,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-fastboot: ^3.3.2
@@ -1151,9 +1151,9 @@ importers:
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
       '@ember/test-helpers': 2.9.3_tdbzy47nbsiytitk6ukbodh4zu
-      '@embroider/compat': 1.9.0_@embroider+core@1.9.0
-      '@embroider/core': 1.9.0
-      '@embroider/webpack': 1.9.0_7vpsovwo6agsyjst3za4w5nvma
+      '@embroider/compat': 2.1.1_@embroider+core@2.1.1
+      '@embroider/core': 2.1.1
+      '@embroider/webpack': 2.1.1_eyqzvd6leggmxnqpxutivef5lu
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       '@types/ember': 4.0.3_@babel+core@7.21.0
@@ -1162,7 +1162,7 @@ importers:
       '@types/rsvp': 4.0.4
       broccoli-asset-rev: 3.0.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-fastboot: 3.3.2
@@ -1205,7 +1205,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-fastboot: ^3.3.2
@@ -1246,7 +1246,7 @@ importers:
       '@types/rsvp': 4.0.4
       broccoli-asset-rev: 3.0.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-fastboot: 3.3.2
@@ -1284,7 +1284,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
@@ -1309,7 +1309,7 @@ importers:
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-htmlbars: 6.2.0
@@ -1455,7 +1455,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
@@ -1489,7 +1489,7 @@ importers:
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-htmlbars: 6.2.0
@@ -1560,7 +1560,7 @@ importers:
       ember-auto-import: ^2.6.0
       ember-cached-decorator-polyfill: ^1.0.1
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
@@ -1624,7 +1624,7 @@ importers:
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cached-decorator-polyfill: 1.0.1_tdbzy47nbsiytitk6ukbodh4zu
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-htmlbars: 6.2.0
@@ -1691,7 +1691,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
@@ -1725,7 +1725,7 @@ importers:
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-htmlbars: 6.2.0
@@ -1769,7 +1769,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
@@ -1795,7 +1795,7 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-htmlbars: 6.2.0
@@ -1921,7 +1921,7 @@ importers:
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
       ember-cli: ~4.10.0
-      ember-cli-app-version: ^5.0.0
+      ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
@@ -1955,7 +1955,7 @@ importers:
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cli: 4.10.0
-      ember-cli-app-version: 5.0.0
+      ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
       ember-cli-htmlbars: 6.2.0
@@ -3329,34 +3329,6 @@ packages:
       - supports-color
     dev: true
 
-  /@embroider/addon-dev/2.0.0_uagmotdsn6lrkiqycwjcjcl73y:
-    resolution: {integrity: sha512-XOThXF6/4rQWmKOaD20xFsdPkNzmSCRUsLG2Qb9z/NpNonN9AFjo385OkUgMju2bp1E+U2QQNqCEsZLH9jdG9w==}
-    engines: {node: 12.* || 14.* || >= 16}
-    hasBin: true
-    peerDependencies:
-      ember-source: '*'
-    peerDependenciesMeta:
-      ember-source:
-        optional: true
-    dependencies:
-      '@embroider/core': 1.9.0
-      '@rollup/pluginutils': 4.2.1
-      assert-never: 1.2.1
-      ember-source: 4.11.0_tjijq7ea5h6eehcyhwtwl5ia5m
-      fs-extra: 10.1.0
-      minimatch: 3.1.2
-      rollup-plugin-copy-assets: 2.0.3_rollup@3.17.2
-      rollup-plugin-delete: 2.0.0
-      walk-sync: 3.0.0
-      yargs: 17.7.1
-    transitivePeerDependencies:
-      - bufferutil
-      - canvas
-      - rollup
-      - supports-color
-      - utf-8-validate
-    dev: true
-
   /@embroider/addon-dev/3.0.0_rollup@3.17.2:
     resolution: {integrity: sha512-h3ISDdp8LASA6583WC3IU3ECZ5fHlW3V3EkgpEeeH7KhxTerHjDjNf+S6+ZvPH+ZHi3WOCYPvUA5OfNICyMbtA==}
     engines: {node: 12.* || 14.* || >= 16}
@@ -3379,40 +3351,38 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@embroider/babel-loader-8/1.9.0_mg5axfkqq6pv6o25os7kj44oyi:
-    resolution: {integrity: sha512-kEAPkyHXEWxJA9n/zmExhRIOCZPhEgWGyAb3t1hxcJGUzzD6r8zAEE6zfZGRIwpfi3jhkCn/FOZi43eVLJsjgA==}
+  /@embroider/babel-loader-8/2.0.0_uvhj6s4a6l6v2wdxiz3n675h2a:
+    resolution: {integrity: sha512-a1bLodfox8JEgNHuhiIBIcXJ4b8NNnKWYkMIpJx216pn80Jf1jcFosQpxnqC8hYHrnG0XRKzQ9zJYgJXoa1wfg==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
-      '@embroider/core': ^1.8.3
+      '@embroider/core': ^2.0.0
     dependencies:
       '@babel/core': 7.21.0_supports-color@8.1.1
-      '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6_@babel+core@7.21.0
-      '@babel/plugin-proposal-optional-chaining': 7.21.0_@babel+core@7.21.0
-      '@embroider/core': 1.9.0
+      '@embroider/core': 2.1.1
       babel-loader: 8.3.0_qoaxtqicpzj5p3ubthw53xafqm
     transitivePeerDependencies:
       - supports-color
       - webpack
     dev: true
 
-  /@embroider/compat/1.9.0_@embroider+core@1.9.0:
-    resolution: {integrity: sha512-4BMW8frZ5RZJY54jmhDNe7cdRqosWynJ6bPTVfL+jvE0Z8o2ROtneMOojj7jouhyRE9XfAnIioI/RenZTei3kg==}
+  /@embroider/compat/2.1.1_@embroider+core@2.1.1:
+    resolution: {integrity: sha512-HNq5vv7NpQ1Jr+4slzmLBqsy5NDsIHilYeQiWboMrPAyHr5NHlKYWciIcmxdgPgz2kf/8D5nDiANgJznZedlyw==}
     engines: {node: 12.* || 14.* || >= 16}
     hasBin: true
     peerDependencies:
-      '@embroider/core': ^1.8.3
+      '@embroider/core': ^2.0.0
     dependencies:
       '@babel/code-frame': 7.18.6
       '@babel/core': 7.21.0
       '@babel/plugin-syntax-dynamic-import': 7.8.3_@babel+core@7.21.0
       '@babel/preset-env': 7.20.2_@babel+core@7.21.0
       '@babel/traverse': 7.21.2
-      '@embroider/core': 1.9.0
-      '@embroider/macros': 1.9.0
-      '@embroider/shared-internals': 1.8.3
+      '@embroider/core': 2.1.1
+      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       '@types/babel__code-frame': 7.0.3
       '@types/yargs': 17.0.22
       assert-never: 1.2.1
+      babel-plugin-ember-template-compilation: 2.0.0
       babel-plugin-syntax-dynamic-import: 6.18.0
       babylon: 6.18.0
       bind-decorator: 1.0.11
@@ -3439,48 +3409,6 @@ packages:
       typescript-memoize: 1.1.1
       walk-sync: 3.0.0
       yargs: 17.7.1
-    transitivePeerDependencies:
-      - bufferutil
-      - canvas
-      - supports-color
-      - utf-8-validate
-    dev: true
-
-  /@embroider/core/1.9.0:
-    resolution: {integrity: sha512-fjPb1pU7a+V9clpfBCa8CHdxbz7hr6azwNw/DqRQIMM272nrOPml65YVsBE24z7NrHdkqHjvmvDQ+qtl6oBhPw==}
-    engines: {node: 12.* || 14.* || >= 16}
-    dependencies:
-      '@babel/core': 7.21.0
-      '@babel/parser': 7.21.2
-      '@babel/plugin-syntax-dynamic-import': 7.8.3_@babel+core@7.21.0
-      '@babel/plugin-transform-runtime': 7.21.0_@babel+core@7.21.0
-      '@babel/runtime': 7.21.0
-      '@babel/traverse': 7.21.2
-      '@embroider/macros': 1.9.0
-      '@embroider/shared-internals': 1.8.3
-      assert-never: 1.2.1
-      babel-import-util: 1.3.0
-      babel-plugin-ember-template-compilation: 1.0.2
-      broccoli-node-api: 1.7.0
-      broccoli-persistent-filter: 3.1.3
-      broccoli-plugin: 4.0.7
-      broccoli-source: 3.0.1
-      debug: 4.3.4
-      escape-string-regexp: 4.0.0
-      fast-sourcemap-concat: 1.4.0
-      filesize: 5.0.3
-      fs-extra: 9.1.0
-      fs-tree-diff: 2.0.1
-      handlebars: 4.7.7
-      js-string-escape: 1.0.1
-      jsdom: 16.7.0
-      lodash: 4.17.21
-      resolve: 1.22.1
-      resolve-package-path: 4.0.3
-      strip-bom: 4.0.0
-      typescript-memoize: 1.1.1
-      walk-sync: 3.0.0
-      wrap-legacy-hbs-plugin-if-needed: 1.0.1
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -3528,14 +3456,14 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@embroider/hbs-loader/1.9.0_7vpsovwo6agsyjst3za4w5nvma:
-    resolution: {integrity: sha512-HBJ/zND9Pwe/eSAPJzR+b8XR/RrjxFKLq80YMEevkkmFLgkT/7aiK3FnZoN3eyuHRZwO5+ela1c57FIM3zSoWg==}
+  /@embroider/hbs-loader/2.0.0_eyqzvd6leggmxnqpxutivef5lu:
+    resolution: {integrity: sha512-rWcZyZ3n35LwlPTS6/fYsdHqPWUh4QO/cVTIJOSeLqJCATNTho7tjBXS6pBvV9cZgvqP/Xph/08xjdUyOWUOxQ==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
-      '@embroider/core': ^1.8.3
+      '@embroider/core': ^2.0.0
       webpack: ^5
     dependencies:
-      '@embroider/core': 1.9.0
+      '@embroider/core': 2.1.1
       webpack: 5.75.0
     dev: true
 
@@ -3554,36 +3482,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     patched: true
-
-  /@embroider/macros/1.9.0:
-    resolution: {integrity: sha512-12ElrRT+mX3aSixGHjHnfsnyoH1hw5nM+P+Ax0ITZdp6TaAvWZ8dENnVHltdnv4ssHiX0EsVEXmqbIIdMN4nLA==}
-    engines: {node: 12.* || 14.* || >= 16}
-    dependencies:
-      '@embroider/shared-internals': 1.8.3
-      assert-never: 1.2.1
-      babel-import-util: 1.3.0
-      ember-cli-babel: 7.26.11
-      find-up: 5.0.0
-      lodash: 4.17.21
-      resolve: 1.22.1
-      semver: 7.3.8
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /@embroider/shared-internals/1.8.3:
-    resolution: {integrity: sha512-N5Gho6Qk8z5u+mxLCcMYAoQMbN4MmH+z2jXwQHVs859bxuZTxwF6kKtsybDAASCtd2YGxEmzcc1Ja/wM28824w==}
-    engines: {node: 12.* || 14.* || >= 16}
-    dependencies:
-      babel-import-util: 1.3.0
-      ember-rfc176-data: 0.3.18
-      fs-extra: 9.1.0
-      js-string-escape: 1.0.1
-      lodash: 4.17.21
-      resolve-package-path: 4.0.3
-      semver: 7.3.8
-      typescript-memoize: 1.1.1
-    dev: true
 
   /@embroider/shared-internals/2.0.0:
     resolution: {integrity: sha512-qZ2/xky9mWm5YC6noOa6AiAwgISEQ78YTZNv4SNu2PFgEK/H+Ha/3ddngzGSsnXkVnIHZyxIBzhxETonQYHY9g==}
@@ -3616,20 +3514,18 @@ packages:
       - supports-color
     dev: true
 
-  /@embroider/webpack/1.9.0_7vpsovwo6agsyjst3za4w5nvma:
-    resolution: {integrity: sha512-/jq+Tr6Lbp86vT9+PuTT8l7+xXURBmN0fQcRdMSClRlgJhjgz+f/NT0Yn9UUsEe3tRQVo9u8dnnlBo67loyhaA==}
+  /@embroider/webpack/2.1.1_eyqzvd6leggmxnqpxutivef5lu:
+    resolution: {integrity: sha512-1IzXXexv/QxDyk4N6kamtiTk92HszlaQZXGB+xhnRCMY4F7Hgxad4gSPvnSy/oSkbHTMWSGjCTS5e4tQcUC8Cg==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
-      '@embroider/core': ^1.8.3
+      '@embroider/core': ^2.0.0
       webpack: ^5.0.0
     dependencies:
       '@babel/core': 7.21.0_supports-color@8.1.1
-      '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6_@babel+core@7.21.0
-      '@babel/plugin-proposal-optional-chaining': 7.21.0_@babel+core@7.21.0
-      '@embroider/babel-loader-8': 1.9.0_mg5axfkqq6pv6o25os7kj44oyi
-      '@embroider/core': 1.9.0
-      '@embroider/hbs-loader': 1.9.0_7vpsovwo6agsyjst3za4w5nvma
-      '@embroider/shared-internals': 1.8.3
+      '@embroider/babel-loader-8': 2.0.0_uvhj6s4a6l6v2wdxiz3n675h2a
+      '@embroider/core': 2.1.1
+      '@embroider/hbs-loader': 2.0.0_eyqzvd6leggmxnqpxutivef5lu
+      '@embroider/shared-internals': 2.0.0
       '@types/source-map': 0.5.7
       '@types/supports-color': 8.1.1
       babel-loader: 8.3.0_qoaxtqicpzj5p3ubthw53xafqm
@@ -3700,63 +3596,13 @@ packages:
   /@glimmer/di/0.1.11:
     resolution: {integrity: sha512-moRwafNDwHTnTHzyyZC9D+mUSvYrs1Ak0tRPjjmCghdoHHIvMshVbEnwKb/1WmW5CUlKc2eL9rlAV32n3GiItg==}
 
-  /@glimmer/encoder/0.42.2:
-    resolution: {integrity: sha512-8xkdly0i0BP5HMI0suPB9ly0AnEq8x9Z8j3Gee1HYIovM5VLNtmh7a8HsaHYRs/xHmBEZcqtr8JV89w6F59YMQ==}
-    dependencies:
-      '@glimmer/interfaces': 0.42.2
-      '@glimmer/vm': 0.42.2
-    dev: true
-
   /@glimmer/env/0.1.7:
     resolution: {integrity: sha512-JKF/a9I9jw6fGoz8kA7LEQslrwJ5jms5CXhu/aqkBWk+PmZ6pTl8mlb/eJ/5ujBGTiQzBhy5AIWF712iA+4/mw==}
-
-  /@glimmer/interfaces/0.42.2:
-    resolution: {integrity: sha512-7LOuQd02cxxNNHChzdHMAU8/qOeQvTro141CU5tXITP7z6aOv2D2gkFdau97lLQiVxezGrh8J7h8GCuF7TEqtg==}
-    dev: true
 
   /@glimmer/interfaces/0.84.2:
     resolution: {integrity: sha512-tMZxQpOddUVmHEOuripkNqVR7ba0K4doiYnFd4WyswqoHPlxqpBujbIamQ+bWCWEF0U4yxsXKa31ekS/JHkiBQ==}
     dependencies:
       '@simple-dom/interface': 1.4.0
-    dev: true
-
-  /@glimmer/low-level/0.42.2:
-    resolution: {integrity: sha512-s+Q44SnKdTBTnkgX0deBlVNnNPVas+Pg8xEnwky9VrUqOHKsIZRrPgfVULeC6bIdFXtXOKm5CjTajhb9qnQbXQ==}
-    dev: true
-
-  /@glimmer/program/0.42.2:
-    resolution: {integrity: sha512-XpQ6EYzA1VL9ESKoih5XW5JftFmlRvwy3bF/I1ABOa3yLIh8mApEwrRI/sIHK0Nv5s1j0uW4itVF196WxnJXgw==}
-    dependencies:
-      '@glimmer/encoder': 0.42.2
-      '@glimmer/interfaces': 0.42.2
-      '@glimmer/util': 0.42.2
-    dev: true
-
-  /@glimmer/reference/0.42.2:
-    resolution: {integrity: sha512-XuhbRjr3M9Q/DP892jGxVfPE6jaGGHu5w9ppGMnuTY7Vm/x+A+68MCiaREhDcEwJlzGg4UkfVjU3fdgmUIrc5Q==}
-    dependencies:
-      '@glimmer/util': 0.42.2
-    dev: true
-
-  /@glimmer/runtime/0.42.2:
-    resolution: {integrity: sha512-52LVZJsLKM3GzI3TEmYcw2LdI9Uk0jotISc3w2ozQBWvkKoYxjDNvI/gsjyMpenj4s7FcG2ggOq0x4tNFqm1GA==}
-    dependencies:
-      '@glimmer/interfaces': 0.42.2
-      '@glimmer/low-level': 0.42.2
-      '@glimmer/program': 0.42.2
-      '@glimmer/reference': 0.42.2
-      '@glimmer/util': 0.42.2
-      '@glimmer/vm': 0.42.2
-      '@glimmer/wire-format': 0.42.2
-    dev: true
-
-  /@glimmer/syntax/0.42.2:
-    resolution: {integrity: sha512-SR26SmF/Mb5o2cc4eLHpOyoX5kwwXP4KRhq4fbWfrvan74xVWA38PLspPCzwGhyVH/JsE7tUEPMjSo2DcJge/Q==}
-    dependencies:
-      '@glimmer/interfaces': 0.42.2
-      '@glimmer/util': 0.42.2
-      handlebars: 4.7.7
-      simple-html-tokenizer: 0.5.11
     dev: true
 
   /@glimmer/syntax/0.84.2:
@@ -3773,10 +3619,6 @@ packages:
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/validator': 0.44.0
-
-  /@glimmer/util/0.42.2:
-    resolution: {integrity: sha512-Heck0baFSaWDanCYtmOcLeaz7v+rSqI8ovS7twrp2/FWEteb3Ze5sWQ2BEuSAG23L/k/lzVwYM/MY7ZugxBpaA==}
-    dev: true
 
   /@glimmer/util/0.44.0:
     resolution: {integrity: sha512-duAsm30uVK9jSysElCbLyU6QQYO2X9iLDLBIBUcCqck9qN1o3tK2qWiHbGK5d6g8E2AJ4H88UrfElkyaJlGrwg==}
@@ -3798,20 +3640,6 @@ packages:
       babel-plugin-debug-macros: 0.3.4_@babel+core@7.21.0
     transitivePeerDependencies:
       - '@babel/core'
-
-  /@glimmer/vm/0.42.2:
-    resolution: {integrity: sha512-D2MNU5glICLqvet5SfVPrv+l6JNK2TR+CdQhch1Ew+btOoqlW+2LIJIF/5wLb1POjIMEkt+78t/7RN0mDFXGzw==}
-    dependencies:
-      '@glimmer/interfaces': 0.42.2
-      '@glimmer/util': 0.42.2
-    dev: true
-
-  /@glimmer/wire-format/0.42.2:
-    resolution: {integrity: sha512-IqUo6mdJ7GRsK7KCyZxrc17ioSg9RBniEnb418ZMQxsV/WBv9NQ359MuClUck2M24z1AOXo4TerUw0U7+pb1/A==}
-    dependencies:
-      '@glimmer/interfaces': 0.42.2
-      '@glimmer/util': 0.42.2
-    dev: true
 
   /@handlebars/parser/2.0.0:
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
@@ -5363,16 +5191,6 @@ packages:
     engines: {node: 6.* || 8.* || >= 10.*}
     dependencies:
       ember-rfc176-data: 0.3.18
-
-  /babel-plugin-ember-template-compilation/1.0.2:
-    resolution: {integrity: sha512-4HBMksmlYsWEf/C/n3uW5rkBRbUp4FNaspzdQTAHgLbfCJnkLze8R6i6sUSge48y/Wne7mx+vcImI1o6rlUwXQ==}
-    engines: {node: '>= 12.*'}
-    dependencies:
-      babel-import-util: 1.3.0
-      line-column: 1.0.2
-      magic-string: 0.26.7
-      string.prototype.matchall: 4.0.8
-    dev: true
 
   /babel-plugin-ember-template-compilation/2.0.0:
     resolution: {integrity: sha512-d+4jaB2ik0rt9TH0K9kOlKJeRBHEb373FgFMcU9ZaJL2zYuVXe19bqy+cWlLpLf1tpOBcBG9QTlFBCoImlOt1g==}
@@ -7942,11 +7760,14 @@ packages:
       - '@babel/core'
       - supports-color
 
-  /ember-cli-app-version/5.0.0:
-    resolution: {integrity: sha512-afhx/CXDOMNXzoe4NDPy5WUfxWmYYHUzMCiTyvPBxCDBXYcMrtxNWxvgaSaeqcoHVEmqzeyBj8V82tzmT1dcyw==}
-    engines: {node: 10.* || >= 12}
+  /ember-cli-app-version/6.0.0_ember-source@4.11.0:
+    resolution: {integrity: sha512-XhzETSTy+RMTIyxM/FaZ/8aJvAwT/iIp8HC9zukpOaSPEm5i6Vm4tskeXY4OBnY3VwFWNXWssDt1hgIkUP76WQ==}
+    engines: {node: 14.* || 16.* || >= 18}
+    peerDependencies:
+      ember-source: ^3.28.0 || ^4.0.0
     dependencies:
       ember-cli-babel: 7.26.11
+      ember-source: 4.11.0_rvahiuopogey6sgsr5ushfa7te
       git-repo-info: 2.1.1
     transitivePeerDependencies:
       - supports-color
@@ -11996,13 +11817,6 @@ packages:
     dependencies:
       sourcemap-codec: 1.4.8
 
-  /magic-string/0.26.7:
-    resolution: {integrity: sha512-hX9XH3ziStPoPhJxLq1syWuZMxbDvGNbVchfrdCtanC7D13888bMFow61x8axrx+GfHLtVeAx2kxL7tTGRl+Ow==}
-    engines: {node: '>=12'}
-    dependencies:
-      sourcemap-codec: 1.4.8
-    dev: true
-
   /magic-string/0.27.0:
     resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
     engines: {node: '>=12'}
@@ -15586,15 +15400,6 @@ packages:
       ansi-styles: 4.3.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
-    dev: true
-
-  /wrap-legacy-hbs-plugin-if-needed/1.0.1:
-    resolution: {integrity: sha512-aJjXe5WwrY0u0dcUgKW3m2SGnxosJ66LLm/QaG0YMHqgA6+J2xwAFZfhSLsQ2BmO5x8PTH+OIxoAXuGz3qBA7A==}
-    dependencies:
-      '@glimmer/reference': 0.42.2
-      '@glimmer/runtime': 0.42.2
-      '@glimmer/syntax': 0.42.2
-      '@simple-dom/interface': 1.4.0
     dev: true
 
   /wrappy/1.0.2:
