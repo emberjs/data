@@ -1,6 +1,6 @@
 {
   "name": "serializer-encapsulation-test-app",
-  "version": "4.10.0-alpha.26",
+  "version": "4.12.0-alpha.0",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": {
@@ -47,13 +47,13 @@
   "devDependencies": {
     "@babel/core": "^7.21.0",
     "@babel/runtime": "^7.21.0",
-    "@ember-data/adapter": "workspace:4.10.0-alpha.26",
-    "@ember-data/model": "workspace:4.10.0-alpha.26",
-    "@ember-data/json-api": "workspace:4.10.0-alpha.26",
-    "@ember-data/graph": "workspace:4.10.0-alpha.26",
-    "@ember-data/store": "workspace:4.10.0-alpha.26",
-    "@ember-data/tracking": "workspace:4.10.0-alpha.26",
-    "@ember-data/unpublished-test-infra": "workspace:4.10.0-alpha.26",
+    "@ember-data/adapter": "workspace:4.12.0-alpha.0",
+    "@ember-data/model": "workspace:4.12.0-alpha.0",
+    "@ember-data/json-api": "workspace:4.12.0-alpha.0",
+    "@ember-data/graph": "workspace:4.12.0-alpha.0",
+    "@ember-data/store": "workspace:4.12.0-alpha.0",
+    "@ember-data/tracking": "workspace:4.12.0-alpha.0",
+    "@ember-data/unpublished-test-infra": "workspace:4.12.0-alpha.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.1",
     "@ember/test-helpers": "^2.9.3",
