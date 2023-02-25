@@ -2697,12 +2697,7 @@ function isDSModel(record: RecordInstance | null): record is DSModel {
   if (!HAS_MODEL_PACKAGE) {
     return false;
   }
-  return (
-    !!record &&
-    'constructor' in record &&
-    'isModel' in record.constructor &&
-    record.constructor.isModel === true
-  );
+  return !!record && 'constructor' in record && 'isModel' in record.constructor && record.constructor.isModel === true;
 }
 
 type AdapterErrors = Error & { errors?: unknown[]; isAdapterError?: true; code?: string };
