@@ -1117,7 +1117,6 @@ importers:
       '@types/ember': ^4.0.3
       '@types/ember-qunit': ^5.0.2
       '@types/ember-testing-helpers': ^0.0.4
-      '@types/ember__test-helpers': ^2.8.3
       '@types/rsvp': ^4.0.4
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
@@ -1163,7 +1162,6 @@ importers:
       '@types/ember': 4.0.3_@babel+core@7.21.0
       '@types/ember-qunit': 5.0.2_u5ljfdudqv6c6sfgup4ke2kf6a
       '@types/ember-testing-helpers': 0.0.4
-      '@types/ember__test-helpers': 2.9.1_u5ljfdudqv6c6sfgup4ke2kf6a
       '@types/rsvp': 4.0.4
       broccoli-asset-rev: 3.0.0
       ember-cli: 4.10.0
@@ -1206,7 +1204,6 @@ importers:
       '@types/ember': ^4.0.3
       '@types/ember-qunit': ^5.0.2
       '@types/ember-testing-helpers': ^0.0.4
-      '@types/ember__test-helpers': ^2.8.3
       '@types/rsvp': ^4.0.4
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.0
@@ -1249,7 +1246,6 @@ importers:
       '@types/ember': 4.0.3_@babel+core@7.21.0
       '@types/ember-qunit': 5.0.2_u5ljfdudqv6c6sfgup4ke2kf6a
       '@types/ember-testing-helpers': 0.0.4
-      '@types/ember__test-helpers': 2.9.1_u5ljfdudqv6c6sfgup4ke2kf6a
       '@types/rsvp': 4.0.4
       broccoli-asset-rev: 3.0.0
       ember-cli: 4.10.0
@@ -1555,7 +1551,6 @@ importers:
       '@types/ember-testing-helpers': ^0.0.4
       '@types/ember__debug': ^4.0.3
       '@types/ember__object': ^4.0.5
-      '@types/ember__test-helpers': ^2.8.3
       '@types/ember__utils': ^4.0.2
       '@types/qunit': ^2.19.4
       '@types/rsvp': ^4.0.4
@@ -1620,7 +1615,6 @@ importers:
       '@types/ember-testing-helpers': 0.0.4
       '@types/ember__debug': 4.0.3_@babel+core@7.21.0
       '@types/ember__object': 4.0.5_@babel+core@7.21.0
-      '@types/ember__test-helpers': 2.9.1_u5ljfdudqv6c6sfgup4ke2kf6a
       '@types/ember__utils': 4.0.2_@babel+core@7.21.0
       '@types/qunit': 2.19.4
       '@types/rsvp': 4.0.4
