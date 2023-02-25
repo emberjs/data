@@ -405,10 +405,12 @@ class Store {
    * @public
    */
   getSchemaDefinitionService(): SchemaDefinitionService {
-    if (HAS_MODEL_PACKAGE && !this._schemaDefinitionService) {
-      // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
-      // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
-      this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
+    if (HAS_MODEL_PACKAGE) {
+      if (!this._schemaDefinitionService) {
+        // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
+        // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
+        this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
+      }
     }
     assert(
       `You must registerSchemaDefinitionService with the store to use custom model classes`,
@@ -2705,8 +2707,10 @@ function isMaybeIdentifier(
 }
 
 function isDSModel(record: RecordInstance | null): record is DSModel {
+  if (!HAS_MODEL_PACKAGE) {
+    return false;
+  }
   return (
-    HAS_MODEL_PACKAGE &&
     !!record &&
     'constructor' in record &&
     'isModel' in record.constructor &&
