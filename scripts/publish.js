@@ -9,6 +9,7 @@ Flags
 
 --distTag=latest|lts-<major>-<minor>|lts|beta|canary|release-<major>-<minor> defaults to latest if channel is release, else defaults to channel
 --version [optional] the exact version to tag these assets as
+--fromVersion [optional] similar to version except treat this as the version to bump from
 --bumpMajor
 --bumpMinor
 --skipVersion
@@ -112,6 +113,11 @@ function getConfig() {
       type: String,
       defaultValue: null,
     },
+    {
+      name: 'fromVersion',
+      type: String,
+      defaultValue: null,
+    },
     { name: 'skipVersion', type: Boolean, defaultValue: false },
     { name: 'skipPack', type: Boolean, defaultValue: false },
     { name: 'skipPublish', type: Boolean, defaultValue: false },
@@ -122,7 +128,7 @@ function getConfig() {
     { name: 'dryRun', type: Boolean, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
-  const currentProjectVersion = require(path.join(__dirname, '../package.json')).version;
+  const currentProjectVersion = options.fromVersion || require(path.join(__dirname, '../package.json')).version;
 
   if (isBugfixRelease && (options.bumpMajor || options.bumpMinor)) {
     throw new Error(`Cannot bump major or minor version of a past release`);
@@ -298,7 +304,9 @@ function bumpAllPackages(nextVersion) {
   packages.forEach((l) => bump(packagesDir, l));
   tests.forEach((l) => bump(testsDir, l));
   const pkgJsonPath = path.join(projectRoot, './package.json');
-  scrubWorkspaces(require(pkgJsonPath), pkgJsonPath, nextVersion);
+  const pkgInfo = require(pkgJsonPath);
+  pkgInfo.version = nextVersion;
+  scrubWorkspaces(pkgInfo, pkgJsonPath, nextVersion);
 }
 
 function packAllPackages() {
@@ -402,7 +410,7 @@ async function main() {
     bumpAllPackages(nextVersion);
     let commitCommand = `git commit -am "Release v${nextVersion}"`;
     if (!options.dryRun) {
-      commitCommand = `pnpm install && ` + commitCommand;
+      commitCommand = `pnpm install --no-frozen-lockfile && ` + commitCommand;
       commitCommand += ` && git tag v${nextVersion}`;
     }
 
