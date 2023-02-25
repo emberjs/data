@@ -366,7 +366,7 @@ class Store {
       };
 
       // ensure that `getOwner(this)` works inside a model instance
-      setOwner(createOptions, getOwner(this));
+      setOwner(createOptions, getOwner(this)!);
       return getModelFactory(this, this._modelFactoryCache, modelName).class.create(createOptions);
     }
     assert(`You must implement the store's instantiateRecord hook for your custom model class.`);

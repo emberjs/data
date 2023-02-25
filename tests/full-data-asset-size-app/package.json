@@ -42,6 +42,7 @@
     "ember-cli-htmlbars": "^6.2.0",
     "ember-cli-terser": "^4.0.2",
     "ember-data": "workspace:4.10.0-alpha.26",
+    "@ember/string": "^3.0.1",
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",

@@ -27,7 +27,7 @@ module('RequestManager | Ember Service Setup', function (hooks: NestedHooks) {
     this.owner.register('service:request', CustomManager);
     class Cache extends Service {}
     this.owner.register('service:cache', Cache);
-    const manager = this.owner.lookup('service:request');
+    const manager = this.owner.lookup('service:request') as CustomManager;
     assert.ok(manager instanceof RequestManager, 'We instantiated');
     assert.ok(manager instanceof CustomManager, 'We instantiated');
     assert.ok(manager.cache instanceof Cache, 'We can utilize injections');
