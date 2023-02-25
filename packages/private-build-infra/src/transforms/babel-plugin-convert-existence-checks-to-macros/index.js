@@ -39,7 +39,7 @@ module.exports = function (babel) {
 
                 node.replaceWith(
                   t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
-                    negateStatement ? t.unaryExpression('!', exp) : exp
+                    negateStatement ? t.unaryExpression('!', exp) : exp,
                   ])
                 );
               });
