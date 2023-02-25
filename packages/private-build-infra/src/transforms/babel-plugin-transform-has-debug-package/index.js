@@ -41,9 +41,9 @@ module.exports = function (babel) {
                 // if (LOG_FOO)
                 // =>
                 // if (macroCondition(getOwnConfig().debug.LOG_FOO))
-                //t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
-                negateStatement ? t.unaryExpression('!', getConfig) : getConfig
-                //])
+                t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
+                  negateStatement ? t.unaryExpression('!', getConfig) : getConfig,
+                ])
               );
             });
             specifier.scope.removeOwnBinding(localBindingName);

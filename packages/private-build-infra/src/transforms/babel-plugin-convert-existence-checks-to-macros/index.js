@@ -19,11 +19,12 @@ module.exports = function (babel) {
               let binding = specifier.scope.getBinding(localBindingName);
               binding.referencePaths.forEach((p) => {
                 p.replaceWith(
-                  // t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
-                  t.callExpression(state.importer.import(p, '@embroider/macros', 'moduleExists'), [
-                    t.stringLiteral(replacements[name]),
+                  t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
+                    t.callExpression(state.importer.import(p, '@embroider/macros', 'dependencySatisfies'), [
+                      t.stringLiteral(replacements[name]),
+                      t.stringLiteral('*'),
+                    ]),
                   ])
-                  // ])
                 );
               });
               specifier.scope.removeOwnBinding(localBindingName);
