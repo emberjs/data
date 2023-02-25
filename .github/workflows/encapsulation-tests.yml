@@ -19,6 +19,5 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Run Tests
         run: pnpm test:encapsulation

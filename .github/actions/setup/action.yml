@@ -2,10 +2,12 @@ name: Setup Test Environment
 description: Composable Action for ensuring speedy test setup
 
 inputs:
+  ## Speeds Up Lint by enabling reuse
   restore-lint-caches:
     description: Whether to restore lint caches
     required: false
     default: false
+  ## Speeds Up Build of bigger apps by enabling reuse
   restore-broccoli-cache:
     description: Whether to restore broccoli
     required: false
@@ -14,14 +16,16 @@ inputs:
     description: Whether to install dependencies
     required: false
     default: false
-  build-addons:
-    description: Whether to build V2 Addons
+  skip-addon-build:
+    description: Whether to skip the prepare step for in-repo v2 addons when running pnpm install
     required: false
     default: false
   parallel-build:
     description: Whether to build in parallel
     required: false
     default: true
+  ## Set to same as number of cores
+  ## 2 for ubuntu-latest (default)
   jobs:
     description: How many Build Jobs to Run
     required: false
@@ -44,17 +48,24 @@ runs:
         registry-url: 'https://registry.npmjs.org'
         node-version: ${{inputs.node-version }}
         cache: 'pnpm'
+
     - name: Configure Parallel Builds
       if: ${{ inputs.parallel-build == 'true' }}
       shell: bash
       run: |
         echo "JOBS=${{ inputs.jobs }}" >> $GITHUB_ENV
+        echo "EXAM_SPLIT_COUNT=${{ inputs.jobs }}" >> $GITHUB_ENV
         echo "THROW_UNLESS_PARALLELIZABLE=1" >> $GITHUB_ENV
 
     - name: Install Dependencies
-      if: ${{ inputs.install == 'true' }}
+      if: ${{ inputs.install == 'true' && inputs.skip-addon-build == 'false' }}
       shell: bash
       run: pnpm install --prefer-offline
+
+    - name: Install Dependencies w/o Addon Builds
+      if: ${{ inputs.install == 'true' && inputs.skip-addon-build == 'true' }}
+      shell: bash
+      run: pnpm install --prefer-offline --ignore-scripts
 
     - name: Setup Broccoli Caching
       if: ${{ inputs.restore-broccoli-cache == 'true' }}
@@ -62,17 +73,18 @@ runs:
       run: |
         echo "FORCE_PERSISTENCE_IN_CI=true" >> $GITHUB_ENV
         echo "BROCCOLI_PERSISTENT_FILTER_CACHE_ROOT=${{ github.workspace }}/.broccoli-cache" >> $GITHUB_ENV
+
     - name: Restore Broccoli Cache
       if: ${{ inputs.restore-broccoli-cache == 'true' }}
       uses: actions/cache@v3
       with:
         path: |
           ${{ github.workspace }}/.broccoli-cache
-        key: broccoli-${{inputs.ref }}
+          node_modules/.cache
+        key: broccoli-${{ github.head_ref }}-${{inputs.ref }}
         restore-keys: |
           broccoli-${{ github.head_ref }}
-          broccoli-master
-          broccoli-
+          broccoli-develop
 
     - name: Restore Lint Caches
       if: ${{ inputs.restore-lint-caches == 'true' }}
@@ -80,8 +92,9 @@ runs:
       with:
         path: |
           .eslintcache
-        key: lint-${{ inputs.ref }}
+          .prettier-cache
+          tsconfig.tsbuildinfo
+        key: lint-${{ github.head_ref }}-${{ inputs.ref }}
         restore-keys: |
           lint-${{ github.head_ref }}
-          lint-master
-          lint-
+          lint-develop

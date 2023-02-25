@@ -26,6 +26,7 @@ jobs:
         with:
           restore-lint-caches: true
           install: true
+          skip-addon-build: true
       - name: Lint js
         run: pnpm lint:js
       - name: Check for TypeScript problems
@@ -43,11 +44,8 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Basic tests
         run: pnpm test
-      - name: Production build
-        run: pnpm test:production
       - if: |
           matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' && (
@@ -70,6 +68,8 @@ jobs:
         env:
           EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
         run: pnpm test
+      - name: Production build
+        run: pnpm test:production
       - if: |
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
@@ -106,7 +106,6 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Run Production Test
         timeout-minutes: 10
         env:
@@ -127,7 +126,6 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Basic tests with ${{ matrix.scenario }}
         timeout-minutes: 10
         env:
@@ -157,7 +155,6 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Basic tests with ${{ matrix.release }}
         env:
           CI: true
@@ -177,7 +174,6 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-          build-addons: true
       - name: Basic tests with ${{ matrix.scenario }}
         env:
           CI: true

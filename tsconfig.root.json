@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es2022",
+    "target": "ES2022",
+    "module": "ES2020",
+    "moduleResolution": "node",
+
+    // Enable faster builds
+    "incremental": true,
+
     "allowJs": false,
     "checkJs": false,
-    "moduleResolution": "node",
+
     "alwaysStrict": true,
     "strict": true,
     "allowSyntheticDefaultImports": true,
+
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictBindCallApply": true,
@@ -22,10 +29,15 @@
     "pretty": true,
     "noEmit": true,
     "skipLibCheck": true,
+
+    // Support generation of source maps. Note: you must *also* enable source
+    // maps in your `ember-cli-babel` config and/or `babel.config.js`.
+    "declaration": true,
+    "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
+
     "baseUrl": ".",
-    "module": "esnext",
     "paths": {
       "ember-data": ["packages/-ember-data/addon"],
       "ember-data/*": ["packages/-ember-data/addon/*"],
@@ -45,7 +57,7 @@
       "@ember-data/model/*": ["packages/model/src/*"],
       "@ember-data/graph": ["packages/graph/src"],
       "@ember-data/graph/*": ["packages/graph/src/*"],
-      "@ember-data/adapter": ["packages/adapter/addon"],
+      "@ember-data/adapter": ["packages/adapter/src"],
       "@ember-data/adapter/*": ["packages/adapter/src/*"],
       "@ember-data/adapter/error": ["packages/adapter/src/error"],
       "@ember-data/serializer": ["packages/serializer/src"],
