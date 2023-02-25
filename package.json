@@ -120,7 +120,7 @@
     "fromentries": "^1.3.2",
     "git-repo-info": "^2.1.1",
     "git-repo-version": "^1.0.2",
-    "glob": "^8.0.3",
+    "glob": "^8.1.0",
     "json-typescript": "^1.1.2",
     "lerna-changelog": "^2.2.0",
     "loader.js": "^4.7.0",
