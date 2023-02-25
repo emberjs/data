@@ -1,5 +1,9 @@
 # Ember Data Changelog
 
+## 4.11.0 (2023-02-25)
+
+This is a re-release of 4.10.0
+
 ## 4.10.0 (2023-02-25)
 
 #### :shower: Deprecation Removal
