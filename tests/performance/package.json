@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "ember-auto-import": "^2.4.3",
-    "ember-data": "workspace:4.9.1"
+    "ember-data": "workspace:4.9.1",
+    "@ember/string": "^3.0.1"
   },
   "dependenciesMeta": {
     "ember-data": {
