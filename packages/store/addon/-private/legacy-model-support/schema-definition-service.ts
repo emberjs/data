@@ -122,10 +122,13 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
     let owner: any = getOwner(store);
     factory = owner.factoryFor(`model:${normalizedModelName}`);
 
-    if (!factory && HAS_MODEL_PACKAGE) {
-      //Support looking up mixins as base types for polymorphic relationships
-      factory = _modelForMixin(store, normalizedModelName);
+    if (HAS_MODEL_PACKAGE) {
+      if (!factory) {
+        //Support looking up mixins as base types for polymorphic relationships
+        factory = _modelForMixin(store, normalizedModelName);
+      }
     }
+
 
     if (!factory) {
       // we don't cache misses in case someone wants to register a missing model
