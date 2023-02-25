@@ -69,7 +69,7 @@
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^6.1.1",
     "ember-resolver": "^10.0.0",
-    "ember-source": "~4.9.3",
+    "ember-source": "~4.11.0",
     "loader.js": "^4.7.0",
     "qunit": "^2.19.4",
     "qunit-dom": "^2.0.0",

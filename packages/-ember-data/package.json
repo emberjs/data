@@ -70,7 +70,7 @@
     "@babel/core": "^7.21.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-source": "~4.9.3",
+    "ember-source": "~4.11.0",
     "webpack": "^5.75.0"
   },
   "engines": {
