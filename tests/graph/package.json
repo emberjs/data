@@ -80,7 +80,7 @@
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^6.1.1",
     "ember-resolver": "^10.0.0",
-    "ember-source": "~4.9.3",
+    "ember-source": "~4.11.0",
     "ember-source-channel-url": "^3.0.0",
     "ember-try": "^2.0.0",
     "loader.js": "^4.7.0",

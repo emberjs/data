@@ -53,7 +53,7 @@
     "@babel/core": "^7.21.0",
     "@babel/cli": "^7.21.0",
     "@glimmer/component": "^1.1.2",
-    "ember-source": "~4.9.3",
+    "ember-source": "~4.11.0",
     "@embroider/addon-dev": "^2.0.0",
     "rollup": "^3.17.2",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
