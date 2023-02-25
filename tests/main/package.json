@@ -86,7 +86,7 @@
     "broccoli-string-replace": "^0.1.2",
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^4.0.0",
-    "ember-auto-import": "^2.6.0",
+    "ember-auto-import": "^2.6.1",
     "ember-cached-decorator-polyfill": "^1.0.1",
     "ember-cli": "~4.10.0",
     "ember-cli-app-version": "^5.0.0",
