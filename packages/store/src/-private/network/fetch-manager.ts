@@ -217,13 +217,15 @@ export default class FetchManager {
         const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
         if (!recordData || recordData.isEmpty(identifier) || isLoading) {
           let isReleasable = true;
-          if (!recordData && HAS_GRAPH_PACKAGE) {
-            const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-              .graphFor;
-            const graph = graphFor(store);
-            isReleasable = graph.isReleasable(identifier);
-            if (!isReleasable) {
-              graph.unload(identifier, true);
+          if (HAS_GRAPH_PACKAGE) {
+            if (!recordData) {
+              const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
+                .graphFor;
+              const graph = graphFor(store);
+              isReleasable = graph.isReleasable(identifier);
+              if (!isReleasable) {
+                graph.unload(identifier, true);
+              }
             }
           }
           if (recordData || isReleasable) {
