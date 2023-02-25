@@ -82,7 +82,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       ember-source-channel-url: ^3.0.0
       ember-try: ^2.0.0
@@ -188,7 +188,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ember-source@4.9.3
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
@@ -843,7 +843,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
       qunit: ^2.19.3
@@ -885,7 +885,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ember-source@4.9.3
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
     dependenciesMeta:
@@ -922,7 +922,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
       qunit: ^2.19.2
@@ -957,7 +957,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
       qunit: 2.19.4
@@ -1042,7 +1042,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
       qunit: ^2.19.2
@@ -1075,7 +1075,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
       qunit: 2.19.4
@@ -1136,7 +1136,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-simple-tree: ^0.8.3
       ember-source: ~4.9.3
       loader.js: ^4.7.0
@@ -1179,7 +1179,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-simple-tree: 0.8.3_@babel+core@7.21.0
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
@@ -1225,7 +1225,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-simple-tree: ^0.8.3
       ember-source: ~4.9.3
       loader.js: ^4.7.0
@@ -1265,7 +1265,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-simple-tree: 0.8.3_@babel+core@7.21.0
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
@@ -1300,7 +1300,7 @@ importers:
       ember-export-application-global: ^2.0.1
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
       webpack: ^5.75.0
@@ -1325,7 +1325,7 @@ importers:
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
       webpack: 5.75.0
@@ -1371,7 +1371,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       ember-source-channel-url: ^3.0.0
       ember-try: ^2.0.0
@@ -1415,7 +1415,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
@@ -1472,7 +1472,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
       qunit: ^2.19.2
@@ -1506,7 +1506,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
       qunit: 2.19.4
@@ -1584,7 +1584,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       ember-source-channel-url: ^3.0.0
       ember-try: ^2.0.0
@@ -1649,7 +1649,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
@@ -1710,7 +1710,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
       qunit: ^2.19.2
@@ -1744,7 +1744,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
       qunit: 2.19.4
@@ -1786,7 +1786,7 @@ importers:
       ember-export-application-global: ^2.0.1
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
       webpack: ^5.75.0
@@ -1811,7 +1811,7 @@ importers:
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
       webpack: 5.75.0
@@ -1851,7 +1851,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       ember-source-channel-url: ^3.0.0
       ember-try: ^2.0.0
@@ -1891,7 +1891,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
@@ -1940,7 +1940,7 @@ importers:
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
       ember-qunit: ^6.0.0
-      ember-resolver: ^9.0.1
+      ember-resolver: ^10.0.0
       ember-source: ~4.9.3
       loader.js: ^4.7.0
       qunit: ^2.19.2
@@ -1974,7 +1974,7 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
       ember-maybe-import-regenerator: 1.0.0
       ember-qunit: 6.1.1_khpttehaheeunc7peqs3cjloqi
-      ember-resolver: 9.0.1_ember-source@4.9.3
+      ember-resolver: 10.0.0_ohch4lve7fpmj3pwwnb3kns7m4
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
       loader.js: 4.7.0
       qunit: 2.19.4
@@ -8781,15 +8781,33 @@ packages:
       - webpack
     dev: true
 
-  /ember-resolver/9.0.1_ember-source@4.9.3:
-    resolution: {integrity: sha512-vFdaxDuwp0xptxa4uhJE8mNLQf6/8Mz+mBohsF4721hz03ieW+zdSSR04fCetFVCLxtNhGmmrIZrClDcA5dB9w==}
+  /ember-resolver/10.0.0_ember-source@4.9.3:
+    resolution: {integrity: sha512-e99wFJ4ZpleJ6JMEcIk4WEYP4s3nc+9/iNSXtwBHXC8ADJHJTeN3HjnT/eEbFbswdui4FYxIYuK+UCdP09811Q==}
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
+      '@ember/string': ^3.0.1
       ember-source: ^4.8.3
     peerDependenciesMeta:
       ember-source:
         optional: true
     dependencies:
+      ember-cli-babel: 7.26.11
+      ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /ember-resolver/10.0.0_ohch4lve7fpmj3pwwnb3kns7m4:
+    resolution: {integrity: sha512-e99wFJ4ZpleJ6JMEcIk4WEYP4s3nc+9/iNSXtwBHXC8ADJHJTeN3HjnT/eEbFbswdui4FYxIYuK+UCdP09811Q==}
+    engines: {node: 14.* || 16.* || >= 18}
+    peerDependencies:
+      '@ember/string': ^3.0.1
+      ember-source: ^4.8.3
+    peerDependenciesMeta:
+      ember-source:
+        optional: true
+    dependencies:
+      '@ember/string': 3.0.1
       ember-cli-babel: 7.26.11
       ember-source: 4.9.3_rvahiuopogey6sgsr5ushfa7te
     transitivePeerDependencies:
