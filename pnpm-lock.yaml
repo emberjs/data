@@ -517,7 +517,7 @@ importers:
       ember-cli-string-utils: ^1.1.0
       ember-cli-test-info: ^1.0.0
       ember-source: ~4.11.0
-      inflection: ~2.0.0
+      inflection: ~2.0.1
       rollup: ^3.17.2
       tslib: ^2.4.1
       typescript: ^4.9.5

@@ -61,7 +61,7 @@
     "ember-cli-babel": "^7.26.11",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
-    "inflection": "~2.0.0"
+    "inflection": "~2.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
