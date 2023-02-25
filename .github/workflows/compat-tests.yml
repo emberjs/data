@@ -37,6 +37,7 @@ jobs:
   embroider-advanced:
     timeout-minutes: 8
     strategy:
+      fail-fast: false
       matrix:
         scenario: [embroider-safe, embroider-optimized]
     runs-on: ubuntu-latest
