@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## 4.11.1 (2023-02-25)
+
+#### :bug: Bug Fix
+* `private-build-infra`, `store`
+  * [#8427](https://github.com/emberjs/data/pull/8427) fix: embroider compat ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## 4.11.0 (2023-02-25)
 
 This is a re-release of 4.10.0
