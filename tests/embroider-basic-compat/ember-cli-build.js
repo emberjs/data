@@ -32,5 +32,28 @@ module.exports = function (defaults) {
         package: 'qunit',
       },
     ],
+    compatAdapters: new Map([
+      ['@ember-data/store', null],
+      ['@ember-data/record-data', null],
+      ['@ember-data/serializer', null],
+      ['@ember-data/adapter', null],
+      ['@ember-data/model', null],
+      ['@ember-data/debug', null],
+      ['@ember-data/tracking', null],
+      ['@ember-data/request', null],
+      ['@ember-data/private-build-infra', null],
+      ['@ember-data/canary-features', null],
+      ['ember-data', null],
+    ]),
+    packageRules: [
+      {
+        package: '@ember-data/store',
+        addonModules: {
+          '-private.js': {
+            dependsOnModules: ['@ember-data/json-api/-private'],
+          },
+        },
+      },
+    ],
   });
 };
