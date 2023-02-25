@@ -108,7 +108,7 @@ importers:
       prettier: ^2.8.4
       qunit: ^2.19.3
       qunit-dom: ^2.0.0
-      rimraf: ^3.0.2
+      rimraf: ^4.1.2
       rsvp: ^4.8.5
       semver: ^7.3.8
       silent-error: ^1.1.1
@@ -215,7 +215,7 @@ importers:
       prettier: 2.8.4
       qunit: 2.19.3
       qunit-dom: 2.0.0
-      rimraf: 3.0.2
+      rimraf: 4.1.2
       rsvp: 4.8.5
       semver: 7.3.8
       silent-error: 1.1.1
@@ -588,7 +588,7 @@ importers:
       git-repo-info: ^2.1.1
       glob: ^8.1.0
       npm-git-info: ^1.0.3
-      rimraf: ^3.0.2
+      rimraf: ^4.1.2
       rsvp: ^4.8.5
       semver: ^7.3.8
       silent-error: ^1.1.1
@@ -617,7 +617,7 @@ importers:
       git-repo-info: 2.1.1
       glob: 8.1.0
       npm-git-info: 1.0.3
-      rimraf: 3.0.2
+      rimraf: 4.1.2
       rsvp: 4.8.5
       semver: 7.3.8
       silent-error: 1.1.1
@@ -13857,6 +13857,11 @@ packages:
     dependencies:
       glob: 7.2.3
 
+  /rimraf/4.1.2:
+    resolution: {integrity: sha512-BlIbgFryTbw3Dz6hyoWFhKk+unCcHMSkZGrTFVAx2WmttdBSonsdtRlwiuTbDqTKr+UlXIUqJVS4QT5tUzGENQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   /rollup-plugin-copy-assets/2.0.3_rollup@3.17.2:
     resolution: {integrity: sha512-ETShhQGb9SoiwcNrvb3BhUNSGR89Jao0+XxxfzzLW1YsUzx8+rMO4z9oqWWmo6OHUmfNQRvqRj0cAyPkS9lN9w==}
     peerDependencies:
@@ -16195,7 +16200,7 @@ packages:
       git-repo-info: 2.1.1
       glob: 8.1.0
       npm-git-info: 1.0.3
-      rimraf: 3.0.2
+      rimraf: 4.1.2
       rsvp: 4.8.5
       semver: 7.3.8
       silent-error: 1.1.1
