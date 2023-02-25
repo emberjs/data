@@ -34,6 +34,23 @@ jobs:
           build-addons: true
       - name: Run Tests
         run: pnpm test:embroider
+  embroider-advanced:
+    timeout-minutes: 8
+    strategy:
+      matrix:
+        scenario: [embroider-safe, embroider-optimized]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+        with:
+          restore-broccoli-cache: true
+          install: true
+          build-addons: true
+      - name: Basic tests with ${{ matrix.scenario }}
+        env:
+          CI: true
+        run: pnpm test:try-one ${{ matrix.scenario }} -- ember test --test-port=0
   floating-dependencies:
     timeout-minutes: 5
     runs-on: ubuntu-latest
