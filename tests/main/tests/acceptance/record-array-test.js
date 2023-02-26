@@ -19,6 +19,47 @@ module('IdentifierArray | Classic Chains', function (hooks) {
     this.owner.register('model:person', Person);
   });
 
+  test('recomputed with {{#each}}', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    // populate initial date
+    store.push({
+      data: [
+        { type: 'person', id: '1', attributes: { name: 'Chris' } },
+        { type: 'person', id: '2', attributes: { name: 'James' } },
+        { type: 'person', id: '3', attributes: { name: 'Thomas' } },
+      ],
+    });
+
+    class Presenter {
+      records = store.peekAll('person');
+    }
+    const presenter = new Presenter();
+    this.set('presenter', presenter);
+
+    await render(hbs`
+      <ul>
+      {{#each this.presenter.records as |record|}}
+        <li>{{record.name}}</li>
+      {{/each}}
+      </ul>
+    `);
+
+    let rendered = findAll('li').map((e) => e.textContent);
+
+    assert.strictEqual(rendered.length, 3, 'we rendered the correct number of names');
+    assert.deepEqual(rendered, ['Chris', 'James', 'Thomas'], 'We rendered the names');
+
+    store.createRecord('person', { name: 'Austen' });
+
+    await rerender();
+
+    rendered = findAll('li').map((e) => e.textContent);
+
+    assert.strictEqual(rendered.length, 4, 'we rendered the correct number of names');
+    assert.deepEqual(rendered, ['Chris', 'James', 'Thomas', 'Austen'], 'We rendered the names');
+  });
+
   test('recomputed with computed.@each', async function (assert) {
     const store = this.owner.lookup('service:store');
 

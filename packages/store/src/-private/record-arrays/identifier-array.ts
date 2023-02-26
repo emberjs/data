@@ -235,28 +235,17 @@ class IdentifierArray {
   // length must be on self for proxied methods to work properly
   @dependentKeyCompat
   get length() {
-    // shouldn't be needed, but ends up being needed
-    // for computed chains even in 4.x
-    if (DEPRECATE_COMPUTED_CHAINS) {
-      // eslint-disable-next-line
-      // consumeTag(tagForProperty(this, 'length'));
-      this['[]'];
-    }
     return this[SOURCE].length;
   }
   set length(value) {
     this[SOURCE].length = value;
   }
 
-  // ember-source < 3.23 (e.g. 3.20 lts)
-  // requires that the tag `'[]'` be notified
-  // on the ArrayProxy in order for `{{#each}}`
-  // to recompute. We entangle the '[]' tag from
+  // here to support computed chains
+  // and {{#each}}
   @dependentKeyCompat
   get '[]'() {
     if (DEPRECATE_COMPUTED_CHAINS) {
-      // eslint-disable-next-line
-      // consumeTag(tagForProperty(this, '[]'));
       return this[IDENTIFIER_ARRAY_TAG].ref && this;
     }
   }
