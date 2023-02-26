@@ -1,6 +1,8 @@
 /**
   @module @ember-data/store
 */
+// @ts-expect-error
+import { tagForProperty } from '@ember/-internals/metal';
 import { assert, deprecate } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
@@ -8,7 +10,7 @@ import { compare } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 // @ts-expect-error
-import { dirtyTag, tagFor } from '@glimmer/validator';
+import { dirtyTag } from '@glimmer/validator';
 import Ember from 'ember';
 
 import {
@@ -73,9 +75,9 @@ export function notifyArray(arr: IdentifierArray) {
 
   if (DEPRECATE_COMPUTED_CHAINS) {
     // eslint-disable-next-line
-    dirtyTag(tagFor(arr, 'length'));
+    dirtyTag(tagForProperty(arr, 'length'));
     // eslint-disable-next-line
-    dirtyTag(tagFor(arr, '[]'));
+    dirtyTag(tagForProperty(arr, '[]'));
   }
 }
 
