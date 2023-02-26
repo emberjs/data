@@ -81,7 +81,6 @@ module('IdentifierArray | Classic Chains', function (hooks) {
       }
     }
     const presenter = new Presenter();
-    debugger;
     let { names } = presenter;
 
     assert.strictEqual(names.length, 3, 'correct names length');

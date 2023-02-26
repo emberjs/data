@@ -50,6 +50,7 @@ function flushTransaction() {
     cb();
   });
   transaction.props.forEach((obj: Tag) => {
+    // mark this mutation as part of a transaction
     obj.t = true;
     obj.ref = null;
   });
@@ -67,6 +68,7 @@ async function untrack() {
     cb();
   });
   transaction.props.forEach((obj: Tag) => {
+    // mark this mutation as part of a transaction
     obj.t = true;
     obj.ref = null;
   });

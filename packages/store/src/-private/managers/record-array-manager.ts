@@ -183,7 +183,7 @@ class RecordArrayManager {
       } else {
         addToTransaction(tag);
       }
-    } else if (delta > 0 && tag.t) {
+    } else if (delta > 0 && !tag.t) {
       if (DEPRECATE_COMPUTED_CHAINS) {
         addTransactionCB(array[NOTIFY]);
       } else {

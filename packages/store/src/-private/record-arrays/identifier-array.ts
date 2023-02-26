@@ -10,7 +10,7 @@ import { compare } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 // @ts-expect-error
-import { consumeTag, dirtyTag } from '@glimmer/validator';
+import { dirtyTag } from '@glimmer/validator';
 import Ember from 'ember';
 
 import {
@@ -93,8 +93,16 @@ function convertToInt(prop: KeyType): number | null {
 
 class Tag {
   @tracked ref = null;
-  shouldReset: boolean = false;
-  t = false;
+  declare shouldReset: boolean;
+  /**
+   * whether this was part of a transaction when last mutated
+   */
+  declare t: boolean;
+
+  constructor() {
+    this.shouldReset = false;
+    this.t = false;
+  }
 }
 
 type ProxiedMethod = (...args: unknown[]) => unknown;
@@ -243,10 +251,9 @@ class IdentifierArray {
 
   // here to support computed chains
   // and {{#each}}
-  @dependentKeyCompat
   get '[]'() {
     if (DEPRECATE_COMPUTED_CHAINS) {
-      return this[IDENTIFIER_ARRAY_TAG].ref && this;
+      return this;
     }
   }
 
@@ -358,6 +365,10 @@ class IdentifierArray {
               deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop, 'at(-1)');
               return receiver[receiver.length - 1];
             }
+          }
+
+          if (prop === NOTIFY || prop === IDENTIFIER_ARRAY_TAG || prop === SOURCE) {
+            return self[prop];
           }
 
           let fn = boundFns.get(prop);
