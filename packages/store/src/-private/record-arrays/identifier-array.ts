@@ -1,17 +1,22 @@
 /**
   @module @ember-data/store
 */
+// @ts-expect-error
+import { tagForProperty } from '@ember/-internals/metal';
 import { assert, deprecate } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { compare } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
+// @ts-expect-error
+import { consumeTag, dirtyTag } from '@glimmer/validator';
 import Ember from 'ember';
 
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_ARRAY_LIKE,
+  DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
@@ -63,6 +68,18 @@ function isArraySetter(prop: KeyType): boolean {
 export const IDENTIFIER_ARRAY_TAG = Symbol('#tag');
 export const SOURCE = Symbol('#source');
 export const MUTATE = Symbol('#update');
+export const NOTIFY = Symbol('#notify');
+
+export function notifyArray(arr: IdentifierArray) {
+  arr[IDENTIFIER_ARRAY_TAG].ref = null;
+
+  if (DEPRECATE_COMPUTED_CHAINS) {
+    // eslint-disable-next-line
+    dirtyTag(tagForProperty(arr, 'length'));
+    // eslint-disable-next-line
+    dirtyTag(tagForProperty(arr, '[]'));
+  }
+}
 
 function convertToInt(prop: KeyType): number | null {
   if (typeof prop === 'symbol') return null;
@@ -154,11 +171,9 @@ function safeForEach(
   @class RecordArray
   @public
 */
-
-interface IdentifierArray {
+interface IdentifierArray extends Omit<Array<RecordInstance>, '[]'> {
   [MUTATE]?(prop: string, args: unknown[], result?: unknown): void;
 }
-interface IdentifierArray extends Array<RecordInstance> {}
 class IdentifierArray {
   declare DEPRECATED_CLASS_NAME: string;
   /**
@@ -182,6 +197,9 @@ class IdentifierArray {
 
   [IDENTIFIER_ARRAY_TAG] = new Tag();
   [SOURCE]: StableRecordIdentifier[];
+  [NOTIFY]() {
+    notifyArray(this);
+  }
 
   declare links: Links | PaginationLinks | null;
   declare meta: Dict<unknown> | null;
@@ -210,17 +228,37 @@ class IdentifierArray {
     // changing the reference breaks the Proxy
     // this[SOURCE] = [];
     this[SOURCE].length = 0;
-    this[IDENTIFIER_ARRAY_TAG].ref = null;
+    this[NOTIFY]();
     this.isDestroyed = true;
   }
 
   // length must be on self for proxied methods to work properly
   @dependentKeyCompat
   get length() {
+    // shouldn't be needed, but ends up being needed
+    // for computed chains even in 4.x
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      // eslint-disable-next-line
+      // consumeTag(tagForProperty(this, 'length'));
+      this['[]'];
+    }
     return this[SOURCE].length;
   }
   set length(value) {
     this[SOURCE].length = value;
+  }
+
+  // ember-source < 3.23 (e.g. 3.20 lts)
+  // requires that the tag `'[]'` be notified
+  // on the ArrayProxy in order for `{{#each}}`
+  // to recompute. We entangle the '[]' tag from
+  @dependentKeyCompat
+  get '[]'() {
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      // eslint-disable-next-line
+      // consumeTag(tagForProperty(this, '[]'));
+      return this[IDENTIFIER_ARRAY_TAG].ref && this;
+    }
   }
 
   constructor(options: IdentifierArrayCreateOptions) {
@@ -440,6 +478,8 @@ class IdentifierArray {
       };
     }
 
+    this[NOTIFY] = this[NOTIFY].bind(proxy);
+
     return proxy;
   }
 
@@ -581,7 +621,7 @@ export class Collection extends IdentifierArray {
 Collection.prototype.query = null;
 
 // Ensure instanceof works correctly
-// Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
+//Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
 
 if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.DEPRECATED_CLASS_NAME = 'RecordArray';

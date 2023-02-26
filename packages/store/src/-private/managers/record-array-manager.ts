@@ -1,7 +1,8 @@
 /**
   @module @ember-data/store
 */
-import { addToTransaction } from '@ember-data/tracking/-private';
+import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/private-build-infra/deprecations';
+import { addToTransaction, addTransactionCB } from '@ember-data/tracking/-private';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -10,6 +11,8 @@ import IdentifierArray, {
   Collection,
   CollectionCreateOptions,
   IDENTIFIER_ARRAY_TAG,
+  NOTIFY,
+  notifyArray,
   SOURCE,
 } from '../record-arrays/identifier-array';
 import type Store from '../store-service';
@@ -175,9 +178,17 @@ class RecordArrayManager {
     let tag = array[IDENTIFIER_ARRAY_TAG];
     if (!tag.shouldReset) {
       tag.shouldReset = true;
-      addToTransaction(tag);
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        addTransactionCB(array[NOTIFY]);
+      } else {
+        addToTransaction(tag);
+      }
     } else if (delta > 0 && tag.t) {
-      addToTransaction(tag);
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        addTransactionCB(array[NOTIFY]);
+      } else {
+        addToTransaction(tag);
+      }
     }
   }
 
@@ -244,7 +255,8 @@ class RecordArrayManager {
     const old = source.slice();
     source.length = 0;
     fastPush(source, identifiers);
-    array[IDENTIFIER_ARRAY_TAG].ref = null;
+
+    notifyArray(array);
     array.meta = payload.meta || null;
     array.links = payload.links || null;
     array.isLoaded = true;

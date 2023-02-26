@@ -5,7 +5,14 @@ import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
-import { IDENTIFIER_ARRAY_TAG, MUTATE, RecordArray, recordIdentifierFor, SOURCE } from '@ember-data/store/-private';
+import {
+  IDENTIFIER_ARRAY_TAG,
+  MUTATE,
+  notifyArray,
+  RecordArray,
+  recordIdentifierFor,
+  SOURCE,
+} from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
@@ -271,7 +278,7 @@ export default class RelatedCollection extends RecordArray {
 
   notify() {
     const tag = this[IDENTIFIER_ARRAY_TAG];
-    tag.ref = null;
+    notifyArray(this);
     tag.shouldReset = true;
   }
 
