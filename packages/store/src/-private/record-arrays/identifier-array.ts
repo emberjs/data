@@ -92,7 +92,7 @@ function convertToInt(prop: KeyType): number | null {
 class Tag {
   @tracked ref = null;
   declare shouldReset: boolean;
-  /**
+  /*
    * whether this was part of a transaction when last mutated
    */
   declare t: boolean;

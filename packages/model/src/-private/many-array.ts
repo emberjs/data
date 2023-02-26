@@ -278,8 +278,9 @@ export default class RelatedCollection extends RecordArray {
 
   notify() {
     const tag = this[IDENTIFIER_ARRAY_TAG];
-    notifyArray(this);
     tag.shouldReset = true;
+    // @ts-expect-error
+    notifyArray(this);
   }
 
   /**
