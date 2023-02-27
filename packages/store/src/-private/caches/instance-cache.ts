@@ -237,7 +237,10 @@ export class InstanceCache {
     let record = this.__instances.record.get(identifier);
 
     if (!record) {
-      assert(`Cannot create a new record instance while the store is being destroyed`, !this.store.isDestroying && !this.store.isDestroyed);
+      assert(
+        `Cannot create a new record instance while the store is being destroyed`,
+        !this.store.isDestroying && !this.store.isDestroyed
+      );
       const recordData = this.getRecordData(identifier);
 
       record = this.store.instantiateRecord(

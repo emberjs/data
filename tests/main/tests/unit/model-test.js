@@ -5,13 +5,14 @@ import { reject, resolve } from 'rsvp';
 
 import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
-import { _clearCaches } from '@ember-data/store/-private';
+
 import { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
+import { _clearCaches } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model - Model', function (hooks) {

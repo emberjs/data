@@ -413,7 +413,10 @@ export class Graph {
       if (Graphs.size) {
         Graphs.forEach((_, key) => {
           // @ts-expect-error
-          assert(`Memory Leak Detected, likely the test or app instance previous to this was not torn down properly`, !key.isDestroyed && !key.isDestroying);
+          assert(
+            `Memory Leak Detected, likely the test or app instance previous to this was not torn down properly`,
+            !key.isDestroyed && !key.isDestroying
+          );
         });
       }
     }
