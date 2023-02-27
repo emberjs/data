@@ -19,7 +19,7 @@ import { Dict } from '@ember-data/types/q/utils';
 
 import { LocalRelationshipOperation } from './graph/-operations';
 import { isImplicit } from './graph/-utils';
-import { graphFor } from './graph/index';
+import { graphFor, peekGraph } from './graph/index';
 import type BelongsToRelationship from './relationships/state/belongs-to';
 import type ManyRelationship from './relationships/state/has-many';
 
@@ -322,7 +322,7 @@ export default class SingletonRecordData implements RecordData {
   unloadRecord(identifier: StableRecordIdentifier): void {
     const cached = this.__peek(identifier);
     const storeWrapper = this.__storeWrapper;
-    graphFor(storeWrapper).unload(identifier);
+    peekGraph(storeWrapper)?.unload(identifier);
 
     // effectively clearing these is ensuring that
     // we report as `isEmpty` during teardown.
@@ -630,8 +630,8 @@ function _directlyRelatedRecordDatasIterable(
   storeWrapper: RecordDataStoreWrapper,
   originating: StableRecordIdentifier
 ) {
-  const graph = graphFor(storeWrapper);
-  const initializedRelationships = graph.identifiers.get(originating);
+  const graph = peekGraph(storeWrapper);
+  const initializedRelationships = graph?.identifiers.get(originating);
 
   if (!initializedRelationships) {
     return EMPTY_ITERATOR;

@@ -57,4 +57,5 @@ export { default as RecordArrayManager, fastPush } from './managers/record-array
 export { default as SnapshotRecordArray } from './network/snapshot-record-array';
 
 // leaked for private use / test use, should investigate removing
+export { _clearCaches } from './caches/instance-cache';
 export { default as recordDataFor, removeRecordDataFor } from './caches/record-data-for';
