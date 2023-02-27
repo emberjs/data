@@ -135,7 +135,7 @@ export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>
         return Reflect.get(target, prop, receiver);
       }
       if (ALLOWABLE_PROPS.includes(prop)) {
-        return receiver[prop];
+        return target[prop];
       }
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
