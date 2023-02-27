@@ -1734,7 +1734,7 @@ class Model extends EmberObject {
    import Blog from 'app/models/blog';
 
    let relatedTypes = Blog.relatedTypes');
-   //=> [ User, Post ]
+   //=> ['user', 'post']
    ```
 
    @property relatedTypes
