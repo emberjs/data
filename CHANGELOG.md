@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## 4.11.2 (2023-02-27)
+
+#### :bug: Bug Fix
+* `model`, `private-build-infra`, `store`, `tracking`
+  * [#8433](https://github.com/emberjs/data/pull/8433) fix: ensure classic computed chains support (#8432) ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## 4.11.1 (2023-02-25)
 
 #### :bug: Bug Fix
