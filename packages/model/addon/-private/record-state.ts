@@ -42,6 +42,9 @@ class Tag {
     this.rev = 1;
     this.isDirty = true;
     this.value = undefined;
+    /*
+     * whether this was part of a transaction when mutated
+     */
     this.t = false;
   }
   @tracked ref = null;
