@@ -1,8 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/private-build-infra/deprecations';
-import { addToTransaction, addTransactionCB } from '@ember-data/tracking/-private';
+import { addTransactionCB } from '@ember-data/tracking/-private';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
