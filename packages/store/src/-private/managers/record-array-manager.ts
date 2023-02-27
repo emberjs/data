@@ -178,17 +178,9 @@ class RecordArrayManager {
     let tag = array[IDENTIFIER_ARRAY_TAG];
     if (!tag.shouldReset) {
       tag.shouldReset = true;
-      if (DEPRECATE_COMPUTED_CHAINS) {
-        addTransactionCB(array[NOTIFY]);
-      } else {
-        addToTransaction(tag);
-      }
+      addTransactionCB(array[NOTIFY]);
     } else if (delta > 0 && !tag.t) {
-      if (DEPRECATE_COMPUTED_CHAINS) {
-        addTransactionCB(array[NOTIFY]);
-      } else {
-        addToTransaction(tag);
-      }
+      addTransactionCB(array[NOTIFY]);
     }
   }
 
