@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## 4.11.3 (2023-02-27)
+
+#### :bug: Bug Fix
+* `model`, `record-data`, `store`
+  * [#8439](https://github.com/emberjs/data/pull/8439) Backport EmberConcurrency and Memory Leak fixes ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## 4.11.2 (2023-02-27)
 
 #### :bug: Bug Fix
