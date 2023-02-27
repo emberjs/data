@@ -24,6 +24,7 @@ npm-debug.log*
 testem.log
 yarn-error.log
 .broccoli-cache
+tsconfig.tsbuildinfo
 
 # Ignore artifacts of publishing
 *.tgz

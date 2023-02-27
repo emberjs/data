@@ -46,6 +46,7 @@ export {
   default as RecordArray,
   default as IdentifierArray,
   Collection as AdapterPopulatedRecordArray,
+  notifyArray,
   SOURCE,
   MUTATE,
   IDENTIFIER_ARRAY_TAG,
