@@ -1136,7 +1136,6 @@ importers:
       ember-data: workspace:4.8.7
       ember-decorators-polyfill: ^1.1.5
       ember-disable-prototype-extensions: ^1.1.3
-      ember-export-application-global: ^2.0.1
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
@@ -1201,7 +1200,6 @@ importers:
       ember-data: file:packages/-ember-data_dxwsweiqejb3begtamuoosndyi
       ember-decorators-polyfill: 1.1.5_@babel+core@7.19.6
       ember-disable-prototype-extensions: 1.1.3
-      ember-export-application-global: 2.0.1
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.19.6
       ember-maybe-import-regenerator: 1.0.0
