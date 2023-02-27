@@ -190,7 +190,7 @@ export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
       }
 
       if (ALLOWABLE_PROPS.includes(prop)) {
-        return receiver[prop];
+        return target[prop];
       }
 
       if (!ALLOWABLE_METHODS.includes(prop)) {
