@@ -656,8 +656,8 @@ function patchLocalAttributes(cached: CachedResource): boolean {
     relationship.
   */
 function _directlyRelatedIdentifiersIterable(storeWrapper: CacheStoreWrapper, originating: StableRecordIdentifier) {
-  const graph = graphFor(storeWrapper);
-  const initializedRelationships = graph.identifiers.get(originating);
+  const graph = peekGraph(storeWrapper);
+  const initializedRelationships = graph?.identifiers.get(originating);
 
   if (!initializedRelationships) {
     return EMPTY_ITERATOR;

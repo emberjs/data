@@ -410,6 +410,7 @@ export class Graph {
 
     if (DEBUG) {
       Graphs.delete(getStore(this.store) as unknown as CacheStoreWrapper);
+      assert(`Memory Leak Detected, likely the test or app instance previous to this was not torn down properly`, Graphs.size === 0);
     }
 
     this.identifiers.clear();
