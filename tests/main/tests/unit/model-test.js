@@ -12,6 +12,7 @@ import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
+import { _clearCaches } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model - Model', function (hooks) {
@@ -225,6 +226,9 @@ module('unit/model - Model', function (hooks) {
           },
         });
       }, /You may not set 'id' as an attribute on your model/);
+
+      store.unloadAll();
+      _clearCaches();
     });
 
     test(`a collision of a record's id with object function's name`, async function (assert) {
@@ -626,6 +630,9 @@ module('unit/model - Model', function (hooks) {
           },
           'We throw for legacy-style classes'
         );
+
+        store.unloadAll();
+        _clearCaches();
       });
     }
 

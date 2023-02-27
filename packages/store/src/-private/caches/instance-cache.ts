@@ -37,7 +37,7 @@ import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import { assertIdentifierHasId } from '../utils/identifier-has-id';
 import normalizeModelName from '../utils/normalize-model-name';
-import { removeRecordDataFor, setRecordDataFor } from './record-data-for';
+import { RecordDataForIdentifierCache, removeRecordDataFor, setRecordDataFor } from './record-data-for';
 
 let _peekGraph: peekGraph;
 if (HAS_GRAPH_PACKAGE) {
@@ -237,6 +237,10 @@ export class InstanceCache {
     let record = this.__instances.record.get(identifier);
 
     if (!record) {
+      assert(
+        `Cannot create a new record instance while the store is being destroyed`,
+        !this.store.isDestroying && !this.store.isDestroyed
+      );
       const recordData = this.getRecordData(identifier);
 
       record = this.store.instantiateRecord(
@@ -691,4 +695,10 @@ function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): b
     // fulfilled === null &&
     req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
   );
+}
+
+export function _clearCaches() {
+  RecordCache.clear();
+  StoreMap.clear();
+  RecordDataForIdentifierCache.clear();
 }

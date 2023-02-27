@@ -38,6 +38,7 @@ export function lookupLegacySupport(record) {
   let support = LEGACY_SUPPORT.get(identifier);
 
   if (!support) {
+    assert(`Memory Leak Detected`, !record.isDestroyed && !record.isDestroying);
     support = new LegacySupport(record);
     LEGACY_SUPPORT.set(identifier, support);
     LEGACY_SUPPORT.set(record, support);

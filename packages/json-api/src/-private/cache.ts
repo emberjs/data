@@ -5,7 +5,7 @@ import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import { graphFor } from '@ember-data/graph/-private';
+import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
@@ -346,7 +346,7 @@ export default class SingletonCache implements Cache {
   unloadRecord(identifier: StableRecordIdentifier): void {
     const cached = this.__peek(identifier);
     const storeWrapper = this.__storeWrapper;
-    graphFor(storeWrapper).unload(identifier);
+    peekGraph(storeWrapper)?.unload(identifier);
 
     // effectively clearing these is ensuring that
     // we report as `isEmpty` during teardown.
@@ -656,8 +656,8 @@ function patchLocalAttributes(cached: CachedResource): boolean {
     relationship.
   */
 function _directlyRelatedIdentifiersIterable(storeWrapper: CacheStoreWrapper, originating: StableRecordIdentifier) {
-  const graph = graphFor(storeWrapper);
-  const initializedRelationships = graph.identifiers.get(originating);
+  const graph = peekGraph(storeWrapper);
+  const initializedRelationships = graph?.identifiers.get(originating);
 
   if (!initializedRelationships) {
     return EMPTY_ITERATOR;
