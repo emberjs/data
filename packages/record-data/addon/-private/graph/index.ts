@@ -38,7 +38,6 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
 
     // in DEBUG we attach the graph to the main store for improved debuggability
     if (DEBUG) {
-      // @ts-expect-error
       if (getStore(wrapper).isDestroying) {
         throw new Error(`Memory Leak Detected During Teardown`);
       }
