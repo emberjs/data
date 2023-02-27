@@ -9,7 +9,7 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
  * Model or Identifier
  */
 
-const RecordDataForIdentifierCache = new Map<StableRecordIdentifier | RecordInstance, Cache>();
+export const RecordDataForIdentifierCache = new Map<StableRecordIdentifier | RecordInstance, Cache>();
 
 export function setRecordDataFor(identifier: StableRecordIdentifier | RecordInstance, recordData: Cache): void {
   assert(

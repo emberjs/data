@@ -5,7 +5,7 @@ import { reject, resolve } from 'rsvp';
 
 import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
-
+import { _clearCaches } from '@ember-data/store/-private';
 import { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, attr as DSattr } from '@ember-data/model';
@@ -225,6 +225,9 @@ module('unit/model - Model', function (hooks) {
           },
         });
       }, /You may not set 'id' as an attribute on your model/);
+
+      store.unloadAll();
+      _clearCaches();
     });
 
     test(`a collision of a record's id with object function's name`, async function (assert) {
@@ -626,6 +629,9 @@ module('unit/model - Model', function (hooks) {
           },
           'We throw for legacy-style classes'
         );
+
+        store.unloadAll();
+        _clearCaches();
       });
     }
 
