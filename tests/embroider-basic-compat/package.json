@@ -63,7 +63,7 @@
     "ember-fetch": "^8.1.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-qunit": "^6.1.1",
+    "ember-qunit": "^6.2.0",
     "ember-resolver": "^10.0.0",
     "ember-simple-tree": "^0.8.3",
     "ember-source": "~4.11.0",
