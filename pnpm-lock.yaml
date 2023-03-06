@@ -97,7 +97,7 @@ importers:
       fromentries: ^1.3.2
       git-repo-info: ^2.1.1
       git-repo-version: ^1.0.2
-      glob: ^8.1.0
+      glob: ^9.2.1
       json-typescript: ^1.1.2
       lerna-changelog: ^2.2.0
       loader.js: ^4.7.0
@@ -203,7 +203,7 @@ importers:
       fromentries: 1.3.2
       git-repo-info: 2.1.1
       git-repo-version: 1.0.2
-      glob: 8.1.0
+      glob: 9.2.1
       json-typescript: 1.1.2
       lerna-changelog: 2.2.0
       loader.js: 4.7.0
@@ -579,7 +579,7 @@ importers:
       ember-cli-string-utils: ^1.1.0
       ember-cli-version-checker: ^5.1.2
       git-repo-info: ^2.1.1
-      glob: ^8.1.0
+      glob: ^9.2.1
       npm-git-info: ^1.0.3
       rimraf: ^4.1.2
       rsvp: ^4.8.5
@@ -608,7 +608,7 @@ importers:
       ember-cli-string-utils: 1.1.0
       ember-cli-version-checker: 5.1.2
       git-repo-info: 2.1.1
-      glob: 8.1.0
+      glob: 9.2.1
       npm-git-info: 1.0.3
       rimraf: 4.1.2
       rsvp: 4.8.5
@@ -10236,6 +10236,16 @@ packages:
       inherits: 2.0.4
       minimatch: 5.1.6
       once: 1.4.0
+    dev: true
+
+  /glob/9.2.1:
+    resolution: {integrity: sha512-Pxxgq3W0HyA3XUvSXcFhRSs+43Jsx0ddxcFrbjxNGkL2Ak5BAUBxLqI5G6ADDeCHLfzzXFhe0b1yYcctGmytMA==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      fs.realpath: 1.0.0
+      minimatch: 7.4.2
+      minipass: 4.2.4
+      path-scurry: 1.6.1
 
   /global-modules/1.0.0:
     resolution: {integrity: sha512-sKzpEkf11GpOFuw0Zzjzmt4B4UZwjOcG757PPvrfhxcLFbq0wpsgpOqxpxtxFiCG4DtG93M6XRVbF2oGdev7bg==}
@@ -11822,7 +11832,6 @@ packages:
   /lru-cache/7.17.0:
     resolution: {integrity: sha512-zSxlVVwOabhVyTi6E8gYv2cr6bXK+8ifYz5/uyJb9feXX6NACVDwY4p5Ut3WC3Ivo/QhpARHU3iujx2xGAYHbQ==}
     engines: {node: '>=12'}
-    dev: true
 
   /magic-string/0.24.1:
     resolution: {integrity: sha512-YBfNxbJiixMzxW40XqJEIldzHyh5f7CZKalo1uZffevyrPEX8Qgo9s0dmcORLHdV47UyvJg8/zD+6hQG3qvJrA==}
@@ -12140,6 +12149,13 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 2.0.1
+    dev: true
+
+  /minimatch/7.4.2:
+    resolution: {integrity: sha512-xy4q7wou3vUoC9k1xGTXc+awNdGaGVHtFUaey8tiX4H1QRc04DZ/rmDFwNm2EBsuYEhAZ6SgMmYf3InGY6OauA==}
+    engines: {node: '>=10'}
+    dependencies:
+      brace-expansion: 2.0.1
 
   /minimist/0.2.3:
     resolution: {integrity: sha512-cdOrRjzm/cI4sG1c1Kzgo5kpFQm61wrgADF89L2ONgCqlwWNCJ3L4DoOLamFIagKhdnRuC+4eWgdRB4OoibyuQ==}
@@ -12200,10 +12216,9 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /minipass/4.2.1:
-    resolution: {integrity: sha512-KS4CHIsDfOZetnT+u6fwxyFADXLamtkPxkGScmmtTW//MlRrImV+LtbmbJpLQ86Hw7km/utbfEfndhGBrfwvlA==}
+  /minipass/4.2.4:
+    resolution: {integrity: sha512-lwycX3cBMTvcejsHITUgYj6Gy6A7Nh4Q6h9NP4sTHY1ccJlC7yKzDmiShEHsJ16Jf1nKGDEaiHxiltsJEvk0nQ==}
     engines: {node: '>=8'}
-    dev: true
 
   /minizlib/2.1.2:
     resolution: {integrity: sha512-bAxsR8BVfj60DWXHE3u30oHzfl4G7khkSuPW+qvpd7jFRHm7dLxOjUk1EHACJ/hxLY8phGJ0YhYHZo7jil7Qdg==}
@@ -12839,6 +12854,13 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       path-root-regex: 0.1.2
+
+  /path-scurry/1.6.1:
+    resolution: {integrity: sha512-OW+5s+7cw6253Q4E+8qQ/u1fVvcJQCJo/VFD8pje+dbJCF1n5ZRMV2AEHbGp+5Q7jxQIYJxkHopnj6nzdGeZLA==}
+    engines: {node: '>=14'}
+    dependencies:
+      lru-cache: 7.17.0
+      minipass: 4.2.4
 
   /path-to-regexp/0.1.7:
     resolution: {integrity: sha512-5DFkuoqlv1uYQKxy8omFBeJPQcdoE07Kv2sferDCrAq1ohOU+MSDswDIbnx3YAM60qIOnYa53wBhXW0EbMonrQ==}
@@ -14362,7 +14384,7 @@ packages:
     dependencies:
       chownr: 2.0.0
       fs-minipass: 2.1.0
-      minipass: 4.2.1
+      minipass: 4.2.4
       minizlib: 2.1.2
       mkdirp: 1.0.4
       yallist: 4.0.0
@@ -16001,7 +16023,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-version-checker: 5.1.2
       git-repo-info: 2.1.1
-      glob: 8.1.0
+      glob: 9.2.1
       npm-git-info: 1.0.3
       rimraf: 4.1.2
       rsvp: 4.8.5
