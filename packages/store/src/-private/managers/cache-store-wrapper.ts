@@ -75,7 +75,13 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
     });
   }
 
-  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void {
+  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
+  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
+  notifyChange(
+    identifier: StableRecordIdentifier,
+    namespace: NotificationType | 'added' | 'removed',
+    key?: string
+  ): void {
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
 
     // TODO do we still get value from this?
@@ -84,11 +90,8 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
       return;
     }
 
+    // @ts-expect-error
     this._store.notifications.notify(identifier, namespace, key);
-
-    if (namespace === 'state') {
-      this._store.recordArrayManager.identifierChanged(identifier);
-    }
   }
 
   notifyErrorsChange(type: string, id: string, lid: string | null): void;
@@ -209,7 +212,6 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     this._store.notifications.notify(identifier, 'state');
-    this._store.recordArrayManager.identifierChanged(identifier);
   }
 
   recordDataFor(type: string, id: string, lid?: string | null): Cache;
@@ -243,7 +245,6 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
 
     if (!id && !lid) {
       recordData.clientDidCreate(identifier);
-      this._store.recordArrayManager.identifierAdded(identifier);
     }
 
     return recordData;
@@ -379,7 +380,13 @@ class V2CacheStoreWrapper implements StoreWrapper {
     });
   }
 
-  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void {
+  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
+  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
+  notifyChange(
+    identifier: StableRecordIdentifier,
+    namespace: NotificationType | 'added' | 'removed',
+    key?: string
+  ): void {
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
 
     // TODO do we still get value from this?
@@ -388,11 +395,8 @@ class V2CacheStoreWrapper implements StoreWrapper {
       return;
     }
 
+    // @ts-expect-error
     this._store.notifications.notify(identifier, namespace, key);
-
-    if (namespace === 'state') {
-      this._store.recordArrayManager.identifierChanged(identifier);
-    }
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {

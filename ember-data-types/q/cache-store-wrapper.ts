@@ -209,7 +209,13 @@ export interface LegacyCacheStoreWrapper {
    * @param {string|undefined} key
    * @public
    */
+  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
+  notifyChange(
+    identifier: StableRecordIdentifier,
+    namespace: NotificationType | 'added' | 'removed',
+    key?: string
+  ): void;
 
   /**
    * Use notifyChange
@@ -249,7 +255,13 @@ export interface V2CacheStoreWrapper {
 
   recordDataFor(identifier: StableRecordIdentifier): Cache;
 
+  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
+  notifyChange(
+    identifier: StableRecordIdentifier,
+    namespace: NotificationType | 'added' | 'removed',
+    key?: string
+  ): void;
 }
 
 export type CacheStoreWrapper = LegacyCacheStoreWrapper | V2CacheStoreWrapper;

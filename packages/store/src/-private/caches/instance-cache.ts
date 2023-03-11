@@ -427,21 +427,15 @@ export class InstanceCache {
         }
       }
 
-      let removeFromRecordArray = true;
       if (recordData) {
-        removeFromRecordArray = !recordData.isDeletionCommitted(identifier);
         recordData.unloadRecord(identifier);
         this.__instances.recordData.delete(identifier);
         removeRecordDataFor(identifier);
       } else {
-        removeFromRecordArray = false;
         this.disconnect(identifier);
       }
 
       this.store._fetchManager.clearEntries(identifier);
-      if (removeFromRecordArray) {
-        this.store.recordArrayManager.identifierRemoved(identifier);
-      }
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
         console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
@@ -583,10 +577,6 @@ export class InstanceCache {
 
     const hasRecord = this.__instances.record.has(identifier);
     recordData.pushData(identifier, data, hasRecord);
-
-    if (!isUpdate) {
-      this.store.recordArrayManager.identifierAdded(identifier);
-    }
 
     return identifier as StableExistingRecordIdentifier;
   }

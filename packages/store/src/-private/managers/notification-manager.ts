@@ -10,7 +10,7 @@ import type { Identifier, StableRecordIdentifier } from '@ember-data/types/q/ide
 import { isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 
-type UnsubscribeToken = object;
+export type UnsubscribeToken = object;
 let tokenId = 0;
 
 const Cache = new Map<StableRecordIdentifier | 'resource' | 'document', Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>>();

@@ -116,7 +116,9 @@ export default class SingletonCache implements Cache {
     calculateChanges?: boolean | undefined
   ): void | string[] {
     let changedKeys: string[] | undefined;
-    const cached = this.__peek(identifier);
+    const peeked = this.__peek(identifier);
+    const existed = !!peeked;
+    const cached = peeked || this.createCache(identifier);
 
     if (LOG_OPERATIONS) {
       try {
@@ -135,7 +137,7 @@ export default class SingletonCache implements Cache {
     }
 
     if (calculateChanges) {
-      changedKeys = calculateChangedKeys(cached, data.attributes);
+      changedKeys = existed ? calculateChangedKeys(cached, data.attributes) : Object.keys(data.attributes || {});
     }
 
     cached.remoteAttrs = Object.assign(cached.remoteAttrs || Object.create(null), data.attributes);
@@ -143,6 +145,10 @@ export default class SingletonCache implements Cache {
       if (patchLocalAttributes(cached)) {
         this.__storeWrapper.notifyChange(identifier, 'state');
       }
+    }
+
+    if (!existed) {
+      this.__storeWrapper.notifyChange(identifier, 'added');
     }
 
     if (data.relationships) {
@@ -259,6 +265,8 @@ export default class SingletonCache implements Cache {
       }
     }
 
+    this.__storeWrapper.notifyChange(identifier, 'added');
+
     return createOptions;
   }
   willCommit(identifier: StableRecordIdentifier): void {
@@ -275,6 +283,8 @@ export default class SingletonCache implements Cache {
         isNew: false,
       });
       cached.isDeletionCommitted = true;
+      this.__storeWrapper.notifyChange(identifier, 'removed');
+      // TODO @runspired should we early exit here?
     }
 
     if (DEBUG) {
@@ -344,6 +354,7 @@ export default class SingletonCache implements Cache {
   }
 
   unloadRecord(identifier: StableRecordIdentifier): void {
+    const removeFromRecordArray = !this.isDeletionCommitted(identifier);
     const cached = this.__peek(identifier);
     const storeWrapper = this.__storeWrapper;
     peekGraph(storeWrapper)?.unload(identifier);
@@ -384,6 +395,10 @@ export default class SingletonCache implements Cache {
           this.__destroyedCache.clear();
         }, 100);
       });
+    }
+
+    if (removeFromRecordArray) {
+      storeWrapper.notifyChange(identifier, 'removed');
     }
   }
 

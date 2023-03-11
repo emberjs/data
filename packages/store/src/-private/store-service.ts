@@ -621,7 +621,6 @@ class Store {
           (recordData as NonSingletonCacheManager).managedVersion === '1'
         );
         const resultProps = recordData.clientDidCreate(identifier, createOptions);
-        this.recordArrayManager.identifierAdded(identifier);
 
         record = this._instanceCache.getRecord(identifier, resultProps);
       });
@@ -2378,10 +2377,6 @@ class Store {
           //We first make sure the primary data has been updated
           const recordData = this._instanceCache.getRecordData(actualIdentifier);
           recordData.didCommit(identifier, data);
-
-          if (operation === 'deleteRecord') {
-            this.recordArrayManager.identifierRemoved(actualIdentifier);
-          }
 
           if (payload && payload.included) {
             this._push({ data: null, included: payload.included });
