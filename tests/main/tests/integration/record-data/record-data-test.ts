@@ -317,6 +317,17 @@ module('integration/record-data - Custom RecordData Implementations', function (
       pushData(data: object, calculateChange: true): string[];
       pushData(data: object, calculateChange?: false): void;
       pushData(data: object, calculateChange?: boolean): string[] | void {
+        if (DEPRECATE_V1_RECORD_DATA) {
+          calledUpsert++;
+        } else {
+          throw new Error(`Unexpected pushData call`);
+        }
+      }
+
+      upsert() {
+        if (DEPRECATE_V1_RECORD_DATA) {
+          throw new Error(`Unexpected upsert call`);
+        }
         calledUpsert++;
       }
 

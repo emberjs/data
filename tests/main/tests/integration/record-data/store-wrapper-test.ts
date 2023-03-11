@@ -41,6 +41,7 @@ class House extends Model {
 class TestRecordData {
   _isNew = false;
   pushData(data, calculateChange?: boolean) {}
+  upsert() {}
   clientDidCreate() {
     this._isNew = true;
   }
