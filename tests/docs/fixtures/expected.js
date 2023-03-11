@@ -340,6 +340,7 @@ module.exports = {
     '(public) @ember-data/store CacheManager#isDeletionCommitted',
     '(public) @ember-data/store CacheManager#isEmpty',
     '(public) @ember-data/store CacheManager#isNew',
+    '(public) @ember-data/store CacheManager#pushData',
     '(public) @ember-data/store CacheManager#upsert',
     '(public) @ember-data/store CacheManager#removeFromHasMany',
     '(public) @ember-data/store CacheManager#rollbackAttributes',

@@ -26,9 +26,9 @@ export interface CacheV1 {
   // =====
   getResourceIdentifier(): RecordIdentifier | undefined;
 
-  upsert(data: JsonApiResource, calculateChange: true): string[];
-  upsert(data: JsonApiResource, calculateChange?: false): void;
-  upsert(data: JsonApiResource, calculateChange?: boolean): string[] | void;
+  pushData(data: JsonApiResource, calculateChange: true): string[];
+  pushData(data: JsonApiResource, calculateChange?: false): void;
+  pushData(data: JsonApiResource, calculateChange?: boolean): string[] | void;
   clientDidCreate(): void;
   _initRecordCreateOptions(options?: Dict<unknown>): { [key: string]: unknown };
 

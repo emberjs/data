@@ -107,6 +107,22 @@ export class NonSingletonCacheManager implements Cache {
   /**
    * Push resource data from a remote source into the cache for this identifier
    *
+   * DEPRECATED Use upsert. Caches should not be assumed to be 1:1 with resources
+   *
+   * @method pushData
+   * @param data
+   * @param hasRecord
+   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   * @public
+   * @deprecated
+   */
+  pushData(data: JsonApiResource, hasRecord?: boolean): void | string[] {
+    return this.upsert(this.#identifier, data, hasRecord);
+  }
+
+  /**
+   * Push resource data from a remote source into the cache for this identifier
+   *
    * @method upsert
    * @public
    * @param identifier
@@ -123,7 +139,7 @@ export class NonSingletonCacheManager implements Cache {
       identifier = this.#identifier;
     }
     if (this.#isDeprecated(recordData)) {
-      return recordData.upsert(data, hasRecord);
+      return recordData.pushData(data, hasRecord);
     }
     return recordData.upsert(identifier, data, hasRecord);
   }
