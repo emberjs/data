@@ -57,8 +57,8 @@ import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import type { NonSingletonCacheManager } from './managers/cache-manager';
+import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
-import NotificationManager from './managers/record-notification-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
 import { _findAll, _query, _queryRecord } from './network/finders';
 import type RequestCache from './network/request-cache';

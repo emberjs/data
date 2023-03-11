@@ -40,7 +40,7 @@
       "packages/store/src/-private/network/snapshot-record-array.ts",
       "packages/store/src/-private/legacy-model-support/schema-definition-service.ts",
       "packages/store/src/-private/network/request-cache.ts",
-      "packages/store/src/-private/managers/record-notification-manager.ts",
+      "packages/store/src/-private/managers/notification-manager.ts",
       "packages/store/src/-private/caches/record-data-for.ts",
       "packages/store/src/-private/utils/normalize-model-name.ts",
       "packages/store/src/-private/legacy-model-support/shim-model-class.ts",

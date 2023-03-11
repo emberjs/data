@@ -1,5 +1,5 @@
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
+import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 
 import type { Cache } from './cache';
 import { StableRecordIdentifier } from './identifier';

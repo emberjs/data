@@ -7,7 +7,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
-import type NotificationManager from '@ember-data/store/-private/managers/record-notification-manager';
+import type NotificationManager from '@ember-data/store/-private/managers/notification-manager';
 import { Cache } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';

@@ -15,7 +15,7 @@ import type Store from '../store-service';
 import coerceId from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
-import { NotificationType } from './record-notification-manager';
+import { NotificationType } from './notification-manager';
 
 /**
   @module @ember-data/store
