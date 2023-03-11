@@ -66,11 +66,41 @@ export interface CacheV1 {
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
 }
 
+/**
+ * The interface for EmberData Caches.
+ *
+ * A Cache handles in-memory storage of Document and Resource
+ * data.
+ *
+ * @class <Interface> Cache
+ * @public
+ */
 export interface Cache {
+  /**
+   * The Cache Version that this implementation implements.
+   *
+   * @type {'2'}
+   * @public
+   * @property version
+   */
   version: '2';
 
   // Cache
   // =====
+
+  /**
+   * Update the "remote" or "canonical" (persisted) state of the Cache
+   * by merging new information into the existing state.
+   *
+   * Note: currently the only valid resource operation is a MergeOperation
+   * which occurs when a collision of identifiers is detected.
+   *
+   * @method patch
+   * @public
+   * @param {Operation} op the operation to perform
+   * @returns {void}
+   */
+  patch(op: MergeOperation): void;
 
   pushData(identifier: StableRecordIdentifier, data: JsonApiResource, calculateChanges?: boolean): void | string[];
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown>;
@@ -80,7 +110,6 @@ export interface Cache {
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]): void;
 
   unloadRecord(identifier: StableRecordIdentifier): void;
-  sync(op: MergeOperation): void;
 
   // Attrs
   // =====

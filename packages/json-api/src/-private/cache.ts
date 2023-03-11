@@ -165,7 +165,7 @@ export default class SingletonCache implements Cache {
     return changedKeys;
   }
 
-  sync(op: MergeOperation): void {
+  patch(op: MergeOperation): void {
     if (LOG_OPERATIONS) {
       try {
         let _data = JSON.parse(JSON.stringify(op));

@@ -26,7 +26,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
   }
 
   class TestRecordData implements Cache {
-    sync(op: MergeOperation): void {
+    patch(op: MergeOperation): void {
       throw new Error('Method not implemented.');
     }
     update(operation: LocalRelationshipOperation): void {
