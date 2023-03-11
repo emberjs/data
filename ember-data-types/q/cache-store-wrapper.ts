@@ -196,7 +196,7 @@ export interface LegacyCacheStoreWrapper {
   notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
 
   /**
-   * Notify subscribers of the RecordNotificationManager that cache state has changed.
+   * Notify subscribers of the NotificationManager that cache state has changed.
    *
    * `attributes` and `relationships` do not require a key, but if one is specified it
    * is assumed to be the name of the attribute or relationship that has been updated.
