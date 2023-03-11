@@ -60,7 +60,7 @@ importers:
       common-tags: ^1.8.2
       debug: ^4.3.4
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
@@ -166,11 +166,11 @@ importers:
       common-tags: 1.8.2
       debug: 4.3.4
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0_debug@4.3.4
+      ember-cli: 4.11.0_debug@4.3.4
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-cli-sri: 2.1.1
@@ -827,7 +827,7 @@ importers:
       '@types/semver': ^7.3.13
       broccoli-merge-trees: ^4.2.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
       ember-cli-dependency-checker: ^3.3.1
@@ -872,8 +872,8 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       '@types/semver': 7.3.13
-      ember-cli: 4.10.0
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli: 4.11.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-cli-test-loader: 3.0.0
@@ -908,7 +908,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -943,10 +943,10 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
@@ -985,7 +985,7 @@ importers:
       '@ember-data/private-build-infra': workspace:4.12.0-alpha.7
       '@ember-data/serializer': workspace:4.12.0-alpha.7
       '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.7
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-blueprint-test-helpers: ^0.19.2
       mocha: ^10.2.0
       silent-error: ^1.1.1
@@ -995,7 +995,7 @@ importers:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/serializer': file:packages/serializer
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-blueprint-test-helpers: 0.19.2
       mocha: 10.2.0
       silent-error: 1.1.1
@@ -1028,7 +1028,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1061,10 +1061,10 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
@@ -1117,7 +1117,7 @@ importers:
       '@types/rsvp': ^4.0.4
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1161,10 +1161,10 @@ importers:
       '@types/ember-testing-helpers': 0.0.4
       '@types/rsvp': 4.0.4
       broccoli-asset-rev: 3.0.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-fastboot: 4.1.0
       ember-cli-fastboot-testing: 0.6.0_webpack@5.75.0
       ember-cli-htmlbars: 6.2.0
@@ -1204,7 +1204,7 @@ importers:
       '@types/rsvp': ^4.0.4
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1245,10 +1245,10 @@ importers:
       '@types/ember-testing-helpers': 0.0.4
       '@types/rsvp': 4.0.4
       broccoli-asset-rev: 3.0.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-fastboot: 4.1.0
       ember-cli-fastboot-testing: 0.6.0_webpack@5.75.0
       ember-cli-htmlbars: 6.2.0
@@ -1283,7 +1283,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1308,10 +1308,10 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-terser: 4.0.2
       ember-data: file:packages/-ember-data_idn5szksmklkrwuio5fp64cqhu
@@ -1349,7 +1349,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
       ember-cli-dependency-checker: ^3.3.1
@@ -1393,10 +1393,10 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-cli-sri: 2.1.1
@@ -1454,7 +1454,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1488,10 +1488,10 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
@@ -1559,7 +1559,7 @@ importers:
       broccoli-uglify-sourcemap: ^4.0.0
       ember-auto-import: ^2.6.1
       ember-cached-decorator-polyfill: ^1.0.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1622,10 +1622,10 @@ importers:
       broccoli-uglify-sourcemap: 4.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
       ember-cached-decorator-polyfill: 1.0.1_tdbzy47nbsiytitk6ukbodh4zu
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-cli-terser: 4.0.2
@@ -1688,7 +1688,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1722,10 +1722,10 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
@@ -1766,7 +1766,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1792,10 +1792,10 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.0
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.21.0
@@ -1825,7 +1825,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-babel: ^7.26.11
       ember-cli-blueprint-test-helpers: ^0.19.2
       ember-cli-dependency-checker: ^3.3.1
@@ -1865,10 +1865,10 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-cli-sri: 2.1.1
@@ -1918,7 +1918,7 @@ importers:
       '@glimmer/tracking': ^1.1.2
       broccoli-asset-rev: ^3.0.0
       ember-auto-import: ^2.6.1
-      ember-cli: ~4.10.0
+      ember-cli: ~4.11.0
       ember-cli-app-version: ^6.0.0
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
@@ -1952,10 +1952,10 @@ importers:
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
       ember-auto-import: 2.6.1_webpack@5.75.0
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
-      ember-cli-dependency-checker: 3.3.1_ember-cli@4.10.0
+      ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
@@ -7832,14 +7832,14 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli-dependency-checker/3.3.1_ember-cli@4.10.0:
+  /ember-cli-dependency-checker/3.3.1_ember-cli@4.11.0:
     resolution: {integrity: sha512-Tg6OeijjXNKWkDm6057Tr0N9j9Vlz/ITewXWpn1A/+Wbt3EowBx5ZKfvoupqz05EznKgL1B/ecG0t+JN7Qm6MA==}
     engines: {node: '>= 6'}
     peerDependencies:
       ember-cli: ^3.2.0 || ^4.0.0
     dependencies:
       chalk: 2.4.2
-      ember-cli: 4.10.0
+      ember-cli: 4.11.0
       find-yarn-workspace-root: 1.2.1
       is-git-url: 1.0.0
       resolve: 1.22.1
@@ -8130,8 +8130,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli/4.10.0:
-    resolution: {integrity: sha512-gex/GdqzR5NLPVHvqLml7YgJR3KDzq2MGtrB2EHSpk//bY26mWi0milYABBfiDK5Yw/onztwPitxNaZpBjjqng==}
+  /ember-cli/4.11.0:
+    resolution: {integrity: sha512-X0Ep67O/r2nCViILV8wEvI0xiRlLRS8GgeDklQ3SvDXQp2d3xbI8ARW76pcb1du39HPgIi0G6F/OpJ1uOr4ZQQ==}
     engines: {node: '>= 14'}
     hasBin: true
     dependencies:
@@ -8191,7 +8191,7 @@ packages:
       heimdalljs-graph: 1.0.0
       heimdalljs-logger: 0.1.10
       http-proxy: 1.18.1
-      inflection: 1.13.4
+      inflection: 2.0.1
       inquirer: 8.2.5
       is-git-url: 1.0.0
       is-language-code: 3.1.0
@@ -8200,11 +8200,11 @@ packages:
       leek: 0.0.24
       lodash.template: 4.5.0
       markdown-it: 13.0.1
-      markdown-it-terminal: 0.2.1
+      markdown-it-terminal: 0.4.0_markdown-it@13.0.1
       minimatch: 5.1.6
       morgan: 1.10.0
       nopt: 3.0.6
-      npm-package-arg: 9.1.2
+      npm-package-arg: 10.1.0
       os-locale: 5.0.0
       p-defer: 3.0.0
       portfinder: 1.0.32
@@ -8289,8 +8289,8 @@ packages:
       - whiskers
     dev: true
 
-  /ember-cli/4.10.0_debug@4.3.4:
-    resolution: {integrity: sha512-gex/GdqzR5NLPVHvqLml7YgJR3KDzq2MGtrB2EHSpk//bY26mWi0milYABBfiDK5Yw/onztwPitxNaZpBjjqng==}
+  /ember-cli/4.11.0_debug@4.3.4:
+    resolution: {integrity: sha512-X0Ep67O/r2nCViILV8wEvI0xiRlLRS8GgeDklQ3SvDXQp2d3xbI8ARW76pcb1du39HPgIi0G6F/OpJ1uOr4ZQQ==}
     engines: {node: '>= 14'}
     hasBin: true
     dependencies:
@@ -8350,7 +8350,7 @@ packages:
       heimdalljs-graph: 1.0.0
       heimdalljs-logger: 0.1.10
       http-proxy: 1.18.1_debug@4.3.4
-      inflection: 1.13.4
+      inflection: 2.0.1
       inquirer: 8.2.5
       is-git-url: 1.0.0
       is-language-code: 3.1.0
@@ -8359,11 +8359,11 @@ packages:
       leek: 0.0.24
       lodash.template: 4.5.0
       markdown-it: 13.0.1
-      markdown-it-terminal: 0.2.1
+      markdown-it-terminal: 0.4.0_markdown-it@13.0.1
       minimatch: 5.1.6
       morgan: 1.10.0
       nopt: 3.0.6
-      npm-package-arg: 9.1.2
+      npm-package-arg: 10.1.0
       os-locale: 5.0.0
       p-defer: 3.0.0
       portfinder: 1.0.32
@@ -10559,9 +10559,9 @@ packages:
       lru-cache: 6.0.0
     dev: true
 
-  /hosted-git-info/5.2.1:
-    resolution: {integrity: sha512-xIcQYMnhcx2Nr4JTjsFmwwnr9vldugPy9uVm0o87bjqqWMv9GaqsTeT+i99wTl0mk1uLxJtHxLb8kymqTENQsw==}
-    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+  /hosted-git-info/6.1.1:
+    resolution: {integrity: sha512-r0EI+HBMcXadMrugk0GCQ+6BQV39PiWAZVfq7oIckeGiN7sjRGyQxPdft3nQekFTCQbYxLBH+/axZMeH8UX6+w==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dependencies:
       lru-cache: 7.17.0
     dev: true
@@ -11583,12 +11583,6 @@ packages:
       uc.micro: 1.0.6
     dev: true
 
-  /linkify-it/2.2.0:
-    resolution: {integrity: sha512-GnAl/knGn+i1U/wjBz3akz2stz+HrHLsxMwHQGofCDfPvlf+gDKN58UtfmUquTY4/MXeE2x7k19KQmeoZi94Iw==}
-    dependencies:
-      uc.micro: 1.0.6
-    dev: true
-
   /linkify-it/4.0.1:
     resolution: {integrity: sha512-C7bfi1UZmoj8+PQx22XyeXCuBlokoyWQL5pWSP+EI6nzRylyThouddufc2c1NDIcP9k5agmN9fLpA7VNJfIiqw==}
     dependencies:
@@ -11921,14 +11915,16 @@ packages:
       object-visit: 1.0.1
     dev: true
 
-  /markdown-it-terminal/0.2.1:
-    resolution: {integrity: sha512-e8hbK9L+IyFac2qY05R7paP+Fqw1T4pSQW3miK3VeG9QmpqBjg5Qzjv/v6C7YNxSNRS2Kp8hUFtm5lWU9eK4lw==}
+  /markdown-it-terminal/0.4.0_markdown-it@13.0.1:
+    resolution: {integrity: sha512-NeXtgpIK6jBciHTm9UhiPnyHDdqyVIdRPJ+KdQtZaf/wR74gvhCNbw5li4TYsxRp5u3ZoHEF4DwpECeZqyCw+w==}
+    peerDependencies:
+      markdown-it: '>= 13.0.0'
     dependencies:
       ansi-styles: 3.2.1
       cardinal: 1.0.0
       cli-table: 0.3.11
       lodash.merge: 4.6.2
-      markdown-it: 8.4.2
+      markdown-it: 13.0.1
     dev: true
 
   /markdown-it/13.0.1:
@@ -11949,17 +11945,6 @@ packages:
       argparse: 1.0.10
       entities: 1.1.2
       linkify-it: 1.2.4
-      mdurl: 1.0.1
-      uc.micro: 1.0.6
-    dev: true
-
-  /markdown-it/8.4.2:
-    resolution: {integrity: sha512-GcRz3AWTqSUphY3vsUqQSFMbgR38a4Lh3GWlHRh/7MRwz8mcu9n2IO7HOh+bXHrR9kOPDl5RNCaEsrneb+xhHQ==}
-    hasBin: true
-    dependencies:
-      argparse: 1.0.10
-      entities: 1.1.2
-      linkify-it: 2.2.0
       mdurl: 1.0.1
       uc.micro: 1.0.6
     dev: true
@@ -12467,14 +12452,14 @@ packages:
   /npm-git-info/1.0.3:
     resolution: {integrity: sha512-i5WBdj4F/ULl16z9ZhsJDMl1EQCMQhHZzBwNnKL2LOA+T8IHNeRkLCVz9uVV9SzUdGTbDq+1oXhIYMe+8148vw==}
 
-  /npm-package-arg/9.1.2:
-    resolution: {integrity: sha512-pzd9rLEx4TfNJkovvlBSLGhq31gGu2QDexFPWT19yCDh0JgnRhlBLNo5759N0AJmBk+kQ9Y/hXoLnlgFD+ukmg==}
-    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+  /npm-package-arg/10.1.0:
+    resolution: {integrity: sha512-uFyyCEmgBfZTtrKk/5xDfHp6+MdrqGotX/VoOyEEl3mBwiEE5FlBaePanazJSVMPT7vKepcjYBY2ztg9A3yPIA==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dependencies:
-      hosted-git-info: 5.2.1
-      proc-log: 2.0.1
+      hosted-git-info: 6.1.1
+      proc-log: 3.0.0
       semver: 7.3.8
-      validate-npm-package-name: 4.0.0
+      validate-npm-package-name: 5.0.0
     dev: true
 
   /npm-run-path/2.0.2:
@@ -13043,9 +13028,9 @@ packages:
     resolution: {integrity: sha512-VvivMrbvd2nKkiG38qjULzlc+4Vx4wm/whI9pQD35YrARNnhxeiRktSOhSukRLFNlzg6Br/cJPet5J/u19r/mg==}
     engines: {node: '>= 0.6'}
 
-  /proc-log/2.0.1:
-    resolution: {integrity: sha512-Kcmo2FhfDTXdcbfDH76N7uBYHINxc/8GW7UAVuVP9I+Va3uHSerrnKV6dLooga/gh7GlgzuCCr/eoldnL1muGw==}
-    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+  /proc-log/3.0.0:
+    resolution: {integrity: sha512-++Vn7NS4Xf9NacaU9Xq3URUuqZETPsf8L4j5/ckhaRYsfPeRyzGw+iDjFhV/Jr3uNmTvvddEJFWh5R1gRgUH8A==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dev: true
 
   /process-relative-require/1.0.0:
@@ -15109,9 +15094,9 @@ packages:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
 
-  /validate-npm-package-name/4.0.0:
-    resolution: {integrity: sha512-mzR0L8ZDktZjpX4OB46KT+56MAhl4EIazWP/+G/HPGuvfdaqg4YsCdtOm6U9+LOFyYDoh4dpnpxZRB9MQQns5Q==}
-    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+  /validate-npm-package-name/5.0.0:
+    resolution: {integrity: sha512-YuKoXDAhBYxY7SfOKxHBDoSyENFeW5VvIIQp2TGQuit8gpK6MnWaQelBKxso72DoxTZfZdcP3W90LqpSkgPzLQ==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dependencies:
       builtins: 5.0.1
     dev: true
