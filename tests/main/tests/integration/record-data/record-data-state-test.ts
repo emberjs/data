@@ -64,9 +64,9 @@ class V1TestRecordData implements CacheV1 {
     }
   }
 
-  upsert(data: object, calculateChange: true): string[];
-  upsert(data: object, calculateChange?: false): void;
-  upsert(data: object, calculateChange?: boolean): string[] | void {
+  pushData(data: object, calculateChange: true): string[];
+  pushData(data: object, calculateChange?: false): void;
+  pushData(data: object, calculateChange?: boolean): string[] | void {
     this._storeWrapper.notifyChange(this._identifier, 'added');
   }
 

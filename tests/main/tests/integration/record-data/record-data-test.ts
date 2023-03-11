@@ -50,9 +50,9 @@ class V1TestRecordData {
     this._identifier = identifier;
   }
 
-  upsert(data: object, calculateChange: true): string[];
-  upsert(data: object, calculateChange?: false): void;
-  upsert(data: object, calculateChange?: boolean): string[] | void {
+  pushData(data: object, calculateChange: true): string[];
+  pushData(data: object, calculateChange?: false): void;
+  pushData(data: object, calculateChange?: boolean): string[] | void {
     this._storeWrapper.notifyChange(this._identifier, 'added');
   }
 
@@ -314,9 +314,9 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let isNew = false;
 
     class LifecycleRecordData extends TestRecordData {
-      upsert(data: object, calculateChange: true): string[];
-      upsert(data: object, calculateChange?: false): void;
-      upsert(data: object, calculateChange?: boolean): string[] | void {
+      pushData(data: object, calculateChange: true): string[];
+      pushData(data: object, calculateChange?: false): void;
+      pushData(data: object, calculateChange?: boolean): string[] | void {
         calledUpsert++;
       }
 
