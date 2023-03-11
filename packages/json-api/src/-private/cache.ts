@@ -120,14 +120,17 @@ export default class SingletonCache implements Cache {
     const existed = !!peeked;
     const cached = peeked || this.createCache(identifier);
 
+    const isLoading = _isLoading(peeked, this.__storeWrapper, identifier) || !recordIsLoaded(peeked);
+    let isUpdate = !_isEmpty(peeked) && !isLoading;
+
     if (LOG_OPERATIONS) {
       try {
         let _data = JSON.parse(JSON.stringify(data));
         // eslint-disable-next-line no-console
-        console.log('EmberData | Operation - pushData (upsert)', _data);
+        console.log(`EmberData | Operation - pushData (${existed ? 'upsert' : 'insert'})`, _data);
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.log('EmberData | Operation - pushData (upsert)', data);
+        console.log(`EmberData | Operation - pushData (${existed ? 'upsert' : 'insert'})`, data);
       }
     }
 
@@ -147,7 +150,7 @@ export default class SingletonCache implements Cache {
       }
     }
 
-    if (!existed) {
+    if (!isUpdate) {
       this.__storeWrapper.notifyChange(identifier, 'added');
     }
 
@@ -355,6 +358,7 @@ export default class SingletonCache implements Cache {
 
   unloadRecord(identifier: StableRecordIdentifier): void {
     const removeFromRecordArray = !this.isDeletionCommitted(identifier);
+    let removed = false;
     const cached = this.__peek(identifier);
     const storeWrapper = this.__storeWrapper;
     peekGraph(storeWrapper)?.unload(identifier);
@@ -369,6 +373,8 @@ export default class SingletonCache implements Cache {
     if (areAllModelsUnloaded(storeWrapper, relatedIdentifiers)) {
       for (let i = 0; i < relatedIdentifiers.length; ++i) {
         let identifier = relatedIdentifiers[i];
+        storeWrapper.notifyChange(identifier, 'removed');
+        removed = true;
         storeWrapper.disconnectRecord(identifier);
       }
     }
@@ -397,7 +403,7 @@ export default class SingletonCache implements Cache {
       });
     }
 
-    if (removeFromRecordArray) {
+    if (!removed && removeFromRecordArray) {
       storeWrapper.notifyChange(identifier, 'removed');
     }
   }
@@ -609,6 +615,61 @@ function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash) 
   }
 
   return changedKeys;
+}
+
+function cacheIsEmpty(cached: CachedResource | undefined): boolean {
+  return !cached || (cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null);
+}
+
+function _isEmpty(peeked: CachedResource | undefined): boolean {
+  if (!peeked) {
+    return true;
+  }
+  const isNew = peeked.isNew;
+  const isDeleted = peeked.isDeleted;
+  const isEmpty = cacheIsEmpty(peeked);
+
+  return (!isNew || isDeleted) && isEmpty;
+}
+
+function recordIsLoaded(cached: CachedResource | undefined, filterDeleted: boolean = false): boolean {
+  if (!cached) {
+    return false;
+  }
+  const isNew = cached.isNew;
+  const isEmpty = cacheIsEmpty(cached);
+
+  // if we are new we must consider ourselves loaded
+  if (isNew) {
+    return !cached.isDeleted;
+  }
+  // even if we have a past request, if we are now empty we are not loaded
+  // typically this is true after an unloadRecord call
+
+  // if we are not empty, not new && we have a fulfilled request then we are loaded
+  // we should consider allowing for something to be loaded that is simply "not empty".
+  // which is how RecordState currently handles this case; however, RecordState is buggy
+  // in that it does not account for unloading.
+  return filterDeleted && cached.isDeletionCommitted ? false : !isEmpty;
+}
+
+function _isLoading(
+  peeked: CachedResource,
+  storeWrapper: CacheStoreWrapper,
+  identifier: StableRecordIdentifier
+): boolean {
+  // TODO refactor things such that the cache is not required to know
+  // about isLoading
+  // @ts-expect-error
+  const req = storeWrapper._store.getRequestStateService();
+  // const fulfilled = req.getLastRequestForRecord(identifier);
+  const isLoaded = recordIsLoaded(peeked);
+
+  return (
+    !isLoaded &&
+    // fulfilled === null &&
+    req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+  );
 }
 
 function setupRelationships(

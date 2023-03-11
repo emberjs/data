@@ -13,11 +13,18 @@ import type Store from '../store-service';
 export type UnsubscribeToken = object;
 let tokenId = 0;
 
+const CacheOperations = new Set(['added', 'removed', 'state', 'updated']);
+export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
+
+function isCacheOperationValue(value: NotificationType | CacheOperation): value is CacheOperation {
+  return CacheOperations.has(value);
+}
+
 const Cache = new Map<
   StableRecordIdentifier | 'resource' | 'document',
   Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
 >();
-const Tokens = new Map<UnsubscribeToken, StableRecordIdentifier>();
+const Tokens = new Map<UnsubscribeToken, StableRecordIdentifier | 'resource' | 'document'>();
 
 export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state';
 
@@ -29,12 +36,12 @@ export interface NotificationCallback {
 
 export interface ResourceOperationCallback {
   // resource updates
-  (identifier: StableRecordIdentifier, notificationType: 'added' | 'removed'): void;
+  (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
 }
 
 export interface DocumentOperationCallback {
   // document updates
-  (identifier: Identifier, notificationType: 'updated' | 'added' | 'removed'): void;
+  (identifier: Identifier, notificationType: CacheOperation): void;
 }
 
 // TODO this isn't importable anyway, remove and use a map on the manager?
@@ -95,7 +102,10 @@ export default class NotificationManager {
     identifier: StableRecordIdentifier | 'resource' | 'document',
     callback: NotificationCallback | ResourceOperationCallback | DocumentOperationCallback
   ): UnsubscribeToken {
-    assert(`Expected to receive a stable Identifier to subscribe to`, isStableIdentifier(identifier));
+    assert(
+      `Expected to receive a stable Identifier to subscribe to`,
+      identifier === 'resource' || identifier === 'document' || isStableIdentifier(identifier)
+    );
     let map = Cache.get(identifier);
 
     if (!map) {
@@ -134,8 +144,8 @@ export default class NotificationManager {
    */
   notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
   notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: StableRecordIdentifier, value: 'added' | 'removed'): boolean;
-  notify(identifier: StableRecordIdentifier, value: NotificationType | 'added' | 'removed', key?: string): boolean {
+  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
+  notify(identifier: StableRecordIdentifier, value: NotificationType | CacheOperation, key?: string): boolean {
     assert(
       `Notify does not accept a key argument for the namespace '${value}'. Received key '${key || ''}'.`,
       !key || value === 'attributes' || value === 'relationships'
@@ -157,6 +167,17 @@ export default class NotificationManager {
       // eslint-disable-next-line no-console
       console.log(`Notifying: ${String(identifier)}\t${value}\t${key || ''}`);
     }
+
+    // TODO for documents this will need to switch based on Identifier kind
+    if (isCacheOperationValue(value)) {
+      let callbackMap = Cache.get('resource') as Map<UnsubscribeToken, ResourceOperationCallback>;
+      if (callbackMap) {
+        callbackMap.forEach((cb: ResourceOperationCallback) => {
+          cb(identifier, value);
+        });
+      }
+    }
+
     let callbackMap = Cache.get(identifier);
     if (!callbackMap || !callbackMap.size) {
       return false;

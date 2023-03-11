@@ -221,10 +221,10 @@ class Store {
      */
     this.identifierCache = new IdentifierCache();
 
+    this.notifications = new NotificationManager(this);
+
     // private but maybe useful to be here, somewhat intimate
     this.recordArrayManager = new RecordArrayManager({ store: this });
-
-    this.notifications = new NotificationManager(this);
 
     // private
     this._fetchManager = new FetchManager(this);

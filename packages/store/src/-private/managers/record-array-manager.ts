@@ -15,7 +15,7 @@ import IdentifierArray, {
   SOURCE,
 } from '../record-arrays/identifier-array';
 import type Store from '../store-service';
-import { UnsubscribeToken } from './notification-manager';
+import { CacheOperation, UnsubscribeToken } from './notification-manager';
 
 const RecordArraysCache = new Map<StableRecordIdentifier, Set<Collection>>();
 const FAKE_ARR = {};
@@ -100,7 +100,7 @@ class RecordArrayManager {
 
     this._subscription = this.store.notifications.subscribe(
       'resource',
-      (identifier: StableRecordIdentifier, type: 'added' | 'removed' | 'state') => {
+      (identifier: StableRecordIdentifier, type: CacheOperation) => {
         if (type === 'added') {
           this.identifierAdded(identifier);
         } else if (type === 'removed') {

@@ -431,6 +431,10 @@ export class InstanceCache {
         recordData.unloadRecord(identifier);
         this.__instances.recordData.delete(identifier);
         removeRecordDataFor(identifier);
+        if (LOG_INSTANCE_CACHE) {
+          // eslint-disable-next-line no-console
+          console.log(`InstanceCache: destroyed cache for ${String(identifier)}`);
+        }
       } else {
         this.disconnect(identifier);
       }
