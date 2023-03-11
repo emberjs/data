@@ -383,6 +383,7 @@ module.exports = {
     '(public) @ember-data/store StableRecordIdentifier#type',
     '(public) @ember-data/store NotificationManager#subscribe',
     '(public) @ember-data/store NotificationManager#unsubscribe',
+    '(private) @ember-data/store NotificationManager#notify',
     '(public) @ember-data/store Store#notifications',
     '(public) @ember-data/store Store#adapterFor',
     '(public) @ember-data/store Store#createRecord',

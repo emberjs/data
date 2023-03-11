@@ -32,6 +32,14 @@ class TestRecordIdentifier implements NewRecordIdentifier {
 }
 
 class V1TestRecordData implements CacheV1 {
+  _storeWrapper: CacheStoreWrapper;
+  _identifier: StableRecordIdentifier;
+
+  constructor(wrapper: CacheStoreWrapper, identifier: StableRecordIdentifier) {
+    this._storeWrapper = wrapper;
+    this._identifier = identifier;
+  }
+
   setIsDeleted(isDeleted: boolean): void {
     throw new Error('Method not implemented.');
   }
@@ -56,14 +64,15 @@ class V1TestRecordData implements CacheV1 {
     }
   }
 
-  // Use correct interface once imports have been fix
-  _storeWrapper: any;
-
   pushData(data: object, calculateChange: true): string[];
   pushData(data: object, calculateChange?: false): void;
-  pushData(data: object, calculateChange?: boolean): string[] | void {}
+  pushData(data: object, calculateChange?: boolean): string[] | void {
+    this._storeWrapper.notifyChange(this._identifier, 'added');
+  }
 
-  clientDidCreate() {}
+  clientDidCreate() {
+    this._storeWrapper.notifyChange(this._identifier, 'added');
+  }
 
   willCommit() {}
 
@@ -115,6 +124,14 @@ class V1TestRecordData implements CacheV1 {
   }
 }
 class V2TestRecordData implements Cache {
+  _storeWrapper: CacheStoreWrapper;
+  _identifier: StableRecordIdentifier;
+
+  constructor(wrapper: CacheStoreWrapper, identifier: StableRecordIdentifier) {
+    this._storeWrapper = wrapper;
+    this._identifier = identifier;
+  }
+
   sync(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }
@@ -130,9 +147,12 @@ class V2TestRecordData implements Cache {
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
     calculateChanges?: boolean | undefined
-  ): void | string[] {}
+  ): void | string[] {
+    this._storeWrapper.notifyChange(identifier, 'added');
+  }
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
     this._isNew = true;
+    this._storeWrapper.notifyChange(identifier, 'added');
     return {};
   }
   willCommit(identifier: StableRecordIdentifier): void {}
@@ -197,7 +217,7 @@ const TestRecordData = DEPRECATE_V1_RECORD_DATA ? V1TestRecordData : V2TestRecor
 
 class CustomStore extends Store {
   createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
-    return new TestRecordData();
+    return new TestRecordData(wrapper, identifier);
   }
 }
 
@@ -253,7 +273,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     class TestStore extends Store {
       // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
-        return new LifecycleRecordData();
+        return new LifecycleRecordData(wrapper, identifier);
       }
     }
 
@@ -319,8 +339,8 @@ module('integration/record-data - Record Data State', function (hooks) {
     let { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
-      constructor(sw) {
-        super();
+      constructor(sw: CacheStoreWrapper, identifier: StableRecordIdentifier) {
+        super(sw, identifier);
         storeWrapper = sw;
       }
 
@@ -349,7 +369,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     class TestStore extends Store {
       // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
-        return new LifecycleRecordData(wrapper);
+        return new LifecycleRecordData(wrapper, identifier);
       }
     }
 

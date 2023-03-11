@@ -52,7 +52,9 @@ class V1TestRecordData {
 
   pushData(data: object, calculateChange: true): string[];
   pushData(data: object, calculateChange?: false): void;
-  pushData(data: object, calculateChange?: boolean): string[] | void {}
+  pushData(data: object, calculateChange?: boolean): string[] | void {
+    this._storeWrapper.notifyChange(this._identifier, 'added');
+  }
 
   clientDidCreate() {}
 
@@ -126,7 +128,9 @@ class V2TestRecordData implements Cache {
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
     calculateChanges?: boolean | undefined
-  ): void | string[] {}
+  ): void | string[] {
+    this._storeWrapper.notifyChange(identifier, 'added');
+  }
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
     this._isNew = true;
     return {};

@@ -7,7 +7,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
-import type NotificationManager from '@ember-data/store/-private/managers/record-notification-manager';
+import type NotificationManager from '@ember-data/store/-private/managers/notification-manager';
 import { Cache } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -318,7 +318,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   test('store.deleteRecord', async function (assert) {
     let rd: Cache;
     let ident: StableRecordIdentifier;
-    assert.expect(9);
+    assert.expect(10);
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
@@ -329,13 +329,14 @@ module('unit/model - Custom Class Model', function (hooks) {
         },
       })
     );
+    const subscribedValues: string[] = [];
     class CreationStore extends CustomStore {
       instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
         ident = identifier;
         rd = recordDataFor(identifier);
         assert.false(rd.isDeleted(identifier), 'we are not deleted when we start');
         notificationManager.subscribe(identifier, (passedId, key) => {
-          assert.strictEqual(key, 'state', 'state change to deleted has been notified');
+          subscribedValues.push(key);
           assert.true(recordDataFor(identifier).isDeleted(identifier), 'we have been marked as deleted');
         });
         return {};
@@ -351,6 +352,9 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.true(rd!.isDeleted(ident!), 'record has been marked as deleted');
     await store.saveRecord(person);
     assert.true(rd!.isDeletionCommitted(ident!), 'deletion has been commited');
+    assert.strictEqual(subscribedValues.length, 3, 'we received the proper notifications');
+    // TODO this indicates our implementation could likely be more efficient
+    assert.deepEqual(subscribedValues, ['state', 'removed', 'state'], 'state change to deleted has been notified');
   });
 
   test('record serialize', function (assert) {

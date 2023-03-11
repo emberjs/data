@@ -10,8 +10,8 @@ import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
-import type { NotificationType } from '../managers/record-notification-manager';
-import { unsubscribe } from '../managers/record-notification-manager';
+import type { NotificationType } from '../managers/notification-manager';
+import { unsubscribe } from '../managers/notification-manager';
 import type Store from '../store-service';
 
 /**

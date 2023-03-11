@@ -11,7 +11,7 @@ import type BelongsToRelationship from '@ember-data/graph/-private/relationships
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
-import type { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
+import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type {
   LinkObject,
   Links,
