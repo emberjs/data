@@ -64,9 +64,9 @@ class V1TestRecordData implements CacheV1 {
     }
   }
 
-  pushData(data: object, calculateChange: true): string[];
-  pushData(data: object, calculateChange?: false): void;
-  pushData(data: object, calculateChange?: boolean): string[] | void {
+  upsert(data: object, calculateChange: true): string[];
+  upsert(data: object, calculateChange?: false): void;
+  upsert(data: object, calculateChange?: boolean): string[] | void {
     this._storeWrapper.notifyChange(this._identifier, 'added');
   }
 
@@ -143,7 +143,7 @@ class V2TestRecordData implements Cache {
   _errors?: JsonApiValidationError[];
   _isNew: boolean = false;
 
-  pushData(
+  upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
     calculateChanges?: boolean | undefined

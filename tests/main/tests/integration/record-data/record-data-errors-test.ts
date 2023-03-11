@@ -37,7 +37,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     _errors?: JsonApiValidationError[];
     _isNew: boolean = false;
 
-    pushData(
+    upsert(
       identifier: StableRecordIdentifier,
       data: JsonApiResource,
       calculateChanges?: boolean | undefined
@@ -344,9 +344,9 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       // Use correct interface once imports have been fix
       _storeWrapper: any;
 
-      pushData(data: object, calculateChange: true): string[];
-      pushData(data: object, calculateChange?: false): void;
-      pushData(data: object, calculateChange?: boolean): string[] | void {}
+      upsert(data: object, calculateChange: true): string[];
+      upsert(data: object, calculateChange?: false): void;
+      upsert(data: object, calculateChange?: boolean): string[] | void {}
 
       clientDidCreate() {}
 

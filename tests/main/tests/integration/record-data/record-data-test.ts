@@ -50,9 +50,9 @@ class V1TestRecordData {
     this._identifier = identifier;
   }
 
-  pushData(data: object, calculateChange: true): string[];
-  pushData(data: object, calculateChange?: false): void;
-  pushData(data: object, calculateChange?: boolean): string[] | void {
+  upsert(data: object, calculateChange: true): string[];
+  upsert(data: object, calculateChange?: false): void;
+  upsert(data: object, calculateChange?: boolean): string[] | void {
     this._storeWrapper.notifyChange(this._identifier, 'added');
   }
 
@@ -124,7 +124,7 @@ class V2TestRecordData implements Cache {
   patch(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }
-  pushData(
+  upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
     calculateChanges?: boolean | undefined
@@ -304,7 +304,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       },
     };
     let { owner } = this;
-    let calledPush = 0;
+    let calledUpsert = 0;
     let calledClientDidCreate = 0;
     let calledWillCommit = 0;
     let calledWasRejected = 0;
@@ -314,10 +314,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let isNew = false;
 
     class LifecycleRecordData extends TestRecordData {
-      pushData(data: object, calculateChange: true): string[];
-      pushData(data: object, calculateChange?: false): void;
-      pushData(data: object, calculateChange?: boolean): string[] | void {
-        calledPush++;
+      upsert(data: object, calculateChange: true): string[];
+      upsert(data: object, calculateChange?: false): void;
+      upsert(data: object, calculateChange?: boolean): string[] | void {
+        calledUpsert++;
       }
 
       clientDidCreate() {
@@ -385,7 +385,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     store.push({
       data: [personHash],
     });
-    assert.strictEqual(calledPush, 1, 'Called pushData');
+    assert.strictEqual(calledUpsert, 1, 'Called upsert');
 
     let person = store.peekRecord('person', '1');
     person.save();
@@ -411,7 +411,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     await settled();
     assert.strictEqual(calledClientDidCreate, 0, 'Did not called clientDidCreate');
 
-    calledPush = 0;
+    calledUpsert = 0;
     calledClientDidCreate = 0;
     calledWillCommit = 0;
     calledWasRejected = 0;
@@ -439,7 +439,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.strictEqual(calledUnloadRecord, 1, 'Called unloadRecord');
 
     await settled();
-    assert.strictEqual(calledPush, 0, 'Did not call pushData');
+    assert.strictEqual(calledUpsert, 0, 'Did not call pushData');
     if (DEPRECATE_V1_RECORD_DATA) {
       assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
     }

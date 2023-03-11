@@ -107,14 +107,14 @@ export class NonSingletonCacheManager implements Cache {
   /**
    * Push resource data from a remote source into the cache for this identifier
    *
-   * @method pushData
+   * @method upsert
    * @public
    * @param identifier
    * @param data
    * @param hasRecord
    * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
-  pushData(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
+  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
     const recordData = this.#recordData;
     // called by something V1
     if (!isStableIdentifier(identifier)) {
@@ -123,9 +123,9 @@ export class NonSingletonCacheManager implements Cache {
       identifier = this.#identifier;
     }
     if (this.#isDeprecated(recordData)) {
-      return recordData.pushData(data, hasRecord);
+      return recordData.upsert(data, hasRecord);
     }
-    return recordData.pushData(identifier, data, hasRecord);
+    return recordData.upsert(identifier, data, hasRecord);
   }
 
   /**
@@ -755,8 +755,8 @@ export class SingletonCacheManager implements Cache {
   // Cache
   // =====
 
-  pushData(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
-    return this.#recordData(identifier).pushData(identifier, data, hasRecord);
+  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
+    return this.#recordData(identifier).upsert(identifier, data, hasRecord);
   }
 
   patch(op: MergeOperation): void {
