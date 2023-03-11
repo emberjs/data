@@ -774,7 +774,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   };
 
   IdentifierArray.prototype.setObjects = function (objects: RecordInstance[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'clear', 'length = 0');
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setObjects', '`arr.length = 0; arr.push(objects);`');
     assert(
       `${this.DEPRECATED_CLASS_NAME}.setObjects expects to receive an array as its argument`,
       Array.isArray(objects)
