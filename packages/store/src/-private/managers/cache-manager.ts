@@ -134,17 +134,17 @@ export class NonSingletonCacheManager implements Cache {
    * Note: currently the only valid operation is a MergeOperation
    * which occurs when a collision of identifiers is detected.
    *
-   * @method sync
+   * @method patch
    * @public
    * @param op the operation to perform
    * @returns {void}
    */
-  sync(op: MergeOperation): void {
+  patch(op: MergeOperation): void {
     const recordData = this.#recordData;
     if (this.#isDeprecated(recordData)) {
       return;
     }
-    recordData.sync(op);
+    recordData.patch(op);
   }
 
   /**
@@ -759,8 +759,8 @@ export class SingletonCacheManager implements Cache {
     return this.#recordData(identifier).pushData(identifier, data, hasRecord);
   }
 
-  sync(op: MergeOperation): void {
-    this.#recordData(op.record).sync(op);
+  patch(op: MergeOperation): void {
+    this.#recordData(op.record).patch(op);
   }
 
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown> {
