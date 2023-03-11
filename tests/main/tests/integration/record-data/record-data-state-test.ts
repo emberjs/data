@@ -132,7 +132,7 @@ class V2TestRecordData implements Cache {
     this._identifier = identifier;
   }
 
-  sync(op: MergeOperation): void {
+  patch(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }
   update(operation: LocalRelationshipOperation): void {
