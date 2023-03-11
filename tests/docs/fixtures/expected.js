@@ -320,6 +320,7 @@ module.exports = {
     '(public) @ember-data/store RecordArray#type',
     '(public) @ember-data/store RecordArray#update',
     '(public) @ember-data/store <Interface> Cache#patch',
+    '(public) @ember-data/store <Interface> Cache#upsert',
     '(public) @ember-data/store <Interface> Cache#version',
     '(public) @ember-data/store CacheManager#patch',
     '(public) @ember-data/store CacheManager#addToHasMany',
