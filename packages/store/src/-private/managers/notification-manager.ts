@@ -5,7 +5,7 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { LOG_NOTIFICATIONS } from '@ember-data/private-build-infra/debugging';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { Identifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
@@ -13,7 +13,7 @@ import type Store from '../store-service';
 type UnsubscribeToken = object;
 let tokenId = 0;
 
-const Cache = new Map<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>();
+const Cache = new Map<StableRecordIdentifier | 'resource' | 'document', Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>>();
 const Tokens = new Map<UnsubscribeToken, StableRecordIdentifier>();
 
 export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state';
@@ -22,6 +22,16 @@ export interface NotificationCallback {
   (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
   (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
   (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+}
+
+export interface ResourceOperationCallback {
+  // resource updates
+  (identifier: StableRecordIdentifier, notificationType: 'added' | 'removed'): void;
+}
+
+export interface DocumentOperationCallback {
+  // document updates
+  (identifier: Identifier, notificationType: 'updated' |'added' | 'removed'): void;
 }
 
 // TODO this isn't importable anyway, remove and use a map on the manager?
@@ -78,7 +88,7 @@ export default class NotificationManager {
    * @param {NotificationCallback} callback
    * @returns {UnsubscribeToken} an opaque token to be used with unsubscribe
    */
-  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
+  subscribe(identifier: StableRecordIdentifier | 'resource' | 'document', callback: NotificationCallback | ResourceOperationCallback | DocumentOperationCallback): UnsubscribeToken {
     assert(`Expected to receive a stable Identifier to subscribe to`, isStableIdentifier(identifier));
     let map = Cache.get(identifier);
 
@@ -106,10 +116,18 @@ export default class NotificationManager {
     }
   }
 
-  // deactivated type signature overloads because pass-through was failing to match any. Bring back if possible.
-  // notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
-  // notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: StableRecordIdentifier, value: NotificationType, key?: string): boolean {
+  /**
+   * @method notify
+   * @param identifier
+   * @param value
+   * @param key
+   * @return {Boolean} whether a notification was delivered to any subscribers
+   * @private
+   */
+  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'added' | 'removed'): boolean;
+  notify(identifier: StableRecordIdentifier, value: NotificationType | 'added' | 'removed', key?: string): boolean {
     assert(
       `Notify does not accept a key argument for the namespace '${value}'. Received key '${key}'.`,
       !key || value === 'attributes' || value === 'relationships'
@@ -136,6 +154,7 @@ export default class NotificationManager {
       return false;
     }
     callbackMap.forEach((cb) => {
+      // @ts-expect-error overload doesn't narrow within body
       cb(identifier, value, key);
     });
     return true;
