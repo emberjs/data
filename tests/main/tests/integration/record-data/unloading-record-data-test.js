@@ -43,7 +43,7 @@ module('RecordData Compatibility', function (hooks) {
       this.relationships = null;
     }
 
-    upsert(jsonApiResource, shouldCalculateChanges) {
+    pushData(jsonApiResource, shouldCalculateChanges) {
       let oldAttrs = this.attributes;
       let changedKeys;
 
