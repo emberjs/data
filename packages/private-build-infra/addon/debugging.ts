@@ -51,7 +51,7 @@ export const LOG_OPERATIONS = false;
  */
 export const LOG_MUTATIONS = false;
 /**
- * log notifications received by the RecordNotificationManager
+ * log notifications received by the NotificationManager
  *
  * @property {boolean} LOG_NOTIFICATIONS
  * @public

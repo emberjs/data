@@ -57,8 +57,8 @@ import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import type { NonSingletonCacheManager } from './managers/cache-manager';
+import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
-import NotificationManager from './managers/record-notification-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
 import { _findAll, _query, _queryRecord } from './network/finders';
 import type RequestCache from './network/request-cache';
@@ -221,10 +221,10 @@ class Store {
      */
     this.identifierCache = new IdentifierCache();
 
+    this.notifications = new NotificationManager(this);
+
     // private but maybe useful to be here, somewhat intimate
     this.recordArrayManager = new RecordArrayManager({ store: this });
-
-    this.notifications = new NotificationManager(this);
 
     // private
     this._fetchManager = new FetchManager(this);
@@ -621,7 +621,6 @@ class Store {
           (recordData as NonSingletonCacheManager).managedVersion === '1'
         );
         const resultProps = recordData.clientDidCreate(identifier, createOptions);
-        this.recordArrayManager.identifierAdded(identifier);
 
         record = this._instanceCache.getRecord(identifier, resultProps);
       });
@@ -2378,10 +2377,6 @@ class Store {
           //We first make sure the primary data has been updated
           const recordData = this._instanceCache.getRecordData(actualIdentifier);
           recordData.didCommit(identifier, data);
-
-          if (operation === 'deleteRecord') {
-            this.recordArrayManager.identifierRemoved(actualIdentifier);
-          }
 
           if (payload && payload.included) {
             this._push({ data: null, included: payload.included });

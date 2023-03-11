@@ -15,6 +15,7 @@ import IdentifierArray, {
   SOURCE,
 } from '../record-arrays/identifier-array';
 import type Store from '../store-service';
+import { CacheOperation, UnsubscribeToken } from './notification-manager';
 
 const RecordArraysCache = new Map<StableRecordIdentifier, Set<Collection>>();
 const FAKE_ARR = {};
@@ -85,6 +86,7 @@ class RecordArrayManager {
   declare _pending: Map<IdentifierArray, ChangeSet>;
   declare _identifiers: Map<StableRecordIdentifier, Set<Collection>>;
   declare _staged: Map<string, ChangeSet>;
+  declare _subscription: UnsubscribeToken;
 
   constructor(options: { store: Store }) {
     this.store = options.store;
@@ -95,6 +97,19 @@ class RecordArrayManager {
     this._pending = new Map();
     this._staged = new Map();
     this._identifiers = RecordArraysCache;
+
+    this._subscription = this.store.notifications.subscribe(
+      'resource',
+      (identifier: StableRecordIdentifier, type: CacheOperation) => {
+        if (type === 'added') {
+          this.identifierAdded(identifier);
+        } else if (type === 'removed') {
+          this.identifierRemoved(identifier);
+        } else if (type === 'state') {
+          this.identifierChanged(identifier);
+        }
+      }
+    );
   }
 
   _syncArray(array: IdentifierArray) {
@@ -310,6 +325,8 @@ class RecordArrayManager {
     this.clear();
     this._live.clear();
     this.isDestroyed = true;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    this.store.notifications.unsubscribe(this._subscription);
   }
 }
 

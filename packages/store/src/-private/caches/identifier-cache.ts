@@ -380,7 +380,7 @@ export class IdentifierCache {
 
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
-      console.log(`Identifiers: createded identifier ${String(identifier)} for newly generated resource`, data);
+      console.log(`Identifiers: created identifier ${String(identifier)} for newly generated resource`, data);
     }
 
     return identifier;

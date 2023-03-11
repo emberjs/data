@@ -1,5 +1,5 @@
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import { NotificationType } from '@ember-data/store/-private/managers/record-notification-manager';
+import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 
 import type { Cache } from './cache';
 import { StableRecordIdentifier } from './identifier';
@@ -196,7 +196,7 @@ export interface LegacyCacheStoreWrapper {
   notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
 
   /**
-   * Notify subscribers of the RecordNotificationManager that cache state has changed.
+   * Notify subscribers of the NotificationManager that cache state has changed.
    *
    * `attributes` and `relationships` do not require a key, but if one is specified it
    * is assumed to be the name of the attribute or relationship that has been updated.
@@ -209,7 +209,13 @@ export interface LegacyCacheStoreWrapper {
    * @param {string|undefined} key
    * @public
    */
+  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
+  notifyChange(
+    identifier: StableRecordIdentifier,
+    namespace: NotificationType | 'added' | 'removed',
+    key?: string
+  ): void;
 
   /**
    * Use notifyChange
@@ -249,7 +255,13 @@ export interface V2CacheStoreWrapper {
 
   recordDataFor(identifier: StableRecordIdentifier): Cache;
 
+  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
+  notifyChange(
+    identifier: StableRecordIdentifier,
+    namespace: NotificationType | 'added' | 'removed',
+    key?: string
+  ): void;
 }
 
 export type CacheStoreWrapper = LegacyCacheStoreWrapper | V2CacheStoreWrapper;
