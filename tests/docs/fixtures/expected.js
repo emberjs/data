@@ -46,7 +46,7 @@ module.exports = {
     '(private) @ember-data/model Model#_notifyProperties',
     '(private) @ember-data/model Model#create',
     '(private) @ember-data/model Model#currentState',
-    '(private) @ember-data/json-api Cache#createCache',
+    '(private) @ember-data/json-api Cache#_createCache',
     '(private) @ember-data/serializer/json JSONSerializer#_canSerialize',
     '(private) @ember-data/serializer/json JSONSerializer#_getMappedKey',
     '(private) @ember-data/serializer/json JSONSerializer#_mustSerialize',
