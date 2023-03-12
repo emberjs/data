@@ -11,6 +11,7 @@ import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
@@ -133,6 +134,9 @@ class V2TestRecordData implements Cache {
   }
 
   patch(op: MergeOperation): void {
+    throw new Error('Method not implemented.');
+  }
+  put<T>(doc: StructuredDocument<T>): ResourceDocument {
     throw new Error('Method not implemented.');
   }
   update(operation: LocalRelationshipOperation): void {

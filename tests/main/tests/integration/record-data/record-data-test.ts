@@ -11,6 +11,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import { DSModel } from '@ember-data/types/q/ds-model';
@@ -123,6 +124,9 @@ class V2TestRecordData implements Cache {
     this._identifier = identifier;
   }
   patch(op: MergeOperation): void {
+    throw new Error('Method not implemented.');
+  }
+  put<T>(doc: StructuredDocument<T>): ResourceDocument {
     throw new Error('Method not implemented.');
   }
   upsert(
