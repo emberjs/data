@@ -2442,6 +2442,9 @@ class Store {
    * Instantiation hook allowing applications or addons to configure the store
    * to utilize a custom Cache implementation.
    *
+   * This hook should not be called directly by consuming applications or libraries.
+   * Use `Store.cache` to access the Cache instance.
+   *
    * @method createCache (hook)
    * @public
    * @param storeWrapper
@@ -2459,6 +2462,13 @@ class Store {
     assert(`Expected store.createCache to be implemented but it wasn't`);
   }
 
+  /**
+   * Returns the cache instance associated to this Store, instantiates the Cache
+   * if necessary via `Store.createCache`
+   *
+   * @property {Cache} cache
+   * @public
+   */
   get cache(): Cache {
     let { cache } = this._instanceCache;
     if (!cache) {
