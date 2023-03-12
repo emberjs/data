@@ -2157,7 +2157,7 @@ class Store {
       if (DEPRECATE_V1_RECORD_DATA) {
         ret = legacyCachePut(this, { data: jsonApiDoc });
       } else {
-        ret = this._instanceCache.__cacheManager.put(jsonApiDoc);
+        ret = this.cache.put({ data: jsonApiDoc });
       }
     });
 
