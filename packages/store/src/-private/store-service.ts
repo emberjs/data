@@ -20,7 +20,7 @@ import {
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
 } from '@ember-data/private-build-infra/deprecations';
-import type { Cache } from '@ember-data/types/q/cache';
+import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
@@ -167,7 +167,7 @@ export interface CreateRecordProperties {
 */
 
 interface Store {
-  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache;
+  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache | CacheV1;
 }
 
 class Store {

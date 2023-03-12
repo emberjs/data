@@ -78,7 +78,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     let storeWrapper;
     class CreationStore extends CustomStore {
       createRecordDataFor(identifier: StableRecordIdentifier, sw: CacheStoreWrapper) {
-        let rd = super.createRecordDataFor(identifier, sw);
+        let rd = this.cache;
         storeWrapper = sw;
         return rd;
       }

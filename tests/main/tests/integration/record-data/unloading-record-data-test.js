@@ -173,7 +173,6 @@ module('RecordData Compatibility', function (hooks) {
   const CustomRecordData = DEPRECATE_V1_RECORD_DATA ? V1CustomRecordData : V2CustomRecordData;
 
   test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function (assert) {
-    const originalCreateRecordDataFor = store.createRecordDataFor;
     let customCalled = 0,
       customCalledFor = [],
       originalCalled = 0,
@@ -186,7 +185,7 @@ module('RecordData Compatibility', function (hooks) {
       } else {
         originalCalled++;
         originalCalledFor.push(identifier);
-        return originalCreateRecordDataFor.call(this, identifier, storeWrapper);
+        return this.cache;
       }
     };
 
@@ -260,12 +259,11 @@ module('RecordData Compatibility', function (hooks) {
   });
 
   test(`store.unloadRecord on a record with custom RecordData with relationship to a record with default RecordData does not error`, async function (assert) {
-    const originalCreateRecordDataFor = store.createModelDataFor;
     store.createModelDataFor = function provideCustomRecordData(identifier, storeWrapper) {
       if (identifier.type === 'pet') {
         return new CustomRecordData(identifier, storeWrapper);
       } else {
-        return originalCreateRecordDataFor.call(this, identifier, storeWrapper);
+        return this.cache;
       }
     };
 

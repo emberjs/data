@@ -210,7 +210,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (identifier.type === 'house') {
           return new RelationshipRD(identifier, wrapper);
         } else {
-          return super.createRecordDataFor(identifier, wrapper);
+          return this.cache;
         }
       }
     }
@@ -265,7 +265,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return super.createRecordDataFor(identifier, wrapper);
+          return this.cache;
         }
       }
     }
@@ -326,7 +326,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return super.createRecordDataFor(identifier, wrapper);
+          return this.cache;
         }
       }
     }
@@ -376,7 +376,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return super.createRecordDataFor(identifier, wrapper);
+          return this.cache;
         }
       }
     }
@@ -420,7 +420,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return super.createRecordDataFor(identifier, wrapper);
+          return this.cache;
         }
       }
     }
@@ -463,7 +463,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (identifier.type === 'house') {
           return new RecordDataForTest(identifier, wrapper);
         } else {
-          return super.createRecordDataFor(identifier, wrapper);
+          return this.cache;
         }
       }
     }
