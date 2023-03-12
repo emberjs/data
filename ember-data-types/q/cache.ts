@@ -102,7 +102,17 @@ export interface Cache {
    */
   patch(op: MergeOperation): void;
 
-  pushData(identifier: StableRecordIdentifier, data: JsonApiResource, calculateChanges?: boolean): void | string[];
+  /**
+   * Push resource data from a remote source into the cache for this identifier
+   *
+   * @method upsert
+   * @public
+   * @param identifier
+   * @param data
+   * @param hasRecord
+   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   */
+  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, calculateChanges?: boolean): void | string[];
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown>;
 
   willCommit(identifier: StableRecordIdentifier): void;

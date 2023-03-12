@@ -580,7 +580,7 @@ export class InstanceCache {
     }
 
     const hasRecord = this.__instances.record.has(identifier);
-    recordData.pushData(identifier, data, hasRecord);
+    recordData.upsert(identifier, data, hasRecord);
 
     return identifier as StableExistingRecordIdentifier;
   }
@@ -633,7 +633,7 @@ export function preloadData(store: Store, identifier: StableRecordIdentifier, pr
       jsonPayload.attributes[key] = preloadValue;
     }
   });
-  store._instanceCache.getRecordData(identifier).pushData(identifier, jsonPayload);
+  store._instanceCache.getRecordData(identifier).upsert(identifier, jsonPayload);
 }
 
 function preloadRelationship(

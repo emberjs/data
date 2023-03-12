@@ -143,7 +143,7 @@ class V2TestRecordData implements Cache {
   _errors?: JsonApiValidationError[];
   _isNew: boolean = false;
 
-  pushData(
+  upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
     calculateChanges?: boolean | undefined

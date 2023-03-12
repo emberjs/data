@@ -110,7 +110,7 @@ export default class SingletonCache implements Cache {
     return resource;
   }
 
-  pushData(
+  upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
     calculateChanges?: boolean | undefined
@@ -127,10 +127,10 @@ export default class SingletonCache implements Cache {
       try {
         let _data = JSON.parse(JSON.stringify(data));
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - pushData (${existed ? 'upsert' : 'insert'})`, _data);
+        console.log(`EmberData | Operation - upsert (${existed ? 'merge' : 'insert'})`, _data);
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - pushData (${existed ? 'upsert' : 'insert'})`, data);
+        console.log(`EmberData | Operation - upsert (${existed ? 'merge' : 'insert'})`, data);
       }
     }
 
