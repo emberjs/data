@@ -8,8 +8,12 @@ import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { peekGraph } from '@ember-data/graph/-private/graph/index';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
-import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
-import type { Cache } from '@ember-data/types/q/cache';
+import {
+  DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
+  DEPRECATE_V1_RECORD_DATA,
+  DEPRECATE_V1CACHE_STORE_APIS,
+} from '@ember-data/private-build-infra/deprecations';
+import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   ExistingResourceIdentifierObject,
@@ -37,7 +41,7 @@ import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import { assertIdentifierHasId } from '../utils/identifier-has-id';
 import normalizeModelName from '../utils/normalize-model-name';
-import { RecordDataForIdentifierCache, removeRecordDataFor, setRecordDataFor } from './record-data-for';
+import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
 
 let _peekGraph: peekGraph;
 if (HAS_GRAPH_PACKAGE) {
@@ -121,6 +125,7 @@ type Caches = {
 
 export class InstanceCache {
   declare store: Store;
+  declare cache: Cache;
   declare _storeWrapper: CacheStoreWrapper;
   declare __recordDataFor: (resource: RecordIdentifier) => Cache;
 
@@ -135,11 +140,14 @@ export class InstanceCache {
     this.store = store;
 
     this._storeWrapper = new CacheStoreWrapper(this.store);
-    this.__recordDataFor = (resource: RecordIdentifier) => {
-      // TODO enforce strict
-      const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
-      return this.getRecordData(identifier);
-    };
+
+    if (DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+      this.__recordDataFor = (resource: RecordIdentifier) => {
+        // TODO enforce strict
+        const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
+        return this.getRecordData(identifier);
+      };
+    }
 
     store.identifierCache.__configureMerge(
       (identifier: StableRecordIdentifier, matchedIdentifier: StableRecordIdentifier, resourceData) => {
@@ -184,18 +192,24 @@ export class InstanceCache {
           );
         }
 
-        let recordData = keptRecordData || staleRecordData;
+        if (DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+          let recordData = keptRecordData || staleRecordData;
 
-        if (recordData) {
-          recordData.patch({
-            op: 'mergeIdentifiers',
-            record: staleIdentifier,
-            value: keptIdentifier,
-          });
-        } else if (HAS_JSON_API_PACKAGE) {
-          // TODO notify cache always, this requires it always being a singleton
-          // and not ever specific to one record-data
-          this.store.__private_singleton_recordData?.patch({
+          if (recordData) {
+            recordData.patch({
+              op: 'mergeIdentifiers',
+              record: staleIdentifier,
+              value: keptIdentifier,
+            });
+          } else if (HAS_JSON_API_PACKAGE) {
+            this.store.cache.patch({
+              op: 'mergeIdentifiers',
+              record: staleIdentifier,
+              value: keptIdentifier,
+            });
+          }
+        } else {
+          this.store.cache.patch({
             op: 'mergeIdentifiers',
             record: staleIdentifier,
             value: keptIdentifier,
@@ -241,7 +255,7 @@ export class InstanceCache {
         `Cannot create a new record instance while the store is being destroyed`,
         !this.store.isDestroying && !this.store.isDestroyed
       );
-      const recordData = this.getRecordData(identifier);
+      const recordData = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK ? this.getRecordData(identifier) : this.store.cache;
 
       record = this.store.instantiateRecord(
         identifier,
@@ -250,7 +264,7 @@ export class InstanceCache {
         this.store.notifications
       );
       setRecordIdentifier(record, identifier);
-      setRecordDataFor(record, recordData);
+      setCacheFor(record, recordData);
       StoreMap.set(record, this.store);
       this.__instances.record.set(identifier, record);
 
@@ -267,7 +281,7 @@ export class InstanceCache {
     let recordData = this.__instances.recordData.get(identifier);
 
     if (DEPRECATE_V1CACHE_STORE_APIS) {
-      if (!recordData && this.store.createRecordDataFor.length > 2) {
+      if (!recordData && this.store.createRecordDataFor && this.store.createRecordDataFor.length > 2) {
         deprecate(
           `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
           false,
@@ -295,19 +309,28 @@ export class InstanceCache {
     }
 
     if (!recordData) {
-      let recordDataInstance = this.store.createRecordDataFor(identifier, this._storeWrapper);
+      let recordDataInstance: Cache | CacheV1;
+      if (DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+        recordDataInstance = this.store.createRecordDataFor
+          ? this.store.createRecordDataFor(identifier, this._storeWrapper)
+          : this.store.cache;
+      } else {
+        recordDataInstance = this.store.cache;
+      }
       if (DEPRECATE_V1_RECORD_DATA) {
-        recordData = new NonSingletonCacheManager(this.store, recordDataInstance, identifier);
+        if (recordDataInstance.version !== '2') {
+          recordData = new NonSingletonCacheManager(this.store, recordDataInstance, identifier);
+        } else {
+          recordData = recordDataInstance;
+        }
       } else {
         if (DEBUG) {
-          recordData = this.__cacheManager = this.__cacheManager || new SingletonCacheManager();
-          (recordData as SingletonCacheManager)._addRecordData(identifier, recordDataInstance as Cache);
-        } else {
-          recordData = recordDataInstance as Cache;
+          (recordDataInstance as SingletonCacheManager)._addRecordData(identifier, recordDataInstance as Cache);
         }
+        recordData = recordDataInstance as Cache;
       }
 
-      setRecordDataFor(identifier, recordData);
+      setCacheFor(identifier, recordData);
 
       this.__instances.recordData.set(identifier, recordData);
       if (LOG_INSTANCE_CACHE) {
@@ -694,5 +717,5 @@ function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): b
 export function _clearCaches() {
   RecordCache.clear();
   StoreMap.clear();
-  RecordDataForIdentifierCache.clear();
+  CacheForIdentifierCache.clear();
 }

@@ -1,6 +1,9 @@
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/private-build-infra/deprecations';
+import {
+  DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
+  DEPRECATE_V1CACHE_STORE_APIS,
+} from '@ember-data/private-build-infra/deprecations';
 import type { Cache } from '@ember-data/types/q/cache';
 import type {
   LegacyCacheStoreWrapper,
@@ -241,13 +244,18 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
       identifier = type;
     }
 
-    const recordData = this._store._instanceCache.getRecordData(identifier);
+    const cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+      ? this._store._instanceCache.getRecordData(identifier)
+      : this._store.cache;
 
-    if (!id && !lid) {
-      recordData.clientDidCreate(identifier);
+    if (DEPRECATE_V1CACHE_STORE_APIS) {
+      if (!id && !lid && typeof type === 'string') {
+        cache.clientDidCreate(identifier);
+        this._store.recordArrayManager.identifierAdded(identifier);
+      }
     }
 
-    return recordData;
+    return cache;
   }
 
   setRecordId(type: string | StableRecordIdentifier, id: string, lid?: string) {
@@ -404,9 +412,23 @@ class V2CacheStoreWrapper implements StoreWrapper {
   }
 
   recordDataFor(identifier: StableRecordIdentifier): Cache {
+    if (DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+      deprecate(
+        `StoreWrapper.recordDataFor is deprecated. With Singleton Cache, this method is no longer needed as the caller is its own cache reference.`,
+        false,
+        {
+          for: '@ember-data/store',
+          id: 'ember-data:deprecate-record-data-for',
+          since: { available: '4.10', enabled: '4.10' },
+          until: '5.0',
+        }
+      );
+    }
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
 
-    return this._store._instanceCache.getRecordData(identifier);
+    return DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+      ? this._store._instanceCache.getRecordData(identifier)
+      : (void 0 as unknown as Cache);
   }
 
   setRecordId(identifier: StableRecordIdentifier, id: string) {

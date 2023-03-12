@@ -754,8 +754,10 @@ export class SingletonCacheManager implements Cache {
   version: '2' = '2';
 
   #recordDatas: Map<StableRecordIdentifier, Cache>;
+  #cache: Cache;
 
-  constructor() {
+  constructor(cache: Cache) {
+    this.#cache = cache;
     this.#recordDatas = new Map();
   }
 

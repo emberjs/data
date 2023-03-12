@@ -40,6 +40,7 @@ import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definit
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -51,12 +52,11 @@ import {
   storeFor,
   StoreMap,
 } from './caches/instance-cache';
-import recordDataFor, { setRecordDataFor } from './caches/record-data-for';
 import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
-import type { NonSingletonCacheManager } from './managers/cache-manager';
+import { NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
@@ -2396,15 +2396,6 @@ class Store {
       });
   }
 
-  /**
-   * Instantiation hook allowing applications or addons to configure the store
-   * to utilize a custom RecordData implementation.
-   *
-   * @method createRecordDataFor (hook)
-   * @public
-   * @param identifier
-   * @param storeWrapper
-   */
   createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper): Cache | CacheV1 {
     if (HAS_JSON_API_PACKAGE) {
       // we can't greedily use require as this causes
@@ -2446,6 +2437,52 @@ class Store {
 
     assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
   }
+
+  /**
+   * Instantiation hook allowing applications or addons to configure the store
+   * to utilize a custom Cache implementation.
+   *
+   * @method createCache (hook)
+   * @public
+   * @param storeWrapper
+   * @returns {Cache}
+   */
+  createCache(storeWrapper: CacheStoreWrapper): Cache {
+    if (HAS_JSON_API_PACKAGE) {
+      if (_Cache === undefined) {
+        _Cache = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private')).Cache;
+      }
+
+      return new _Cache(storeWrapper);
+    }
+
+    assert(`Expected store.createCache to be implemented but it wasn't`);
+  }
+
+  get cache(): Cache {
+    let { cache } = this._instanceCache;
+    if (!cache) {
+      cache = this._instanceCache.cache = this.createCache(this._instanceCache._storeWrapper);
+      if (DEBUG) {
+        cache = new SingletonCacheManager(cache);
+      }
+    }
+    return cache;
+  }
+
+  /**
+   * [DEPRECATED] use Store.createCache
+   *
+   * Instantiation hook allowing applications or addons to configure the store
+   * to utilize a custom RecordData implementation.
+   *
+   * @method createRecordDataFor (hook)
+   * @deprecated
+   * @public
+   * @param identifier
+   * @param storeWrapper
+   * @returns {Cache}
+   */
 
   /**
     `normalize` converts a json payload into the normalized form that
@@ -2858,7 +2895,7 @@ function extractIdentifierFromRecord(
   if (!recordOrPromiseRecord) {
     return null;
   }
-  const extract = isForV1 ? recordDataFor : recordIdentifierFor;
+  const extract = isForV1 ? peekCache : recordIdentifierFor;
 
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
@@ -2894,5 +2931,5 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
 function secretInit(record: RecordInstance, recordData: Cache, identifier: StableRecordIdentifier, store: Store): void {
   setRecordIdentifier(record, identifier);
   StoreMap.set(record, store);
-  setRecordDataFor(record, recordData);
+  setCacheFor(record, recordData);
 }
