@@ -19,7 +19,6 @@ import {
   DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
-  DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
@@ -40,6 +39,7 @@ import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definit
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -51,12 +51,11 @@ import {
   storeFor,
   StoreMap,
 } from './caches/instance-cache';
-import recordDataFor, { setRecordDataFor } from './caches/record-data-for';
 import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
-import type { NonSingletonCacheManager } from './managers/cache-manager';
+import { NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
@@ -167,9 +166,11 @@ export interface CreateRecordProperties {
   @extends Ember.Service
 */
 
-class Store {
-  __private_singleton_recordData!: Cache;
+interface Store {
+  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache | CacheV1;
+}
 
+class Store {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -338,16 +339,14 @@ class Store {
    * @method instantiateRecord (hook)
    * @param identifier
    * @param createRecordArgs
-   * @param recordDataFor
-   * @param notificationManager
+   * @param recordDataFor deprecated use this.cache
+   * @param notificationManager deprecated use this.notifications
    * @returns A record instance
    * @public
    */
   instantiateRecord(
     identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown },
-    recordDataFor: (identifier: StableRecordIdentifier) => Cache,
-    notificationManager: NotificationManager
+    createRecordArgs: { [key: string]: unknown }
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
       let modelName = identifier.type;
@@ -2398,54 +2397,59 @@ class Store {
 
   /**
    * Instantiation hook allowing applications or addons to configure the store
-   * to utilize a custom RecordData implementation.
+   * to utilize a custom Cache implementation.
    *
-   * @method createRecordDataFor (hook)
+   * This hook should not be called directly by consuming applications or libraries.
+   * Use `Store.cache` to access the Cache instance.
+   *
+   * @method createCache (hook)
    * @public
-   * @param identifier
    * @param storeWrapper
+   * @returns {Cache}
    */
-  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper): Cache | CacheV1 {
+  createCache(storeWrapper: CacheStoreWrapper): Cache {
     if (HAS_JSON_API_PACKAGE) {
-      // we can't greedily use require as this causes
-      // a cycle we can't easily fix (or clearly pin point) at present.
-      //
-      // it can be reproduced in partner tests by running
-      // node ./scripts/packages-for-commit.js && pnpm test-external:ember-observer
       if (_Cache === undefined) {
         _Cache = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private')).Cache;
       }
 
-      if (DEPRECATE_V1CACHE_STORE_APIS) {
-        if (arguments.length === 4) {
-          deprecate(
-            `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
-            false,
-            {
-              id: 'ember-data:deprecate-v1cache-store-apis',
-              for: 'ember-data',
-              until: '5.0',
-              since: { enabled: '4.7', available: '4.7' },
-            }
-          );
-          identifier = this.identifierCache.getOrCreateRecordIdentifier({
-            type: arguments[0],
-            id: arguments[1],
-            lid: arguments[2],
-          });
-          storeWrapper = arguments[3];
-        }
-      }
-
-      this.__private_singleton_recordData = this.__private_singleton_recordData || new _Cache(storeWrapper);
-      (
-        this.__private_singleton_recordData as Cache & { createCache(identifier: StableRecordIdentifier): void }
-      ).createCache(identifier);
-      return this.__private_singleton_recordData;
+      return new _Cache(storeWrapper);
     }
 
-    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
+    assert(`Expected store.createCache to be implemented but it wasn't`);
   }
+
+  /**
+   * Returns the cache instance associated to this Store, instantiates the Cache
+   * if necessary via `Store.createCache`
+   *
+   * @property {Cache} cache
+   * @public
+   */
+  get cache(): Cache {
+    let { cache } = this._instanceCache;
+    if (!cache) {
+      cache = this._instanceCache.cache = this.createCache(this._instanceCache._storeWrapper);
+      if (DEBUG) {
+        cache = new SingletonCacheManager(cache);
+      }
+    }
+    return cache;
+  }
+
+  /**
+   * [DEPRECATED] use Store.createCache
+   *
+   * Instantiation hook allowing applications or addons to configure the store
+   * to utilize a custom RecordData implementation.
+   *
+   * @method createRecordDataFor (hook)
+   * @deprecated
+   * @public
+   * @param identifier
+   * @param storeWrapper
+   * @returns {Cache}
+   */
 
   /**
     `normalize` converts a json payload into the normalized form that
@@ -2858,7 +2862,7 @@ function extractIdentifierFromRecord(
   if (!recordOrPromiseRecord) {
     return null;
   }
-  const extract = isForV1 ? recordDataFor : recordIdentifierFor;
+  const extract = isForV1 ? peekCache : recordIdentifierFor;
 
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
@@ -2894,5 +2898,5 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
 function secretInit(record: RecordInstance, recordData: Cache, identifier: StableRecordIdentifier, store: Store): void {
   setRecordIdentifier(record, identifier);
   StoreMap.set(record, store);
-  setRecordDataFor(record, recordData);
+  setCacheFor(record, recordData);
 }

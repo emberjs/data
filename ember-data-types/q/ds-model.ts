@@ -16,6 +16,8 @@ export interface DSModel extends EmberObject {
   eachRelationship<T>(callback: (this: T, key: string, meta: RelationshipSchema) => void, binding?: T): void;
   eachAttribute<T>(callback: (this: T, key: string, meta: AttributeSchema) => void, binding?: T): void;
   invalidErrorsChanged(errors: JsonApiValidationError[]): void;
+  rollbackAttributes(): void;
+  changedAttributes(): Record<string, [unknown, unknown]>;
   [key: string]: unknown;
   isDeleted: boolean;
   deleteRecord(): void;

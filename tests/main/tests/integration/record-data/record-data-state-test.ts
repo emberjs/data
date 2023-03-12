@@ -275,6 +275,10 @@ module('integration/record-data - Record Data State', function (hooks) {
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         return new LifecycleRecordData(wrapper, identifier);
       }
+      createCache(wrapper: CacheStoreWrapper) {
+        // @ts-expect-error
+        return new LifecycleRecordData(wrapper) as Cache;
+      }
     }
 
     let TestAdapter = EmberObject.extend({
@@ -370,6 +374,10 @@ module('integration/record-data - Record Data State', function (hooks) {
       // @ts-expect-error
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         return new LifecycleRecordData(wrapper, identifier);
+      }
+      createCache(wrapper: CacheStoreWrapper) {
+        // @ts-expect-error
+        return new LifecycleRecordData(wrapper) as Cache;
       }
     }
 

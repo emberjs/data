@@ -13,6 +13,7 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceRelationship,
   SingleResourceRelationship,
@@ -197,47 +198,11 @@ class CustomStore extends Store {
   }
 }
 
-let houseHash, davidHash, runspiredHash, igorHash;
-
 module('integration/record-data - Custom RecordData Implementations', function (hooks) {
   setupTest(hooks);
 
-  let store;
-
   hooks.beforeEach(function () {
     let { owner } = this;
-
-    houseHash = {
-      type: 'house',
-      id: '1',
-      attributes: {
-        name: 'Moomin',
-      },
-    };
-
-    davidHash = {
-      type: 'person',
-      id: '1',
-      attributes: {
-        name: 'David',
-      },
-    };
-
-    runspiredHash = {
-      type: 'person',
-      id: '2',
-      attributes: {
-        name: 'Runspired',
-      },
-    };
-
-    igorHash = {
-      type: 'person',
-      id: '3',
-      attributes: {
-        name: 'Igor',
-      },
-    };
 
     owner.register('model:person', Person);
     owner.register('model:house', House);
@@ -248,8 +213,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
   });
 
   test('A RecordData implementation that has the required spec methods should not error out', async function (assert) {
-    let { owner } = this;
-    store = owner.lookup('service:store');
+    const { owner } = this;
+    const store: Store = owner.lookup('service:store') as Store;
 
     store.push({
       data: [
@@ -371,6 +336,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         return new LifecycleRecordData(storeWrapper, identifier);
       }
+      createCache(storeWrapper: CacheStoreWrapper) {
+        // @ts-expect-error
+        return new LifecycleRecordData(storeWrapper) as Cache;
+      }
     }
 
     let TestAdapter = EmberObject.extend({
@@ -391,14 +360,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('service:store', TestStore);
     owner.register('adapter:application', TestAdapter, { singleton: false });
 
-    store = owner.lookup('service:store');
+    const store = owner.lookup('service:store') as Store;
 
     store.push({
       data: [personHash],
     });
     assert.strictEqual(calledUpsert, 1, 'Called upsert');
 
-    let person = store.peekRecord('person', '1');
+    let person = store.peekRecord('person', '1') as DSModel;
     person.save();
     assert.strictEqual(calledWillCommit, 1, 'Called willCommit');
 
@@ -430,7 +399,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     calledRollbackAttributes = 0;
     calledDidCommit = 0;
 
-    let clientPerson = store.createRecord('person', { id: '2' });
+    let clientPerson: DSModel = store.createRecord('person', { id: '2' }) as DSModel;
     assert.strictEqual(calledClientDidCreate, 1, 'Called clientDidCreate');
 
     clientPerson.save();
@@ -513,17 +482,22 @@ module('integration/record-data - Custom RecordData Implementations', function (
       createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
         return new AttributeRecordData(storeWrapper, identifier);
       }
+
+      createCache(storeWrapper: CacheStoreWrapper) {
+        // @ts-expect-error
+        return new AttributeRecordData(storeWrapper) as Cache;
+      }
     }
 
     owner.register('service:store', TestStore);
 
-    store = owner.lookup('service:store');
+    const store = owner.lookup('service:store') as Store;
 
     store.push({
       data: [personHash],
     });
 
-    let person = store.peekRecord('person', '1');
+    let person = store.peekRecord('person', '1') as DSModel;
     assert.strictEqual(person.name, 'new attribute');
     assert.strictEqual(calledGet, 1, 'called getAttr for initial get');
     person.set('name', 'new value');
@@ -538,396 +512,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
       { name: ['old', 'new'] },
       'changed attributes passes through RD value'
     );
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
-    }
-  });
-
-  test('Record Data controls belongsTo notifications', async function (assert) {
-    assert.expect(7);
-
-    let { owner } = this;
-    let belongsToReturnValue;
-
-    class RelationshipRecordData extends TestRecordData {
-      getBelongsTo(key: string) {
-        assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
-        return belongsToReturnValue;
-      }
-
-      getRelationship(identifier: StableRecordIdentifier, key: string) {
-        assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
-        return belongsToReturnValue;
-      }
-
-      // Use correct interface once imports have been fix
-      setDirtyBelongsTo(key: string, recordData: any) {
-        assert.strictEqual(key, 'landlord', 'Passed correct key to setBelongsTo');
-        assert.strictEqual(recordData.getResourceIdentifier().id, '2', 'Passed correct RD to setBelongsTo');
-      }
-
-      update(operation: LocalRelationshipOperation) {
-        assert.strictEqual(operation.op, 'replaceRelatedRecord', 'Passed correct op to update');
-        assert.strictEqual(operation.field, 'landlord', 'Passed correct key to update');
-        assert.strictEqual(
-          operation.value ? (operation.value as StableRecordIdentifier).id : null,
-          '2',
-          'Passed correct Identifier to update'
-        );
-      }
-    }
-
-    class TestStore extends Store {
-      // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-        if (identifier.type === 'house') {
-          return new RelationshipRecordData(storeWrapper, identifier);
-        } else {
-          return super.createRecordDataFor(identifier, storeWrapper);
-        }
-      }
-    }
-
-    owner.register('service:store', TestStore);
-
-    store = owner.lookup('service:store');
-    belongsToReturnValue = { data: store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }) };
-
-    store.push({
-      data: [davidHash, runspiredHash],
-    });
-
-    store.push({
-      data: [houseHash],
-    });
-
-    let house = store.peekRecord('house', '1');
-    let runspired = store.peekRecord('person', '2');
-    assert.strictEqual(house.landlord.name, 'David', 'belongsTo get correctly looked up');
-
-    house.set('landlord', runspired);
-    assert.strictEqual(house.landlord.name, 'David', 'belongsTo does not change if RD did not notify');
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
-    }
-  });
-
-  test('Record Data custom belongsTo', async function (assert) {
-    assert.expect(DEPRECATE_V1_RECORD_DATA ? 5 : 4);
-    let { owner } = this;
-
-    let belongsToReturnValue;
-
-    let RelationshipRecordData;
-    if (!DEPRECATE_V1_RECORD_DATA) {
-      RelationshipRecordData = class extends TestRecordData {
-        getRelationship(identifier: StableRecordIdentifier, key: string) {
-          assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
-          return belongsToReturnValue;
-        }
-
-        update(this: V2TestRecordData, operation: LocalRelationshipOperation) {
-          belongsToReturnValue = {
-            data: store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
-          };
-          this._storeWrapper.notifyChange(this._identifier, 'relationships', 'landlord');
-        }
-      };
-    } else {
-      RelationshipRecordData = class extends TestRecordData {
-        getBelongsTo(key: string) {
-          assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
-          return belongsToReturnValue;
-        }
-
-        setDirtyBelongsTo(this: V1TestRecordData, key: string, recordData: this | null) {
-          belongsToReturnValue = {
-            data: store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
-          };
-          this._storeWrapper.notifyChange(this._identifier, 'relationships', 'landlord');
-        }
-      };
-    }
-    class TestStore extends Store {
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-        if (identifier.type === 'house') {
-          return new RelationshipRecordData(storeWrapper, identifier);
-        } else {
-          return super.createRecordDataFor(identifier, storeWrapper);
-        }
-      }
-    }
-
-    owner.register('service:store', TestStore);
-
-    store = owner.lookup('service:store');
-    belongsToReturnValue = { data: store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }) };
-
-    store.push({
-      data: [davidHash, runspiredHash, igorHash],
-    });
-
-    store.push({
-      data: [houseHash],
-    });
-
-    let house = store.peekRecord('house', '1');
-    assert.strictEqual(house.landlord.name, 'David', 'belongsTo get correctly looked up');
-
-    let runspired = store.peekRecord('person', '2');
-    house.set('landlord', runspired);
-
-    // This is intentionally !== runspired to test the custom RD implementation
-    assert.strictEqual(house.landlord.name, 'Igor', 'RecordData sets the custom belongsTo value');
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
-    }
-  });
-
-  test('Record Data controls hasMany notifications', async function (assert) {
-    assert.expect(DEPRECATE_V1_RECORD_DATA ? 12 : 11);
-
-    let { owner } = this;
-
-    let hasManyReturnValue;
-    let notifier, houseIdentifier;
-    class RelationshipRecordData extends TestRecordData {
-      getHasMany(key: string) {
-        return hasManyReturnValue;
-      }
-      getRelationship() {
-        return hasManyReturnValue;
-      }
-      addToHasMany(key: string, recordDatas: any[], idx?: number) {
-        if (!DEPRECATE_V1_RECORD_DATA) {
-          throw new Error('should not have called addToHasMany in v2');
-        } else {
-          assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-          assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to addToHasMany');
-        }
-      }
-      removeFromHasMany(key: string, recordDatas: any[]) {
-        if (!DEPRECATE_V1_RECORD_DATA) {
-          throw new Error('should not have called removeFromHasMany in v2');
-        } else {
-          assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
-          assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '1', 'Passed correct RD to removeFromHasMany');
-        }
-      }
-      setDirtyHasMany(key: string, recordDatas: any[]) {
-        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '3', 'Passed correct RD to addToHasMany');
-      }
-      update(operation: LocalRelationshipOperation) {
-        if (operation.op === 'addToRelatedRecords') {
-          assert.strictEqual(operation.field, 'tenants');
-          assert.deepEqual(
-            (operation.value as StableRecordIdentifier[]).map((r) => r.id),
-            ['2']
-          );
-        } else if (operation.op === 'removeFromRelatedRecords') {
-          assert.strictEqual(operation.field, 'tenants');
-          assert.deepEqual(
-            (operation.value as StableRecordIdentifier[]).map((r) => r.id),
-            ['1']
-          );
-        } else if (operation.op === 'replaceRelatedRecords') {
-          assert.strictEqual(operation.field, 'tenants', 'Passed correct key to addToHasMany');
-          assert.strictEqual(operation.value[0].id, '3', 'Passed correct RD to addToHasMany');
-        } else {
-          throw new Error(`operation ${operation.op} not implemented in test yet`);
-        }
-      }
-    }
-
-    class TestStore extends Store {
-      // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-        if (identifier.type === 'house') {
-          notifier = storeWrapper;
-          houseIdentifier = identifier;
-          return new RelationshipRecordData(storeWrapper, identifier);
-        } else {
-          return super.createRecordDataFor(identifier, storeWrapper);
-        }
-      }
-    }
-
-    owner.register('service:store', TestStore);
-
-    store = owner.lookup('service:store');
-    hasManyReturnValue = { data: [store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' })] };
-
-    store.push({
-      data: [davidHash, runspiredHash, igorHash],
-    });
-
-    store.push({
-      data: [houseHash],
-    });
-
-    let house = store.peekRecord('house', '1');
-    let people = house.tenants;
-    let david = store.peekRecord('person', '1');
-    let runspired = store.peekRecord('person', '2');
-    let igor = store.peekRecord('person', '3');
-
-    assert.deepEqual(people.slice(), [david], 'initial lookup is correct');
-
-    people.push(runspired);
-    assert.deepEqual(people.slice(), [david, runspired], 'push applies the change locally');
-
-    people.splice(people.indexOf(david), 1);
-    assert.deepEqual(people.slice(), [runspired], 'splice applies the change locally');
-
-    house.tenants = [igor];
-    assert.deepEqual(people.slice(), [igor], 'replace applies the change locally');
-
-    notifier.notifyChange(houseIdentifier, 'relationships', 'tenants');
-    await settled();
-    assert.deepEqual(people.slice(), [david], 'final lookup is correct once notified');
-
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
-    }
-  });
-
-  test('Record Data supports custom hasMany handling', async function (assert) {
-    assert.expect(DEPRECATE_V1_RECORD_DATA ? 11 : 10);
-    let { owner } = this;
-
-    let hasManyReturnValue;
-    class RelationshipRecordData extends TestRecordData {
-      getHasMany(key: string) {
-        return hasManyReturnValue;
-      }
-      getRelationship() {
-        return hasManyReturnValue;
-      }
-
-      addToHasMany(this: V1TestRecordData, key: string, recordDatas: any[], idx?: number) {
-        if (!DEPRECATE_V1_RECORD_DATA) {
-          throw new Error('should not have called addToHasMany in v2');
-        } else {
-          assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-          assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to addToHasMany');
-        }
-
-        hasManyReturnValue = {
-          data: [
-            store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
-            store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
-          ],
-        };
-        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
-      }
-
-      removeFromHasMany(this: V1TestRecordData, key: string, recordDatas: any[]) {
-        if (!DEPRECATE_V1_RECORD_DATA) {
-          throw new Error('should not have called removeFromHasMany in v2');
-        } else {
-          assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
-          assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '2', 'Passed correct RD to removeFromHasMany');
-        }
-        hasManyReturnValue = { data: [store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' })] };
-        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
-      }
-
-      setDirtyHasMany(this: V1TestRecordData, key: string, recordDatas: any[]) {
-        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.strictEqual(recordDatas[0].getResourceIdentifier().id, '3', 'Passed correct RD to addToHasMany');
-        hasManyReturnValue = {
-          data: [
-            store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }),
-            store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
-          ],
-        };
-        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
-      }
-
-      update(this: V2TestRecordData, operation: LocalRelationshipOperation) {
-        if (operation.op === 'addToRelatedRecords') {
-          hasManyReturnValue = {
-            data: [
-              store.identifierCache.getOrCreateRecordIdentifier({ id: '3', type: 'person' }),
-              store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
-            ],
-          };
-          assert.strictEqual(operation.field, 'tenants', 'correct field for addToRelatedRecords');
-          assert.deepEqual(
-            (operation.value as StableRecordIdentifier[]).map((r) => r.id),
-            ['2'],
-            'correct ids passed'
-          );
-        } else if (operation.op === 'removeFromRelatedRecords') {
-          assert.strictEqual(operation.field, 'tenants', 'correct field for removeFromRelatedRecords');
-          assert.deepEqual(
-            (operation.value as StableRecordIdentifier[]).map((r) => r.id),
-            ['2'],
-            'correct ids passed'
-          );
-          hasManyReturnValue = {
-            data: [store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' })],
-          };
-        } else if (operation.op === 'replaceRelatedRecords') {
-          assert.strictEqual(operation.field, 'tenants', 'Passed correct key to addToHasMany');
-          assert.strictEqual(operation.value[0].id, '3', 'Passed correct RD to addToHasMany');
-          hasManyReturnValue = {
-            data: [
-              store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' }),
-              store.identifierCache.getOrCreateRecordIdentifier({ id: '2', type: 'person' }),
-            ],
-          };
-        } else {
-          throw new Error(`operation ${operation.op} not implemented in test yet`);
-        }
-        this._storeWrapper.notifyChange(this._identifier, 'relationships', 'tenants');
-      }
-    }
-
-    class TestStore extends Store {
-      // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-        if (identifier.type === 'house') {
-          return new RelationshipRecordData(storeWrapper, identifier);
-        } else {
-          return super.createRecordDataFor(identifier, storeWrapper);
-        }
-      }
-    }
-
-    owner.register('service:store', TestStore);
-
-    store = owner.lookup('service:store');
-    hasManyReturnValue = { data: [store.identifierCache.getOrCreateRecordIdentifier({ id: '1', type: 'person' })] };
-
-    store.push({
-      data: [davidHash, runspiredHash, igorHash],
-    });
-
-    store.push({
-      data: [houseHash],
-    });
-
-    let house = store.peekRecord('house', '1');
-    let people = house.tenants;
-    let david = store.peekRecord('person', '1');
-    let runspired = store.peekRecord('person', '2');
-    let igor = store.peekRecord('person', '3');
-
-    assert.deepEqual(people.slice(), [david], 'getHasMany correctly looked up');
-    people.push(runspired);
-
-    // This is intentionally !== [david, runspired] to test the custom RD implementation
-    assert.deepEqual(people.slice(), [igor, runspired], 'hasMany changes after notifying');
-
-    people.splice(people.indexOf(runspired), 1);
-    // This is intentionally !== [igor] to test the custom RD implementation
-    assert.deepEqual(people.slice(), [david], 'hasMany removal applies the change when notified');
-
-    house.set('tenants', [igor]);
-    // This is intentionally !== [igor] to test the custom RD implementation
-    assert.deepEqual(people.slice(), [david, runspired], 'setDirtyHasMany applies changes');
     if (DEPRECATE_V1_RECORD_DATA) {
       assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
     }

@@ -1,4 +1,4 @@
-import { assert, deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
@@ -753,109 +753,100 @@ export class NonSingletonCacheManager implements Cache {
 export class SingletonCacheManager implements Cache {
   version: '2' = '2';
 
-  #recordDatas: Map<StableRecordIdentifier, Cache>;
+  #cache: Cache;
 
-  constructor() {
-    this.#recordDatas = new Map();
-  }
-
-  _addRecordData(identifier: StableRecordIdentifier, recordData: Cache) {
-    this.#recordDatas.set(identifier, recordData);
-  }
-
-  #recordData(identifier: StableRecordIdentifier): Cache {
-    assert(`No RecordData Yet Exists!`, this.#recordDatas.has(identifier));
-    return this.#recordDatas.get(identifier)!;
+  constructor(cache: Cache) {
+    this.#cache = cache;
   }
 
   // Cache
   // =====
 
   upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
-    return this.#recordData(identifier).upsert(identifier, data, hasRecord);
+    return this.#cache.upsert(identifier, data, hasRecord);
   }
 
   patch(op: MergeOperation): void {
-    this.#recordData(op.record).patch(op);
+    this.#cache.patch(op);
   }
 
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>): Dict<unknown> {
-    return this.#recordData(identifier).clientDidCreate(identifier, options);
+    return this.#cache.clientDidCreate(identifier, options);
   }
 
   willCommit(identifier: StableRecordIdentifier): void {
-    this.#recordData(identifier).willCommit(identifier);
+    this.#cache.willCommit(identifier);
   }
 
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    this.#recordData(identifier).didCommit(identifier, data);
+    this.#cache.didCommit(identifier, data);
   }
 
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]): void {
-    this.#recordData(identifier).commitWasRejected(identifier, errors);
+    this.#cache.commitWasRejected(identifier, errors);
   }
 
   unloadRecord(identifier: StableRecordIdentifier): void {
-    this.#recordData(identifier).unloadRecord(identifier);
+    this.#cache.unloadRecord(identifier);
   }
 
   // Attrs
   // =====
 
   getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
-    return this.#recordData(identifier).getAttr(identifier, propertyName);
+    return this.#cache.getAttr(identifier, propertyName);
   }
 
   setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
-    this.#recordData(identifier).setAttr(identifier, propertyName, value);
+    this.#cache.setAttr(identifier, propertyName, value);
   }
 
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
-    return this.#recordData(identifier).changedAttrs(identifier);
+    return this.#cache.changedAttrs(identifier);
   }
 
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
-    return this.#recordData(identifier).hasChangedAttrs(identifier);
+    return this.#cache.hasChangedAttrs(identifier);
   }
 
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
-    return this.#recordData(identifier).rollbackAttrs(identifier);
+    return this.#cache.rollbackAttrs(identifier);
   }
 
   getRelationship(
     identifier: StableRecordIdentifier,
     propertyName: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
-    return this.#recordData(identifier).getRelationship(identifier, propertyName);
+    return this.#cache.getRelationship(identifier, propertyName);
   }
   update(operation: LocalRelationshipOperation): void {
-    this.#recordData(operation.record).update(operation);
+    this.#cache.update(operation);
   }
 
   // State
   // =============
 
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
-    this.#recordData(identifier).setIsDeleted(identifier, isDeleted);
+    this.#cache.setIsDeleted(identifier, isDeleted);
   }
 
   getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
-    return this.#recordData(identifier).getErrors(identifier);
+    return this.#cache.getErrors(identifier);
   }
 
   isEmpty(identifier: StableRecordIdentifier): boolean {
-    return this.#recordData(identifier).isEmpty(identifier);
+    return this.#cache.isEmpty(identifier);
   }
 
   isNew(identifier: StableRecordIdentifier): boolean {
-    return this.#recordData(identifier).isNew(identifier);
+    return this.#cache.isNew(identifier);
   }
 
   isDeleted(identifier: StableRecordIdentifier): boolean {
-    return this.#recordData(identifier).isDeleted(identifier);
+    return this.#cache.isDeleted(identifier);
   }
 
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
-    return this.#recordData(identifier).isDeletionCommitted(identifier);
+    return this.#cache.isDeletionCommitted(identifier);
   }
 }
