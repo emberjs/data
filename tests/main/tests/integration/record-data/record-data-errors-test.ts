@@ -121,8 +121,9 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         }
       }
       class TestStore extends Store {
-        createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-          return new LifecycleRecordData();
+        createCache(wrapper: CacheStoreWrapper) {
+          // @ts-expect-error
+          return new LifecycleRecordData(wrapper) as Cache;
         }
       }
       class TestAdapter extends EmberObject {
@@ -181,8 +182,9 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         }
       }
       class TestStore extends Store {
-        createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-          return new LifecycleRecordData();
+        createCache(wrapper: CacheStoreWrapper) {
+          // @ts-expect-error
+          return new LifecycleRecordData(wrapper) as Cache;
         }
       }
       class TestAdapter extends EmberObject {
@@ -231,9 +233,10 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       }
 
       class TestStore extends Store {
-        createRecordDataFor(identifier: StableRecordIdentifier, sw: CacheStoreWrapper): Cache {
-          storeWrapper = sw;
-          return new LifecycleRecordData();
+        createCache(wrapper: CacheStoreWrapper) {
+          storeWrapper = wrapper;
+          // @ts-expect-error
+          return new LifecycleRecordData(wrapper) as Cache;
         }
       }
 
@@ -405,6 +408,10 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
         return new TestRecordData();
       }
+      createCache(wrapper: CacheStoreWrapper) {
+        // @ts-expect-error
+        return new TestRecordData(wrapper) as Cache;
+      }
     }
 
     hooks.beforeEach(function () {
@@ -439,6 +446,10 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       class TestStore extends Store {
         createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
           return new LifecycleRecordData();
+        }
+        createCache(wrapper: CacheStoreWrapper) {
+          // @ts-expect-error
+          return new LifecycleRecordData(wrapper) as Cache;
         }
       }
 
@@ -500,6 +511,10 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
           return new LifecycleRecordData();
         }
+        createCache(wrapper: CacheStoreWrapper) {
+          // @ts-expect-error
+          return new LifecycleRecordData(wrapper) as Cache;
+        }
       }
 
       let TestAdapter = EmberObject.extend({
@@ -560,6 +575,10 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       class TestStore extends Store {
         createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
           return new LifecycleRecordData(wrapper);
+        }
+        createCache(wrapper: CacheStoreWrapper) {
+          // @ts-expect-error
+          return new LifecycleRecordData(wrapper) as Cache;
         }
       }
 

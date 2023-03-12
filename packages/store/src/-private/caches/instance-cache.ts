@@ -10,6 +10,7 @@ import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/private-bui
 import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import {
   DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
+  DEPRECATE_INSTANTIATE_RECORD_ARGS,
   DEPRECATE_V1_RECORD_DATA,
   DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
@@ -255,12 +256,30 @@ export class InstanceCache {
       );
       const recordData = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK ? this.getRecordData(identifier) : this.store.cache;
 
-      record = this.store.instantiateRecord(
-        identifier,
-        properties || {},
-        this.__recordDataFor,
-        this.store.notifications
-      );
+      if (DEPRECATE_INSTANTIATE_RECORD_ARGS) {
+        if (this.store.instantiateRecord.length > 2) {
+          deprecate(
+            `Expected store.instantiateRecord to have an arity of 2. recordDataFor and notificationManager args have been deprecated.`,
+            false,
+            {
+              for: '@ember-data/store',
+              id: 'ember-data:deprecate-instantiate-record-args',
+              since: { available: '4.12', enabled: '4.12' },
+              until: '5.0',
+            }
+          );
+        }
+        record = this.store.instantiateRecord(
+          identifier,
+          properties || {},
+          // @ts-expect-error
+          this.__recordDataFor,
+          this.store.notifications
+        );
+      } else {
+        record = this.store.instantiateRecord(identifier, properties || {});
+      }
+
       setRecordIdentifier(record, identifier);
       setCacheFor(record, recordData);
       StoreMap.set(record, this.store);

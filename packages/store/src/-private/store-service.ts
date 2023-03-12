@@ -339,16 +339,14 @@ class Store {
    * @method instantiateRecord (hook)
    * @param identifier
    * @param createRecordArgs
-   * @param recordDataFor
-   * @param notificationManager
+   * @param recordDataFor deprecated use this.cache
+   * @param notificationManager deprecated use this.notifications
    * @returns A record instance
    * @public
    */
   instantiateRecord(
     identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown },
-    recordDataFor: (identifier: StableRecordIdentifier) => Cache,
-    notificationManager: NotificationManager
+    createRecordArgs: { [key: string]: unknown }
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
       let modelName = identifier.type;

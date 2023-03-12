@@ -1,3 +1,5 @@
+import { TestContext } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
@@ -7,13 +9,12 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
-import type NotificationManager from '@ember-data/store/-private/managers/notification-manager';
 import { Cache } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('unit/model - Custom Class Model', function (hooks) {
   let store: Store;
@@ -50,7 +51,7 @@ module('unit/model - Custom Class Model', function (hooks) {
         },
       });
     }
-    instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+    instantiateRecord(identifier, createOptions) {
       return new Person(this);
     }
     teardownRecord(record) {}
@@ -75,21 +76,10 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.expect(7);
     let notificationCount = 0;
     let identifier;
-    let storeWrapper;
     class CreationStore extends CustomStore {
-      createRecordDataFor(identifier: StableRecordIdentifier, sw: CacheStoreWrapper) {
-        let rd = this.cache;
-        storeWrapper = sw;
-        return rd;
-      }
-      instantiateRecord(
-        id: StableRecordIdentifier,
-        createRecordArgs,
-        recordDataFor,
-        notificationManager: NotificationManager
-      ): Object {
+      instantiateRecord(id: StableRecordIdentifier, createRecordArgs): Object {
         identifier = id;
-        notificationManager.subscribe(identifier, (passedId, key) => {
+        this.notifications.subscribe(identifier, (passedId, key) => {
           notificationCount++;
           assert.strictEqual(passedId, identifier, 'passed the identifier to the callback');
           if (notificationCount === 1) {
@@ -104,7 +94,8 @@ module('unit/model - Custom Class Model', function (hooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as Store;
+    const storeWrapper = store._instanceCache._storeWrapper;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
     // emulate this happening within a single push
     store._join(() => {
@@ -121,7 +112,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.expect(5);
     let returnValue;
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createRecordArgs) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
@@ -138,41 +129,46 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
   });
 
-  test('recordData lookup', function (assert) {
-    assert.expect(1);
-    let rd;
-    class CreationStore extends Store {
-      instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
-        rd = recordDataFor(identifier);
-        assert.strictEqual(rd.getAttr(identifier, 'name'), 'chris', 'Can look up record data from recordDataFor');
-        return {};
+  deprecatedTest(
+    'recordData lookup',
+    { id: 'ember-data:deprecate-instantiate-record-args', count: 1, until: '5.0' },
+    function (this: TestContext, assert: Assert) {
+      assert.expect(1);
+      let rd;
+      class CreationStore extends Store {
+        // @ts-expect-error
+        instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
+          rd = recordDataFor(identifier);
+          assert.strictEqual(rd.getAttr(identifier, 'name'), 'chris', 'Can look up record data from recordDataFor');
+          return {};
+        }
+        teardownRecord(record) {}
       }
-      teardownRecord(record) {}
-    }
-    this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store') as Store;
-    let schema: SchemaDefinitionService = {
-      attributesDefinitionFor({ type: string }): AttributesSchema {
-        return {
-          name: {
-            type: 'string',
-            options: {},
-            name: 'name',
-            kind: 'attribute',
-          },
-        };
-      },
-      relationshipsDefinitionFor({ type: string }): RelationshipsSchema {
-        return {};
-      },
-      doesTypeExist() {
-        return true;
-      },
-    };
-    store.registerSchemaDefinitionService(schema);
+      this.owner.register('service:store', CreationStore);
+      store = this.owner.lookup('service:store') as Store;
+      let schema: SchemaDefinitionService = {
+        attributesDefinitionFor({ type: string }): AttributesSchema {
+          return {
+            name: {
+              type: 'string',
+              options: {},
+              name: 'name',
+              kind: 'attribute',
+            },
+          };
+        },
+        relationshipsDefinitionFor({ type: string }): RelationshipsSchema {
+          return {};
+        },
+        doesTypeExist() {
+          return true;
+        },
+      };
+      store.registerSchemaDefinitionService(schema);
 
-    store.createRecord('person', { name: 'chris' });
-  });
+      store.createRecord('person', { name: 'chris' });
+    }
+  );
 
   test('attribute and relationship with custom schema definition', async function (assert) {
     assert.expect(18);
@@ -232,7 +228,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     class CustomStore extends Store {
-      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createOptions) {
         return new Person(this);
       }
       teardownRecord(record) {}
@@ -316,7 +312,6 @@ module('unit/model - Custom Class Model', function (hooks) {
   });
 
   test('store.deleteRecord', async function (assert) {
-    let rd: Cache;
     let ident: StableRecordIdentifier;
     assert.expect(10);
     this.owner.register(
@@ -331,13 +326,12 @@ module('unit/model - Custom Class Model', function (hooks) {
     );
     const subscribedValues: string[] = [];
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createRecordArgs) {
         ident = identifier;
-        rd = recordDataFor(identifier);
-        assert.false(rd.isDeleted(identifier), 'we are not deleted when we start');
-        notificationManager.subscribe(identifier, (passedId, key) => {
+        assert.false(this.cache.isDeleted(identifier), 'we are not deleted when we start');
+        this.notifications.subscribe(identifier, (passedId, key) => {
           subscribedValues.push(key);
-          assert.true(recordDataFor(identifier).isDeleted(identifier), 'we have been marked as deleted');
+          assert.true(this.cache.isDeleted(identifier), 'we have been marked as deleted');
         });
         return {};
       }
@@ -346,7 +340,8 @@ module('unit/model - Custom Class Model', function (hooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as Store;
+    const rd: Cache = store.cache;
     let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
     assert.true(rd!.isDeleted(ident!), 'record has been marked as deleted');
@@ -369,7 +364,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     class CustomStore extends Store {
-      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createOptions) {
         return new Person(this);
       }
       teardownRecord(record) {}
