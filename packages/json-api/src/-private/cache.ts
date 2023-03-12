@@ -87,22 +87,29 @@ export default class SingletonCache implements Cache {
   }
 
   /**
-   * Private method used when the store's `createRecordDataFor` hook is called
-   * to populate an entry for the identifier into the singleton.
+   * Private method used to populate an entry for the identifier
    *
-   * @method createCache
+   * @method _createCache
    * @private
    * @param identifier
    */
-  createCache(identifier: StableRecordIdentifier): void {
-    this.__cache.set(identifier, makeCache());
+  _createCache(identifier: StableRecordIdentifier): CachedResource {
+    assert(`Expected no resource data to yet exist in the cache`, !this.__cache.has(identifier));
+    const cache = makeCache();
+    this.__cache.set(identifier, cache);
+    return cache;
   }
 
-  __peek(identifier: StableRecordIdentifier, allowDestroyed = false): CachedResource {
+  __safePeek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource | undefined {
     let resource = this.__cache.get(identifier);
     if (!resource && allowDestroyed) {
       resource = this.__destroyedCache.get(identifier);
     }
+    return resource;
+  }
+
+  __peek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource {
+    let resource = this.__safePeek(identifier, allowDestroyed);
     assert(
       `Expected Cache to have a resource entry for the identifier ${String(identifier)} but none was found`,
       resource
@@ -116,9 +123,9 @@ export default class SingletonCache implements Cache {
     calculateChanges?: boolean | undefined
   ): void | string[] {
     let changedKeys: string[] | undefined;
-    const peeked = this.__peek(identifier);
+    const peeked = this.__safePeek(identifier, false);
     const existed = !!peeked;
-    const cached = peeked || this.createCache(identifier);
+    const cached = peeked || this._createCache(identifier);
 
     const isLoading = _isLoading(peeked, this.__storeWrapper, identifier) || !recordIsLoaded(peeked);
     let isUpdate = !_isEmpty(peeked) && !isLoading;
@@ -136,6 +143,7 @@ export default class SingletonCache implements Cache {
 
     if (cached.isNew) {
       cached.isNew = false;
+      this.__storeWrapper.notifyChange(identifier, 'identity');
       this.__storeWrapper.notifyChange(identifier, 'state');
     }
 
@@ -211,7 +219,7 @@ export default class SingletonCache implements Cache {
         console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, options);
       }
     }
-    const cached = this.__peek(identifier);
+    const cached = this._createCache(identifier);
     cached.isNew = true;
     let createOptions = {};
 
@@ -273,12 +281,12 @@ export default class SingletonCache implements Cache {
     return createOptions;
   }
   willCommit(identifier: StableRecordIdentifier): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     cached.inflightAttrs = cached.localAttrs;
     cached.localAttrs = null;
   }
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     if (cached.isDeleted) {
       graphFor(this.__storeWrapper).push({
         op: 'deleteRecord',
@@ -337,7 +345,7 @@ export default class SingletonCache implements Cache {
   }
 
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
       let keys = Object.keys(cached.inflightAttrs);
       if (keys.length > 0) {
@@ -359,7 +367,7 @@ export default class SingletonCache implements Cache {
   unloadRecord(identifier: StableRecordIdentifier): void {
     const removeFromRecordArray = !this.isDeletionCommitted(identifier);
     let removed = false;
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     const storeWrapper = this.__storeWrapper;
     peekGraph(storeWrapper)?.unload(identifier);
 
@@ -422,7 +430,7 @@ export default class SingletonCache implements Cache {
     }
   }
   setAttr(identifier: StableRecordIdentifier, attr: string, value: unknown): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     const existing =
       cached.inflightAttrs && attr in cached.inflightAttrs
         ? cached.inflightAttrs[attr]
@@ -443,7 +451,7 @@ export default class SingletonCache implements Cache {
   }
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     // TODO freeze in dev
-    return this.__peek(identifier).changes || Object.create(null);
+    return this.__peek(identifier, false).changes || Object.create(null);
   }
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
@@ -454,7 +462,7 @@ export default class SingletonCache implements Cache {
     );
   }
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     let dirtyKeys: string[] | undefined;
     cached.isDeleted = false;
 
@@ -498,7 +506,7 @@ export default class SingletonCache implements Cache {
   }
 
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
-    const cached = this.__peek(identifier);
+    const cached = this.__peek(identifier, false);
     cached.isDeleted = isDeleted;
     if (cached.isNew) {
       // TODO can we delete this since we will do this in unload?
@@ -654,7 +662,7 @@ function recordIsLoaded(cached: CachedResource | undefined, filterDeleted: boole
 }
 
 function _isLoading(
-  peeked: CachedResource,
+  peeked: CachedResource | undefined,
   storeWrapper: CacheStoreWrapper,
   identifier: StableRecordIdentifier
 ): boolean {

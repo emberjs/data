@@ -593,10 +593,6 @@ export class InstanceCache {
     }
 
     const recordData = this.getRecordData(identifier);
-    if (recordData.isNew(identifier)) {
-      this.store.notifications.notify(identifier, 'identity');
-    }
-
     const hasRecord = this.__instances.record.has(identifier);
     recordData.upsert(identifier, data, hasRecord);
 

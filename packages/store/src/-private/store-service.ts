@@ -19,9 +19,8 @@ import {
   DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
-  DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/deprecations';
-import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
+import type { Cache } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
@@ -167,9 +166,11 @@ export interface CreateRecordProperties {
   @extends Ember.Service
 */
 
-class Store {
-  __private_singleton_recordData!: Cache;
+interface Store {
+  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache;
+}
 
+class Store {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -2394,48 +2395,6 @@ class Store {
         adapterDidInvalidate(this, identifier, err);
         throw err;
       });
-  }
-
-  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper): Cache | CacheV1 {
-    if (HAS_JSON_API_PACKAGE) {
-      // we can't greedily use require as this causes
-      // a cycle we can't easily fix (or clearly pin point) at present.
-      //
-      // it can be reproduced in partner tests by running
-      // node ./scripts/packages-for-commit.js && pnpm test-external:ember-observer
-      if (_Cache === undefined) {
-        _Cache = (importSync('@ember-data/json-api/-private') as typeof import('@ember-data/json-api/-private')).Cache;
-      }
-
-      if (DEPRECATE_V1CACHE_STORE_APIS) {
-        if (arguments.length === 4) {
-          deprecate(
-            `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createRecordDataFor(<identifier>, <storeWrapper>)`,
-            false,
-            {
-              id: 'ember-data:deprecate-v1cache-store-apis',
-              for: 'ember-data',
-              until: '5.0',
-              since: { enabled: '4.7', available: '4.7' },
-            }
-          );
-          identifier = this.identifierCache.getOrCreateRecordIdentifier({
-            type: arguments[0],
-            id: arguments[1],
-            lid: arguments[2],
-          });
-          storeWrapper = arguments[3];
-        }
-      }
-
-      this.__private_singleton_recordData = this.__private_singleton_recordData || new _Cache(storeWrapper);
-      (
-        this.__private_singleton_recordData as Cache & { createCache(identifier: StableRecordIdentifier): void }
-      ).createCache(identifier);
-      return this.__private_singleton_recordData;
-    }
-
-    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
   }
 
   /**
