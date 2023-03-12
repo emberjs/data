@@ -365,6 +365,14 @@ export default class SingletonCache implements Cache {
   }
 
   unloadRecord(identifier: StableRecordIdentifier): void {
+    // TODO this is necessary because
+    // we maintain memebership inside InstanceCache
+    // for peekAll, so even though we haven't created
+    // any data we think this exists.
+    // TODO can we eliminate that membership now?
+    if (!this.__cache.has(identifier)) {
+      return;
+    }
     const removeFromRecordArray = !this.isDeletionCommitted(identifier);
     let removed = false;
     const cached = this.__peek(identifier, false);
@@ -522,17 +530,20 @@ export default class SingletonCache implements Cache {
     return this.__peek(identifier, true).errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {
-    const cached = this.__peek(identifier, true);
-    return cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null;
+    const cached = this.__safePeek(identifier, true);
+    return cached ? cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null : true;
   }
   isNew(identifier: StableRecordIdentifier): boolean {
-    return this.__peek(identifier, true).isNew;
+    // TODO can we assert here?
+    return this.__safePeek(identifier, true)?.isNew || false;
   }
   isDeleted(identifier: StableRecordIdentifier): boolean {
-    return this.__peek(identifier, true).isDeleted;
+    // TODO can we assert here?
+    return this.__safePeek(identifier, true)?.isDeleted || false;
   }
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
-    return this.__peek(identifier, true).isDeletionCommitted;
+    // TODO can we assert here?
+    return this.__safePeek(identifier, true)?.isDeletionCommitted || false;
   }
 }
 
