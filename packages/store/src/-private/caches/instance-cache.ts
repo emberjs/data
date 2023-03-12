@@ -424,6 +424,9 @@ export class InstanceCache {
     }
 
     this.store.identifierCache.forgetRecordIdentifier(identifier);
+    this.__instances.recordData.delete(identifier);
+    removeRecordDataFor(identifier);
+    this.store._fetchManager.clearEntries(identifier);
     if (LOG_INSTANCE_CACHE) {
       // eslint-disable-next-line no-console
       console.log(`InstanceCache: disconnected ${String(identifier)}`);

@@ -1,3 +1,5 @@
+import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -409,7 +411,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     owner.register('service:store', TestStore);
     const store = owner.lookup('service:store') as Store;
 
-    const house = store.push({
+    const identifier = store._push({
       data: {
         type: 'house',
         id: '1',
@@ -418,8 +420,8 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         },
       },
     });
-    const identifier = recordIdentifierFor(house);
-    storeWrapper.disconnectRecord(identifier);
+    storeWrapper.disconnectRecord(identifier as StableRecordIdentifier);
+    await settled();
     assert.strictEqual(store.peekRecord('house', '1'), null, 'record was removed from id map');
   });
 });
