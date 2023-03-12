@@ -32,7 +32,7 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import RecordReference from '../legacy-model-support/record-reference';
-import { NonSingletonCacheManager, SingletonCacheManager } from '../managers/cache-manager';
+import { NonSingletonCacheManager } from '../managers/cache-manager';
 import { CacheStoreWrapper } from '../managers/cache-store-wrapper';
 import Snapshot from '../network/snapshot';
 import type { CreateRecordProperties } from '../store-service';
@@ -192,23 +192,21 @@ export class InstanceCache {
           );
         }
 
-        if (DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
-          let recordData = keptRecordData || staleRecordData;
+        let recordData = keptRecordData || staleRecordData;
 
-          if (recordData) {
-            recordData.patch({
-              op: 'mergeIdentifiers',
-              record: staleIdentifier,
-              value: keptIdentifier,
-            });
-          } else if (HAS_JSON_API_PACKAGE) {
-            this.store.cache.patch({
-              op: 'mergeIdentifiers',
-              record: staleIdentifier,
-              value: keptIdentifier,
-            });
-          }
-        } else {
+        if (recordData) {
+          recordData.patch({
+            op: 'mergeIdentifiers',
+            record: staleIdentifier,
+            value: keptIdentifier,
+          });
+        } else if (!DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+          this.store.cache.patch({
+            op: 'mergeIdentifiers',
+            record: staleIdentifier,
+            value: keptIdentifier,
+          });
+        } else if (HAS_JSON_API_PACKAGE) {
           this.store.cache.patch({
             op: 'mergeIdentifiers',
             record: staleIdentifier,
@@ -324,9 +322,6 @@ export class InstanceCache {
           recordData = recordDataInstance;
         }
       } else {
-        if (DEBUG) {
-          (recordDataInstance as SingletonCacheManager)._addRecordData(identifier, recordDataInstance as Cache);
-        }
         recordData = recordDataInstance as Cache;
       }
 
