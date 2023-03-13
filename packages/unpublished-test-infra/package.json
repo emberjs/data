@@ -34,7 +34,7 @@
     "rsvp": "^4.8.5",
     "semver": "^7.3.8",
     "testem": "^3.10.1",
-    "webpack": "^5.76.0"
+    "webpack": "^5.76.1"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {

@@ -111,7 +111,7 @@ importers:
       testem: ^3.10.1
       typescript: ~4.9.5
       url: ^0.11.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
       yuidocjs: ^0.10.2
       zlib: 1.0.5
     devDependencies:
@@ -243,7 +243,7 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-inflector: ^4.0.2
       ember-source: ~4.11.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     dependencies:
       '@ember-data/adapter': file:packages/adapter_jx26lomn2aorzrdvjqdahnqok4
       '@ember-data/debug': file:packages/debug_webpack@5.76.1
@@ -358,7 +358,7 @@ importers:
       '@embroider/macros': ^1.10.0
       ember-auto-import: ^2.6.1
       ember-cli-babel: ^7.26.11
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember/edition-utils': 1.2.0
@@ -848,7 +848,7 @@ importers:
       rsvp: ^4.8.5
       semver: ^7.3.8
       testem: ^3.10.1
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember/edition-utils': 1.2.0
@@ -924,7 +924,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     devDependencies:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
@@ -1044,7 +1044,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     devDependencies:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
@@ -1139,7 +1139,7 @@ importers:
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     dependencies:
       '@ember/string': 3.0.1
       ember-auto-import: 2.6.1_webpack@5.76.1
@@ -1226,7 +1226,7 @@ importers:
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     dependencies:
       '@ember/string': 3.0.1
       ember-auto-import: 2.6.1_webpack@5.76.1
@@ -1296,7 +1296,7 @@ importers:
       ember-resolver: ^10.0.0
       ember-source: ~4.11.0
       loader.js: ^4.7.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
       zlib: 1.0.5
     devDependencies:
       '@babel/core': 7.21.0
@@ -1373,7 +1373,7 @@ importers:
       qunit-console-grouper: ^0.3.0
       qunit-dom: ^2.0.0
       silent-error: ^1.1.1
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     devDependencies:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
@@ -1470,7 +1470,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     devDependencies:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
@@ -1584,7 +1584,7 @@ importers:
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     devDependencies:
       '@babel/core': 7.21.0
       '@babel/plugin-transform-typescript': 7.21.0_@babel+core@7.21.0
@@ -1704,7 +1704,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     devDependencies:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
@@ -1778,7 +1778,7 @@ importers:
       ember-resolver: ^10.0.0
       ember-source: ~4.11.0
       loader.js: ^4.7.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
       zlib: 1.0.5
     dependencies:
       '@ember/string': 3.0.1
@@ -1849,7 +1849,7 @@ importers:
       qunit-console-grouper: ^0.3.0
       qunit-dom: ^2.0.0
       silent-error: ^1.1.1
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     devDependencies:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
@@ -1934,7 +1934,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.0
+      webpack: ^5.76.1
     devDependencies:
       '@babel/core': 7.21.0
       '@babel/runtime': 7.21.0
