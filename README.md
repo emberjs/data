@@ -15,7 +15,6 @@
     />
 </p>
 
-
 <p align="center">The lightweight reactive data library for JavaScript applications</p>
 
 [![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
@@ -25,14 +24,14 @@
 
 Wrangle your application's data management with scalable patterns for developer productivity.
 
-- ⚡️  Committed to Best-In-Class Performance
+- ⚡️ Committed to Best-In-Class Performance
 - 🌲 Focused on being as svelte as possible
 - 🚀 SSR Ready
 - 🔜 Typescript Support
 - 🐹 Built with ♥️ by [Ember](https://emberjs.com)
 - ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
 
-### 📖 On This Page 
+### 📖 On This Page
 
 - [Overview](#overview)
   - [Architecture](#-architecture)
@@ -57,11 +56,9 @@ Wrangle your application's data management with scalable patterns for developer 
 - [Team](https://emberjs.com/team)
 - [Blog](https://emberjs.com/blog)
 
-
-
 ## 🪜 Architecture
 
-*Ember***Data** is both *resource* centric and *document* centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
+*Ember***Data** is both _resource_ centric and _document_ centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
 
 The `Store` is a **coordinator**. When using a `Store` you configure what cache to use, how cache data should be presented to the UI, and where it should look for requested data when it is not available in the cache.
 
@@ -70,8 +67,6 @@ This coordination is handled opaquely to the nature of the requests issued and t
 *Ember***Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. It's goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
 
 *Ember***Data**'s power comes not from specific features, data formats, or adherence to specific API specs such as `JSON:API` `trpc` or `GraphQL`, but from solid conventions around requesting and mutating data developed over decades of experience scaling developer productivity.
-
-
 
 ## Basic Installation
 
@@ -83,7 +78,7 @@ pnpm add ember-data
 
 `ember-data` is installed by default for new applications generated with `ember-cli`. You can check what version is installed by looking in the `devDependencies` hash of your project's [package.json](https://docs.npmjs.com/cli/v8/configuring-npm/package-json) file.
 
-If you have generated a new `Ember` application using `ember-cli` but do 
+If you have generated a new `Ember` application using `ember-cli` but do
 not wish to use `ember-data`, remove `ember-data` from your project's `package.json` file and run your package manager's install command to update your lockfile.
 
 ## Advanced Installation
@@ -132,7 +127,7 @@ let app = new EmberApp(defaults, {
   '@embroider/macros': {
     setConfig: {
       '@ember-data/store': {
-        polyfillUUID: true
+        polyfillUUID: true,
       },
     },
   },
@@ -147,8 +142,8 @@ that all support for it should be stripped from the build.
 ```ts
 let app = new EmberApp(defaults, {
   emberData: {
-    includeDataAdapterInProduction: false
-  }
+    includeDataAdapterInProduction: false,
+  },
 });
 ```
 
@@ -161,26 +156,25 @@ at build time. This instrumentation is always removed from production builds or 
 that has not explicitly activated it. To activate it set the appropriate flag to `true`.
 
 ```ts
-  let app = new EmberApp(defaults, {
-    emberData: {
-      debug: {
-          LOG_PAYLOADS: false, // data store received to update cache with
-          LOG_OPERATIONS: false, // updates to cache remote state
-          LOG_MUTATIONS: false, // updates to cache local state
-          LOG_NOTIFICATIONS: false,
-          LOG_REQUEST_STATUS: false,
-          LOG_IDENTIFIERS: false,
-          LOG_GRAPH: false, // relationship storage
-          LOG_INSTANCE_CACHE: false, // instance creation/deletion
-      }
-    }
-  });
-  ```
+let app = new EmberApp(defaults, {
+  emberData: {
+    debug: {
+      LOG_PAYLOADS: false, // data store received to update cache with
+      LOG_OPERATIONS: false, // updates to cache remote state
+      LOG_MUTATIONS: false, // updates to cache local state
+      LOG_NOTIFICATIONS: false,
+      LOG_REQUEST_STATUS: false,
+      LOG_IDENTIFIERS: false,
+      LOG_GRAPH: false, // relationship storage
+      LOG_INSTANCE_CACHE: false, // instance creation/deletion
+    },
+  },
+});
+```
 
 ## Contributing
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
-
 
 ### License
 
