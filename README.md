@@ -102,7 +102,7 @@ public APIs, other libraries or applications may provide their own implementatio
 
 ### Deprecation Stripping
 
-\*Ember**\*Data** allows users to opt-in and remove code that exists to support deprecated behaviors.
+*Ember***Data** allows users to opt-in and remove code that exists to support deprecated behaviors.
 
 If your app has resolved all deprecations present in a given version, you may specify that version as your "compatibility" version to remove the code that supported the deprecated behavior from your app.
 
@@ -118,7 +118,7 @@ let app = new EmberApp(defaults, {
 
 ### randomUUID polyfill
 
-\*Ember**\*Data** uses `UUID V4` by default to generate identifiers for new data created on the client. Identifier generation is configurable, but we also for convenience will polyfill
+*Ember***Data** uses `UUID V4` by default to generate identifiers for new data created on the client. Identifier generation is configurable, but we also for convenience will polyfill
 the necessary feature if your browser support or deployment environment demands it. To
 activate this polyfill:
 
