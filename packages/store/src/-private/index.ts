@@ -58,4 +58,4 @@ export { default as SnapshotRecordArray } from './network/snapshot-record-array'
 
 // leaked for private use / test use, should investigate removing
 export { _clearCaches } from './caches/instance-cache';
-export { default as recordDataFor, removeRecordDataFor } from './caches/cache-utils';
+export { default as peekCache, removeRecordDataFor } from './caches/cache-utils';

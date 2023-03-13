@@ -245,7 +245,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
     }
 
     const cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
-      ? this._store._instanceCache.getRecordData(identifier)
+      ? this._store._instanceCache.getResourceCache(identifier)
       : this._store.cache;
 
     if (DEPRECATE_V1CACHE_STORE_APIS) {
@@ -427,7 +427,7 @@ class V2CacheStoreWrapper implements StoreWrapper {
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
 
     return DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
-      ? this._store._instanceCache.getRecordData(identifier)
+      ? this._store._instanceCache.getResourceCache(identifier)
       : (void 0 as unknown as Cache);
   }
 

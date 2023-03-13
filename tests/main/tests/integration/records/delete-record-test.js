@@ -12,6 +12,7 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 
@@ -230,11 +231,11 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    let recordData = store._instanceCache.getRecordData(identifier);
+    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
     record.deleteRecord();
 
-    assert.true(recordData.isEmpty(identifier), 'new person state is empty');
+    assert.true(cache.isEmpty(identifier), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -273,11 +274,11 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    let recordData = store._instanceCache.getRecordData(identifier);
+    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
     await record.destroyRecord();
 
-    assert.true(recordData.isEmpty(identifier), 'new person state is empty');
+    assert.true(cache.isEmpty(identifier), 'new person state is empty');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -329,16 +330,16 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    let recordData = store._instanceCache.getRecordData(identifier);
+    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
     record.deleteRecord();
 
-    assert.true(recordData.isEmpty(identifier), 'We reached the correct persisted saved state');
+    assert.true(cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
     assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'recordData' }),
+      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
       undefined,
-      'The recordData is destroyed'
+      'The cache is destroyed'
     );
 
     await record.save();
@@ -363,17 +364,17 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    let recordData = store._instanceCache.getRecordData(identifier);
+    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
     record.deleteRecord();
     await settled();
 
-    assert.true(recordData.isEmpty(identifier), 'We reached the correct persisted saved state');
+    assert.true(cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
     assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'recordData' }),
+      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
       undefined,
-      'The recordData is destroyed'
+      'The cache is destroyed'
     );
 
     record.unloadRecord();

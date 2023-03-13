@@ -11,12 +11,12 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 export const CacheForIdentifierCache = new Map<StableRecordIdentifier | RecordInstance, Cache>();
 
-export function setCacheFor(identifier: StableRecordIdentifier | RecordInstance, recordData: Cache): void {
+export function setCacheFor(identifier: StableRecordIdentifier | RecordInstance, cache: Cache): void {
   assert(
     `Illegal set of identifier`,
-    !CacheForIdentifierCache.has(identifier) || CacheForIdentifierCache.get(identifier) === recordData
+    !CacheForIdentifierCache.has(identifier) || CacheForIdentifierCache.get(identifier) === cache
   );
-  CacheForIdentifierCache.set(identifier, recordData);
+  CacheForIdentifierCache.set(identifier, cache);
 }
 
 export function removeRecordDataFor(identifier: StableRecordIdentifier | RecordInstance): void {

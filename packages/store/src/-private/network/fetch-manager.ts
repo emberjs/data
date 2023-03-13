@@ -9,7 +9,7 @@ import { importSync, isDevelopingApp } from '@embroider/macros';
 import { default as RSVP, resolve } from 'rsvp';
 
 import { HAS_GRAPH_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
 import type {
@@ -214,11 +214,13 @@ export default class FetchManager {
         return identifier;
       },
       (error) => {
-        const recordData = store._instanceCache.peek({ identifier, bucket: 'recordData' });
-        if (!recordData || recordData.isEmpty(identifier) || isLoading) {
+        const cache = DEPRECATE_V1_RECORD_DATA
+          ? store._instanceCache.peek({ identifier, bucket: 'resourceCache' })
+          : store.cache;
+        if (!cache || cache.isEmpty(identifier) || isLoading) {
           let isReleasable = true;
           if (HAS_GRAPH_PACKAGE) {
-            if (!recordData) {
+            if (!cache) {
               const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
                 .graphFor;
               const graph = graphFor(store);
@@ -228,7 +230,7 @@ export default class FetchManager {
               }
             }
           }
-          if (recordData || isReleasable) {
+          if (cache || isReleasable) {
             store._instanceCache.unloadRecord(identifier);
           }
         }

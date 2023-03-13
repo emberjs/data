@@ -683,9 +683,9 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     assert.false(graphFor(store).identifiers.has(identifier), 'relationships are cleared');
     assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'recordData' }),
+      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
       undefined,
-      'The recordData is destroyed'
+      'The cache is destroyed'
     );
   });
 });

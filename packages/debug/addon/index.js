@@ -80,7 +80,7 @@ export default DataAdapter.extend({
   */
   watchModelTypes(typesAdded, typesUpdated) {
     const { store } = this;
-    const __getRecordData = store._instanceCache.getRecordData;
+    const __getResourceCache = store._instanceCache.getResourceCache;
     const _releaseMethods = [];
     const discoveredTypes = typesMapFor(store);
 
@@ -90,15 +90,15 @@ export default DataAdapter.extend({
     });
 
     // Overwrite _createRecordData so newly added models will get added to the list
-    store._instanceCache.getRecordData = (identifier) => {
+    store._instanceCache.getResourceCache = (identifier) => {
       // defer to ensure first-create does not result in an infinite loop, see https://github.com/emberjs/data/issues/8006
       next(() => this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods));
-      return __getRecordData.call(store._instanceCache, identifier);
+      return __getResourceCache.call(store._instanceCache, identifier);
     };
 
     let release = () => {
       _releaseMethods.forEach((fn) => fn());
-      store._instanceCache.getRecordData = __getRecordData;
+      store._instanceCache.getResourceCache = __getResourceCache;
       // reset the list so the models can be added if the inspector is re-opened
       // the entries are set to false instead of removed, since the models still exist in the app
       // we just need the inspector to become aware of them

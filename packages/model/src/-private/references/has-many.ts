@@ -10,7 +10,7 @@ import { ManyArray } from 'ember-data/-private';
 
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
@@ -150,9 +150,10 @@ export default class HasManyReference {
   }
 
   _resource() {
-    return this.store._instanceCache
-      .getRecordData(this.___identifier)
-      .getRelationship(this.___identifier, this.key) as CollectionResourceRelationship;
+    const cache = DEPRECATE_V1_RECORD_DATA
+      ? this.store._instanceCache.getResourceCache(this.___identifier)
+      : this.store.cache;
+    return cache.getRelationship(this.___identifier, this.key) as CollectionResourceRelationship;
   }
 
   /**

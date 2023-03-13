@@ -46,8 +46,8 @@ import {
   InstanceCache,
   peekRecordIdentifier,
   preloadData,
-  recordDataIsFullyDeleted,
   recordIdentifierFor,
+  resourceIsFullyDeleted,
   setRecordIdentifier,
   storeFor,
   StoreMap,
@@ -352,14 +352,14 @@ class Store {
     if (HAS_MODEL_PACKAGE) {
       let modelName = identifier.type;
 
-      let recordData = this._instanceCache.getRecordData(identifier);
+      const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(identifier) : this.cache;
       // TODO deprecate allowing unknown args setting
       let createOptions: any = {
         _createProps: createRecordArgs,
         // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
         _secretInit: {
           identifier,
-          recordData,
+          cache,
           store: this,
           cb: secretInit,
         },
@@ -612,15 +612,15 @@ class Store {
         }
 
         const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
-        const recordData = this._instanceCache.getRecordData(identifier);
+        const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(identifier) : this.cache;
 
         const createOptions = normalizeProperties(
           this,
           identifier,
           properties,
-          (recordData as NonSingletonCacheManager).managedVersion === '1'
+          (cache as NonSingletonCacheManager).managedVersion === '1'
         );
-        const resultProps = recordData.clientDidCreate(identifier, createOptions);
+        const resultProps = cache.clientDidCreate(identifier, createOptions);
 
         record = this._instanceCache.getRecord(identifier, resultProps);
       });
@@ -651,14 +651,14 @@ class Store {
     }
 
     const identifier = peekRecordIdentifier(record);
-    const recordData =
+    const cache =
       identifier &&
-      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'recordData' }) : this.cache);
-    assert(`expected a recordData instance to exist for the record`, recordData);
+      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'resourceCache' }) : this.cache);
+    assert(`expected a cache instance to exist for the record`, cache);
     this._join(() => {
-      recordData.setIsDeleted(identifier, true);
+      cache.setIsDeleted(identifier, true);
 
-      if (recordData.isNew(identifier)) {
+      if (cache.isNew(identifier)) {
         emberBackburner.join(() => {
           this._instanceCache.unloadRecord(identifier);
         });
@@ -2270,11 +2270,11 @@ class Store {
   saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
-    let recordData =
+    const cache =
       identifier &&
-      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'recordData' }) : this.cache);
+      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'resourceCache' }) : this.cache);
 
-    if (!recordData) {
+    if (!cache) {
       // this commonly means we're disconnected
       // but just in case we reject here to prevent bad things.
       return reject(`Record Is Disconnected`);
@@ -2282,13 +2282,13 @@ class Store {
     // TODO we used to check if the record was destroyed here
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier}`,
-      recordData && this._instanceCache.recordIsLoaded(identifier)
+      cache && this._instanceCache.recordIsLoaded(identifier)
     );
-    if (recordDataIsFullyDeleted(this._instanceCache, identifier)) {
+    if (resourceIsFullyDeleted(this._instanceCache, identifier)) {
       return resolve(record);
     }
 
-    recordData.willCommit(identifier);
+    cache.willCommit(identifier);
     if (isDSModel(record)) {
       record.errors.clear();
     }
@@ -2298,9 +2298,9 @@ class Store {
     }
     let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
 
-    if (recordData.isNew(identifier)) {
+    if (cache.isNew(identifier)) {
       operation = 'createRecord';
-    } else if (recordData.isDeleted(identifier)) {
+    } else if (cache.isDeleted(identifier)) {
       operation = 'deleteRecord';
     }
 
@@ -2343,15 +2343,15 @@ class Store {
             );
           }
 
-          const cache = this.identifierCache;
+          const identifierCache = this.identifierCache;
           let actualIdentifier = identifier;
           if (operation !== 'deleteRecord' && data) {
-            actualIdentifier = cache.updateRecordIdentifier(identifier, data);
+            actualIdentifier = identifierCache.updateRecordIdentifier(identifier, data);
           }
 
           //We first make sure the primary data has been updated
-          const recordData = this._instanceCache.getRecordData(actualIdentifier);
-          recordData.didCommit(identifier, data);
+          const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(actualIdentifier) : this.cache;
+          cache.didCommit(identifier, data);
 
           if (payload && payload.included) {
             this._push({ data: null, included: payload.included });
@@ -2708,21 +2708,21 @@ function adapterDidInvalidate(
       error.errors = errorsHashToArray(errorsHash);
     }
   }
-  const recordData = store._instanceCache.getRecordData(identifier);
+  const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
   if (error.errors) {
     assert(
       `Expected the RecordData implementation for ${identifier} to have a getErrors(identifier) method for retreiving errors.`,
-      typeof recordData.getErrors === 'function'
+      typeof cache.getErrors === 'function'
     );
 
     let jsonApiErrors: JsonApiValidationError[] = error.errors;
     if (jsonApiErrors.length === 0) {
       jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
     }
-    recordData.commitWasRejected(identifier, jsonApiErrors);
+    cache.commitWasRejected(identifier, jsonApiErrors);
   } else {
-    recordData.commitWasRejected(identifier);
+    cache.commitWasRejected(identifier);
   }
 }
 
@@ -2871,8 +2871,8 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
   return !!record.then;
 }
 
-function secretInit(record: RecordInstance, recordData: Cache, identifier: StableRecordIdentifier, store: Store): void {
+function secretInit(record: RecordInstance, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {
   setRecordIdentifier(record, identifier);
   StoreMap.set(record, store);
-  setCacheFor(record, recordData);
+  setCacheFor(record, cache);
 }

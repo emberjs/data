@@ -8,7 +8,7 @@ import { resolve } from 'rsvp';
 
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
@@ -293,9 +293,10 @@ export default class BelongsToReference {
 
   _resource() {
     this._ref; // subscribe
-    return this.store._instanceCache
-      .getRecordData(this.___identifier)
-      .getRelationship(this.___identifier, this.key) as SingleResourceRelationship;
+    const cache = DEPRECATE_V1_RECORD_DATA
+      ? this.store._instanceCache.getResourceCache(this.___identifier)
+      : this.store.cache;
+    return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship;
   }
 
   /**

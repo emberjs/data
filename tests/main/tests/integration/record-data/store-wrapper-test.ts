@@ -234,8 +234,8 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
               'Can lookup another RecordData that has been loaded'
             );
             const identifier2 = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
-            const recordData = storeWrapper.recordDataFor(identifier2);
-            const attrValue = recordData.getAttr(identifier2, 'name');
+            const cache = storeWrapper.recordDataFor(identifier2);
+            const attrValue = cache.getAttr(identifier2, 'name');
             assert.strictEqual(attrValue, 'Chris', 'Can lookup another RecordData which hasnt been loaded');
           }
         }
@@ -273,7 +273,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
       let { owner } = this;
       let count = 0;
-      let recordData;
+      let cache;
       let newRecordData;
       let firstIdentifier, secondIdentifier;
 
@@ -288,9 +288,9 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
           if (count === 1) {
             const newIdentifier = wrapper.identifierCache.createIdentifierForNewRecord({ type: 'house' });
-            recordData = wrapper.recordDataFor(newIdentifier);
+            cache = wrapper.recordDataFor(newIdentifier);
             firstIdentifier = newIdentifier;
-            recordData.clientDidCreate(newIdentifier);
+            cache.clientDidCreate(newIdentifier);
           } else if (count === 2) {
             newRecordData = this;
             secondIdentifier = identifier;
@@ -330,7 +330,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         },
       });
 
-      assert.ok(recordData.isNew(firstIdentifier), 'Our RecordData is new');
+      assert.ok(cache.isNew(firstIdentifier), 'Our RecordData is new');
       assert.ok(
         newRecordData.isNew(secondIdentifier),
         'The recordData for a RecordData created via Wrapper.recordDataFor(type) is in the "new" state'

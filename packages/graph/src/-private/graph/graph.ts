@@ -458,7 +458,7 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge, silenceNotific
 
     // necessary to clear relationships in the ui from dematerialized records
     // hasMany is managed by Model which calls `retreiveLatest` after
-    // dematerializing the recordData instance.
+    // dematerializing the resource-cache instance.
     // but sync belongsTo requires this since they don't have a proxy to update.
     // so we have to notify so it will "update" to null.
     // we should discuss whether we still care about this, probably fine to just

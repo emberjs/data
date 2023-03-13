@@ -5,6 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor } from '@ember-data/store';
 
 module('@ember-data/json-api | Cache', function (hooks) {
@@ -32,7 +33,7 @@ module('@ember-data/json-api | Cache', function (hooks) {
     const user = store.push({ data: { type: 'user', id: '1', attributes: { name: 'Wesley Youman' } } });
     const identifier = recordIdentifierFor(user);
     user.name = 'Wesley Thoburn';
-    const cache = store._instanceCache.getRecordData(identifier);
+    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
     assert.true(user.hasDirtyAttributes, 'the record is dirty before save');
     assert.true(cache.hasChangedAttrs(identifier), 'the cache reflects changes before save');
 
