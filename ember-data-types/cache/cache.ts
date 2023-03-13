@@ -1,4 +1,4 @@
-/**
+/*
  * @module @ember-data/experimental-preview-types
  */
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -19,12 +19,14 @@ import { ValidationError } from './validation-error';
  * data.
  *
  * @class Cache
+ * @internal
  */
 export interface Cache {
   /**
    * The Cache Version that this implementation implements.
    *
    * @type {'2'}
+   * @internal
    * @property version
    */
   version: '2';
@@ -52,7 +54,7 @@ export interface Cache {
    * @method put
    * @param {StructuredDocument} doc
    * @returns {ResourceDocument}
-   * @public
+   * @internal
    */
   put<T>(doc: StructuredDocument<T>): ResourceDocument;
 
@@ -64,7 +66,7 @@ export interface Cache {
    * which occurs when a collision of identifiers is detected.
    *
    * @method patch
-   * @public
+   * @internal
    * @param {Operation} op the operation to perform
    * @returns {void}
    */
@@ -76,7 +78,7 @@ export interface Cache {
    * @method mutate
    * @param {Mutation} mutation
    * @returns {void}
-   * @public
+   * @internal
    */
   mutate(mutation: Mutation): void;
 
@@ -108,7 +110,7 @@ export interface Cache {
    * notifications for relational data.
    *
    * @method peek
-   * @public
+   * @internal
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
    * @returns {ResourceDocument | ResourceBlob | null} the known resource data
    */
@@ -122,7 +124,7 @@ export interface Cache {
    * @method peekRequest
    * @param {StableDocumentIdentifier}
    * @returns {StableDocumentIdentifier | null}
-   * @public
+   * @internal
    */
   peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null;
 
@@ -130,7 +132,7 @@ export interface Cache {
    * Push resource data from a remote source into the cache for this identifier
    *
    * @method upsert
-   * @public
+   * @internal
    * @param identifier
    * @param data
    * @param hasRecord
@@ -149,7 +151,7 @@ export interface Cache {
    * utilize this method to fork the cache.
    *
    * @method fork
-   * @public
+   * @internal
    * @returns Promise<Cache>
    */
   fork(): Promise<Cache>;
@@ -163,7 +165,7 @@ export interface Cache {
    *
    * @method merge
    * @param {Cache} cache
-   * @public
+   * @internal
    * @returns Promise<void>
    */
   merge(cache: Cache): Promise<void>;
@@ -198,6 +200,8 @@ export interface Cache {
    * }
    * ```
    *
+   * @method diff
+   * @internal
    */
   diff(): Promise<Change[]>;
 
@@ -211,7 +215,7 @@ export interface Cache {
    *
    * @method dump
    * @returns {Promise<ReadableStream>}
-   * @public
+   * @internal
    */
   dump(): Promise<ReadableStream<unknown>>;
 
@@ -230,7 +234,7 @@ export interface Cache {
    * @method hydrate
    * @param {ReadableStream} stream
    * @returns {Promise<void>}
-   * @public
+   * @internal
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void>;
 
@@ -244,7 +248,7 @@ export interface Cache {
    * process. This return value behavior is deprecated.
    *
    * @method clientDidCreate
-   * @public
+   * @internal
    * @param identifier
    * @param createArgs
    */
@@ -255,7 +259,7 @@ export interface Cache {
    * will be part of a save transaction.
    *
    * @method willCommit
-   * @public
+   * @internal
    * @param identifier
    */
   willCommit(identifier: StableRecordIdentifier): void;
@@ -265,7 +269,7 @@ export interface Cache {
    * was successfully updated as part of a save transaction.
    *
    * @method didCommit
-   * @public
+   * @internal
    * @param identifier
    * @param data
    */
@@ -276,7 +280,7 @@ export interface Cache {
    * was update via a save transaction failed.
    *
    * @method commitWasRejected
-   * @public
+   * @internal
    * @param identifier
    * @param errors
    */
@@ -289,7 +293,7 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @method unloadRecord
-   * @public
+   * @internal
    * @param identifier
    */
   unloadRecord(identifier: StableRecordIdentifier): void;
@@ -301,7 +305,7 @@ export interface Cache {
    * Retrieve the data for an attribute from the cache
    *
    * @method getAttr
-   * @public
+   * @internal
    * @param identifier
    * @param field
    * @returns {unknown}
@@ -314,7 +318,7 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @method setAttr
-   * @public
+   * @internal
    * @param identifier
    * @param field
    * @param value
@@ -325,7 +329,7 @@ export interface Cache {
    * Query the cache for the changed attributes of a resource.
    *
    * @method changedAttrs
-   * @public
+   * @internal
    * @deprecated
    * @param identifier
    * @returns { <field>: [<old>, <new>] }
@@ -336,7 +340,7 @@ export interface Cache {
    * Query the cache for whether any mutated attributes exist
    *
    * @method hasChangedAttrs
-   * @public
+   * @internal
    * @param identifier
    * @returns {boolean}
    */
@@ -348,7 +352,7 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @method rollbackAttrs
-   * @public
+   * @internal
    * @param identifier
    * @returns {string[]} the names of fields that were restored
    */
@@ -358,7 +362,7 @@ export interface Cache {
    * Query the cache for the current state of a relationship property
    *
    * @method getRelationship
-   * @public
+   * @internal
    * @param identifier
    * @param field
    * @returns resource relationship object
@@ -379,7 +383,7 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @method setIsDeleted
-   * @public
+   * @internal
    * @param identifier
    * @param isDeleted {boolean}
    */
@@ -389,7 +393,7 @@ export interface Cache {
    * Query the cache for any validation errors applicable to the given resource.
    *
    * @method getErrors
-   * @public
+   * @internal
    * @param identifier
    * @returns {ValidationError[]}
    */
@@ -399,7 +403,7 @@ export interface Cache {
    * Query the cache for whether a given resource has any available data
    *
    * @method isEmpty
-   * @public
+   * @internal
    * @param identifier
    * @returns {boolean}
    */
@@ -410,7 +414,7 @@ export interface Cache {
    * yet persisted.
    *
    * @method isNew
-   * @public
+   * @internal
    * @param identifier
    * @returns {boolean}
    */
@@ -421,7 +425,7 @@ export interface Cache {
    * necessarily persisted yet).
    *
    * @method isDeleted
-   * @public
+   * @internal
    * @param identifier
    * @returns {boolean}
    */
@@ -432,7 +436,7 @@ export interface Cache {
    * has also been persisted.
    *
    * @method isDeletionCommitted
-   * @public
+   * @internal
    * @param identifier
    * @returns {boolean}
    */
