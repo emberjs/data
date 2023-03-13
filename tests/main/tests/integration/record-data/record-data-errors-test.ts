@@ -15,7 +15,11 @@ import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/do
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import { DSModel } from '@ember-data/types/q/ds-model';
-import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import {
+  CollectionResourceRelationship,
+  SingleResourceDocument,
+  SingleResourceRelationship,
+} from '@ember-data/types/q/ember-data-json-api';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import { Dict } from '@ember-data/types/q/utils';
@@ -27,11 +31,23 @@ if (!DEPRECATE_V1_RECORD_DATA) {
   }
 
   class TestRecordData implements Cache {
+    wrapper: CacheStoreWrapper;
+    _data: Map<StableRecordIdentifier, object> = new Map();
+    constructor(wrapper: CacheStoreWrapper) {
+      this.wrapper = wrapper;
+    }
     patch(op: MergeOperation): void {
       throw new Error('Method not implemented.');
     }
-    put<T>(doc: StructuredDocument<T>): ResourceDocument {
-      throw new Error('Method not implemented.');
+    put(doc: StructuredDocument<SingleResourceDocument>): ResourceDocument {
+      if ('data' in doc) {
+        const identifier = this.wrapper.identifierCache.getOrCreateRecordIdentifier(doc.data.data);
+        this.upsert(identifier, doc.data.data, this.wrapper.hasRecord(identifier));
+        return { data: identifier };
+      } else if ('error' in doc) {
+        throw typeof doc.error === 'string' ? new Error(doc.error) : doc.error;
+      }
+      throw new Error('Not Implemented');
     }
     update(operation: LocalRelationshipOperation): void {
       throw new Error('Method not implemented.');
@@ -45,7 +61,14 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       identifier: StableRecordIdentifier,
       data: JsonApiResource,
       calculateChanges?: boolean | undefined
-    ): void | string[] {}
+    ): void | string[] {
+      if (!this._data.has(identifier)) {
+        this.wrapper.notifyChange(identifier, 'added');
+      }
+      this._data.set(identifier, data);
+      this.wrapper.notifyChange(identifier, 'attributes');
+      this.wrapper.notifyChange(identifier, 'relationships');
+    }
     clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
       this._isNew = true;
       return {};
@@ -126,7 +149,6 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       }
       class TestStore extends Store {
         createCache(wrapper: CacheStoreWrapper) {
-          // @ts-expect-error
           return new LifecycleRecordData(wrapper) as Cache;
         }
       }
@@ -187,7 +209,6 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       }
       class TestStore extends Store {
         createCache(wrapper: CacheStoreWrapper) {
-          // @ts-expect-error
           return new LifecycleRecordData(wrapper) as Cache;
         }
       }
@@ -239,7 +260,6 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       class TestStore extends Store {
         createCache(wrapper: CacheStoreWrapper) {
           storeWrapper = wrapper;
-          // @ts-expect-error
           return new LifecycleRecordData(wrapper) as Cache;
         }
       }

@@ -122,8 +122,7 @@ export default class SingletonCache implements Cache {
       typeof jsonApiDoc.data === 'object'
     );
 
-    let identifier: StableExistingRecordIdentifier = identifierCache.getOrCreateRecordIdentifier(jsonApiDoc.data);
-    this.upsert(identifier, jsonApiDoc.data, false);
+    let identifier = putOne(this, identifierCache, jsonApiDoc.data);
     return { data: identifier };
   }
 
@@ -787,10 +786,21 @@ function patchLocalAttributes(cached: CachedResource): boolean {
   return hasAppliedPatch;
 }
 
-function putOne(cache: SingletonCache, identifiers: IdentifierCache, resource: ExistingResourceObject) {
-  let identifier: StableExistingRecordIdentifier = identifiers.getOrCreateRecordIdentifier(resource);
-  cache.upsert(identifier, resource, false);
-  return identifier;
+function putOne(
+  cache: SingletonCache,
+  identifiers: IdentifierCache,
+  resource: ExistingResourceObject
+): StableExistingRecordIdentifier {
+  let identifier: StableRecordIdentifier | undefined = identifiers.peekRecordIdentifier(resource);
+
+  if (identifier) {
+    identifier = identifiers.updateRecordIdentifier(identifier, resource);
+  } else {
+    identifier = identifiers.getOrCreateRecordIdentifier(resource);
+  }
+  cache.upsert(identifier, resource, cache.__storeWrapper.hasRecord(identifier));
+  // even if the identifier was not "existing" before, it is now
+  return identifier as StableExistingRecordIdentifier;
 }
 
 /*

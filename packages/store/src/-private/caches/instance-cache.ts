@@ -368,16 +368,16 @@ export class InstanceCache {
   }
 
   recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
-    const recordData = this.__instances.recordData.get(identifier);
-    if (!recordData) {
+    const cache = DEPRECATE_V1_RECORD_DATA ? this.__instances.recordData.get(identifier) : this.cache;
+    if (!cache) {
       return false;
     }
-    const isNew = recordData.isNew(identifier);
-    const isEmpty = recordData.isEmpty(identifier);
+    const isNew = cache.isNew(identifier);
+    const isEmpty = cache.isEmpty(identifier);
 
     // if we are new we must consider ourselves loaded
     if (isNew) {
-      return !recordData.isDeleted(identifier);
+      return !cache.isDeleted(identifier);
     }
     // even if we have a past request, if we are now empty we are not loaded
     // typically this is true after an unloadRecord call
@@ -386,23 +386,7 @@ export class InstanceCache {
     // we should consider allowing for something to be loaded that is simply "not empty".
     // which is how RecordState currently handles this case; however, RecordState is buggy
     // in that it does not account for unloading.
-    return filterDeleted && recordData.isDeletionCommitted(identifier) ? false : !isEmpty;
-
-    /*
-    const req = this.store.getRequestStateService();
-    const fulfilled = req.getLastRequestForRecord(identifier);
-    const isLocallyLoaded = !isEmpty;
-    const isLoading =
-      !isLocallyLoaded &&
-      fulfilled === null &&
-      req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
-
-    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted(identifier)) || isLoading) {
-      return false;
-    }
-
-    return true;
-    */
+    return filterDeleted && cache.isDeletionCommitted(identifier) ? false : !isEmpty;
   }
 
   createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
@@ -452,7 +436,7 @@ export class InstanceCache {
     // TODO is this join still necessary?
     this.store._join(() => {
       const record = this.__instances.record.get(identifier);
-      const recordData = this.__instances.recordData.get(identifier);
+      const recordData = DEPRECATE_V1_RECORD_DATA ? this.__instances.recordData.get(identifier) : this.cache;
 
       if (record) {
         this.store.teardownRecord(record);
@@ -490,19 +474,22 @@ export class InstanceCache {
   }
 
   clear(type?: string) {
-    const typeCache = this.store.identifierCache._cache.types;
+    const cache = this.store.identifierCache._cache;
     if (type === undefined) {
-      this.__instances.recordData.forEach((value, identifier) => {
+      // it would be cool if we could just de-ref cache here
+      // but probably would require WeakRef models to do so.
+      cache.lids.forEach((identifier) => {
         this.unloadRecord(identifier);
       });
     } else {
+      const typeCache = cache.types;
       let identifiers = typeCache[type]?.lid;
-      const rds = this.__instances.recordData;
+      // const rds = this.__instances.recordData;
       if (identifiers) {
         identifiers.forEach((identifier) => {
-          if (rds.has(identifier)) {
-            this.unloadRecord(identifier);
-          }
+          // if (rds.has(identifier)) {
+          this.unloadRecord(identifier);
+          // }
           // TODO we don't remove the identifier, should we?
         });
       }
@@ -629,7 +616,7 @@ function _recordDataIsFullDeleted(identifier: StableRecordIdentifier, recordData
 }
 
 export function recordDataIsFullyDeleted(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  let recordData = cache.__instances.recordData.get(identifier);
+  let recordData = DEPRECATE_V1_RECORD_DATA ? cache.__instances.recordData.get(identifier) : cache.cache;
   return !recordData || _recordDataIsFullDeleted(identifier, recordData);
 }
 
@@ -703,14 +690,14 @@ function _convertPreloadRelationshipToJSON(
   return recordIdentifierFor(value);
 }
 
-function _isEmpty(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  const recordData = cache.__instances.recordData.get(identifier);
-  if (!recordData) {
+function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+  const cache = DEPRECATE_V1_RECORD_DATA ? instanceCache.__instances.recordData.get(identifier) : instanceCache.cache;
+  if (!cache) {
     return true;
   }
-  const isNew = recordData.isNew(identifier);
-  const isDeleted = recordData.isDeleted(identifier);
-  const isEmpty = recordData.isEmpty(identifier);
+  const isNew = cache.isNew(identifier);
+  const isDeleted = cache.isDeleted(identifier);
+  const isEmpty = cache.isEmpty(identifier);
 
   return (!isNew || isDeleted) && isEmpty;
 }

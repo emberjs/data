@@ -651,7 +651,9 @@ class Store {
     }
 
     const identifier = peekRecordIdentifier(record);
-    const recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
+    const recordData =
+      identifier &&
+      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'recordData' }) : this.cache);
     assert(`expected a recordData instance to exist for the record`, recordData);
     this._join(() => {
       recordData.setIsDeleted(identifier, true);
@@ -2268,7 +2270,9 @@ class Store {
   saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
-    let recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
+    let recordData =
+      identifier &&
+      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'recordData' }) : this.cache);
 
     if (!recordData) {
       // this commonly means we're disconnected
