@@ -46,7 +46,7 @@ Wrangle your application's data management with scalable patterns for developer 
 
 # Overview
 
-\*Ember**\*Data** is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation.
+*Ember***Data** is a lightweight reactive data library for JavaScript applications that provides composable primitives for ordering query/mutation/peek flows, managing network and cache, and reducing data for presentation.
 
 - [API Documentation](https://api.emberjs.com/ember-data/release)
 - [Community & Help](https://emberjs.com/community)
@@ -58,15 +58,15 @@ Wrangle your application's data management with scalable patterns for developer 
 
 ## 🪜 Architecture
 
-\*Ember**\*Data** is both _resource_ centric and _document_ centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
+*Ember***Data** is both _resource_ centric and _document_ centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
 
 The `Store` is a **coordinator**. When using a `Store` you configure what cache to use, how cache data should be presented to the UI, and where it should look for requested data when it is not available in the cache.
 
-This coordination is handled opaquely to the nature of the requests issued and the format of the data being handled. This approach gives applications broad flexibility to configure \*Ember**\*Data** to best suite their needs. This makes \*Ember**\*Data** a powerful solution for applications regardless of their size and complexity.
+This coordination is handled opaquely to the nature of the requests issued and the format of the data being handled. This approach gives applications broad flexibility to configure *Ember***Data** to best suite their needs. This makes *Ember***Data** a powerful solution for applications regardless of their size and complexity.
 
-\*Ember**\*Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. It's goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
+*Ember***Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. It's goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
 
-\*Ember**\*Data**'s power comes not from specific features, data formats, or adherence to specific API specs such as `JSON:API` `trpc` or `GraphQL`, but from solid conventions around requesting and mutating data developed over decades of experience scaling developer productivity.
+*Ember***Data**'s power comes not from specific features, data formats, or adherence to specific API specs such as `JSON:API` `trpc` or `GraphQL`, but from solid conventions around requesting and mutating data developed over decades of experience scaling developer productivity.
 
 ## Basic Installation
 
@@ -83,7 +83,7 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 
 ## Advanced Installation
 
-\*Ember**\*Data** is organized into primitives that compose together via public APIs.
+*Ember***Data** is organized into primitives that compose together via public APIs.
 
 - [@ember-data/store](./packages/store) is the core and handles coordination
 - [@ember-data/tracking](./packages/tracking) is required when using the core and provides tracking primitives for change notification of Tracked properties
