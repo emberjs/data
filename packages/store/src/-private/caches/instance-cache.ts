@@ -310,7 +310,7 @@ export class InstanceCache {
         `Store.createRecordDataFor(<type>, <id>, <lid>, <storeWrapper>) has been deprecated in favor of Store.createCache(<storeWrapper>)`,
         false,
         {
-          id: 'ember-data:deprecate-v1cache',
+          id: 'ember-data:deprecate-v1-cache',
           for: 'ember-data',
           until: '5.0',
           since: { enabled: '4.12', available: '4.12' },

@@ -265,7 +265,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
       assert.strictEqual(count, 2, 'two TestRecordDatas have been created');
       if (DEPRECATE_V1_RECORD_DATA) {
-        assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
+        assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 5 });
       }
     });
 
@@ -338,7 +338,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
       assert.strictEqual(count, 2, 'two TestRecordDatas have been created');
       if (DEPRECATE_V1_RECORD_DATA) {
-        assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
+        assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 4 });
       }
     });
   }
