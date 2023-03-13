@@ -11,13 +11,17 @@ import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/inde
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
+import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
+import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper, V2CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceRelationship,
+  ExistingResourceObject,
+  JsonApiDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -84,6 +88,42 @@ export default class SingletonCache implements Cache {
 
   constructor(storeWrapper: V2CacheStoreWrapper) {
     this.__storeWrapper = storeWrapper;
+  }
+
+  put<T extends JsonApiDocument>(doc: StructuredDocument<T>): ResourceDocument {
+    assert(`Cannot currently cache an ErrorDocument`, !('error' in doc));
+    const jsonApiDoc = doc.data;
+    let included = jsonApiDoc.included;
+    let i: number, length: number;
+    const { identifierCache } = this.__storeWrapper;
+
+    if (included) {
+      for (i = 0, length = included.length; i < length; i++) {
+        putOne(this, identifierCache, included[i]);
+      }
+    }
+
+    if (Array.isArray(jsonApiDoc.data)) {
+      length = jsonApiDoc.data.length;
+      let identifiers: StableExistingRecordIdentifier[] = [];
+
+      for (i = 0; i < length; i++) {
+        identifiers.push(putOne(this, identifierCache, jsonApiDoc.data[i]));
+      }
+      return { data: identifiers };
+    }
+
+    if (jsonApiDoc.data === null) {
+      return { data: null };
+    }
+
+    assert(
+      `Expected an object in the 'data' property in a call to 'push', but was ${typeof jsonApiDoc.data}`,
+      typeof jsonApiDoc.data === 'object'
+    );
+
+    let identifier = putOne(this, identifierCache, jsonApiDoc.data);
+    return { data: identifier };
   }
 
   /**
@@ -744,6 +784,23 @@ function patchLocalAttributes(cached: CachedResource): boolean {
     }
   }
   return hasAppliedPatch;
+}
+
+function putOne(
+  cache: SingletonCache,
+  identifiers: IdentifierCache,
+  resource: ExistingResourceObject
+): StableExistingRecordIdentifier {
+  let identifier: StableRecordIdentifier | undefined = identifiers.peekRecordIdentifier(resource);
+
+  if (identifier) {
+    identifier = identifiers.updateRecordIdentifier(identifier, resource);
+  } else {
+    identifier = identifiers.getOrCreateRecordIdentifier(resource);
+  }
+  cache.upsert(identifier, resource, cache.__storeWrapper.hasRecord(identifier));
+  // even if the identifier was not "existing" before, it is now
+  return identifier as StableExistingRecordIdentifier;
 }
 
 /*

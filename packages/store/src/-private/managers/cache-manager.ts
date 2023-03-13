@@ -1,17 +1,64 @@
-import { deprecate } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import { StructuredDataDocument } from '@ember-data/request/-private/types';
+import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type {
   CollectionResourceRelationship,
+  JsonApiDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
+
+export function legacyCachePut(
+  store: Store,
+  doc: StructuredDataDocument<JsonApiDocument> | { data: JsonApiDocument }
+): ResourceDocument {
+  const jsonApiDoc = doc.data;
+  let ret: ResourceDocument;
+  store._join(() => {
+    let included = jsonApiDoc.included;
+    let i: number, length: number;
+
+    if (included) {
+      for (i = 0, length = included.length; i < length; i++) {
+        store._instanceCache.loadData(included[i]);
+      }
+    }
+
+    if (Array.isArray(jsonApiDoc.data)) {
+      length = jsonApiDoc.data.length;
+      let identifiers: StableExistingRecordIdentifier[] = [];
+
+      for (i = 0; i < length; i++) {
+        identifiers.push(store._instanceCache.loadData(jsonApiDoc.data[i]));
+      }
+      ret = { data: identifiers };
+      return;
+    }
+
+    if (jsonApiDoc.data === null) {
+      ret = { data: null };
+      return;
+    }
+
+    assert(
+      `Expected an object in the 'data' property in a call to 'push', but was ${typeof jsonApiDoc.data}`,
+      typeof jsonApiDoc.data === 'object'
+    );
+
+    ret = { data: store._instanceCache.loadData(jsonApiDoc.data) };
+    return;
+  });
+
+  return ret!;
+}
 
 /**
  * The CacheManager wraps a Cache
@@ -81,6 +128,41 @@ export class NonSingletonCacheManager implements Cache {
         }
       );
     }
+  }
+
+  /**
+   * Cache the response to a request
+   *
+   * Unlike `store.push` which has UPSERT
+   * semantics, `put` has `replace` semantics similar to
+   * the `http` method `PUT`
+   *
+   * the individually cacheabl
+   * e resource data it may contain
+   * should upsert, but the document data surrounding it should
+   * fully replace any existing information
+   *
+   * Note that in order to support inserting arbitrary data
+   * to the cache that did not originate from a request `put`
+   * should expect to sometimes encounter a document with only
+   * a `data` member and therefor must not assume the existence
+   * of `request` and `response` on the document.
+   *
+   * @method put
+   * @param {StructuredDocument} doc
+   * @returns {ResourceDocument}
+   * @public
+   */
+  put<T>(doc: StructuredDocument<T> | { data: T }): ResourceDocument {
+    const recordData = this.#recordData;
+    if (this.#isDeprecated(recordData)) {
+      if (doc instanceof Error) {
+        // in legacy we don't know how to handle this
+        throw doc;
+      }
+      return legacyCachePut(this.#store, doc as StructuredDataDocument<JsonApiDocument>);
+    }
+    return recordData.put(doc);
   }
 
   #isDeprecated(recordData: Cache | CacheV1): recordData is CacheV1 {
@@ -757,6 +839,10 @@ export class SingletonCacheManager implements Cache {
 
   constructor(cache: Cache) {
     this.#cache = cache;
+  }
+
+  put<T>(doc: StructuredDocument<T>): ResourceDocument {
+    return this.#cache.put(doc);
   }
 
   // Cache

@@ -19,6 +19,7 @@ import {
   DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
+  DEPRECATE_V1_RECORD_DATA,
 } from '@ember-data/private-build-infra/deprecations';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
@@ -55,7 +56,7 @@ import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
-import { NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
+import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
@@ -650,7 +651,9 @@ class Store {
     }
 
     const identifier = peekRecordIdentifier(record);
-    const recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
+    const recordData =
+      identifier &&
+      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'recordData' }) : this.cache);
     assert(`expected a recordData instance to exist for the record`, recordData);
     this._join(() => {
       recordData.setIsDeleted(identifier, true);
@@ -2153,43 +2156,14 @@ class Store {
     }
     let ret;
     this._join(() => {
-      let included = jsonApiDoc.included;
-      let i, length;
-
-      if (included) {
-        for (i = 0, length = included.length; i < length; i++) {
-          this._instanceCache.loadData(included[i]);
-        }
+      if (DEPRECATE_V1_RECORD_DATA) {
+        ret = legacyCachePut(this, { data: jsonApiDoc });
+      } else {
+        ret = this.cache.put({ data: jsonApiDoc });
       }
-
-      if (Array.isArray(jsonApiDoc.data)) {
-        length = jsonApiDoc.data.length;
-        let identifiers = new Array(length);
-
-        for (i = 0; i < length; i++) {
-          identifiers[i] = this._instanceCache.loadData(jsonApiDoc.data[i]);
-        }
-        ret = identifiers;
-        return;
-      }
-
-      if (jsonApiDoc.data === null) {
-        ret = null;
-        return;
-      }
-
-      assert(
-        `Expected an object in the 'data' property in a call to 'push' for ${
-          jsonApiDoc.type
-        }, but was ${typeof jsonApiDoc.data}`,
-        typeof jsonApiDoc.data === 'object'
-      );
-
-      ret = this._instanceCache.loadData(jsonApiDoc.data);
-      return;
     });
 
-    return ret;
+    return ret.data;
   }
 
   /**
@@ -2296,7 +2270,9 @@ class Store {
   saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
-    let recordData = identifier && this._instanceCache.peek({ identifier, bucket: 'recordData' });
+    let recordData =
+      identifier &&
+      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'recordData' }) : this.cache);
 
     if (!recordData) {
       // this commonly means we're disconnected

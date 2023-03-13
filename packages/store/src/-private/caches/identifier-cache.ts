@@ -16,6 +16,7 @@ import type {
   RecordIdentifier,
   ResetMethod,
   ResourceData,
+  StableExistingRecordIdentifier,
   StableRecordIdentifier,
   UpdateMethod,
 } from '@ember-data/types/q/identifier';
@@ -342,6 +343,10 @@ export class IdentifierCache {
     @returns {StableRecordIdentifier}
     @public
   */
+  getOrCreateRecordIdentifier(resource: ExistingResourceObject): StableExistingRecordIdentifier;
+  getOrCreateRecordIdentifier(
+    resource: ResourceIdentifierObject | Identifier | StableRecordIdentifier
+  ): StableRecordIdentifier;
   getOrCreateRecordIdentifier(resource: ResourceData | Identifier): StableRecordIdentifier {
     return this._getRecordIdentifier(resource, true);
   }

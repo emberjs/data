@@ -330,7 +330,9 @@ module('integration/peeked-records', function (hooks) {
       await settled();
     }
     async function unload() {
-      run(() => store.unloadAll('person'));
+      run(() => {
+        return store.unloadAll('person');
+      });
       await settled();
     }
     async function peek() {
@@ -352,11 +354,11 @@ module('integration/peeked-records', function (hooks) {
     );
 
     await unload();
-    assert.strictEqual(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
+    assert.strictEqual(peekedRecordArray.length, 0, 'We no longer have any array content');
     assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state has signaled the unload');
 
     await _push();
-    assert.strictEqual(get(peekedRecordArray, 'length'), 2, 'We have array content');
+    assert.strictEqual(peekedRecordArray.length, 2, 'We have array content');
     assert.watchedPropertyCounts(watcher, { length: 4, '[]': 4 }, 'RecordArray state now has records again');
   });
 });

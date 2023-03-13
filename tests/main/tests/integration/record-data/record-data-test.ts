@@ -11,11 +11,13 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceRelationship,
+  SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -125,13 +127,40 @@ class V2TestRecordData implements Cache {
   patch(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }
+  _data: Map<StableRecordIdentifier, object> = new Map();
+  put(doc: StructuredDocument<SingleResourceDocument>): ResourceDocument {
+    if ('data' in doc) {
+      if (Array.isArray(doc.data.data)) {
+        const data = doc.data.data.map((data) => {
+          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(data);
+          this.upsert(identifier, data, this._storeWrapper.hasRecord(identifier));
+          return identifier;
+        });
+        return { data };
+      } else {
+        const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(doc.data.data);
+        this.upsert(identifier, doc.data.data, this._storeWrapper.hasRecord(identifier));
+        return { data: identifier };
+      }
+    } else if ('error' in doc) {
+      throw typeof doc.error === 'string' ? new Error(doc.error) : doc.error;
+    }
+    throw new Error('Not Implemented');
+  }
+
   upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
     calculateChanges?: boolean | undefined
   ): void | string[] {
-    this._storeWrapper.notifyChange(identifier, 'added');
+    if (!this._data.has(identifier)) {
+      this._storeWrapper.notifyChange(identifier, 'added');
+    }
+    this._data.set(identifier, data);
+    this._storeWrapper.notifyChange(identifier, 'attributes');
+    this._storeWrapper.notifyChange(identifier, 'relationships');
   }
+
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
     this._isNew = true;
     return {};

@@ -1,5 +1,6 @@
 import { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 
+import { ResourceDocument, StructuredDocument } from '../cache/document';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
 import type { JsonApiResource, JsonApiValidationError } from './record-data-json-api';
@@ -85,8 +86,29 @@ export interface Cache {
    */
   version: '2';
 
-  // Cache
-  // =====
+  /**
+   * Cache the response to a request
+   *
+   * Unlike `store.push` which has UPSERT
+   * semantics, `put` has `replace` semantics similar to
+   * the `http` method `PUT`
+   *
+   * the individually cacheable resource data it may contain
+   * should upsert, but the document data surrounding it should
+   * fully replace any existing information
+   *
+   * Note that in order to support inserting arbitrary data
+   * to the cache that did not originate from a request `put`
+   * should expect to sometimes encounter a document with only
+   * a `data` member and therefor must not assume the existence
+   * of `request` and `response` on the document.
+   *
+   * @method put
+   * @param {StructuredDocument} doc
+   * @returns {ResourceDocument}
+   * @public
+   */
+  put(doc: StructuredDocument<unknown>): ResourceDocument;
 
   /**
    * Update the "remote" or "canonical" (persisted) state of the Cache
