@@ -10,9 +10,7 @@ import { Dict } from './utils';
   @module @ember-data/store
 */
 
-export interface ChangedAttributesHash {
-  [key: string]: [string, string];
-}
+export type ChangedAttributesHash = Record<string, [unknown, unknown]>;
 
 export interface MergeOperation {
   op: 'mergeIdentifiers';
