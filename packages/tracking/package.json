@@ -52,7 +52,7 @@
     "@embroider/addon-dev": "^3.0.0",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "rollup": "^3.19.0",
+    "rollup": "^3.19.1",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5",
     "walk-sync": "^3.0.0"
