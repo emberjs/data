@@ -84,7 +84,8 @@ runs:
         key: broccoli-${{ github.head_ref }}-${{inputs.ref }}
         restore-keys: |
           broccoli-${{ github.head_ref }}
-          broccoli-develop
+          broccoli-${{ github.base_ref }}
+          broccoli-master
 
     - name: Restore Lint Caches
       if: ${{ inputs.restore-lint-caches == 'true' }}
@@ -97,4 +98,5 @@ runs:
         key: lint-${{ github.head_ref }}-${{ inputs.ref }}
         restore-keys: |
           lint-${{ github.head_ref }}
-          lint-develop
+          lint-${{ github.base_ref }}
+          lint-master
