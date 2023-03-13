@@ -1,14 +1,14 @@
 <p align="center">
   <img
     class="project-logo"
-    src="./ember-data-store-logo-dark.svg#gh-dark-mode-only"
+    src="./ember-data-logo-dark.svg#gh-dark-mode-only"
     alt="EmberData Store"
     width="240px"
     title="EmberData Store"
     />
   <img
     class="project-logo"
-    src="./ember-data-store-logo-light.svg#gh-light-mode-only"
+    src="./ember-data-logo-light.svg#gh-light-mode-only"
     alt="EmberData Store"
     width="240px"
     title="EmberData Store"
