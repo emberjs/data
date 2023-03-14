@@ -26,6 +26,7 @@ module.exports = function (defaults) {
       enableTypeScriptTransform: true,
     },
     'ember-cli-terser': {
+      enabled: false,
       exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js'],
     },
   });

@@ -33,7 +33,7 @@ export interface ManyArrayCreateArgs {
   manager: LegacySupport;
 
   identifier: StableRecordIdentifier;
-  recordData: Cache;
+  cache: Cache;
   meta: Dict<unknown> | null;
   links: Links | PaginationLinks | null;
   key: string;
@@ -149,7 +149,7 @@ export default class RelatedCollection extends RecordArray {
      */
   declare links: Links | PaginationLinks | null;
   declare identifier: StableRecordIdentifier;
-  declare recordData: Cache;
+  declare cache: Cache;
   // @ts-expect-error
   declare _manager: LegacySupport;
   declare store: Store;
@@ -349,7 +349,7 @@ export default class RelatedCollection extends RecordArray {
 RelatedCollection.prototype.isAsync = false;
 RelatedCollection.prototype.isPolymorphic = false;
 RelatedCollection.prototype.identifier = null as unknown as StableRecordIdentifier;
-RelatedCollection.prototype.recordData = null as unknown as Cache;
+RelatedCollection.prototype.cache = null as unknown as Cache;
 RelatedCollection.prototype._inverseIsAsync = false;
 RelatedCollection.prototype.key = '';
 RelatedCollection.prototype.DEPRECATED_CLASS_NAME = 'ManyArray';

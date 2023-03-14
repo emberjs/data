@@ -1,6 +1,8 @@
 import { cacheFor } from '@ember/object/internals';
 
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
+import { peekCache } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
@@ -65,8 +67,8 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
 
 function notifyAttribute(store: Store, identifier: StableRecordIdentifier, key: string, record: Model) {
   let currentValue = cacheFor(record, key);
-
-  if (currentValue !== store._instanceCache.getRecordData(identifier).getAttr(identifier, key)) {
+  const cache = DEPRECATE_V1_RECORD_DATA ? peekCache(record)! : store.cache;
+  if (currentValue !== cache.getAttr(identifier, key)) {
     record.notifyPropertyChange(key);
   }
 }

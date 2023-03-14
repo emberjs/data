@@ -8,7 +8,10 @@ import { importSync } from '@embroider/macros';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import {
+  DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
+  DEPRECATE_V1_RECORD_DATA,
+} from '@ember-data/private-build-infra/deprecations';
 import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
@@ -127,7 +130,10 @@ export default class Snapshot implements Snapshot {
      */
     this.modelName = identifier.type;
     if (hasRecord) {
-      this._changedAttributes = this._store._instanceCache.getRecordData(identifier).changedAttrs(identifier);
+      const cache = DEPRECATE_V1_RECORD_DATA
+        ? this._store._instanceCache.getResourceCache(identifier)
+        : this._store.cache;
+      this._changedAttributes = cache.changedAttrs(identifier);
     }
   }
 
@@ -153,13 +159,15 @@ export default class Snapshot implements Snapshot {
     if (this.__attributes !== null) {
       return this.__attributes;
     }
-    let attributes = (this.__attributes = Object.create(null));
+    const attributes = (this.__attributes = Object.create(null));
     const { identifier } = this;
-    let attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
-    let recordData = this._store._instanceCache.getRecordData(identifier);
+    const attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
+    const cache = DEPRECATE_V1_RECORD_DATA
+      ? this._store._instanceCache.getResourceCache(identifier)
+      : this._store.cache;
 
     attrs.forEach((keyName) => {
-      attributes[keyName] = recordData.getAttr(identifier, keyName);
+      attributes[keyName] = cache.getAttr(identifier, keyName);
     });
 
     return attributes;
@@ -175,8 +183,10 @@ export default class Snapshot implements Snapshot {
    */
 
   get isNew(): boolean {
-    const recordData = this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'recordData' });
-    return recordData?.isNew(this.identifier) || false;
+    const cache = DEPRECATE_V1_RECORD_DATA
+      ? this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'resourceCache' })
+      : this._store.cache;
+    return cache?.isNew(this.identifier) || false;
   }
 
   /**
@@ -338,7 +348,11 @@ export default class Snapshot implements Snapshot {
     let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      if (inverseIdentifier && !store._instanceCache.getRecordData(inverseIdentifier).isDeleted(inverseIdentifier)) {
+      const cache = DEPRECATE_V1_RECORD_DATA
+        ? inverseIdentifier && store._instanceCache.getResourceCache(inverseIdentifier)
+        : store.cache;
+
+      if (inverseIdentifier && !cache!.isDeleted(inverseIdentifier)) {
         if (returnModeIsId) {
           result = inverseIdentifier.id;
         } else {
@@ -438,7 +452,9 @@ export default class Snapshot implements Snapshot {
       results = [];
       value.data.forEach((member) => {
         let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
-        if (!store._instanceCache.getRecordData(inverseIdentifier).isDeleted(inverseIdentifier)) {
+        const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(inverseIdentifier) : store.cache;
+
+        if (!cache.isDeleted(inverseIdentifier)) {
           if (returnModeIsIds) {
             (results as RecordId[]).push(inverseIdentifier.id);
           } else {

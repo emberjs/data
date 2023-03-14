@@ -283,7 +283,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     assert.strictEqual(all.length, 3, 'we have 3 records');
     if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 3 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 6 });
     }
   });
 
@@ -450,7 +450,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     await settled();
     assert.strictEqual(calledUpsert, 0, 'Did not call pushData');
     if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 4 });
     }
   });
 
@@ -542,7 +542,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       'changed attributes passes through RD value'
     );
     if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
     }
   });
 });

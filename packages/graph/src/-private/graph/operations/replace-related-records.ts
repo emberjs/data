@@ -366,7 +366,7 @@ export function removeFromInverse(
 
 export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
   let toSet = rel.remoteState;
-  let newIdentifiers = rel.localState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
+  let newIdentifiers = rel.localState.filter((identifier) => isNew(identifier) && toSet.indexOf(identifier) === -1);
   let existingState = rel.localState;
   rel.localState = toSet.concat(newIdentifiers);
 

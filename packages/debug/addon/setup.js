@@ -21,14 +21,14 @@ Object.defineProperty(Store.prototype, '_instanceCache', {
     return this.__instanceCache;
   },
   set(value) {
-    const getRecordData = value.getRecordData;
+    const getResourceCache = value.getResourceCache;
     const store = this;
-    value.getRecordData = function(identifier) {
+    value.getResourceCache = function(identifier) {
       const typesMap = typesMapFor(store);
       if (!typesMap.has(identifier.type)) {
         typesMap.set(identifier.type, false);
       }
-      return getRecordData.call(this, identifier);
+      return getResourceCache.call(this, identifier);
     }
     this.__instanceCache = value;
   }

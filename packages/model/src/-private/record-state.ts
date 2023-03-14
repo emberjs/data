@@ -3,9 +3,10 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { DEBUG } from '@glimmer/env';
 import { cached, tracked } from '@glimmer/tracking';
 
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
-import { recordIdentifierFor } from '@ember-data/store/-private';
+import { peekCache, recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type RequestCache from '@ember-data/store/-private/network/request-cache';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
@@ -164,7 +165,7 @@ export default class RecordState {
 
     this.identifier = identity;
     this.record = record;
-    this.cache = store._instanceCache.getRecordData(identity);
+    this.cache = DEPRECATE_V1_RECORD_DATA ? peekCache(record)! : store.cache;
 
     this.pendingCount = 0;
     this.fulfilledCount = 0;

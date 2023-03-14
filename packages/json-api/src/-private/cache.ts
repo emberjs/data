@@ -405,18 +405,20 @@ export default class SingletonCache implements Cache {
   }
 
   unloadRecord(identifier: StableRecordIdentifier): void {
+    const storeWrapper = this.__storeWrapper;
     // TODO this is necessary because
     // we maintain memebership inside InstanceCache
     // for peekAll, so even though we haven't created
     // any data we think this exists.
     // TODO can we eliminate that membership now?
     if (!this.__cache.has(identifier)) {
+      // the graph may still need to unload identity
+      peekGraph(storeWrapper)?.unload(identifier);
       return;
     }
     const removeFromRecordArray = !this.isDeletionCommitted(identifier);
     let removed = false;
     const cached = this.__peek(identifier, false);
-    const storeWrapper = this.__storeWrapper;
     peekGraph(storeWrapper)?.unload(identifier);
 
     // effectively clearing these is ensuring that

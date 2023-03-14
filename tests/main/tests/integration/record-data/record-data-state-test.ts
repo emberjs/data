@@ -354,7 +354,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     await person.save();
     assert.true(calledUpdate, 'called update if record isnt deleted or new');
     if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
     }
   });
 
@@ -457,7 +457,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     await settled();
     assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
     if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
     }
   });
 });

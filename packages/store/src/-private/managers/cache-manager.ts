@@ -61,9 +61,11 @@ export function legacyCachePut(
 }
 
 /**
- * The CacheManager wraps a Cache
- * enforcing that only the public API surface area
- * is exposed.
+ * The CacheManager wraps a Cache enforcing that only
+ * the public API surface area is exposed.
+ *
+ * Hence, it is the value of `Store.cache`, wrapping
+ * the cache instance returned by `Store.createCache`.
  *
  * This class is the the return value of both the
  * `recordDataFor` function supplied to the store
@@ -104,19 +106,19 @@ export class NonSingletonCacheManager implements Cache {
   version: '2' = '2';
 
   #store: Store;
-  #recordData: Cache | CacheV1;
+  #cache: Cache | CacheV1;
   #identifier: StableRecordIdentifier;
 
   get managedVersion() {
-    return this.#recordData.version || '1';
+    return this.#cache.version || '1';
   }
 
-  constructor(store: Store, recordData: Cache | CacheV1, identifier: StableRecordIdentifier) {
+  constructor(store: Store, cache: Cache | CacheV1, identifier: StableRecordIdentifier) {
     this.#store = store;
-    this.#recordData = recordData;
+    this.#cache = cache;
     this.#identifier = identifier;
 
-    if (this.#isDeprecated(recordData)) {
+    if (this.#isDeprecated(cache)) {
       deprecate(
         `This RecordData uses the deprecated V1 RecordData Spec. Upgrade to V2 to maintain compatibility.`,
         false,
@@ -154,19 +156,19 @@ export class NonSingletonCacheManager implements Cache {
    * @public
    */
   put<T>(doc: StructuredDocument<T> | { data: T }): ResourceDocument {
-    const recordData = this.#recordData;
-    if (this.#isDeprecated(recordData)) {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
       if (doc instanceof Error) {
         // in legacy we don't know how to handle this
         throw doc;
       }
       return legacyCachePut(this.#store, doc as StructuredDataDocument<JsonApiDocument>);
     }
-    return recordData.put(doc);
+    return cache.put(doc);
   }
 
-  #isDeprecated(recordData: Cache | CacheV1): recordData is CacheV1 {
-    let version = recordData.version || '1';
+  #isDeprecated(cache: Cache | CacheV1): cache is CacheV1 {
+    let version = cache.version || '1';
     return version !== this.version;
   }
 
@@ -174,7 +176,7 @@ export class NonSingletonCacheManager implements Cache {
   // =====
 
   /**
-   * Retrieve the identifier for this v1 recordData
+   * Retrieve the identifier for this v1 cache
    *
    * DEPRECATED Caches should not be assumed to be 1:1 with resources
    *
@@ -213,17 +215,17 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
   upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
-    const recordData = this.#recordData;
+    const cache = this.#cache;
     // called by something V1
     if (!isStableIdentifier(identifier)) {
       data = identifier as JsonApiResource;
       hasRecord = data as unknown as boolean;
       identifier = this.#identifier;
     }
-    if (this.#isDeprecated(recordData)) {
-      return recordData.pushData(data, hasRecord);
+    if (this.#isDeprecated(cache)) {
+      return cache.pushData(data, hasRecord);
     }
-    return recordData.upsert(identifier, data, hasRecord);
+    return cache.upsert(identifier, data, hasRecord);
   }
 
   /**
@@ -238,11 +240,11 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {void}
    */
   patch(op: MergeOperation): void {
-    const recordData = this.#recordData;
-    if (this.#isDeprecated(recordData)) {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
       return;
     }
-    recordData.patch(op);
+    cache.patch(op);
   }
 
   /**
@@ -255,38 +257,38 @@ export class NonSingletonCacheManager implements Cache {
    */
   // isCollection is only needed for interop with v1 cache
   update(operation: LocalRelationshipOperation, isResource?: boolean): void {
-    if (this.#isDeprecated(this.#recordData)) {
+    if (this.#isDeprecated(this.#cache)) {
       const cache = this.#store._instanceCache;
       switch (operation.op) {
         case 'addToRelatedRecords':
-          this.#recordData.addToHasMany(
+          this.#cache.addToHasMany(
             operation.field,
-            (operation.value as StableRecordIdentifier[]).map((i) => cache.getRecordData(i)),
+            (operation.value as StableRecordIdentifier[]).map((i) => cache.getResourceCache(i)),
             operation.index
           );
           return;
         case 'removeFromRelatedRecords':
-          this.#recordData.removeFromHasMany(
+          this.#cache.removeFromHasMany(
             operation.field,
-            (operation.value as StableRecordIdentifier[]).map((i) => cache.getRecordData(i))
+            (operation.value as StableRecordIdentifier[]).map((i) => cache.getResourceCache(i))
           );
           return;
         case 'replaceRelatedRecords':
-          this.#recordData.setDirtyHasMany(
+          this.#cache.setDirtyHasMany(
             operation.field,
-            operation.value.map((i) => cache.getRecordData(i))
+            operation.value.map((i) => cache.getResourceCache(i))
           );
           return;
         case 'replaceRelatedRecord':
           if (isResource) {
-            this.#recordData.setDirtyBelongsTo(
+            this.#cache.setDirtyBelongsTo(
               operation.field,
-              operation.value ? cache.getRecordData(operation.value) : null
+              operation.value ? cache.getResourceCache(operation.value) : null
             );
             return;
           }
-          this.#recordData.removeFromHasMany(operation.field, [cache.getRecordData(operation.prior!)]);
-          this.#recordData.addToHasMany(operation.field, [cache.getRecordData(operation.value!)], operation.index);
+          this.#cache.removeFromHasMany(operation.field, [cache.getResourceCache(operation.prior!)]);
+          this.#cache.addToHasMany(operation.field, [cache.getResourceCache(operation.value!)], operation.index);
           return;
         case 'sortRelatedRecords':
           return;
@@ -294,7 +296,7 @@ export class NonSingletonCacheManager implements Cache {
           return;
       }
     } else {
-      this.#recordData.update(operation);
+      this.#cache.update(operation);
     }
   }
 
@@ -315,15 +317,15 @@ export class NonSingletonCacheManager implements Cache {
       options = identifier;
       identifier = this.#identifier;
     }
-    let recordData = this.#recordData;
+    const cache = this.#cache;
 
     // TODO deprecate return value
-    if (this.#isDeprecated(recordData)) {
-      recordData.clientDidCreate();
+    if (this.#isDeprecated(cache)) {
+      cache.clientDidCreate();
       // if a V2 is calling a V1 we need to call both methods
-      return recordData._initRecordCreateOptions(options);
+      return cache._initRecordCreateOptions(options);
     } else {
-      return recordData.clientDidCreate(identifier, options);
+      return cache.clientDidCreate(identifier, options);
     }
   }
 
@@ -339,10 +341,10 @@ export class NonSingletonCacheManager implements Cache {
    * @param options
    */
   _initRecordCreateOptions(options?: Dict<unknown>) {
-    let recordData = this.#recordData;
+    const cache = this.#cache;
 
-    if (this.#isDeprecated(recordData)) {
-      return recordData._initRecordCreateOptions(options);
+    if (this.#isDeprecated(cache)) {
+      return cache._initRecordCreateOptions(options);
     }
   }
 
@@ -355,7 +357,7 @@ export class NonSingletonCacheManager implements Cache {
    * @param identifier
    */
   willCommit(identifier: StableRecordIdentifier): void {
-    this.#recordData.willCommit(identifier || this.#identifier);
+    this.#cache.willCommit(identifier || this.#identifier);
   }
 
   /**
@@ -373,8 +375,8 @@ export class NonSingletonCacheManager implements Cache {
       data = identifier;
       identifier = this.#identifier;
     }
-    let recordData = this.#recordData;
-    this.#isDeprecated(recordData) ? recordData.didCommit(data) : recordData.didCommit(identifier, data);
+    const cache = this.#cache;
+    this.#isDeprecated(cache) ? cache.didCommit(data) : cache.didCommit(identifier, data);
   }
 
   /**
@@ -387,7 +389,7 @@ export class NonSingletonCacheManager implements Cache {
    * @param errors
    */
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]) {
-    this.#recordData.commitWasRejected(identifier || this.#identifier, errors);
+    this.#cache.commitWasRejected(identifier || this.#identifier, errors);
   }
 
   /**
@@ -399,11 +401,11 @@ export class NonSingletonCacheManager implements Cache {
    * @param identifier
    */
   unloadRecord(identifier: StableRecordIdentifier): void {
-    const recordData = this.#recordData;
-    if (this.#isDeprecated(recordData)) {
-      recordData.unloadRecord();
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      cache.unloadRecord();
     } else {
-      recordData.unloadRecord(identifier || this.#identifier);
+      cache.unloadRecord(identifier || this.#identifier);
     }
   }
 
@@ -425,10 +427,8 @@ export class NonSingletonCacheManager implements Cache {
       propertyName = identifier;
       identifier = this.#identifier;
     }
-    let recordData = this.#recordData;
-    return this.#isDeprecated(recordData)
-      ? recordData.getAttr(propertyName)
-      : recordData.getAttr(identifier, propertyName);
+    const cache = this.#cache;
+    return this.#isDeprecated(cache) ? cache.getAttr(propertyName) : cache.getAttr(identifier, propertyName);
   }
 
   /**
@@ -441,11 +441,11 @@ export class NonSingletonCacheManager implements Cache {
    * @param value
    */
   setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
-    let recordData = this.#recordData;
+    const cache = this.#cache;
 
-    this.#isDeprecated(recordData)
-      ? recordData.setDirtyAttribute(propertyName, value)
-      : recordData.setAttr(identifier, propertyName, value);
+    this.#isDeprecated(cache)
+      ? cache.setDirtyAttribute(propertyName, value)
+      : cache.setAttr(identifier, propertyName, value);
   }
 
   /**
@@ -461,11 +461,11 @@ export class NonSingletonCacheManager implements Cache {
    * @param value
    */
   setDirtyAttribute(propertyName: string, value: unknown): void {
-    let recordData = this.#recordData;
+    const cache = this.#cache;
 
-    this.#isDeprecated(recordData)
-      ? recordData.setDirtyAttribute(propertyName, value)
-      : recordData.setAttr(this.#identifier, propertyName, value);
+    this.#isDeprecated(cache)
+      ? cache.setDirtyAttribute(propertyName, value)
+      : cache.setAttr(this.#identifier, propertyName, value);
   }
 
   /**
@@ -480,11 +480,11 @@ export class NonSingletonCacheManager implements Cache {
    * @returns
    */
   changedAttributes(): ChangedAttributesHash {
-    const recordData = this.#recordData;
-    if (this.#isDeprecated(recordData)) {
-      return recordData.changedAttributes();
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      return cache.changedAttributes();
     }
-    return recordData.changedAttrs(this.#identifier);
+    return cache.changedAttrs(this.#identifier);
   }
 
   /**
@@ -497,11 +497,11 @@ export class NonSingletonCacheManager implements Cache {
    * @returns
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
-    const recordData = this.#recordData;
-    if (this.#isDeprecated(recordData)) {
-      return recordData.changedAttributes();
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      return cache.changedAttributes();
     }
-    return recordData.changedAttrs(identifier);
+    return cache.changedAttrs(identifier);
   }
 
   /**
@@ -515,10 +515,8 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {boolean}
    */
   hasChangedAttributes(): boolean {
-    const recordData = this.#recordData;
-    return this.#isDeprecated(recordData)
-      ? recordData.hasChangedAttributes()
-      : recordData.hasChangedAttrs(this.#identifier);
+    const cache = this.#cache;
+    return this.#isDeprecated(cache) ? cache.hasChangedAttributes() : cache.hasChangedAttrs(this.#identifier);
   }
 
   /**
@@ -530,8 +528,8 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
-    const recordData = this.#recordData;
-    return this.#isDeprecated(recordData) ? recordData.hasChangedAttributes() : recordData.hasChangedAttrs(identifier);
+    const cache = this.#cache;
+    return this.#isDeprecated(cache) ? cache.hasChangedAttributes() : cache.hasChangedAttrs(identifier);
   }
 
   /**
@@ -545,10 +543,8 @@ export class NonSingletonCacheManager implements Cache {
    * @returns
    */
   rollbackAttributes() {
-    const recordData = this.#recordData;
-    return this.#isDeprecated(recordData)
-      ? recordData.rollbackAttributes()
-      : recordData.rollbackAttrs(this.#identifier);
+    const cache = this.#cache;
+    return this.#isDeprecated(cache) ? cache.rollbackAttributes() : cache.rollbackAttrs(this.#identifier);
   }
 
   /**
@@ -560,8 +556,8 @@ export class NonSingletonCacheManager implements Cache {
    * @returns the names of attributes that were restored
    */
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
-    const recordData = this.#recordData;
-    return this.#isDeprecated(recordData) ? recordData.rollbackAttributes() : recordData.rollbackAttrs(identifier);
+    const cache = this.#cache;
+    return this.#isDeprecated(cache) ? cache.rollbackAttributes() : cache.rollbackAttrs(identifier);
   }
 
   // Relationships
@@ -587,14 +583,14 @@ export class NonSingletonCacheManager implements Cache {
     propertyName: string,
     isCollection = false
   ): SingleResourceRelationship | CollectionResourceRelationship {
-    let recordData = this.#recordData;
+    const cache = this.#cache;
 
-    if (this.#isDeprecated(recordData)) {
+    if (this.#isDeprecated(cache)) {
       let isBelongsTo = !isCollection;
-      return isBelongsTo ? recordData.getBelongsTo(propertyName) : recordData.getHasMany(propertyName);
+      return isBelongsTo ? cache.getBelongsTo(propertyName) : cache.getHasMany(propertyName);
     }
 
-    return recordData.getRelationship(identifier, propertyName);
+    return cache.getRelationship(identifier, propertyName);
   }
 
   /**
@@ -609,13 +605,13 @@ export class NonSingletonCacheManager implements Cache {
    * @returns single resource relationship object
    */
   getBelongsTo(propertyName: string): SingleResourceRelationship {
-    let recordData = this.#recordData;
+    const cache = this.#cache;
 
-    if (this.#isDeprecated(recordData)) {
-      return recordData.getBelongsTo(propertyName);
+    if (this.#isDeprecated(cache)) {
+      return cache.getBelongsTo(propertyName);
     } else {
       let identifier = this.#identifier;
-      return recordData.getRelationship(identifier, propertyName) as SingleResourceRelationship;
+      return cache.getRelationship(identifier, propertyName) as SingleResourceRelationship;
     }
   }
 
@@ -631,13 +627,13 @@ export class NonSingletonCacheManager implements Cache {
    * @returns single resource relationship object
    */
   getHasMany(propertyName: string): CollectionResourceRelationship {
-    let recordData = this.#recordData;
+    const cache = this.#cache;
 
-    if (this.#isDeprecated(recordData)) {
-      return recordData.getHasMany(propertyName);
+    if (this.#isDeprecated(cache)) {
+      return cache.getHasMany(propertyName);
     } else {
       let identifier = this.#identifier;
-      return recordData.getRelationship(identifier, propertyName) as CollectionResourceRelationship;
+      return cache.getRelationship(identifier, propertyName) as CollectionResourceRelationship;
     }
   }
 
@@ -653,11 +649,11 @@ export class NonSingletonCacheManager implements Cache {
    * @param value
    */
   setDirtyBelongsTo(propertyName: string, value: NonSingletonCacheManager | null) {
-    const recordData = this.#recordData;
+    const cache = this.#cache;
 
-    this.#isDeprecated(recordData)
-      ? recordData.setDirtyBelongsTo(propertyName, value)
-      : recordData.update({
+    this.#isDeprecated(cache)
+      ? cache.setDirtyBelongsTo(propertyName, value)
+      : cache.update({
           op: 'replaceRelatedRecord',
           record: this.#identifier,
           field: propertyName,
@@ -681,11 +677,11 @@ export class NonSingletonCacheManager implements Cache {
    */
   addToHasMany(propertyName: string, value: NonSingletonCacheManager[], idx?: number): void {
     const identifier = this.#identifier;
-    const recordData = this.#recordData;
+    const cache = this.#cache;
 
-    this.#isDeprecated(recordData)
-      ? recordData.addToHasMany(propertyName, value, idx)
-      : recordData.update({
+    this.#isDeprecated(cache)
+      ? cache.addToHasMany(propertyName, value, idx)
+      : cache.update({
           op: 'addToRelatedRecords',
           field: propertyName,
           record: identifier,
@@ -706,11 +702,11 @@ export class NonSingletonCacheManager implements Cache {
    */
   removeFromHasMany(propertyName: string, value: Cache[]): void {
     const identifier = this.#identifier;
-    const recordData = this.#recordData;
+    const cache = this.#cache;
 
-    this.#isDeprecated(recordData)
-      ? recordData.removeFromHasMany(propertyName, value)
-      : recordData.update({
+    this.#isDeprecated(cache)
+      ? cache.removeFromHasMany(propertyName, value)
+      : cache.update({
           op: 'removeFromRelatedRecords',
           record: identifier,
           field: propertyName,
@@ -730,11 +726,11 @@ export class NonSingletonCacheManager implements Cache {
    * @param value
    */
   setDirtyHasMany(propertyName: string, value: NonSingletonCacheManager[]) {
-    let recordData = this.#recordData;
+    const cache = this.#cache;
 
-    this.#isDeprecated(recordData)
-      ? recordData.setDirtyHasMany(propertyName, value)
-      : recordData.update({
+    this.#isDeprecated(cache)
+      ? cache.setDirtyHasMany(propertyName, value)
+      : cache.update({
           op: 'replaceRelatedRecords',
           record: this.#identifier,
           field: propertyName,
@@ -759,10 +755,8 @@ export class NonSingletonCacheManager implements Cache {
       isDeleted = identifier as boolean;
       identifier = this.#identifier;
     }
-    const recordData = this.#recordData;
-    this.#isDeprecated(recordData)
-      ? recordData.setIsDeleted(isDeleted)
-      : recordData.setIsDeleted(identifier, isDeleted);
+    const cache = this.#cache;
+    this.#isDeprecated(cache) ? cache.setIsDeleted(isDeleted) : cache.setIsDeleted(identifier, isDeleted);
   }
 
   /**
@@ -774,7 +768,7 @@ export class NonSingletonCacheManager implements Cache {
    * @returns
    */
   getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
-    return this.#recordData.getErrors(identifier || this.#identifier);
+    return this.#cache.getErrors(identifier || this.#identifier);
   }
 
   /**
@@ -786,10 +780,10 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean {
-    const recordData = this.#recordData;
-    return this.#isDeprecated(recordData)
-      ? recordData.isEmpty?.(identifier || this.#identifier) || false
-      : recordData.isEmpty(identifier || this.#identifier);
+    const cache = this.#cache;
+    return this.#isDeprecated(cache)
+      ? cache.isEmpty?.(identifier || this.#identifier) || false
+      : cache.isEmpty(identifier || this.#identifier);
   }
 
   /**
@@ -802,7 +796,7 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean {
-    return this.#recordData.isNew(identifier || this.#identifier);
+    return this.#cache.isNew(identifier || this.#identifier);
   }
 
   /**
@@ -815,7 +809,7 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean {
-    return this.#recordData.isDeleted(identifier || this.#identifier);
+    return this.#cache.isDeleted(identifier || this.#identifier);
   }
 
   /**
@@ -828,7 +822,7 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
-    return this.#recordData.isDeletionCommitted(identifier || this.#identifier);
+    return this.#cache.isDeletionCommitted(identifier || this.#identifier);
   }
 }
 

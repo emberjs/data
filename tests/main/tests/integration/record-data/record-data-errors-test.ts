@@ -510,7 +510,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         () => {},
         (err) => {}
       );
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
     });
 
     test('Record Data adapter errors', async function (assert) {
@@ -560,7 +560,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         () => {},
         (err) => {}
       );
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
     });
 
     test('Getting errors from Record Data shows up on the record', async function (assert) {
@@ -635,7 +635,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
       let lastNameError = person.errors.errorsFor('lastName').at(0);
       assert.strictEqual(lastNameError.attribute, 'lastName', 'error shows up on lastName');
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
     });
   });
 }

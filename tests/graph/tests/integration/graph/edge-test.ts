@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
-import { recordDataFor } from '@ember-data/store/-private';
+import { peekCache, recordIdentifierFor } from '@ember-data/store/-private';
 
 import { stateOf } from './edge-removal/setup';
 
@@ -43,7 +43,7 @@ module('Integration | Graph | Edges', function (hooks) {
       const bestFriend = graph.get(identifier, 'bestFriend');
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We have no record data instance afer accessing the relationships for this identifier'
       );
@@ -51,7 +51,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.ok(bestFriend, 'We can access a specific relationship');
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after accessing a named relationship'
       );
@@ -66,7 +66,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after push of only an identifier within a relationship'
       );
@@ -75,7 +75,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
-      store.push({
+      const record = store.push({
         data: {
           type: 'user',
           id: '1',
@@ -84,10 +84,12 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        peekCache(identifier)?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );
+      assert.strictEqual(record.name, 'Chris', 'We have the right name');
+      assert.strictEqual(recordIdentifierFor(record), identifier, 'The identifiers are equivalent');
     });
 
     test('working with a sync belongsTo relationship for an identifier does not instantiate record-data for that identifier', async function (assert) {
@@ -113,7 +115,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We have no record data instance after push of only an identifier within a relationship'
       );
@@ -137,7 +139,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier3], 'Our current state is correct after canonical update');
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after updating the canonical state'
       );
@@ -156,7 +158,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2], 'Our current state is correct after local update');
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after updating the local state'
       );
@@ -170,7 +172,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        peekCache(identifier)?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );
@@ -199,7 +201,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We have no record data instance after push of only an identifier within a relationship'
       );
@@ -223,7 +225,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier3], 'Our current state is correct after canonical update');
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after updating the canonical state'
       );
@@ -242,7 +244,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2], 'Our current state is correct after local update');
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after updating the local state'
       );
@@ -256,7 +258,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        peekCache(identifier)?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );
@@ -290,7 +292,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We have no record data instance after push of only an identifier within a relationship'
       );
@@ -317,7 +319,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2, identifier3], 'Our current state is correct after canonical update');
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after updating the canonical state'
       );
@@ -341,7 +343,7 @@ module('Integration | Graph | Edges', function (hooks) {
       );
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after updating the local state'
       );
@@ -355,7 +357,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        peekCache(identifier)?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );
@@ -389,7 +391,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We have no record data instance after push of only an identifier within a relationship'
       );
@@ -416,7 +418,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2, identifier3], 'Our current state is correct after canonical update');
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after updating the canonical state'
       );
@@ -440,7 +442,7 @@ module('Integration | Graph | Edges', function (hooks) {
       );
 
       assert.strictEqual(
-        recordDataFor(identifier),
+        peekCache(identifier),
         null,
         'We still have no record data instance after updating the local state'
       );
@@ -454,7 +456,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.strictEqual(
-        recordDataFor(identifier)?.getAttr(identifier, 'name'),
+        peekCache(identifier)?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );

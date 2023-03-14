@@ -2,8 +2,8 @@ import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
-import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { recordDataFor } from '@ember-data/store/-private';
+import { recordIdentifierFor } from '@ember-data/store';
+import { peekCache } from '@ember-data/store/-private';
 
 import { computedMacroWithOptionalParams } from './util';
 
@@ -125,7 +125,7 @@ function attr(type, options) {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
-      return recordDataFor(this).getAttr(recordIdentifierFor(this), key);
+      return peekCache(this).getAttr(recordIdentifierFor(this), key);
     },
     set(key, value) {
       if (DEBUG) {
@@ -140,10 +140,11 @@ function attr(type, options) {
         !this.currentState.isDeleted
       );
       const identifier = recordIdentifierFor(this);
-      const recordData = storeFor(this)._instanceCache.getRecordData(identifier);
-      let currentValue = recordData.getAttr(identifier, key);
+      const cache = peekCache(this);
+
+      let currentValue = cache.getAttr(identifier, key);
       if (currentValue !== value) {
-        recordData.setAttr(identifier, key, value);
+        cache.setAttr(identifier, key, value);
 
         if (!this.isValid) {
           const { errors } = this;

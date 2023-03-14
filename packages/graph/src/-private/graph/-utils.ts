@@ -2,7 +2,7 @@ import { assert, inspect, warn } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import type { Store } from '@ember-data/store/-private';
-import { recordDataFor as peekRecordData } from '@ember-data/store/-private';
+import { peekCache } from '@ember-data/store/-private';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -74,8 +74,8 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
   if (!identifier.id) {
     return true;
   }
-  const recordData = peekRecordData(identifier);
-  return Boolean(recordData?.isNew(identifier));
+  const cache = peekCache(identifier);
+  return Boolean(cache?.isNew(identifier));
 }
 
 export function isBelongsTo(
