@@ -13,8 +13,8 @@ import { SchemaDefinitionService } from './schema-definition-service';
 /**
  * CacheStoreWrapper provides encapsulated API access to the minimal
  * subset of the Store's functionality that Cache implementations
- * should interact with. It is provided to the Store's `createCache`
- * hook.
+ * should interact with. It is provided to the Store's `createRecordDataFor`
+ * and `createCache` hooks.
  *
  * Cache implementations should not need more than this API provides.
  *
@@ -159,6 +159,13 @@ export interface LegacyCacheStoreWrapper {
   notifyHasManyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
 
   /**
+   * [DEPRECATED] RecordData has become Cache and Cache is now always
+   * a singleton.
+   *
+   * You may access the Cache via Store.cache. If you are interacting
+   * with this wrapped from the Cache you are the Cache instance and
+   * thus do not need to call this anymore.
+   *
    * Used to retrieve the associated RecordData for a given identifier.
    *
    * To generate a RecordData for a new client-side resource that does not
@@ -170,6 +177,7 @@ export interface LegacyCacheStoreWrapper {
    * correct "newly created" state.
    *
    * @method recordDataFor
+   * @deprecated
    * @param {StableRecordIdentifier} identifier
    * @return {Cache} the RecordData cache instance associated with the identifier
    * @public
