@@ -254,7 +254,7 @@ export class InstanceCache {
         `Cannot create a new record instance while the store is being destroyed`,
         !this.store.isDestroying && !this.store.isDestroyed
       );
-      const cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK ? this.getResourceCache(identifier) : this.store.cache;
+      const cache = this.getResourceCache(identifier);
 
       if (DEPRECATE_INSTANTIATE_RECORD_ARGS) {
         if (this.store.instantiateRecord.length > 2) {
@@ -296,7 +296,11 @@ export class InstanceCache {
 
   getResourceCache(identifier: StableRecordIdentifier): Cache {
     if (!DEPRECATE_V1_RECORD_DATA) {
-      return this.store.cache;
+      const cache = this.store.cache;
+      setCacheFor(identifier, cache);
+
+      this.__instances.resourceCache.set(identifier, cache);
+      return cache;
     }
 
     let cache = this.__instances.resourceCache.get(identifier);

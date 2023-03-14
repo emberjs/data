@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
-import { peekCache } from '@ember-data/store/-private';
+import { peekCache, recordIdentifierFor } from '@ember-data/store/-private';
 
 import { stateOf } from './edge-removal/setup';
 
@@ -75,7 +75,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
-      store.push({
+      const record = store.push({
         data: {
           type: 'user',
           id: '1',
@@ -88,6 +88,8 @@ module('Integration | Graph | Edges', function (hooks) {
         'Chris',
         'We lazily associate the correct record data instance'
       );
+      assert.strictEqual(record.name, 'Chris', 'We have the right name');
+      assert.strictEqual(recordIdentifierFor(record), identifier, 'The identifiers are equivalent');
     });
 
     test('working with a sync belongsTo relationship for an identifier does not instantiate record-data for that identifier', async function (assert) {
