@@ -59,7 +59,7 @@ module('RequestManager | Immutability', function () {
     };
     manager.use([handler]);
 
-    const { data: headers } = await manager.request({ url: '/foo', headers: new Headers([['foo', 'bar']]) });
+    const { content: headers } = await manager.request({ url: '/foo', headers: new Headers([['foo', 'bar']]) });
     assert.deepEqual(headers, [
       ['foo', 'bar'],
       ['house', 'home'],

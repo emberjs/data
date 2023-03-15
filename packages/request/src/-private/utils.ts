@@ -24,7 +24,7 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
         [STRUCTURED]: true,
         request: owner.request,
         response: doc.response,
-        data: doc.data,
+        content: doc.content,
       };
       outbound.resolve(document);
     },
@@ -48,21 +48,21 @@ function isDoc<T>(doc: T | StructuredDataDocument<T>): doc is StructuredDataDocu
 
 export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbound: DeferredFuture<T>): Future<T> {
   inbound.then(
-    (data: T) => {
+    (content: T) => {
       if (owner.controller.signal.aborted) {
         // the next function did not respect the signal, we handle it here
         outbound.reject(new DOMException((owner.controller.signal.reason as string) || 'AbortError'));
         return;
       }
-      if (isDoc(data)) {
+      if (isDoc(content)) {
         owner.setStream(owner.god.stream);
-        data = data.data;
+        content = content.content;
       }
       const document = {
         [STRUCTURED]: true,
         request: owner.request,
         response: owner.getResponse(),
-        data,
+        content,
       };
       outbound.resolve(document);
     },

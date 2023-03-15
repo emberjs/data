@@ -4,7 +4,7 @@
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function (defaults) {
-  const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
+  const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : '4.12';
   let app = new EmberApp(defaults, {
     emberData: {
       compatWith,

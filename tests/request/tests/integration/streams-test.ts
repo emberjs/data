@@ -28,7 +28,7 @@ module('RequestManager | Streams', function () {
     assert.true(stream instanceof ReadableStream, 'we receive the stream');
     const result = await future;
     assert.deepEqual(
-      result.data,
+      result.content,
       {
         data: {
           type: 'example',
@@ -49,7 +49,7 @@ module('RequestManager | Streams', function () {
 
         context.setStream(future.getStream());
 
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {
@@ -72,7 +72,7 @@ module('RequestManager | Streams', function () {
     assert.true(stream instanceof ReadableStream, 'we receive the stream');
     const result = await future;
     assert.deepEqual(
-      result.data,
+      result.content,
       {
         data: {
           type: 'example',
@@ -94,7 +94,7 @@ module('RequestManager | Streams', function () {
         assert.true(stream instanceof ReadableStream, 'we receive the stream');
         // we don't set stream
 
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {
@@ -117,7 +117,7 @@ module('RequestManager | Streams', function () {
     assert.strictEqual(stream, null, 'we receive the null as the stream');
     const result = await future;
     assert.deepEqual(
-      result.data,
+      result.content,
       {
         data: {
           type: 'example',
@@ -135,7 +135,7 @@ module('RequestManager | Streams', function () {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         const future = next(context.request);
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {
@@ -158,7 +158,7 @@ module('RequestManager | Streams', function () {
     assert.true(stream instanceof ReadableStream, 'we receive the stream');
     const result = await future;
     assert.deepEqual(
-      result.data,
+      result.content,
       {
         data: {
           type: 'example',
@@ -197,7 +197,7 @@ module('RequestManager | Streams', function () {
     assert.true(stream instanceof ReadableStream, 'we receive the stream');
     const result = await future;
     assert.deepEqual(
-      result.data,
+      result.content,
       {
         data: {
           type: 'example',
@@ -216,7 +216,7 @@ module('RequestManager | Streams', function () {
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         const a = await next(context.request);
         const b = await next(context.request);
-        return a.data || b.data;
+        return a.content || b.content;
       },
     };
     const handler2: Handler = {
@@ -239,7 +239,7 @@ module('RequestManager | Streams', function () {
     assert.strictEqual(stream, null, 'we do not receive the stream');
     const result = await future;
     assert.deepEqual(
-      result.data,
+      result.content,
       {
         data: {
           type: 'example',
@@ -281,7 +281,7 @@ module('RequestManager | Streams', function () {
     assert.true(stream instanceof ReadableStream, 'we receive the stream');
     const result = await future;
     assert.deepEqual(
-      result.data,
+      result.content,
       {
         data: {
           type: 'example',

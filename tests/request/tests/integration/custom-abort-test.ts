@@ -46,7 +46,7 @@ module('RequestManager | Custom Abort', function () {
         assert.strictEqual(context.request.signal, controller.signal, 'we receive the correct signal');
         // @ts-expect-error
         assert.strictEqual(context.request.controller, undefined, 'we do not receive the controller');
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {
@@ -84,7 +84,7 @@ module('RequestManager | Custom Abort', function () {
         const controller = new AbortController();
         const future = next(Object.assign({ controller }, context.request, { signal: controller.signal }));
 
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {
@@ -119,7 +119,7 @@ module('RequestManager | Custom Abort', function () {
         const future = next(Object.assign({ controller }, context.request));
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler1');
 
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {

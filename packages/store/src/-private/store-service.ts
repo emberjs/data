@@ -21,8 +21,10 @@ import {
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1_RECORD_DATA,
 } from '@ember-data/private-build-infra/deprecations';
+import type { RequestManager } from '@ember-data/request';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+// import { Future, RequestInfo } from '@ember-data/request/-private/types';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -186,6 +188,33 @@ class Store {
    */
   declare notifications: NotificationManager;
   declare identifierCache: IdentifierCache;
+  /**
+   * Provides access to the requestManager instance associated
+   * with this Store instance.
+   *
+   * When using `ember-data` this property is automatically
+   * set to an instance of `RequestManager`. When not using `ember-data`
+   * you must configure this property yourself, either by declaring
+   * it as a service or by initializing it.
+   *
+   * ```ts
+   * import Store from '@ember-data/store';
+   * import { RequestManager } from '@ember-data/request';
+   * import { Fetch } from '@ember/data/request/fetch';
+   *
+   * class extends Store {
+   *   constructor() {
+   *     super(...arguments);
+   *     this.requestManager = new RequestManager();
+   *     this.requestManager.use([Fetch]);
+   *   }
+   * }
+   * ```
+   *
+   * @public
+   * @property {RequestManager} requestManager
+   */
+  declare requestManager: RequestManager;
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
   declare _modelFactoryCache: Dict<unknown>;
@@ -327,6 +356,22 @@ class Store {
   getRequestStateService(): RequestCache {
     return this._fetchManager.requestCache;
   }
+
+  /**
+   * Issue a request via the configured RequestManager,
+   * inserting the response into the cache and handing
+   * back a Future which resolves to a ResponseDocument
+   *
+   * @method request
+   * @returns {Future}
+   * @public
+   */
+  // request<T>(req: RequestInfo): Future<ResponseDocument<T>> {
+  //   return this.requestManager.request(req).then(
+  //     (doc) => {},
+  //     (error) => {}
+  //   );
+  // }
 
   /**
    * A hook which an app or addon may implement. Called when
@@ -2140,7 +2185,7 @@ class Store {
     @param {Object} jsonApiDoc
     @return {StableRecordIdentifier|Array<StableRecordIdentifier>} identifiers for the primary records that had data loaded
   */
-  _push(jsonApiDoc): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
+  _push(jsonApiDoc: JsonApiDocument): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
@@ -2157,9 +2202,9 @@ class Store {
     let ret;
     this._join(() => {
       if (DEPRECATE_V1_RECORD_DATA) {
-        ret = legacyCachePut(this, { data: jsonApiDoc });
+        ret = legacyCachePut(this, { content: jsonApiDoc });
       } else {
-        ret = this.cache.put({ data: jsonApiDoc });
+        ret = this.cache.put({ content: jsonApiDoc });
       }
     });
 

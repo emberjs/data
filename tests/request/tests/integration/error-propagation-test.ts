@@ -31,8 +31,8 @@ module('RequestManager | Error Propagation', function () {
       },
     };
     manager.use([catchingHandler, throwingHandler]);
-    const { data } = await manager.request({ url: '/wat' });
-    assert.strictEqual(data, 'We are happy', 'we caught and handled the error');
+    const { content } = await manager.request({ url: '/wat' });
+    assert.strictEqual(content, 'We are happy', 'we caught and handled the error');
   });
 
   test('Errors thrown by a handler curry the request properly', async function (assert) {

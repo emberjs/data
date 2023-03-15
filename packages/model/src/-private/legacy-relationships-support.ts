@@ -89,8 +89,8 @@ export class LegacySupport {
     fastPush(currentState, identifiers);
   }
 
-  updateCache(operation: LocalRelationshipOperation): void {
-    this.cache.update(operation);
+  mutate(mutation: LocalRelationshipOperation): void {
+    this.cache.mutate(mutation);
   }
 
   _findBelongsTo(
@@ -177,7 +177,7 @@ export class LegacySupport {
   }
 
   setDirtyBelongsTo(key: string, value: RecordInstance | null) {
-    return this.cache.update(
+    return this.cache.mutate(
       {
         op: 'replaceRelatedRecord',
         record: this.identifier,

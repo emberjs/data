@@ -114,7 +114,7 @@ A Future resolves or rejects with a `StructuredDocument`.
 interface StructuredDocument<T> {
   request: RequestInfo;
   response: ResponseInfo | null;
-  data?: T;
+  content?: T;
   error?: Error;
 }
 ```
@@ -176,7 +176,7 @@ the download is still underway might look like the following, where we use
 [`response.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/Response/clone) to `tee` the `ReadableStream` into two streams.
 
 A more efficient handler might read from the response stream, building up the
-response data before passing along the chunk downstream.
+response content before passing along the chunk downstream.
 
 ```ts
 const FetchHandler = {
@@ -242,11 +242,11 @@ Of course, any handler may choose to read and handle the stream, and return eith
 <details>
   <summary><strong>Automatic Currying of Stream and Response</strong></summary><br>
 
-In order to simplify the common case for handlers which decorate a request, if `next` is called only a single time and `setResponse` was never called by the handler, the response set by the next handler in the chain will be applied to that handler's outcome. For instance, this makes the following pattern possible `return (await next(<req>)).data;`.
+In order to simplify the common case for handlers which decorate a request, if `next` is called only a single time and `setResponse` was never called by the handler, the response set by the next handler in the chain will be applied to that handler's outcome. For instance, this makes the following pattern possible `return (await next(<req>)).content;`.
 
 Similarly, if `next` is called only a single time and neither `setStream` nor `getStream` was called, we automatically curry the stream from the future returned by `next` onto the future returned by the handler.
 
-Finally, if the return value of a handler is a `Future`, we curry `data` and `errors` as well, thus enabling the simplest form `return next(<req>)`.
+Finally, if the return value of a handler is a `Future`, we curry `content` and `errors` as well, thus enabling the simplest form `return next(<req>)`.
 
 In the case of the `Future` being returned, `Stream` proxying is automatic and immediate and does not wait for the `Future` to resolve.
 
@@ -385,7 +385,7 @@ import { executeNextHandler } from './utils';
  * interface StructuredDataDocument<T> {
  *   request: ImmutableRequestInfo;
  *   response: ImmutableResponseInfo;
- *   data: T;
+ *   content: T;
  * }
  * interface StructuredErrorDocument extends Error {
  *   request: ImmutableRequestInfo;

@@ -2,7 +2,9 @@ import { assert, deprecate } from '@ember/debug';
 
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import { StructuredDataDocument } from '@ember-data/request/-private/types';
+import { Change } from '@ember-data/types/cache/change';
 import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type {
   CollectionResourceRelationship,
@@ -18,9 +20,9 @@ import type Store from '../store-service';
 
 export function legacyCachePut(
   store: Store,
-  doc: StructuredDataDocument<JsonApiDocument> | { data: JsonApiDocument }
+  doc: StructuredDataDocument<JsonApiDocument> | { content: JsonApiDocument }
 ): ResourceDocument {
-  const jsonApiDoc = doc.data;
+  const jsonApiDoc = doc.content;
   let ret: ResourceDocument;
   store._join(() => {
     let included = jsonApiDoc.included;
@@ -132,6 +134,14 @@ export class NonSingletonCacheManager implements Cache {
     }
   }
 
+  #isDeprecated(cache: Cache | CacheV1): cache is CacheV1 {
+    let version = cache.version || '1';
+    return version !== this.version;
+  }
+
+  // Cache Management
+  // ================
+
   /**
    * Cache the response to a request
    *
@@ -147,7 +157,7 @@ export class NonSingletonCacheManager implements Cache {
    * Note that in order to support inserting arbitrary data
    * to the cache that did not originate from a request `put`
    * should expect to sometimes encounter a document with only
-   * a `data` member and therefor must not assume the existence
+   * a `content` member and therefor must not assume the existence
    * of `request` and `response` on the document.
    *
    * @method put
@@ -155,21 +165,300 @@ export class NonSingletonCacheManager implements Cache {
    * @returns {ResourceDocument}
    * @public
    */
-  put<T>(doc: StructuredDocument<T> | { data: T }): ResourceDocument {
+  put<T>(doc: StructuredDocument<T> | { content: T }): ResourceDocument {
     const cache = this.#cache;
     if (this.#isDeprecated(cache)) {
       if (doc instanceof Error) {
         // in legacy we don't know how to handle this
         throw doc;
       }
-      return legacyCachePut(this.#store, doc as StructuredDataDocument<JsonApiDocument>);
+      return legacyCachePut(this.#store, doc as { content: JsonApiDocument });
     }
     return cache.put(doc);
   }
 
-  #isDeprecated(cache: Cache | CacheV1): cache is CacheV1 {
-    let version = cache.version || '1';
-    return version !== this.version;
+  /**
+   * Perform an operation on the cache to update the remote state.
+   *
+   * Note: currently the only valid operation is a MergeOperation
+   * which occurs when a collision of identifiers is detected.
+   *
+   * @method patch
+   * @public
+   * @param op the operation to perform
+   * @returns {void}
+   */
+  patch(op: MergeOperation): void {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      return;
+    }
+    cache.patch(op);
+  }
+
+  /**
+   * Update resource data with a local mutation. Currently supports operations
+   * on relationships only.
+   *
+   * @method mutate
+   * @public
+   * @param mutation
+   */
+  // isResource is only needed for interop with v1 cache
+  mutate(mutation: LocalRelationshipOperation, isResource?: boolean): void {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      const instanceCache = this.#store._instanceCache;
+      switch (mutation.op) {
+        case 'addToRelatedRecords':
+          cache.addToHasMany(
+            mutation.field,
+            (mutation.value as StableRecordIdentifier[]).map((i) => instanceCache.getResourceCache(i)),
+            mutation.index
+          );
+          return;
+        case 'removeFromRelatedRecords':
+          cache.removeFromHasMany(
+            mutation.field,
+            (mutation.value as StableRecordIdentifier[]).map((i) => instanceCache.getResourceCache(i))
+          );
+          return;
+        case 'replaceRelatedRecords':
+          cache.setDirtyHasMany(
+            mutation.field,
+            mutation.value.map((i) => instanceCache.getResourceCache(i))
+          );
+          return;
+        case 'replaceRelatedRecord':
+          if (isResource) {
+            cache.setDirtyBelongsTo(
+              mutation.field,
+              mutation.value ? instanceCache.getResourceCache(mutation.value) : null
+            );
+            return;
+          }
+          cache.removeFromHasMany(mutation.field, [instanceCache.getResourceCache(mutation.prior!)]);
+          cache.addToHasMany(mutation.field, [instanceCache.getResourceCache(mutation.value!)], mutation.index);
+          return;
+        case 'sortRelatedRecords':
+          return;
+        default:
+          return;
+      }
+    } else {
+      cache.mutate(mutation);
+    }
+  }
+
+  /**
+   * Peek resource data from the Cache.
+   *
+   * In development, if the return value
+   * is JSON the return value
+   * will be deep-cloned and deep-frozen
+   * to prevent mutation thereby enforcing cache
+   * Immutability.
+   *
+   * This form of peek is useful for implementations
+   * that want to feed raw-data from cache to the UI
+   * or which want to interact with a blob of data
+   * directly from the presentation cache.
+   *
+   * An implementation might want to do this because
+   * de-referencing records which read from their own
+   * blob is generally safer because the record does
+   * not require retainining connections to the Store
+   * and Cache to present data on a per-field basis.
+   *
+   * This generally takes the place of `getAttr` as
+   * an API and may even take the place of `getRelationship`
+   * depending on implementation specifics, though this
+   * latter usage is less recommended due to the advantages
+   * of the Graph handling necessary entanglements and
+   * notifications for relational data.
+   *
+   * @method peek
+   * @public
+   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @returns {ResourceDocument | ResourceBlob | null} the known resource data
+   */
+  peek(identifier: StableRecordIdentifier): unknown;
+  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      throw new Error(`Expected cache to implement peek`);
+    }
+    return cache.peek(identifier);
+  }
+
+  /**
+   * Peek the Cache for the existing request data associated with
+   * a cacheable request
+   *
+   * @method peekRequest
+   * @param {StableDocumentIdentifier}
+   * @returns {StableDocumentIdentifier | null}
+   * @public
+   */
+  peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      throw new Error(`Expected cache to implement peekRequest`);
+    }
+    return cache.peekRequest(identifier);
+  }
+
+  /**
+   * Push resource data from a remote source into the cache for this identifier
+   *
+   * @method upsert
+   * @public
+   * @param identifier
+   * @param data
+   * @param hasRecord
+   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   */
+  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord: boolean): void | string[] {
+    const cache = this.#cache;
+    // called by something V1
+    if (!isStableIdentifier(identifier)) {
+      data = identifier as JsonApiResource;
+      hasRecord = data as unknown as boolean;
+      identifier = this.#identifier;
+    }
+    if (this.#isDeprecated(cache)) {
+      return cache.pushData(data, hasRecord);
+    }
+    return cache.upsert(identifier, data, hasRecord);
+  }
+
+  // Cache Forking Support
+  // =====================
+
+  /**
+   * Create a fork of the cache from the current state.
+   *
+   * Applications should typically not call this method themselves,
+   * preferring instead to fork at the Store level, which will
+   * utilize this method to fork the cache.
+   *
+   * @method fork
+   * @public
+   * @returns Promise<Cache>
+   */
+  fork(): Promise<Cache> {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      throw new Error(`Expected cache to implement fork`);
+    }
+    return cache.fork();
+  }
+
+  /**
+   * Merge a fork back into a parent Cache.
+   *
+   * Applications should typically not call this method themselves,
+   * preferring instead to merge at the Store level, which will
+   * utilize this method to merge the caches.
+   *
+   * @method merge
+   * @param {Cache} cache
+   * @public
+   * @returns Promise<void>
+   */
+  merge(updates: Cache): Promise<void> {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      throw new Error(`Expected cache to implement merge`);
+    }
+    return cache.merge(updates);
+  }
+
+  /**
+   * Generate the list of changes applied to all
+   * record in the store.
+   *
+   * Each individual resource or document that has
+   * been mutated should be described as an individual
+   * `Change` entry in the returned array.
+   *
+   * A `Change` is described by an object containing up to
+   * three properties: (1) the `identifier` of the entity that
+   * changed; (2) the `op` code of that change being one of
+   * `upsert` or `remove`, and if the op is `upsert` a `patch`
+   * containing the data to merge into the cache for the given
+   * entity.
+   *
+   * This `patch` is opaque to the Store but should be understood
+   * by the Cache and may expect to be utilized by an Adapter
+   * when generating data during a `save` operation.
+   *
+   * It is generally recommended that the `patch` contain only
+   * the updated state, ignoring fields that are unchanged
+   *
+   * ```ts
+   * interface Change {
+   *  identifier: StableRecordIdentifier | StableDocumentIdentifier;
+   *  op: 'upsert' | 'remove';
+   *  patch?: unknown;
+   * }
+   * ```
+   *
+   * @method diff
+   * @public
+   */
+  diff(): Promise<Change[]> {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      throw new Error(`Expected cache to implement diff`);
+    }
+    return cache.diff();
+  }
+
+  // SSR Support
+  // ===========
+
+  /**
+   * Serialize the entire contents of the Cache into a Stream
+   * which may be fed back into a new instance of the same Cache
+   * via `cache.hydrate`.
+   *
+   * @method dump
+   * @returns {Promise<ReadableStream>}
+   * @public
+   */
+  dump(): Promise<ReadableStream<unknown>> {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      throw new Error(`Expected cache to implement dump`);
+    }
+    return cache.dump();
+  }
+
+  /**
+   * hydrate a Cache from a Stream with content previously serialized
+   * from another instance of the same Cache, resolving when hydration
+   * is complete.
+   *
+   * This method should expect to be called both in the context of restoring
+   * the Cache during application rehydration after SSR **AND** at unknown
+   * times during the lifetime of an already booted application when it is
+   * desired to bulk-load additional information into the cache. This latter
+   * behavior supports optimizing pre/fetching of data for route transitions
+   * via data-only SSR modes.
+   *
+   * @method hydrate
+   * @param {ReadableStream} stream
+   * @returns {Promise<void>}
+   * @public
+   */
+  hydrate(stream: ReadableStream<unknown>): Promise<void> {
+    const cache = this.#cache;
+    if (this.#isDeprecated(cache)) {
+      throw new Error(`Expected cache to implement hydrate`);
+    }
+    return cache.hydrate(stream);
   }
 
   // Cache
@@ -200,105 +489,12 @@ export class NonSingletonCacheManager implements Cache {
    * @public
    * @deprecated
    */
-  pushData(data: JsonApiResource, hasRecord?: boolean): void | string[] {
+  pushData(data: JsonApiResource, hasRecord: boolean): void | string[] {
     return this.upsert(this.#identifier, data, hasRecord);
   }
 
-  /**
-   * Push resource data from a remote source into the cache for this identifier
-   *
-   * @method upsert
-   * @public
-   * @param identifier
-   * @param data
-   * @param hasRecord
-   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
-   */
-  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
-    const cache = this.#cache;
-    // called by something V1
-    if (!isStableIdentifier(identifier)) {
-      data = identifier as JsonApiResource;
-      hasRecord = data as unknown as boolean;
-      identifier = this.#identifier;
-    }
-    if (this.#isDeprecated(cache)) {
-      return cache.pushData(data, hasRecord);
-    }
-    return cache.upsert(identifier, data, hasRecord);
-  }
-
-  /**
-   * Perform an operation on the cache to update the remote state.
-   *
-   * Note: currently the only valid operation is a MergeOperation
-   * which occurs when a collision of identifiers is detected.
-   *
-   * @method patch
-   * @public
-   * @param op the operation to perform
-   * @returns {void}
-   */
-  patch(op: MergeOperation): void {
-    const cache = this.#cache;
-    if (this.#isDeprecated(cache)) {
-      return;
-    }
-    cache.patch(op);
-  }
-
-  /**
-   * Update resource data with a local mutation. Currently supports operations
-   * on relationships only.
-   *
-   * @method update
-   * @public
-   * @param operation
-   */
-  // isCollection is only needed for interop with v1 cache
-  update(operation: LocalRelationshipOperation, isResource?: boolean): void {
-    if (this.#isDeprecated(this.#cache)) {
-      const cache = this.#store._instanceCache;
-      switch (operation.op) {
-        case 'addToRelatedRecords':
-          this.#cache.addToHasMany(
-            operation.field,
-            (operation.value as StableRecordIdentifier[]).map((i) => cache.getResourceCache(i)),
-            operation.index
-          );
-          return;
-        case 'removeFromRelatedRecords':
-          this.#cache.removeFromHasMany(
-            operation.field,
-            (operation.value as StableRecordIdentifier[]).map((i) => cache.getResourceCache(i))
-          );
-          return;
-        case 'replaceRelatedRecords':
-          this.#cache.setDirtyHasMany(
-            operation.field,
-            operation.value.map((i) => cache.getResourceCache(i))
-          );
-          return;
-        case 'replaceRelatedRecord':
-          if (isResource) {
-            this.#cache.setDirtyBelongsTo(
-              operation.field,
-              operation.value ? cache.getResourceCache(operation.value) : null
-            );
-            return;
-          }
-          this.#cache.removeFromHasMany(operation.field, [cache.getResourceCache(operation.prior!)]);
-          this.#cache.addToHasMany(operation.field, [cache.getResourceCache(operation.value!)], operation.index);
-          return;
-        case 'sortRelatedRecords':
-          return;
-        default:
-          return;
-      }
-    } else {
-      this.#cache.update(operation);
-    }
-  }
+  // Resource Support
+  // ================
 
   /**
    * [LIFECYLCE] Signal to the cache that a new record has been instantiated on the client
@@ -409,8 +605,8 @@ export class NonSingletonCacheManager implements Cache {
     }
   }
 
-  // Attrs
-  // =====
+  // Granular Resource Data APIs
+  // ===========================
 
   /**
    * Retrieve the data for an attribute from the cache
@@ -653,7 +849,7 @@ export class NonSingletonCacheManager implements Cache {
 
     this.#isDeprecated(cache)
       ? cache.setDirtyBelongsTo(propertyName, value)
-      : cache.update({
+      : cache.mutate({
           op: 'replaceRelatedRecord',
           record: this.#identifier,
           field: propertyName,
@@ -681,7 +877,7 @@ export class NonSingletonCacheManager implements Cache {
 
     this.#isDeprecated(cache)
       ? cache.addToHasMany(propertyName, value, idx)
-      : cache.update({
+      : cache.mutate({
           op: 'addToRelatedRecords',
           field: propertyName,
           record: identifier,
@@ -706,7 +902,7 @@ export class NonSingletonCacheManager implements Cache {
 
     this.#isDeprecated(cache)
       ? cache.removeFromHasMany(propertyName, value)
-      : cache.update({
+      : cache.mutate({
           op: 'removeFromRelatedRecords',
           record: identifier,
           field: propertyName,
@@ -730,7 +926,7 @@ export class NonSingletonCacheManager implements Cache {
 
     this.#isDeprecated(cache)
       ? cache.setDirtyHasMany(propertyName, value)
-      : cache.update({
+      : cache.mutate({
           op: 'replaceRelatedRecords',
           record: this.#identifier,
           field: propertyName,
@@ -738,8 +934,8 @@ export class NonSingletonCacheManager implements Cache {
         });
   }
 
-  // State
-  // =============
+  // Resource State
+  // ===============
 
   /**
    * Update the cache state for the given resource to be marked as locally deleted,
@@ -839,10 +1035,35 @@ export class SingletonCacheManager implements Cache {
     return this.#cache.put(doc);
   }
 
+  peek(identifier: StableRecordIdentifier): unknown;
+  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+    return this.#cache.peek(identifier);
+  }
+  peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
+    return this.#cache.peekRequest(identifier);
+  }
+
+  fork(): Promise<Cache> {
+    return this.#cache.fork();
+  }
+  merge(cache: Cache): Promise<void> {
+    return this.#cache.merge(cache);
+  }
+  diff(): Promise<Change[]> {
+    return this.#cache.diff();
+  }
+  dump(): Promise<ReadableStream<unknown>> {
+    return this.#cache.dump();
+  }
+  hydrate(stream: ReadableStream<unknown>): Promise<void> {
+    return this.#cache.hydrate(stream);
+  }
+
   // Cache
   // =====
 
-  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord?: boolean): void | string[] {
+  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord: boolean): void | string[] {
     return this.#cache.upsert(identifier, data, hasRecord);
   }
 
@@ -899,8 +1120,8 @@ export class SingletonCacheManager implements Cache {
   ): SingleResourceRelationship | CollectionResourceRelationship {
     return this.#cache.getRelationship(identifier, propertyName);
   }
-  update(operation: LocalRelationshipOperation): void {
-    this.#cache.update(operation);
+  mutate(mutation: LocalRelationshipOperation): void {
+    this.#cache.mutate(mutation);
   }
 
   // State

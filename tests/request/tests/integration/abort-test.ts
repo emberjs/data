@@ -39,7 +39,7 @@ module('RequestManager | Abort', function () {
         const future = next(context.request);
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler1');
 
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {
@@ -76,7 +76,7 @@ module('RequestManager | Abort', function () {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler1');
         await Promise.all([future, future2, future3]);
 
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {
@@ -110,7 +110,7 @@ module('RequestManager | Abort', function () {
         const future = next(context.request);
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler1');
 
-        return (await future).data;
+        return (await future).content;
       },
     };
     const handler2: Handler = {
