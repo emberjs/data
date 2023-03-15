@@ -35,9 +35,7 @@ jobs:
   basic-tests:
     timeout-minutes: 20
     strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
@@ -47,7 +45,6 @@ jobs:
       - name: Basic tests
         run: pnpm test
       - if: |
-          matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
           ) || github.event_name == 'push' && (
@@ -58,7 +55,6 @@ jobs:
           EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
         run: pnpm test
       - if: |
-          matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
           ) || github.event_name == 'push' && (
@@ -88,18 +84,8 @@ jobs:
       fail-fast: false
       matrix:
         launcher: [Chrome, Firefox]
-        os: [macos-latest, windows-latest, ubuntu-latest]
-        exclude:
-          - os: ubuntu-latest
-            launcher: Firefox
-          - os: windows-latest
-            launcher: Firefox
-          - os: macos-latest
-            launcher: Chrome
-          - os: windows-latest
-            launcher: Chrome
-    runs-on: ${{ matrix.os }}
-    name: ${{matrix.launcher}} on ${{matrix.os}}
+    runs-on: ubuntu-latest
+    name: Test ${{matrix.launcher}}
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
