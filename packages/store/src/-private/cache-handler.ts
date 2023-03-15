@@ -64,48 +64,73 @@ function getHydratedContent<T>(store: Store, request: ImmutableRequestInfo, docu
   }
 }
 
+function calcShouldFetch(
+  store: Store,
+  request: StoreRequestInfo,
+  hasCachedValue: boolean,
+  lid: string | null | undefined
+): boolean {
+  const { cacheOptions, url, method } = request;
+  return cacheOptions?.reload || !hasCachedValue || (store.lifetimes && lid && url && method)
+    ? store.lifetimes!.isHardExpired(lid as string, url as string, method as HTTPMethod)
+    : false;
+}
+
+function calcShouldBackgroundFetch(
+  store: Store,
+  request: StoreRequestInfo,
+  willFetch: boolean,
+  lid: string | null | undefined
+): boolean {
+  const { cacheOptions, url, method } = request;
+  return (
+    !willFetch &&
+    (cacheOptions?.backgroundReload || (store.lifetimes && lid && url && method)
+      ? store.lifetimes!.isSoftExpired(lid as string, url as string, method as HTTPMethod)
+      : false)
+  );
+}
+
+function fetchContentAndHydrate<T>(
+  next: NextFn<T>,
+  context: StoreRequestContext,
+  shouldFetch: boolean,
+  shouldBackgroundFetch: boolean
+): Promise<T> {
+  const { store } = context.request;
+  return next(context.request).then(
+    (document) => {
+      const response = store.cache.put(document);
+
+      if (shouldFetch) {
+        return getHydratedContent(store, context.request, response as ResourceDataDocument);
+      }
+    },
+    (error: StructuredErrorDocument) => {
+      store.cache.put(error);
+      // TODO @runspired this is probably not the right thing to throw so make sure we add a test
+      if (!shouldBackgroundFetch) {
+        throw error;
+      }
+    }
+  ) as Promise<T>;
+}
+
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
     const { store } = context.request;
     const { cacheOptions, url, method } = context.request;
-    const lid = cacheOptions?.key || (method === 'GET' && url) ? url : false;
+    const lid = cacheOptions?.key || (method === 'GET' && url) ? url : null;
     const peeked = lid ? store.cache.peekRequest({ lid }) : null;
 
     // determine if we should skip cache
-    const shouldFetch =
-      cacheOptions?.reload || !peeked || (lid && url && method)
-        ? store.lifetimes?.isHardExpired(lid as string, url as string, method as HTTPMethod)
-        : false;
-
-    // if we have not skipped cache, determine if we should update behind the scenes
-    const shouldBackgroundFetch =
-      !shouldFetch &&
-      (cacheOptions?.backgroundReload || (lid && url && method)
-        ? store.lifetimes?.isSoftExpired(lid as string, url as string, method as HTTPMethod)
-        : false);
-
-    let promise: Promise<T>;
-    if (shouldFetch || shouldBackgroundFetch) {
-      promise = next(context.request).then(
-        (document) => {
-          const response = store.cache.put(document);
-
-          if (shouldFetch) {
-            return getHydratedContent(store, context.request, response as ResourceDataDocument);
-          }
-        },
-        (error: StructuredErrorDocument) => {
-          store.cache.put(error);
-          // TODO @runspired this is probably not the right thing to throw so make sure we add a test
-          if (!shouldBackgroundFetch) {
-            throw error;
-          }
-        }
-      ) as Promise<T>;
+    if (calcShouldFetch(store, context.request, !!peeked, lid)) {
+      return fetchContentAndHydrate(next, context, true, false);
     }
 
-    if (shouldFetch) {
-      return promise!;
+    // if we have not skipped cache, determine if we should update behind the scenes
+    if (calcShouldBackgroundFetch(store, context.request, false, lid)) {
+      void fetchContentAndHydrate(next, context, false, true);
     }
 
     if ('error' in peeked!) {
