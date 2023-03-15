@@ -11,22 +11,22 @@ import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/inde
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
-import { StructuredDataDocument } from '@ember-data/request/-private/types';
-import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import { ResourceBlob } from '@ember-data/types/cache/aliases';
-import { Change } from '@ember-data/types/cache/change';
-import {
+import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
+import type { ResourceBlob } from '@ember-data/types/cache/aliases';
+import type { Change } from '@ember-data/types/cache/change';
+import type {
   CollectionResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
+  StructuredDataDocument,
   StructuredDocument,
 } from '@ember-data/types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper, V2CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import {
+import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
   ExistingResourceObject,

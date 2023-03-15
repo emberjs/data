@@ -400,9 +400,37 @@ import { executeNextHandler } from './utils';
  */
 export class RequestManager {
   #handlers: Handler[] = [];
+  declare _hasCacheHandler: boolean;
 
   constructor(options?: GenericCreateArgs) {
     Object.assign(this, options);
+  }
+
+  /**
+   * Register a handler to use for primary cache intercept.
+   *
+   * Only one such handler may exist. If using the same
+   * RequestManager as the Store instance the Store
+   * registers itself as a Cache handler.
+   *
+   * @method useCache
+   * @public
+   * @param {Handler[]} cacheHandler
+   * @returns {void}
+   */
+  useCache(cacheHandler: Handler): void {
+    if (macroCondition(isDevelopingApp())) {
+      if (this._hasCacheHandler) {
+        throw new Error(`\`RequestManager.useCache(<handler>)\` May only be invoked once.`);
+      }
+      if (Object.isFrozen(this.#handlers)) {
+        throw new Error(
+          `\`RequestManager.useCache(<handler>)\` May only be invoked prior to any request having been made.`
+        );
+      }
+      this._hasCacheHandler = true;
+    }
+    this.#handlers.unshift(cacheHandler);
   }
 
   /**
@@ -414,10 +442,10 @@ export class RequestManager {
    *
    * @method use
    * @public
-   * @param {Hanlder[]} newHandlers
+   * @param {Handler[]} newHandlers
    * @returns {void}
    */
-  use(newHandlers: Handler[]) {
+  use(newHandlers: Handler[]): void {
     const handlers = this.#handlers;
     if (macroCondition(isDevelopingApp())) {
       if (Object.isFrozen(handlers)) {

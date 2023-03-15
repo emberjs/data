@@ -13,7 +13,7 @@ import type {
   StructuredErrorDocument,
 } from './types';
 
-const STRUCTURED = Symbol('DOC');
+export const STRUCTURED = Symbol('DOC');
 
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());

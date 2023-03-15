@@ -20,6 +20,7 @@ import {
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
+import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -114,7 +115,7 @@ declare global {
 
 export type IdentifierArrayCreateOptions = {
   identifiers: StableRecordIdentifier[];
-  type: string;
+  type?: string;
   store: Store;
   allowMutation: boolean;
   manager: RecordArrayManager;
@@ -220,7 +221,7 @@ class IdentifierArray {
     @deprecated
    @type {subclass of Model}
    */
-  declare modelName: string;
+  declare modelName?: string;
   /**
     The store that created this record array.
 
@@ -529,6 +530,7 @@ class IdentifierArray {
     is finished.
    */
   _update(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
+    assert(`_update cannot be used with this array`, this.modelName);
     return this.store.findAll(this.modelName, { reload: true });
   }
 
@@ -587,11 +589,11 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
 }
 
 export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
-  query: Dict<unknown> | null;
+  query: ImmutableRequestInfo | Dict<unknown> | null;
   isLoaded: boolean;
 };
 export class Collection extends IdentifierArray {
-  query: Dict<unknown> | null = null;
+  query: ImmutableRequestInfo | Dict<unknown> | null = null;
 
   constructor(options: CollectionCreateOptions) {
     super(options as IdentifierArrayCreateOptions);
@@ -603,6 +605,7 @@ export class Collection extends IdentifierArray {
     const { store, query } = this;
 
     // TODO save options from initial request?
+    assert(`_update cannot be used with this array`, this.modelName);
     const promise = store.query(this.modelName, query, { _recordArray: this });
 
     if (DEPRECATE_PROMISE_PROXIES) {

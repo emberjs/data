@@ -339,7 +339,7 @@ export default class RelatedCollection extends RecordArray {
   */
   createRecord(hash: CreateRecordProperties): RecordInstance {
     const { store } = this;
-
+    assert(`Expected modelName to be set`, this.modelName);
     const record = store.createRecord(this.modelName, hash);
     this.push(record);
 

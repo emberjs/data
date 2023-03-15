@@ -126,7 +126,7 @@ interface Document {
   meta?: Dict<JSONValue>;
   included?: ExistingResourceObject[];
   jsonapi?: Dict<JSONValue>;
-  links?: Dict<string | JSONValue>;
+  links?: Links | PaginationLinks;
   errors?: JSONValue[];
 }
 

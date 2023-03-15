@@ -46,13 +46,13 @@ export type ResourceDocument =
 
 export interface StructuredDataDocument<T> {
   request?: RequestInfo;
-  response?: ResponseInfo;
+  response?: ResponseInfo | Response | null;
   content: T;
 }
 export interface StructuredErrorDocument extends Error {
   request?: RequestInfo;
-  response?: ResponseInfo;
+  response?: ResponseInfo | Response | null;
   error: string | object;
-  content?: ResourceErrorDocument;
+  content?: unknown;
 }
 export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument;

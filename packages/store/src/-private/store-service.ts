@@ -22,9 +22,9 @@ import {
   DEPRECATE_V1_RECORD_DATA,
 } from '@ember-data/private-build-infra/deprecations';
 import type { RequestManager } from '@ember-data/request';
+import type { Future, ImmutableRequestInfo, RequestContext } from '@ember-data/request/-private/types';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-// import { Future, RequestInfo } from '@ember-data/request/-private/types';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -42,6 +42,7 @@ import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definit
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import { CacheHandler } from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -90,9 +91,36 @@ function freeze<T>(obj: T): T {
   return obj;
 }
 
+export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
 export interface CreateRecordProperties {
   id?: string | null;
   [key: string]: unknown;
+}
+
+export interface LifetimesService {
+  isHardExpired(key: string, url: string, method: HTTPMethod): boolean;
+  isSoftExpired(key: string, url: string, method: HTTPMethod): boolean;
+}
+
+export interface StoreRequestInfo extends ImmutableRequestInfo {
+  cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
+  store: Store;
+
+  op?:
+    | 'findRecord'
+    | 'updateRecord'
+    | 'query'
+    | 'queryRecord'
+    | 'findBelongsTo'
+    | 'findHasMany'
+    | 'createRecord'
+    | 'deleteRecord';
+  records?: StableRecordIdentifier[];
+}
+
+export interface StoreRequestContext extends RequestContext {
+  request: StoreRequestInfo;
 }
 
 /**
@@ -221,6 +249,7 @@ class Store {
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
+  declare lifetimes?: LifetimesService;
 
   // DEBUG-only properties
   declare _trackedAsyncRequests: AsyncTrackingToken[];
@@ -311,6 +340,15 @@ class Store {
     }
   }
 
+  declare _hasRegisteredCacheHandler: boolean;
+  _registerCacheHandler() {
+    if (this._hasRegisteredCacheHandler) {
+      return;
+    }
+    this.requestManager.useCache(CacheHandler);
+    this._hasRegisteredCacheHandler = true;
+  }
+
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   _run(cb: () => void) {
     assert(`EmberData should never encounter a nested run`, !this._cbs);
@@ -362,16 +400,28 @@ class Store {
    * inserting the response into the cache and handing
    * back a Future which resolves to a ResponseDocument
    *
+   * Resource data is always updated in the cache.
+   *
+   * Only GET requests have the request result and document
+   * cached by default when a cache key is present.
+   *
+   * The cache key used is `requestConfig.cacheOptions.key`
+   * if present, falling back to `requestconfig.url`.
+   *
+   * Params are not serialized as part of the cache-key, so
+   * either ensure they are already in the url or utilize
+   * `requestConfig.cacheOptions.key`. For queries issued
+   * via the `POST` method `requestConfig.cacheOptions.key`
+   * MUST be supplied for the document to be cached.
+   *
    * @method request
+   * @param {StoreRequestInfo} requestConfig
    * @returns {Future}
    * @public
    */
-  // request<T>(req: RequestInfo): Future<ResponseDocument<T>> {
-  //   return this.requestManager.request(req).then(
-  //     (doc) => {},
-  //     (error) => {}
-  //   );
-  // }
+  request<T>(requestConfig: StoreRequestInfo): Future<T> {
+    return this.requestManager.request(Object.assign(requestConfig, { store: this }));
+  }
 
   /**
    * A hook which an app or addon may implement. Called when
