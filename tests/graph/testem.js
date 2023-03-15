@@ -23,8 +23,8 @@ module.exports = {
         '--no-sandbox',
       ],
     },
-  },
-  Firefox: {
-    ci: ['-headless', '-width 1440', '-height 900'],
+    Firefox: {
+      ci: ['--headless', '--width=1440', '--height=900'],
+    },
   },
 };

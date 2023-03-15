@@ -1,4 +1,4 @@
-name: Documentation & Blueprint Tests
+name: DX
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - master
 
 concurrency:
-  group: docs-${{ github.head_ref }}
+  group: docs-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:

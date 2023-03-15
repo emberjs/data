@@ -10,7 +10,7 @@ on:
       - ready_for_review
 
 concurrency:
-  group: perf-${{ github.head_ref }}
+  group: perf-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:

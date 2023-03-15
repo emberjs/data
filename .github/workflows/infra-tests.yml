@@ -1,4 +1,4 @@
-name: Infra Tests
+name: Infra
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
       - ready_for_review
 
 concurrency:
-  group: infra-${{ github.head_ref }}
+  group: infra-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:

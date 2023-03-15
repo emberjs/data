@@ -1,4 +1,4 @@
-name: Enforce Canary PR labeling
+name: PR
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - master
 
 concurrency:
-  group: pr-labels-canary-${{ github.head_ref }}
+  group: pr-labels-canary-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:

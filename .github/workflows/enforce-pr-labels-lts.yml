@@ -1,13 +1,14 @@
-name: Enforce LTS Release PR labeling
+name: PR
 
 on:
   pull_request:
     types: [labeled, unlabeled, opened, reopened, edited, synchronize]
     branches:
-      - lts-3-28
+      - lts-4-8
+      - lts-4-12
 
 concurrency:
-  group: pr-labels-lts-${{ github.head_ref }}
+  group: pr-labels-lts-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
