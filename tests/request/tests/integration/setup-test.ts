@@ -32,7 +32,7 @@ module('RequestManager | Basic Setup', function () {
     const result = await manager.request(req);
     assert.strictEqual(calls, 1, 'we called our handler');
     assert.strictEqual(JSON.stringify(result.request), JSON.stringify(req));
-    assert.strictEqual(result.data, 'success!', 'we returned the expected result');
+    assert.strictEqual(result.content, 'success!', 'we returned the expected result');
   });
 
   test('We can register multiple handlers with `.use(<Handler[]>)`', async function (assert) {
@@ -44,7 +44,7 @@ module('RequestManager | Basic Setup', function () {
         async request<T>(req: HandlerRequestContext, next: NextFn<T>) {
           calls++;
           const outcome = await next(req.request);
-          return outcome.data;
+          return outcome.content;
         },
       },
       {
@@ -61,7 +61,7 @@ module('RequestManager | Basic Setup', function () {
     assert.strictEqual(calls, 1, 'we called our handler');
     assert.strictEqual(callsB, 1, 'we called our next handler');
     assert.strictEqual(JSON.stringify(result.request), JSON.stringify(req));
-    assert.strictEqual(result.data, 'success!', 'we returned the expected result');
+    assert.strictEqual(result.content, 'success!', 'we returned the expected result');
   });
 
   test('We can register the same handler more than once with `.use(<Handler[]>)`', async function (assert) {
@@ -75,7 +75,7 @@ module('RequestManager | Basic Setup', function () {
           return Promise.resolve('success!' as T);
         }
         const outcome = await next(req.request);
-        return outcome.data;
+        return outcome.content;
       },
     };
 
@@ -86,6 +86,6 @@ module('RequestManager | Basic Setup', function () {
     const result = await manager.request<string>(req);
     assert.strictEqual(calls, 2, 'we called our handler');
     assert.strictEqual(JSON.stringify(result.request), JSON.stringify(req));
-    assert.strictEqual(result.data, 'success!', 'we returned the expected result');
+    assert.strictEqual(result.content, 'success!', 'we returned the expected result');
   });
 });

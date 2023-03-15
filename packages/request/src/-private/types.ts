@@ -40,7 +40,7 @@ export interface GodContext {
 export interface StructuredDataDocument<T> {
   request: RequestInfo;
   response: Response | ResponseInfo | null;
-  data: T;
+  content: T;
 }
 export interface StructuredErrorDocument extends Error {
   request: RequestInfo;

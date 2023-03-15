@@ -1,8 +1,8 @@
 {
-  "name": "graph-test-app",
+  "name": "json-api-test-app",
   "version": "4.12.0-alpha.8",
   "private": true,
-  "description": "Provides tests for @ember-data/graph",
+  "description": "Provides tests for @ember-data/json-api",
   "keywords": [],
   "repository": {
     "type": "git",
@@ -20,9 +20,6 @@
     "test": "ember test --test-port=0"
   },
   "dependenciesMeta": {
-    "@ember-data/model": {
-      "injected": true
-    },
     "@ember-data/json-api": {
       "injected": true
     },
@@ -49,7 +46,6 @@
     "@babel/core": "^7.21.0",
     "@babel/runtime": "^7.21.0",
     "@ember-data/canary-features": "workspace:4.12.0-alpha.8",
-    "@ember-data/model": "workspace:4.12.0-alpha.8",
     "@ember-data/private-build-infra": "workspace:4.12.0-alpha.8",
     "@ember-data/json-api": "workspace:4.12.0-alpha.8",
     "@ember-data/graph": "workspace:4.12.0-alpha.8",

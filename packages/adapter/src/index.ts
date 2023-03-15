@@ -30,8 +30,8 @@
 
   If the request was for a `createRecord` `updateRecord` or `deleteRecord` special rules
   apply to how this error will affect the state of the store and additional properties on
-  the `Error` class may be used. See the documentation for these methods in the
-  `MinimumAdapterInterface` for more information.
+  the `Error` class may be used. See the documentation for these methods in
+  [<Interface> Adapter](/ember-data/release/classes/%3CInterface%3E%20Adapter) for more information.
 
   ### Implementing an Adapter
 
@@ -155,6 +155,9 @@ import type { Dict } from '@ember-data/types/q/utils';
   may be anything, such as the browser's local storage. Typically the
   adapter is not invoked directly instead its functionality is accessed
   through the `store`.
+
+  > ⚠️ CAUTION you likely want the docs for [<Interface> Adapter](/ember-data/release/classes/%3CInterface%3E%20Adapter)
+  > as extending this abstract class is unnecessary.
 
   ### Creating an Adapter
 

@@ -11,11 +11,23 @@ import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
-import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import type { ResourceBlob } from '@ember-data/types/cache/aliases';
+import type { Change } from '@ember-data/types/cache/change';
+import type {
+  CollectionResourceDataDocument,
+  ResourceDocument,
+  ResourceErrorDocument,
+  ResourceMetaDocument,
+  SingleResourceDataDocument,
+  StructuredDocument,
+} from '@ember-data/types/cache/document';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import {
+import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type {
+  CollectionResourceDocument,
   CollectionResourceRelationship,
+  JsonApiDocument,
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
@@ -141,23 +153,54 @@ class V2TestRecordData implements Cache {
     throw new Error('Method not implemented.');
   }
   _data: Map<StableRecordIdentifier, object> = new Map();
-  put(doc: StructuredDocument<SingleResourceDocument>): ResourceDocument {
-    if ('data' in doc) {
-      if (Array.isArray(doc.data.data)) {
-        const data = doc.data.data.map((data) => {
+  put<T extends SingleResourceDocument>(doc: StructuredDocument<T>): SingleResourceDataDocument;
+  put<T extends CollectionResourceDocument>(doc: StructuredDocument<T>): CollectionResourceDataDocument;
+  put<T extends ResourceMetaDocument | ResourceErrorDocument>(
+    doc: StructuredDocument<T>
+  ): ResourceMetaDocument | ResourceErrorDocument;
+  put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
+    if ('content' in doc && !('error' in doc)) {
+      if (Array.isArray(doc.content.data)) {
+        const data = doc.content.data.map((data) => {
           const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(data);
           this.upsert(identifier, data, this._storeWrapper.hasRecord(identifier));
           return identifier;
         });
         return { data };
       } else {
-        const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(doc.data.data);
-        this.upsert(identifier, doc.data.data, this._storeWrapper.hasRecord(identifier));
-        return { data: identifier };
+        const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
+          doc.content.data as RecordIdentifier
+        );
+        this.upsert(identifier, doc.content.data as JsonApiResource, this._storeWrapper.hasRecord(identifier));
+        return { data: identifier } as SingleResourceDataDocument;
       }
     } else if ('error' in doc) {
       throw typeof doc.error === 'string' ? new Error(doc.error) : doc.error;
     }
+    throw new Error('Not Implemented');
+  }
+
+  peek(identifier: StableRecordIdentifier): ResourceBlob | null;
+  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceBlob | ResourceDocument | null {
+    throw new Error(`Not Implemented`);
+  }
+  peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null {
+    throw new Error(`Not Implemented`);
+  }
+  fork(): Promise<Cache> {
+    throw new Error(`Not Implemented`);
+  }
+  merge(cache: Cache): Promise<void> {
+    throw new Error(`Not Implemented`);
+  }
+  diff(): Promise<Change[]> {
+    throw new Error(`Not Implemented`);
+  }
+  dump(): Promise<ReadableStream<unknown>> {
+    throw new Error(`Not Implemented`);
+  }
+  hydrate(stream: ReadableStream<unknown>): Promise<void> {
     throw new Error('Not Implemented');
   }
 
@@ -173,7 +216,7 @@ class V2TestRecordData implements Cache {
     this._storeWrapper.notifyChange(identifier, 'attributes');
     this._storeWrapper.notifyChange(identifier, 'relationships');
   }
-  update(operation: LocalRelationshipOperation): void {
+  mutate(operation: LocalRelationshipOperation): void {
     throw new Error('Method not implemented.');
   }
   version: '2' = '2';

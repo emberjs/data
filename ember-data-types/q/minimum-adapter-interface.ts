@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/experimental-preview-types
+ */
 import type Store from '@ember-data/store';
 import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type SnapshotRecordArray from '@ember-data/store/-private/network/snapshot-record-array';
@@ -14,9 +17,6 @@ type Group = Snapshot[];
 // far easier in the adapter itself and are unlikely
 // to be passed to the serializer today.
 export type AdapterPayload = Dict<unknown> | unknown[];
-/**
- * @module @ember-data/adapter
- */
 
 /**
   The following documentation describes the methods an
@@ -25,7 +25,7 @@ export type AdapterPayload = Dict<unknown> | unknown[];
 
   Methods that are not required are marked as **optional**.
 
-  @class MinimumAdapterInterface
+  @class <Interface> Adapter
   @public
 */
 export interface MinimumAdapterInterface {

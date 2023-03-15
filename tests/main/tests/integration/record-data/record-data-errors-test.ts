@@ -6,23 +6,35 @@ import { Promise } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
-import { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
-import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import type { ResourceBlob } from '@ember-data/types/cache/aliases';
+import type { Change } from '@ember-data/types/cache/change';
+import type {
+  CollectionResourceDataDocument,
+  ResourceDocument,
+  ResourceErrorDocument,
+  ResourceMetaDocument,
+  SingleResourceDataDocument,
+  StructuredDocument,
+} from '@ember-data/types/cache/document';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import { DSModel } from '@ember-data/types/q/ds-model';
-import {
+import type { DSModel } from '@ember-data/types/q/ds-model';
+import type {
+  CollectionResourceDocument,
   CollectionResourceRelationship,
+  JsonApiDocument,
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
-import { Dict } from '@ember-data/types/q/utils';
+import type { Dict } from '@ember-data/types/q/utils';
 
 if (!DEPRECATE_V1_RECORD_DATA) {
   class Person extends Model {
@@ -39,17 +51,49 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     patch(op: MergeOperation): void {
       throw new Error('Method not implemented.');
     }
-    put(doc: StructuredDocument<SingleResourceDocument>): ResourceDocument {
-      if ('data' in doc) {
-        const identifier = this.wrapper.identifierCache.getOrCreateRecordIdentifier(doc.data.data);
-        this.upsert(identifier, doc.data.data, this.wrapper.hasRecord(identifier));
-        return { data: identifier };
+    put<T extends SingleResourceDocument>(doc: StructuredDocument<T>): SingleResourceDataDocument;
+    put<T extends CollectionResourceDocument>(doc: StructuredDocument<T>): CollectionResourceDataDocument;
+    put<T extends ResourceMetaDocument | ResourceErrorDocument>(
+      doc: StructuredDocument<T>
+    ): ResourceMetaDocument | ResourceErrorDocument;
+    put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
+      if ('content' in doc && !('error' in doc)) {
+        const identifier = this.wrapper.identifierCache.getOrCreateRecordIdentifier(
+          doc.content.data as RecordIdentifier
+        );
+        this.upsert(identifier, doc.content.data as JsonApiResource, this.wrapper.hasRecord(identifier));
+        return { data: identifier } as SingleResourceDataDocument;
       } else if ('error' in doc) {
         throw typeof doc.error === 'string' ? new Error(doc.error) : doc.error;
       }
       throw new Error('Not Implemented');
     }
-    update(operation: LocalRelationshipOperation): void {
+
+    peek(identifier: StableRecordIdentifier): ResourceBlob | null;
+    peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+    peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceBlob | ResourceDocument | null {
+      throw new Error(`Not Implemented`);
+    }
+    peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null {
+      throw new Error(`Not Implemented`);
+    }
+    fork(): Promise<Cache> {
+      throw new Error(`Not Implemented`);
+    }
+    merge(cache: Cache): Promise<void> {
+      throw new Error(`Not Implemented`);
+    }
+    diff(): Promise<Change[]> {
+      throw new Error(`Not Implemented`);
+    }
+    dump(): Promise<ReadableStream<unknown>> {
+      throw new Error(`Not Implemented`);
+    }
+    hydrate(stream: ReadableStream<unknown>): Promise<void> {
+      throw new Error('Not Implemented');
+    }
+
+    mutate(operation: LocalRelationshipOperation): void {
       throw new Error('Method not implemented.');
     }
     version: '2' = '2';

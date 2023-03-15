@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/json-api",
   "version": "4.12.0-alpha.8",
-  "description": "Provides the default resource cache (RecordData) implementation for ember-data",
+  "description": "Provides a JSON:API document and resource cache implementation for EmberData",
   "keywords": [
     "ember-addon"
   ],

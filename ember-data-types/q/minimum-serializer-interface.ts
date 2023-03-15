@@ -1,3 +1,6 @@
+/**
+  @module @ember-data/experimental-preview-types
+ */
 import type { Object as JSONObject } from 'json-typescript';
 
 import type Store from '@ember-data/store';
@@ -20,9 +23,6 @@ export type RequestType =
   | 'createRecord'
   | 'deleteRecord'
   | 'updateRecord';
-/**
-  @module @ember-data/serializer
- */
 
 /**
   The following documentation describes the methods an application
@@ -31,7 +31,7 @@ export type RequestType =
 
   Methods that are not required are marked as **optional**.
 
-  @class MinimumSerializerInterface
+  @class <Interface> Serializer
   @public
 */
 export interface MinimumSerializerInterface {

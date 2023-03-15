@@ -12,13 +12,23 @@ export interface ResourceMetaDocument {
   links?: Links | PaginationLinks;
 }
 
-export interface ResourceDataDocument {
+export interface SingleResourceDataDocument {
   // the url or cache-key associated with the structured document
   lid?: string;
   links?: Links | PaginationLinks;
   meta?: Meta;
-  data: StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null;
+  data: StableExistingRecordIdentifier | null;
 }
+
+export interface CollectionResourceDataDocument {
+  // the url or cache-key associated with the structured document
+  lid?: string;
+  links?: Links | PaginationLinks;
+  meta?: Meta;
+  data: StableExistingRecordIdentifier[];
+}
+
+export type ResourceDataDocument = SingleResourceDataDocument | CollectionResourceDataDocument;
 
 export interface ResourceErrorDocument {
   // the url or cache-key associated with the structured document
@@ -28,16 +38,21 @@ export interface ResourceErrorDocument {
   error: string | object;
 }
 
-export type ResourceDocument = ResourceMetaDocument | ResourceDataDocument | ResourceErrorDocument;
+export type ResourceDocument =
+  | ResourceMetaDocument
+  | SingleResourceDataDocument
+  | CollectionResourceDataDocument
+  | ResourceErrorDocument;
 
 export interface StructuredDataDocument<T> {
   request?: RequestInfo;
   response?: ResponseInfo;
-  data: T;
+  content: T;
 }
 export interface StructuredErrorDocument extends Error {
   request?: RequestInfo;
   response?: ResponseInfo;
   error: string | object;
+  content?: ResourceErrorDocument;
 }
 export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument;

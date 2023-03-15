@@ -20,7 +20,7 @@
   server API format.
 
   To implement a serializer, export a class that conforms to the structure
-  described by the [MinimumSerializerInterface](/ember-data/release/classes/MinimumSerializerInterface)
+  described by [<Interface> Serializer](/ember-data/release/classes/%3CInterface%3E%20Serializer)
   from the `app/serializers/` directory. An example is below.
 
   ```ts
@@ -105,7 +105,10 @@ import { inject as service } from '@ember/service';
 import type Store from '@ember-data/store';
 
 /**
-  `Serializer` is an abstract base class that you should override in your
+  > ⚠️ CAUTION you likely want the docs for [<Interface> Serializer](/ember-data/release/classes/%3CInterface%3E%20Serializer)
+  > as extending this abstract class is unnecessary.
+
+  `Serializer` is an abstract base class that you may override in your
   application to customize it for your backend. The minimum set of methods
   that you should implement is:
 

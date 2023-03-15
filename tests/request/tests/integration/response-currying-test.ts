@@ -10,7 +10,7 @@ module('RequestManager | Response Currying', function () {
     const handler1: Handler = {
       async request<T>(context: Context, next: NextFn<T>) {
         const response = await next(context.request);
-        return response.data;
+        return response.content;
       },
     };
     const handler2: Handler = {
@@ -61,7 +61,7 @@ module('RequestManager | Response Currying', function () {
       async request<T>(context: Context, next: NextFn<T>): Promise<T> {
         await next(context.request);
         await next(context.request);
-        return (await next(context.request)).data;
+        return (await next(context.request)).content;
       },
     };
     const handler2: Handler = {
@@ -136,7 +136,7 @@ module('RequestManager | Response Currying', function () {
         const response = Object.assign({}, doc.response, { ok: false });
         context.setResponse(response);
 
-        return doc.data;
+        return doc.content;
       },
     };
     const handler2: Handler = {
@@ -203,7 +203,7 @@ module('RequestManager | Response Currying', function () {
           assert.ok(true, 'we are immutable');
         }
 
-        return doc.data;
+        return doc.content;
       },
     };
     const handler2: Handler = {
@@ -256,7 +256,7 @@ module('RequestManager | Response Currying', function () {
 
         context.setResponse(null);
 
-        return doc.data;
+        return doc.content;
       },
     };
     const handler2: Handler = {

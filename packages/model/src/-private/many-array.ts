@@ -168,7 +168,7 @@ export default class RelatedCollection extends RecordArray {
   [MUTATE](prop: string, args: unknown[], result?: unknown) {
     switch (prop) {
       case 'length 0': {
-        this._manager.updateCache({
+        this._manager.mutate({
           op: 'replaceRelatedRecords',
           record: this.identifier,
           field: this.key,
@@ -178,7 +178,7 @@ export default class RelatedCollection extends RecordArray {
       }
       case 'replace cell': {
         const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
-        this._manager.updateCache({
+        this._manager.mutate({
           op: 'replaceRelatedRecord',
           record: this.identifier,
           field: this.key,
@@ -189,7 +189,7 @@ export default class RelatedCollection extends RecordArray {
         break;
       }
       case 'push':
-        this._manager.updateCache({
+        this._manager.mutate({
           op: 'addToRelatedRecords',
           record: this.identifier,
           field: this.key,
@@ -198,7 +198,7 @@ export default class RelatedCollection extends RecordArray {
         break;
       case 'pop':
         if (result) {
-          this._manager.updateCache({
+          this._manager.mutate({
             op: 'removeFromRelatedRecords',
             record: this.identifier,
             field: this.key,
@@ -208,7 +208,7 @@ export default class RelatedCollection extends RecordArray {
         break;
 
       case 'unshift':
-        this._manager.updateCache({
+        this._manager.mutate({
           op: 'addToRelatedRecords',
           record: this.identifier,
           field: this.key,
@@ -219,7 +219,7 @@ export default class RelatedCollection extends RecordArray {
 
       case 'shift':
         if (result) {
-          this._manager.updateCache({
+          this._manager.mutate({
             op: 'removeFromRelatedRecords',
             record: this.identifier,
             field: this.key,
@@ -230,7 +230,7 @@ export default class RelatedCollection extends RecordArray {
         break;
 
       case 'sort':
-        this._manager.updateCache({
+        this._manager.mutate({
           op: 'sortRelatedRecords',
           record: this.identifier,
           field: this.key,
@@ -242,7 +242,7 @@ export default class RelatedCollection extends RecordArray {
         const [start, removeCount, ...adds] = args as [number, number, RecordInstance];
         // detect a full replace
         if (removeCount > 0 && adds.length === this[SOURCE].length) {
-          this._manager.updateCache({
+          this._manager.mutate({
             op: 'replaceRelatedRecords',
             record: this.identifier,
             field: this.key,
@@ -251,7 +251,7 @@ export default class RelatedCollection extends RecordArray {
           return;
         }
         if (removeCount > 0) {
-          this._manager.updateCache({
+          this._manager.mutate({
             op: 'removeFromRelatedRecords',
             record: this.identifier,
             field: this.key,
@@ -260,7 +260,7 @@ export default class RelatedCollection extends RecordArray {
           });
         }
         if (adds?.length) {
-          this._manager.updateCache({
+          this._manager.mutate({
             op: 'addToRelatedRecords',
             record: this.identifier,
             field: this.key,

@@ -11,14 +11,27 @@ import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/inde
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/private-build-infra/debugging';
+import { StructuredDataDocument } from '@ember-data/request/-private/types';
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import { ResourceBlob } from '@ember-data/types/cache/aliases';
+import { Change } from '@ember-data/types/cache/change';
+import {
+  CollectionResourceDataDocument,
+  ResourceDocument,
+  ResourceErrorDocument,
+  ResourceMetaDocument,
+  SingleResourceDataDocument,
+  StructuredDocument,
+} from '@ember-data/types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper, V2CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type {
+import {
+  CollectionResourceDocument,
   CollectionResourceRelationship,
   ExistingResourceObject,
   JsonApiDocument,
+  SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -75,24 +88,92 @@ function makeCache(): CachedResource {
 
   This is the cache implementation used by `ember-data`.
 
+  ```js
+  import { Cache } from '@ember-data/json-api';
+  import Store from '@ember-data/store';
+
+  export default class extends Store {
+    createCache(wrapper) {
+      return new Cache(wrapper);
+    }
+  }
+  ```
+
   @class Cache
   @public
  */
 
-export default class SingletonCache implements Cache {
-  version: '2' = '2';
-
-  __storeWrapper: V2CacheStoreWrapper;
-  __cache: Map<StableRecordIdentifier, CachedResource> = new Map();
-  __destroyedCache: Map<StableRecordIdentifier, CachedResource> = new Map();
+export default class JSONAPICache implements Cache {
+  /**
+   * The Cache Version that this implementation implements.
+   *
+   * @type {'2'}
+   * @public
+   * @property version
+   */
+  declare version: '2';
+  declare __storeWrapper: V2CacheStoreWrapper;
+  declare __cache: Map<StableRecordIdentifier, CachedResource>;
+  declare __destroyedCache: Map<StableRecordIdentifier, CachedResource>;
+  declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
 
   constructor(storeWrapper: V2CacheStoreWrapper) {
+    this.version = '2';
     this.__storeWrapper = storeWrapper;
+    this.__cache = new Map();
+    this.__destroyedCache = new Map();
+    this.__documents = new Map();
   }
 
-  put<T extends JsonApiDocument>(doc: StructuredDocument<T>): ResourceDocument {
+  // Cache Management
+  // ================
+
+  /**
+   * Cache the response to a request
+   *
+   * Implements `Cache.put`.
+   *
+   * Expects a StructuredDocument whose `content` member is a JsonApiDocument.
+   *
+   * ```js
+   * cache.put({
+   *   request: { url: 'https://api.example.com/v1/user/1' },
+   *   content: {
+   *     data: {
+   *       type: 'user',
+   *       id: '1',
+   *       attributes: {
+   *         name: 'Chris'
+   *       }
+   *     }
+   *   }
+   * })
+   * ```
+   *
+   * > **Note:** The nested `content` and `data` members are not a mistake. This is because
+   * > there are two separate concepts involved here, the `StructuredDocument` which contains
+   * > the context of a given Request that has been issued with the returned contents as its
+   * > `content` property, and a `JSON:API Document` which is the json contents returned by
+   * > this endpoint and which uses its `data` property to signify which resources are the
+   * > primary resources associated with the request.
+   *
+   * StructuredDocument's with urls will be cached as full documents with
+   * associated resource membership order and contents preserved but linked
+   * into the cache.
+   *
+   * @method put
+   * @param {StructuredDocument} doc
+   * @returns {ResourceDocument}
+   * @public
+   */
+  put<T extends SingleResourceDocument>(doc: StructuredDocument<T>): SingleResourceDataDocument;
+  put<T extends CollectionResourceDocument>(doc: StructuredDocument<T>): CollectionResourceDataDocument;
+  put<T extends ResourceMetaDocument | ResourceErrorDocument>(
+    doc: StructuredDocument<T>
+  ): ResourceMetaDocument | ResourceErrorDocument;
+  put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
     assert(`Cannot currently cache an ErrorDocument`, !('error' in doc));
-    const jsonApiDoc = doc.data;
+    const jsonApiDoc = doc.content;
     let included = jsonApiDoc.included;
     let i: number, length: number;
     const { identifierCache } = this.__storeWrapper;
@@ -110,11 +191,11 @@ export default class SingletonCache implements Cache {
       for (i = 0; i < length; i++) {
         identifiers.push(putOne(this, identifierCache, jsonApiDoc.data[i]));
       }
-      return { data: identifiers };
+      return this._putDocument(doc as StructuredDataDocument<CollectionResourceDocument>, identifiers);
     }
 
     if (jsonApiDoc.data === null) {
-      return { data: null };
+      return this._putDocument(doc as StructuredDataDocument<SingleResourceDocument>, null);
     }
 
     assert(
@@ -123,40 +204,165 @@ export default class SingletonCache implements Cache {
     );
 
     let identifier = putOne(this, identifierCache, jsonApiDoc.data);
-    return { data: identifier };
+    return this._putDocument(doc as StructuredDataDocument<SingleResourceDocument>, identifier);
+  }
+
+  _putDocument<T extends SingleResourceDocument>(
+    doc: StructuredDataDocument<T>,
+    data: StableExistingRecordIdentifier | null
+  ): SingleResourceDataDocument;
+  _putDocument<T extends CollectionResourceDocument>(
+    doc: StructuredDataDocument<T>,
+    data: StableExistingRecordIdentifier[]
+  ): CollectionResourceDataDocument;
+  _putDocument<T extends SingleResourceDocument | CollectionResourceDocument>(
+    doc: StructuredDataDocument<T>,
+    data: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null
+  ): SingleResourceDataDocument | CollectionResourceDataDocument {
+    // @ts-expect-error narrowing within is just horrible  in TS :/
+    const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument = {
+      data,
+    };
+    if (!doc.request?.url) {
+      return resourceDocument;
+    }
+    resourceDocument.lid = doc.request.url;
+    const jsonApiDoc = doc.content;
+    const { links, meta } = jsonApiDoc;
+    if (links) {
+      resourceDocument.links = links;
+    }
+    if (meta) {
+      resourceDocument.meta = meta;
+    }
+    // @ts-expect-error
+    doc.data = resourceDocument;
+    this.__documents.set(doc.request.url!, doc as StructuredDocument<ResourceDocument>);
+
+    return resourceDocument;
   }
 
   /**
-   * Private method used to populate an entry for the identifier
+   * Update the "remote" or "canonical" (persisted) state of the Cache
+   * by merging new information into the existing state.
    *
-   * @method _createCache
-   * @private
-   * @param identifier
+   * Note: currently the only valid resource operation is a MergeOperation
+   * which occurs when a collision of identifiers is detected.
+   *
+   * @method patch
+   * @public
+   * @param {Operation} op the operation to perform
+   * @returns {void}
    */
-  _createCache(identifier: StableRecordIdentifier): CachedResource {
-    assert(`Expected no resource data to yet exist in the cache`, !this.__cache.has(identifier));
-    const cache = makeCache();
-    this.__cache.set(identifier, cache);
-    return cache;
-  }
-
-  __safePeek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource | undefined {
-    let resource = this.__cache.get(identifier);
-    if (!resource && allowDestroyed) {
-      resource = this.__destroyedCache.get(identifier);
+  patch(op: MergeOperation): void {
+    if (LOG_OPERATIONS) {
+      try {
+        let _data = JSON.parse(JSON.stringify(op));
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Operation - patch ${op.op}`, _data);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Operation - patch ${op.op}`, op);
+      }
     }
-    return resource;
+    if (op.op === 'mergeIdentifiers') {
+      const cache = this.__cache.get(op.record);
+      if (cache) {
+        this.__cache.set(op.value, cache);
+        this.__cache.delete(op.record);
+      }
+      graphFor(this.__storeWrapper).update(op, true);
+    }
   }
 
-  __peek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource {
-    let resource = this.__safePeek(identifier, allowDestroyed);
-    assert(
-      `Expected Cache to have a resource entry for the identifier ${String(identifier)} but none was found`,
-      resource
-    );
-    return resource;
+  /**
+   * Update the "local" or "current" (unpersisted) state of the Cache
+   *
+   * @method mutate
+   * @param {Mutation} mutation
+   * @returns {void}
+   * @public
+   */
+  mutate(mutation: LocalRelationshipOperation): void {
+    if (LOG_MUTATIONS) {
+      try {
+        let _data = JSON.parse(JSON.stringify(mutation));
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Mutation - update ${mutation.op}`, _data);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Mutation - update ${mutation.op}`, mutation);
+      }
+    }
+    graphFor(this.__storeWrapper).update(mutation, false);
   }
 
+  /**
+   * Peek resource data from the Cache.
+   *
+   * In development, if the return value
+   * is JSON the return value
+   * will be deep-cloned and deep-frozen
+   * to prevent mutation thereby enforcing cache
+   * Immutability.
+   *
+   * This form of peek is useful for implementations
+   * that want to feed raw-data from cache to the UI
+   * or which want to interact with a blob of data
+   * directly from the presentation cache.
+   *
+   * An implementation might want to do this because
+   * de-referencing records which read from their own
+   * blob is generally safer because the record does
+   * not require retainining connections to the Store
+   * and Cache to present data on a per-field basis.
+   *
+   * This generally takes the place of `getAttr` as
+   * an API and may even take the place of `getRelationship`
+   * depending on implementation specifics, though this
+   * latter usage is less recommended due to the advantages
+   * of the Graph handling necessary entanglements and
+   * notifications for relational data.
+   *
+   * @method peek
+   * @public
+   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @returns {ResourceDocument | ResourceBlob | null} the known resource data
+   */
+  peek(identifier: StableRecordIdentifier): ResourceBlob | null;
+  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceBlob | ResourceDocument | null {
+    const document = this.peekRequest(identifier);
+
+    if (document) {
+      if ('content' in document) return document.content;
+    }
+    return null;
+  }
+
+  /**
+   * Peek the Cache for the existing request data associated with
+   * a cacheable request
+   *
+   * @method peekRequest
+   * @param {StableDocumentIdentifier}
+   * @returns {StableDocumentIdentifier | null}
+   * @public
+   */
+  peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
+    return this.__documents.get(identifier.lid) || null;
+  }
+
+  /**
+   * Push resource data from a remote source into the cache for this identifier
+   *
+   * @method upsert
+   * @public
+   * @param identifier
+   * @param data
+   * @param hasRecord
+   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   */
   upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
@@ -213,41 +419,128 @@ export default class SingletonCache implements Cache {
     return changedKeys;
   }
 
-  patch(op: MergeOperation): void {
-    if (LOG_OPERATIONS) {
-      try {
-        let _data = JSON.parse(JSON.stringify(op));
-        // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - sync ${op.op}`, _data);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - sync ${op.op}`, op);
-      }
-    }
-    if (op.op === 'mergeIdentifiers') {
-      const cache = this.__cache.get(op.record);
-      if (cache) {
-        this.__cache.set(op.value, cache);
-        this.__cache.delete(op.record);
-      }
-      graphFor(this.__storeWrapper).update(op, true);
-    }
+  // Cache Forking Support
+  // =====================
+
+  /**
+   * Create a fork of the cache from the current state.
+   *
+   * Applications should typically not call this method themselves,
+   * preferring instead to fork at the Store level, which will
+   * utilize this method to fork the cache.
+   *
+   * @method fork
+   * @internal
+   * @returns Promise<Cache>
+   */
+  fork(): Promise<Cache> {
+    throw new Error(`Not Implemented`);
   }
 
-  update(op: LocalRelationshipOperation): void {
-    if (LOG_MUTATIONS) {
-      try {
-        let _data = JSON.parse(JSON.stringify(op));
-        // eslint-disable-next-line no-console
-        console.log(`EmberData | Mutation - update ${op.op}`, _data);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(`EmberData | Mutation - update ${op.op}`, op);
-      }
-    }
-    graphFor(this.__storeWrapper).update(op, false);
+  /**
+   * Merge a fork back into a parent Cache.
+   *
+   * Applications should typically not call this method themselves,
+   * preferring instead to merge at the Store level, which will
+   * utilize this method to merge the caches.
+   *
+   * @method merge
+   * @param {Cache} cache
+   * @public
+   * @returns Promise<void>
+   */
+  merge(cache: Cache): Promise<void> {
+    throw new Error(`Not Implemented`);
   }
 
+  /**
+   * Generate the list of changes applied to all
+   * record in the store.
+   *
+   * Each individual resource or document that has
+   * been mutated should be described as an individual
+   * `Change` entry in the returned array.
+   *
+   * A `Change` is described by an object containing up to
+   * three properties: (1) the `identifier` of the entity that
+   * changed; (2) the `op` code of that change being one of
+   * `upsert` or `remove`, and if the op is `upsert` a `patch`
+   * containing the data to merge into the cache for the given
+   * entity.
+   *
+   * This `patch` is opaque to the Store but should be understood
+   * by the Cache and may expect to be utilized by an Adapter
+   * when generating data during a `save` operation.
+   *
+   * It is generally recommended that the `patch` contain only
+   * the updated state, ignoring fields that are unchanged
+   *
+   * ```ts
+   * interface Change {
+   *  identifier: StableRecordIdentifier | StableDocumentIdentifier;
+   *  op: 'upsert' | 'remove';
+   *  patch?: unknown;
+   * }
+   * ```
+   *
+   * @method diff
+   * @public
+   */
+  diff(): Promise<Change[]> {
+    throw new Error(`Not Implemented`);
+  }
+
+  // SSR Support
+  // ===========
+
+  /**
+   * Serialize the entire contents of the Cache into a Stream
+   * which may be fed back into a new instance of the same Cache
+   * via `cache.hydrate`.
+   *
+   * @method dump
+   * @returns {Promise<ReadableStream>}
+   * @public
+   */
+  dump(): Promise<ReadableStream<unknown>> {
+    throw new Error(`Not Implemented`);
+  }
+
+  /**
+   * hydrate a Cache from a Stream with content previously serialized
+   * from another instance of the same Cache, resolving when hydration
+   * is complete.
+   *
+   * This method should expect to be called both in the context of restoring
+   * the Cache during application rehydration after SSR **AND** at unknown
+   * times during the lifetime of an already booted application when it is
+   * desired to bulk-load additional information into the cache. This latter
+   * behavior supports optimizing pre/fetching of data for route transitions
+   * via data-only SSR modes.
+   *
+   * @method hydrate
+   * @param {ReadableStream} stream
+   * @returns {Promise<void>}
+   * @public
+   */
+  hydrate(stream: ReadableStream<unknown>): Promise<void> {
+    throw new Error('Not Implemented');
+  }
+
+  // Resource Support
+  // ================
+
+  /**
+   * [LIFECYCLE] Signal to the cache that a new record has been instantiated on the client
+   *
+   * It returns properties from options that should be set on the record during the create
+   * process. This return value behavior is deprecated.
+   *
+   * @method clientDidCreate
+   * @public
+   * @param identifier
+   * @param createArgs
+   */
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
     if (LOG_MUTATIONS) {
       try {
@@ -288,7 +581,7 @@ export default class SingletonCache implements Cache {
             this.setAttr(identifier, name, propertyValue);
             break;
           case 'belongsTo':
-            this.update({
+            this.mutate({
               op: 'replaceRelatedRecord',
               field: name,
               record: identifier,
@@ -299,7 +592,7 @@ export default class SingletonCache implements Cache {
             relationship.state.isEmpty = false;
             break;
           case 'hasMany':
-            this.update({
+            this.mutate({
               op: 'replaceRelatedRecords',
               field: name,
               record: identifier,
@@ -320,11 +613,30 @@ export default class SingletonCache implements Cache {
 
     return createOptions;
   }
+
+  /**
+   * [LIFECYCLE] Signals to the cache that a resource
+   * will be part of a save transaction.
+   *
+   * @method willCommit
+   * @public
+   * @param identifier
+   */
   willCommit(identifier: StableRecordIdentifier): void {
     const cached = this.__peek(identifier, false);
     cached.inflightAttrs = cached.localAttrs;
     cached.localAttrs = null;
   }
+
+  /**
+   * [LIFECYCLE] Signals to the cache that a resource
+   * was successfully updated as part of a save transaction.
+   *
+   * @method didCommit
+   * @public
+   * @param identifier
+   * @param data
+   */
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
     const cached = this.__peek(identifier, false);
     if (cached.isDeleted) {
@@ -384,6 +696,15 @@ export default class SingletonCache implements Cache {
     this.__storeWrapper.notifyChange(identifier, 'state');
   }
 
+  /**
+   * [LIFECYCLE] Signals to the cache that a resource
+   * was update via a save transaction failed.
+   *
+   * @method commitWasRejected
+   * @public
+   * @param identifier
+   * @param errors
+   */
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
     const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
@@ -404,6 +725,16 @@ export default class SingletonCache implements Cache {
     this.__storeWrapper.notifyChange(identifier, 'errors');
   }
 
+  /**
+   * [LIFECYCLE] Signals to the cache that all data for a resource
+   * should be cleared.
+   *
+   * This method is a candidate to become a mutation
+   *
+   * @method unloadRecord
+   * @public
+   * @param identifier
+   */
   unloadRecord(identifier: StableRecordIdentifier): void {
     const storeWrapper = this.__storeWrapper;
     // TODO this is necessary because
@@ -466,6 +797,18 @@ export default class SingletonCache implements Cache {
     }
   }
 
+  // Granular Resource Data APIs
+  // ===========================
+
+  /**
+   * Retrieve the data for an attribute from the cache
+   *
+   * @method getAttr
+   * @public
+   * @param identifier
+   * @param field
+   * @returns {unknown}
+   */
   getAttr(identifier: StableRecordIdentifier, attr: string): unknown {
     const cached = this.__peek(identifier, true);
     if (cached.localAttrs && attr in cached.localAttrs) {
@@ -479,6 +822,18 @@ export default class SingletonCache implements Cache {
       return getDefaultValue(attrSchema?.options);
     }
   }
+
+  /**
+   * Mutate the data for an attribute in the cache
+   *
+   * This method is a candidate to become a mutation
+   *
+   * @method setAttr
+   * @public
+   * @param identifier
+   * @param field
+   * @param value
+   */
   setAttr(identifier: StableRecordIdentifier, attr: string, value: unknown): void {
     const cached = this.__peek(identifier, false);
     const existing =
@@ -499,10 +854,29 @@ export default class SingletonCache implements Cache {
 
     this.__storeWrapper.notifyChange(identifier, 'attributes', attr);
   }
+
+  /**
+   * Query the cache for the changed attributes of a resource.
+   *
+   * @method changedAttrs
+   * @public
+   * @deprecated
+   * @param identifier
+   * @returns { <field>: [<old>, <new>] }
+   */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     // TODO freeze in dev
     return this.__peek(identifier, false).changes || Object.create(null);
   }
+
+  /**
+   * Query the cache for whether any mutated attributes exist
+   *
+   * @method hasChangedAttrs
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
 
@@ -511,6 +885,17 @@ export default class SingletonCache implements Cache {
       (cached.localAttrs !== null && Object.keys(cached.localAttrs).length > 0)
     );
   }
+
+  /**
+   * Tell the cache to discard any uncommitted mutations to attributes
+   *
+   * This method is a candidate to become a mutation
+   *
+   * @method rollbackAttrs
+   * @public
+   * @param identifier
+   * @returns {string[]} the names of fields that were restored
+   */
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
     const cached = this.__peek(identifier, false);
     let dirtyKeys: string[] | undefined;
@@ -548,6 +933,15 @@ export default class SingletonCache implements Cache {
     return dirtyKeys || [];
   }
 
+  /**
+   * Query the cache for the current state of a relationship property
+   *
+   * @method getRelationship
+   * @public
+   * @param identifier
+   * @param field
+   * @returns resource relationship object
+   */
   getRelationship(
     identifier: StableRecordIdentifier,
     field: string
@@ -555,6 +949,20 @@ export default class SingletonCache implements Cache {
     return (graphFor(this.__storeWrapper).get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
   }
 
+  // Resource State
+  // ===============
+
+  /**
+   * Update the cache state for the given resource to be marked
+   * as locally deleted, or remove such a mark.
+   *
+   * This method is a candidate to become a mutation
+   *
+   * @method setIsDeleted
+   * @public
+   * @param identifier
+   * @param isDeleted {boolean}
+   */
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
     const cached = this.__peek(identifier, false);
     cached.isDeleted = isDeleted;
@@ -568,24 +976,124 @@ export default class SingletonCache implements Cache {
     }
     this.__storeWrapper.notifyChange(identifier, 'state');
   }
+
+  /**
+   * Query the cache for any validation errors applicable to the given resource.
+   *
+   * @method getErrors
+   * @public
+   * @param identifier
+   * @returns {ValidationError[]}
+   */
   getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
     return this.__peek(identifier, true).errors || [];
   }
+
+  /**
+   * Query the cache for whether a given resource has any available data
+   *
+   * @method isEmpty
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
   isEmpty(identifier: StableRecordIdentifier): boolean {
     const cached = this.__safePeek(identifier, true);
     return cached ? cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null : true;
   }
+
+  /**
+   * Query the cache for whether a given resource was created locally and not
+   * yet persisted.
+   *
+   * @method isNew
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
   isNew(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
     return this.__safePeek(identifier, true)?.isNew || false;
   }
+
+  /**
+   * Query the cache for whether a given resource is marked as deleted (but not
+   * necessarily persisted yet).
+   *
+   * @method isDeleted
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
   isDeleted(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
     return this.__safePeek(identifier, true)?.isDeleted || false;
   }
+
+  /**
+   * Query the cache for whether a given resource has been deleted and that deletion
+   * has also been persisted.
+   *
+   * @method isDeletionCommitted
+   * @public
+   * @param identifier
+   * @returns {boolean}
+   */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
     return this.__safePeek(identifier, true)?.isDeletionCommitted || false;
+  }
+
+  /**
+   * Private method used to populate an entry for the identifier
+   *
+   * @method _createCache
+   * @internal
+   * @param {StableRecordIdentifier} identifier
+   * @returns {CachedResource}
+   */
+  _createCache(identifier: StableRecordIdentifier): CachedResource {
+    assert(`Expected no resource data to yet exist in the cache`, !this.__cache.has(identifier));
+    const cache = makeCache();
+    this.__cache.set(identifier, cache);
+    return cache;
+  }
+
+  /**
+   * Peek whether we have cached resource data matching the identifier
+   * without asserting if the resource data is missing.
+   *
+   * @method __safePeek
+   * @param {StableRecordIdentifier} identifier
+   * @param {Boolean} allowDestroyed
+   * @internal
+   * @returns {CachedResource | undefined}
+   */
+  __safePeek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource | undefined {
+    let resource = this.__cache.get(identifier);
+    if (!resource && allowDestroyed) {
+      resource = this.__destroyedCache.get(identifier);
+    }
+    return resource;
+  }
+
+  /**
+   * Peek whether we have cached resource data matching the identifier
+   * Asserts if the resource data is missing.
+   *
+   * @method __Peek
+   * @param {StableRecordIdentifier} identifier
+   * @param {Boolean} allowDestroyed
+   * @internal
+   * @returns {CachedResource}
+   */
+  __peek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource {
+    let resource = this.__safePeek(identifier, allowDestroyed);
+    assert(
+      `Expected Cache to have a resource entry for the identifier ${String(identifier)} but none was found`,
+      resource
+    );
+    return resource;
   }
 }
 
@@ -789,7 +1297,7 @@ function patchLocalAttributes(cached: CachedResource): boolean {
 }
 
 function putOne(
-  cache: SingletonCache,
+  cache: JSONAPICache,
   identifiers: IdentifierCache,
   resource: ExistingResourceObject
 ): StableExistingRecordIdentifier {

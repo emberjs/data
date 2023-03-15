@@ -658,7 +658,8 @@ export function preloadData(store: Store, identifier: StableRecordIdentifier, pr
     }
   });
   const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
-  cache.upsert(identifier, jsonPayload);
+  const hasRecord = Boolean(store._instanceCache.peek({ identifier, bucket: 'record' }));
+  cache.upsert(identifier, jsonPayload, hasRecord);
 }
 
 function preloadRelationship(
