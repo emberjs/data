@@ -34,7 +34,6 @@ jobs:
 
   basic-tests:
     timeout-minutes: 20
-    strategy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
