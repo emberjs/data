@@ -15,6 +15,7 @@ import { DSModel } from '@ember-data/types/q/ds-model';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
@@ -45,6 +46,26 @@ class TestStore extends Store {
 
   teardownRecord(record: FakeRecord) {
     record.destroy();
+  }
+}
+
+type Schemas<T extends string> = Record<T, { attributes: AttributesSchema; relationships: RelationshipsSchema }>;
+class TestSchema<T extends string> {
+  declare schemas: Schemas<T>;
+  constructor(schemas: Schemas<T>) {
+    this.schemas = schemas;
+  }
+
+  attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
+    return this.schemas[identifier.type]?.attributes || {};
+  }
+
+  relationshipsDefinitionFor(identifier: { type: T }): RelationshipsSchema {
+    return this.schemas[identifier.type]?.relationships || {};
+  }
+
+  doesTypeExist(type: string) {
+    return type === 'user';
   }
 }
 
@@ -177,7 +198,7 @@ module('Integration | @ember-data/json-api Cache', function (hooks) {
 
     assert.deepEqual(
       resourceData,
-      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'Chris' } },
+      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'Chris' }, relationships: {} },
       'We can fetch from the cache'
     );
 
@@ -190,7 +211,7 @@ module('Integration | @ember-data/json-api Cache', function (hooks) {
 
     assert.deepEqual(
       resourceData,
-      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'James' } },
+      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'James' }, relationships: {} },
       'Resource Blob is kept updated in the cache after mutation'
     );
 
@@ -203,7 +224,13 @@ module('Integration | @ember-data/json-api Cache', function (hooks) {
     resourceData = store.cache.peek(identifier);
     assert.deepEqual(
       resourceData,
-      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'James', username: '@runspired' } },
+      {
+        type: 'user',
+        id: '1',
+        lid: '@lid:user-1',
+        attributes: { name: 'James', username: '@runspired' },
+        relationships: {},
+      },
       'Resource Blob is kept updated in the cache after additional put'
     );
 
@@ -211,7 +238,13 @@ module('Integration | @ember-data/json-api Cache', function (hooks) {
     resourceData = store.cache.peek(identifier);
     assert.deepEqual(
       resourceData,
-      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'Chris', username: '@runspired' } },
+      {
+        type: 'user',
+        id: '1',
+        lid: '@lid:user-1',
+        attributes: { name: 'Chris', username: '@runspired' },
+        relationships: {},
+      },
       'Resource Blob is kept updated in the cache after rollback'
     );
   });
@@ -219,55 +252,174 @@ module('Integration | @ember-data/json-api Cache', function (hooks) {
   test('single resource relationships are accessible via `peek`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
 
-    const responseDocument = store.cache.put({
-      content: {
-        data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
-      },
-    } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    store.registerSchemaDefinitionService(
+      new TestSchema<'user'>({
+        user: {
+          attributes: {
+            name: { kind: 'attribute', name: 'name' },
+          },
+          relationships: {
+            bestFriend: {
+              kind: 'belongsTo',
+              type: 'user',
+              key: 'bestFriend',
+              name: 'bestFriend',
+              options: {
+                async: false,
+                inverse: 'bestFriend',
+              },
+            },
+            worstEnemy: {
+              kind: 'belongsTo',
+              type: 'user',
+              key: 'worstEnemy',
+              name: 'worstEnemy',
+              options: {
+                async: false,
+                inverse: null,
+              },
+            },
+            friends: {
+              kind: 'hasMany',
+              type: 'user',
+              key: 'friends',
+              name: 'friends',
+              options: {
+                async: false,
+                inverse: 'friends',
+              },
+            },
+          },
+        },
+      })
+    );
 
-    assert.strictEqual(responseDocument.data, identifier, 'We were given the correct data back');
+    let responseDocument: SingleResourceDataDocument;
+    store._run(() => {
+      responseDocument = store.cache.put({
+        content: {
+          data: {
+            type: 'user',
+            id: '1',
+            attributes: { name: 'Chris' },
+            relationships: {
+              bestFriend: {
+                data: { type: 'user', id: '2' },
+              },
+              worstEnemy: {
+                data: { type: 'user', id: '3' },
+              },
+              friends: {
+                data: [
+                  { type: 'user', id: '2' },
+                  { type: 'user', id: '3' },
+                ],
+              },
+            },
+          },
+          included: [
+            {
+              type: 'user',
+              id: '2',
+              attributes: { name: 'Wesley' },
+              relationships: {
+                bestFriend: {
+                  data: { type: 'user', id: '1' },
+                },
+                friends: {
+                  data: [
+                    { type: 'user', id: '1' },
+                    { type: 'user', id: '3' },
+                  ],
+                },
+              },
+            },
+            {
+              type: 'user',
+              id: '3',
+              attributes: { name: 'Rey' },
+              relationships: {
+                bestFriend: {
+                  data: null,
+                },
+                friends: {
+                  data: [
+                    { type: 'user', id: '1' },
+                    { type: 'user', id: '2' },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+    });
+    const identifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+    const identifier3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-    let resourceData = store.cache.peek(identifier);
+    assert.strictEqual(responseDocument!.data, identifier1, 'We were given the correct data back');
+
+    let resourceData1 = store.cache.peek(identifier1);
+    let resourceData2 = store.cache.peek(identifier2);
+    let resourceData3 = store.cache.peek(identifier3);
 
     assert.deepEqual(
-      resourceData,
-      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'Chris' } },
+      resourceData1,
+      {
+        type: 'user',
+        id: '1',
+        lid: '@lid:user-1',
+        attributes: { name: 'Chris' },
+        relationships: {
+          bestFriend: {
+            data: identifier2,
+          },
+          friends: {
+            data: [identifier2, identifier3],
+          },
+          worstEnemy: {
+            data: identifier3,
+          },
+        },
+      },
       'We can fetch from the cache'
     );
-
-    const record = store.peekRecord(identifier) as DSModel;
-
-    assert.strictEqual(record.name, 'Chris', 'record name is correct');
-
-    store.cache.setAttr(identifier, 'name', 'James');
-    resourceData = store.cache.peek(identifier);
-
     assert.deepEqual(
-      resourceData,
-      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'James' } },
-      'Resource Blob is kept updated in the cache after mutation'
-    );
-
-    store.cache.put({
-      content: {
-        data: { type: 'user', id: '1', attributes: { username: '@runspired' } },
+      resourceData2,
+      {
+        type: 'user',
+        id: '2',
+        lid: '@lid:user-2',
+        attributes: { name: 'Wesley' },
+        relationships: {
+          bestFriend: {
+            data: identifier1,
+          },
+          friends: {
+            data: [identifier1, identifier3],
+          },
+        },
       },
-    } as StructuredDocument<SingleResourceDocument>);
-
-    resourceData = store.cache.peek(identifier);
-    assert.deepEqual(
-      resourceData,
-      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'James', username: '@runspired' } },
-      'Resource Blob is kept updated in the cache after additional put'
+      'We can fetch included data from the cache'
     );
-
-    store.cache.rollbackAttrs(identifier);
-    resourceData = store.cache.peek(identifier);
     assert.deepEqual(
-      resourceData,
-      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'Chris', username: '@runspired' } },
-      'Resource Blob is kept updated in the cache after rollback'
+      resourceData3,
+      {
+        type: 'user',
+        id: '3',
+        lid: '@lid:user-3',
+        attributes: { name: 'Rey' },
+        relationships: {
+          bestFriend: {
+            data: null,
+          },
+          friends: {
+            data: [identifier1, identifier2],
+          },
+        },
+      },
+      'We can fetch more included data from the cache'
     );
   });
 });

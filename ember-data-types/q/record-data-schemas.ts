@@ -37,10 +37,10 @@ export interface AttributeSchema {
   kind?: 'attribute';
 
   // TODO @runspired update RFC to make options optional
-  options: {
+  options?: {
     [key: string]: unknown;
   };
-  type: string; // TODO @runspired update RFC to make type optional
+  type?: string; // TODO @runspired update RFC to make type optional
 }
 
 export type AttributesSchema = Dict<AttributeSchema>;
