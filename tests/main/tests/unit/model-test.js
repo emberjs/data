@@ -582,9 +582,15 @@ module('unit/model - Model', function (hooks) {
     testInDebug(`don't allow setting of readOnly state props`, async function (assert) {
       let record = store.createRecord('person');
 
-      assert.expectAssertion(() => {
-        record.set('isLoaded', true);
-      }, /Cannot set property isLoaded of \[object Object\] which has only a getter/);
+      if (navigator.userAgent.includes('Firefox/')) {
+        assert.expectAssertion(() => {
+          record.set('isLoaded', true);
+        }, /setting getter-only property "isLoaded"/);
+      } else {
+        assert.expectAssertion(() => {
+          record.set('isLoaded', true);
+        }, /Cannot set property isLoaded of \[object Object\] which has only a getter/);
+      }
     });
 
     class NativePostWithCurrentState extends Model {

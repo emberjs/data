@@ -1,4 +1,4 @@
-name: Enforce Prior Release PR labeling
+name: PR
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - release-*
 
 concurrency:
-  group: pr-labels-old-release-${{ github.head_ref }}
+  group: pr-labels-old-release-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:

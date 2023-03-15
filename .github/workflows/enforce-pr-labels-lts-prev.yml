@@ -1,13 +1,14 @@
-name: Enforce Pervious LTS Release PR labeling
+name: PR
 
 on:
   pull_request:
     types: [labeled, unlabeled, opened, reopened, edited, synchronize]
     branches:
-      - lts-3-24
+      - lts-4-4
+      - lts-3-28
 
 concurrency:
-  group: pr-labels-lts-prev-${{ github.head_ref }}
+  group: pr-labels-lts-prev-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:

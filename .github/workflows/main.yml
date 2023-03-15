@@ -1,4 +1,4 @@
-name: CI
+name: Main
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ on:
       - '*'
 
 concurrency:
-  group: ci-${{ github.head_ref }}
+  group: ci-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
       - name: Check for TypeScript problems
         run: pnpm problems
 
-  basic-tests:
+  special-build-tests:
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -41,13 +41,9 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-      - name: Basic tests
-        run: pnpm test
       - if: |
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
-          ) || github.event_name == 'push' && (
-            endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
           )
         name: Enable All In progress features
         env:
@@ -56,8 +52,6 @@ jobs:
       - if: |
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
-          ) || github.event_name == 'push' && (
-            endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
           )
         name: Disabled All In progress features
         env:
@@ -68,8 +62,6 @@ jobs:
       - if: |
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
-          ) || github.event_name == 'push' && (
-            endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
           )
         name: Remove All Deprecations
         env:
@@ -90,7 +82,12 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
-      - name: Run Production Test
+      - name: Development
+        env:
+          TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
+          CI: true
+        run: pnpm test
+      - name: Production
         timeout-minutes: 10
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}

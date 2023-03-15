@@ -1,4 +1,4 @@
-name: Ecosystem Compat Tests
+name: Compat
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - master
 
 concurrency:
-  group: compat-${{ github.head_ref }}
+  group: compat-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x, 18.x]
+        node-version: [14.x, 16.x, 18.x]
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup

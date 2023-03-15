@@ -1,4 +1,4 @@
-name: AssetSizeCheck
+name: AssetSize
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
       - ready_for_review
 
 concurrency:
-  group: asset-size-${{ github.head_ref }}
+  group: asset-size-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:

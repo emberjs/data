@@ -20,9 +20,9 @@ module('RequestManager | Immutability', function () {
       await manager.request({ url: '/foo', headers: new Headers([['foo', 'bar']]) });
       assert.ok(false, 'we should have erred');
     } catch (e) {
-      assert.strictEqual(
-        (e as Error).message,
-        'Cannot add property integrity, object is not extensible',
+      assert.true(
+        (e as Error).message === `can't define property "integrity": Object is not extensible` || // firefox
+          (e as Error).message === 'Cannot add property integrity, object is not extensible', // chrome
         `expected ${(e as Error).message} to match the expected error`
       );
     }

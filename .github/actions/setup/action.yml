@@ -34,10 +34,6 @@ inputs:
     description: Ref to Setup
     required: false
     default: ${{ github.sha }}
-  node-version:
-    description: Node Version to USe
-    required: false
-    default: 19.x
 
 runs:
   using: composite
@@ -46,7 +42,7 @@ runs:
     - uses: actions/setup-node@v3
       with:
         registry-url: 'https://registry.npmjs.org'
-        node-version: ${{inputs.node-version }}
+        node-version-file: 'package.json'
         cache: 'pnpm'
 
     - name: Configure Parallel Builds
