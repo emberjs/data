@@ -236,7 +236,7 @@ export default class JSONAPICache implements Cache {
       resourceDocument.meta = meta;
     }
     // @ts-expect-error
-    doc.data = resourceDocument;
+    doc.content = resourceDocument;
     this.__documents.set(doc.request.url!, doc as StructuredDocument<ResourceDocument>);
 
     return resourceDocument;
