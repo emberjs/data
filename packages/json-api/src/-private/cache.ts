@@ -236,7 +236,7 @@ export default class JSONAPICache implements Cache {
       resourceDocument.meta = meta;
     }
     // @ts-expect-error
-    doc.data = resourceDocument;
+    doc.content = resourceDocument;
     this.__documents.set(doc.request.url!, doc as StructuredDocument<ResourceDocument>);
 
     return resourceDocument;
@@ -332,6 +332,37 @@ export default class JSONAPICache implements Cache {
   peek(identifier: StableRecordIdentifier): ResourceBlob | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
   peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceBlob | ResourceDocument | null {
+    if ('type' in identifier) {
+      const peeked = this.__safePeek(identifier, false);
+
+      if (!peeked) {
+        return null;
+      }
+
+      const { type, id, lid } = identifier;
+      const attributes = Object.assign({}, peeked.remoteAttrs, peeked.inflightAttrs, peeked.localAttrs);
+      const relationships = {};
+
+      const graph = graphFor(this.__storeWrapper);
+      const rels = graph.identifiers.get(identifier);
+      if (rels) {
+        Object.keys(rels).forEach((key) => {
+          const rel = rels[key]!;
+          if (rel.definition.isImplicit) {
+            return;
+          }
+          relationships[key] = (rel as ManyRelationship | BelongsToRelationship).getData();
+        });
+      }
+      return {
+        type,
+        id,
+        lid,
+        attributes,
+        relationships,
+      };
+    }
+
     const document = this.peekRequest(identifier);
 
     if (document) {
