@@ -332,6 +332,24 @@ export default class JSONAPICache implements Cache {
   peek(identifier: StableRecordIdentifier): ResourceBlob | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
   peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceBlob | ResourceDocument | null {
+    if ('type' in identifier) {
+      const peeked = this.__safePeek(identifier, false);
+
+      if (!peeked) {
+        return null;
+      }
+
+      const { type, id, lid } = identifier;
+      const attributes = Object.assign({}, peeked.remoteAttrs, peeked.inflightAttrs, peeked.localAttrs);
+
+      return {
+        type,
+        id,
+        lid,
+        attributes,
+      };
+    }
+
     const document = this.peekRequest(identifier);
 
     if (document) {
