@@ -77,7 +77,6 @@ jobs:
         run: pnpm test:production
 
   browser-tests:
-    needs: [lint]
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -99,7 +98,7 @@ jobs:
         run: pnpm test:production
 
   lts:
-    needs: [lint, basic-tests]
+    needs: [browser-tests]
     strategy:
       fail-fast: false
       matrix:
@@ -119,7 +118,7 @@ jobs:
 
   releases:
     timeout-minutes: 10
-    needs: [lint, basic-tests]
+    needs: [browser-tests]
     if: |
       github.event_name == 'pull_request' && (
         github.base_ref == 'master' || github.base_ref == 'beta'
@@ -148,7 +147,7 @@ jobs:
 
   additional-scenarios:
     timeout-minutes: 8
-    needs: [lint, basic-tests]
+    needs: [browser-tests]
     strategy:
       matrix:
         scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
