@@ -311,6 +311,7 @@ module.exports = {
     '(public) @ember-data/model PromiseManyArray#then',
     '(public) @ember-data/request RequestManager#request',
     '(public) @ember-data/request RequestManager#use',
+    '(public) @ember-data/request RequestManager#useCache',
     '(public) @ember-data/serializer Serializer#normalize',
     '(public) @ember-data/serializer Serializer#normalizeResponse',
     '(public) @ember-data/serializer Serializer#serialize',

@@ -104,7 +104,8 @@ export function executeNextHandler<T>(
   try {
     outcome = wares[i].request<T>(context, next);
     if (macroCondition(isDevelopingApp())) {
-      if (!(outcome instanceof Promise) && !('then' in outcome)) {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      if (!outcome || (!(outcome instanceof Promise) && !('then' in outcome))) {
         // eslint-disable-next-line no-console
         console.log({ request, handler: wares[i], outcome });
         if (outcome === undefined) {
