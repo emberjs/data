@@ -64,10 +64,8 @@ import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from 
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
-import { _findAll, _query } from './network/finders';
 import type RequestCache from './network/request-cache';
 import type Snapshot from './network/snapshot';
-import SnapshotRecordArray from './network/snapshot-record-array';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
@@ -1513,7 +1511,11 @@ class Store {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName: string, query, options): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
+  query(
+    modelName: string,
+    query: Record<string, unknown>,
+    options: { [key: string]: unknown; adapterOptions?: Record<string, unknown> }
+  ): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1524,35 +1526,19 @@ class Store {
       typeof modelName === 'string'
     );
 
-    let adapterOptionsWrapper: { adapterOptions?: any } = {};
-
-    if (options && options.adapterOptions) {
-      adapterOptionsWrapper.adapterOptions = options.adapterOptions;
-    }
-    let recordArray = options?._recordArray || null;
-
-    let normalizedModelName = normalizeModelName(modelName);
-    let adapter = this.adapterFor(normalizedModelName);
-
-    assert(`You tried to load a query but you have no adapter (for ${modelName})`, adapter);
-    assert(
-      `You tried to load a query but your adapter does not implement 'query'`,
-      typeof adapter.query === 'function'
-    );
-
-    let queryPromise = _query(
-      adapter,
-      this,
-      normalizedModelName,
-      query,
-      recordArray,
-      adapterOptionsWrapper
-    ) as unknown as Promise<Collection>;
+    const promise = this.request<Collection>({
+      op: 'query',
+      data: {
+        type: normalizeModelName(modelName),
+        query,
+        options,
+      },
+    });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(queryPromise);
+      return promiseArray(promise.then((document) => document.content));
     }
-    return queryPromise;
+    return promise.then((document) => document.content);
   }
 
   /**
@@ -1884,54 +1870,18 @@ class Store {
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
-    let array = this.peekAll(normalizedModelName);
-    let fetch;
-
-    let adapter = this.adapterFor(normalizedModelName);
-
-    assert(`You tried to load all records but you have no adapter (for ${normalizedModelName})`, adapter);
-    assert(
-      `You tried to load all records but your adapter does not implement 'findAll'`,
-      typeof adapter.findAll === 'function'
-    );
-
-    if (options.reload) {
-      array.isUpdating = true;
-      fetch = _findAll(adapter, this, normalizedModelName, options);
-    } else {
-      let snapshotArray = new SnapshotRecordArray(this, array, options);
-
-      if (options.reload !== false) {
-        if (
-          (adapter.shouldReloadAll && adapter.shouldReloadAll(this, snapshotArray)) ||
-          (!adapter.shouldReloadAll && snapshotArray.length === 0)
-        ) {
-          array.isUpdating = true;
-          fetch = _findAll(adapter, this, modelName, options, snapshotArray);
-        }
-      }
-
-      if (!fetch) {
-        if (options.backgroundReload === false) {
-          fetch = resolve(array);
-        } else if (
-          options.backgroundReload ||
-          !adapter.shouldBackgroundReloadAll ||
-          adapter.shouldBackgroundReloadAll(this, snapshotArray)
-        ) {
-          array.isUpdating = true;
-          _findAll(adapter, this, modelName, options, snapshotArray);
-        }
-
-        fetch = resolve(array);
-      }
-    }
+    const promise = this.request<IdentifierArray>({
+      op: 'findAll',
+      data: {
+        type: normalizeModelName(modelName),
+        options,
+      },
+    });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(fetch);
+      return promiseArray(promise.then((document) => document.content));
     }
-    return fetch;
+    return promise.then((document) => document.content) as PromiseArray<RecordInstance, IdentifierArray>;
   }
 
   /**

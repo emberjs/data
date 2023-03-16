@@ -53,9 +53,6 @@ export {
 } from './record-arrays/identifier-array';
 export { default as RecordArrayManager, fastPush } from './managers/record-array-manager';
 
-// // Used by tests
-export { default as SnapshotRecordArray } from './network/snapshot-record-array';
-
 // leaked for private use / test use, should investigate removing
 export { _clearCaches } from './caches/instance-cache';
 export { default as peekCache, removeRecordDataFor } from './caches/cache-utils';

@@ -4,8 +4,8 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import { SnapshotRecordArray } from '@ember-data/adapter/-private';
 import Model, { attr } from '@ember-data/model';
-import { SnapshotRecordArray } from '@ember-data/store/-private';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('Unit - snapshot-record-array', function (hooks) {

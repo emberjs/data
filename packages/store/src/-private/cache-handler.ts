@@ -26,6 +26,7 @@ export interface StoreRequestInfo extends ImmutableRequestInfo {
     | 'updateRecord'
     | 'query'
     | 'queryRecord'
+    | 'findAll'
     | 'findBelongsTo'
     | 'findHasMany'
     | 'createRecord'

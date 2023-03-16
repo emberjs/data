@@ -605,8 +605,9 @@ export class Collection extends IdentifierArray {
     const { store, query } = this;
 
     // TODO save options from initial request?
-    assert(`_update cannot be used with this array`, this.modelName);
-    const promise = store.query(this.modelName, query, { _recordArray: this });
+    assert(`update cannot be used with this array`, this.modelName);
+    assert(`update cannot be used with no query`, query);
+    const promise = store.query(this.modelName, query as Dict<unknown>, { _recordArray: this });
 
     if (DEPRECATE_PROMISE_PROXIES) {
       return promiseArray(promise);

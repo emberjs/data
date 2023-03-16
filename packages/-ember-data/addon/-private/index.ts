@@ -21,8 +21,9 @@ export { Errors } from '@ember-data/model/-private';
 export { Snapshot } from '@ember-data/store/-private';
 
 // `ember-data-model-fragments' and `ember-data-change-tracker` rely on `normalizeModelName`
-export { RecordArrayManager, SnapshotRecordArray, normalizeModelName, coerceId } from '@ember-data/store/-private';
+export { RecordArrayManager, normalizeModelName, coerceId } from '@ember-data/store/-private';
 export { ManyArray, PromiseManyArray } from '@ember-data/model/-private';
+export { SnapshotRecordArray } from '@ember-data/adapter/-private';
 
 export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin);
 export const PromiseObject = ObjectProxy.extend(PromiseProxyMixin);

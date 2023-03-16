@@ -9,3 +9,5 @@ export { default as fetch, setupFastboot } from './-private/utils/fetch';
 export { default as BuildURLMixin } from './-private/build-url-mixin';
 export { default as serializeIntoHash } from './-private/utils/serialize-into-hash';
 export { LegacyNetworkHandler } from './-private/legacy-network-handler';
+// // Used by tests
+export { default as SnapshotRecordArray } from './-private/utils/snapshot-record-array';
