@@ -1,1 +1,1 @@
-export { default } from '@ember-data/store';
+export { Store as default } from './-private';

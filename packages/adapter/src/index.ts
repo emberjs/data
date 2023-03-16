@@ -865,4 +865,4 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
   }
 }
 
-export { BuildURLMixin } from './-private';
+export { LegacyNetworkHandler, BuildURLMixin } from './-private';

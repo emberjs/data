@@ -420,6 +420,10 @@ class Store {
    * @public
    */
   request<T>(requestConfig: StoreRequestInfo): Future<T> {
+    // we lazily set the cache handler when we issue the first request
+    // because constructor doesn't allow for this to run after
+    // the user has had the chance to set the prop.
+    this._registerCacheHandler();
     return this.requestManager.request(Object.assign(requestConfig, { store: this }));
   }
 
