@@ -22,7 +22,8 @@ import {
   DEPRECATE_V1_RECORD_DATA,
 } from '@ember-data/private-build-infra/deprecations';
 import type { RequestManager } from '@ember-data/request';
-import type { Future, ImmutableRequestInfo, RequestContext } from '@ember-data/request/-private/types';
+import type { Future } from '@ember-data/request/-private/types';
+import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel } from '@ember-data/types/q/ds-model';
@@ -42,7 +43,7 @@ import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definit
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { CacheHandler } from './cache-handler';
+import { CacheHandler, LifetimesService, StoreRequestInfo } from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -63,7 +64,7 @@ import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from 
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
-import { _findAll, _query, _queryRecord } from './network/finders';
+import { _findAll, _query } from './network/finders';
 import type RequestCache from './network/request-cache';
 import type Snapshot from './network/snapshot';
 import SnapshotRecordArray from './network/snapshot-record-array';
@@ -96,31 +97,6 @@ export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 export interface CreateRecordProperties {
   id?: string | null;
   [key: string]: unknown;
-}
-
-export interface LifetimesService {
-  isHardExpired(key: string, url: string, method: HTTPMethod): boolean;
-  isSoftExpired(key: string, url: string, method: HTTPMethod): boolean;
-}
-
-export interface StoreRequestInfo extends ImmutableRequestInfo {
-  cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
-  store: Store;
-
-  op?:
-    | 'findRecord'
-    | 'updateRecord'
-    | 'query'
-    | 'queryRecord'
-    | 'findBelongsTo'
-    | 'findHasMany'
-    | 'createRecord'
-    | 'deleteRecord';
-  records?: StableRecordIdentifier[];
-}
-
-export interface StoreRequestContext extends RequestContext {
-  request: StoreRequestInfo;
 }
 
 /**
@@ -1679,7 +1655,7 @@ class Store {
   */
   queryRecord(
     modelName: string,
-    query,
+    query: Record<string, unknown>,
     options?
   ): PromiseObject<RecordInstance | null> | Promise<RecordInstance | null> {
     if (DEBUG) {
@@ -1692,32 +1668,19 @@ class Store {
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
-    let adapter = this.adapterFor(normalizedModelName);
-    let adapterOptionsWrapper: { adapterOptions?: any } = {};
-
-    if (options && options.adapterOptions) {
-      adapterOptionsWrapper.adapterOptions = options.adapterOptions;
-    }
-
-    assert(`You tried to make a query but you have no adapter (for ${normalizedModelName})`, adapter);
-    assert(
-      `You tried to make a query but your adapter does not implement 'queryRecord'`,
-      typeof adapter.queryRecord === 'function'
-    );
-
-    const promise: Promise<StableRecordIdentifier | null> = _queryRecord(
-      adapter,
-      this,
-      normalizedModelName,
-      query,
-      adapterOptionsWrapper
-    ) as Promise<StableRecordIdentifier | null>;
+    const promise = this.request<SingleResourceDataDocument>({
+      op: 'queryRecord',
+      data: {
+        type: normalizeModelName(modelName),
+        query,
+        options,
+      },
+    });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseObject(promise.then((identifier) => identifier && this.peekRecord(identifier)));
+      return promiseObject(promise.then((document) => document.content.data && this.peekRecord(document.content.data)));
     }
-    return promise.then((identifier) => identifier && this.peekRecord(identifier));
+    return promise.then((document) => document.content.data && this.peekRecord(document.content.data));
   }
 
   /**

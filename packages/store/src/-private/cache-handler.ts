@@ -19,7 +19,7 @@ export interface LifetimesService {
 
 export interface StoreRequestInfo extends ImmutableRequestInfo {
   cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
-  store: Store;
+  store?: Store;
 
   op?:
     | 'findRecord'
@@ -34,7 +34,7 @@ export interface StoreRequestInfo extends ImmutableRequestInfo {
 }
 
 export interface StoreRequestContext extends RequestContext {
-  request: StoreRequestInfo;
+  request: StoreRequestInfo & { store: Store };
 }
 
 function getHydratedContent<T>(store: Store, request: ImmutableRequestInfo, document: ResourceDataDocument): T {
@@ -118,6 +118,10 @@ function fetchContentAndHydrate<T>(
 
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
+    // if we are a legacy request, skip cache handling
+    if (context.request.op && !context.request.url) {
+      return next(context.request);
+    }
     const { store } = context.request;
     const { cacheOptions, url, method } = context.request;
     const lid = cacheOptions?.key || (method === 'GET' && url) ? url : null;

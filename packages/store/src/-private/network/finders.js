@@ -78,27 +78,3 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
     `DS: Extract payload of query ${modelName}`
   );
 }
-
-export function _queryRecord(adapter, store, modelName, query, options) {
-  let modelClass = store.modelFor(modelName); // adapter.queryRecord needs the class
-  let promise = Promise.resolve().then(() => adapter.queryRecord(store, modelClass, query, options));
-
-  let label = `DS: Handle Adapter#queryRecord of ${modelName}`;
-  promise = guardDestroyedStore(promise, store, label);
-
-  return promise.then(
-    (adapterPayload) => {
-      let serializer = store.serializerFor(modelName);
-      let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'queryRecord');
-
-      assert(
-        `Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array.`,
-        !Array.isArray(payload.data)
-      );
-
-      return store._push(payload);
-    },
-    null,
-    `DS: Extract payload of queryRecord ${modelName}`
-  );
-}
