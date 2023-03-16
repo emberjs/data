@@ -9,7 +9,7 @@ There are four release channels, `lts`, `release`, `beta` and `canary`.
 Each has it's own section below.
 
 In this guide, we are assuming that the remote `origin` is `git@github.com:emberjs/data.git`,
-this remote needs to exist and `origin/master` `origin/beta` `origin/release` etc. need to be the upstreams of the local `master` `beta` `release` branches etc.
+this remote needs to exist and `origin/main` `origin/beta` `origin/release` etc. need to be the upstreams of the local `main` `beta` `release` branches etc.
 
 ## Getting Setup To Do A Release
 
@@ -176,14 +176,14 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 
    DO NOT WORK FROM A LOCAL `beta` branch THAT DIFFERS
 
-   a. If this is the first `beta` release of the cycle, we "cut" from `#master`.
+   a. If this is the first `beta` release of the cycle, we "cut" from `#main`.
 
    DO THIS PRIOR TO PUBLISHING THE NEXT CANARY
 
    ```
    git checkout beta;
    git fetch origin;
-   git reset --hard origin/master;
+   git reset --hard origin/main;
    git push origin beta -f;
    ```
 
@@ -202,14 +202,14 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    ```
 ### Canary Releases
 
-1. Checkout the `#master` branch and ensure it is in-sync with `origin/master`.
+1. Checkout the `#main` branch and ensure it is in-sync with `origin/main`.
 
-   DO NOT WORK FROM A LOCAL `master` branch THAT DIFFERS
+   DO NOT WORK FROM A LOCAL `main` branch THAT DIFFERS
 
    ```js
-   git checkout master;
+   git checkout main;
    git fetch origin;
-   git reset --hard origin/master
+   git reset --hard origin/main
    ```
 
 2. Publish the nightly.

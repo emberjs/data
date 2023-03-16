@@ -25,7 +25,7 @@ runs:
           ./${{ inputs.package }}/dist-${{ inputs.ref }}${{ inputs.ext }}
         key: ${{ inputs.ref }}
         restore-keys: |
-          master
+          main
 
     - if: ${{ steps.restore-ref-artifact.outputs.cache-hit != 'true' }}
       name: Build ${{ inputs.name }}

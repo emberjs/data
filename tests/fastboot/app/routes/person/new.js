@@ -5,6 +5,6 @@ export default class PersonNewRoute extends Route {
   @service store;
 
   model() {
-    return this.store.createRecord('person');
+    return this.store.createRecord('person', {});
   }
 }

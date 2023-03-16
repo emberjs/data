@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [labeled, unlabeled, opened, reopened, edited, synchronize]
     branches:
-      - master
+      - main
 
 concurrency:
   group: pr-labels-canary-${{ github.head_ref || github.ref_name }}
@@ -31,4 +31,4 @@ jobs:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
           BANNED_LABELS: 'backport-beta,backport-release,backport-lts,backport-lts-prev,backport-old-release'
-          BANNED_LABELS_DESCRIPTION: "The following labels should only be applied to PRs targeting release channel branches that backport a change already on the master branch, remove them.['backport-beta', 'backport-release', 'backport-lts', 'backport-lts-prev', 'backport-old-release']"
+          BANNED_LABELS_DESCRIPTION: "The following labels should only be applied to PRs targeting release channel branches that backport a change already on the main branch, remove them.['backport-beta', 'backport-release', 'backport-lts', 'backport-lts-prev', 'backport-old-release']"

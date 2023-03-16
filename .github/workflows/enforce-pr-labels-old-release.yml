@@ -24,7 +24,7 @@ jobs:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
           BANNED_LABELS: 'target:canary,target:beta,target:release,target:lts,target:lts-prev'
-          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the master branch, remove them. ['target:canary', 'target:beta', 'target:release', 'target:lts', 'target:lts-prev']"
+          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the main branch, remove them. ['target:canary', 'target:beta', 'target:release', 'target:lts', 'target:lts-prev']"
   ban-other-release-branch-labels:
     runs-on: ubuntu-latest
     steps:

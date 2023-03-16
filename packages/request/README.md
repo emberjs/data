@@ -72,7 +72,7 @@ flowchart LR
     F <--> H[(fa:fa-database Source)]
 ```
 
-The same or a separate instance of a `RequestManager` may also be used to fulfill requests issued by [*Ember***Data**{Store}](https://github.com/emberjs/data/tree/master/packages/store)
+The same or a separate instance of a `RequestManager` may also be used to fulfill requests issued by [*Ember***Data**{Store}](https://github.com/emberjs/data/tree/main/packages/store)
 
 ```mermaid
 flowchart LR
@@ -80,8 +80,8 @@ flowchart LR
     B{{fa:fa-sitemap RequestManager}} <--> C[(fa:fa-database Source)]
     D <--> E[(fa:fa-archive Cache)]
     D <--> B
-    click D href "https://github.com/emberjs/data/tree/master/packages/store" "Go to @ember-data/store" _blank
-    click E href "https://github.com/emberjs/data/tree/master/packages/json-api" "Go to @ember-data/json-api" _blank
+    click D href "https://github.com/emberjs/data/tree/main/packages/store" "Go to @ember-data/store" _blank
+    click E href "https://github.com/emberjs/data/tree/main/packages/json-api" "Go to @ember-data/json-api" _blank
     style D color:#58a6ff;
     style E color:#58a6ff;
 ```
@@ -97,8 +97,8 @@ flowchart LR
     A <--> D{fa:fa-code-fork Store}
     D <--> E[(fa:fa-archive Cache)]
     D <--> B
-    click D href "https://github.com/emberjs/data/tree/master/packages/store" "Go to @ember-data/store" _blank
-    click E href "https://github.com/emberjs/data/tree/master/packages/json-api" "Go to @ember-data/json-api" _blank
+    click D href "https://github.com/emberjs/data/tree/main/packages/store" "Go to @ember-data/store" _blank
+    click E href "https://github.com/emberjs/data/tree/main/packages/json-api" "Go to @ember-data/json-api" _blank
     style D color:#58a6ff;
     style E color:#58a6ff;
 ```
@@ -344,7 +344,7 @@ class extends Store {
 
 ### Using with `ember-data`
 
-If using the package [ember-data](https://github.com/emberjs/data/tree/master/packages/-ember-data), the following configuration will automatically be done in order to preserve the legacy [Adapter](https://github.com/emberjs/data/tree/master/packages/adapter) and [Serializer](https://github.com/emberjs/data/tree/master/packages/serializer) behavior. Additional handlers or a service injection like the above would need to be done by the consuming application in order to make broader use of `RequestManager`.
+If using the package [ember-data](https://github.com/emberjs/data/tree/main/packages/-ember-data), the following configuration will automatically be done in order to preserve the legacy [Adapter](https://github.com/emberjs/data/tree/main/packages/adapter) and [Serializer](https://github.com/emberjs/data/tree/main/packages/serializer) behavior. Additional handlers or a service injection like the above would need to be done by the consuming application in order to make broader use of `RequestManager`.
 
 ```ts
 import Store from '@ember-data/store';

@@ -47,7 +47,7 @@ export interface ExistingResourceIdentifierObject {
    * should always be present. Only when inbound from the an `API` response
    * is `lid` considered optional.
    *
-   * [Identifiers RFC](https://github.com/emberjs/rfcs/blob/master/text/0403-ember-data-identifiers.md#ember-data--identifiers)
+   * [Identifiers RFC](https://github.com/emberjs/rfcs/blob/main/text/0403-ember-data-identifiers.md#ember-data--identifiers)
    * @internal
    */
   lid?: string;

@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
       - beta
       - release
       - 'release-*'
@@ -43,7 +43,7 @@ jobs:
           install: true
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'master' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta'
           )
         name: Enable All In progress features
         env:
@@ -51,7 +51,7 @@ jobs:
         run: pnpm test
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'master' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta'
           )
         name: Disabled All In progress features
         env:
@@ -61,7 +61,7 @@ jobs:
         run: pnpm test:production
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'master' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta'
           )
         name: Remove All Deprecations
         env:
@@ -118,9 +118,9 @@ jobs:
     needs: [browser-tests]
     if: |
       github.event_name == 'pull_request' && (
-        github.base_ref == 'master' || github.base_ref == 'beta'
+        github.base_ref == 'main' || github.base_ref == 'beta'
       ) || github.event_name == 'push' && (
-        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+        endsWith(github.ref, '/main') || endsWith(github.ref, '/beta')
       )
     strategy:
       fail-fast: false
