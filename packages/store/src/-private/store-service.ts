@@ -1531,7 +1531,7 @@ class Store {
       data: {
         type: normalizeModelName(modelName),
         query,
-        options,
+        options: options || {},
       },
     });
 
@@ -1659,7 +1659,7 @@ class Store {
       data: {
         type: normalizeModelName(modelName),
         query,
-        options,
+        options: options || {},
       },
     });
 
@@ -1874,7 +1874,7 @@ class Store {
       op: 'findAll',
       data: {
         type: normalizeModelName(modelName),
-        options,
+        options: options || {},
       },
     });
 

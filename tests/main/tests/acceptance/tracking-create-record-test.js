@@ -9,7 +9,6 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import Store from '@ember-data/store';
 import { memoTransact, transact, untracked } from '@ember-data/tracking';
 
 module('acceptance/tracking-transactions', function (hooks) {
@@ -48,7 +47,6 @@ module('acceptance/tracking-transactions', function (hooks) {
       </ul>
     `;
 
-    owner.register('service:store', Store);
     owner.register('model:widget', Widget);
     owner.register('component:widget-creator', WidgetCreator);
     owner.register('template:components/widget-creator', layout);
@@ -105,7 +103,6 @@ module('acceptance/tracking-transactions', function (hooks) {
       </ul>
     `;
 
-    owner.register('service:store', Store);
     owner.register('model:widget', Widget);
     owner.register('component:widget-creator', WidgetCreator);
     owner.register('template:components/widget-creator', layout);
@@ -185,7 +182,6 @@ module('acceptance/tracking-transactions', function (hooks) {
       </ul>
     `;
 
-    owner.register('service:store', Store);
     owner.register('model:widget', Widget);
     owner.register('component:widget-creator', WidgetCreator);
     owner.register('template:components/widget-creator', layout);

@@ -6,6 +6,9 @@ import type { ImmutableHeaders, RequestInfo } from './types';
 const ValidKeys = new Map<string, string | string[]>([
   ['data', 'json'],
   ['options', 'object'],
+  ['cacheOptions', 'object'],
+  ['op', ['findAll', 'query', 'queryRecord']],
+  ['store', 'object'],
   ['url', 'string'],
   ['cache', ['default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload']],
   ['credentials', ['include', 'omit', 'same-origin']],
@@ -107,6 +110,7 @@ export function deepFreeze<T = unknown>(value: T): T {
           return Object.freeze(value);
         case 'headers':
           return freezeHeaders(value as Headers) as T;
+        case 'Store':
         case 'AbortSignal':
           return value;
         case 'date':

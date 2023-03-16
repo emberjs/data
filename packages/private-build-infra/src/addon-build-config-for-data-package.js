@@ -44,6 +44,7 @@ function addonBuildConfigForDataPackage(PackageName) {
             '@ember-data/store',
             '@ember-data/adapter',
             '@ember-data/serializer',
+            '@ember-data/request',
             '@ember-data/model',
             '@ember-data/json-api',
             '@ember-data/debug',
