@@ -3,7 +3,7 @@ name: Performance Check Against Release
 on:
   pull_request:
     branches:
-      - master
+      - main
     types:
       - labeled
       - synchronize

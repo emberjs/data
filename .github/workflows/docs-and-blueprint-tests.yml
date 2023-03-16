@@ -3,7 +3,7 @@ name: DX
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 concurrency:
   group: docs-${{ github.head_ref || github.ref_name }}

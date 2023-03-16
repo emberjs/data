@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
       - beta
       - release
       - 'release-*'
@@ -43,7 +43,7 @@ jobs:
           install: true
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'master' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta'
           )
         name: Enable All In progress features
         env:
@@ -51,7 +51,7 @@ jobs:
         run: pnpm test
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'master' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta'
           )
         name: Disabled All In progress features
         env:
@@ -61,7 +61,7 @@ jobs:
         run: pnpm test:production
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'master' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta'
           )
         name: Remove All Deprecations
         env:
@@ -99,7 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [ember-lts-4.4, ember-lts-3.28]
+        scenario: [ember-lts-4.8, ember-lts-4.4, ember-lts-3.28]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -118,17 +118,14 @@ jobs:
     needs: [browser-tests]
     if: |
       github.event_name == 'pull_request' && (
-        github.base_ref == 'master' || github.base_ref == 'beta'
+        github.base_ref == 'main' || github.base_ref == 'beta'
       ) || github.event_name == 'push' && (
-        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+        endsWith(github.ref, '/main') || endsWith(github.ref, '/beta')
       )
     strategy:
       fail-fast: false
       matrix:
-        release: [ember-release, ember-beta]
-        include:
-          - release: ember-beta
-            continue-on-error: false
+        release: [ember-canary, ember-beta]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -140,22 +137,3 @@ jobs:
         env:
           CI: true
         run: pnpm test:try-one ${{ matrix.release }} -- ember test --test-port=0
-        continue-on-error: ${{ matrix['continue-on-error'] == true }}
-
-  additional-scenarios:
-    timeout-minutes: 8
-    needs: [browser-tests]
-    strategy:
-      matrix:
-        scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/setup
-        with:
-          restore-broccoli-cache: true
-          install: true
-      - name: Basic tests with ${{ matrix.scenario }}
-        env:
-          CI: true
-        run: pnpm test:try-one ${{ matrix.scenario }} -- ember test --test-port=0

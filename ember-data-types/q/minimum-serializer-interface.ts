@@ -46,7 +46,7 @@ export interface MinimumSerializerInterface {
    * - `members` (the property names of attributes and relationships) should be formatted
    *    to match their definition in the corresponding `Model` definition. Typically this
    *    will be `camelCase`.
-   * - [`lid`](https://github.com/emberjs/rfcs/blob/master/text/0403-ember-data-identifiers.md) is
+   * - [`lid`](https://github.com/emberjs/rfcs/blob/main/text/0403-ember-data-identifiers.md) is
    *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
    *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
@@ -110,7 +110,7 @@ export interface MinimumSerializerInterface {
    * - `members` (the property names of attributes and relationships) should be formatted
    *    to match their definition in the corresponding `Model` definition. Typically this
    *    will be `camelCase`.
-   * - [`lid`](https://github.com/emberjs/rfcs/blob/master/text/0403-ember-data-identifiers.md) is
+   * - [`lid`](https://github.com/emberjs/rfcs/blob/main/text/0403-ember-data-identifiers.md) is
    *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
    *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
@@ -215,7 +215,7 @@ export interface MinimumSerializerInterface {
    * - `members` (the property names of attributes and relationships) should be formatted
    *    to match their definition in the corresponding `Model` definition. Typically this
    *    will be `camelCase`.
-   * - [`lid`](https://github.com/emberjs/rfcs/blob/master/text/0403-ember-data-identifiers.md) is
+   * - [`lid`](https://github.com/emberjs/rfcs/blob/main/text/0403-ember-data-identifiers.md) is
    *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
    *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *

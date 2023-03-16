@@ -22,6 +22,7 @@ import type { Context } from './-private/context';
  */
 export const Fetch = {
   async request(context: Context) {
+    // TODO @runspired detect FastBoot and alert for fetch
     const response = await fetch(context.request.url!, context.request);
     context.setResponse(response);
 

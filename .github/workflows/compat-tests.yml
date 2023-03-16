@@ -3,7 +3,7 @@ name: Compat
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 concurrency:
   group: compat-${{ github.head_ref || github.ref_name }}

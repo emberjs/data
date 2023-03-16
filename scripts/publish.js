@@ -190,7 +190,7 @@ function assertGitIsClean(options) {
   }
 
   let expectedChannelBranch =
-    options.distTag === 'canary' ? 'master' : options.distTag === 'latest' ? 'release' : options.distTag;
+    options.distTag === 'canary' ? 'main' : options.distTag === 'latest' ? 'release' : options.distTag;
 
   if (options.channel === 'lts') {
     expectedChannelBranch = `lts-${semver.major(options.currentVersion)}-${semver.minor(options.currentVersion)}`;
@@ -229,15 +229,15 @@ function retrieveNextVersion(options) {
 
   A brief rundown of how version updates flow through the branches.
 
-  - We only ever bump the major or minor version on master
+  - We only ever bump the major or minor version on main
   - All other branches pick it up as those changes flow through the release cycle.
 
   See RELEASE.md for more about this
 
-  #master 3.11.0-canary.x
+  #main 3.11.0-canary.x
     releases with `canary`
   #beta 3.10.0-beta.x
-    cuts from last 3.10.0-canary.x master with `beta`
+    cuts from last 3.10.0-canary.x main with `beta`
   #release 3.9.0
     cuts from last 3.9.0-beta.x
   #lts 3.8.x

@@ -105,7 +105,7 @@ Before implementing a feature or a fix, it is usually best to discuss the propos
 existing public APIs. If this is the case, it is even more important to discuss the issue's problem
 space and the proposed changes before diving too deep into the implementation.
 
-- Submissions should be made as PRs against the `master` branch.
+- Submissions should be made as PRs against the `main` branch.
 
 #### Writing Tests
 
@@ -150,7 +150,7 @@ applied by project maintainers. PRs from non-maintainers will be labeled by main
 **Changelog Labels**
 
 Labels used for the changelog include `skip-changelog` which should be used if the PR should not be considered for the changelog,
-and any labels listed in the [root package.json's changelog config](https://github.com/emberjs/data/blob/master/package.json#L154).
+and any labels listed in the [root package.json's changelog config](https://github.com/emberjs/data/blob/main/package.json#L154).
 These labels are prefixed with `changelog:` and currently the options are:
 
 - `changelog:breaking` which should be used to signify a breaking change

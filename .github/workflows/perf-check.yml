@@ -3,7 +3,7 @@ name: Performance Checks
 on:
   pull_request:
     branches:
-      - master
+      - main
     types:
       - labeled
       - synchronize
@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 3
-      - run: git fetch origin master --depth=1
+      - run: git fetch origin main --depth=1
       - name: Check SHA
         run: |
           sha=$(git rev-parse --short=8 HEAD)

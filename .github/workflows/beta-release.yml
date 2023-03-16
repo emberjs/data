@@ -13,14 +13,14 @@ jobs:
         with:
           fetch-depth: 3
           ref: beta
-      - run: git fetch origin master --depth=1
+      - run: git fetch origin main --depth=1
       - name: Get last beta version from package.json
         uses: sergeysova/jq-action@v2
         id: version
         with:
           cmd: 'jq .version package.json -r'
       - name: Reset the Beta Branch
-        run: git reset --hard origin/master && git push origin beta -f
+        run: git reset --hard origin/main && git push origin beta -f
       - uses: ./.github/actions/setup
         with:
           build-addons: true

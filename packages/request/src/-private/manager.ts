@@ -51,7 +51,7 @@ A `RequestManager` receives a request and manages fulfillment via configured han
 
 Each handler may choose to fulfill the request using some source of data or to pass the request along to other handlers.
 
-The same or a separate instance of a `RequestManager` may also be used to fulfill requests issued by [*Ember*‍**Data**{Store}](https://github.com/emberjs/data/tree/master/packages/store)
+The same or a separate instance of a `RequestManager` may also be used to fulfill requests issued by [*Ember*‍**Data**{Store}](https://github.com/emberjs/data/tree/main/packages/store)
 
 When the same instance is used by both this allows for simple coordination throughout the application. Requests issued by the Store will use the in-memory cache
 and return hydrated responses, requests issued directly to the RequestManager
@@ -291,7 +291,7 @@ class extends Store {
 
 ### Using with `ember-data`
 
-If using the package [ember-data](https://github.com/emberjs/data/tree/master/packages/-ember-data), the following configuration will automatically be done in order to preserve the legacy [Adapter](https://github.com/emberjs/data/tree/master/packages/adapter) and [Serializer](https://github.com/emberjs/data/tree/master/packages/serializer) behavior. Additional handlers or a service injection like the above would need to be done by the consuming application in order to make broader use of `RequestManager`.
+If using the package [ember-data](https://github.com/emberjs/data/tree/main/packages/-ember-data), the following configuration will automatically be done in order to preserve the legacy [Adapter](https://github.com/emberjs/data/tree/main/packages/adapter) and [Serializer](https://github.com/emberjs/data/tree/main/packages/serializer) behavior. Additional handlers or a service injection like the above would need to be done by the consuming application in order to make broader use of `RequestManager`.
 
 ```ts
 import Store from '@ember-data/store';
@@ -457,6 +457,8 @@ export class RequestManager {
       }
       assertValidRequest(request, true);
     }
+
+    // TODO @runspired detect FastBoot and alert for AbortController
     const controller = request.controller || new AbortController();
     if (request.controller) {
       delete request.controller;

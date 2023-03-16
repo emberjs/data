@@ -1143,13 +1143,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   _fetchRequest(options: FetchRequestInit): Promise<Response> {
     let fetchFunction = fetch();
 
-    if (fetchFunction) {
-      return fetchFunction(options.url, options);
-    } else {
-      throw new Error(
-        'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
-      );
-    }
+    return fetchFunction(options.url, options);
   }
 
   _ajax(options: FetchRequestInit | JQueryRequestInit): void {

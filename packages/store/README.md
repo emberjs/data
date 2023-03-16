@@ -27,8 +27,8 @@ flowchart LR
     B{{fa:fa-sitemap RequestManager}} <--> C[(fa:fa-database Source)]
     D <--> E[(fa:fa-archive Cache)]
     D <--> B
-    click B href "https://github.com/emberjs/data/tree/master/packages/request" "Go to @ember-data/request" _blank
-    click E href "https://github.com/emberjs/data/tree/master/packages/json-api" "Go to @ember-data/json-api" _blank
+    click B href "https://github.com/emberjs/data/tree/main/packages/request" "Go to @ember-data/request" _blank
+    click E href "https://github.com/emberjs/data/tree/main/packages/json-api" "Go to @ember-data/json-api" _blank
     style B color:#58a6ff;
     style E color:#58a6ff;
 ```
@@ -40,7 +40,7 @@ flowchart LR
     A[fa:fa-terminal App] --- B(Model)
     A === C{fa:fa-code-fork Store}
     B --- C
-    click B href "https://github.com/emberjs/data/tree/master/packages/model" "Go to @ember-data/model" _blank
+    click B href "https://github.com/emberjs/data/tree/main/packages/model" "Go to @ember-data/model" _blank
     style B color:#58a6ff;
 ```
 

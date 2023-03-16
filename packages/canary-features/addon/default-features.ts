@@ -38,7 +38,7 @@
  * The "off" branch of feature-flagged code is always stripped from production builds, so you
  * MUST use the build-time environment variable to activate a flag if testing production.
  *
- * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/master/packages/canary-features/addon/default-features.ts "List of EmberData FeatureFlags")
+ * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/main/packages/canary-features/addon/default-features.ts "List of EmberData FeatureFlags")
  *
  * #### Runtime Configuration
  *

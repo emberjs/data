@@ -56,8 +56,6 @@
     "ember-cli-fastboot-testing": "^0.6.0",
     "ember-cli-htmlbars": "^6.2.0",
     "ember-cli-inject-live-reload": "^2.1.0",
-    "ember-export-application-global": "^2.0.1",
-    "ember-fetch": "^8.1.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^6.2.0",
@@ -77,6 +75,7 @@
     "edition": "octane"
   },
   "fastbootDependencies": [
+    "node-fetch",
     "crypto"
   ],
   "volta": {

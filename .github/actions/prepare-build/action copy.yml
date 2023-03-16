@@ -55,7 +55,7 @@ runs:
     - if: ${{ inputs.restore-main }}
       uses: ./actions/prepare-build
         with:
-          ref: master
+          ref: main
           name: Main
           build:
       id: restore-main
@@ -64,7 +64,7 @@ runs:
       name: Build Main
       uses: actions/checkout@v3
         with:
-          ref: master
+          ref: main
           fetch-depth: 1
       run: |
         pnpm install
@@ -106,7 +106,7 @@ runs:
           ~/.broccoli-cache
         key: ${{ github.ref }}
         restore-keys: |
-          master
+          main
 
     - if: ${{ inputs.restore-lint-caches }}
       name: Restore Lint Caches
@@ -116,4 +116,4 @@ runs:
           .eslintcache
         key: ${{ github.ref }}
         restore-keys: |
-          master
+          main

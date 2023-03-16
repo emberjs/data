@@ -31,7 +31,7 @@
  * ```
  *
  * The complete list of which versions specific deprecations will be removed in
- * can be found [here](https://github.com/emberjs/data/tree/master/packages/private-build-infra/addon/current-deprecations.ts "List of EmberData Deprecations")
+ * can be found [here](https://github.com/emberjs/data/tree/main/packages/private-build-infra/addon/current-deprecations.ts "List of EmberData Deprecations")
  *
  * @module @ember-data/deprecations
  * @main @ember-data/deprecations
