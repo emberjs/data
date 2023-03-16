@@ -99,9 +99,6 @@
     },
     {
       "matchPackageNames": [
-        "ember-uuid",
-        "ember-ajax",
-        "ember-fetch",
         "ember-inflector",
         "ember-promise-helpers"
       ],

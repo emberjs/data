@@ -18,7 +18,7 @@ export default function getFetchFunction(): FetchFunction {
     _fetch = () => fetch;
 
     /* global FastBoot */
-    // grab fetch from ember-fetch or if someone npm installed fetch
+    // grab fetch from node-fetch
   } else if (typeof FastBoot !== 'undefined') {
     try {
       const nodeFetch = FastBoot.require('node-fetch') as typeof fetch;
