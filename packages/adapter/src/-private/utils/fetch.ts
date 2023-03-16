@@ -1,25 +1,76 @@
-import require, { has } from 'require';
+import { assert } from '@ember/debug';
 
 type FetchFunction = (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>;
 
 let _fetch: (() => FetchFunction) | null = null;
+type MockRequest = { protocol?: string; get(key: string): string | undefined };
+let REQUEST: MockRequest = null as unknown as MockRequest;
 
 export default function getFetchFunction(): FetchFunction {
+  // return cached fetch function
   if (_fetch !== null) {
     return _fetch();
   }
 
-  if (has('fetch')) {
-    // use `fetch` module by default, this is commonly provided by ember-fetch
-    let fetchFn = (require('fetch') as { default: FetchFunction }).default;
-    _fetch = () => fetchFn;
-  } else if (typeof fetch === 'function') {
+  // grab browser native fetch if available, or global fetch if otherwise configured
+  if (typeof fetch === 'function') {
     // fallback to using global fetch
     _fetch = () => fetch;
-  } else {
-    throw new Error(
-      'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
-    );
+
+    /* global FastBoot */
+    // grab fetch from ember-fetch or if someone npm installed fetch
+  } else if (typeof FastBoot !== 'undefined') {
+    try {
+      const nodeFetch = FastBoot.require('node-fetch') as typeof fetch;
+
+      const httpRegex = /^https?:\/\//;
+      const protocolRelativeRegex = /^\/\//;
+
+      // eslint-disable-next-line no-inner-declarations
+      function parseRequest(request: MockRequest) {
+        if (request === null) {
+          throw new Error(
+            "Trying to fetch with relative url but the application hasn't finished loading FastBootInfo, see details at https://github.com/ember-cli/ember-fetch#relative-url"
+          );
+        }
+        // Old Prember version is not sending protocol
+        const protocol = request.protocol === 'undefined:' ? 'http:' : request.protocol;
+        return [request.get('host'), protocol];
+      }
+
+      // eslint-disable-next-line no-inner-declarations
+      function buildAbsoluteUrl(url: string) {
+        if (protocolRelativeRegex.test(url)) {
+          let [host] = parseRequest(REQUEST);
+          url = host + url;
+        } else if (!httpRegex.test(url)) {
+          let [host, protocol] = parseRequest(REQUEST);
+          url = protocol + '//' + host + url;
+        }
+        return url;
+      }
+
+      // eslint-disable-next-line no-inner-declarations
+      function patchedFetch(input, options) {
+        if (input && input.href) {
+          input.url = buildAbsoluteUrl(input.href);
+        } else if (typeof input === 'string') {
+          input = buildAbsoluteUrl(input);
+        }
+        return nodeFetch(input, options);
+      }
+
+      _fetch = () => patchedFetch;
+    } catch (e) {
+      throw new Error(`Unable to create a compatible 'fetch' for FastBoot with node-fetch`);
+    }
   }
+
+  assert(`Cannot find a 'fetch' global and did not detect FastBoot.`, _fetch);
+
   return _fetch();
+}
+
+export function setupFastboot(fastBootRequest: MockRequest) {
+  REQUEST = fastBootRequest;
 }

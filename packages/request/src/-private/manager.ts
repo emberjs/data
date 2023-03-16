@@ -457,6 +457,8 @@ export class RequestManager {
       }
       assertValidRequest(request, true);
     }
+
+    // TODO @runspired detect FastBoot and alert for AbortController
     const controller = request.controller || new AbortController();
     if (request.controller) {
       delete request.controller;
