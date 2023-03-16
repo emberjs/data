@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1:no-children-or-parent",
+    "name": "Chris Has No Children or Parent",
+    "children": [],
+    "parent": null
+  },
+  {
+    "id": "2:has-1-child-no-parent",
+    "name": "James has one child and no parent",
+    "children": ["3:has-2-children-and-parent"],
+    "parent": null
+  },
+  {
+    "id": "3:has-2-children-and-parent",
+    "name": "Kevin has two children and one parent",
+    "children": ["4:has-parent-no-children", "5:has-parent-no-children"],
+    "parent": "2:has-1-child-no-parent"
+  },
+  {
+    "id": "4:has-parent-no-children",
+    "name": "Selena has a parent",
+    "children": [],
+    "parent": "3:has-2-children-and-parent"
+  },
+  {
+    "id": "5:has-parent-no-children",
+    "name": "Sedona has a parent",
+    "children": [],
+    "parent": "3:has-2-children-and-parent"
+  }
+]
