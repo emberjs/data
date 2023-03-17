@@ -261,8 +261,8 @@ class Store {
     this.recordArrayManager = new RecordArrayManager({ store: this });
 
     // private
-    this._fetchManager = new FetchManager(this);
     this._requestCache = new RequestCache();
+    this._fetchManager = new FetchManager(this);
     this._instanceCache = new InstanceCache(this);
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
