@@ -11,6 +11,8 @@ import { reject, resolve } from 'rsvp';
 
 import { DEBUG } from '@ember-data/env';
 import type { Cache as CacheClass } from '@ember-data/json-api';
+import { SaveOp } from '@ember-data/legacy-compat/-private';
+import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type DSModelClass from '@ember-data/model';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
@@ -36,13 +38,13 @@ import type {
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { CacheHandler, LifetimesService, StoreRequestInfo } from './cache-handler';
+import { CacheHandler, type LifetimesService, type StoreRequestInfo } from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -62,16 +64,12 @@ import { getShimClass } from './legacy-model-support/shim-model-class';
 import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
-import FetchManager, { SaveOp } from './network/fetch-manager';
 import RequestCache from './network/request-cache';
-import type Snapshot from './network/snapshot';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
-import { assertIdentifierHasId } from './utils/identifier-has-id';
 import normalizeModelName from './utils/normalize-model-name';
-import promiseRecord from './utils/promise-record';
 
 export { storeFor };
 
@@ -262,7 +260,6 @@ class Store {
 
     // private
     this._requestCache = new RequestCache();
-    this._fetchManager = new FetchManager(this);
     this._instanceCache = new InstanceCache(this);
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
@@ -1215,7 +1212,6 @@ class Store {
     }
 
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-    let promise;
     options = options || {};
 
     if (options.preload) {
@@ -1224,52 +1220,19 @@ class Store {
       });
     }
 
-    // if not loaded start loading
-    if (!this._instanceCache.recordIsLoaded(identifier)) {
-      promise = this._instanceCache._fetchDataIfNeededForIdentifier(identifier, options);
-
-      // Refetch if the reload option is passed
-    } else if (options.reload) {
-      assertIdentifierHasId(identifier);
-
-      promise = this._fetchManager.scheduleFetch(identifier, options);
-    } else {
-      let snapshot: Snapshot | null = null;
-      let adapter = this.adapterFor(identifier.type);
-
-      // Refetch the record if the adapter thinks the record is stale
-      if (
-        typeof options.reload === 'undefined' &&
-        adapter.shouldReloadRecord &&
-        adapter.shouldReloadRecord(this, (snapshot = this._instanceCache.createSnapshot(identifier, options)))
-      ) {
-        assertIdentifierHasId(identifier);
-        promise = this._fetchManager.scheduleFetch(identifier, options);
-      } else {
-        // Trigger the background refetch if backgroundReload option is passed
-        if (
-          options.backgroundReload !== false &&
-          (options.backgroundReload ||
-            !adapter.shouldBackgroundReloadRecord ||
-            adapter.shouldBackgroundReloadRecord(
-              this,
-              (snapshot = snapshot || this._instanceCache.createSnapshot(identifier, options))
-            ))
-        ) {
-          assertIdentifierHasId(identifier);
-          this._fetchManager.scheduleFetch(identifier, options);
-        }
-
-        // Return the cached record
-        promise = resolve(identifier);
-      }
-    }
+    const promise = this.request<RecordInstance>({
+      op: 'findRecord',
+      data: {
+        record: identifier,
+        options,
+      },
+    });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseRecord(this, promise);
+      return promiseObject(promise.then((document) => document.content));
     }
 
-    return promise.then((identifier: StableRecordIdentifier) => this.peekRecord(identifier));
+    return promise.then((document) => document.content) as PromiseObject<RecordInstance>;
   }
 
   /**

@@ -1,7 +1,6 @@
 import { assert, deprecate, warn } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
-import { resolve } from 'rsvp';
 
 import { DEBUG } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
@@ -40,7 +39,6 @@ import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
 import coerceId, { ensureStringId } from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
-import { assertIdentifierHasId } from '../utils/identifier-has-id';
 import normalizeModelName from '../utils/normalize-model-name';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
 
@@ -497,30 +495,6 @@ export class InstanceCache {
     }
   }
 
-  // TODO this should move into the network layer
-  _fetchDataIfNeededForIdentifier(
-    identifier: StableRecordIdentifier,
-    options: FindOptions = {}
-  ): Promise<StableRecordIdentifier> {
-    // pre-loading will change the isEmpty value
-    const isEmpty = _isEmpty(this, identifier);
-    const isLoading = _isLoading(this, identifier);
-
-    let promise: Promise<StableRecordIdentifier>;
-    if (isEmpty) {
-      assertIdentifierHasId(identifier);
-
-      promise = this.store._fetchManager.scheduleFetch(identifier, options);
-    } else if (isLoading) {
-      promise = this.store._fetchManager.getPendingFetch(identifier, options)!;
-      assert(`Expected to find a pending request for a record in the loading state, but found none`, promise);
-    } else {
-      promise = resolve(identifier);
-    }
-
-    return promise;
-  }
-
   // TODO this should move into something coordinating operations
   setRecordId(identifier: StableRecordIdentifier, id: string) {
     const { type, lid } = identifier;
@@ -570,7 +544,8 @@ export class InstanceCache {
     this.store.notifications.notify(identifier, 'identity');
   }
 
-  // TODO this should move into something coordinating operations
+  // TODO ths should be wrapped in a deprecation flag since cache.put
+  // handles this the rest of the time
   loadData(data: ExistingResourceObject): StableExistingRecordIdentifier {
     let modelName = data.type;
     assert(

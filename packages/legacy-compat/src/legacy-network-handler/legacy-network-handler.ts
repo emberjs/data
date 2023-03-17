@@ -1,10 +1,11 @@
 import { assert } from '@ember/debug';
 
-import { Promise } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 
 import { DEBUG } from '@ember-data/env';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
+import type { Snapshot } from '@ember-data/store/-private';
 import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type {
@@ -12,9 +13,12 @@ import type {
   JsonApiDocument,
   SingleResourceDocument,
 } from '@ember-data/types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 
 import { guardDestroyedStore } from './common';
+import FetchManager from './fetch-manager';
+import { assertIdentifierHasId } from './identifier-has-id';
 import { normalizeResponseHelper } from './serializer-response';
 import SnapshotRecordArray from './snapshot-record-array';
 
@@ -25,7 +29,14 @@ export const LegacyNetworkHandler: Handler = {
       return next(context.request);
     }
 
+    const { store } = context.request;
+    if (!store._fetchManager) {
+      store._fetchManager = new FetchManager(store);
+    }
+
     switch (context.request.op) {
+      case 'findRecord':
+        return findRecord(context);
       case 'findAll':
         return findAll(context);
       case 'queryRecord':
@@ -37,6 +48,61 @@ export const LegacyNetworkHandler: Handler = {
     }
   },
 };
+
+function findRecord<T>(context: StoreRequestContext): Promise<T> {
+  const { store, data } = context.request;
+  const { record: identifier, options } = data as {
+    record: StableExistingRecordIdentifier;
+    options: { reload?: boolean; backgroundReload?: boolean };
+  };
+  let promise: Promise<StableRecordIdentifier>;
+
+  // if not loaded start loading
+  if (!store._instanceCache.recordIsLoaded(identifier)) {
+    promise = store._fetchManager.fetchDataIfNeededForIdentifier(
+      identifier,
+      options
+    ) as Promise<StableRecordIdentifier>;
+
+    // Refetch if the reload option is passed
+  } else if (options.reload) {
+    assertIdentifierHasId(identifier);
+
+    promise = store._fetchManager.scheduleFetch(identifier, options) as Promise<StableRecordIdentifier>;
+  } else {
+    let snapshot: Snapshot | null = null;
+    let adapter = store.adapterFor(identifier.type);
+
+    // Refetch the record if the adapter thinks the record is stale
+    if (
+      typeof options.reload === 'undefined' &&
+      adapter.shouldReloadRecord &&
+      adapter.shouldReloadRecord(store, (snapshot = store._instanceCache.createSnapshot(identifier, options)))
+    ) {
+      assertIdentifierHasId(identifier);
+      promise = store._fetchManager.scheduleFetch(identifier, options) as Promise<StableRecordIdentifier>;
+    } else {
+      // Trigger the background refetch if backgroundReload option is passed
+      if (
+        options.backgroundReload !== false &&
+        (options.backgroundReload ||
+          !adapter.shouldBackgroundReloadRecord ||
+          adapter.shouldBackgroundReloadRecord(
+            store,
+            (snapshot = snapshot || store._instanceCache.createSnapshot(identifier, options))
+          ))
+      ) {
+        assertIdentifierHasId(identifier);
+        void store._fetchManager.scheduleFetch(identifier, options);
+      }
+
+      // Return the cached record
+      promise = resolve(identifier) as Promise<StableRecordIdentifier>;
+    }
+  }
+
+  return promise.then((identifier: StableRecordIdentifier) => store.peekRecord(identifier)) as Promise<T>;
+}
 
 function findAll<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;

@@ -485,11 +485,11 @@ export class LegacySupport {
           return;
         }
         let finds = new Array(resource.data.length);
-        let cache = this.store._instanceCache;
+        let cache = this.store._fetchManager;
         for (let i = 0; i < resource.data.length; i++) {
           const identifier = resource.data[i];
           assert(`expected a stable identifier`, isStableIdentifier(identifier));
-          finds[i] = cache._fetchDataIfNeededForIdentifier(identifier, options);
+          finds[i] = cache.fetchDataIfNeededForIdentifier(identifier, options);
         }
 
         return all(finds);
@@ -575,7 +575,7 @@ export class LegacySupport {
         assert(`No Information found for ${resource.data!.lid}`, identifier);
       }
 
-      return this.store._instanceCache._fetchDataIfNeededForIdentifier(identifier, options);
+      return this.store._fetchManager.fetchDataIfNeededForIdentifier(identifier, options);
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data!.id === null;
