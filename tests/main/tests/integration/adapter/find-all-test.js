@@ -1,4 +1,3 @@
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
