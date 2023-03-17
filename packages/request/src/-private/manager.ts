@@ -321,7 +321,6 @@ import { isDevelopingApp, isTesting, macroCondition } from '@embroider/macros';
 import { assertValidRequest } from './debug';
 import { Future, GenericCreateArgs, Handler, RequestInfo } from './types';
 import { executeNextHandler } from './utils';
-
 /**
  * ```js
  * import { RequestManager } from '@ember-data/request';
@@ -486,7 +485,6 @@ export class RequestManager {
       assertValidRequest(request, true);
     }
 
-    // TODO @runspired detect FastBoot and alert for AbortController
     const controller = request.controller || new AbortController();
     if (request.controller) {
       delete request.controller;

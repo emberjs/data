@@ -11,6 +11,10 @@ const App = Application.extend({
   Resolver,
 });
 
+if (typeof FastBoot !== 'undefined') {
+  globalThis.AbortController = FastBoot.require('fastboot-abort-controller') as { new (): AbortController };
+}
+
 loadInitializers(App, config.modulePrefix);
 
 export default App;

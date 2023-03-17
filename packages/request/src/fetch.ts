@@ -7,6 +7,14 @@
 
 import type { Context } from './-private/context';
 
+const _fetch: typeof fetch =
+  typeof fetch !== 'undefined'
+    ? fetch
+    : typeof FastBoot !== 'undefined'
+    ? (FastBoot.require('node-fetch') as typeof fetch)
+    : ((() => {
+        throw new Error('No Fetch Implementation Found');
+      }) as typeof fetch);
 /**
  * A basic handler which onverts a request into a
  * `fetch` call presuming the response to be `json`.
@@ -22,8 +30,7 @@ import type { Context } from './-private/context';
  */
 export const Fetch = {
   async request(context: Context) {
-    // TODO @runspired detect FastBoot and alert for fetch
-    const response = await fetch(context.request.url!, context.request);
+    const response = await _fetch(context.request.url!, context.request);
     context.setResponse(response);
 
     return response.json();

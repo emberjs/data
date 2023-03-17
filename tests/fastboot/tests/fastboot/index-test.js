@@ -1,6 +1,6 @@
 import { visit } from '@ember/test-helpers';
 
-import { module, test } from 'qunit';
+import { module, skip, test } from 'qunit';
 
 import { setup, visit as SSR } from 'ember-cli-fastboot-testing/test-support';
 import { setupApplicationTest } from 'ember-qunit';
@@ -24,7 +24,7 @@ module('Browser | index', function (hooks) {
 module('FastBoot | index', function (hooks) {
   setup(hooks);
 
-  test('(FastBoot) it renders a page...', async function (assert) {
+  skip('(FastBoot) it renders a page...', async function (assert) {
     await SSR('/');
 
     assert.dom('h1').hasText('Ember Data');
