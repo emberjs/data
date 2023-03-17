@@ -286,7 +286,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     run(() => store.query('person', passedQuery));
   });
 
-  test('Find with query calls the correct normalizeResponse', function (assert) {
+  test('Find with query calls the correct normalizeResponse', async function (assert) {
     let passedQuery = { page: 1 };
     let callCount = 0;
 
@@ -313,7 +313,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    run(() => store.query('person', passedQuery));
+    await store.query('person', passedQuery);
 
     assert.strictEqual(callCount, 1, 'normalizeQueryResponse was called');
   });

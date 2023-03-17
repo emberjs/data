@@ -12,4 +12,5 @@ setup(QUnit.assert);
 
 setApplication(Application.create(config.APP));
 
-start();
+QUnit.config.testTimeout = 2000;
+start({ setupTestIsolationValidation: true });

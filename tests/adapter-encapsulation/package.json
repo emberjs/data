@@ -34,6 +34,12 @@
     "@ember-data/graph": {
       "injected": true
     },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
     "@ember-data/serializer": {
       "injected": true
     },
@@ -56,6 +62,8 @@
     "@ember-data/graph": "workspace:4.12.0-alpha.8",
     "@ember-data/serializer": "workspace:4.12.0-alpha.8",
     "@ember-data/store": "workspace:4.12.0-alpha.8",
+    "@ember-data/legacy-compat": "workspace:4.12.0-alpha.8",
+    "@ember-data/request": "workspace:4.12.0-alpha.8",
     "@ember-data/tracking": "workspace:4.12.0-alpha.8",
     "@ember-data/unpublished-test-infra": "workspace:4.12.0-alpha.8",
     "@ember/optional-features": "^2.0.0",

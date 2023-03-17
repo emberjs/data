@@ -4,8 +4,8 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import Model, { attr } from '@ember-data/model';
-import { SnapshotRecordArray } from '@ember-data/store/-private';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('Unit - snapshot-record-array', function (hooks) {
@@ -19,7 +19,15 @@ module('Unit - snapshot-record-array', function (hooks) {
       include: 'include me',
     };
 
-    let snapshot = new SnapshotRecordArray({}, array, options);
+    let snapshot = new SnapshotRecordArray(
+      {
+        peekAll() {
+          return array;
+        },
+      },
+      'user',
+      options
+    );
 
     assert.strictEqual(snapshot.length, 2);
     assert.strictEqual(snapshot.adapterOptions, 'some options');
@@ -35,7 +43,6 @@ module('Unit - snapshot-record-array', function (hooks) {
       }
     );
     const store = owner.lookup('service:store');
-    const array = store.peekAll('dog');
 
     store.push({
       data: {
@@ -59,7 +66,7 @@ module('Unit - snapshot-record-array', function (hooks) {
       snapshotsTaken.push(snapshot);
       return snapshot;
     };
-    let snapshot = new SnapshotRecordArray(store, array, options);
+    let snapshot = new SnapshotRecordArray(store, 'dog', options);
 
     assert.strictEqual(didTakeSnapshot, 0, 'no shapshot should yet be taken');
     assert.strictEqual(snapshot.snapshots()[0], snapshotsTaken[0], 'should be correct snapshot');
@@ -91,7 +98,15 @@ module('Unit - snapshot-record-array', function (hooks) {
         include: 'include me',
       };
 
-      let snapshot = new SnapshotRecordArray({}, array, options);
+      let snapshot = new SnapshotRecordArray(
+        {
+          peekAll() {
+            return array;
+          },
+        },
+        'user',
+        options
+      );
 
       assert.false(typeLoaded, 'model class is not eager loaded');
       assert.strictEqual(snapshot.type, 'some type');

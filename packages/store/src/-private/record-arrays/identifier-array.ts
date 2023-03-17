@@ -20,6 +20,7 @@ import {
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
 } from '@ember-data/private-build-infra/deprecations';
+import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -69,6 +70,7 @@ export const IDENTIFIER_ARRAY_TAG = Symbol('#tag');
 export const SOURCE = Symbol('#source');
 export const MUTATE = Symbol('#update');
 export const NOTIFY = Symbol('#notify');
+const IS_COLLECTION = Symbol.for('Collection');
 
 export function notifyArray(arr: IdentifierArray) {
   arr[IDENTIFIER_ARRAY_TAG].ref = null;
@@ -114,7 +116,7 @@ declare global {
 
 export type IdentifierArrayCreateOptions = {
   identifiers: StableRecordIdentifier[];
-  type: string;
+  type?: string;
   store: Store;
   allowMutation: boolean;
   manager: RecordArrayManager;
@@ -203,6 +205,7 @@ class IdentifierArray {
   isDestroyed: boolean = false;
   _updatingPromise: PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> | null = null;
 
+  [IS_COLLECTION] = true;
   [IDENTIFIER_ARRAY_TAG] = new Tag();
   [SOURCE]: StableRecordIdentifier[];
   [NOTIFY]() {
@@ -220,7 +223,7 @@ class IdentifierArray {
     @deprecated
    @type {subclass of Model}
    */
-  declare modelName: string;
+  declare modelName?: string;
   /**
     The store that created this record array.
 
@@ -529,6 +532,7 @@ class IdentifierArray {
     is finished.
    */
   _update(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
+    assert(`_update cannot be used with this array`, this.modelName);
     return this.store.findAll(this.modelName, { reload: true });
   }
 
@@ -587,11 +591,12 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
 }
 
 export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
-  query: Dict<unknown> | null;
+  query: ImmutableRequestInfo | Dict<unknown> | null;
   isLoaded: boolean;
 };
+
 export class Collection extends IdentifierArray {
-  query: Dict<unknown> | null = null;
+  query: ImmutableRequestInfo | Dict<unknown> | null = null;
 
   constructor(options: CollectionCreateOptions) {
     super(options as IdentifierArrayCreateOptions);
@@ -603,7 +608,9 @@ export class Collection extends IdentifierArray {
     const { store, query } = this;
 
     // TODO save options from initial request?
-    const promise = store.query(this.modelName, query, { _recordArray: this });
+    assert(`update cannot be used with this array`, this.modelName);
+    assert(`update cannot be used with no query`, query);
+    const promise = store.query(this.modelName, query as Dict<unknown>, { _recordArray: this });
 
     if (DEPRECATE_PROMISE_PROXIES) {
       return promiseArray(promise);

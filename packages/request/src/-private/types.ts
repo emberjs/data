@@ -38,14 +38,15 @@ export interface GodContext {
 }
 
 export interface StructuredDataDocument<T> {
-  request: RequestInfo;
+  request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
   content: T;
 }
 export interface StructuredErrorDocument extends Error {
-  request: RequestInfo;
+  request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
   error: string | object;
+  content?: unknown;
 }
 
 export type Deferred<T> = {

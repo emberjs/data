@@ -1,6 +1,6 @@
 import type Application from '@ember/application';
 
-import Store from '@ember-data/store';
+import Store from 'ember-data/store';
 
 function initializeStore(application: Application) {
   application.registerOptionsForType('serializer', { singleton: false });

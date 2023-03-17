@@ -1,6 +1,7 @@
 /**
   @module @ember-data/store
 */
+import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addTransactionCB } from '@ember-data/tracking/-private';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -87,6 +88,7 @@ class RecordArrayManager {
   declare _identifiers: Map<StableRecordIdentifier, Set<Collection>>;
   declare _staged: Map<string, ChangeSet>;
   declare _subscription: UnsubscribeToken;
+  declare _keyedArrays: Map<string, Collection>;
 
   constructor(options: { store: Store }) {
     this.store = options.store;
@@ -160,8 +162,8 @@ class RecordArrayManager {
   }
 
   createArray(config: {
-    type: string;
-    query?: Dict<unknown>;
+    type?: string;
+    query?: ImmutableRequestInfo | Dict<unknown>;
     identifiers?: StableRecordIdentifier[];
     doc?: CollectionResourceDocument;
   }): Collection {

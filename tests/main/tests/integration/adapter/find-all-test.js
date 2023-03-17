@@ -1,4 +1,3 @@
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -151,9 +150,10 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     let adapter = store.adapterFor('person');
     adapter.findAll = () => resolve({});
 
-    assert.expectAssertion(() => {
-      run(() => store.findAll('person'));
-    }, /You made a 'findAll' request for 'person' records, but the adapter's response did not have any data/);
+    assert.expectAssertion(
+      () => store.findAll('person'),
+      /You made a 'findAll' request for 'person' records, but the adapter's response did not have any data/
+    );
   });
 
   test('isUpdating is true while records are fetched', async function (assert) {

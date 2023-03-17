@@ -18,6 +18,8 @@ export default {
 
     '@ember-data/tracking/-private',
     '@ember-data/private-build-infra/deprecations',
+    '@ember/-internals/metal',
+    '@glimmer/validator',
 
     // to eliminate
     '@ember/object/compat',

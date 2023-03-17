@@ -22,9 +22,9 @@ import {
   DEPRECATE_V1_RECORD_DATA,
 } from '@ember-data/private-build-infra/deprecations';
 import type { RequestManager } from '@ember-data/request';
+import type { Future } from '@ember-data/request/-private/types';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-// import { Future, RequestInfo } from '@ember-data/request/-private/types';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -42,6 +42,7 @@ import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definit
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import { CacheHandler, LifetimesService, StoreRequestInfo } from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -62,10 +63,8 @@ import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from 
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
-import { _findAll, _query, _queryRecord } from './network/finders';
 import type RequestCache from './network/request-cache';
 import type Snapshot from './network/snapshot';
-import SnapshotRecordArray from './network/snapshot-record-array';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
@@ -89,6 +88,8 @@ function freeze<T>(obj: T): T {
 
   return obj;
 }
+
+export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export interface CreateRecordProperties {
   id?: string | null;
@@ -221,6 +222,7 @@ class Store {
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
+  declare lifetimes?: LifetimesService;
 
   // DEBUG-only properties
   declare _trackedAsyncRequests: AsyncTrackingToken[];
@@ -311,6 +313,15 @@ class Store {
     }
   }
 
+  declare _hasRegisteredCacheHandler: boolean;
+  _registerCacheHandler() {
+    if (this._hasRegisteredCacheHandler) {
+      return;
+    }
+    this.requestManager.useCache(CacheHandler);
+    this._hasRegisteredCacheHandler = true;
+  }
+
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   _run(cb: () => void) {
     assert(`EmberData should never encounter a nested run`, !this._cbs);
@@ -362,16 +373,32 @@ class Store {
    * inserting the response into the cache and handing
    * back a Future which resolves to a ResponseDocument
    *
+   * Resource data is always updated in the cache.
+   *
+   * Only GET requests have the request result and document
+   * cached by default when a cache key is present.
+   *
+   * The cache key used is `requestConfig.cacheOptions.key`
+   * if present, falling back to `requestconfig.url`.
+   *
+   * Params are not serialized as part of the cache-key, so
+   * either ensure they are already in the url or utilize
+   * `requestConfig.cacheOptions.key`. For queries issued
+   * via the `POST` method `requestConfig.cacheOptions.key`
+   * MUST be supplied for the document to be cached.
+   *
    * @method request
+   * @param {StoreRequestInfo} requestConfig
    * @returns {Future}
    * @public
    */
-  // request<T>(req: RequestInfo): Future<ResponseDocument<T>> {
-  //   return this.requestManager.request(req).then(
-  //     (doc) => {},
-  //     (error) => {}
-  //   );
-  // }
+  request<T>(requestConfig: StoreRequestInfo): Future<T> {
+    // we lazily set the cache handler when we issue the first request
+    // because constructor doesn't allow for this to run after
+    // the user has had the chance to set the prop.
+    this._registerCacheHandler();
+    return this.requestManager.request(Object.assign(requestConfig, { store: this }));
+  }
 
   /**
    * A hook which an app or addon may implement. Called when
@@ -1483,7 +1510,11 @@ class Store {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName: string, query, options): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
+  query(
+    modelName: string,
+    query: Record<string, unknown>,
+    options: { [key: string]: unknown; adapterOptions?: Record<string, unknown> }
+  ): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1494,35 +1525,19 @@ class Store {
       typeof modelName === 'string'
     );
 
-    let adapterOptionsWrapper: { adapterOptions?: any } = {};
-
-    if (options && options.adapterOptions) {
-      adapterOptionsWrapper.adapterOptions = options.adapterOptions;
-    }
-    let recordArray = options?._recordArray || null;
-
-    let normalizedModelName = normalizeModelName(modelName);
-    let adapter = this.adapterFor(normalizedModelName);
-
-    assert(`You tried to load a query but you have no adapter (for ${modelName})`, adapter);
-    assert(
-      `You tried to load a query but your adapter does not implement 'query'`,
-      typeof adapter.query === 'function'
-    );
-
-    let queryPromise = _query(
-      adapter,
-      this,
-      normalizedModelName,
-      query,
-      recordArray,
-      adapterOptionsWrapper
-    ) as unknown as Promise<Collection>;
+    const promise = this.request<Collection>({
+      op: 'query',
+      data: {
+        type: normalizeModelName(modelName),
+        query,
+        options: options || {},
+      },
+    });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(queryPromise);
+      return promiseArray(promise.then((document) => document.content));
     }
-    return queryPromise;
+    return promise.then((document) => document.content);
   }
 
   /**
@@ -1625,7 +1640,7 @@ class Store {
   */
   queryRecord(
     modelName: string,
-    query,
+    query: Record<string, unknown>,
     options?
   ): PromiseObject<RecordInstance | null> | Promise<RecordInstance | null> {
     if (DEBUG) {
@@ -1638,32 +1653,19 @@ class Store {
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
-    let adapter = this.adapterFor(normalizedModelName);
-    let adapterOptionsWrapper: { adapterOptions?: any } = {};
-
-    if (options && options.adapterOptions) {
-      adapterOptionsWrapper.adapterOptions = options.adapterOptions;
-    }
-
-    assert(`You tried to make a query but you have no adapter (for ${normalizedModelName})`, adapter);
-    assert(
-      `You tried to make a query but your adapter does not implement 'queryRecord'`,
-      typeof adapter.queryRecord === 'function'
-    );
-
-    const promise: Promise<StableRecordIdentifier | null> = _queryRecord(
-      adapter,
-      this,
-      normalizedModelName,
-      query,
-      adapterOptionsWrapper
-    ) as Promise<StableRecordIdentifier | null>;
+    const promise = this.request<RecordInstance | null>({
+      op: 'queryRecord',
+      data: {
+        type: normalizeModelName(modelName),
+        query,
+        options: options || {},
+      },
+    });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseObject(promise.then((identifier) => identifier && this.peekRecord(identifier)));
+      return promiseObject(promise.then((document) => document.content));
     }
-    return promise.then((identifier) => identifier && this.peekRecord(identifier));
+    return promise.then((document) => document.content);
   }
 
   /**
@@ -1867,54 +1869,18 @@ class Store {
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
-    let array = this.peekAll(normalizedModelName);
-    let fetch;
-
-    let adapter = this.adapterFor(normalizedModelName);
-
-    assert(`You tried to load all records but you have no adapter (for ${normalizedModelName})`, adapter);
-    assert(
-      `You tried to load all records but your adapter does not implement 'findAll'`,
-      typeof adapter.findAll === 'function'
-    );
-
-    if (options.reload) {
-      array.isUpdating = true;
-      fetch = _findAll(adapter, this, normalizedModelName, options);
-    } else {
-      let snapshotArray = new SnapshotRecordArray(this, array, options);
-
-      if (options.reload !== false) {
-        if (
-          (adapter.shouldReloadAll && adapter.shouldReloadAll(this, snapshotArray)) ||
-          (!adapter.shouldReloadAll && snapshotArray.length === 0)
-        ) {
-          array.isUpdating = true;
-          fetch = _findAll(adapter, this, modelName, options, snapshotArray);
-        }
-      }
-
-      if (!fetch) {
-        if (options.backgroundReload === false) {
-          fetch = resolve(array);
-        } else if (
-          options.backgroundReload ||
-          !adapter.shouldBackgroundReloadAll ||
-          adapter.shouldBackgroundReloadAll(this, snapshotArray)
-        ) {
-          array.isUpdating = true;
-          _findAll(adapter, this, modelName, options, snapshotArray);
-        }
-
-        fetch = resolve(array);
-      }
-    }
+    const promise = this.request<IdentifierArray>({
+      op: 'findAll',
+      data: {
+        type: normalizeModelName(modelName),
+        options: options || {},
+      },
+    });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(fetch);
+      return promiseArray(promise.then((document) => document.content));
     }
-    return fetch;
+    return promise.then((document) => document.content) as PromiseArray<RecordInstance, IdentifierArray>;
   }
 
   /**

@@ -957,8 +957,12 @@ module('integration/store - findAll', function (hooks) {
       },
     });
 
+    let resolve;
+    let promise = new Promise((r) => {
+      resolve = r;
+    });
     adapter.ajax = async () => {
-      await resolve();
+      await promise;
 
       return {
         cars: [
@@ -981,6 +985,7 @@ module('integration/store - findAll', function (hooks) {
     assert.strictEqual(cars.length, 1, 'single cached car record is returned');
     assert.strictEqual(cars[0].model, 'Mini', 'correct cached car record is returned');
 
+    resolve();
     await settled();
 
     // IE11 hack

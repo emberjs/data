@@ -30,7 +30,7 @@ class Person extends Model {
   }
 }
 
-module('integration/create-record - running createRecord with minimum serializer', function (hooks) {
+module('Serializer Contract | running createRecord [update] with minimum serializer', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function (assert) {

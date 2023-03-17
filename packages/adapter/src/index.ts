@@ -141,10 +141,10 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise as RSVPPromise } from 'rsvp';
 
+import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type SnapshotRecordArray from '@ember-data/store/-private/network/snapshot-record-array';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { Dict } from '@ember-data/types/q/utils';
 

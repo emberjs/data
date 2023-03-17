@@ -29,7 +29,7 @@ class Person extends Model {
   }
 }
 
-module('integration/push-payload - pushPayload method forwards to Serializer#pushPayload', function (hooks) {
+module('Serializer Contract | pushPayload method forwards to Serializer#pushPayload', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function (assert) {

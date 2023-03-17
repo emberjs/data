@@ -6,6 +6,9 @@ import type { ImmutableHeaders, RequestInfo } from './types';
 const ValidKeys = new Map<string, string | string[]>([
   ['data', 'json'],
   ['options', 'object'],
+  ['cacheOptions', 'object'],
+  ['op', ['findAll', 'query', 'queryRecord']],
+  ['store', 'object'],
   ['url', 'string'],
   ['cache', ['default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload']],
   ['credentials', ['include', 'omit', 'same-origin']],
@@ -93,6 +96,9 @@ export function deepFreeze<T = unknown>(value: T): T {
       const _niceType = niceTypeOf(value);
       switch (_niceType) {
         case 'array': {
+          if (value[Symbol.for('Collection')]) {
+            return value;
+          }
           const arr = (value as unknown[]).map(deepFreeze);
           arr[IS_FROZEN] = true;
           return Object.freeze(arr) as T;
@@ -107,6 +113,8 @@ export function deepFreeze<T = unknown>(value: T): T {
           return Object.freeze(value);
         case 'headers':
           return freezeHeaders(value as Headers) as T;
+        case 'Collection':
+        case 'Store':
         case 'AbortSignal':
           return value;
         case 'date':
@@ -115,7 +123,9 @@ export function deepFreeze<T = unknown>(value: T): T {
         case 'error':
         case 'stream':
         default:
-          throw new Error(`Cannot deep-freeze ${_niceType}`);
+          // eslint-disable-next-line no-console
+          console.log(`Cannot deep-freeze ${_niceType}`);
+          return value;
       }
     }
   }
@@ -294,7 +304,11 @@ export function assertValidRequest(
     // handle schema
     const keys = Object.keys(request);
     const validationErrors = [];
+    const isLegacyRequest: boolean = Boolean('op' in request && !request.url);
     keys.forEach((key) => {
+      if (isLegacyRequest && key === 'data') {
+        return;
+      }
       validateKey(key, request[key], validationErrors);
     });
     if (validationErrors.length) {

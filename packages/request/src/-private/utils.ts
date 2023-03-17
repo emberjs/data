@@ -13,7 +13,7 @@ import type {
   StructuredErrorDocument,
 } from './types';
 
-const STRUCTURED = Symbol('DOC');
+export const STRUCTURED = Symbol('DOC');
 
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());
@@ -43,7 +43,7 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
 }
 
 function isDoc<T>(doc: T | StructuredDataDocument<T>): doc is StructuredDataDocument<T> {
-  return doc[STRUCTURED] === true;
+  return doc && doc[STRUCTURED] === true;
 }
 
 export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbound: DeferredFuture<T>): Future<T> {
@@ -70,6 +70,14 @@ export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbo
       if (isDoc(error)) {
         owner.setStream(owner.god.stream);
       }
+      if (!error) {
+        try {
+          throw new Error(`Request Rejected with an Unknown Error`);
+        } catch (e: unknown) {
+          error = e as Error & StructuredErrorDocument;
+        }
+      }
+
       error[STRUCTURED] = true;
       error.request = owner.request;
       error.response = owner.getResponse();
@@ -104,7 +112,8 @@ export function executeNextHandler<T>(
   try {
     outcome = wares[i].request<T>(context, next);
     if (macroCondition(isDevelopingApp())) {
-      if (!(outcome instanceof Promise)) {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      if (!outcome || (!(outcome instanceof Promise) && !(typeof outcome === 'object' && 'then' in outcome))) {
         // eslint-disable-next-line no-console
         console.log({ request, handler: wares[i], outcome });
         if (outcome === undefined) {

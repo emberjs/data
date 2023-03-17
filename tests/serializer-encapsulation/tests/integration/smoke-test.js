@@ -32,7 +32,7 @@ function assertPackageNotPresent(packageName, assert) {
   );
 }
 
-module('Serializer Encapsulation - Smoke Tests', function (hooks) {
+module('Serializer Contract | Smoke Tests', function (hooks) {
   setupTest(hooks);
 
   test('No @ember-data/serializer modules are present', function (assert) {

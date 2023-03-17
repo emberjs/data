@@ -1,19 +1,18 @@
 /**
-  @module @ember-data/store
+  @module @ember-data/legacy-compat
 */
 
 import { deprecate } from '@ember/debug';
 
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
+import Store from '@ember-data/store';
+import { SOURCE } from '@ember-data/store/-private';
+import type Snapshot from '@ember-data/store/-private/network/snapshot';
+import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
+import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
-
-import type IdentifierArray from '../record-arrays/identifier-array';
-import { SOURCE } from '../record-arrays/identifier-array';
-import Store from '../store-service';
-import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's
@@ -24,11 +23,10 @@ import type Snapshot from './snapshot';
 */
 export default class SnapshotRecordArray {
   declare _snapshots: Snapshot[] | null;
-  declare _recordArray: IdentifierArray;
   declare _type: ModelSchema | null;
+  declare modelName: string;
   declare __store: Store;
 
-  declare length: number;
   declare adapterOptions?: Dict<unknown>;
   declare include?: string;
 
@@ -40,10 +38,11 @@ export default class SnapshotRecordArray {
     @method constructor
     @private
     @constructor
-    @param {RecordArray} recordArray
+    @param {Store} store
+    @param {string} type
     @param options
    */
-  constructor(store: Store, recordArray: IdentifierArray, options: FindOptions = {}) {
+  constructor(store: Store, type: string, options: FindOptions = {}) {
     this.__store = store;
     /**
       An array of snapshots
@@ -54,33 +53,12 @@ export default class SnapshotRecordArray {
     this._snapshots = null;
 
     /**
-      An array of records
-      @private
-      @property _recordArray
-      @type {Array}
-    */
-    this._recordArray = recordArray;
-
-    /**
-      Number of records in the array
-
-      Example
-
-      ```app/adapters/post.js
-      import JSONAPIAdapter from '@ember-data/adapter/json-api';
-
-      export default class PostAdapter extends JSONAPIAdapter {
-        shouldReloadAll(store, snapshotRecordArray) {
-          return !snapshotRecordArray.length;
-        }
-      });
-      ```
-
-      @property length
-      @public
-      @type {Number}
-    */
-    this.length = recordArray.length as unknown as number; // deal with computedProperty shennanigans
+    The modelName of the underlying records for the snapshots in the array, as a Model
+    @property modelName
+    @public
+    @type {Model}
+  */
+    this.modelName = type;
 
     /**
       A hash of adapter options passed into the store method for this request.
@@ -131,21 +109,37 @@ export default class SnapshotRecordArray {
   }
 
   /**
-    The type of the underlying records for the snapshots in the array, as a Model
-    @property type
-    @deprecated
-    @public
-    @type {Model}
+    An array of records
+
+    @property _recordArray
+    @private
+    @type {Array}
   */
+  get _recordArray(): IdentifierArray {
+    return this.__store.peekAll(this.modelName);
+  }
 
   /**
-    The modelName of the underlying records for the snapshots in the array, as a Model
-    @property modelName
-    @public
-    @type {Model}
-  */
-  get modelName() {
-    return this._recordArray.modelName;
+      Number of records in the array
+
+      Example
+
+      ```app/adapters/post.js
+      import JSONAPIAdapter from '@ember-data/adapter/json-api';
+
+      export default class PostAdapter extends JSONAPIAdapter {
+        shouldReloadAll(store, snapshotRecordArray) {
+          return !snapshotRecordArray.length;
+        }
+      });
+      ```
+
+      @property length
+      @public
+      @type {Number}
+    */
+  get length(): number {
+    return this._recordArray.length;
   }
 
   /**
@@ -191,6 +185,14 @@ export default class SnapshotRecordArray {
 }
 
 if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
+  /**
+    The type of the underlying records for the snapshots in the array, as a Model
+
+    @deprecated
+    @property type
+    @public
+    @type {Model}
+  */
   Object.defineProperty(SnapshotRecordArray.prototype, 'type', {
     get() {
       deprecate(
@@ -203,7 +205,8 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._recordArray.type;
+      // @ts-expect-error
+      return (this as SnapshotRecordArray)._recordArray.type as DSModelSchema;
     },
   });
 }

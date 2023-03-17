@@ -5,10 +5,6 @@ import { resolve } from 'rsvp';
 
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
-/**
-  @module @ember-data/store
-*/
-
 export function _bind(fn, ...args) {
   return function () {
     return fn.apply(undefined, args);

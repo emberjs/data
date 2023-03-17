@@ -1,5 +1,5 @@
 import RESTAdapter from '@ember-data/adapter/rest';
-import type { SnapshotRecordArray } from '@ember-data/store/-private';
+import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 
 export default class ApplicationAdapter extends RESTAdapter {
   namespace = 'api';
