@@ -7,7 +7,7 @@ const ValidKeys = new Map<string, string | string[]>([
   ['data', 'json'],
   ['options', 'object'],
   ['cacheOptions', 'object'],
-  ['op', ['findAll', 'query', 'queryRecord']],
+  ['op', ['findAll', 'query', 'queryRecord', 'findRecord']],
   ['store', 'object'],
   ['url', 'string'],
   ['cache', ['default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload']],
