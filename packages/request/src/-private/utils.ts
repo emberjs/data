@@ -70,11 +70,14 @@ export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbo
       if (isDoc(error)) {
         owner.setStream(owner.god.stream);
       }
-      try {
-        throw new Error(`Request Rejected with an Unknown Error`);
-      } catch (e: unknown) {
-        error = e as Error & StructuredErrorDocument;
+      if (!error) {
+        try {
+          throw new Error(`Request Rejected with an Unknown Error`);
+        } catch (e: unknown) {
+          error = e as Error & StructuredErrorDocument;
+        }
       }
+
       error[STRUCTURED] = true;
       error.request = owner.request;
       error.response = owner.getResponse();
