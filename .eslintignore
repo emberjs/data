@@ -17,6 +17,7 @@
 /packages/model/addon/
 /packages/json-api/addon/
 /packages/graph/addon/
+/packages/legacy-compat/addon/
 
 **/DEBUG/
 

@@ -3,7 +3,7 @@ import RSVP from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
-import { SnapshotRecordArray } from '@ember-data/adapter/-private';
+import { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { RecordArray, SOURCE } from '@ember-data/store/-private';

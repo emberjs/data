@@ -15,8 +15,8 @@ import type {
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 
 import { guardDestroyedStore } from './common';
-import { normalizeResponseHelper } from './utils/serializer-response';
-import SnapshotRecordArray from './utils/snapshot-record-array';
+import { normalizeResponseHelper } from './serializer-response';
+import SnapshotRecordArray from './snapshot-record-array';
 
 export const LegacyNetworkHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>) {

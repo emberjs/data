@@ -4,7 +4,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { SnapshotRecordArray } from '@ember-data/adapter/-private';
+import { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import Model, { attr } from '@ember-data/model';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 

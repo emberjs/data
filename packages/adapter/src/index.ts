@@ -141,7 +141,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise as RSVPPromise } from 'rsvp';
 
-import type { SnapshotRecordArray } from '@ember-data/adapter/-private';
+import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
@@ -865,4 +865,4 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
   }
 }
 
-export { LegacyNetworkHandler, BuildURLMixin } from './-private';
+export { BuildURLMixin } from './-private';

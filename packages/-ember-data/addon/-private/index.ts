@@ -3,7 +3,7 @@ import ArrayProxy from '@ember/array/proxy';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ObjectProxy from '@ember/object/proxy';
 
-import { LegacyNetworkHandler } from '@ember-data/adapter';
+import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import { RequestManager } from '@ember-data/request';
 import { Fetch } from '@ember-data/request/fetch';
 import BaseStore from '@ember-data/store';
@@ -23,7 +23,7 @@ export { Snapshot } from '@ember-data/store/-private';
 // `ember-data-model-fragments' and `ember-data-change-tracker` rely on `normalizeModelName`
 export { RecordArrayManager, normalizeModelName, coerceId } from '@ember-data/store/-private';
 export { ManyArray, PromiseManyArray } from '@ember-data/model/-private';
-export { SnapshotRecordArray } from '@ember-data/adapter/-private';
+export { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 
 export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin);
 export const PromiseObject = ObjectProxy.extend(PromiseProxyMixin);

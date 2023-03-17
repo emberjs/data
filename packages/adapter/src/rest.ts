@@ -9,7 +9,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise as RSVPPromise } from 'rsvp';
 
-import type { SnapshotRecordArray } from '@ember-data/adapter/-private';
+import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type Snapshot from '@ember-data/store/-private/network/snapshot';
