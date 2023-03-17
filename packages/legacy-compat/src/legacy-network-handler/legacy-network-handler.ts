@@ -141,7 +141,7 @@ function query<T>(context: StoreRequestContext): Promise<T> {
     });
 
   if (DEBUG) {
-    options = { ...options };
+    options = Object.assign({}, options);
     delete options._recordArray;
   } else {
     delete options._recordArray;

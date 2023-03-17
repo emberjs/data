@@ -123,7 +123,9 @@ export function deepFreeze<T = unknown>(value: T): T {
         case 'error':
         case 'stream':
         default:
-          throw new Error(`Cannot deep-freeze ${_niceType}`);
+          // eslint-disable-next-line no-console
+          console.log(`Cannot deep-freeze ${_niceType}`);
+          return value;
       }
     }
   }

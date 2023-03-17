@@ -16,7 +16,7 @@ class Person extends Model {
   lastName;
 }
 
-module('integration/serializer - normalize method forwards to Serializer#normalize', function (hooks) {
+module('Serializer Contract | normalize method forwards to Serializer#normalize', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function (assert) {

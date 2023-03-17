@@ -7,7 +7,7 @@ export default class DefaultStore extends Store {
   constructor() {
     super(...arguments);
     this.requestManager = new RequestManager();
-    this.requestManager.use([LegacyNetworkHandler, Fetch]);
+    this.requestManager.use([LegacyNetworkHandler]);
   }
   createCache(storeWrapper) {
     return new Cache(storeWrapper);

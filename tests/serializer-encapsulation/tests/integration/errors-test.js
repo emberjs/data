@@ -18,7 +18,7 @@ class Person extends Model {
 }
 
 module(
-  'integration/errors - errors in JSON:API format "just work" with no extractErrors hook on the serializer',
+  'Serializer Contract | errors in JSON:API format "just work" with no extractErrors hook on the serializer',
   function (hooks) {
     setupTest(hooks);
 

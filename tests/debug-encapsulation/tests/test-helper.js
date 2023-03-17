@@ -19,4 +19,5 @@ setApplication(Application.create(config.APP));
 
 assertAllDeprecations();
 
-start();
+QUnit.config.testTimeout = 2000;
+start({ setupTestIsolationValidation: true });

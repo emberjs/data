@@ -28,7 +28,7 @@ class Person extends Model {
   }
 }
 
-module('integration/serializer - serialize methods forward to Serializer#serialize', function (hooks) {
+module('Serializer Contract | serialize methods forward to Serializer#serialize', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function (assert) {

@@ -25,242 +25,239 @@ class Comment extends Post {
   post;
 }
 
-module(
-  'integration/relationships - running requests for async relationships with minimum serializer',
-  function (hooks) {
-    setupTest(hooks);
+module('Serializer Contract | running requests for async relationships with minimum serializer', function (hooks) {
+  setupTest(hooks);
 
-    hooks.beforeEach(function () {
-      this.owner.register('service:store', Store);
-      this.owner.register('model:post', Post);
-      this.owner.register('model:comment', Comment);
-    });
+  hooks.beforeEach(function () {
+    this.owner.register('service:store', Store);
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+  });
 
-    test('accessing an async hasMany relationship without links results in serializer.normalizeResponse being called with the requestType findMany', async function (assert) {
-      let normalizeResponseCalled = 0;
+  test('accessing an async hasMany relationship without links results in serializer.normalizeResponse being called with the requestType findMany', async function (assert) {
+    let normalizeResponseCalled = 0;
 
-      class TestMinimumSerializer extends EmberObject {
-        normalizeResponse(store, schema, rawPayload, id, requestType) {
-          normalizeResponseCalled++;
-          assert.strictEqual(requestType, 'findMany', 'expected method name is correct');
-          assert.deepEqual(rawPayload, { data: [] });
-          return {
+    class TestMinimumSerializer extends EmberObject {
+      normalizeResponse(store, schema, rawPayload, id, requestType) {
+        normalizeResponseCalled++;
+        assert.strictEqual(requestType, 'findMany', 'expected method name is correct');
+        assert.deepEqual(rawPayload, { data: [] });
+        return {
+          data: [
+            {
+              id: '1',
+              type: 'comment',
+              attributes: {
+                message: 'Message 1',
+              },
+              relationships: {
+                post: {
+                  data: {
+                    id: '1',
+                    type: 'post',
+                  },
+                },
+              },
+            },
+            {
+              id: '2',
+              type: 'comment',
+              attributes: {
+                message: 'Message 2',
+              },
+              relationships: {
+                post: {
+                  data: {
+                    id: '1',
+                    type: 'post',
+                  },
+                },
+              },
+            },
+          ],
+        };
+      }
+    }
+    this.owner.register('serializer:application', TestMinimumSerializer);
+
+    class TestAdapter extends JSONAPIAdapter {
+      coalesceFindRequests = true;
+
+      ajax(url, type) {
+        return resolve({ data: [] });
+      }
+    }
+    this.owner.register('adapter:application', TestAdapter);
+
+    const store = this.owner.lookup('service:store');
+
+    let post = store.push({
+      data: {
+        id: '1',
+        type: 'post',
+        attributes: {
+          title: 'Post 1',
+        },
+        relationships: {
+          comments: {
             data: [
               {
                 id: '1',
                 type: 'comment',
-                attributes: {
-                  message: 'Message 1',
-                },
-                relationships: {
-                  post: {
-                    data: {
-                      id: '1',
-                      type: 'post',
-                    },
-                  },
-                },
               },
               {
                 id: '2',
                 type: 'comment',
-                attributes: {
-                  message: 'Message 2',
-                },
-                relationships: {
-                  post: {
-                    data: {
-                      id: '1',
-                      type: 'post',
-                    },
-                  },
-                },
               },
             ],
-          };
-        }
-      }
-      this.owner.register('serializer:application', TestMinimumSerializer);
-
-      class TestAdapter extends JSONAPIAdapter {
-        coalesceFindRequests = true;
-
-        ajax(url, type) {
-          return resolve({ data: [] });
-        }
-      }
-      this.owner.register('adapter:application', TestAdapter);
-
-      const store = this.owner.lookup('service:store');
-
-      let post = store.push({
-        data: {
-          id: '1',
-          type: 'post',
-          attributes: {
-            title: 'Post 1',
           },
-          relationships: {
-            comments: {
-              data: [
-                {
-                  id: '1',
-                  type: 'comment',
-                },
-                {
-                  id: '2',
-                  type: 'comment',
-                },
-              ],
+        },
+      },
+    });
+    let comments = await post.comments;
+
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.deepEqual(
+      comments.map((r) => r.message),
+      ['Message 1', 'Message 2'],
+      'response is expected response'
+    );
+  });
+
+  test('accessing an async hasMany relationship with links results in serializer.normalizeResponse being called with the requestType findHasMany', async function (assert) {
+    let normalizeResponseCalled = 0;
+
+    class TestMinimumSerializer extends EmberObject {
+      normalizeResponse(store, schema, rawPayload, id, requestType) {
+        normalizeResponseCalled++;
+        assert.strictEqual(requestType, 'findHasMany', 'expected method name is correct');
+        assert.deepEqual(rawPayload, { data: [] });
+        return {
+          data: [
+            {
+              id: '1',
+              type: 'comment',
+              attributes: {
+                message: 'Message 1',
+              },
+            },
+            {
+              id: '2',
+              type: 'comment',
+              attributes: {
+                message: 'Message 2',
+              },
+            },
+          ],
+        };
+      }
+    }
+    this.owner.register('serializer:application', TestMinimumSerializer);
+
+    class TestAdapter extends JSONAPIAdapter {
+      coalesceFindRequests = true;
+
+      ajax(url, type) {
+        return resolve({ data: [] });
+      }
+    }
+    this.owner.register('adapter:application', TestAdapter);
+
+    const store = this.owner.lookup('service:store');
+
+    let post = store.push({
+      data: {
+        id: '1',
+        type: 'post',
+        attributes: {
+          title: 'Post 1',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
             },
           },
         },
-      });
-      let comments = await post.comments;
-
-      assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
-      assert.deepEqual(
-        comments.map((r) => r.message),
-        ['Message 1', 'Message 2'],
-        'response is expected response'
-      );
+      },
     });
+    let comments = await post.comments;
 
-    test('accessing an async hasMany relationship with links results in serializer.normalizeResponse being called with the requestType findHasMany', async function (assert) {
-      let normalizeResponseCalled = 0;
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.deepEqual(
+      comments.map((r) => r.message),
+      ['Message 1', 'Message 2'],
+      'response is expected response'
+    );
+  });
 
-      class TestMinimumSerializer extends EmberObject {
-        normalizeResponse(store, schema, rawPayload, id, requestType) {
-          normalizeResponseCalled++;
-          assert.strictEqual(requestType, 'findHasMany', 'expected method name is correct');
-          assert.deepEqual(rawPayload, { data: [] });
-          return {
-            data: [
-              {
-                id: '1',
-                type: 'comment',
-                attributes: {
-                  message: 'Message 1',
-                },
-              },
-              {
-                id: '2',
-                type: 'comment',
-                attributes: {
-                  message: 'Message 2',
-                },
-              },
-            ],
-          };
-        }
-      }
-      this.owner.register('serializer:application', TestMinimumSerializer);
+  test('accessing an async belongsTo relationship with links results in serializer.normalizeResponse being called with the requestType findBelongsTo', async function (assert) {
+    let normalizeResponseCalled = 0;
 
-      class TestAdapter extends JSONAPIAdapter {
-        coalesceFindRequests = true;
-
-        ajax(url, type) {
-          return resolve({ data: [] });
-        }
-      }
-      this.owner.register('adapter:application', TestAdapter);
-
-      const store = this.owner.lookup('service:store');
-
-      let post = store.push({
-        data: {
-          id: '1',
-          type: 'post',
-          attributes: {
-            title: 'Post 1',
+    class TestMinimumSerializer extends EmberObject {
+      normalizeResponse(store, schema, rawPayload, id, requestType) {
+        normalizeResponseCalled++;
+        assert.strictEqual(requestType, 'findBelongsTo', 'expected method name is correct');
+        assert.deepEqual(rawPayload, {
+          data: {
+            id: '1',
+            type: 'post',
+            attributes: {
+              title: 'John',
+            },
           },
-          relationships: {
-            comments: {
-              links: {
-                related: '/posts/1/comments',
-              },
+        });
+        return {
+          data: {
+            id: '1',
+            type: 'post',
+            attributes: {
+              title: 'Chris',
+            },
+          },
+        };
+      }
+    }
+    this.owner.register('serializer:application', TestMinimumSerializer);
+
+    class TestAdapter extends JSONAPIAdapter {
+      coalesceFindRequests = true;
+
+      ajax(url, type) {
+        return resolve({
+          data: {
+            id: '1',
+            type: 'post',
+            attributes: {
+              title: 'John',
+            },
+          },
+        });
+      }
+    }
+    this.owner.register('adapter:application', TestAdapter);
+
+    const store = this.owner.lookup('service:store');
+
+    let comment = store.push({
+      data: {
+        id: '1',
+        type: 'comment',
+        attributes: {
+          message: 'Message 1',
+        },
+        relationships: {
+          post: {
+            links: {
+              related: '/comments/1/post',
             },
           },
         },
-      });
-      let comments = await post.comments;
-
-      assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
-      assert.deepEqual(
-        comments.map((r) => r.message),
-        ['Message 1', 'Message 2'],
-        'response is expected response'
-      );
+      },
     });
+    let post = await comment.post;
 
-    test('accessing an async belongsTo relationship with links results in serializer.normalizeResponse being called with the requestType findBelongsTo', async function (assert) {
-      let normalizeResponseCalled = 0;
-
-      class TestMinimumSerializer extends EmberObject {
-        normalizeResponse(store, schema, rawPayload, id, requestType) {
-          normalizeResponseCalled++;
-          assert.strictEqual(requestType, 'findBelongsTo', 'expected method name is correct');
-          assert.deepEqual(rawPayload, {
-            data: {
-              id: '1',
-              type: 'post',
-              attributes: {
-                title: 'John',
-              },
-            },
-          });
-          return {
-            data: {
-              id: '1',
-              type: 'post',
-              attributes: {
-                title: 'Chris',
-              },
-            },
-          };
-        }
-      }
-      this.owner.register('serializer:application', TestMinimumSerializer);
-
-      class TestAdapter extends JSONAPIAdapter {
-        coalesceFindRequests = true;
-
-        ajax(url, type) {
-          return resolve({
-            data: {
-              id: '1',
-              type: 'post',
-              attributes: {
-                title: 'John',
-              },
-            },
-          });
-        }
-      }
-      this.owner.register('adapter:application', TestAdapter);
-
-      const store = this.owner.lookup('service:store');
-
-      let comment = store.push({
-        data: {
-          id: '1',
-          type: 'comment',
-          attributes: {
-            message: 'Message 1',
-          },
-          relationships: {
-            post: {
-              links: {
-                related: '/comments/1/post',
-              },
-            },
-          },
-        },
-      });
-      let post = await comment.post;
-
-      assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
-      assert.deepEqual(post.title, 'Chris', 'response is expected response');
-    });
-  }
-);
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.deepEqual(post.title, 'Chris', 'response is expected response');
+  });
+});

@@ -25,6 +25,7 @@
     "@ember-data/model": "workspace:4.12.0-alpha.8",
     "@ember-data/private-build-infra": "workspace:4.12.0-alpha.8",
     "@ember-data/json-api": "workspace:4.12.0-alpha.8",
+    "@ember-data/legacy-compat": "workspace:4.12.0-alpha.8",
     "@ember-data/request": "workspace:4.12.0-alpha.8",
     "@ember-data/serializer": "workspace:4.12.0-alpha.8",
     "@ember-data/store": "workspace:4.12.0-alpha.8",
@@ -55,6 +56,9 @@
       "injected": true
     },
     "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
       "injected": true
     },
     "@ember-data/serializer": {

@@ -9,7 +9,7 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
 
-module('integration/requests - running requests with minimum serializer', function (hooks) {
+module('Serializer Contract | running requests with minimum serializer', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function (assert) {
