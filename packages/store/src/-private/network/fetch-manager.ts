@@ -27,7 +27,7 @@ import coerceId from '../utils/coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from '../utils/common';
 import { normalizeResponseHelper } from '../utils/serializer-response';
 import type RequestCache from './request-cache';
-import Snapshot from './snapshot';
+import type Snapshot from './snapshot';
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -87,6 +87,10 @@ export default class FetchManager {
     this.isDestroyed = false;
   }
 
+  _createSnapshot(identifier: StableRecordIdentifier, options: FetchMutationOptions): Snapshot {
+    return this._store._instanceCache.createSnapshot(identifier, options);
+  }
+
   /**
     This method is called by `record.save`, and gets passed a
     resolver for the promise that `record.save` returns.
@@ -108,7 +112,7 @@ export default class FetchManager {
       data: [query],
     };
 
-    let snapshot = new Snapshot(options, identifier, this._store);
+    let snapshot = this._createSnapshot(identifier, options);
     let pendingSaveItem = {
       snapshot: snapshot,
       resolver: resolver,
@@ -421,7 +425,7 @@ function _fetchRecord(store: Store, fetchItem: PendingFetchItem) {
     typeof adapter.findRecord === 'function'
   );
 
-  let snapshot = new Snapshot(fetchItem.options, identifier, store);
+  let snapshot = store._instanceCache.createSnapshot(identifier, fetchItem.options);
   let klass = store.modelFor(identifier.type);
   let id = identifier.id;
   let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
@@ -494,7 +498,7 @@ function _flushPendingFetchForType(store: Store, pendingFetchItems: PendingFetch
     let fetchMap = new Map();
     for (let i = 0; i < totalItems; i++) {
       let fetchItem = pendingFetchItems[i];
-      snapshots[i] = new Snapshot(fetchItem.options, fetchItem.identifier, store);
+      snapshots[i] = store._instanceCache.createSnapshot(fetchItem.identifier, fetchItem.options);
       fetchMap.set(snapshots[i], fetchItem);
     }
 
