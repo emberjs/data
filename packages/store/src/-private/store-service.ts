@@ -23,7 +23,6 @@ import {
 } from '@ember-data/private-build-infra/deprecations';
 import type { RequestManager } from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
-import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel } from '@ember-data/types/q/ds-model';
@@ -1654,7 +1653,7 @@ class Store {
       typeof modelName === 'string'
     );
 
-    const promise = this.request<SingleResourceDataDocument>({
+    const promise = this.request<RecordInstance | null>({
       op: 'queryRecord',
       data: {
         type: normalizeModelName(modelName),
@@ -1664,9 +1663,9 @@ class Store {
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseObject(promise.then((document) => document.content.data && this.peekRecord(document.content.data)));
+      return promiseObject(promise.then((document) => document.content));
     }
-    return promise.then((document) => document.content.data && this.peekRecord(document.content.data));
+    return promise.then((document) => document.content);
   }
 
   /**

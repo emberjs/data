@@ -7,7 +7,11 @@ import type { Handler, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
+import type {
+  CollectionResourceDocument,
+  JsonApiDocument,
+  SingleResourceDocument,
+} from '@ember-data/types/q/ember-data-json-api';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 
 import { guardDestroyedStore } from './common';
@@ -67,8 +71,8 @@ function findAll<T>(context: StoreRequestContext): Promise<T> {
 
     if (
       options.backgroundReload ||
-      !adapter.shouldBackgroundReloadAll ||
-      adapter.shouldBackgroundReloadAll(store, snapshotArray)
+      (options.backgroundReload !== false &&
+        (!adapter.shouldBackgroundReloadAll || adapter.shouldBackgroundReloadAll(store, snapshotArray)))
     ) {
       maybeRecordArray && (maybeRecordArray.isUpdating = true);
       void _findAll(adapter, store, type, snapshotArray);
@@ -116,7 +120,10 @@ function _findAll<T>(
 
 function query<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
-  const { type, query, options } = data as {
+  let { options } = data as {
+    options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
+  };
+  const { type, query } = data as {
     type: string;
     query: Record<string, unknown>;
     options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
@@ -124,10 +131,7 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   const adapter = store.adapterFor(type);
 
   assert(`You tried to make a query but you have no adapter (for ${type})`, adapter);
-  assert(
-    `You tried to make a query but your adapter does not implement 'queryRecord'`,
-    typeof adapter.query === 'function'
-  );
+  assert(`You tried to make a query but your adapter does not implement 'query'`, typeof adapter.query === 'function');
 
   const recordArray =
     options._recordArray ||
@@ -135,7 +139,13 @@ function query<T>(context: StoreRequestContext): Promise<T> {
       type,
       query,
     });
-  delete options._recordArray;
+
+  if (DEBUG) {
+    options = { ...options };
+    delete options._recordArray;
+  } else {
+    delete options._recordArray;
+  }
   const schema = store.modelFor(type);
   let promise = Promise.resolve().then(() => adapter.query(store, schema, query, recordArray, options));
 
@@ -168,6 +178,13 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   }) as Promise<T>;
 }
 
+function assertSingleResourceDocument(payload: JsonApiDocument): asserts payload is SingleResourceDocument {
+  assert(
+    `Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array.`,
+    !Array.isArray(payload.data)
+  );
+}
+
 function queryRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
   const { type, query, options } = data as { type: string; query: Record<string, unknown>; options: object };
@@ -195,11 +212,8 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
       'queryRecord'
     );
 
-    assert(
-      `Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array.`,
-      !Array.isArray(payload.data)
-    );
+    assertSingleResourceDocument(payload);
 
-    return store._push(payload);
+    return store.push(payload);
   }) as Promise<T>;
 }

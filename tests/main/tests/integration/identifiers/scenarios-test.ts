@@ -89,7 +89,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       owner.register('adapter:application', TestAdapter);
       owner.register('serializer:application', TestSerializer);
       owner.register('model:user', User);
-      owner.register('service:store', Store);
 
       calls = {
         findRecord: 0,

@@ -43,7 +43,7 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
 }
 
 function isDoc<T>(doc: T | StructuredDataDocument<T>): doc is StructuredDataDocument<T> {
-  return doc[STRUCTURED] === true;
+  return doc && doc[STRUCTURED] === true;
 }
 
 export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbound: DeferredFuture<T>): Future<T> {
@@ -69,6 +69,11 @@ export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbo
     (error: Error & StructuredErrorDocument) => {
       if (isDoc(error)) {
         owner.setStream(owner.god.stream);
+      }
+      try {
+        throw new Error(`Request Rejected with an Unknown Error`);
+      } catch (e: unknown) {
+        error = e as Error & StructuredErrorDocument;
       }
       error[STRUCTURED] = true;
       error.request = owner.request;

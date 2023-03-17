@@ -70,6 +70,7 @@ export const IDENTIFIER_ARRAY_TAG = Symbol('#tag');
 export const SOURCE = Symbol('#source');
 export const MUTATE = Symbol('#update');
 export const NOTIFY = Symbol('#notify');
+const IS_COLLECTION = Symbol.for('Collection');
 
 export function notifyArray(arr: IdentifierArray) {
   arr[IDENTIFIER_ARRAY_TAG].ref = null;
@@ -204,6 +205,7 @@ class IdentifierArray {
   isDestroyed: boolean = false;
   _updatingPromise: PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> | null = null;
 
+  [IS_COLLECTION] = true;
   [IDENTIFIER_ARRAY_TAG] = new Tag();
   [SOURCE]: StableRecordIdentifier[];
   [NOTIFY]() {
@@ -592,6 +594,7 @@ export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
   query: ImmutableRequestInfo | Dict<unknown> | null;
   isLoaded: boolean;
 };
+
 export class Collection extends IdentifierArray {
   query: ImmutableRequestInfo | Dict<unknown> | null = null;
 

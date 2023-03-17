@@ -3,9 +3,10 @@ import RSVP from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
+import { SnapshotRecordArray } from '@ember-data/adapter/-private';
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import { RecordArray, SnapshotRecordArray, SOURCE } from '@ember-data/store/-private';
+import { RecordArray, SOURCE } from '@ember-data/store/-private';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -441,16 +442,11 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       id: '2',
       type: 'tag',
     };
-    let records = store.push({
+    store.push({
       data: [model1, model2],
     });
 
-    let recordArray = new RecordArray({
-      identifiers: records.map(recordIdentifierFor),
-      store,
-    });
-
-    let snapshot = new SnapshotRecordArray(store, recordArray, {});
+    let snapshot = new SnapshotRecordArray(store, 'tag', {});
     let [snapshot1, snapshot2] = snapshot.snapshots();
 
     assert.strictEqual(
