@@ -7,7 +7,6 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
-import Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class Widget extends Model {
@@ -19,7 +18,6 @@ module('acceptance/tracking-promise-flags', function (hooks) {
 
   hooks.beforeEach(function () {
     let { owner } = this;
-    owner.register('service:store', Store);
     owner.register('model:widget', Widget);
     owner.register(
       'serializer:application',

@@ -186,7 +186,7 @@ import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 import Transform from '@ember-data/serializer/transform';
-import Store, { normalizeModelName } from '@ember-data/store';
+import { normalizeModelName } from '@ember-data/store';
 
 import {
   DS,
@@ -197,6 +197,7 @@ import {
   PromiseObject,
   RecordArrayManager,
   Snapshot,
+  Store,
 } from './-private';
 import setupContainer from './setup-container';
 

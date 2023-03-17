@@ -3,7 +3,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Store from '@ember-data/store';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
@@ -29,7 +28,6 @@ module('Editing a Record', function (hooks) {
 
   hooks.beforeEach(function () {
     let { owner } = this;
-    owner.register('service:store', Store);
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     store = owner.lookup('service:store');

@@ -18,7 +18,6 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import { DEPRECATE_ARRAY_LIKE } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class Person extends Model {
@@ -207,7 +206,6 @@ module('async has-many rendering tests', function (hooks) {
     owner.register('model:person', Person);
     owner.register('adapter:application', TestAdapter);
     owner.register('serializer:application', JSONAPISerializer);
-    owner.register('service:store', Store);
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');
   });
@@ -694,7 +692,6 @@ module('autotracking has-many', function (hooks) {
     owner.register('model:person', Person);
     owner.register('adapter:application', TestAdapter);
     owner.register('serializer:application', JSONAPISerializer);
-    owner.register('service:store', Store);
     store = owner.lookup('service:store');
   });
 

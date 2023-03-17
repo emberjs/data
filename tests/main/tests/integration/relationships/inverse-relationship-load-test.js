@@ -6,7 +6,6 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('inverse relationship load test', function (hooks) {
@@ -15,7 +14,6 @@ module('inverse relationship load test', function (hooks) {
 
   hooks.beforeEach(function () {
     let { owner } = this;
-    owner.register('service:store', Store);
     store = owner.lookup('service:store');
     owner.register(
       'serializer:application',

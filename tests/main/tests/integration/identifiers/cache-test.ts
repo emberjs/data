@@ -2,7 +2,6 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Store from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('Integration | Identifiers - cache', function (hooks) {
@@ -10,7 +9,6 @@ module('Integration | Identifiers - cache', function (hooks) {
   let store, cache;
 
   hooks.beforeEach(function () {
-    this.owner.register(`service:store`, Store);
     store = this.owner.lookup('service:store');
     cache = store.identifierCache;
   });

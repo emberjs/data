@@ -44,7 +44,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
     }
 
     owner.register('model:user', User);
-    owner.register('service:store', Store);
 
     let localIdInc = 9000;
     const generationMethod = (resource: ResourceData | { type: string }) => {

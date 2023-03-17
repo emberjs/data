@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import Store, { recordIdentifierFor } from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 
 module('Integration | Identifiers - creating new records', function (hooks) {
   setupTest(hooks);
@@ -11,7 +11,6 @@ module('Integration | Identifiers - creating new records', function (hooks) {
 
   hooks.beforeEach(function () {
     const { owner } = this;
-    owner.register(`service:store`, Store);
 
     class User extends Model {
       @attr() name;

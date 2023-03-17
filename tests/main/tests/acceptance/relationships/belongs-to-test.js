@@ -12,7 +12,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store, { recordIdentifierFor } from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 
 import { implicitRelationshipsFor } from '../../helpers/accessors';
 
@@ -228,7 +228,6 @@ module('async belongs-to rendering tests', function (hooks) {
         },
       })
     );
-    owner.register('service:store', Store);
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');
   });

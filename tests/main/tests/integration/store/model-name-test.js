@@ -6,7 +6,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import Store from '@ember-data/store';
 
 function startsWith(str, substr) {
   if (typeof str.startsWith === 'function') {
@@ -37,7 +36,6 @@ module('@ember-data/model klass.modelName', function (hooks) {
     owner.register('model:animal', Animal);
     owner.register('model:pet', Pet);
     owner.register('service:animal-helper', AnimalHelper);
-    owner.register('sercice:store', Store);
     const store = owner.lookup('service:store');
     const animalHelper = owner.lookup('service:animal-helper');
 

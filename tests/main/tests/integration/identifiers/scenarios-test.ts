@@ -7,7 +7,8 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
-import Store, {
+import type Store from '@ember-data/store';
+import {
   recordIdentifierFor,
   setIdentifierForgetMethod,
   setIdentifierGenerationMethod,
@@ -293,7 +294,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       owner.register('adapter:application', TestAdapter);
       owner.register('serializer:application', TestSerializer);
       owner.register('model:user', User);
-      owner.register('service:store', Store);
 
       calls = {
         findRecord: 0,

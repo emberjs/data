@@ -7,7 +7,7 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Store, { recordIdentifierFor } from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
 
 module('Integration | Identifiers - lid reflection', function (hooks: NestedHooks) {
@@ -16,7 +16,6 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
 
   hooks.beforeEach(function () {
     const { owner } = this;
-    owner.register(`service:store`, Store);
 
     class User extends Model {
       @attr declare name: string;

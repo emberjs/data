@@ -10,7 +10,6 @@ import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
 
 class Widget extends Model {
   @attr() name;
@@ -60,7 +59,6 @@ module('acceptance/tracking-model-id - tracking model id', function (hooks) {
 
   hooks.beforeEach(function () {
     let { owner } = this;
-    owner.register('service:store', Store);
     owner.register('model:widget', Widget);
     owner.register('component:widget-list', WidgetList);
     owner.register('template:components/widget-list', layout);

@@ -11,7 +11,6 @@ import { resolve } from 'rsvp';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Store from '@ember-data/store';
 
 class Tag {
   @tracked rev = 0;
@@ -19,10 +18,6 @@ class Tag {
 
 module('tracking state flags on a record', function (hooks) {
   setupRenderingTest(hooks);
-
-  hooks.beforeEach(function () {
-    this.owner.register('service:store', Store);
-  });
 
   function resolveAsync(initializer) {
     return function (target, key, desc) {
