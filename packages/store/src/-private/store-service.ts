@@ -63,7 +63,7 @@ import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from 
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import FetchManager, { SaveOp } from './network/fetch-manager';
-import type RequestCache from './network/request-cache';
+import RequestCache from './network/request-cache';
 import type Snapshot from './network/snapshot';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import IdentifierArray, { Collection } from './record-arrays/identifier-array';
@@ -220,6 +220,7 @@ class Store {
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
   declare _modelFactoryCache: Dict<unknown>;
   declare _fetchManager: FetchManager;
+  declare _requestCache: RequestCache;
   declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
   declare lifetimes?: LifetimesService;
@@ -261,6 +262,7 @@ class Store {
 
     // private
     this._fetchManager = new FetchManager(this);
+    this._requestCache = new RequestCache();
     this._instanceCache = new InstanceCache(this);
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
@@ -365,7 +367,7 @@ class Store {
    * @public
    */
   getRequestStateService(): RequestCache {
-    return this._fetchManager.requestCache;
+    return this._requestCache;
   }
 
   /**

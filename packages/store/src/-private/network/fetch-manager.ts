@@ -83,7 +83,7 @@ export default class FetchManager {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
-    this.requestCache = new RequestCache();
+    this.requestCache = store.getRequestStateService();
     this.isDestroyed = false;
   }
 
