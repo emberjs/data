@@ -1,5 +1,5 @@
 /**
-  @module @ember-data/store
+  @module @ember-data/legacy-compat
 */
 
 import { deprecate } from '@ember/debug';
