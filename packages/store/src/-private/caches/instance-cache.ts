@@ -411,7 +411,7 @@ export class InstanceCache {
     this.store.identifierCache.forgetRecordIdentifier(identifier);
     this.__instances.resourceCache.delete(identifier);
     removeRecordDataFor(identifier);
-    this.store._fetchManager.clearEntries(identifier);
+    this.store._requestCache._clearEntries(identifier);
     if (LOG_INSTANCE_CACHE) {
       // eslint-disable-next-line no-console
       console.log(`InstanceCache: disconnected ${String(identifier)}`);
@@ -464,7 +464,7 @@ export class InstanceCache {
         this.disconnect(identifier);
       }
 
-      this.store._fetchManager.clearEntries(identifier);
+      this.store._requestCache._clearEntries(identifier);
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
         console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
