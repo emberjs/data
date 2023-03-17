@@ -26,7 +26,7 @@ import type Store from '../store-service';
 import coerceId from '../utils/coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from '../utils/common';
 import { normalizeResponseHelper } from '../utils/serializer-response';
-import RequestCache from './request-cache';
+import type RequestCache from './request-cache';
 import Snapshot from './snapshot';
 
 function payloadIsNotBlank(adapterPayload): boolean {
