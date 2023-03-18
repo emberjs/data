@@ -33,7 +33,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.21.0",
+    "@babel/core": "^7.21.3",
     "@babel/runtime": "^7.21.0",
     "@ember-data/canary-features": "workspace:4.12.0-alpha.9",
     "@ember-data/request": "workspace:4.12.0-alpha.9",
