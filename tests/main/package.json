@@ -32,6 +32,12 @@
     "@ember-data/model": {
       "injected": true
     },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
     "@ember-data/json-api": {
       "injected": true
     },
@@ -55,14 +61,7 @@
     "@babel/core": "^7.21.3",
     "@babel/plugin-transform-typescript": "^7.21.3",
     "@babel/runtime": "^7.21.0",
-    "@ember-data/adapter": "workspace:4.12.0-alpha.9",
-    "@ember-data/debug": "workspace:4.12.0-alpha.9",
-    "@ember-data/model": "workspace:4.12.0-alpha.9",
     "@ember-data/private-build-infra": "workspace:4.12.0-alpha.9",
-    "@ember-data/json-api": "workspace:4.12.0-alpha.9",
-    "@ember-data/serializer": "workspace:4.12.0-alpha.9",
-    "@ember-data/store": "workspace:4.12.0-alpha.9",
-    "@ember-data/tracking": "workspace:4.12.0-alpha.9",
     "@ember-data/unpublished-test-infra": "workspace:4.12.0-alpha.9",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
@@ -124,5 +123,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@7.29.1"
+  "packageManager": "pnpm@7.30.0"
 }

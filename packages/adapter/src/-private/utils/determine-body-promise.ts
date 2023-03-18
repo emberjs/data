@@ -1,6 +1,6 @@
 import { warn } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
 
+import { DEBUG } from '@ember-data/env';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import type { RequestData } from '../../rest';

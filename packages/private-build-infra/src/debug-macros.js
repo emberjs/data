@@ -3,7 +3,7 @@
 module.exports = function debugMacros(config) {
   const requireModule = require('./utilities/require-module');
 
-  const TransformPackagePresence = require.resolve('./transforms/babel-plugin-convert-existence-checks-to-macros');
+  const TransformPackages = require.resolve('./transforms/babel-plugin-transform-packages');
   const TransformDeprecations = require.resolve('./transforms/babel-plugin-transform-deprecations');
   const TransformDebugLogging = require.resolve('./transforms/babel-plugin-transform-logging');
   const TransformFeatures = require.resolve('./transforms/babel-plugin-transform-features');
@@ -24,12 +24,11 @@ module.exports = function debugMacros(config) {
       '@ember-data/canary-features-stripping',
     ],
     [
-      TransformPackagePresence,
+      TransformPackages,
       {
         source: '@ember-data/private-build-infra',
         flags: MACRO_PACKAGE_FLAGS,
       },
-      '@ember-data/package-stripping',
     ],
     [
       TransformDeprecations,
@@ -50,7 +49,7 @@ module.exports = function debugMacros(config) {
     [
       TransformDebugEnv,
       {
-        source: '@glimmer/env',
+        source: '@ember-data/env',
         flags: { DEBUG: true },
       },
       '@ember-data/debugging',

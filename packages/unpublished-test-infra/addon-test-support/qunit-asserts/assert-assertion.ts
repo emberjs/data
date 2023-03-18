@@ -1,8 +1,8 @@
-import { DEBUG } from '@glimmer/env';
-
 import QUnit from 'qunit';
 
 import type Assert from 'ember-data-qunit-asserts';
+
+import { DEBUG } from '@ember-data/env';
 
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';

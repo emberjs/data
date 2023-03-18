@@ -1,8 +1,8 @@
 import { assert, deprecate } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RSVP_PROMISE,

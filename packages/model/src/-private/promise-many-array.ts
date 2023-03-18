@@ -2,12 +2,12 @@ import ArrayMixin, { NativeArray } from '@ember/array';
 import type ArrayProxy from '@ember/array/proxy';
 import { assert, deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
-import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { resolve } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_COMPUTED_CHAINS,

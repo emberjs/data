@@ -8,6 +8,34 @@ const VersionChecker = require('ember-cli-version-checker');
 
 const rollupPrivateModule = require('./utilities/rollup-private-module');
 
+// do our best to detect being present
+// Note: when this is not enough, consuming apps may need
+// to "hoist" peer-deps or specify us as a direct dependency
+// in order to deal with peer-dep bugs in package managers
+function detectModule(moduleName) {
+  try {
+    // package managers have peer-deps bugs where another library
+    // bringing a peer-dependency doesn't necessarily result in all
+    // versions of the dependent getting the peer-dependency
+    //
+    // so we resolve from project as well as from our own location
+    //
+    // eslint-disable-next-line node/no-missing-require
+    require.resolve(moduleName, { paths: [process.cwd(), __dirname, path.join(__dirname, '../')] });
+    return true;
+  } catch {
+    try {
+      // ember-data brings all packages so if present we are present
+      //
+      // eslint-disable-next-line node/no-missing-require
+      require.resolve('ember-data', { paths: [process.cwd(), __dirname, path.join(__dirname, '../')] });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
 function isProductionEnv() {
   let isProd = /production/.test(process.env.EMBER_ENV);
   let isTest = process.env.EMBER_CLI_TEST_COMMAND;
@@ -277,22 +305,10 @@ function addonBuildConfigForDataPackage(PackageName) {
         options.emberData.debug
       );
       options.emberData.debug = debugOptions;
-      let HAS_DEBUG_PACKAGE, HAS_META_PACKAGE;
 
-      try {
-        // eslint-disable-next-line node/no-missing-require
-        require.resolve('@ember-data/debug', { paths: [process.cwd(), path.join(__dirname, '../')] });
-        HAS_DEBUG_PACKAGE = true;
-      } catch {
-        HAS_DEBUG_PACKAGE = false;
-      }
-      try {
-        // eslint-disable-next-line node/no-missing-require
-        require.resolve('ember-data', { paths: [process.cwd(), path.join(__dirname, '../')] });
-        HAS_META_PACKAGE = true;
-      } catch {
-        HAS_META_PACKAGE = false;
-      }
+      const HAS_DEBUG_PACKAGE = detectModule('@ember-data/debug');
+      const HAS_META_PACKAGE = detectModule('ember-data');
+
       options.emberData.includeDataAdapterInProduction =
         typeof options.emberData.includeDataAdapterInProduction === 'boolean'
           ? options.emberData.includeDataAdapterInProduction

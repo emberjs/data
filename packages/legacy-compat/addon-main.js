@@ -1,4 +1,34 @@
+const requireModule = require('@ember-data/private-build-infra/src/utilities/require-module');
+
 const pkg = require('./package.json');
+
+// do our best to detect being present
+// Note: when this is not enough, consuming apps may need
+// to "hoist" peer-deps or specify us as a direct dependency
+// in order to deal with peer-dep bugs in package managers
+function detectModule(moduleName) {
+  try {
+    // package managers have peer-deps bugs where another library
+    // bringing a peer-dependency doesn't necessarily result in all
+    // versions of the dependent getting the peer-dependency
+    //
+    // so we resolve from project as well as from our own location
+    //
+    // eslint-disable-next-line node/no-missing-require
+    require.resolve(moduleName, { paths: [process.cwd(), __dirname] });
+    return true;
+  } catch {
+    try {
+      // ember-data brings all packages so if present we are present
+      //
+      // eslint-disable-next-line node/no-missing-require
+      require.resolve('ember-data', { paths: [process.cwd(), __dirname] });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
 
 module.exports = {
   name: pkg.name,
@@ -30,22 +60,10 @@ module.exports = {
       },
       hostOptions.debug || {}
     );
-    let HAS_DEBUG_PACKAGE, HAS_META_PACKAGE;
 
-    try {
-      // eslint-disable-next-line node/no-missing-require
-      require.resolve('@ember-data/debug', { paths: [process.cwd(), __dirname] });
-      HAS_DEBUG_PACKAGE = true;
-    } catch {
-      HAS_DEBUG_PACKAGE = false;
-    }
-    try {
-      // eslint-disable-next-line node/no-missing-require
-      require.resolve('ember-data', { paths: [process.cwd(), __dirname] });
-      HAS_META_PACKAGE = true;
-    } catch {
-      HAS_META_PACKAGE = false;
-    }
+    const HAS_DEBUG_PACKAGE = detectModule('@ember-data/debug');
+    const HAS_META_PACKAGE = detectModule('ember-data');
+
     const includeDataAdapterInProduction =
       typeof hostOptions.includeDataAdapterInProduction === 'boolean'
         ? hostOptions.includeDataAdapterInProduction
@@ -55,6 +73,14 @@ module.exports = {
     const DEPRECATIONS = require('@ember-data/private-build-infra/src/deprecations')(hostOptions.compatWith || null);
     const FEATURES = require('@ember-data/private-build-infra/src/features')(isProd);
 
+    const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
+    const MACRO_PACKAGE_FLAGS = Object.assign({}, ALL_PACKAGES.default);
+    delete MACRO_PACKAGE_FLAGS['HAS_DEBUG_PACKAGE'];
+
+    Object.keys(MACRO_PACKAGE_FLAGS).forEach((key) => {
+      MACRO_PACKAGE_FLAGS[key] = detectModule(MACRO_PACKAGE_FLAGS[key]);
+    });
+
     // copy configs forward
     const ownConfig = this.options['@embroider/macros'].setOwnConfig;
     ownConfig.compatWith = hostOptions.compatWith || null;
@@ -62,6 +88,7 @@ module.exports = {
     ownConfig.deprecations = Object.assign(DEPRECATIONS, ownConfig.deprecations || {});
     ownConfig.features = Object.assign({}, FEATURES);
     ownConfig.includeDataAdapter = includeDataAdapter;
+    ownConfig.packages = MACRO_PACKAGE_FLAGS;
 
     this._emberDataConfig = ownConfig;
     return ownConfig;

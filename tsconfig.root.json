@@ -41,6 +41,7 @@
     "paths": {
       "ember-data": ["packages/-ember-data/addon"],
       "ember-data/*": ["packages/-ember-data/addon/*"],
+      "@ember-data/env": ["@types/@ember-data/env.d.ts"],
       "@ember-data/types": ["ember-data-types"],
       "@ember-data/types/*": ["ember-data-types/*"],
       "@ember-data/store": ["packages/store/src"],

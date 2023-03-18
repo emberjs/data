@@ -6,12 +6,12 @@ import { assert, deprecate, warn } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
-import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { resolve } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EARLY_STATIC,

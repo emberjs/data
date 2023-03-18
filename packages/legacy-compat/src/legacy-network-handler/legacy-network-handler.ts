@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';

@@ -1,6 +1,6 @@
-import { DEBUG } from '@glimmer/env';
-
 import { skip, test } from 'qunit';
+
+import { DEBUG } from '@ember-data/env';
 
 export default function testInDebug(label, callback) {
   if (DEBUG) {

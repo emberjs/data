@@ -1,7 +1,6 @@
-import { DEBUG } from '@glimmer/env';
-
 import { skip, test } from 'qunit';
 
+import { DEBUG } from '@ember-data/env';
 import VERSION, { COMPAT_VERSION } from '@ember-data/unpublished-test-infra/test-support/version';
 
 // small comparison function for major and minor semver values

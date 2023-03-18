@@ -40,8 +40,8 @@ module.exports = function (defaults) {
 
   let config = {
     compatWith,
-    // includeDataAdapterInProduction: false,
-    // includeDataAdapter: false,
+    includeDataAdapterInProduction: true,
+    includeDataAdapter: true,
     debug: {
       LOG_PAYLOADS: process.env.DEBUG_DATA ? true : false,
       LOG_OPERATIONS: process.env.DEBUG_DATA ? true : false,
@@ -56,7 +56,7 @@ module.exports = function (defaults) {
     features: require('@ember-data/private-build-infra/src/features')(isProd),
   };
   let app = new EmberApp(defaults, {
-    emberData: config,
+    emberData: Object.assign({}, config),
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
@@ -69,11 +69,11 @@ module.exports = function (defaults) {
     },
     'ember-cli-terser': terserSettings,
     '@embroider/macros': {
-      setConfig: {
-        '@ember-data/store': {
-          polyfillUUID: true,
-        },
-      },
+      // setConfig: {
+      //   '@ember-data/store': {
+      //     polyfillUUID: true,
+      //   },
+      // },
       setOwnConfig: config,
     },
     sourcemaps: {

@@ -5,11 +5,11 @@ import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
-import { DEBUG } from '@glimmer/env';
 
 import { importSync } from '@embroider/macros';
 import { reject, resolve } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import type { Cache as CacheClass } from '@ember-data/json-api';
 import type DSModelClass from '@ember-data/model';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';

@@ -4,9 +4,10 @@
 import { assert, warn } from '@ember/debug';
 import { dasherize } from '@ember/string';
 import { isNone, typeOf } from '@ember/utils';
-import { DEBUG } from '@glimmer/env';
 
 import { pluralize, singularize } from 'ember-inflector';
+
+import { DEBUG } from '@ember-data/env';
 
 import JSONSerializer from './json';
 

@@ -137,10 +137,10 @@
 
 import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
-import { DEBUG } from '@glimmer/env';
 
 import { Promise as RSVPPromise } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';

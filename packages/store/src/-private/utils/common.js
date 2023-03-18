@@ -1,8 +1,8 @@
 import { deprecate } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
 export function _bind(fn, ...args) {

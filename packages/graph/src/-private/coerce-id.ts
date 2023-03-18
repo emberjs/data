@@ -1,4 +1,4 @@
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 // Used by the store to normalize IDs entering the store.  Despite the fact
 // that developers may provide IDs as numbers (e.g., `store.findRecord('person', 1)`),
