@@ -36,6 +36,11 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
         try {
           throw new Error(error ? error : `Request Rejected with an Unknown Error`);
         } catch (e: unknown) {
+          if (error && typeof error === 'object') {
+            Object.assign(e as Error, error);
+            (e as Error & StructuredErrorDocument).message =
+              (error as Error).message || `Request Rejected with an Unknown Error`;
+          }
           error = e as Error & StructuredErrorDocument;
         }
       }
@@ -44,7 +49,6 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
       error.request = owner.request;
       error.response = owner.getResponse();
       error.error = error.error || error.message;
-      outbound.reject(error);
 
       outbound.reject(error);
     }

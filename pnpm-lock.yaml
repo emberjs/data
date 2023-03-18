@@ -1610,7 +1610,9 @@ importers:
       '@babel/runtime': ^7.21.0
       '@ember-data/adapter': workspace:4.12.0-alpha.9
       '@ember-data/debug': workspace:4.12.0-alpha.9
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.9
       '@ember-data/model': workspace:4.12.0-alpha.9
+      '@ember-data/request': workspace:4.12.0-alpha.9
       '@ember-data/serializer': workspace:4.12.0-alpha.9
       '@ember-data/store': workspace:4.12.0-alpha.9
       '@ember-data/tracking': workspace:4.12.0-alpha.9
@@ -1644,7 +1646,9 @@ importers:
       '@babel/runtime': 7.21.0
       '@ember-data/adapter': file:packages/adapter_x3mh3ht36ucvwtgxujk54cfj7m
       '@ember-data/debug': file:packages/debug_lz455kpkxjqqpmesntqbf6cr7m
+      '@ember-data/legacy-compat': file:packages/legacy-compat
       '@ember-data/model': file:packages/model_rcr3s3zogtm7aeamclcjjp65xm
+      '@ember-data/request': file:packages/request
       '@ember-data/serializer': file:packages/serializer_x3mh3ht36ucvwtgxujk54cfj7m
       '@ember-data/store': file:packages/store_cbpvs3syrslxryqv7vb2fgs57e
       '@ember-data/tracking': file:packages/tracking
@@ -1678,7 +1682,11 @@ importers:
         injected: true
       '@ember-data/debug':
         injected: true
+      '@ember-data/legacy-compat':
+        injected: true
       '@ember-data/model':
+        injected: true
+      '@ember-data/request':
         injected: true
       '@ember-data/serializer':
         injected: true
