@@ -69,11 +69,11 @@ module.exports = function (defaults) {
     },
     'ember-cli-terser': terserSettings,
     '@embroider/macros': {
-      setConfig: {
-        '@ember-data/store': {
-          polyfillUUID: true,
-        },
-      },
+      // setConfig: {
+      //   '@ember-data/store': {
+      //     polyfillUUID: true,
+      //   },
+      // },
       setOwnConfig: config,
     },
     sourcemaps: {
