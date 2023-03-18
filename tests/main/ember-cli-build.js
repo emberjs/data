@@ -41,7 +41,7 @@ module.exports = function (defaults) {
   let config = {
     compatWith,
     // includeDataAdapterInProduction: false,
-    // includeDataAdapter: false,
+    includeDataAdapter: !isProd,
     debug: {
       LOG_PAYLOADS: process.env.DEBUG_DATA ? true : false,
       LOG_OPERATIONS: process.env.DEBUG_DATA ? true : false,
@@ -56,7 +56,7 @@ module.exports = function (defaults) {
     features: require('@ember-data/private-build-infra/src/features')(isProd),
   };
   let app = new EmberApp(defaults, {
-    emberData: config,
+    emberData: Object.assign({}, config),
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
