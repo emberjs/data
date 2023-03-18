@@ -47,6 +47,16 @@ module.exports = {
     'import/newline-after-import': 'error',
     'import/no-duplicates': 'error',
     'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
+    'no-restricted-imports': [
+      'error',
+      // '@ember/runloop',
+      // '@ember/string',
+      // '@ember/object',
+      // '@ember/service',
+      // '@ember/object/compat',
+      // 'ember-inflector',
+      '@glimmer/env',
+    ],
 
     'mocha/no-exclusive-tests': 'error',
 
