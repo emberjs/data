@@ -1,5 +1,3 @@
-import { run } from '@ember/runloop';
-
 import QUnit, { module } from 'qunit';
 import { resolve } from 'rsvp';
 
