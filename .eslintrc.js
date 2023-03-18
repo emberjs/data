@@ -47,6 +47,18 @@ module.exports = {
     'import/newline-after-import': 'error',
     'import/no-duplicates': 'error',
     'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: ['@glimmer/env', '@ember/utils'],
+      },
+      // '@ember/runloop',
+      // '@ember/string',
+      // '@ember/object',
+      // '@ember/service',
+      // '@ember/object/compat',
+      // 'ember-inflector',
+    ],
 
     'mocha/no-exclusive-tests': 'error',
 
@@ -83,6 +95,24 @@ module.exports = {
     node: false,
   },
   overrides: [
+    {
+      files: ['packages/**'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: ['@glimmer/env', '@ember/utils'],
+            // patterns: ['@ember/*'],
+          },
+          // '@ember/runloop',@glimmer/env
+          // '@ember/string',
+          // '@ember/object',
+          // '@ember/service',
+          // '@ember/object/compat',
+          // 'ember-inflector',
+        ],
+      },
+    },
     // TypeScript files in strict-mode
     // see https://github.com/emberjs/data/issues/6233#issuecomment-849279594
     {

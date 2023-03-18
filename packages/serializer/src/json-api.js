@@ -3,7 +3,6 @@
  */
 import { assert, warn } from '@ember/debug';
 import { dasherize } from '@ember/string';
-import { isNone, typeOf } from '@ember/utils';
 
 import { pluralize, singularize } from 'ember-inflector';
 
@@ -138,9 +137,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeDocumentHelper(documentHash) {
-    if (typeOf(documentHash.data) === 'object') {
-      documentHash.data = this._normalizeResourceHelper(documentHash.data);
-    } else if (Array.isArray(documentHash.data)) {
+    if (Array.isArray(documentHash.data)) {
       let ret = new Array(documentHash.data.length);
 
       for (let i = 0; i < documentHash.data.length; i++) {
@@ -149,6 +146,8 @@ const JSONAPISerializer = JSONSerializer.extend({
       }
 
       documentHash.data = ret;
+    } else if (documentHash.data && typeof documentHash.data === 'object') {
+      documentHash.data = this._normalizeResourceHelper(documentHash.data);
     }
 
     if (Array.isArray(documentHash.included)) {
@@ -187,7 +186,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
-    assert(this.warnMessageForUndefinedType(), !isNone(resourceHash.type));
+    assert(this.warnMessageForUndefinedType(), resourceHash.type);
 
     let modelName, usedLookup;
 
@@ -281,10 +280,6 @@ const JSONAPISerializer = JSONSerializer.extend({
      @return {Object}
   */
   extractRelationship(relationshipHash) {
-    if (typeOf(relationshipHash.data) === 'object') {
-      relationshipHash.data = this._normalizeRelationshipDataHelper(relationshipHash.data);
-    }
-
     if (Array.isArray(relationshipHash.data)) {
       let ret = new Array(relationshipHash.data.length);
 
@@ -294,6 +289,8 @@ const JSONAPISerializer = JSONSerializer.extend({
       }
 
       relationshipHash.data = ret;
+    } else if (relationshipHash.data && typeof relationshipHash.data === 'object') {
+      relationshipHash.data = this._normalizeRelationshipDataHelper(relationshipHash.data);
     }
 
     return relationshipHash;

@@ -6,6 +6,7 @@ import { tagForProperty } from '@ember/-internals/metal';
 import { assert, deprecate } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
+// eslint-disable-next-line no-restricted-imports
 import { compare } from '@ember/utils';
 import { tracked } from '@glimmer/tracking';
 // @ts-expect-error

@@ -1,7 +1,6 @@
 import { addObserver } from '@ember/object/observers';
 import { later, run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
-import { isPresent } from '@ember/utils';
 
 import { module, test } from 'qunit';
 import { Promise as EmberPromise, reject } from 'rsvp';
@@ -469,7 +468,6 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       assert.strictEqual(reason, thrownAdapterError);
       assert.strictEqual(dog.name, 'is a dwarf planet');
       assert.strictEqual(dog.breed, 'planet');
-      assert.ok(isPresent(dog.errors.get('name')));
       assert.strictEqual(dog.errors.get('name.length'), 1);
 
       dog.set('name', 'Seymour Asses');

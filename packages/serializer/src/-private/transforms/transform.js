@@ -1,5 +1,3 @@
-import EmberObject from '@ember/object';
-
 /**
   @module @ember-data/serializer
 */
@@ -14,16 +12,19 @@ import EmberObject from '@ember/object';
   Example
 
   ```app/transforms/temperature.js
-  import Transform from '@ember-data/serializer/transform';
 
   // Converts centigrade in the JSON to fahrenheit in the app
-  export default class TemperatureTransform extends Transform {
+  export default class TemperatureTransform {
     deserialize(serialized, options) {
       return (serialized *  1.8) + 32;
     }
 
     serialize(deserialized, options) {
       return (deserialized - 32) / 1.8;
+    }
+
+    static create() {
+      return new this();
     }
   }
   ```
@@ -58,9 +59,7 @@ import EmberObject from '@ember/object';
   ```
 
   ```app/transforms/markdown.js
-  import Transform from '@ember-data/serializer/transform';
-
-  export default class MarkdownTransform extends Transform {
+  export default class MarkdownTransform {
     serialize(deserialized, options) {
       return deserialized.raw;
     }
@@ -70,49 +69,50 @@ import EmberObject from '@ember/object';
 
       return marked(serialized, markdownOptions);
     }
+
+    static create() {
+      return new this();
+    }
   }
   ```
 
   @class Transform
   @public
  */
-export default class Transform extends EmberObject {
-  /**
-    When given a deserialized value from a record attribute this
-    method must return the serialized value.
+/**
+  When given a deserialized value from a record attribute this
+  method must return the serialized value.
 
-    Example
+  Example
 
-    ```javascript
-    import { isEmpty } from '@ember/utils';
+  ```javascript
+  serialize(deserialized, options) {
+    return deserialized ? null : Number(deserialized);
+  }
+  ```
 
-    serialize(deserialized, options) {
-      return isEmpty(deserialized) ? null : Number(deserialized);
-    }
-    ```
+  @method serialize
+  @public
+  @param deserialized The deserialized value
+  @param options hash of options passed to `attr`
+  @return The serialized value
+*/
+/**
+  When given a serialized value from a JSON object this method must
+  return the deserialized value for the record attribute.
 
-    @method serialize
-    @public
-    @param deserialized The deserialized value
-    @param options hash of options passed to `attr`
-    @return The serialized value
-  */
-  /**
-    When given a serialized value from a JSON object this method must
-    return the deserialized value for the record attribute.
+  Example
 
-    Example
+  ```javascript
+  deserialize(serialized, options) {
+    return empty(serialized) ? null : Number(serialized);
+  }
+  ```
 
-    ```javascript
-    deserialize(serialized, options) {
-      return empty(serialized) ? null : Number(serialized);
-    }
-    ```
-
-    @method deserialize
-    @public
-    @param serialized The serialized value
-    @param options hash of options passed to `attr`
-    @return The deserialized value
-  */
-}
+  @method deserialize
+  @public
+  @param serialized The serialized value
+  @param options hash of options passed to `attr`
+  @return The deserialized value
+*/
+export { default } from '@ember/object';

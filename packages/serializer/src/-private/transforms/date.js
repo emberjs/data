@@ -1,5 +1,3 @@
-import Transform from './transform';
-
 /**
   @module @ember-data/serializer
 */
@@ -23,10 +21,9 @@ import Transform from './transform';
 
  @class DateTransform
   @public
- @extends Transform
  */
 
-export default class DateTransform extends Transform {
+export default class DateTransform {
   deserialize(serialized) {
     let type = typeof serialized;
 
@@ -55,5 +52,9 @@ export default class DateTransform extends Transform {
     } else {
       return null;
     }
+  }
+
+  static create() {
+    return new this();
   }
 }
