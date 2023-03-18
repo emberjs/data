@@ -25,10 +25,10 @@
  */
 export default class StringTransform {
   deserialize(serialized) {
-    return !serialized ? null : String(serialized);
+    return !serialized && serialized !== '' ? null : String(serialized);
   }
   serialize(deserialized) {
-    return !deserialized ? null : String(deserialized);
+    return !deserialized && deserialized !== '' ? null : String(deserialized);
   }
 
   static create() {

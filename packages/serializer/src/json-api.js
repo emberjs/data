@@ -186,7 +186,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
-    assert(this.warnMessageForUndefinedType(), !resourceHash.type);
+    assert(this.warnMessageForUndefinedType(), resourceHash.type);
 
     let modelName, usedLookup;
 
