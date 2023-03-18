@@ -1,9 +1,9 @@
 import { assert, deprecate, warn } from '@ember/debug';
-import { DEBUG } from '@ember-data/env';
 
 import { importSync } from '@embroider/macros';
 import { resolve } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { peekGraph } from '@ember-data/graph/-private/graph/index';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';

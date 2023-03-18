@@ -3,11 +3,11 @@
  */
 import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
-import { DEBUG } from '@ember-data/env';
 
 import { importSync, isDevelopingApp } from '@embroider/macros';
 import { default as RSVP, resolve } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';

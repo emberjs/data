@@ -1,9 +1,8 @@
-import { DEBUG } from '@ember-data/env';
-
 import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import { DEBUG } from '@ember-data/env';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 

@@ -1,8 +1,8 @@
 import { dasherize } from '@ember/string';
-import { DEBUG } from '@ember-data/env';
 
 import { singularize } from 'ember-inflector';
 
+import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 

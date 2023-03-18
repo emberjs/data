@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@ember-data/env';
 
+import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { assertPolymorphicType } from '../../debug/assert-polymorphic-type';

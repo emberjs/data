@@ -1,11 +1,11 @@
 import { deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
-import { DEBUG } from '@ember-data/env';
 import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { resolve } from 'rsvp';
 
+import { DEBUG } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';

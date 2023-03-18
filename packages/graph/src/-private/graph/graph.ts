@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@ember-data/env';
 
+import { DEBUG } from '@ember-data/env';
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';

@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@ember-data/env';
 
+import { DEBUG } from '@ember-data/env';
 import type { JsonApiDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface, RequestType } from '@ember-data/types/q/minimum-serializer-interface';
