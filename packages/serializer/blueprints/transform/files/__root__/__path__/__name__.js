@@ -1,11 +1,13 @@
-import Transform from '@ember-data/serializer/transform';
-
-export default Transform.extend({
+export default class <%= classifiedModuleName %>Transform {
   deserialize(serialized) {
     return serialized;
-  },
+  }
 
   serialize(deserialized) {
     return deserialized;
   }
-});
+
+  static create() {
+    return new this();
+  }
+}
