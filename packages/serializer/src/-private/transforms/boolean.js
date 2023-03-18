@@ -1,7 +1,3 @@
-import { isNone } from '@ember/utils';
-
-import Transform from './transform';
-
 /**
   @module @ember-data/serializer
 */
@@ -40,11 +36,10 @@ import Transform from './transform';
 
   @class BooleanTransform
   @public
-  @extends Transform
  */
-export default class BooleanTransform extends Transform {
+export default class BooleanTransform {
   deserialize(serialized, options) {
-    if (isNone(serialized) && options.allowNull === true) {
+    if ((serialized === null || serialized === undefined) && options.allowNull === true) {
       return null;
     }
 
@@ -61,10 +56,14 @@ export default class BooleanTransform extends Transform {
   }
 
   serialize(deserialized, options) {
-    if (isNone(deserialized) && options.allowNull === true) {
+    if ((deserialized === null || deserialized === undefined) && options.allowNull === true) {
       return null;
     }
 
     return Boolean(deserialized);
+  }
+
+  static create() {
+    return new this();
   }
 }

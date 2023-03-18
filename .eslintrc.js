@@ -50,9 +50,9 @@ module.exports = {
     'no-restricted-imports': [
       'error',
       {
-        paths: ['ember-inflector', '@glimmer/env'],
+        paths: ['@glimmer/env', '@ember/utils'],
       },
-      // '@ember/runloop',@glimmer/env
+      // '@ember/runloop',
       // '@ember/string',
       // '@ember/object',
       // '@ember/service',
@@ -101,8 +101,8 @@ module.exports = {
         'no-restricted-imports': [
           'error',
           {
-            paths: ['ember-inflector', '@glimmer/env'],
-            patterns: ['@ember/*'],
+            paths: ['@glimmer/env', '@ember/utils'],
+            // patterns: ['@ember/*'],
           },
           // '@ember/runloop',@glimmer/env
           // '@ember/string',

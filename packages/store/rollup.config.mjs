@@ -30,7 +30,6 @@ export default {
     'rsvp',
 
     // investigate why these are present
-    '@ember/utils',
     '@ember/application',
     '@ember/object/computed',
 

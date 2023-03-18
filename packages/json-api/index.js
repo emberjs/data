@@ -15,7 +15,6 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/polyfills',
       '@ember/object',
       '@ember/object/internals',
-      '@ember/utils',
       'ember',
       '@ember-data/store/-private',
       '@ember-data/store',

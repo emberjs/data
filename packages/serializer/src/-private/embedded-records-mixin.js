@@ -2,7 +2,6 @@ import { A } from '@ember/array';
 import { warn } from '@ember/debug';
 import Mixin from '@ember/object/mixin';
 import { camelize } from '@ember/string';
-import { typeOf } from '@ember/utils';
 
 /**
   @module @ember-data/serializer/rest
@@ -443,7 +442,7 @@ export default Mixin.create({
 
     warn(
       `The embedded relationship '${serializedKey}' is undefined for '${snapshot.modelName}' with id '${snapshot.id}'. Please include it in your original payload.`,
-      typeOf(snapshot.hasMany(relationship.key)) !== 'undefined',
+      typeof snapshot.hasMany(relationship.key) !== 'undefined',
       { id: 'ds.serializer.embedded-relationship-undefined' }
     );
 

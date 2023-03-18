@@ -19,7 +19,6 @@ export default {
     '@ember/object',
     '@ember/application',
     '@ember/string',
-    '@ember/utils',
     '@ember/debug',
     '@ember/polyfills',
     '@ember/array',

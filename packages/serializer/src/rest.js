@@ -3,7 +3,6 @@
  */
 import { assert, warn } from '@ember/debug';
 import { camelize, dasherize } from '@ember/string';
-import { isNone, typeOf } from '@ember/utils';
 
 import { singularize } from 'ember-inflector';
 
@@ -232,8 +231,8 @@ const RESTSerializer = JSONSerializer.extend({
     let meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
       assert(
-        'The `meta` returned from `extractMeta` has to be an object, not "' + typeOf(meta) + '".',
-        typeOf(meta) === 'object'
+        'The `meta` returned from `extractMeta` has to be an object, not "' + typeof meta + '".',
+        typeof meta === 'object'
       );
       documentHash.meta = meta;
     }
@@ -735,7 +734,7 @@ const RESTSerializer = JSONSerializer.extend({
     let typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
     let belongsTo = snapshot.belongsTo(key);
 
-    if (isNone(belongsTo)) {
+    if (!belongsTo) {
       json[typeKey] = null;
     } else {
       json[typeKey] = camelize(belongsTo.modelName);

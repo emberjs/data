@@ -1,7 +1,3 @@
-import { isNone as none } from '@ember/utils';
-
-import Transform from './transform';
-
 /**
   @module @ember-data/serializer
 */
@@ -26,13 +22,16 @@ import Transform from './transform';
 
   @class StringTransform
   @public
-  @extends Transform
  */
-export default class StringTransform extends Transform {
+export default class StringTransform {
   deserialize(serialized) {
-    return none(serialized) ? null : String(serialized);
+    return !serialized ? null : String(serialized);
   }
   serialize(deserialized) {
-    return none(deserialized) ? null : String(deserialized);
+    return !deserialized ? null : String(deserialized);
+  }
+
+  static create() {
+    return new this();
   }
 }

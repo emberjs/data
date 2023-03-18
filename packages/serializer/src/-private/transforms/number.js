@@ -1,5 +1,3 @@
-import Transform from './transform';
-
 /**
   @module @ember-data/serializer
 */
@@ -28,9 +26,8 @@ function isNumber(value) {
 
   @class NumberTransform
   @public
-  @extends Transform
  */
-export default class NumberTransform extends Transform {
+export default class NumberTransform {
   deserialize(serialized) {
     let transformed;
 
@@ -53,5 +50,9 @@ export default class NumberTransform extends Transform {
 
       return isNumber(transformed) ? transformed : null;
     }
+  }
+
+  static create() {
+    return new this();
   }
 }

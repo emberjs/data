@@ -74,9 +74,7 @@ import { computedMacroWithOptionalParams } from './util';
   ```
 
   ```app/transforms/text.js
-  import Transform from '@ember-data/serializer/transform';
-
-  export default class TextTransform extends Transform {
+  export default class TextTransform {
     serialize(value, options) {
       if (options.uppercase) {
         return value.toUpperCase();
@@ -87,6 +85,10 @@ import { computedMacroWithOptionalParams } from './util';
 
     deserialize(value) {
       return value;
+    }
+
+    static create() {
+      return new this();
     }
   }
   ```

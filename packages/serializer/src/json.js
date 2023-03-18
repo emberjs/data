@@ -4,7 +4,6 @@
 import { getOwner } from '@ember/application';
 import { assert, warn } from '@ember/debug';
 import { dasherize } from '@ember/string';
-import { isNone, typeOf } from '@ember/utils';
 
 import { coerceId } from '@ember-data/store/-private';
 
@@ -524,8 +523,8 @@ const JSONSerializer = Serializer.extend({
     let meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
       assert(
-        'The `meta` returned from `extractMeta` has to be an object, not "' + typeOf(meta) + '".',
-        typeOf(meta) === 'object'
+        'The `meta` returned from `extractMeta` has to be an object, not "' + typeof meta + '".',
+        typeof meta === 'object'
       );
       documentHash.meta = meta;
     }
@@ -600,7 +599,7 @@ const JSONSerializer = Serializer.extend({
 
     if (resourceHash) {
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
-      if (typeOf(resourceHash.links) === 'object') {
+      if (typeof resourceHash.links === 'object') {
         this.normalizeUsingDeclaredMapping(modelClass, resourceHash.links);
       }
 
@@ -669,7 +668,7 @@ const JSONSerializer = Serializer.extend({
     @return {Object}
   */
   extractRelationship(relationshipModelName, relationshipHash) {
-    if (isNone(relationshipHash)) {
+    if (!relationshipHash) {
       return null;
     }
     /*
@@ -677,7 +676,7 @@ const JSONSerializer = Serializer.extend({
       is polymorphic. It could however also be embedded resources that the
       EmbeddedRecordsMixin has be able to process.
     */
-    if (typeOf(relationshipHash) === 'object') {
+    if (typeof relationshipHash === 'object') {
       if (relationshipHash.id) {
         relationshipHash.id = coerceId(relationshipHash.id);
       }
@@ -751,7 +750,7 @@ const JSONSerializer = Serializer.extend({
             data = this.extractRelationship(relationshipMeta.type, relationshipHash);
           }
         } else if (relationshipMeta.kind === 'hasMany') {
-          if (!isNone(relationshipHash)) {
+          if (relationshipHash) {
             data = new Array(relationshipHash.length);
             if (relationshipMeta.options.polymorphic) {
               for (let i = 0, l = relationshipHash.length; i < l; i++) {
@@ -1216,7 +1215,6 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/post.js
     import JSONSerializer from '@ember-data/serializer/json';
-    import { isNone } from '@ember/utils';
 
     export default class PostSerializer extends JSONSerializer {
       serializeBelongsTo(snapshot, json, relationship) {
@@ -1225,7 +1223,7 @@ const JSONSerializer = Serializer.extend({
 
         key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
 
-        json[key] = isNone(belongsTo) ? belongsTo : belongsTo.record.toJSON();
+        json[key] = !belongsTo ? null : belongsTo.record.toJSON();
       }
     }
     ```
@@ -1251,7 +1249,7 @@ const JSONSerializer = Serializer.extend({
       }
 
       //Need to check whether the id is there for new&async records
-      if (isNone(belongsToId)) {
+      if (!belongsToId) {
         json[payloadKey] = null;
       } else {
         json[payloadKey] = belongsToId;
@@ -1320,7 +1318,6 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/comment.js
     import JSONSerializer from '@ember-data/serializer/json';
-    import { isNone } from '@ember/utils';
 
     export default class CommentSerializer extends JSONSerializer {
       serializePolymorphicType(snapshot, json, relationship) {
@@ -1329,7 +1326,7 @@ const JSONSerializer = Serializer.extend({
 
         key = this.keyForAttribute ? this.keyForAttribute(key, 'serialize') : key;
 
-        if (isNone(belongsTo)) {
+        if (!belongsTo) {
           json[key + '_type'] = null;
         } else {
           json[key + '_type'] = belongsTo.modelName;

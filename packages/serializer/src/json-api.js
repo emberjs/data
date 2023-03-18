@@ -3,7 +3,6 @@
  */
 import { assert, warn } from '@ember/debug';
 import { dasherize } from '@ember/string';
-import { isNone, typeOf } from '@ember/utils';
 
 import { pluralize, singularize } from 'ember-inflector';
 
@@ -138,7 +137,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeDocumentHelper(documentHash) {
-    if (typeOf(documentHash.data) === 'object') {
+    if (typeof documentHash.data === 'object') {
       documentHash.data = this._normalizeResourceHelper(documentHash.data);
     } else if (Array.isArray(documentHash.data)) {
       let ret = new Array(documentHash.data.length);
@@ -187,7 +186,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
-    assert(this.warnMessageForUndefinedType(), !isNone(resourceHash.type));
+    assert(this.warnMessageForUndefinedType(), !resourceHash.type);
 
     let modelName, usedLookup;
 
@@ -281,7 +280,7 @@ const JSONAPISerializer = JSONSerializer.extend({
      @return {Object}
   */
   extractRelationship(relationshipHash) {
-    if (typeOf(relationshipHash.data) === 'object') {
+    if (relationshipHash.data === 'object') {
       relationshipHash.data = this._normalizeRelationshipDataHelper(relationshipHash.data);
     }
 
