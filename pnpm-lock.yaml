@@ -97,7 +97,7 @@ importers:
       fromentries: ^1.3.2
       git-repo-info: ^2.1.1
       git-repo-version: ^1.0.2
-      glob: ^9.2.1
+      glob: ^9.3.0
       json-typescript: ^1.1.2
       lerna-changelog: ^2.2.0
       loader.js: ^4.7.0
@@ -203,7 +203,7 @@ importers:
       fromentries: 1.3.2
       git-repo-info: 2.1.1
       git-repo-version: 1.0.2
-      glob: 9.2.1
+      glob: 9.3.0
       json-typescript: 1.1.2
       lerna-changelog: 2.2.0
       loader.js: 4.7.0
@@ -635,7 +635,7 @@ importers:
       ember-cli-string-utils: ^1.1.0
       ember-cli-version-checker: ^5.1.2
       git-repo-info: ^2.1.1
-      glob: ^9.2.1
+      glob: ^9.3.0
       npm-git-info: ^1.0.3
       rimraf: ^4.4.0
       rsvp: ^4.8.5
@@ -664,7 +664,7 @@ importers:
       ember-cli-string-utils: 1.1.0
       ember-cli-version-checker: 5.1.2
       git-repo-info: 2.1.1
-      glob: 9.2.1
+      glob: 9.3.0
       npm-git-info: 1.0.3
       rimraf: 4.4.0
       rsvp: 4.8.5
@@ -10318,8 +10318,8 @@ packages:
       once: 1.4.0
     dev: true
 
-  /glob/9.2.1:
-    resolution: {integrity: sha512-Pxxgq3W0HyA3XUvSXcFhRSs+43Jsx0ddxcFrbjxNGkL2Ak5BAUBxLqI5G6ADDeCHLfzzXFhe0b1yYcctGmytMA==}
+  /glob/9.3.0:
+    resolution: {integrity: sha512-EAZejC7JvnQINayvB/7BJbpZpNOJ8Lrw2OZNEvQxe0vaLn1SuwMcfV7/MNaX8L/T0wmptBFI4YMtDvSBxYDc7w==}
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       fs.realpath: 1.0.0
@@ -13616,7 +13616,7 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
-      glob: 9.2.1
+      glob: 9.3.0
 
   /rollup-plugin-copy-assets/2.0.3_rollup@3.19.1:
     resolution: {integrity: sha512-ETShhQGb9SoiwcNrvb3BhUNSGR89Jao0+XxxfzzLW1YsUzx8+rMO4z9oqWWmo6OHUmfNQRvqRj0cAyPkS9lN9w==}
@@ -16046,7 +16046,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-version-checker: 5.1.2
       git-repo-info: 2.1.1
-      glob: 9.2.1
+      glob: 9.3.0
       npm-git-info: 1.0.3
       rimraf: 4.4.0
       rsvp: 4.8.5
