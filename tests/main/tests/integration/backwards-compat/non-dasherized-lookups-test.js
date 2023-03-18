@@ -1,4 +1,3 @@
-import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -30,7 +29,7 @@ module(
       this.owner.register('serializer:application', class extends JSONAPISerializer {});
     });
 
-    test('can lookup records using camelCase strings', function (assert) {
+    test('can lookup records using camelCase strings', async function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
@@ -47,14 +46,12 @@ module(
         });
       });
 
-      run(() => {
-        store.findRecord('postNote', 1).then((postNote) => {
-          assert.strictEqual(get(postNote, 'name'), 'Ember Data', 'record found');
-        });
-      });
+      const postNote = await store.findRecord('postNote', '1');
+
+      assert.strictEqual(postNote.name, 'Ember Data', 'record found');
     });
 
-    test('can lookup records using under_scored strings', function (assert) {
+    test('can lookup records using under_scored strings', async function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
@@ -71,11 +68,9 @@ module(
         });
       });
 
-      run(() => {
-        store.findRecord('post_note', 1).then((postNote) => {
-          assert.strictEqual(get(postNote, 'name'), 'Ember Data', 'record found');
-        });
-      });
+      const postNote = await store.findRecord('post_note', '1');
+
+      assert.strictEqual(postNote.name, 'Ember Data', 'record found');
     });
   }
 );
@@ -113,7 +108,7 @@ module(
       this.owner.register('serializer:application', class extends JSONAPISerializer {});
     });
 
-    test('looks up belongsTo using camelCase strings', function (assert) {
+    test('looks up belongsTo using camelCase strings', async function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
@@ -144,11 +139,8 @@ module(
         });
       });
 
-      run(() => {
-        store.findRecord('post-note', 1).then((postNote) => {
-          assert.strictEqual(get(postNote, 'notePost.name'), 'Inverse', 'inverse record found');
-        });
-      });
+      const postNote = await store.findRecord('post-note', '1');
+      assert.strictEqual(postNote.notePost.name, 'Inverse', 'inverse record found');
     });
 
     test('looks up belongsTo using under_scored strings', async function (assert) {
@@ -185,7 +177,7 @@ module(
       const postNotesRel = await longModel.postNotes;
       const postNotes = postNotesRel.slice();
 
-      assert.deepEqual(postNotes, [store.peekRecord('postNote', 1)], 'inverse records found');
+      assert.deepEqual(postNotes, [store.peekRecord('postNote', '1')], 'inverse records found');
     });
   }
 );

@@ -27,6 +27,7 @@ export function _objectIsAlive(object) {
 
 export function guardDestroyedStore(promise, store, label) {
   let token;
+  debugger;
   if (DEBUG) {
     token = store._trackAsyncRequestStart(label);
   }

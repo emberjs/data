@@ -1231,7 +1231,6 @@ class Store {
     if (DEPRECATE_PROMISE_PROXIES) {
       return promiseObject(
         promise.then((document) => {
-          console.log(document.content);
           return document.content;
         })
       );
