@@ -681,7 +681,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     });
   });
 
-  test('normalizeResponse with async polymorphic belongsTo', function (assert) {
+  test('normalizeResponse with async polymorphic belongsTo', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -710,16 +710,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       };
     };
 
-    run(function () {
-      store
-        .findRecord('doomsday-device', 1)
-        .then((deathRay) => {
-          return deathRay.evilMinion;
-        })
-        .then((evilMinion) => {
-          assert.strictEqual(evilMinion.eyes, 3);
-        });
-    });
+    const deathRay = await store.findRecord('doomsday-device', '1');
+    const evilMinion = await deathRay.evilMinion;
+    assert.strictEqual(evilMinion.eyes, 3);
   });
 
   test('normalizeResponse with async polymorphic hasMany', function (assert) {

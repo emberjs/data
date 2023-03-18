@@ -28,10 +28,8 @@ function payloadError(owner, payload, expectedError, assert) {
     })
   );
   this.expectAssertion(
-    function () {
-      run(function () {
-        owner.lookup('service:store').findRecord('person', 1);
-      });
+    async function () {
+      await owner.lookup('service:store').findRecord('person', '1');
     },
     expectedError,
     `Payload ${JSON.stringify(payload)} should throw error ${expectedError}`
@@ -60,7 +58,7 @@ module('integration/store/json-validation', function (hooks) {
     QUnit.assert.payloadError = null;
   });
 
-  testInDebug("when normalizeResponse returns undefined (or doesn't return), throws an error", function (assert) {
+  testInDebug("when normalizeResponse returns undefined (or doesn't return), throws an error", async function (assert) {
     this.owner.register(
       'serializer:person',
       Serializer.extend({
@@ -79,10 +77,8 @@ module('integration/store/json-validation', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(function () {
-      run(function () {
-        store.findRecord('person', 1);
-      });
+    assert.expectAssertion(async function () {
+      await store.findRecord('person', '1');
     }, /Top level of a JSON API document must be an object/);
   });
 
@@ -107,14 +103,12 @@ module('integration/store/json-validation', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(function () {
-      run(function () {
-        store.findRecord('person', 1);
-      });
+    assert.expectAssertion(async function () {
+      await store.findRecord('person', '1');
     }, /Top level of a JSON API document must be an object/);
   });
 
-  testInDebug('when normalizeResponse returns an empty object, throws an error', function (assert) {
+  testInDebug('when normalizeResponse returns an empty object, throws an error', async function (assert) {
     this.owner.register(
       'serializer:person',
       Serializer.extend({
@@ -135,16 +129,14 @@ module('integration/store/json-validation', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(function () {
-      run(function () {
-        store.findRecord('person', 1);
-      });
+    assert.expectAssertion(async function () {
+      await store.findRecord('person', '1');
     }, /One or more of the following keys must be present/);
   });
 
   testInDebug(
     'when normalizeResponse returns a document with both data and errors, throws an error',
-    function (assert) {
+    async function (assert) {
       this.owner.register(
         'serializer:person',
         Serializer.extend({
@@ -168,10 +160,8 @@ module('integration/store/json-validation', function (hooks) {
 
       let store = this.owner.lookup('service:store');
 
-      assert.expectAssertion(function () {
-        run(function () {
-          store.findRecord('person', 1);
-        });
+      assert.expectAssertion(async function () {
+        await store.findRecord('person', '1');
       }, /cannot both be present/);
     }
   );

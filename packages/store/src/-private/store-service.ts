@@ -1229,10 +1229,17 @@ class Store {
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseObject(promise.then((document) => document.content));
+      return promiseObject(
+        promise.then((document) => {
+          console.log(document.content);
+          return document.content;
+        })
+      );
     }
 
-    return promise.then((document) => document.content) as PromiseObject<RecordInstance>;
+    return promise.then((document) => {
+      return document.content;
+    }) as PromiseObject<RecordInstance>;
   }
 
   /**

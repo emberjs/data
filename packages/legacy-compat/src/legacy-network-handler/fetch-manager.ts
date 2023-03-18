@@ -208,7 +208,6 @@ export default class FetchManager {
         return identifier;
       },
       (error) => {
-        debugger;
         const cache = DEPRECATE_V1_RECORD_DATA
           ? store._instanceCache.peek({ identifier, bucket: 'resourceCache' })
           : store.cache;
