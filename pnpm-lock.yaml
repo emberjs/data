@@ -85,7 +85,7 @@ importers:
       ember-try: ^2.0.0
       eslint: ^8.36.0
       eslint-config-prettier: ^8.7.0
-      eslint-plugin-ember: ^11.4.7
+      eslint-plugin-ember: ^11.4.8
       eslint-plugin-ember-data: link:./packages/unpublished-eslint-rules
       eslint-plugin-import: ^2.27.5
       eslint-plugin-mocha: ^10.1.0
@@ -191,7 +191,7 @@ importers:
       ember-try: 2.0.0
       eslint: 8.36.0
       eslint-config-prettier: 8.7.0_eslint@8.36.0
-      eslint-plugin-ember: 11.4.7_eslint@8.36.0
+      eslint-plugin-ember: 11.4.8_eslint@8.36.0
       eslint-plugin-ember-data: link:packages/unpublished-eslint-rules
       eslint-plugin-import: 2.27.5_a7er6olmtneep4uytpot6gt7wu
       eslint-plugin-mocha: 10.1.0_eslint@8.36.0
@@ -9089,8 +9089,8 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-ember/11.4.7_eslint@8.36.0:
-    resolution: {integrity: sha512-9owpi2uCBBl8XXg0V5oW6nnQf4soqmRI8xs1Srf/kg9Om109CyxpY41i+ZSjRNFaTuWufXHSs5NCraFcrThoDg==}
+  /eslint-plugin-ember/11.4.8_eslint@8.36.0:
+    resolution: {integrity: sha512-ytHEMDNkXbkBAfw2loR62pLozOiMp+Y7BJaupSQK25lCsfrhVMsfog2uTvicoCwDDPgcOJrivdUmMbfErOGOdQ==}
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
       eslint: '>= 7'
