@@ -932,7 +932,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     );
   });
 
-  test('hasMany lazily loads async relationships', function (assert) {
+  test('hasMany lazily loads async relationships', async function (assert) {
     assert.expect(5);
 
     const Tag = Model.extend({
@@ -967,104 +967,100 @@ module('unit/model/relationships - hasMany', function (hooks) {
     };
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'tag',
-            id: '5',
-            attributes: {
-              name: 'friendly',
+    store.push({
+      data: [
+        {
+          type: 'tag',
+          id: '5',
+          attributes: {
+            name: 'friendly',
+          },
+        },
+        {
+          type: 'tag',
+          id: '2',
+          attributes: {
+            name: 'smarmy',
+          },
+        },
+        {
+          type: 'pet',
+          id: '4',
+          attributes: {
+            name: 'fluffy',
+          },
+        },
+        {
+          type: 'pet',
+          id: '7',
+          attributes: {
+            name: 'snowy',
+          },
+        },
+        {
+          type: 'pet',
+          id: '12',
+          attributes: {
+            name: 'cerberus',
+          },
+        },
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            tags: {
+              data: [{ type: 'tag', id: '5' }],
             },
           },
-          {
-            type: 'tag',
-            id: '2',
-            attributes: {
-              name: 'smarmy',
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Yehuda Katz',
+          },
+          relationships: {
+            tags: {
+              data: [{ type: 'tag', id: '12' }],
             },
           },
-          {
-            type: 'pet',
-            id: '4',
-            attributes: {
-              name: 'fluffy',
-            },
-          },
-          {
-            type: 'pet',
-            id: '7',
-            attributes: {
-              name: 'snowy',
-            },
-          },
-          {
-            type: 'pet',
-            id: '12',
-            attributes: {
-              name: 'cerberus',
-            },
-          },
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              tags: {
-                data: [{ type: 'tag', id: '5' }],
-              },
-            },
-          },
-          {
-            type: 'person',
-            id: '2',
-            attributes: {
-              name: 'Yehuda Katz',
-            },
-            relationships: {
-              tags: {
-                data: [{ type: 'tag', id: '12' }],
-              },
-            },
-          },
-        ],
-      });
+        },
+      ],
     });
 
-    return run(() => {
-      let wycats;
-      store
-        .findRecord('person', 2)
-        .then(function (person) {
-          wycats = person;
+    let wycats;
+    await store
+      .findRecord('person', 2)
+      .then(function (person) {
+        wycats = person;
 
-          assert.strictEqual(get(wycats, 'name'), 'Yehuda Katz', 'precond - retrieves person record from store');
+        assert.strictEqual(get(wycats, 'name'), 'Yehuda Katz', 'precond - retrieves person record from store');
 
-          return hash({
-            wycats,
-            tags: wycats.tags,
-          });
-        })
-        .then((records) => {
-          assert.strictEqual(get(records.tags, 'length'), 1, 'the list of tags should have the correct length');
-          assert.strictEqual(get(records.tags.at(0), 'name'), 'oohlala', 'the first tag should be a Tag');
-
-          assert.strictEqual(records.tags.at(0), records.tags.at(0), 'the returned object is always the same');
-          assert.strictEqual(
-            records.tags.at(0),
-            store.peekRecord('tag', 12),
-            'relationship objects are the same as objects retrieved directly'
-          );
-
-          return get(wycats, 'tags');
-        })
-        .then((tags) => {
-          let newTag = store.createRecord('tag');
-          tags.push(newTag);
+        return hash({
+          wycats,
+          tags: wycats.tags,
         });
-    });
+      })
+      .then((records) => {
+        assert.strictEqual(get(records.tags, 'length'), 1, 'the list of tags should have the correct length');
+        assert.strictEqual(get(records.tags.at(0), 'name'), 'oohlala', 'the first tag should be a Tag');
+
+        assert.strictEqual(records.tags.at(0), records.tags.at(0), 'the returned object is always the same');
+        assert.strictEqual(
+          records.tags.at(0),
+          store.peekRecord('tag', 12),
+          'relationship objects are the same as objects retrieved directly'
+        );
+
+        return get(wycats, 'tags');
+      })
+      .then((tags) => {
+        let newTag = store.createRecord('tag');
+        tags.push(newTag);
+      });
   });
 
   test('should be able to retrieve the type for a hasMany relationship without specifying a type from its metadata', function (assert) {

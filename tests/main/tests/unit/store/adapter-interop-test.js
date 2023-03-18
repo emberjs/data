@@ -1037,7 +1037,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
   });
 
-  test('store should not reload a record when `shouldBackgroundReloadRecord` is false', function (assert) {
+  test('store should not reload a record when `shouldBackgroundReloadRecord` is false', async function (assert) {
     assert.expect(2);
 
     const ApplicationAdapter = Adapter.extend({
@@ -1057,59 +1057,58 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-        },
-      });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+      },
+    });
 
-      return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.name, undefined);
-      });
+    await store.findRecord('person', '1').then((record) => {
+      assert.strictEqual(record.name, undefined);
     });
   });
 
-  test('store should reload the record in the background when `shouldBackgroundReloadRecord` is true', function (assert) {
+  test('store should reload the record in the background when `shouldBackgroundReloadRecord` is true', async function (assert) {
     assert.expect(4);
 
-    const ApplicationAdapter = Adapter.extend({
+    class ApplicationAdapter extends Adapter {
       shouldBackgroundReloadRecord(store, type, id, snapshot) {
         assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
         return true;
-      },
-      findRecord() {
+      }
+      async findRecord() {
+        await new Promise((r) => setTimeout(r, 1));
         assert.ok(true, 'find should not be called');
-        return { data: { id: '1', type: 'person', attributes: { name: 'Tom' } } };
-      },
-    });
+        return Promise.resolve({ data: { id: '1', type: 'person', attributes: { name: 'Tom' } } });
+      }
+    }
 
-    this.owner.register('model:person', Model.extend({ name: attr() }));
+    this.owner.register(
+      'model:person',
+      class extends Model {
+        @attr name;
+      }
+    );
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
-    let done = run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-        },
-      });
-
-      return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.name, undefined);
-      });
+    const record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+      },
     });
 
+    await store.findRecord('person', '1');
+    assert.strictEqual(record.name, undefined);
+    await settled();
     assert.strictEqual(store.peekRecord('person', 1).name, 'Tom');
-
-    return done;
   });
 
-  test('store should not reload record array when shouldReloadAll returns false', function (assert) {
+  test('store should not reload record array when shouldReloadAll returns false', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -1125,21 +1124,21 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
     });
 
-    this.owner.register('model:person', Model.extend());
+    this.owner.register('model:person', class extends Model {});
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => store.findAll('person'));
+    await store.findAll('person');
   });
 
-  test('store should reload all records when shouldReloadAll returns true', function (assert) {
+  test('store should reload all records when shouldReloadAll returns true', async function (assert) {
     assert.expect(3);
 
-    const Person = Model.extend({
-      name: attr(),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     const ApplicationAdapter = Adapter.extend({
       shouldReloadAll(store, type, id, snapshot) {
@@ -1158,14 +1157,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      return store.findAll('person').then((records) => {
-        assert.strictEqual(records.at(0).name, 'Tom');
-      });
+    await store.findAll('person').then((records) => {
+      assert.strictEqual(records.at(0).name, 'Tom');
     });
   });
 
-  test('store should not call shouldBackgroundReloadAll when the store is already loading all records', function (assert) {
+  test('store should not call shouldBackgroundReloadAll when the store is already loading all records', async function (assert) {
     assert.expect(2);
 
     const Person = Model.extend({
@@ -1191,14 +1188,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      return store.findAll('person').then((records) => {
-        assert.strictEqual(records[0].name, 'Tom');
-      });
+    await store.findAll('person').then((records) => {
+      assert.strictEqual(records[0].name, 'Tom');
     });
   });
 
-  test('store should not reload all records when `shouldBackgroundReloadAll` is false', function (assert) {
+  test('store should not reload all records when `shouldBackgroundReloadAll` is false', async function (assert) {
     assert.expect(3);
 
     const ApplicationAdapter = Adapter.extend({
@@ -1222,10 +1217,8 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      return store.findAll('person').then((records) => {
-        assert.strictEqual(records.at(0), undefined);
-      });
+    await store.findAll('person').then((records) => {
+      assert.strictEqual(records.at(0), undefined);
     });
   });
 

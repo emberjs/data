@@ -322,8 +322,10 @@ module('integration/store - findRecord', function (hooks) {
       },
     });
 
+    let resolver;
+    let promise = new Promise((r) => (resolver = r));
     adapter.ajax = async () => {
-      await resolve();
+      await promise;
 
       return {
         cars: [
@@ -340,6 +342,7 @@ module('integration/store - findRecord', function (hooks) {
 
     assert.strictEqual(car.model, 'Mini', 'car record is returned from cache');
 
+    resolver();
     await settled();
 
     assert.strictEqual(car.model, 'Princess', 'Updated car record is returned');
@@ -689,8 +692,10 @@ module('integration/store - findRecord', function (hooks) {
       },
     });
 
+    let resolver;
+    let promise = new Promise((r) => (resolver = r));
     adapter.ajax = async function () {
-      await resolve();
+      await promise;
 
       return deepCopy({
         cars: [
@@ -708,6 +713,7 @@ module('integration/store - findRecord', function (hooks) {
     assert.strictEqual(carPromise.model, 'Mini', 'cached car record is returned');
 
     // Wait for internal promise to be resolved and update the record with the upcoming information.
+    resolver();
     await settled();
 
     let car = store.peekRecord('car', '1');

@@ -10,8 +10,8 @@ import { Fetch } from '@ember-data/request/fetch';
 import BaseStore from '@ember-data/store';
 
 export class Store extends BaseStore {
-  constructor() {
-    super(...arguments);
+  constructor(args: Record<string, unknown>) {
+    super(args);
     this._fetchManager = new FetchManager(this);
     this.requestManager = new RequestManager();
     this.requestManager.use([LegacyNetworkHandler, Fetch]);

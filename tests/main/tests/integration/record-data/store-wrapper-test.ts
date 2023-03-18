@@ -2,11 +2,12 @@ import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
-import Store, { recordIdentifierFor } from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 import { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import { DSModel } from '@ember-data/types/q/ds-model';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';

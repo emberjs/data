@@ -3,11 +3,11 @@ import { TestContext } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
 import { Cache } from '@ember-data/types/q/cache';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -30,7 +30,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   }
 
   class CustomStore extends Store {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
       super(args);
       this.registerSchemaDefinitionService({
         attributesDefinitionFor() {
