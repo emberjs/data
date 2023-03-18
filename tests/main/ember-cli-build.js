@@ -40,8 +40,8 @@ module.exports = function (defaults) {
 
   let config = {
     compatWith,
-    // includeDataAdapterInProduction: false,
-    // includeDataAdapter: true,
+    includeDataAdapterInProduction: true,
+    includeDataAdapter: true,
     debug: {
       LOG_PAYLOADS: process.env.DEBUG_DATA ? true : false,
       LOG_OPERATIONS: process.env.DEBUG_DATA ? true : false,
