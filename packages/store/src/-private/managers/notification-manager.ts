@@ -2,7 +2,7 @@
  * @module @ember-data/store
  */
 import { assert } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { LOG_NOTIFICATIONS } from '@ember-data/private-build-infra/debugging';
 import type { Identifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';

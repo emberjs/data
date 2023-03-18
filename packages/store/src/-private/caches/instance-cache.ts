@@ -1,5 +1,5 @@
 import { assert, deprecate, warn } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { importSync } from '@embroider/macros';
 import { resolve } from 'rsvp';

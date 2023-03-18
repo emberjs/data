@@ -1,5 +1,5 @@
 import { dasherize } from '@ember/string';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { singularize } from 'ember-inflector';
 

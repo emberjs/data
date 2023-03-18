@@ -2,7 +2,7 @@ import { deprecate } from '@ember/debug';
 import { get } from '@ember/object';
 import type ComputedProperty from '@ember/object/computed';
 import { reads } from '@ember/object/computed';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { resolve } from 'rsvp';
 

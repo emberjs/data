@@ -3,7 +3,7 @@
  */
 import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';

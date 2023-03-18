@@ -1,8 +1,8 @@
 import { assert, deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { dasherize } from '@ember/string';
-import { DEBUG } from '@glimmer/env';
 
+import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,

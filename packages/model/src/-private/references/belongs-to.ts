@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';

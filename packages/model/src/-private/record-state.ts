@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
-import { DEBUG } from '@glimmer/env';
 import { cached, tracked } from '@glimmer/tracking';
 
+import { DEBUG } from '@ember-data/env';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';

@@ -1,5 +1,5 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import { MergeOperation } from '@ember-data/types/q/cache';

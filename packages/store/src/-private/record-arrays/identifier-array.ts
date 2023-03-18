@@ -7,7 +7,7 @@ import { assert, deprecate } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { compare } from '@ember/utils';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 import { tracked } from '@glimmer/tracking';
 // @ts-expect-error
 import { dirtyTag } from '@glimmer/validator';

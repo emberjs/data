@@ -3,7 +3,7 @@
  */
 import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { importSync, isDevelopingApp } from '@embroider/macros';
 import { default as RSVP, resolve } from 'rsvp';

@@ -5,10 +5,10 @@ import { A } from '@ember/array';
 import { assert, deprecate, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 import { dasherize } from '@ember/string';
-import { DEBUG } from '@glimmer/env';
 
 import { singularize } from 'ember-inflector';
 
+import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,

@@ -1,11 +1,11 @@
 import { registerDeprecationHandler } from '@ember/debug';
 import { VERSION } from '@ember/version';
-import { DEBUG } from '@glimmer/env';
 
 import { isDevelopingApp } from '@embroider/macros';
 import QUnit from 'qunit';
 import semver from 'semver';
 
+import { DEBUG } from '@ember-data/env';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { checkMatcher } from './check-matcher';

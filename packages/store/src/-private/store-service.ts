@@ -5,7 +5,7 @@ import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { importSync } from '@embroider/macros';
 import { reject, resolve } from 'rsvp';

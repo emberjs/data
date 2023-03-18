@@ -1,5 +1,5 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';

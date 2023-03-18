@@ -1,8 +1,9 @@
 import { deprecate } from '@ember/debug';
 import { get } from '@ember/object';
-import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
+
+import { DEBUG } from '@ember-data/env';
 
 import { PromiseObject } from './promise-proxy-base';
 

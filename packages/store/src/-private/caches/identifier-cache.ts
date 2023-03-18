@@ -2,7 +2,7 @@
   @module @ember-data/store
 */
 import { assert, warn } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { getOwnConfig, macroCondition } from '@embroider/macros';
 

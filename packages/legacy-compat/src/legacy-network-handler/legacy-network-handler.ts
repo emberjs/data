@@ -1,5 +1,5 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { Promise } from 'rsvp';
 

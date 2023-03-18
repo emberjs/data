@@ -1,4 +1,4 @@
-import { DEBUG } from '@glimmer/env';
+import { DEBUG } from '@ember-data/env';
 
 import { module } from 'qunit';
 

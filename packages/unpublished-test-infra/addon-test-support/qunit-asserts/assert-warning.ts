@@ -1,7 +1,8 @@
 import { registerWarnHandler } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
 
 import QUnit from 'qunit';
+
+import { DEBUG } from '@ember-data/env';
 
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
