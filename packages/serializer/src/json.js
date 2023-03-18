@@ -676,7 +676,7 @@ const JSONSerializer = Serializer.extend({
       is polymorphic. It could however also be embedded resources that the
       EmbeddedRecordsMixin has be able to process.
     */
-    if (typeof relationshipHash === 'object') {
+    if (relationshipHash && typeof relationshipHash === 'object' && !Array.isArray(relationshipHash)) {
       if (relationshipHash.id) {
         relationshipHash.id = coerceId(relationshipHash.id);
       }
