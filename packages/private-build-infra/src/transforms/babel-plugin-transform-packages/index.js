@@ -21,7 +21,7 @@ module.exports = function (babel) {
           specifiers.forEach((specifier) => {
             let name = specifier.node.imported.name;
             if (!(name in state.opts.flags)) {
-              throw new Error(`Unexpected flag ${name} imported from ${state.opts.source}`);
+              return;
             }
             let localBindingName = specifier.node.local.name;
             let binding = specifier.scope.getBinding(localBindingName);
@@ -32,14 +32,20 @@ module.exports = function (babel) {
                 negateStatement = true;
                 node = p.parentPath;
               }
-              let getConfig = t.callExpression(state.importer.import(p, '@embroider/macros', 'isDevelopingApp'), []);
+              let getConfig = t.memberExpression(
+                t.memberExpression(
+                  t.callExpression(state.importer.import(p, '@embroider/macros', 'getOwnConfig'), []),
+                  t.identifier('packages')
+                ),
+                t.identifier(name)
+              );
               node.replaceWith(
-                // if (DEBUG)
+                // if (LOG_FOO)
                 // =>
-                // if (macroCondition(isDevelopingApp())
-                // t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
-                negateStatement ? t.unaryExpression('!', getConfig) : getConfig
-                // ])
+                // if (macroCondition(getOwnConfig().debug.LOG_FOO))
+                t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
+                  negateStatement ? t.unaryExpression('!', getConfig) : getConfig,
+                ])
               );
             });
             specifier.scope.removeOwnBinding(localBindingName);
