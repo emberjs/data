@@ -21,14 +21,14 @@ function detectModule(moduleName) {
     // so we resolve from project as well as from our own location
     //
     // eslint-disable-next-line node/no-missing-require
-    require.resolve(moduleName, { paths: [process.cwd(), __dirname] });
+    require.resolve(moduleName, { paths: [process.cwd(), __dirname, path.join(__dirname, '../')] });
     return true;
   } catch {
     try {
       // ember-data brings all packages so if present we are present
       //
       // eslint-disable-next-line node/no-missing-require
-      require.resolve('ember-data', { paths: [process.cwd(), __dirname] });
+      require.resolve('ember-data', { paths: [process.cwd(), __dirname, path.join(__dirname, '../')] });
       return true;
     } catch {
       return false;
