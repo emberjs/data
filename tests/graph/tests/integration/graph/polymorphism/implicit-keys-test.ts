@@ -9,11 +9,6 @@ import Store, { recordIdentifierFor } from '@ember-data/store';
 module('Integration | Graph | Implicit Keys', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function () {
-    const { owner } = this;
-    owner.register('service:store', Store);
-  });
-
   test('Non-polymorphic records do not trigger polymorphic assertions when they share the same key with another record', async function (assert) {
     const { owner } = this;
     class User extends Model {

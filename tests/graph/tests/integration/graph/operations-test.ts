@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import { graphFor } from '@ember-data/graph/-private';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import Model, { attr, hasMany } from '@ember-data/model';
-import Store from '@ember-data/store';
+import type Store from '@ember-data/store';
 
 module('Integration | Graph | Operations', function (hooks: NestedHooks) {
   setupTest(hooks);
@@ -23,7 +23,6 @@ module('Integration | Graph | Operations', function (hooks: NestedHooks) {
       @attr declare name: string;
     }
 
-    owner.register('service:store', Store);
     owner.register('model:app', App);
     owner.register('model:config', Config);
     const store = owner.lookup('service:store') as Store;
@@ -76,7 +75,6 @@ module('Integration | Graph | Operations', function (hooks: NestedHooks) {
       @attr declare name: string;
     }
 
-    owner.register('service:store', Store);
     owner.register('model:app', App);
     owner.register('model:config', Config);
     const store = owner.lookup('service:store') as Store;

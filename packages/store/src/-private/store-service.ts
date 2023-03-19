@@ -11,7 +11,6 @@ import { reject, resolve } from 'rsvp';
 
 import { DEBUG } from '@ember-data/env';
 import type { Cache as CacheClass } from '@ember-data/json-api';
-import { SaveOp } from '@ember-data/legacy-compat/-private';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type DSModelClass from '@ember-data/model';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
@@ -2250,6 +2249,10 @@ class Store {
    * @returns {Promise<RecordInstance>}
    */
   saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
+    // TODO this is temporary until save is moved into The Compat Layer
+    const SaveOp = (
+      importSync('@ember-data/legacy-compat/-private') as typeof import('@ember-data/legacy-compat/-private')
+    ).SaveOp;
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
     const cache =
