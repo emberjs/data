@@ -878,7 +878,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
   });
 
   test('hasMany lazily loads async relationships', async function (assert) {
-    assert.expect(5);
+    assert.expect(7);
 
     const Tag = Model.extend({
       name: attr('string'),
@@ -2749,10 +2749,10 @@ module('unit/model/relationships - hasMany', function (hooks) {
     assert.strictEqual(person.name, 'Watson', 'The person is now loaded');
 
     // load tag 2 independently so that the relationship is partially populated
-    const tag = store.findRecord('tag', '2');
+    const tag = await store.findRecord('tag', '2');
     assert.strictEqual(tag.name, 'second', 'The tag is now loaded');
 
-    const tags = person.tags;
+    const tags = await person.tags;
     assert.strictEqual(tags.length, 3, 'the tags are all loaded');
   });
 
