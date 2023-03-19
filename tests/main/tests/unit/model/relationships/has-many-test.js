@@ -1342,7 +1342,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     });
   });
 
-  test('new items added to a hasMany relationship are not cleared by a delete', function (assert) {
+  test('new items added to a hasMany relationship are not cleared by a delete', async function (assert) {
     assert.expect(4);
 
     const Person = Model.extend({
@@ -1363,66 +1363,63 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = () => {
-      return EmberPromise.resolve({ data: null });
+      return Promise.resolve({ data: null });
     };
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Chris Thoburn',
-          },
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn',
+        },
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
         },
-        included: [
-          {
-            type: 'pet',
-            id: '1',
-            attributes: {
-              name: 'Shenanigans',
-            },
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans',
           },
-          {
-            type: 'pet',
-            id: '2',
-            attributes: {
-              name: 'Rambunctious',
-            },
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious',
           },
-          {
-            type: 'pet',
-            id: '3',
-            attributes: {
-              name: 'Rebel',
-            },
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Rebel',
           },
-        ],
-      });
+        },
+      ],
     });
 
     const person = store.peekRecord('person', '1');
-    const pets = run(() => person.pets);
+    const pets = await person.pets;
 
     const shen = pets.at(0);
     const rambo = store.peekRecord('pet', '2');
     const rebel = store.peekRecord('pet', '3');
 
-    assert.strictEqual(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+    assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
     assert.deepEqual(
       pets.map((p) => get(p, 'id')),
       ['1'],
       'precond - relationship has the correct pets to start'
     );
 
-    run(() => {
-      pets.push(rambo, rebel);
-    });
+    pets.push(rambo, rebel);
+    await settled();
 
     assert.deepEqual(
       pets.map((p) => get(p, 'id')),
@@ -1430,9 +1427,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       'precond2 - relationship now has the correct three pets'
     );
 
-    run(() => {
-      return shen.destroyRecord({});
-    });
+    await shen.destroyRecord({});
 
     assert.deepEqual(
       pets.map((p) => get(p, 'id')),

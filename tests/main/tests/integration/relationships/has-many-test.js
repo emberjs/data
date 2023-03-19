@@ -3785,7 +3785,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.strictEqual(message.user.id, 'user-1', 'message points to user');
   });
 
-  test('deleted records should stay deleted', function (assert) {
+  test('deleted records should stay deleted', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     let user;
@@ -3795,66 +3795,62 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       return null;
     };
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'user',
-            id: 'user-1',
-            attributes: {
-              name: 'Adolfo Builes',
-            },
-            relationships: {
-              messages: {
-                data: [
-                  { type: 'message', id: 'message-1' },
-                  { type: 'message', id: 'message-2' },
-                ],
-              },
+    store.push({
+      data: [
+        {
+          type: 'user',
+          id: 'user-1',
+          attributes: {
+            name: 'Adolfo Builes',
+          },
+          relationships: {
+            messages: {
+              data: [
+                { type: 'message', id: 'message-1' },
+                { type: 'message', id: 'message-2' },
+              ],
             },
           },
-          {
-            type: 'message',
-            id: 'message-1',
-          },
-          {
-            type: 'message',
-            id: 'message-2',
-          },
-        ],
-      });
-
-      user = store.peekRecord('user', 'user-1');
-      message = store.peekRecord('message', 'message-1');
-
-      assert.strictEqual(get(user, 'messages.length'), 2);
+        },
+        {
+          type: 'message',
+          id: 'message-1',
+        },
+        {
+          type: 'message',
+          id: 'message-2',
+        },
+      ],
     });
 
-    run(() => message.destroyRecord());
+    user = store.peekRecord('user', 'user-1');
+    message = store.peekRecord('message', 'message-1');
 
-    run(() => {
-      // a new message is added to the user should not resurrected the
-      // deleted message
-      store.push({
-        data: [
-          {
-            type: 'message',
-            id: 'message-3',
-            relationships: {
-              user: {
-                data: { type: 'user', id: 'user-1' },
-              },
+    assert.strictEqual(get(user, 'messages.length'), 2);
+
+    await message.destroyRecord();
+
+    // a new message is added to the user should not resurrected the
+    // deleted message
+    store.push({
+      data: [
+        {
+          type: 'message',
+          id: 'message-3',
+          relationships: {
+            user: {
+              data: { type: 'user', id: 'user-1' },
             },
           },
-        ],
-      });
-
-      assert.deepEqual(
-        get(user, 'messages').map((r) => r.id),
-        ['message-2', 'message-3'],
-        'user should have 2 message since 1 was deleted'
-      );
+        },
+      ],
     });
+
+    assert.deepEqual(
+      get(user, 'messages').map((r) => r.id),
+      ['message-2', 'message-3'],
+      'user should have 2 message since 1 was deleted'
+    );
   });
 
   test("hasMany relationship with links doesn't trigger extra change notifications - #4942", function (assert) {
