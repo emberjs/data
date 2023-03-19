@@ -28,15 +28,29 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
       };
       outbound.resolve(document);
     },
-    (doc: StructuredErrorDocument) => {
-      const document = new Error(doc.message) as unknown as StructuredErrorDocument;
-      document[STRUCTURED] = true;
-      document.stack = doc.stack;
-      document.request = owner.request;
-      document.response = owner.response;
-      document.error = doc.error || doc.message;
+    (error: Error & StructuredErrorDocument) => {
+      if (isDoc(error)) {
+        owner.setStream(owner.god.stream);
+      }
+      if (!error || !(error instanceof Error)) {
+        try {
+          throw new Error(error ? error : `Request Rejected with an Unknown Error`);
+        } catch (e: unknown) {
+          if (error && typeof error === 'object') {
+            Object.assign(e as Error, error);
+            (e as Error & StructuredErrorDocument).message =
+              (error as Error).message || `Request Rejected with an Unknown Error`;
+          }
+          error = e as Error & StructuredErrorDocument;
+        }
+      }
 
-      outbound.reject(document);
+      error[STRUCTURED] = true;
+      error.request = owner.request;
+      error.response = owner.getResponse();
+      error.error = error.error || error.message;
+
+      outbound.reject(error);
     }
   );
   return outbound.promise;

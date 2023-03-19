@@ -8,7 +8,6 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
 
 module('integration/reload - Reloading Records', function (hooks) {
   let store;
@@ -27,7 +26,6 @@ module('integration/reload - Reloading Records', function (hooks) {
     }
 
     let { owner } = this;
-    owner.register('service:store', Store);
     owner.register('model:person', Person);
     owner.register(
       'serializer:application',

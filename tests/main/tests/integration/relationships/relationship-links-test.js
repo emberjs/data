@@ -6,7 +6,6 @@ import { resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, hasMany } from '@ember-data/model';
-import Store from '@ember-data/store';
 
 module('JSON:API links access on relationships', function (hooks) {
   setupTest(hooks);
@@ -14,7 +13,6 @@ module('JSON:API links access on relationships', function (hooks) {
 
   hooks.beforeEach(function () {
     const { owner } = this;
-    owner.register('service:store', Store);
     store = owner.lookup('service:store');
   });
 

@@ -8,7 +8,6 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -34,7 +33,6 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
 
   hooks.beforeEach(function () {
     let { owner } = this;
-    owner.register('service:store', Store);
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     owner.register(

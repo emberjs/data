@@ -5,7 +5,13 @@ import { resolve } from 'rsvp';
 import { DEBUG } from '@ember-data/env';
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
-function _guard(promise, test) {
+export function _bind(fn, ...args) {
+  return function () {
+    return fn.apply(undefined, args);
+  };
+}
+
+export function _guard(promise, test) {
   let guarded = promise.finally(() => {
     if (!test()) {
       guarded._subscribers.length = 0;
@@ -15,7 +21,7 @@ function _guard(promise, test) {
   return guarded;
 }
 
-function _objectIsAlive(object) {
+export function _objectIsAlive(object) {
   return !(object.isDestroyed || object.isDestroying);
 }
 

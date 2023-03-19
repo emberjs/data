@@ -26,6 +26,10 @@ export default class RequestCache {
   _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _subscriptions: { [lid: string]: Function[] } = Object.create(null);
 
+  _clearEntries(identifier: StableRecordIdentifier) {
+    this._done.delete(identifier);
+  }
+
   enqueue(promise: Promise<any>, queryRequest: Request) {
     let query = queryRequest.data[0];
     if (hasRecordIdentifier(query)) {

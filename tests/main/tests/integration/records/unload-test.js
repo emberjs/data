@@ -760,7 +760,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     );
   });
 
-  test('after unloading a record, the record can be fetched again immediately (with relationships)', function (assert) {
+  test('after unloading a record, the record can be fetched again immediately (with relationships)', async function (assert) {
     // stub findRecord
     adapter.findRecord = () => {
       return {
@@ -775,28 +775,26 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
 
     // populate initial record
-    let record = run(() => {
-      return store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          relationships: {
-            bike: {
-              data: { type: 'bike', id: '1' },
-            },
+    let record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          bike: {
+            data: { type: 'bike', id: '1' },
           },
         },
+      },
 
-        included: [
-          {
-            id: '1',
-            type: 'bike',
-            attributes: {
-              name: 'mr bike',
-            },
+      included: [
+        {
+          id: '1',
+          type: 'bike',
+          attributes: {
+            name: 'mr bike',
           },
-        ],
-      });
+        },
+      ],
     });
 
     let identifier = recordIdentifierFor(record);
@@ -808,23 +806,19 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(record.bike.name, 'mr bike');
 
     // we test that we can sync call unloadRecord followed by findRecord
-    let wait = run(() => {
-      store.unloadRecord(record);
-      assert.true(record.isDestroying, 'the record is destroying');
-      assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
-      assert.true(cache.isEmpty(identifier), 'We are unloaded after unloadRecord');
 
-      let wait = store.findRecord('person', '1').then((newRecord) => {
-        assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
-        assert.strictEqual(newRecord.bike, bike, 'the newRecord should retain knowledge of the bike');
-      });
+    store.unloadRecord(record);
+    assert.true(record.isDestroying, 'the record is destroying');
+    assert.false(record.isDestroyed, 'the record is NOT YET destroyed after unloadRecord');
+    assert.true(cache.isEmpty(identifier), 'We are unloaded after unloadRecord');
 
-      assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
-      return wait;
+    let promise = store.findRecord('person', '1').then((newRecord) => {
+      assert.true(record.isDestroyed, 'the record is destroyed after findRecord');
+      assert.strictEqual(newRecord.bike, bike, 'the newRecord should retain knowledge of the bike');
     });
-
+    assert.false(record.isDestroyed, 'the record is NOT YET destroyed after findRecord triggered');
+    await promise;
     assert.true(record.isDestroyed, 'the record IS destroyed');
-    return wait;
   });
 
   test('after unloading a record, the record can be fetched again soon there after', function (assert) {

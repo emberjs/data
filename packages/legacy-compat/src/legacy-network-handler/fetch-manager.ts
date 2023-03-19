@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/store
- */
 import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
@@ -10,6 +7,12 @@ import { default as RSVP, resolve } from 'rsvp';
 import { DEBUG } from '@ember-data/env';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
+import type Store from '@ember-data/store';
+import { coerceId } from '@ember-data/store/-private';
+import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
+import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
+import type RequestCache from '@ember-data/store/-private/network/request-cache';
+import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
 import type {
@@ -17,19 +20,15 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@ember-data/types/q/identifier';
-import { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
+import { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { FindOptions } from '@ember-data/types/q/store';
 
-import ShimModelClass from '../legacy-model-support/shim-model-class';
-import type Store from '../store-service';
-import coerceId from '../utils/coerce-id';
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from '../utils/common';
-import { normalizeResponseHelper } from '../utils/serializer-response';
-import RequestCache from './request-cache';
-import Snapshot from './snapshot';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
+import { assertIdentifierHasId } from './identifier-has-id';
+import { normalizeResponseHelper } from './serializer-response';
 
-function payloadIsNotBlank(adapterPayload): boolean {
+function payloadIsNotBlank(adapterPayload: object): boolean {
   if (Array.isArray(adapterPayload)) {
     return true;
   } else {
@@ -39,7 +38,7 @@ function payloadIsNotBlank(adapterPayload): boolean {
 
 type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
-  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
+  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): unknown;
 };
 
 export const SaveOp: unique symbol = Symbol('SaveOp');
@@ -49,13 +48,15 @@ export type FetchMutationOptions = FindOptions & { [SaveOp]: 'createRecord' | 'd
 interface PendingFetchItem {
   identifier: StableExistingRecordIdentifier;
   queryRequest: Request;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: RSVP.Deferred<any>;
   options: FindOptions;
-  trace?: any;
+  trace?: unknown;
   promise: Promise<StableRecordIdentifier>;
 }
 
 interface PendingSaveItem {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: RSVP.Deferred<any>;
   snapshot: Snapshot;
   identifier: RecordIdentifier;
@@ -63,12 +64,6 @@ interface PendingSaveItem {
   queryRequest: Request;
 }
 
-/**
- * Manages the state of network requests initiated by the store
- *
- * @class FetchManager
- * @private
- */
 export default class FetchManager {
   declare isDestroyed: boolean;
   declare requestCache: RequestCache;
@@ -83,12 +78,12 @@ export default class FetchManager {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
-    this.requestCache = new RequestCache();
+    this.requestCache = store.getRequestStateService();
     this.isDestroyed = false;
   }
 
-  clearEntries(identifier: StableRecordIdentifier) {
-    this.requestCache._done.delete(identifier);
+  _createSnapshot(identifier: StableRecordIdentifier, options: FetchMutationOptions): Snapshot {
+    return this._store._instanceCache.createSnapshot(identifier, options);
   }
 
   /**
@@ -100,8 +95,7 @@ export default class FetchManager {
     @internal
   */
   scheduleSave(identifier: RecordIdentifier, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
-    let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer<null | SingleResourceDocument>(promiseLabel);
+    let resolver = RSVP.defer<null | SingleResourceDocument>(DEBUG ? `DS: Model#save ${identifier.lid}` : '');
     let query: SaveRecordMutation = {
       op: 'saveRecord',
       recordIdentifier: identifier,
@@ -112,8 +106,8 @@ export default class FetchManager {
       data: [query],
     };
 
-    let snapshot = new Snapshot(options, identifier, this._store);
-    let pendingSaveItem = {
+    const snapshot = this._createSnapshot(identifier, options);
+    const pendingSaveItem: PendingSaveItem = {
       snapshot: snapshot,
       resolver: resolver,
       identifier,
@@ -121,6 +115,7 @@ export default class FetchManager {
       queryRequest,
     };
     this._pendingSave.push(pendingSaveItem);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     emberBackburner.scheduleOnce('actions', this, this._flushPendingSaves);
 
     this.requestCache.enqueue(resolver.promise, pendingSaveItem.queryRequest);
@@ -132,7 +127,6 @@ export default class FetchManager {
     This method is called at the end of the run loop, and
     flushes any records passed into `scheduleSave`
 
-    @method flushPendingSave
     @internal
   */
   _flushPendingSaves() {
@@ -239,6 +233,7 @@ export default class FetchManager {
     );
 
     if (this._pendingFetch.size === 0) {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
     }
 
@@ -279,9 +274,58 @@ export default class FetchManager {
     this._pendingFetch.clear();
   }
 
+  fetchDataIfNeededForIdentifier(
+    identifier: StableRecordIdentifier,
+    options: FindOptions = {}
+  ): Promise<StableRecordIdentifier> {
+    // pre-loading will change the isEmpty value
+    const isEmpty = _isEmpty(this._store._instanceCache, identifier);
+    const isLoading = _isLoading(this._store._instanceCache, identifier);
+
+    let promise: Promise<StableRecordIdentifier>;
+    if (isEmpty) {
+      assertIdentifierHasId(identifier);
+
+      promise = this.scheduleFetch(identifier, options);
+    } else if (isLoading) {
+      promise = this.getPendingFetch(identifier, options)!;
+      assert(`Expected to find a pending request for a record in the loading state, but found none`, promise);
+    } else {
+      promise = resolve(identifier);
+    }
+
+    return promise;
+  }
+
   destroy() {
     this.isDestroyed = true;
   }
+}
+
+function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+  const cache = DEPRECATE_V1_RECORD_DATA
+    ? instanceCache.__instances.resourceCache.get(identifier)
+    : instanceCache.cache;
+  if (!cache) {
+    return true;
+  }
+  const isNew = cache.isNew(identifier);
+  const isDeleted = cache.isDeleted(identifier);
+  const isEmpty = cache.isEmpty(identifier);
+
+  return (!isNew || isDeleted) && isEmpty;
+}
+
+function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+  const req = cache.store.getRequestStateService();
+  // const fulfilled = req.getLastRequestForRecord(identifier);
+  const isLoaded = cache.recordIsLoaded(identifier);
+
+  return (
+    !isLoaded &&
+    // fulfilled === null &&
+    req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+  );
 }
 
 // this function helps resolve whether we have a pending request that we should use instead
@@ -304,6 +348,7 @@ function _findMany(
     `Cannot fetch a record without an id`,
     ids.every((v) => v !== null)
   );
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   assert(`Expected this adapter to implement findMany for coalescing`, adapter.findMany);
   let promise = adapter.findMany(store, modelClass, ids, snapshots);
   let label = `DS: Handle Adapter#findMany of '${modelName}'`;
@@ -312,11 +357,13 @@ function _findMany(
     throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
   }
 
-  promise = guardDestroyedStore(promise, store, label);
+  promise = guardDestroyedStore(promise, store, label) as Promise<AdapterPayload>;
 
   return promise.then((adapterPayload) => {
     assert(
-      `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
+      `You made a 'findMany' request for '${modelName}' records with ids '[${ids.join(
+        ','
+      )}]', but the adapter's response did not have any data`,
       !!payloadIsNotBlank(adapterPayload)
     );
     let serializer = store.serializerFor(modelName);
@@ -334,7 +381,9 @@ function rejectFetchedItems(fetchMap: Map<Snapshot, PendingFetchItem>, snapshots
       pair.resolver.reject(
         error ||
           new Error(
-            `Expected: '<${snapshot.modelName}:${snapshot.id}>' to be present in the adapter provided payload, but it was not found.`
+            `Expected: '<${
+              snapshot.modelName
+            }:${snapshot.id!}>' to be present in the adapter provided payload, but it was not found.`
           )
       );
     }
@@ -425,7 +474,7 @@ function _fetchRecord(store: Store, fetchItem: PendingFetchItem) {
     typeof adapter.findRecord === 'function'
   );
 
-  let snapshot = new Snapshot(fetchItem.options, identifier, store);
+  let snapshot = store._instanceCache.createSnapshot(identifier, fetchItem.options);
   let klass = store.modelFor(identifier.type);
   let id = identifier.id;
   let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
@@ -436,7 +485,9 @@ function _fetchRecord(store: Store, fetchItem: PendingFetchItem) {
     }),
     store,
     label
-  ).then((adapterPayload) => {
+  ) as Promise<AdapterPayload>;
+
+  promise = promise.then((adapterPayload) => {
     assert(
       `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
       !!payloadIsNotBlank(adapterPayload)
@@ -461,7 +512,7 @@ function _fetchRecord(store: Store, fetchItem: PendingFetchItem) {
     );
 
     return payload;
-  });
+  }) as Promise<AdapterPayload>;
 
   fetchItem.resolver.resolve(promise);
 }
@@ -495,10 +546,10 @@ function _flushPendingFetchForType(store: Store, pendingFetchItems: PendingFetch
 
   if (shouldCoalesce) {
     let snapshots = new Array<Snapshot>(totalItems);
-    let fetchMap = new Map();
+    let fetchMap = new Map<Snapshot, PendingFetchItem>();
     for (let i = 0; i < totalItems; i++) {
       let fetchItem = pendingFetchItems[i];
-      snapshots[i] = new Snapshot(fetchItem.options, fetchItem.identifier, store);
+      snapshots[i] = store._instanceCache.createSnapshot(fetchItem.identifier, fetchItem.options);
       fetchMap.set(snapshots[i], fetchItem);
     }
 
@@ -534,16 +585,27 @@ function _flushPendingSave(store: Store, pending: PendingSaveItem) {
     typeof adapter[operation] === 'function'
   );
 
-  let promise = resolve().then(() => adapter[operation](store, modelClass, snapshot));
+  let promise: Promise<AdapterPayload> = resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer: SerializerWithParseErrors | null = store.serializerFor(modelName);
-  let label = `DS: Extract and notify about ${operation} completion of ${identifier}`;
 
   assert(
     `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
     promise !== undefined
   );
 
-  promise = _guard(guardDestroyedStore(promise, store, label), _bind(_objectIsAlive, record)).then((adapterPayload) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  promise = _guard(
+    guardDestroyedStore(
+      promise,
+      store,
+      DEBUG ? `DS: Extract and notify about ${operation} completion of ${identifier.lid}` : ''
+    ),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    _bind(_objectIsAlive, record)
+  ) as Promise<AdapterPayload>;
+
+  promise = promise.then((adapterPayload) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     if (!_objectIsAlive(record)) {
       if (DEPRECATE_RSVP_PROMISE) {
         deprecate(
@@ -565,6 +627,7 @@ function _flushPendingSave(store: Store, pending: PendingSaveItem) {
     if (adapterPayload) {
       return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
     }
-  });
+  }) as Promise<AdapterPayload>;
+
   resolver.resolve(promise);
 }

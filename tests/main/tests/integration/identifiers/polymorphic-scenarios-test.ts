@@ -7,7 +7,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Store from '@ember-data/store';
 
 type RID = { type: string; id: string };
 
@@ -61,7 +60,6 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       owner.register('model:ferrari', Ferrari);
       owner.register('model:bmw', Bmw);
       owner.register('model:dealership', Dealership);
-      owner.register('service:store', Store);
 
       store = owner.lookup('service:store');
     });

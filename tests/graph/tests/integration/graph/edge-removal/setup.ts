@@ -4,7 +4,7 @@ import { graphFor } from '@ember-data/graph/-private';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import Store from '@ember-data/store';
+import type Store from '@ember-data/store';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -152,7 +152,6 @@ interface TestStore<T extends RecordInstance> extends Store {
 export function setupGraphTest(hooks) {
   setupTest(hooks);
   hooks.beforeEach(function (this: Context) {
-    this.owner.register('service:store', Store);
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', Serializer);
     this.store = this.owner.lookup('service:store');

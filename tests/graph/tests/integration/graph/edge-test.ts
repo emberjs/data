@@ -4,7 +4,6 @@ import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Store from '@ember-data/store';
 import { peekCache, recordIdentifierFor } from '@ember-data/store/-private';
 
 import { stateOf } from './edge-removal/setup';
@@ -16,7 +15,6 @@ module('Integration | Graph | Edges', function (hooks) {
   let graph;
   hooks.beforeEach(function () {
     const { owner } = this;
-    owner.register('service:store', Store);
     store = owner.lookup('service:store');
     graph = graphFor(store);
   });

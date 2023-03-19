@@ -5,12 +5,12 @@
 import { deprecate } from '@ember/debug';
 
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
-import Store from '@ember-data/store';
+import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';
 import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 /**

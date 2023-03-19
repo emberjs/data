@@ -8,7 +8,6 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
@@ -34,7 +33,6 @@ module('Store.createRecord() coverage', function (hooks) {
 
   hooks.beforeEach(function () {
     let { owner } = this;
-    owner.register('service:store', Store);
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     store = owner.lookup('service:store');

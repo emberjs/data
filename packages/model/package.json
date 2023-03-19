@@ -30,6 +30,7 @@
   ],
   "peerDependencies": {
     "@ember-data/json-api": "workspace:4.12.0-alpha.9",
+    "@ember-data/legacy-compat": "workspace:4.12.0-alpha.9",
     "@ember-data/graph": "workspace:4.12.0-alpha.9",
     "@ember-data/store": "workspace:4.12.0-alpha.9",
     "@ember-data/tracking": "workspace:4.12.0-alpha.9",

@@ -6,14 +6,11 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import Store from '@ember-data/store';
 
 class Person extends Model {
   @attr()
   name;
 }
-
-class CustomStore extends Store {}
 
 module('integration/store/package-import', function (hooks) {
   setupTest(hooks);
@@ -25,7 +22,6 @@ module('integration/store/package-import', function (hooks) {
 
     owner.register('model:person', Person);
     owner.unregister('service:store');
-    owner.register('service:store', CustomStore);
     store = owner.lookup('service:store');
   });
 

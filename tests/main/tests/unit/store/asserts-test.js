@@ -13,7 +13,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
   hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('model:foo', Model.extend());
-    owner.register('service:store', Store);
   });
 
   const MODEL_NAME_METHODS = [

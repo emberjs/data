@@ -23,10 +23,16 @@
     "@ember-data/model": {
       "injected": true
     },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
     "@ember-data/json-api": {
       "injected": true
     },
     "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/request": {
       "injected": true
     },
     "@ember-data/canary-features": {
@@ -51,6 +57,8 @@
     "@ember-data/canary-features": "workspace:4.12.0-alpha.9",
     "@ember-data/model": "workspace:4.12.0-alpha.9",
     "@ember-data/private-build-infra": "workspace:4.12.0-alpha.9",
+    "@ember-data/legacy-compat": "workspace:4.12.0-alpha.9",
+    "@ember-data/request": "workspace:4.12.0-alpha.9",
     "@ember-data/json-api": "workspace:4.12.0-alpha.9",
     "@ember-data/graph": "workspace:4.12.0-alpha.9",
     "@ember-data/store": "workspace:4.12.0-alpha.9",

@@ -2340,7 +2340,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
     this.owner.register('model:comment', Comment);
 
-    assert.expect(3);
+    assert.expect(4);
 
     let data = {
       something: 'is invalid',
@@ -2358,6 +2358,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     try {
       await store.findRecord('post', '1');
     } catch (reason) {
+      assert.strictEqual(reason.message, 'Adapter operation failed', 'we got the right error message');
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof AdapterError, 'reason should be an instance of AdapterError');
     }

@@ -7,7 +7,7 @@ const ValidKeys = new Map<string, string | string[]>([
   ['data', 'json'],
   ['options', 'object'],
   ['cacheOptions', 'object'],
-  ['op', ['findAll', 'query', 'queryRecord']],
+  ['op', ['findAll', 'query', 'queryRecord', 'findRecord']],
   ['store', 'object'],
   ['url', 'string'],
   ['cache', ['default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload']],
@@ -107,7 +107,11 @@ export function deepFreeze<T = unknown>(value: T): T {
           return value;
         case 'object':
           Object.keys(value as {}).forEach((key) => {
-            (value as {})[key] = deepFreeze((value as {})[key]) as {};
+            try {
+              (value as {})[key] = deepFreeze((value as {})[key]) as {};
+            } catch {
+              // continue
+            }
           });
           value[IS_FROZEN] = true;
           return Object.freeze(value);
