@@ -11,7 +11,6 @@ import { reject, resolve } from 'rsvp';
 
 import { DEBUG } from '@ember-data/env';
 import type { Cache as CacheClass } from '@ember-data/json-api';
-import type { SaveOp } from '@ember-data/legacy-compat/-private';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type DSModelClass from '@ember-data/model';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
@@ -38,7 +37,6 @@ import type {
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
 import type { FindOptions } from '@ember-data/types/q/store';
@@ -2250,10 +2248,9 @@ class Store {
    * @returns {Promise<RecordInstance>}
    */
   saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
-    // TODO this is temporary until save is moved into The Compat Layer
-    const SAVE_OP: typeof SaveOp = (
-      importSync('@ember-data/legacy-compat/-private') as typeof import('@ember-data/legacy-compat/-private')
-    ).SaveOp;
+    if (DEBUG) {
+      assertDestroyingStore(this, 'saveRecord');
+    }
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
     const cache =
@@ -2290,71 +2287,13 @@ class Store {
       operation = 'deleteRecord';
     }
 
-    const saveOptions = Object.assign({ [SAVE_OP]: operation }, options);
-    let fetchManagerPromise = this._fetchManager.scheduleSave(identifier, saveOptions);
-    return fetchManagerPromise
-      .then((payload) => {
-        if (LOG_PAYLOADS) {
-          try {
-            let data = payload ? JSON.parse(JSON.stringify(payload)) : payload;
-            // eslint-disable-next-line no-console
-            console.log(`EmberData | Payload - ${operation}`, data);
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log(`EmberData | Payload - ${operation}`, payload);
-          }
-        }
-        /*
-        // TODO @runspired re-evaluate the below claim now that
-        // the save request pipeline is more streamlined.
-
-        Note to future spelunkers hoping to optimize.
-        We rely on this `run` to create a run loop if needed
-        that `store._push` and `store.saveRecord` will both share.
-
-        We use `join` because it is often the case that we
-        have an outer run loop available still from the first
-        call to `store._push`;
-       */
-        this._join(() => {
-          if (DEBUG) {
-            assertDestroyingStore(this, 'saveRecord');
-          }
-
-          let data = payload && payload.data;
-          if (!data) {
-            assert(
-              `Your ${identifier.type} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
-              identifier.id
-            );
-          }
-
-          const identifierCache = this.identifierCache;
-          let actualIdentifier = identifier;
-          if (operation !== 'deleteRecord' && data) {
-            actualIdentifier = identifierCache.updateRecordIdentifier(identifier, data);
-          }
-
-          //We first make sure the primary data has been updated
-          const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(actualIdentifier) : this.cache;
-          cache.didCommit(identifier, data);
-
-          if (payload && payload.included) {
-            this._push({ data: null, included: payload.included });
-          }
-        });
-        return record;
-      })
-      .catch((e) => {
-        let err = e;
-        if (!e) {
-          err = new Error(`Unknown Error Occurred During Request`);
-        } else if (typeof e === 'string') {
-          err = new Error(e);
-        }
-        adapterDidInvalidate(this, identifier, err);
-        throw err;
-      });
+    return this.request<RecordInstance>({
+      op: operation,
+      data: {
+        options,
+        record: identifier,
+      },
+    }).then((document) => document.content);
   }
 
   /**
@@ -2672,77 +2611,6 @@ function isDSModel(record: RecordInstance | null): record is DSModel {
     return false;
   }
   return !!record && 'constructor' in record && 'isModel' in record.constructor && record.constructor.isModel === true;
-}
-
-type AdapterErrors = Error & { errors?: unknown[]; isAdapterError?: true; code?: string };
-type SerializerWithParseErrors = MinimumSerializerInterface & {
-  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
-};
-
-function adapterDidInvalidate(
-  store: Store,
-  identifier: StableRecordIdentifier,
-  error: Error & { errors?: JsonApiValidationError[]; isAdapterError?: true; code?: string }
-) {
-  if (error && error.isAdapterError === true && error.code === 'InvalidError') {
-    let serializer = store.serializerFor(identifier.type) as SerializerWithParseErrors;
-
-    // TODO @deprecate extractErrors being called
-    // TODO remove extractErrors from the default serializers.
-    if (serializer && typeof serializer.extractErrors === 'function') {
-      let errorsHash = serializer.extractErrors(store, store.modelFor(identifier.type), error, identifier.id);
-      error.errors = errorsHashToArray(errorsHash);
-    }
-  }
-  const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
-
-  if (error.errors) {
-    assert(
-      `Expected the RecordData implementation for ${identifier} to have a getErrors(identifier) method for retreiving errors.`,
-      typeof cache.getErrors === 'function'
-    );
-
-    let jsonApiErrors: JsonApiValidationError[] = error.errors;
-    if (jsonApiErrors.length === 0) {
-      jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
-    }
-    cache.commitWasRejected(identifier, jsonApiErrors);
-  } else {
-    cache.commitWasRejected(identifier);
-  }
-}
-
-function makeArray(value) {
-  return Array.isArray(value) ? value : [value];
-}
-
-const PRIMARY_ATTRIBUTE_KEY = 'base';
-
-function errorsHashToArray(errors): JsonApiValidationError[] {
-  const out: JsonApiValidationError[] = [];
-
-  if (errors) {
-    Object.keys(errors).forEach((key) => {
-      let messages = makeArray(errors[key]);
-      for (let i = 0; i < messages.length; i++) {
-        let title = 'Invalid Attribute';
-        let pointer = `/data/attributes/${key}`;
-        if (key === PRIMARY_ATTRIBUTE_KEY) {
-          title = 'Invalid Document';
-          pointer = `/data`;
-        }
-        out.push({
-          title: title,
-          detail: messages[i],
-          source: {
-            pointer: pointer,
-          },
-        });
-      }
-    });
-  }
-
-  return out;
 }
 
 function normalizeProperties(
