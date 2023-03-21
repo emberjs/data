@@ -1,6 +1,6 @@
 {
   "name": "model-encapsulation-test-app",
-  "version": "4.12.0-alpha.9",
+  "version": "4.12.0-alpha.10",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": {
@@ -47,13 +47,13 @@
   "devDependencies": {
     "@babel/core": "^7.21.3",
     "@babel/runtime": "^7.21.0",
-    "@ember-data/adapter": "workspace:4.12.0-alpha.9",
-    "@ember-data/canary-features": "workspace:4.12.0-alpha.9",
-    "@ember-data/private-build-infra": "workspace:4.12.0-alpha.9",
-    "@ember-data/serializer": "workspace:4.12.0-alpha.9",
-    "@ember-data/store": "workspace:4.12.0-alpha.9",
-    "@ember-data/tracking": "workspace:4.12.0-alpha.9",
-    "@ember-data/unpublished-test-infra": "workspace:4.12.0-alpha.9",
+    "@ember-data/adapter": "workspace:4.12.0-alpha.10",
+    "@ember-data/canary-features": "workspace:4.12.0-alpha.10",
+    "@ember-data/private-build-infra": "workspace:4.12.0-alpha.10",
+    "@ember-data/serializer": "workspace:4.12.0-alpha.10",
+    "@ember-data/store": "workspace:4.12.0-alpha.10",
+    "@ember-data/tracking": "workspace:4.12.0-alpha.10",
+    "@ember-data/unpublished-test-infra": "workspace:4.12.0-alpha.10",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.1",
     "@ember/test-helpers": "^2.9.3",
