@@ -224,17 +224,17 @@ importers:
   packages/-ember-data:
     specifiers:
       '@babel/core': ^7.21.3
-      '@ember-data/adapter': workspace:4.12.0-alpha.10
-      '@ember-data/debug': workspace:4.12.0-alpha.10
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
-      '@ember-data/request': workspace:4.12.0-alpha.10
-      '@ember-data/serializer': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
+      '@ember-data/adapter': workspace:4.12.0-alpha.11
+      '@ember-data/debug': workspace:4.12.0-alpha.11
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
+      '@ember-data/request': workspace:4.12.0-alpha.11
+      '@ember-data/serializer': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
@@ -247,16 +247,16 @@ importers:
       ember-source: ~4.11.0
       webpack: ^5.76.2
     dependencies:
-      '@ember-data/adapter': file:packages/adapter_3rcjuzijmfhd335rix52qbgjsi
+      '@ember-data/adapter': file:packages/adapter_4dnin3eoa4jp5pdbo74ysvrrpy
       '@ember-data/debug': file:packages/debug_webpack@5.76.2
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
       '@ember-data/legacy-compat': file:packages/legacy-compat
-      '@ember-data/model': file:packages/model_rd5u4oa6xhfzxiolwy6vsapjna
+      '@ember-data/model': file:packages/model_vmgn42qmvgugl2gi6yhlb5w7mu
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/request': file:packages/request
-      '@ember-data/serializer': file:packages/serializer_3rcjuzijmfhd335rix52qbgjsi
-      '@ember-data/store': file:packages/store_ceylvnqufvmzh7abj47k3j4ciu
+      '@ember-data/serializer': file:packages/serializer_4dnin3eoa4jp5pdbo74ysvrrpy
+      '@ember-data/store': file:packages/store_ssn7wzp3ldvhwx6iq4iax3f7aa
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
@@ -307,7 +307,7 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
@@ -361,7 +361,7 @@ importers:
 
   packages/debug:
     specifiers:
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@embroider/macros': ^1.10.0
       ember-auto-import: ^2.6.1
@@ -391,8 +391,8 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/canary-features': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/canary-features': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
@@ -449,8 +449,8 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/canary-features': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/canary-features': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
@@ -509,7 +509,7 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@rollup/plugin-babel': ^6.0.3
@@ -557,8 +557,8 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/canary-features': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/canary-features': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
@@ -616,7 +616,7 @@ importers:
       '@babel/core': ^7.21.3
       '@babel/plugin-transform-block-scoping': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/canary-features': workspace:4.12.0-alpha.10
+      '@ember-data/canary-features': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@embroider/macros': ^1.10.0
       babel-import-util: ^1.3.0
@@ -686,7 +686,7 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@rollup/plugin-babel': ^6.0.3
@@ -734,7 +734,7 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
@@ -790,7 +790,7 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@babel/preset-typescript': ^7.21.0
       '@babel/runtime': ^7.21.0
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@embroider/addon-dev': ^3.0.0
       '@embroider/macros': ^1.10.0
       '@glimmer/component': ^1.1.2
@@ -880,7 +880,7 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/test-helpers': ^2.9.3
@@ -956,16 +956,16 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/debug': workspace:4.12.0-alpha.10
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/request': workspace:4.12.0-alpha.10
-      '@ember-data/serializer': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/debug': workspace:4.12.0-alpha.11
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/request': workspace:4.12.0-alpha.11
+      '@ember-data/serializer': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
@@ -994,13 +994,13 @@ importers:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
       '@ember-data/debug': file:packages/debug_lz455kpkxjqqpmesntqbf6cr7m
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
       '@ember-data/legacy-compat': file:packages/legacy-compat
-      '@ember-data/model': file:packages/model_vvg5zm2kgbkmdyuzogh54cicyq
+      '@ember-data/model': file:packages/model_bobbwaxebxgobsmyy4roiwowi4
       '@ember-data/request': file:packages/request
-      '@ember-data/serializer': file:packages/serializer_f24w52jk5s56d3evpsfgiqpxb4
-      '@ember-data/store': file:packages/store_ckxxzhjisvs7ogcebeaufjzxgm
+      '@ember-data/serializer': file:packages/serializer_u3wcen22uncrtk3ip222sx6pde
+      '@ember-data/store': file:packages/store_fwdlwnfosbuuv4kic6ald46r4u
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -1051,11 +1051,11 @@ importers:
 
   tests/blueprints:
     specifiers:
-      '@ember-data/adapter': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
-      '@ember-data/serializer': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/adapter': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
+      '@ember-data/serializer': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       ember-cli: ~4.11.0
       ember-cli-blueprint-test-helpers: ^0.19.2
       mocha: ^10.2.0
@@ -1086,12 +1086,12 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/adapter': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/serializer': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/adapter': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/serializer': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
@@ -1119,10 +1119,10 @@ importers:
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
-      '@ember-data/adapter': file:packages/adapter_f24w52jk5s56d3evpsfgiqpxb4
-      '@ember-data/model': file:packages/model_ymcase6rewo7vut3swr6qtemqy
-      '@ember-data/serializer': file:packages/serializer_f24w52jk5s56d3evpsfgiqpxb4
-      '@ember-data/store': file:packages/store_awo45ur26xwe4cwdshseja3w34
+      '@ember-data/adapter': file:packages/adapter_u3wcen22uncrtk3ip222sx6pde
+      '@ember-data/model': file:packages/model_sofakn2l4wrjb3d7vzhr5pfa2e
+      '@ember-data/serializer': file:packages/serializer_u3wcen22uncrtk3ip222sx6pde
+      '@ember-data/store': file:packages/store_txeiz6jsiyim6ap7zmaz6ngv2q
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -1173,7 +1173,7 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
@@ -1196,7 +1196,7 @@ importers:
       ember-cli-fastboot-testing: ^0.6.0
       ember-cli-htmlbars: ^6.2.0
       ember-cli-inject-live-reload: ^2.1.0
-      ember-data: workspace:4.12.0-alpha.10
+      ember-data: workspace:4.12.0-alpha.11
       ember-export-application-global: ^2.0.1
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
@@ -1261,7 +1261,7 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
@@ -1281,7 +1281,7 @@ importers:
       ember-cli-fastboot-testing: ^0.6.0
       ember-cli-htmlbars: ^6.2.0
       ember-cli-inject-live-reload: ^2.1.0
-      ember-data: workspace:4.12.0-alpha.10
+      ember-data: workspace:4.12.0-alpha.11
       ember-inflector: ^4.0.2
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
@@ -1341,7 +1341,7 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@glimmer/component': ^1.1.2
@@ -1354,7 +1354,7 @@ importers:
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
       ember-cli-terser: ^4.0.2
-      ember-data: workspace:4.12.0-alpha.10
+      ember-data: workspace:4.12.0-alpha.11
       ember-export-application-global: ^2.0.1
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
@@ -1398,16 +1398,16 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/canary-features': workspace:4.12.0-alpha.10
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
-      '@ember-data/request': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/canary-features': workspace:4.12.0-alpha.11
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
+      '@ember-data/request': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
@@ -1445,13 +1445,13 @@ importers:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
       '@ember-data/canary-features': file:packages/canary-features
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
       '@ember-data/legacy-compat': file:packages/legacy-compat
-      '@ember-data/model': file:packages/model_vvg5zm2kgbkmdyuzogh54cicyq
+      '@ember-data/model': file:packages/model_bobbwaxebxgobsmyy4roiwowi4
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/request': file:packages/request
-      '@ember-data/store': file:packages/store_ckxxzhjisvs7ogcebeaufjzxgm
+      '@ember-data/store': file:packages/store_fwdlwnfosbuuv4kic6ald46r4u
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/edition-utils': 1.2.0
@@ -1513,13 +1513,13 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/canary-features': workspace:4.12.0-alpha.10
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/canary-features': workspace:4.12.0-alpha.11
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
@@ -1557,10 +1557,10 @@ importers:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
       '@ember-data/canary-features': file:packages/canary-features
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_opdvtdcur55o3glnaq5y2lh4ba
+      '@ember-data/store': file:packages/store_cimimtvv2anqdf66kmql6jdfca
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/edition-utils': 1.2.0
@@ -1616,15 +1616,15 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/adapter': workspace:4.12.0-alpha.10
-      '@ember-data/debug': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/request': workspace:4.12.0-alpha.10
-      '@ember-data/serializer': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/adapter': workspace:4.12.0-alpha.11
+      '@ember-data/debug': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/request': workspace:4.12.0-alpha.11
+      '@ember-data/serializer': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
@@ -1652,13 +1652,13 @@ importers:
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
-      '@ember-data/adapter': file:packages/adapter_f24w52jk5s56d3evpsfgiqpxb4
+      '@ember-data/adapter': file:packages/adapter_u3wcen22uncrtk3ip222sx6pde
       '@ember-data/debug': file:packages/debug_lz455kpkxjqqpmesntqbf6cr7m
       '@ember-data/legacy-compat': file:packages/legacy-compat
-      '@ember-data/model': file:packages/model_gabjizwzgcy44hvcsuer4cjy3m
+      '@ember-data/model': file:packages/model_axwivi6avtbykszd6buwghilee
       '@ember-data/request': file:packages/request
-      '@ember-data/serializer': file:packages/serializer_f24w52jk5s56d3evpsfgiqpxb4
-      '@ember-data/store': file:packages/store_awo45ur26xwe4cwdshseja3w34
+      '@ember-data/serializer': file:packages/serializer_u3wcen22uncrtk3ip222sx6pde
+      '@ember-data/store': file:packages/store_txeiz6jsiyim6ap7zmaz6ngv2q
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -1710,8 +1710,8 @@ importers:
       '@babel/core': ^7.21.3
       '@babel/plugin-transform-typescript': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
@@ -1745,7 +1745,7 @@ importers:
       ember-cli-terser: ~4.0.2
       ember-cli-test-loader: ^3.0.0
       ember-compatibility-helpers: ^1.2.6
-      ember-data: workspace:4.12.0-alpha.10
+      ember-data: workspace:4.12.0-alpha.11
       ember-decorators-polyfill: ^1.1.5
       ember-disable-prototype-extensions: ^1.1.3
       ember-inflector: ^4.0.2
@@ -1848,13 +1848,13 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/adapter': workspace:4.12.0-alpha.10
-      '@ember-data/canary-features': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
-      '@ember-data/serializer': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/adapter': workspace:4.12.0-alpha.11
+      '@ember-data/canary-features': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
+      '@ember-data/serializer': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
@@ -1882,11 +1882,11 @@ importers:
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
-      '@ember-data/adapter': file:packages/adapter_f24w52jk5s56d3evpsfgiqpxb4
+      '@ember-data/adapter': file:packages/adapter_u3wcen22uncrtk3ip222sx6pde
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/serializer': file:packages/serializer_f24w52jk5s56d3evpsfgiqpxb4
-      '@ember-data/store': file:packages/store_mk6nv4blu4mx5qz7z2oc2jai2q
+      '@ember-data/serializer': file:packages/serializer_u3wcen22uncrtk3ip222sx6pde
+      '@ember-data/store': file:packages/store_oaqpjlryke4ifxil45gxlfez3y
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -1945,7 +1945,7 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-cli-dependency-checker: ^3.3.1
       ember-cli-htmlbars: ^6.2.0
-      ember-data: workspace:4.12.0-alpha.10
+      ember-data: workspace:4.12.0-alpha.11
       ember-export-application-global: ^2.0.1
       ember-load-initializers: ^2.1.2
       ember-maybe-import-regenerator: ^1.0.0
@@ -1987,10 +1987,10 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/canary-features': workspace:4.12.0-alpha.10
-      '@ember-data/private-build-infra': workspace:4.12.0-alpha.10
-      '@ember-data/request': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/canary-features': workspace:4.12.0-alpha.11
+      '@ember-data/private-build-infra': workspace:4.12.0-alpha.11
+      '@ember-data/request': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/edition-utils': ^1.2.0
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
@@ -2078,15 +2078,15 @@ importers:
     specifiers:
       '@babel/core': ^7.21.3
       '@babel/runtime': ^7.21.0
-      '@ember-data/adapter': workspace:4.12.0-alpha.10
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/request': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.10
+      '@ember-data/adapter': workspace:4.12.0-alpha.11
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/request': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember-data/unpublished-test-infra': workspace:4.12.0-alpha.11
       '@ember/optional-features': ^2.0.0
       '@ember/string': ^3.0.1
       '@ember/test-helpers': ^2.9.3
@@ -2114,13 +2114,13 @@ importers:
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
-      '@ember-data/adapter': file:packages/adapter_f24w52jk5s56d3evpsfgiqpxb4
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
+      '@ember-data/adapter': file:packages/adapter_u3wcen22uncrtk3ip222sx6pde
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
       '@ember-data/legacy-compat': file:packages/legacy-compat
-      '@ember-data/model': file:packages/model_vvg5zm2kgbkmdyuzogh54cicyq
+      '@ember-data/model': file:packages/model_bobbwaxebxgobsmyy4roiwowi4
       '@ember-data/request': file:packages/request
-      '@ember-data/store': file:packages/store_ckxxzhjisvs7ogcebeaufjzxgm
+      '@ember-data/store': file:packages/store_fwdlwnfosbuuv4kic6ald46r4u
       '@ember-data/tracking': file:packages/tracking
       '@ember-data/unpublished-test-infra': file:packages/unpublished-test-infra
       '@ember/optional-features': 2.0.0
@@ -15654,21 +15654,21 @@ packages:
     resolution: {directory: packages/-ember-data, type: directory}
     id: file:packages/-ember-data
     name: ember-data
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.0.1
     dependencies:
-      '@ember-data/adapter': file:packages/adapter_f24w52jk5s56d3evpsfgiqpxb4
+      '@ember-data/adapter': file:packages/adapter_u3wcen22uncrtk3ip222sx6pde
       '@ember-data/debug': file:packages/debug_lz455kpkxjqqpmesntqbf6cr7m
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
       '@ember-data/legacy-compat': file:packages/legacy-compat
-      '@ember-data/model': file:packages/model_vvg5zm2kgbkmdyuzogh54cicyq
+      '@ember-data/model': file:packages/model_bobbwaxebxgobsmyy4roiwowi4
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/request': file:packages/request
-      '@ember-data/serializer': file:packages/serializer_f24w52jk5s56d3evpsfgiqpxb4
-      '@ember-data/store': file:packages/store_ckxxzhjisvs7ogcebeaufjzxgm
+      '@ember-data/serializer': file:packages/serializer_u3wcen22uncrtk3ip222sx6pde
+      '@ember-data/store': file:packages/store_fwdlwnfosbuuv4kic6ald46r4u
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.1
@@ -15688,10 +15688,10 @@ packages:
   file:packages/adapter:
     resolution: {directory: packages/adapter, type: directory}
     name: '@ember-data/adapter'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:4.12.0-alpha.10
+      '@ember-data/store': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     dependencies:
@@ -15703,19 +15703,19 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/adapter_3rcjuzijmfhd335rix52qbgjsi:
+  file:packages/adapter_4dnin3eoa4jp5pdbo74ysvrrpy:
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:4.12.0-alpha.10
+      '@ember-data/store': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_ceylvnqufvmzh7abj47k3j4ciu
+      '@ember-data/store': file:packages/store_ssn7wzp3ldvhwx6iq4iax3f7aa
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
       ember-cli-test-info: 1.0.0
@@ -15724,19 +15724,19 @@ packages:
       - supports-color
     dev: false
 
-  file:packages/adapter_f24w52jk5s56d3evpsfgiqpxb4:
+  file:packages/adapter_u3wcen22uncrtk3ip222sx6pde:
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:4.12.0-alpha.10
+      '@ember-data/store': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_awo45ur26xwe4cwdshseja3w34
+      '@ember-data/store': file:packages/store_txeiz6jsiyim6ap7zmaz6ngv2q
       '@ember/string': 3.0.1
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
@@ -15748,7 +15748,7 @@ packages:
   file:packages/canary-features:
     resolution: {directory: packages/canary-features, type: directory}
     name: '@ember-data/canary-features'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     dependencies:
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
@@ -15760,7 +15760,7 @@ packages:
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.0.1
@@ -15779,7 +15779,7 @@ packages:
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.0.1
@@ -15794,36 +15794,36 @@ packages:
       - webpack
     dev: false
 
-  file:packages/graph_5t6ljilxrms7odqohigbqflorq:
+  file:packages/graph_uen6nvjx7natmkbf2g32rlhvii:
     resolution: {directory: packages/graph, type: directory}
     id: file:packages/graph
     name: '@ember-data/graph'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:4.12.0-alpha.10
+      '@ember-data/store': workspace:4.12.0-alpha.11
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_ceylvnqufvmzh7abj47k3j4ciu
+      '@ember-data/store': file:packages/store_ssn7wzp3ldvhwx6iq4iax3f7aa
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - supports-color
 
-  file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe:
+  file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm:
     resolution: {directory: packages/json-api, type: directory}
     id: file:packages/json-api
     name: '@ember-data/json-api'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
     dependencies:
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_ceylvnqufvmzh7abj47k3j4ciu
+      '@ember-data/store': file:packages/store_ssn7wzp3ldvhwx6iq4iax3f7aa
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
@@ -15833,7 +15833,7 @@ packages:
   file:packages/legacy-compat:
     resolution: {directory: packages/legacy-compat, type: directory}
     name: '@ember-data/legacy-compat'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: 14.* || 16.* || >= 18}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -15845,14 +15845,14 @@ packages:
   file:packages/model:
     resolution: {directory: packages/model, type: directory}
     name: '@ember-data/model'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -15876,18 +15876,18 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/model_gabjizwzgcy44hvcsuer4cjy3m:
+  file:packages/model_axwivi6avtbykszd6buwghilee:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -15899,7 +15899,7 @@ packages:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/legacy-compat': file:packages/legacy-compat
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_awo45ur26xwe4cwdshseja3w34
+      '@ember-data/store': file:packages/store_txeiz6jsiyim6ap7zmaz6ngv2q
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.1
@@ -15916,18 +15916,18 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/model_rd5u4oa6xhfzxiolwy6vsapjna:
+  file:packages/model_bobbwaxebxgobsmyy4roiwowi4:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -15937,51 +15937,11 @@ packages:
         optional: true
     dependencies:
       '@ember-data/canary-features': file:packages/canary-features
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
       '@ember-data/legacy-compat': file:packages/legacy-compat
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_ceylvnqufvmzh7abj47k3j4ciu
-      '@ember-data/tracking': file:packages/tracking
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
-      ember-cached-decorator-polyfill: 1.0.1_vhmtgy5g3g675connghzwama5y
-      ember-cli-babel: 7.26.11
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-      ember-inflector: 4.0.2
-      inflection: 2.0.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - ember-source
-      - supports-color
-
-  file:packages/model_vvg5zm2kgbkmdyuzogh54cicyq:
-    resolution: {directory: packages/model, type: directory}
-    id: file:packages/model
-    name: '@ember-data/model'
-    version: 4.12.0-alpha.10
-    engines: {node: ^14.8.0 || 16.* || >= 18.*}
-    peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember/string': ^3.0.1
-      ember-inflector: ^4.0.2
-    peerDependenciesMeta:
-      '@ember-data/graph':
-        optional: true
-      '@ember-data/json-api':
-        optional: true
-    dependencies:
-      '@ember-data/canary-features': file:packages/canary-features
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
-      '@ember-data/legacy-compat': file:packages/legacy-compat
-      '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_ckxxzhjisvs7ogcebeaufjzxgm
+      '@ember-data/store': file:packages/store_fwdlwnfosbuuv4kic6ald46r4u
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.1
@@ -15997,18 +15957,18 @@ packages:
       - ember-source
       - supports-color
 
-  file:packages/model_ymcase6rewo7vut3swr6qtemqy:
+  file:packages/model_sofakn2l4wrjb3d7vzhr5pfa2e:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/legacy-compat': workspace:4.12.0-alpha.10
-      '@ember-data/store': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -16019,10 +15979,50 @@ packages:
     dependencies:
       '@ember-data/canary-features': file:packages/canary-features
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_awo45ur26xwe4cwdshseja3w34
+      '@ember-data/store': file:packages/store_txeiz6jsiyim6ap7zmaz6ngv2q
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.1
+      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
+      ember-cached-decorator-polyfill: 1.0.1_vhmtgy5g3g675connghzwama5y
+      ember-cli-babel: 7.26.11
+      ember-cli-string-utils: 1.1.0
+      ember-cli-test-info: 1.0.0
+      ember-inflector: 4.0.2
+      inflection: 2.0.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - ember-source
+      - supports-color
+
+  file:packages/model_vmgn42qmvgugl2gi6yhlb5w7mu:
+    resolution: {directory: packages/model, type: directory}
+    id: file:packages/model
+    name: '@ember-data/model'
+    version: 4.12.0-alpha.11
+    engines: {node: ^14.8.0 || 16.* || >= 18.*}
+    peerDependencies:
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/legacy-compat': workspace:4.12.0-alpha.11
+      '@ember-data/store': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember/string': ^3.0.1
+      ember-inflector: ^4.0.2
+    peerDependenciesMeta:
+      '@ember-data/graph':
+        optional: true
+      '@ember-data/json-api':
+        optional: true
+    dependencies:
+      '@ember-data/canary-features': file:packages/canary-features
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
+      '@ember-data/legacy-compat': file:packages/legacy-compat
+      '@ember-data/private-build-infra': file:packages/private-build-infra
+      '@ember-data/store': file:packages/store_ssn7wzp3ldvhwx6iq4iax3f7aa
+      '@ember-data/tracking': file:packages/tracking
+      '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cached-decorator-polyfill: 1.0.1_vhmtgy5g3g675connghzwama5y
       ember-cli-babel: 7.26.11
@@ -16038,7 +16038,7 @@ packages:
   file:packages/private-build-infra:
     resolution: {directory: packages/private-build-infra, type: directory}
     name: '@ember-data/private-build-infra'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     dependencies:
       '@babel/core': 7.21.3
@@ -16075,7 +16075,7 @@ packages:
   file:packages/request:
     resolution: {directory: packages/request, type: directory}
     name: '@ember-data/request'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: 14.* || 16.* || >= 18}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -16087,10 +16087,10 @@ packages:
   file:packages/serializer:
     resolution: {directory: packages/serializer, type: directory}
     name: '@ember-data/serializer'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:4.12.0-alpha.10
+      '@ember-data/store': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     dependencies:
@@ -16102,19 +16102,19 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/serializer_3rcjuzijmfhd335rix52qbgjsi:
+  file:packages/serializer_4dnin3eoa4jp5pdbo74ysvrrpy:
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:4.12.0-alpha.10
+      '@ember-data/store': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_ceylvnqufvmzh7abj47k3j4ciu
+      '@ember-data/store': file:packages/store_ssn7wzp3ldvhwx6iq4iax3f7aa
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
       ember-cli-test-info: 1.0.0
@@ -16123,19 +16123,19 @@ packages:
       - supports-color
     dev: false
 
-  file:packages/serializer_f24w52jk5s56d3evpsfgiqpxb4:
+  file:packages/serializer_u3wcen22uncrtk3ip222sx6pde:
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:4.12.0-alpha.10
+      '@ember-data/store': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store_ckxxzhjisvs7ogcebeaufjzxgm
+      '@ember-data/store': file:packages/store_fwdlwnfosbuuv4kic6ald46r4u
       '@ember/string': 3.0.1
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       ember-cli-babel: 7.26.11
@@ -16144,17 +16144,17 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  file:packages/store_awo45ur26xwe4cwdshseja3w34:
+  file:packages/store_cimimtvv2anqdf66kmql6jdfca:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -16165,7 +16165,45 @@ packages:
       '@ember-data/model':
         optional: true
     dependencies:
-      '@ember-data/model': file:packages/model_ymcase6rewo7vut3swr6qtemqy
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
+      '@ember-data/private-build-infra': file:packages/private-build-infra
+      '@ember-data/tracking': file:packages/tracking
+      '@ember/string': 3.0.1
+      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
+      '@glimmer/tracking': 1.1.2
+      ember-cached-decorator-polyfill: 1.0.1_vhmtgy5g3g675connghzwama5y
+      ember-cli-babel: 7.26.11
+    transitivePeerDependencies:
+      - '@babel/core'
+      - ember-source
+      - supports-color
+    dev: true
+
+  file:packages/store_fwdlwnfosbuuv4kic6ald46r4u:
+    resolution: {directory: packages/store, type: directory}
+    id: file:packages/store
+    name: '@ember-data/store'
+    version: 4.12.0-alpha.11
+    engines: {node: ^14.8.0 || 16.* || >= 18.*}
+    peerDependencies:
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember/string': ^3.0.1
+      '@glimmer/tracking': ^1.1.2
+    peerDependenciesMeta:
+      '@ember-data/graph':
+        optional: true
+      '@ember-data/json-api':
+        optional: true
+      '@ember-data/model':
+        optional: true
+    dependencies:
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
+      '@ember-data/model': file:packages/model_bobbwaxebxgobsmyy4roiwowi4
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.0.1
@@ -16178,88 +16216,17 @@ packages:
       - ember-source
       - supports-color
 
-  file:packages/store_ceylvnqufvmzh7abj47k3j4ciu:
+  file:packages/store_oaqpjlryke4ifxil45gxlfez3y:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember/string': ^3.0.1
-      '@glimmer/tracking': ^1.1.2
-    peerDependenciesMeta:
-      '@ember-data/graph':
-        optional: true
-      '@ember-data/json-api':
-        optional: true
-      '@ember-data/model':
-        optional: true
-    dependencies:
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
-      '@ember-data/model': file:packages/model_rd5u4oa6xhfzxiolwy6vsapjna
-      '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/tracking': file:packages/tracking
-      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
-      '@glimmer/tracking': 1.1.2
-      ember-cached-decorator-polyfill: 1.0.1_vhmtgy5g3g675connghzwama5y
-      ember-cli-babel: 7.26.11
-    transitivePeerDependencies:
-      - '@babel/core'
-      - ember-source
-      - supports-color
-
-  file:packages/store_ckxxzhjisvs7ogcebeaufjzxgm:
-    resolution: {directory: packages/store, type: directory}
-    id: file:packages/store
-    name: '@ember-data/store'
-    version: 4.12.0-alpha.10
-    engines: {node: ^14.8.0 || 16.* || >= 18.*}
-    peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
-      '@ember/string': ^3.0.1
-      '@glimmer/tracking': ^1.1.2
-    peerDependenciesMeta:
-      '@ember-data/graph':
-        optional: true
-      '@ember-data/json-api':
-        optional: true
-      '@ember-data/model':
-        optional: true
-    dependencies:
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
-      '@ember-data/model': file:packages/model_vvg5zm2kgbkmdyuzogh54cicyq
-      '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/tracking': file:packages/tracking
-      '@ember/string': 3.0.1
-      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
-      '@glimmer/tracking': 1.1.2
-      ember-cached-decorator-polyfill: 1.0.1_vhmtgy5g3g675connghzwama5y
-      ember-cli-babel: 7.26.11
-    transitivePeerDependencies:
-      - '@babel/core'
-      - ember-source
-      - supports-color
-
-  file:packages/store_mk6nv4blu4mx5qz7z2oc2jai2q:
-    resolution: {directory: packages/store, type: directory}
-    id: file:packages/store
-    name: '@ember-data/store'
-    version: 4.12.0-alpha.10
-    engines: {node: ^14.8.0 || 16.* || >= 18.*}
-    peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -16283,17 +16250,17 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/store_opdvtdcur55o3glnaq5y2lh4ba:
+  file:packages/store_ssn7wzp3ldvhwx6iq4iax3f7aa:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:4.12.0-alpha.10
-      '@ember-data/json-api': workspace:4.12.0-alpha.10
-      '@ember-data/model': workspace:4.12.0-alpha.10
-      '@ember-data/tracking': workspace:4.12.0-alpha.10
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
       '@ember/string': ^3.0.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -16304,8 +16271,42 @@ packages:
       '@ember-data/model':
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph_5t6ljilxrms7odqohigbqflorq
-      '@ember-data/json-api': file:packages/json-api_iry5q4sl3zmpuxunpqy2zbz2pe
+      '@ember-data/graph': file:packages/graph_uen6nvjx7natmkbf2g32rlhvii
+      '@ember-data/json-api': file:packages/json-api_w2fyv4dslz73nydfpzedqi3krm
+      '@ember-data/model': file:packages/model_vmgn42qmvgugl2gi6yhlb5w7mu
+      '@ember-data/private-build-infra': file:packages/private-build-infra
+      '@ember-data/tracking': file:packages/tracking
+      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
+      '@glimmer/tracking': 1.1.2
+      ember-cached-decorator-polyfill: 1.0.1_vhmtgy5g3g675connghzwama5y
+      ember-cli-babel: 7.26.11
+    transitivePeerDependencies:
+      - '@babel/core'
+      - ember-source
+      - supports-color
+
+  file:packages/store_txeiz6jsiyim6ap7zmaz6ngv2q:
+    resolution: {directory: packages/store, type: directory}
+    id: file:packages/store
+    name: '@ember-data/store'
+    version: 4.12.0-alpha.11
+    engines: {node: ^14.8.0 || 16.* || >= 18.*}
+    peerDependencies:
+      '@ember-data/graph': workspace:4.12.0-alpha.11
+      '@ember-data/json-api': workspace:4.12.0-alpha.11
+      '@ember-data/model': workspace:4.12.0-alpha.11
+      '@ember-data/tracking': workspace:4.12.0-alpha.11
+      '@ember/string': ^3.0.1
+      '@glimmer/tracking': ^1.1.2
+    peerDependenciesMeta:
+      '@ember-data/graph':
+        optional: true
+      '@ember-data/json-api':
+        optional: true
+      '@ember-data/model':
+        optional: true
+    dependencies:
+      '@ember-data/model': file:packages/model_sofakn2l4wrjb3d7vzhr5pfa2e
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.0.1
@@ -16317,12 +16318,11 @@ packages:
       - '@babel/core'
       - ember-source
       - supports-color
-    dev: true
 
   file:packages/tracking:
     resolution: {directory: packages/tracking, type: directory}
     name: '@ember-data/tracking'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: 14.* || 16.* || >= 18}
     dependencies:
       ember-cli-babel: 7.26.11
@@ -16332,7 +16332,7 @@ packages:
   file:packages/unpublished-test-infra:
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     name: '@ember-data/unpublished-test-infra'
-    version: 4.12.0-alpha.10
+    version: 4.12.0-alpha.11
     engines: {node: ^14.8.0 || 16.* || >= 18.*}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
