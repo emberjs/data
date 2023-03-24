@@ -42,7 +42,7 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-version-checker": "^5.1.2",
     "git-repo-info": "^2.1.1",
-    "glob": "^9.3.0",
+    "glob": "^9.3.1",
     "npm-git-info": "^1.0.3",
     "rimraf": "^4.4.0",
     "rsvp": "^4.8.5",
