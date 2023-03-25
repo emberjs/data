@@ -47,7 +47,7 @@
     "ember-resolver": "^10.0.0",
     "ember-source": "~4.11.0",
     "loader.js": "^4.7.0",
-    "webpack": "^5.76.2",
+    "webpack": "^5.76.3",
     "zlib": "1.0.5"
   },
   "ember": {
