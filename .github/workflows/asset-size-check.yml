@@ -48,7 +48,7 @@ jobs:
           sha=$(cat tmp/sha-for-check.txt)
           git checkout --progress --force $sha
       - name: Install dependencies for ${{github.ref}}
-        run: rm -rf node_modules && node_modules/** && pnpm install --force
+        run: rm -rf node_modules **/node_modules && pnpm install --force
       - name: Build Production ${{github.ref}}
         run: pnpm --filter "full-data-asset-size-app" exec ember build -e production --output-path dists/experiment --suppress-sizes
       - name: Analyze Master Assets
