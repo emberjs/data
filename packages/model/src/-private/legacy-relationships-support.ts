@@ -1,7 +1,6 @@
 import { assert, deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
-import { all, resolve } from 'rsvp';
 
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/graph/-edge-definition';
@@ -30,8 +29,6 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
-import { assertIdentifierHasId } from './legacy-data-utils';
 import RelatedCollection from './many-array';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
 import PromiseBelongsTo from './promise-belongs-to';
@@ -266,7 +263,7 @@ export class LegacySupport {
 
       if (!promise) {
         manyArray.isLoaded = true;
-        return resolve(manyArray);
+        return Promise.resolve(manyArray);
       }
 
       loadingPromise = promise.then(
@@ -433,85 +430,58 @@ export class LegacySupport {
       const adapter = this.store.adapterFor(definition.type);
       const { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = state;
       const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
+      const identifiers = resource.data;
       const shouldFindViaLink =
         resource.links &&
         resource.links.related &&
-        (typeof adapter.findHasMany === 'function' || typeof resource.data === 'undefined') &&
+        (typeof adapter.findHasMany === 'function' || typeof identifiers === 'undefined') &&
         (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
+
+      const relationshipMeta = this.store
+        .getSchemaDefinitionService()
+        .relationshipsDefinitionFor({ type: definition.inverseType })[definition.key];
+
+      const request = {
+        useLink: shouldFindViaLink,
+        field: relationshipMeta,
+        links: resource.links,
+        meta: resource.meta,
+        options,
+        record: parentIdentifier,
+      };
 
       // fetch via link
       if (shouldFindViaLink) {
-        // findHasMany, although not public, does not need to care about our upgrade relationship definitions
-        // and can stick with the public definition API for now.
-        const relationshipMeta = this.store
-          .getSchemaDefinitionService()
-          .relationshipsDefinitionFor({ type: definition.inverseType })[definition.key];
-        let adapter = this.store.adapterFor(parentIdentifier.type);
+        assert(`Expected collection to be an array`, !identifiers || Array.isArray(identifiers));
+        assert(`Expected stable identifiers`, !identifiers || identifiers.every(isStableIdentifier));
 
-        /*
-          If a relationship was originally populated by the adapter as a link
-          (as opposed to a list of IDs), this method is called when the
-          relationship is fetched.
-
-          The link (which is usually a URL) is passed through unchanged, so the
-          adapter can make whatever request it wants.
-
-          The usual use-case is for the server to register a URL as a link, and
-          then use that URL in the future to make a request for the relationship.
-        */
-        assert(
-          `You tried to load a hasMany relationship but you have no adapter (for ${parentIdentifier.type})`,
-          adapter
-        );
-        assert(
-          `You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'`,
-          typeof adapter.findHasMany === 'function'
-        );
-
-        return _findHasMany(adapter, this.store, parentIdentifier, resource.links!.related, relationshipMeta, options);
+        return this.store.request({
+          op: 'findHasMany',
+          records: identifiers || [],
+          data: request,
+        }) as unknown as Promise<void>;
       }
 
       const preferLocalCache = hasReceivedData && !isEmpty;
       const hasLocalPartialData =
-        hasDematerializedInverse || (isEmpty && Array.isArray(resource.data) && resource.data.length > 0);
+        hasDematerializedInverse || (isEmpty && Array.isArray(identifiers) && identifiers.length > 0);
+      const attemptLocalCache = !shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData);
 
-      // fetch using data, pulling from local cache if possible
-      if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
-        if (allInverseRecordsAreLoaded) {
-          return;
-        }
-        assert(`Expected collection to be an array`, Array.isArray(resource.data));
-        if (allInverseRecordsAreLoaded) {
-          return;
-        }
-        let finds = new Array(resource.data.length);
-        let cache = this.store._fetchManager;
-        for (let i = 0; i < resource.data.length; i++) {
-          const identifier = resource.data[i];
-          assert(`expected a stable identifier`, isStableIdentifier(identifier));
-          finds[i] = cache.fetchDataIfNeededForIdentifier(identifier, options);
-        }
-
-        return all(finds);
+      if (attemptLocalCache && allInverseRecordsAreLoaded) {
+        return;
       }
 
-      let hasData = hasReceivedData && !isEmpty;
-
-      // fetch by data
-      if (hasData || hasLocalPartialData) {
-        const identifiers = resource.data;
+      const hasData = hasReceivedData && !isEmpty;
+      if (attemptLocalCache || hasData || hasLocalPartialData) {
         assert(`Expected collection to be an array`, Array.isArray(identifiers));
         assert(`Expected stable identifiers`, identifiers.every(isStableIdentifier));
-        let fetches = new Array(identifiers.length);
-        const manager = this.store._fetchManager;
 
-        for (let i = 0; i < identifiers.length; i++) {
-          let identifier = identifiers[i];
-          assertIdentifierHasId(identifier);
-          fetches[i] = manager.scheduleFetch(identifier, options);
-        }
-
-        return all(fetches);
+        options.reload = options.reload || !attemptLocalCache || undefined;
+        return this.store.request({
+          op: 'findHasMany',
+          records: identifiers,
+          data: request,
+        }) as unknown as Promise<void>;
       }
 
       // we were explicitly told we have no data and no links.
@@ -521,6 +491,7 @@ export class LegacySupport {
     assert(`hasMany only works with the @ember-data/json-api package`);
   }
 
+  declare _pending: Promise<StableRecordIdentifier | null> | null;
   _findBelongsToByJsonApiResource(
     resource: SingleResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
@@ -528,7 +499,14 @@ export class LegacySupport {
     options: FindOptions = {}
   ): Promise<StableRecordIdentifier | null> {
     if (!resource) {
-      return resolve(null);
+      return Promise.resolve(null);
+    }
+
+    // interleaved promises mean that we MUST cache this here
+    // in order to prevent infinite re-render if the request
+    // fails.
+    if (this._pending) {
+      return this._pending;
     }
 
     const identifier = resource.data ? resource.data : null;
@@ -536,64 +514,77 @@ export class LegacySupport {
 
     let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = relationship.state;
 
-    // short circuit if we are already loading
-    let pendingRequest = identifier && this.store._fetchManager.getPendingFetch(identifier, options);
-    if (pendingRequest) {
-      return pendingRequest;
-    }
-
     const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
     const shouldFindViaLink =
       resource.links?.related &&
       (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
 
+    const relationshipMeta = this.store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier)[
+      relationship.definition.key
+    ];
+    assert(`Attempted to access a belongsTo relationship but no definition exists for it`, relationshipMeta);
+    const request = {
+      useLink: shouldFindViaLink,
+      field: relationshipMeta,
+      links: resource.links,
+      meta: resource.meta,
+      options,
+      record: parentIdentifier,
+    };
+
     // fetch via link
     if (shouldFindViaLink) {
-      const relationshipMeta = this.store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier)[
-        relationship.definition.key
-      ];
-      assert(`Attempted to access a belongsTo relationship but no definition exists for it`, relationshipMeta);
-
-      return _findBelongsTo(this.store, parentIdentifier, resource.links!.related, relationshipMeta, options);
+      const future = this.store.request<StableRecordIdentifier | null>({
+        op: 'findBelongsTo',
+        records: identifier ? [identifier] : [],
+        data: request,
+      });
+      this._pending = future
+        .then((doc) => doc.content)
+        .finally(() => {
+          this._pending = null;
+        });
+      return this._pending;
     }
 
-    let preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
-    let hasLocalPartialData = hasDematerializedInverse || (isEmpty && resource.data);
+    const preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
+    const hasLocalPartialData = hasDematerializedInverse || (isEmpty && resource.data);
     // null is explicit empty, undefined is "we don't know anything"
-    const localDataIsEmpty = resource.data === undefined || resource.data === null;
+    const localDataIsEmpty = !identifier;
+    const attemptLocalCache = !shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData);
 
-    // fetch using data, pulling from local cache if possible
-    if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
-      /*
-        We have canonical data, but our local state is empty
-       */
-      if (localDataIsEmpty) {
-        return resolve(null);
-      }
-
-      if (!identifier) {
-        assert(`No Information found for ${resource.data!.lid}`, identifier);
-      }
-
-      return this.store._fetchManager.fetchDataIfNeededForIdentifier(identifier, options);
+    // we dont need to fetch and are empty
+    if (attemptLocalCache && localDataIsEmpty) {
+      return Promise.resolve(null);
     }
 
-    let resourceIsLocal = !localDataIsEmpty && resource.data!.id === null;
-
-    if (identifier && resourceIsLocal) {
-      return resolve(identifier);
+    // we dont need to fetch because we are local state
+    const resourceIsLocal = identifier?.id === null;
+    if ((attemptLocalCache && allInverseRecordsAreLoaded) || resourceIsLocal) {
+      return Promise.resolve(identifier);
     }
 
-    // fetch by data
-    if (identifier && !localDataIsEmpty) {
-      assertIdentifierHasId(identifier);
+    // we may need to fetch
+    if (identifier) {
+      assert(`Cannot fetch belongs-to relationship with no information`, identifier);
+      options.reload = options.reload || !attemptLocalCache || undefined;
 
-      return this.store._fetchManager.scheduleFetch(identifier, options);
+      this._pending = this.store
+        .request<StableRecordIdentifier | null>({
+          op: 'findBelongsTo',
+          records: [identifier],
+          data: request,
+        })
+        .then((doc) => doc.content)
+        .finally(() => {
+          this._pending = null;
+        });
+      return this._pending;
     }
 
     // we were explicitly told we have no data and no links.
     //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-    return resolve(null);
+    return Promise.resolve(null);
   }
 
   destroy() {
@@ -681,6 +672,7 @@ function handleCompletedRelationshipRequest(
       if (proxy.content && proxy.content.isDestroying) {
         (proxy as PromiseBelongsTo).set('content', null);
       }
+      recordExt.store.notifications._flush();
     }
 
     throw error;
@@ -688,6 +680,8 @@ function handleCompletedRelationshipRequest(
 
   if (isHasMany) {
     (value as RelatedCollection).isLoaded = true;
+  } else {
+    recordExt.store.notifications._flush();
   }
 
   relationship.state.hasFailedLoadAttempt = false;

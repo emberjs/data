@@ -1,5 +1,4 @@
 import { get, set } from '@ember/object';
-import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 import { hash, Promise as EmberPromise, reject, resolve } from 'rsvp';
@@ -9,11 +8,11 @@ import { setupTest } from 'ember-qunit';
 import AdapterError, { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
+import { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
-import { Snapshot } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function moveRecordOutOfInFlight(record) {
@@ -917,7 +916,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
   });
 
-  test('can be created after the Store', function (assert) {
+  test('can be created after the Store', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -929,7 +928,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    store.findRecord('person', '1');
+    await store.findRecord('person', '1');
   });
 
   test('relationships returned via `commit` do not trigger additional findManys', async function (assert) {
@@ -1111,7 +1110,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     assert.strictEqual(typeof tom.dogs.then, 'function', 'dogs is a thenable after save');
   });
 
-  test('createRecord receives a snapshot', function (assert) {
+  test('createRecord receives a snapshot', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1124,10 +1123,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     let record = store.createRecord('person', { name: 'Tom Dale', id: '1' });
 
-    record.save();
+    await record.save();
   });
 
-  test('updateRecord receives a snapshot', function (assert) {
+  test('updateRecord receives a snapshot', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1152,10 +1151,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     person = store.peekRecord('person', '1');
 
     set(person, 'name', 'Tomster');
-    person.save();
+    await person.save();
   });
 
-  test('deleteRecord receives a snapshot', function (assert) {
+  test('deleteRecord receives a snapshot', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1180,10 +1179,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     person = store.peekRecord('person', '1');
 
     person.deleteRecord();
-    return person.save();
+    await person.save();
   });
 
-  test('findRecord receives a snapshot', function (assert) {
+  test('findRecord receives a snapshot', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1194,10 +1193,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    store.findRecord('person', '1');
+    await store.findRecord('person', '1');
   });
 
-  test('findMany receives an array of snapshots', function (assert) {
+  test('findMany receives an array of snapshots', async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1238,10 +1237,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
     person = store.peekRecord('person', '1');
 
-    person.dogs;
+    await person.dogs;
   });
 
-  test('findHasMany receives a snapshot', function (assert) {
+  test('findHasMany receives a snapshot', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1279,10 +1278,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
     person = store.peekRecord('person', '1');
 
-    person.dogs;
+    await person.dogs;
   });
 
-  test('findBelongsTo receives a snapshot', function (assert) {
+  test('findBelongsTo receives a snapshot', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1316,10 +1315,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
     person = store.peekRecord('person', '1');
 
-    person.dog;
+    await person.dog;
   });
 
-  test('record.save should pass adapterOptions to the updateRecord method', function (assert) {
+  test('record.save should pass adapterOptions to the updateRecord method', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1340,10 +1339,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       },
     });
     let person = store.peekRecord('person', '1');
-    return person.save({ adapterOptions: { subscribe: true } });
+    await person.save({ adapterOptions: { subscribe: true } });
   });
 
-  test('record.save should pass adapterOptions to the createRecord method', function (assert) {
+  test('record.save should pass adapterOptions to the createRecord method', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1354,7 +1353,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    store.createRecord('person', { name: 'Tom' }).save({ adapterOptions: { subscribe: true } });
+    await store.createRecord('person', { name: 'Tom' }).save({ adapterOptions: { subscribe: true } });
   });
 
   test('record.save should pass adapterOptions to the deleteRecord method', async function (assert) {
@@ -1381,7 +1380,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     await person.destroyRecord({ adapterOptions: { subscribe: true } });
   });
 
-  test('store.findRecord should pass adapterOptions to adapter.findRecord', function (assert) {
+  test('store.findRecord should pass adapterOptions to adapter.findRecord', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1392,10 +1391,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    return store.findRecord('person', '1', { adapterOptions: { query: { embed: true } } });
+    await store.findRecord('person', '1', { adapterOptions: { query: { embed: true } } });
   });
 
-  test('store.query should pass adapterOptions to adapter.query ', function (assert) {
+  test('store.query should pass adapterOptions to adapter.query ', async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1407,10 +1406,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return { data: [] };
     };
 
-    return store.query('person', {}, { adapterOptions: { query: { embed: true } } });
+    await store.query('person', {}, { adapterOptions: { query: { embed: true } } });
   });
 
-  test('store.queryRecord should pass adapterOptions to adapter.queryRecord', function (assert) {
+  test('store.queryRecord should pass adapterOptions to adapter.queryRecord', async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1422,10 +1421,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return { data: { type: 'person', id: '1', attributes: {} } };
     };
 
-    return store.queryRecord('person', {}, { adapterOptions: { query: { embed: true } } });
+    await store.queryRecord('person', {}, { adapterOptions: { query: { embed: true } } });
   });
 
-  test("store.findRecord should pass 'include' to adapter.findRecord", function (assert) {
+  test("store.findRecord should pass 'include' to adapter.findRecord", async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1436,10 +1435,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    store.findRecord('person', '1', { include: 'books' });
+    await store.findRecord('person', '1', { include: 'books' });
   });
 
-  test('store.findAll should pass adapterOptions to the adapter.findAll method', function (assert) {
+  test('store.findAll should pass adapterOptions to the adapter.findAll method', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1451,10 +1450,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve({ data: [{ id: '1', type: 'person' }] });
     };
 
-    return store.findAll('person', { adapterOptions: { query: { embed: true } } });
+    await store.findAll('person', { adapterOptions: { query: { embed: true } } });
   });
 
-  test("store.findAll should pass 'include' to adapter.findAll", function (assert) {
+  test("store.findAll should pass 'include' to adapter.findAll", async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1465,7 +1464,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve({ data: [{ id: '1', type: 'person' }] });
     };
 
-    store.findAll('person', { include: 'books' });
+    await store.findAll('person', { include: 'books' });
   });
 
   test('An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord', async function (assert) {
@@ -1516,51 +1515,58 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     assert.strictEqual(comments.length, 3);
   });
 
-  testInDebug('There should be a friendly error for if the adapter does not implement createRecord', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  testInDebug(
+    'There should be a friendly error for if the adapter does not implement createRecord',
+    async function (assert) {
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.createRecord = null;
+      adapter.createRecord = null;
 
-    let tom = store.createRecord('person', { name: 'Tom Dale' });
+      let tom = store.createRecord('person', { name: 'Tom Dale' });
 
-    assert.expectAssertion(() => {
-      run(() => tom.save());
-    }, /does not implement 'createRecord'/);
+      await assert.expectAssertion(async () => {
+        await tom.save();
+      }, /does not implement 'createRecord'/);
 
-    moveRecordOutOfInFlight(tom);
-  });
+      moveRecordOutOfInFlight(tom);
+    }
+  );
 
-  testInDebug('There should be a friendly error for if the adapter does not implement updateRecord', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  testInDebug(
+    'There should be a friendly error for if the adapter does not implement updateRecord',
+    async function (assert) {
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.updateRecord = null;
+      adapter.updateRecord = null;
 
-    let tom = store.push({ data: { type: 'person', id: '1' } });
+      let tom = store.push({ data: { type: 'person', id: '1' } });
 
-    assert.expectAssertion(() => {
-      run(() => tom.save());
-    }, /does not implement 'updateRecord'/);
+      await assert.expectAssertion(async () => {
+        await tom.save();
+      }, /does not implement 'updateRecord'/);
 
-    moveRecordOutOfInFlight(tom);
-  });
+      moveRecordOutOfInFlight(tom);
+    }
+  );
 
-  testInDebug('There should be a friendly error for if the adapter does not implement deleteRecord', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  testInDebug(
+    'There should be a friendly error for if the adapter does not implement deleteRecord',
+    async function (assert) {
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.deleteRecord = null;
+      adapter.deleteRecord = null;
 
-    let tom = store.push({ data: { type: 'person', id: '1' } });
+      let tom = store.push({ data: { type: 'person', id: '1' } });
 
-    assert.expectAssertion(() => {
-      run(() => {
+      await assert.expectAssertion(async () => {
         tom.deleteRecord();
-        return tom.save();
-      });
-    }, /does not implement 'deleteRecord'/);
+        await tom.save();
+      }, /does not implement 'deleteRecord'/);
 
-    moveRecordOutOfInFlight(tom);
-  });
+      moveRecordOutOfInFlight(tom);
+    }
+  );
 });

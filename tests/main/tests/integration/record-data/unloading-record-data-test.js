@@ -1,4 +1,4 @@
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
@@ -251,7 +251,8 @@ module('RecordData Compatibility', function (hooks) {
       );
 
       try {
-        run(() => chris.unloadRecord());
+        chris.unloadRecord();
+        await settled();
         assert.ok(true, 'expected `unloadRecord()` not to throw');
       } catch (e) {
         assert.ok(false, 'expected `unloadRecord()` not to throw');

@@ -28,13 +28,11 @@ import type {
 import type { JsonApiRelationship, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import RecordReference from '../legacy-model-support/record-reference';
 import { NonSingletonCacheManager } from '../managers/cache-manager';
 import { CacheStoreWrapper } from '../managers/cache-store-wrapper';
-import Snapshot from '../network/snapshot';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
 import coerceId, { ensureStringId } from '../utils/coerce-id';
@@ -386,10 +384,6 @@ export class InstanceCache {
     // which is how RecordState currently handles this case; however, RecordState is buggy
     // in that it does not account for unloading.
     return filterDeleted && cache.isDeletionCommitted(identifier) ? false : !isEmpty;
-  }
-
-  createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
-    return new Snapshot(options, identifier, this.store);
   }
 
   disconnect(identifier: StableRecordIdentifier) {

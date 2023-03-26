@@ -1,9 +1,8 @@
 /**
  * @module @ember-data/experimental-preview-types
  */
-import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
+import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
-import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 
 import type { ModelSchema } from './ds-model';

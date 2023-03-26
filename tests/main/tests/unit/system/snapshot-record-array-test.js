@@ -4,7 +4,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
+import { FetchManager, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import Model, { attr } from '@ember-data/model';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
@@ -43,6 +43,7 @@ module('Unit - snapshot-record-array', function (hooks) {
       }
     );
     const store = owner.lookup('service:store');
+    store._fetchManager = new FetchManager(store);
 
     store.push({
       data: {
@@ -59,8 +60,8 @@ module('Unit - snapshot-record-array', function (hooks) {
     let didTakeSnapshot = 0;
     let snapshotsTaken = [];
 
-    const create = store._instanceCache.createSnapshot;
-    store._instanceCache.createSnapshot = function () {
+    const create = store._fetchManager.createSnapshot;
+    store._fetchManager.createSnapshot = function () {
       didTakeSnapshot++;
       let snapshot = create.apply(this, arguments);
       snapshotsTaken.push(snapshot);

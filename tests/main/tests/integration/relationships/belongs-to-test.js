@@ -1923,7 +1923,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   testInDebug('A belongsTo relationship warns if malformatted data is pushed into the store', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(async () => {
+    await assert.expectAssertion(async () => {
       let chapter = store.push({
         data: {
           type: 'chapter',

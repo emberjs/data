@@ -1,6 +1,7 @@
 import EmberObject, { get, set } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
@@ -19,11 +20,11 @@ const Post = Model.extend({
   author: belongsTo('author', { async: true, inverse: null }),
 });
 
-const Person = Model.extend({
-  firstName: attr('string'),
-  lastName: attr('string'),
-  siblings: hasMany('person', { async: true, inverse: 'siblings' }),
-});
+class Person extends Model {
+  @attr('string') firstName;
+  @attr('string') lastName;
+  @hasMany('person', { async: true, inverse: 'siblings' }) siblings;
+}
 
 const sibling1 = {
   type: 'person',
@@ -182,172 +183,152 @@ module('integration/records/relationship-changes - Relationship changes', functi
     }
   );
 
-  test('Calling push with relationship triggers observers once if the relationship was not empty and was added to', function (assert) {
-    assert.expect(1);
+  test('Calling push with relationship triggers observers once if the relationship was not empty and was added to', async function (assert) {
+    assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let person = null;
+    const store = this.owner.lookup('service:store');
     let observerCount = 0;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
-            },
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref],
           },
         },
-        included: [sibling1],
-      });
-      person = store.peekRecord('person', 'wat');
+      },
+      included: [sibling1],
     });
 
-    run(() => {
-      person.addObserver('siblings.[]', function () {
-        observerCount++;
-      });
-      // prime the pump
-      person.siblings;
+    person.addObserver('siblings.[]', function () {
+      assert.ok(true, 'array observer fired');
+      observerCount++;
     });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling2Ref],
-            },
+    // prime the pump
+    await person.siblings;
+
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {},
+        relationships: {
+          siblings: {
+            data: [sibling1Ref, sibling2Ref],
           },
         },
-        included: [sibling2],
-      });
+      },
+      included: [sibling2],
     });
 
-    run(() => {
-      assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
-    });
+    await settled();
+
+    assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
   });
 
-  test('Calling push with relationship triggers observers once if the relationship was made shorter', function (assert) {
-    assert.expect(1);
+  test('Calling push with relationship triggers observers once if the relationship was made shorter', async function (assert) {
+    assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let person = null;
+    const store = this.owner.lookup('service:store');
     let observerCount = 0;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
-            },
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref],
           },
         },
-        included: [sibling1],
-      });
-      person = store.peekRecord('person', 'wat');
+      },
+      included: [sibling1],
     });
 
-    run(() => {
-      person.addObserver('siblings.[]', function () {
-        observerCount++;
-      });
-      // prime the pump
-      person.siblings;
+    person.addObserver('siblings.[]', function () {
+      assert.ok(true, 'array observer fired');
+      observerCount++;
     });
+    // prime the pump
+    await person.siblings;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [],
-            },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {},
+        relationships: {
+          siblings: {
+            data: [],
           },
         },
-        included: [],
-      });
+      },
+      included: [],
     });
 
-    run(() => {
-      assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
-    });
+    await settled();
+
+    assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
   });
 
-  test('Calling push with relationship triggers observers once if the relationship was reordered', function (assert) {
-    assert.expect(1);
+  test('Calling push with relationship triggers observers once if the relationship was reordered', async function (assert) {
+    assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let person = null;
+    const store = this.owner.lookup('service:store');
     let observerCount = 0;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling2Ref],
-            },
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref, sibling2Ref],
           },
         },
-        included: [sibling1, sibling2],
-      });
-      person = store.peekRecord('person', 'wat');
+      },
+      included: [sibling1, sibling2],
     });
 
-    run(() => {
-      person.addObserver('siblings.[]', function () {
-        observerCount++;
-      });
-      // prime the pump
-      person.siblings;
+    person.addObserver('siblings.[]', function () {
+      assert.ok(true, 'we triggered');
+      observerCount++;
     });
+    // prime the pump
+    await person.siblings;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling2Ref, sibling1Ref],
-            },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {},
+        relationships: {
+          siblings: {
+            data: [sibling2Ref, sibling1Ref],
           },
         },
-        included: [],
-      });
+      },
+      included: [],
     });
 
-    run(() => {
-      assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
-    });
+    await settled();
+
+    assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
   });
 
   test('Calling push with relationship does not trigger observers if the relationship was not changed', function (assert) {

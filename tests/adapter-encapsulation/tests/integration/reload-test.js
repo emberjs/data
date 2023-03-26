@@ -558,6 +558,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
       this.store.push(payload);
 
       await this.store.findRecord('person', '1', { backgroundReload: true });
+      await this.store._getAllPending();
 
       assert.strictEqual(
         this.adapter.shouldBackgroundReloadRecordCalled,
@@ -614,6 +615,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
       this.store.push(payload);
 
       await this.store.findRecord('person', '1');
+      await this.store._getAllPending();
 
       assert.strictEqual(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
@@ -638,6 +640,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
       this.store.push(payload);
 
       await this.store.findRecord('person', '1');
+      await this.store._getAllPending();
 
       assert.strictEqual(this.adapter.shouldBackgroundReloadRecordCalled, 1, 'shouldBackgroundReloadRecord is called');
       assert.strictEqual(this.adapter.requestsMade, 1, 'an ajax request is made');

@@ -2,6 +2,7 @@
  * @module @ember-data/store
  */
 import { assert } from '@ember/debug';
+import { _backburner } from '@ember/runloop';
 
 import { DEBUG } from '@ember-data/env';
 import { LOG_NOTIFICATIONS } from '@ember-data/private-build-infra/debugging';
@@ -18,6 +19,11 @@ export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
 
 function isCacheOperationValue(value: NotificationType | CacheOperation): value is CacheOperation {
   return CacheOperations.has(value);
+}
+
+function runLoopIsFlushing(): boolean {
+  //@ts-expect-error
+  return !!_backburner.currentInstance && _backburner._autorun !== true;
 }
 
 const Cache = new Map<
@@ -59,6 +65,7 @@ export function unsubscribe(token: UnsubscribeToken) {
     map?.delete(token);
   }
 }
+
 /*
   Currently only support a single callback per identifier
 */
@@ -76,9 +83,15 @@ export function unsubscribe(token: UnsubscribeToken) {
 export default class NotificationManager {
   declare store: Store;
   declare isDestroyed: boolean;
+  declare _buffered: Map<StableRecordIdentifier, [string, string | undefined][]>;
+  declare _hasFlush: boolean;
+  declare _onFlushCB?: () => void;
+
   constructor(store: Store) {
     this.store = store;
     this.isDestroyed = false;
+    this._buffered = new Map();
+    this._hasFlush = false;
   }
 
   /**
@@ -163,6 +176,72 @@ export default class NotificationManager {
       return false;
     }
 
+    if (LOG_NOTIFICATIONS) {
+      // eslint-disable-next-line no-console
+      console.log(`Buffering Notify: ${String(identifier)}\t${value}\t${key || ''}`);
+    }
+
+    const hasSubscribers = Boolean(Cache.get(identifier)?.size);
+
+    if (isCacheOperationValue(value) || hasSubscribers) {
+      let buffer = this._buffered.get(identifier);
+      if (!buffer) {
+        buffer = [];
+        this._buffered.set(identifier, buffer);
+      }
+      buffer.push([value, key]);
+
+      void this._scheduleNotify();
+    }
+
+    return hasSubscribers;
+  }
+
+  _onNextFlush(cb: () => void) {
+    this._onFlushCB = cb;
+  }
+
+  _scheduleNotify() {
+    const asyncFlush = this.store._enableAsyncFlush;
+
+    if (this._hasFlush) {
+      if (asyncFlush !== false && !runLoopIsFlushing()) {
+        return;
+      }
+    }
+
+    if (asyncFlush && !runLoopIsFlushing()) {
+      this._hasFlush = true;
+      return;
+    }
+
+    this._flush();
+  }
+
+  _flush() {
+    if (this._buffered.size) {
+      this._buffered.forEach((states, identifier) => {
+        states.forEach((args) => {
+          // @ts-expect-error
+          this._flushNotification(identifier, args[0], args[1]);
+        });
+      });
+      this._buffered = new Map();
+    }
+
+    this._hasFlush = false;
+    this._onFlushCB?.();
+    this._onFlushCB = undefined;
+  }
+
+  _flushNotification(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
+  _flushNotification(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  _flushNotification(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
+  _flushNotification(
+    identifier: StableRecordIdentifier,
+    value: NotificationType | CacheOperation,
+    key?: string
+  ): boolean {
     if (LOG_NOTIFICATIONS) {
       // eslint-disable-next-line no-console
       console.log(`Notifying: ${String(identifier)}\t${value}\t${key || ''}`);

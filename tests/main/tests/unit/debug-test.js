@@ -1,5 +1,3 @@
-import { computed } from '@ember/object';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -45,37 +43,70 @@ if (HAS_DEBUG_PACKAGE) {
       assert.deepEqual(propertyInfo.groups[2].properties, ['posts']);
     });
 
-    test('_debugInfo supports arbitray relationship types', function (assert) {
-      const MaritalStatus = Model.extend({
-        name: attr('string'),
-      });
+    test('_debugInfo supports arbitray relationship types', async function (assert) {
+      class MaritalStatus extends Model {
+        @attr('string') name;
+      }
 
-      const Post = Model.extend({
-        title: attr('string'),
-      });
+      class Post extends Model {
+        @attr('string') title;
+      }
 
-      const User = Model.extend({
-        name: attr('string'),
-        isDrugAddict: attr('boolean'),
-        maritalStatus: belongsTo('marital-status', { async: false, inverse: null }),
-        posts: computed(() => [1, 2, 3])
-          .readOnly()
-          .meta({
-            options: { inverse: null },
-            isRelationship: true,
-            kind: 'customRelationship',
-            name: 'posts',
-            type: 'post',
-          }),
-      });
+      class User extends Model {
+        @attr('string') name;
+        @attr('boolean') isDrugAddict;
+        @belongsTo('marital-status', { async: false, inverse: null }) maritalStatus;
+      }
+
+      // posts: computed(() => [1, 2, 3])
+      // .readOnly()
+      // .meta({
+      //   options: { inverse: null },
+      //   isRelationship: true,
+      //   kind: 'customRelationship',
+      //   name: 'posts',
+      //   type: 'post',
+      // }),
 
       this.owner.register('model:marital-status', MaritalStatus);
       this.owner.register('model:post', Post);
       this.owner.register('model:user', User);
 
-      let record = this.owner.lookup('service:store').createRecord('user');
+      const store = this.owner.lookup('service:store');
 
-      let propertyInfo = record._debugInfo().propertyInfo;
+      class SchemaDelegator {
+        constructor(schema) {
+          this._schema = schema;
+        }
+
+        doesTypeExist(type) {
+          return this._schema.doesTypeExist(type);
+        }
+
+        attributesDefinitionFor(identifier) {
+          return this._schema.attributesDefinitionFor(identifier);
+        }
+
+        relationshipsDefinitionFor(identifier) {
+          const sup = this._schema.relationshipsDefinitionFor(identifier);
+          if (identifier.type === 'user') {
+            return Object.assign(sup, {
+              posts: {
+                kind: 'customRelationship',
+                name: 'posts',
+                type: 'post',
+                options: { async: false, inverse: null },
+              },
+            });
+          }
+          return sup;
+        }
+      }
+      const schema = store.getSchemaDefinitionService();
+      store.registerSchemaDefinitionService(new SchemaDelegator(schema));
+
+      const record = store.createRecord('user');
+      const propertyInfo = record._debugInfo().propertyInfo;
 
       assert.deepEqual(propertyInfo, {
         includeOtherProperties: true,

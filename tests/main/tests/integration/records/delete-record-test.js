@@ -1,7 +1,6 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|dave|cersei)" }]*/
 
 import EmberObject, { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -162,38 +161,36 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       return EmberPromise.resolve();
     };
 
-    run(function () {
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Adam Sunderland',
-            },
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Adam Sunderland',
           },
-          {
-            type: 'person',
-            id: '2',
-            attributes: {
-              name: 'Dave Sunderland',
-            },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Dave Sunderland',
           },
-        ],
-      });
+        },
+      ],
     });
-    var all = store.peekAll('person');
+    const all = store.peekAll('person');
 
     // pre-condition
     assert.strictEqual(all.length, 2, 'expected 2 records');
     let destroys = 0;
 
-    run(function () {
-      all.forEach(function (record) {
+    await Promise.allSettled(
+      all.map(function (record) {
         destroys++;
-        record.destroyRecord();
-      });
-    });
+        return record.destroyRecord();
+      })
+    );
 
     assert.strictEqual(destroys, 2, 'we destroyed 2 records');
     assert.strictEqual(all.length, 0, 'expected 0 records');
@@ -304,11 +301,9 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     adam = store.createRecord('person', { name: 'Adam Sunderland' });
     dave = store.createRecord('person', { name: 'Dave Sunderland' });
 
-    run(function () {
-      promises = [adam.destroyRecord(), dave.save()];
-    });
+    promises = [adam.destroyRecord(), dave.save()];
 
-    return all(promises);
+    await all(promises);
   });
 
   test('Calling save on a newly created then deleted record should not error', async function (assert) {

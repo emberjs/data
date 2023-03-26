@@ -5,8 +5,6 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import { resolve } from 'rsvp';
-
 import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_A_USAGE,
@@ -307,7 +305,7 @@ function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
   proxy.isSettled = false;
   proxy.isFulfilled = false;
   proxy.isRejected = false;
-  return resolve(promise).then(
+  return Promise.resolve(promise).then(
     (content) => {
       proxy.isPending = false;
       proxy.isFulfilled = true;

@@ -4,7 +4,6 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
 
-import { gte } from 'ember-compatibility-helpers';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
@@ -44,20 +43,15 @@ module('integration/references/has-many', function (hooks) {
   testInDebug("record#hasMany asserts when specified relationship doesn't exist", function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: '1',
-        },
-      });
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+      },
     });
 
     assert.expectAssertion(function () {
-      run(function () {
-        family.hasMany('unknown-relationship');
-      });
+      family.hasMany('unknown-relationship');
     }, 'Expected to find a relationship definition for family.unknown-relationship but none was found');
   });
 
@@ -66,20 +60,15 @@ module('integration/references/has-many', function (hooks) {
     function (assert) {
       let store = this.owner.lookup('service:store');
 
-      var person;
-      run(function () {
-        person = store.push({
-          data: {
-            type: 'person',
-            id: '1',
-          },
-        });
+      const person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+        },
       });
 
       assert.expectAssertion(function () {
-        run(function () {
-          person.hasMany('family');
-        });
+        person.hasMany('family');
       }, "You tried to get the 'family' relationship on a 'person' via record.hasMany('family'), but the relationship is of kind 'belongsTo'. Use record.belongsTo('family') instead.");
     }
   );
@@ -87,25 +76,22 @@ module('integration/references/has-many', function (hooks) {
   test('record#hasMany', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: '1',
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: '1' },
-                { type: 'person', id: '2' },
-              ],
-            },
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+            ],
           },
         },
-      });
+      },
     });
 
-    var personsReference = family.hasMany('persons');
+    const personsReference = family.hasMany('persons');
 
     assert.strictEqual(personsReference.remoteType(), 'ids');
     assert.strictEqual(personsReference.type, 'person');
@@ -115,22 +101,19 @@ module('integration/references/has-many', function (hooks) {
   test('record#hasMany for linked references', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: '1',
-          relationships: {
-            persons: {
-              links: { related: '/families/1/persons' },
-            },
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            links: { related: '/families/1/persons' },
           },
         },
-      });
+      },
     });
 
-    var personsReference = family.hasMany('persons');
+    const personsReference = family.hasMany('persons');
 
     assert.strictEqual(personsReference.remoteType(), 'link');
     assert.strictEqual(personsReference.type, 'person');
@@ -140,73 +123,102 @@ module('integration/references/has-many', function (hooks) {
   test('HasManyReference#meta() returns the most recent meta for the relationship', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: '1',
-          relationships: {
-            persons: {
-              links: { related: '/families/1/persons' },
-              meta: {
-                foo: true,
-              },
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            links: { related: '/families/1/persons' },
+            meta: {
+              foo: true,
             },
           },
         },
-      });
+      },
     });
 
-    var personsReference = family.hasMany('persons');
+    const personsReference = family.hasMany('persons');
     assert.deepEqual(personsReference.meta(), { foo: true });
   });
 
-  if (gte('3.16.0')) {
-    test('HasManyReference#value() does not create accidental autotracking errors', async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let family = store.push({
-        data: {
-          type: 'family',
-          id: '1',
-        },
-      });
+  test('HasManyReference#value() does not create accidental autotracking errors', async function (assert) {
+    let store = this.owner.lookup('service:store');
+    let family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+      },
+    });
 
-      let personsReference = family.hasMany('persons');
-      let renderedValue;
-      let context = await createTrackingContext(this.owner, {
-        get value() {
-          renderedValue = personsReference.value();
-          return renderedValue;
-        },
-      });
+    let personsReference = family.hasMany('persons');
+    let renderedValue;
+    let context = await createTrackingContext(this.owner, {
+      get value() {
+        renderedValue = personsReference.value();
+        return renderedValue;
+      },
+    });
 
-      await context.render();
+    await context.render();
 
-      assert.strictEqual(renderedValue, null, 'We have no value yet, we are not loaded');
+    assert.strictEqual(renderedValue, null, 'We have no value yet, we are not loaded');
 
-      store.push({
-        data: {
-          type: 'family',
-          id: '1',
-          relationships: {
-            persons: {
-              data: [{ type: 'person', id: '1' }],
-            },
+    store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            data: [{ type: 'person', id: '1' }],
           },
         },
-      });
+      },
+    });
 
-      await context.render();
+    await context.render();
 
-      assert.strictEqual(renderedValue, null, 'We have no value yet, we are still not loaded');
+    assert.strictEqual(renderedValue, null, 'We have no value yet, we are still not loaded');
 
-      let person1 = store.push({
-        data: {
+    let person1 = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          family: {
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    await context.render();
+
+    assert.strictEqual(renderedValue.length, 1, 'We have a value');
+    assert.strictEqual(renderedValue.at(0), person1, 'We have the right value');
+
+    store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
           type: 'person',
-          id: '1',
+          id: '2',
           attributes: {
-            name: 'Chris',
+            name: 'James',
           },
           relationships: {
             family: {
@@ -214,51 +226,17 @@ module('integration/references/has-many', function (hooks) {
             },
           },
         },
-      });
-
-      await context.render();
-
-      assert.strictEqual(renderedValue.length, 1, 'We have a value');
-      assert.strictEqual(renderedValue.at(0), person1, 'We have the right value');
-
-      store.push({
-        data: {
-          type: 'family',
-          id: '1',
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: '1' },
-                { type: 'person', id: '2' },
-              ],
-            },
-          },
-        },
-        included: [
-          {
-            type: 'person',
-            id: '2',
-            attributes: {
-              name: 'James',
-            },
-            relationships: {
-              family: {
-                data: { type: 'family', id: '1' },
-              },
-            },
-          },
-        ],
-      });
-
-      await context.render();
-
-      let person2 = store.peekRecord('person', '2');
-      assert.notStrictEqual(person2, null, 'we have a person');
-      assert.strictEqual(renderedValue.length, 2, 'We have two values');
-      assert.strictEqual(renderedValue.at(0), person1, 'We have the right value[0]');
-      assert.strictEqual(renderedValue.at(1), person2, 'We have the right value[1]');
+      ],
     });
-  }
+
+    await context.render();
+
+    let person2 = store.peekRecord('person', '2');
+    assert.notStrictEqual(person2, null, 'we have a person');
+    assert.strictEqual(renderedValue.length, 2, 'We have two values');
+    assert.strictEqual(renderedValue.at(0), person1, 'We have the right value[0]');
+    assert.strictEqual(renderedValue.at(1), person2, 'We have the right value[1]');
+  });
 
   testInDebug('push(array)', async function (assert) {
     const store = this.owner.lookup('service:store');
@@ -289,36 +267,26 @@ module('integration/references/has-many', function (hooks) {
     assert.strictEqual(records.at(1).name, 'Michael');
   });
 
-  testInDebug('push(array) works with polymorphic type', function (assert) {
-    var done = assert.async();
-
+  testInDebug('push(array) works with polymorphic type', async function (assert) {
     let store = this.owner.lookup('service:store');
     let Person = store.modelFor('person');
 
     this.owner.register('model:mafia-boss', Person.extend());
 
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: '1',
-        },
-      });
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+      },
     });
 
-    var personsReference = family.hasMany('persons');
+    const personsReference = family.hasMany('persons');
 
-    run(() => {
-      var data = [{ data: { type: 'mafia-boss', id: '1', attributes: { name: 'Vito' } } }];
+    const data = [{ data: { type: 'mafia-boss', id: '1', attributes: { name: 'Vito' } } }];
 
-      personsReference.push(data).then(function (records) {
-        assert.strictEqual(get(records, 'length'), 1);
-        assert.strictEqual(records.at(0).name, 'Vito');
-
-        done();
-      });
-    });
+    const records = await personsReference.push(data);
+    assert.strictEqual(get(records, 'length'), 1);
+    assert.strictEqual(records.at(0).name, 'Vito');
   });
 
   testInDebug('push(array) asserts polymorphic type', async function (assert) {
@@ -331,7 +299,7 @@ module('integration/references/has-many', function (hooks) {
     });
     let personsReference = family.hasMany('persons');
 
-    assert.expectAssertion(async () => {
+    await assert.expectAssertion(async () => {
       await personsReference.push([{ data: { type: 'family', id: '1' } }]);
     }, "The 'family' type does not implement 'person' and thus cannot be assigned to the 'persons' relationship in 'family'. Make it a descendant of 'person' or use a mixin of the same name.");
   });

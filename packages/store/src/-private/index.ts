@@ -12,7 +12,6 @@ export { default as Store, storeFor } from './store-service';
 
 export { recordIdentifierFor } from './caches/instance-cache';
 
-export { default as Snapshot } from './network/snapshot';
 export {
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,

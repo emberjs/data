@@ -773,73 +773,66 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     assert.strictEqual(job.user, null, 'User relationship was removed correctly');
   });
 
-  test('Setting a belongsTo to a different record, sets the old relationship to null - async', function (assert) {
+  test('Setting a belongsTo to a different record, sets the old relationship to null - async', async function (assert) {
     assert.expect(3);
 
     let store = this.owner.lookup('service:store');
 
     var stanley, stanleysFriend;
-    run(function () {
-      stanley = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '2',
-                type: 'user',
-              },
+    stanley = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '2',
+              type: 'user',
             },
           },
         },
-      });
-      stanleysFriend = store.push({
-        data: {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: "Stanley's friend",
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '1',
-                type: 'user',
-              },
-            },
-          },
-        },
-      });
-
-      stanleysFriend.bestFriend.then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, stanley, 'User relationship was initally setup correctly');
-        var stanleysNewFriend = store.push({
-          data: {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: "Stanley's New friend",
-            },
-          },
-        });
-
-        run(function () {
-          stanleysNewFriend.set('bestFriend', stanley);
-        });
-
-        stanley.bestFriend.then(function (fetchedNewFriend) {
-          assert.strictEqual(fetchedNewFriend, stanleysNewFriend, 'User relationship was updated correctly');
-        });
-
-        stanleysFriend.bestFriend.then(function (fetchedOldFriend) {
-          assert.strictEqual(fetchedOldFriend, null, 'The old relationship was set to null correctly');
-        });
-      });
+      },
     });
+    stanleysFriend = store.push({
+      data: {
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: "Stanley's friend",
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '1',
+              type: 'user',
+            },
+          },
+        },
+      },
+    });
+
+    const fetchedUser = await stanleysFriend.bestFriend;
+    assert.strictEqual(fetchedUser, stanley, 'User relationship was initally setup correctly');
+    var stanleysNewFriend = store.push({
+      data: {
+        id: '3',
+        type: 'user',
+        attributes: {
+          name: "Stanley's New friend",
+        },
+      },
+    });
+
+    stanleysNewFriend.set('bestFriend', stanley);
+
+    const fetchedNewFriend = await stanley.bestFriend;
+    assert.strictEqual(fetchedNewFriend, stanleysNewFriend, 'User relationship was updated correctly');
+
+    const fetchedOldFriend = await stanleysFriend.bestFriend;
+    assert.strictEqual(fetchedOldFriend, null, 'The old relationship was set to null correctly');
   });
 
   test('Setting a belongsTo to a different record, sets the old relationship to null - sync', function (assert) {

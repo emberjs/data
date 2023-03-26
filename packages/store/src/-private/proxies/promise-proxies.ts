@@ -3,8 +3,6 @@ import { get } from '@ember/object';
 import type ComputedProperty from '@ember/object/computed';
 import { reads } from '@ember/object/computed';
 
-import { resolve } from 'rsvp';
-
 import { DEBUG } from '@ember-data/env';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -93,16 +91,12 @@ export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayPr
 */
 export { PromiseObjectProxy as PromiseObject };
 
-function _promiseObject<T>(promise: Promise<T>, label?: string): PromiseObjectProxy<T> {
-  return PromiseObjectProxy.create({
-    promise: resolve(promise, label),
-  }) as PromiseObjectProxy<T>;
+function _promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
+  return PromiseObjectProxy.create({ promise }) as PromiseObjectProxy<T>;
 }
 
-function _promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>, label?: string): PromiseArray<I, T> {
-  return PromiseArray.create({
-    promise: resolve(promise, label),
-  }) as unknown as PromiseArray<I, T>;
+function _promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>): PromiseArray<I, T> {
+  return PromiseArray.create({ promise }) as unknown as PromiseArray<I, T>;
 }
 
 // constructor is accessed in some internals but not including it in the copyright for the deprecation

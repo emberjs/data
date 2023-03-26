@@ -76,6 +76,8 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * @returns {Promise<ReadableStream | null>}
    */
   getStream(): Promise<ReadableStream | null>;
+
+  onFinalize(cb: () => void): void;
 };
 
 export type DeferredFuture<T> = {
@@ -85,6 +87,7 @@ export type DeferredFuture<T> = {
 };
 
 export interface RequestInfo extends Request {
+  disableTestWaiter?: boolean;
   /*
    * data that a handler should convert into
    * the query (GET) or body (POST)
@@ -98,6 +101,7 @@ export interface RequestInfo extends Request {
 }
 
 export interface ImmutableRequestInfo {
+  readonly disableTestWaiter?: boolean;
   /* Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. */
   readonly cache?: RequestCache;
   /* Returns the credentials mode associated with request, which is a string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. */

@@ -4,17 +4,20 @@
 import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
-import { registerWaiter, unregisterWaiter } from '@ember/test';
 
 import { importSync } from '@embroider/macros';
-import { reject, resolve } from 'rsvp';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG, TESTING } from '@ember-data/env';
 import type { Cache as CacheClass } from '@ember-data/json-api';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type DSModelClass from '@ember-data/model';
-import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
-import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
+import {
+  HAS_COMPAT_PACKAGE,
+  HAS_GRAPH_PACKAGE,
+  HAS_JSON_API_PACKAGE,
+  HAS_MODEL_PACKAGE,
+} from '@ember-data/private-build-infra';
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/private-build-infra/debugging';
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
@@ -62,7 +65,7 @@ import { getShimClass } from './legacy-model-support/shim-model-class';
 import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
-import RequestCache from './network/request-cache';
+import RequestCache, { RequestPromise } from './network/request-cache';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
@@ -74,16 +77,6 @@ export { storeFor };
 // hello world
 type CacheConstruct = typeof CacheClass;
 let _Cache: CacheConstruct | undefined;
-
-type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
-
-function freeze<T>(obj: T): T {
-  if (typeof Object.freeze === 'function') {
-    return Object.freeze(obj);
-  }
-
-  return obj;
-}
 
 export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -184,6 +177,17 @@ class Store {
    * @public
    */
   declare notifications: NotificationManager;
+
+  /**
+   * Provides access to the IdentifierCache instance
+   * for this store.
+   *
+   * The IdentifierCache can be used to generate or
+   * retrieve a stable unique identifier for any resource.
+   *
+   * @property {IdentifierCache} identifierCache
+   * @public
+   */
   declare identifierCache: IdentifierCache;
   /**
    * Provides access to the requestManager instance associated
@@ -212,6 +216,27 @@ class Store {
    * @property {RequestManager} requestManager
    */
   declare requestManager: RequestManager;
+
+  /**
+   * A Property which an App may set to provide a Lifetimes Service
+   * to control when a cached request becomes stale.
+   *
+   * ```ts
+   * store.lifetimes = {
+   *   // make the request and ignore the current cache state
+   *   isHardExpired() {}
+   *
+   *   // make the request in the background if true, return cache state
+   *   isSoftExpired() {}
+   * }
+   * ```
+   *
+   * @public
+   * @property {LivetimesService|undefined} lifetimes
+   */
+  declare lifetimes?: LifetimesService;
+
+  // Private
   declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
   declare _modelFactoryCache: Dict<unknown>;
@@ -219,14 +244,13 @@ class Store {
   declare _requestCache: RequestCache;
   declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
-  declare lifetimes?: LifetimesService;
+
+  declare _hasRegisteredCacheHandler: boolean;
+  declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
+  declare _forceShim: boolean;
+  declare _enableAsyncFlush: boolean | null;
 
   // DEBUG-only properties
-  declare _trackedAsyncRequests: AsyncTrackingToken[];
-  declare generateStackTracesForTrackedRequests: boolean;
-  declare _trackAsyncRequestStart: (str: string) => void;
-  declare _trackAsyncRequestEnd: (token: AsyncTrackingToken) => void;
-  declare __asyncWaiter: () => boolean;
   declare DISABLE_WAITER?: boolean;
 
   isDestroying: boolean = false;
@@ -239,16 +263,6 @@ class Store {
   constructor(createArgs?: Record<string, unknown>) {
     Object.assign(this, createArgs);
 
-    /**
-     * Provides access to the IdentifierCache instance
-     * for this store.
-     *
-     * The IdentifierCache can be used to generate or
-     * retrieve a stable unique identifier for any resource.
-     *
-     * @property {IdentifierCache} identifierCache
-     * @public
-     */
     this.identifierCache = new IdentifierCache();
 
     this.notifications = new NotificationManager(this);
@@ -257,60 +271,13 @@ class Store {
     this.recordArrayManager = new RecordArrayManager({ store: this });
 
     // private
-    this._requestCache = new RequestCache();
+    this._requestCache = new RequestCache(this);
     this._instanceCache = new InstanceCache(this);
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
     this._modelFactoryCache = Object.create(null);
-
-    if (DEBUG) {
-      if (this.generateStackTracesForTrackedRequests === undefined) {
-        this.generateStackTracesForTrackedRequests = false;
-      }
-
-      this._trackedAsyncRequests = [];
-      this._trackAsyncRequestStart = (label) => {
-        let trace: string | Error =
-          'set `store.generateStackTracesForTrackedRequests = true;` to get a detailed trace for where this request originated';
-
-        if (this.generateStackTracesForTrackedRequests) {
-          try {
-            throw new Error(`EmberData TrackedRequest: ${label}`);
-          } catch (e) {
-            trace = e as Error;
-          }
-        }
-
-        let token = freeze({
-          label,
-          trace,
-        });
-
-        this._trackedAsyncRequests.push(token);
-        return token;
-      };
-      this._trackAsyncRequestEnd = (token) => {
-        let index = this._trackedAsyncRequests.indexOf(token);
-
-        if (index === -1) {
-          throw new Error(
-            `Attempted to end tracking for the following request but it was not being tracked:\n${token}`
-          );
-        }
-
-        this._trackedAsyncRequests.splice(index, 1);
-      };
-
-      this.__asyncWaiter = () => {
-        let tracked = this._trackedAsyncRequests;
-        return this.DISABLE_WAITER || tracked.length === 0;
-      };
-
-      registerWaiter(this.__asyncWaiter);
-    }
   }
 
-  declare _hasRegisteredCacheHandler: boolean;
   _registerCacheHandler() {
     if (this._hasRegisteredCacheHandler) {
       return;
@@ -319,7 +286,6 @@ class Store {
     this._hasRegisteredCacheHandler = true;
   }
 
-  declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   _run(cb: () => void) {
     assert(`EmberData should never encounter a nested run`, !this._cbs);
     const _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } = (this._cbs = {});
@@ -365,6 +331,22 @@ class Store {
     return this._requestCache;
   }
 
+  _getAllPending(): (Promise<unknown[]> & { length: number }) | void {
+    if (TESTING) {
+      const all: Promise<any>[] = [];
+      const pending = this._requestCache._pending;
+      const lids = Object.keys(pending);
+      lids.forEach((lid) => {
+        all.push(...pending[lid].map((v) => v[RequestPromise]!));
+      });
+      const promise: Promise<unknown[]> & { length: number } = Promise.allSettled(all) as Promise<unknown[]> & {
+        length: number;
+      };
+      promise.length = all.length;
+      return promise;
+    }
+  }
+
   /**
    * Issue a request via the configured RequestManager,
    * inserting the response into the cache and handing
@@ -394,7 +376,50 @@ class Store {
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
     this._registerCacheHandler();
-    return this.requestManager.request(Object.assign(requestConfig, { store: this }));
+    let opts: { store: Store; disableTestWaiter?: boolean } = { store: this };
+
+    if (TESTING) {
+      if (this.DISABLE_WAITER) {
+        opts.disableTestWaiter =
+          typeof requestConfig.disableTestWaiter === 'boolean' ? requestConfig.disableTestWaiter : true;
+      }
+    }
+
+    if (LOG_REQUESTS) {
+      let options: unknown;
+      try {
+        options = JSON.parse(JSON.stringify(requestConfig));
+      } catch {
+        options = requestConfig;
+      }
+      // eslint-disable-next-line no-console
+      console.log(
+        `request: [[START]] ${requestConfig.op && !requestConfig.url ? '(LEGACY) ' : ''}${
+          requestConfig.op || '<unknown operation>'
+        } ${requestConfig.url || '<empty url>'}  ${requestConfig.method || '<empty method>'}`,
+        options
+      );
+    }
+
+    const future = this.requestManager.request<T>(Object.assign(requestConfig, opts));
+
+    future.onFinalize(() => {
+      if (LOG_REQUESTS) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `request: [[FINALIZE]] ${requestConfig.op && !requestConfig.url ? '(LEGACY) ' : ''}${
+            requestConfig.op || '<unknown operation>'
+          } ${requestConfig.url || '<empty url>'}  ${requestConfig.method || '<empty method>'}`
+        );
+      }
+      // skip flush for legacy belongsTo
+      if (requestConfig.op === 'findBelongsTo' && !requestConfig.url) {
+        return;
+      }
+      this.notifications._flush();
+    });
+
+    return future;
   }
 
   /**
@@ -566,7 +591,7 @@ class Store {
     @return {subclass of Model | ShimModelClass}
     */
   // TODO @deprecate in favor of schema APIs, requires adapter/serializer overhaul or replacement
-  declare _forceShim: boolean;
+
   modelFor(modelName: string): ShimModelClass | DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
@@ -1213,6 +1238,12 @@ class Store {
     options = options || {};
 
     if (options.preload) {
+      // force reload if we preload to ensure we don't resolve the promise
+      // until we are complete, else we will end up background-reloading
+      // even for initial load.
+      if (!this._instanceCache.recordIsLoaded(identifier)) {
+        options.reload = true;
+      }
       this._join(() => {
         preloadData(this, identifier, options!.preload!);
       });
@@ -2097,7 +2128,7 @@ class Store {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
-    let pushed = this._push(data);
+    let pushed = this._push(data, false);
 
     if (Array.isArray(pushed)) {
       let records = pushed.map((identifier) => this._instanceCache.getRecord(identifier));
@@ -2120,7 +2151,10 @@ class Store {
     @param {Object} jsonApiDoc
     @return {StableRecordIdentifier|Array<StableRecordIdentifier>} identifiers for the primary records that had data loaded
   */
-  _push(jsonApiDoc: JsonApiDocument): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
+  _push(
+    jsonApiDoc: JsonApiDocument,
+    asyncFlush?: boolean
+  ): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
@@ -2134,6 +2168,9 @@ class Store {
         console.log('EmberData | Payload - push', jsonApiDoc);
       }
     }
+    if (asyncFlush) {
+      this._enableAsyncFlush = true;
+    }
     let ret;
     this._join(() => {
       if (DEPRECATE_V1_RECORD_DATA) {
@@ -2142,6 +2179,8 @@ class Store {
         ret = this.cache.put({ content: jsonApiDoc });
       }
     });
+
+    this._enableAsyncFlush = null;
 
     return ret.data;
   }
@@ -2235,7 +2274,18 @@ class Store {
   // TODO @runspired @deprecate records should implement their own serialization if desired
   serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
     // TODO we used to check if the record was destroyed here
-    return this._instanceCache.createSnapshot(recordIdentifierFor(record)).serialize(options);
+    if (HAS_COMPAT_PACKAGE) {
+      if (!this._fetchManager) {
+        const FetchManager = (
+          importSync('@ember-data/legacy-compat/-private') as typeof import('@ember-data/legacy-compat/-private')
+        ).FetchManager;
+        this._fetchManager = new FetchManager(this);
+      }
+
+      return this._fetchManager.createSnapshot(recordIdentifierFor(record)).serialize(options);
+    }
+
+    assert(`Store.serializeRecord is only available when utilizing @ember-data/legacy-compat for legacy compatibility`);
   }
 
   /**
@@ -2260,7 +2310,7 @@ class Store {
     if (!cache) {
       // this commonly means we're disconnected
       // but just in case we reject here to prevent bad things.
-      return reject(`Record Is Disconnected`);
+      return Promise.reject(`Record Is Disconnected`);
     }
     // TODO we used to check if the record was destroyed here
     assert(
@@ -2268,7 +2318,7 @@ class Store {
       cache && this._instanceCache.recordIsLoaded(identifier)
     );
     if (resourceIsFullyDeleted(this._instanceCache, identifier)) {
-      return resolve(record);
+      return Promise.resolve(record);
     }
 
     cache.willCommit(identifier);
@@ -2553,20 +2603,6 @@ class Store {
     this.identifierCache.destroy();
 
     this.unloadAll();
-
-    if (DEBUG) {
-      unregisterWaiter(this.__asyncWaiter);
-      let tracked = this._trackedAsyncRequests;
-      let isSettled = tracked.length === 0;
-
-      if (!isSettled) {
-        throw new Error(
-          'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-            tracked.map((o) => o.label).join('\n\t - ')
-        );
-      }
-    }
-
     this.isDestroyed = true;
   }
 

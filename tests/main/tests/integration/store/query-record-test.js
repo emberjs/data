@@ -1,5 +1,3 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
 
@@ -22,23 +20,23 @@ module('integration/store/query-record - Query one record with a query hash', fu
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
-  testInDebug('It raises an assertion when no type is passed', function (assert) {
+  testInDebug('It raises an assertion when no type is passed', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(function () {
-      store.queryRecord();
+    await assert.expectAssertion(async function () {
+      await store.queryRecord();
     }, "You need to pass a model name to the store's queryRecord method");
   });
 
-  testInDebug('It raises an assertion when no query hash is passed', function (assert) {
+  testInDebug('It raises an assertion when no query hash is passed', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(function () {
-      store.queryRecord('person');
+    await assert.expectAssertion(async function () {
+      await store.queryRecord('person');
     }, "You need to pass a query hash to the store's queryRecord method");
   });
 
-  test("When a record is requested, the adapter's queryRecord method should be called.", function (assert) {
+  test("When a record is requested, the adapter's queryRecord method should be called.", async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -58,12 +56,10 @@ module('integration/store/query-record - Query one record with a query hash', fu
 
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    run(function () {
-      store.queryRecord('person', { related: 'posts' });
-    });
+    await store.queryRecord('person', { related: 'posts' });
   });
 
-  test('When a record is requested, and the promise is rejected, .queryRecord() is rejected.', function (assert) {
+  test('When a record is requested, and the promise is rejected, .queryRecord() is rejected.', async function (assert) {
     this.owner.register(
       'adapter:person',
       Adapter.extend({
@@ -75,14 +71,12 @@ module('integration/store/query-record - Query one record with a query hash', fu
 
     let store = this.owner.lookup('service:store');
 
-    run(function () {
-      store.queryRecord('person', {}).catch(function (reason) {
-        assert.ok(true, 'The rejection handler was called');
-      });
+    await store.queryRecord('person', {}).catch(function (reason) {
+      assert.ok(true, 'The rejection handler was called');
     });
   });
 
-  test("When a record is requested, the serializer's normalizeQueryRecordResponse method should be called.", function (assert) {
+  test("When a record is requested, the serializer's normalizeQueryRecordResponse method should be called.", async function (assert) {
     assert.expect(1);
 
     this.owner.register(
@@ -118,8 +112,6 @@ module('integration/store/query-record - Query one record with a query hash', fu
 
     let store = this.owner.lookup('service:store');
 
-    run(function () {
-      store.queryRecord('person', { related: 'posts' });
-    });
+    await store.queryRecord('person', { related: 'posts' });
   });
 });

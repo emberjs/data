@@ -1,3 +1,5 @@
+import { assert } from '@ember/debug';
+
 import type {
   FindRecordQuery,
   Operation,
@@ -6,6 +8,8 @@ import type {
   SaveRecordMutation,
 } from '@ember-data/types/q/fetch-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+
+import Store from '../store-service';
 
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
@@ -25,12 +29,18 @@ export default class RequestCache {
   _pending: { [lid: string]: InternalRequest[] } = Object.create(null);
   _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _subscriptions: { [lid: string]: Function[] } = Object.create(null);
+  _toFlush: InternalRequest[] = [];
+  _store: Store;
+
+  constructor(store) {
+    this._store = store;
+  }
 
   _clearEntries(identifier: StableRecordIdentifier) {
     this._done.delete(identifier);
   }
 
-  enqueue(promise: Promise<any>, queryRequest: Request) {
+  enqueue<T>(promise: Promise<T>, queryRequest: Request): Promise<T> {
     let query = queryRequest.data[0];
     if (hasRecordIdentifier(query)) {
       let lid = query.recordIdentifier.lid;
@@ -47,7 +57,7 @@ export default class RequestCache {
       request[RequestPromise] = promise;
       this._pending[lid].push(request);
       this._triggerSubscriptions(request);
-      promise.then(
+      return promise.then(
         (result) => {
           this._dequeue(lid, request);
           let finalizedRequest = {
@@ -59,6 +69,7 @@ export default class RequestCache {
           finalizedRequest[Touching] = request[Touching];
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
+          return result;
         },
         (error) => {
           this._dequeue(lid, request);
@@ -71,13 +82,36 @@ export default class RequestCache {
           finalizedRequest[Touching] = request[Touching];
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
+          throw error;
         }
       );
     }
+    assert(`Expected a well formed  query`);
   }
 
-  _triggerSubscriptions(req: InternalRequest) {
-    req[Touching].forEach((identifier) => {
+  _triggerSubscriptions(req: InternalRequest): void {
+    if (req.state === 'pending') {
+      this._flushRequest(req);
+      return;
+    }
+    this._toFlush.push(req);
+
+    if (this._toFlush.length === 1) {
+      this._store.notifications._onNextFlush(() => {
+        this._flush();
+      });
+    }
+  }
+
+  _flush(): void {
+    this._toFlush.forEach((req) => {
+      this._flushRequest(req);
+    });
+    this._toFlush = [];
+  }
+
+  _flushRequest(req: InternalRequest): void {
+    req[Touching].forEach((identifier: StableRecordIdentifier) => {
       if (this._subscriptions[identifier.lid]) {
         this._subscriptions[identifier.lid].forEach((callback) => callback(req));
       }

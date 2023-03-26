@@ -17,8 +17,6 @@ export default {
     '@ember-data/store/-private',
     '@ember-data/graph/-private',
     '@ember/service',
-    'require',
-    'rsvp',
     'ember-inflector',
     '@ember/debug',
     '@ember/string',

@@ -17,3 +17,4 @@ export const HAS_JSON_API_PACKAGE = flagState('HAS_JSON_API_PACKAGE');
 export const HAS_GRAPH_PACKAGE = flagState('HAS_GRAPH_PACKAGE');
 export const HAS_REQUEST_PACKAGE = flagState('HAS_REQUEST_PACKAGE');
 export const HAS_TRACKING_PACKAGE = flagState('HAS_TRACKING_PACKAGE');
+export const HAS_COMPAT_PACKAGE = flagState('HAS_COMPAT_PACKAGE');

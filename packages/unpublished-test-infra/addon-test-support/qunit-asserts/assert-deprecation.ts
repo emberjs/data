@@ -1,7 +1,6 @@
 import { registerDeprecationHandler } from '@ember/debug';
 import { VERSION } from '@ember/version';
 
-import { isDevelopingApp } from '@embroider/macros';
 import QUnit from 'qunit';
 import semver from 'semver';
 
@@ -174,29 +173,32 @@ export function configureDeprecationHandler() {
       };
     }
 
-    let skipAssert = !isDevelopingApp();
-    if (!skipAssert && config.when) {
-      let libs = Object.keys(config.when);
-      for (let i = 0; i < libs.length; i++) {
-        let library = libs[i];
-        let version = config.when[library]!;
+    let skipAssert = true;
+    if (DEBUG) {
+      skipAssert = false;
+      if (!skipAssert && config.when) {
+        let libs = Object.keys(config.when);
+        for (let i = 0; i < libs.length; i++) {
+          let library = libs[i];
+          let version = config.when[library]!;
 
-        if (library !== 'ember') {
-          throw new Error(`when only supports setting a version for 'ember' currently.`);
-        }
+          if (library !== 'ember') {
+            throw new Error(`when only supports setting a version for 'ember' currently.`);
+          }
 
-        if (version.indexOf('<=') === 0) {
-          if (!lte(version)) {
-            skipAssert = true;
+          if (version.indexOf('<=') === 0) {
+            if (!lte(version)) {
+              skipAssert = true;
+            }
+          } else if (version.indexOf('>=') === 0) {
+            if (!gte(version)) {
+              skipAssert = true;
+            }
+          } else {
+            throw new Error(
+              `Expected a version range set to either >= or <= for the library ${library} when the deprecation ${config.id} is present, found ${version}.`
+            );
           }
-        } else if (version.indexOf('>=') === 0) {
-          if (!gte(version)) {
-            skipAssert = true;
-          }
-        } else {
-          throw new Error(
-            `Expected a version range set to either >= or <= for the library ${library} when the deprecation ${config.id} is present, found ${version}.`
-          );
         }
       }
     }

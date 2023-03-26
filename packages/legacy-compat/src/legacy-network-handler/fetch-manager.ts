@@ -1,18 +1,18 @@
 import { assert, deprecate, warn } from '@ember/debug';
-import { _backburner as emberBackburner } from '@ember/runloop';
 
-import { importSync, isDevelopingApp } from '@embroider/macros';
-import { default as RSVP, resolve } from 'rsvp';
+import { importSync } from '@embroider/macros';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG, TESTING } from '@ember-data/env';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
+import { createDeferred } from '@ember-data/request';
+import type { Deferred } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
+import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type RequestCache from '@ember-data/store/-private/network/request-cache';
-import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
 import type {
@@ -24,17 +24,11 @@ import { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/min
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { FindOptions } from '@ember-data/types/q/store';
 
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
+import { _objectIsAlive, guardDestroyedStore } from './common';
 import { assertIdentifierHasId } from './identifier-has-id';
+import { payloadIsNotBlank } from './legacy-data-utils';
 import { normalizeResponseHelper } from './serializer-response';
-
-function payloadIsNotBlank(adapterPayload: object): boolean {
-  if (Array.isArray(adapterPayload)) {
-    return true;
-  } else {
-    return Object.keys(adapterPayload || {}).length !== 0;
-  }
-}
+import Snapshot from './snapshot';
 
 type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
@@ -49,7 +43,7 @@ interface PendingFetchItem {
   identifier: StableExistingRecordIdentifier;
   queryRequest: Request;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  resolver: RSVP.Deferred<any>;
+  resolver: Deferred<any>;
   options: FindOptions;
   trace?: unknown;
   promise: Promise<StableRecordIdentifier>;
@@ -57,7 +51,7 @@ interface PendingFetchItem {
 
 interface PendingSaveItem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  resolver: RSVP.Deferred<any>;
+  resolver: Deferred<any>;
   snapshot: Snapshot;
   identifier: RecordIdentifier;
   options: FetchMutationOptions;
@@ -67,8 +61,6 @@ interface PendingSaveItem {
 export default class FetchManager {
   declare isDestroyed: boolean;
   declare requestCache: RequestCache;
-  // saves which are pending in the runloop
-  declare _pendingSave: PendingSaveItem[];
   // fetches pending in the runloop, waiting to be coalesced
   declare _pendingFetch: Map<string, PendingFetchItem[]>;
   declare _store: Store;
@@ -77,13 +69,12 @@ export default class FetchManager {
     this._store = store;
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
-    this._pendingSave = [];
     this.requestCache = store.getRequestStateService();
     this.isDestroyed = false;
   }
 
-  _createSnapshot(identifier: StableRecordIdentifier, options: FetchMutationOptions): Snapshot {
-    return this._store._instanceCache.createSnapshot(identifier, options);
+  createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
+    return new Snapshot(options, identifier, this._store);
   }
 
   /**
@@ -95,7 +86,7 @@ export default class FetchManager {
     @internal
   */
   scheduleSave(identifier: RecordIdentifier, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
-    let resolver = RSVP.defer<null | SingleResourceDocument>(DEBUG ? `DS: Model#save ${identifier.lid}` : '');
+    let resolver = createDeferred<SingleResourceDocument | null>();
     let query: SaveRecordMutation = {
       op: 'saveRecord',
       recordIdentifier: identifier,
@@ -106,7 +97,7 @@ export default class FetchManager {
       data: [query],
     };
 
-    const snapshot = this._createSnapshot(identifier, options);
+    const snapshot = this.createSnapshot(identifier, options);
     const pendingSaveItem: PendingSaveItem = {
       snapshot: snapshot,
       resolver: resolver,
@@ -114,35 +105,18 @@ export default class FetchManager {
       options,
       queryRequest,
     };
-    this._pendingSave.push(pendingSaveItem);
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    emberBackburner.scheduleOnce('actions', this, this._flushPendingSaves);
 
-    this.requestCache.enqueue(resolver.promise, pendingSaveItem.queryRequest);
+    const monitored = this.requestCache.enqueue(resolver.promise, pendingSaveItem.queryRequest);
+    _flushPendingSave(this._store, pendingSaveItem);
 
-    return resolver.promise;
+    return monitored;
   }
 
-  /**
-    This method is called at the end of the run loop, and
-    flushes any records passed into `scheduleSave`
-
-    @internal
-  */
-  _flushPendingSaves() {
-    const store = this._store;
-    let pending = this._pendingSave.slice();
-    this._pendingSave = [];
-    for (let i = 0, j = pending.length; i < j; i++) {
-      let pendingItem = pending[i];
-      _flushPendingSave(store, pendingItem);
-    }
-  }
-
-  scheduleFetch(identifier: StableExistingRecordIdentifier, options: FindOptions): Promise<StableRecordIdentifier> {
-    // TODO Probably the store should pass in the query object
-    let shouldTrace = isDevelopingApp() && this._store.generateStackTracesForTrackedRequests;
-
+  scheduleFetch(
+    identifier: StableExistingRecordIdentifier,
+    options: FindOptions,
+    request: StoreRequestInfo
+  ): Promise<StableRecordIdentifier> {
     let query: FindRecordQuery = {
       op: 'findRecord',
       recordIdentifier: identifier,
@@ -158,40 +132,22 @@ export default class FetchManager {
       return pendingFetch;
     }
 
-    let id = identifier.id;
     let modelName = identifier.type;
 
-    let resolver = RSVP.defer<SingleResourceDocument>(`Fetching ${modelName}' with id: ${id}`);
-    let pendingFetchItem: PendingFetchItem = {
+    const resolver = createDeferred<SingleResourceDocument>();
+    const pendingFetchItem: PendingFetchItem = {
       identifier,
       resolver,
       options,
       queryRequest,
     } as PendingFetchItem;
 
-    if (DEBUG) {
-      if (shouldTrace) {
-        let trace;
-
-        try {
-          throw new Error(`Trace Origin for scheduled fetch for ${modelName}:${id}.`);
-        } catch (e) {
-          trace = e;
-        }
-
-        // enable folks to discover the origin of this findRecord call when
-        // debugging. Ideally we would have a tracked queue for requests with
-        // labels or local IDs that could be used to merge this trace with
-        // the trace made available when we detect an async leak
-        pendingFetchItem.trace = trace;
-      }
-    }
-
     let resolverPromise = resolver.promise;
     const store = this._store;
-    const isLoading = !store._instanceCache.recordIsLoaded(identifier); // we don't use isLoading directly because we are the request
+    const isInitialLoad = !store._instanceCache.recordIsLoaded(identifier); // we don't use isLoading directly because we are the request
 
-    const promise = resolverPromise.then(
+    const monitored = this.requestCache.enqueue(resolverPromise, pendingFetchItem.queryRequest);
+    let promise = monitored.then(
       (payload) => {
         // ensure that regardless of id returned we assign to the correct record
         if (payload.data && !Array.isArray(payload.data)) {
@@ -200,7 +156,7 @@ export default class FetchManager {
 
         // additional data received in the payload
         // may result in the merging of identifiers (and thus records)
-        let potentiallyNewIm = store._push(payload);
+        let potentiallyNewIm = store._push(payload, options.reload);
         if (potentiallyNewIm && !Array.isArray(potentiallyNewIm)) {
           return potentiallyNewIm;
         }
@@ -208,10 +164,11 @@ export default class FetchManager {
         return identifier;
       },
       (error) => {
+        assert(`Async Leak Detected: Expected the store to not be destroyed`, !store.isDestroyed);
         const cache = DEPRECATE_V1_RECORD_DATA
           ? store._instanceCache.peek({ identifier, bucket: 'resourceCache' })
           : store.cache;
-        if (!cache || cache.isEmpty(identifier) || isLoading) {
+        if (!cache || cache.isEmpty(identifier) || isInitialLoad) {
           let isReleasable = true;
           if (HAS_GRAPH_PACKAGE) {
             if (!cache) {
@@ -225,7 +182,9 @@ export default class FetchManager {
             }
           }
           if (cache || isReleasable) {
+            store._enableAsyncFlush = true;
             store._instanceCache.unloadRecord(identifier);
+            store._enableAsyncFlush = null;
           }
         }
         throw error;
@@ -233,8 +192,9 @@ export default class FetchManager {
     );
 
     if (this._pendingFetch.size === 0) {
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
+      void new Promise((resolve) => setTimeout(resolve, 0)).then(() => {
+        this.flushAllPendingFetches();
+      });
     }
 
     let fetches = this._pendingFetch;
@@ -245,8 +205,16 @@ export default class FetchManager {
 
     (fetches.get(modelName) as PendingFetchItem[]).push(pendingFetchItem);
 
+    if (TESTING) {
+      if (!request.disableTestWaiter) {
+        const { waitForPromise } = importSync('@ember/test-waiters') as {
+          waitForPromise: <T>(promise: Promise<T>) => Promise<T>;
+        };
+        promise = waitForPromise(promise);
+      }
+    }
+
     pendingFetchItem.promise = promise;
-    this.requestCache.enqueue(resolverPromise, pendingFetchItem.queryRequest);
     return promise;
   }
 
@@ -276,7 +244,8 @@ export default class FetchManager {
 
   fetchDataIfNeededForIdentifier(
     identifier: StableRecordIdentifier,
-    options: FindOptions = {}
+    options: FindOptions = {},
+    request: StoreRequestInfo
   ): Promise<StableRecordIdentifier> {
     // pre-loading will change the isEmpty value
     const isEmpty = _isEmpty(this._store._instanceCache, identifier);
@@ -286,12 +255,17 @@ export default class FetchManager {
     if (isEmpty) {
       assertIdentifierHasId(identifier);
 
-      promise = this.scheduleFetch(identifier, options);
+      if (DEBUG) {
+        promise = this.scheduleFetch(identifier, Object.assign({}, options, { reload: true }), request);
+      } else {
+        options.reload = true;
+        promise = this.scheduleFetch(identifier, options, request);
+      }
     } else if (isLoading) {
       promise = this.getPendingFetch(identifier, options)!;
       assert(`Expected to find a pending request for a record in the loading state, but found none`, promise);
     } else {
-      promise = resolve(identifier);
+      promise = Promise.resolve(identifier);
     }
 
     return promise;
@@ -343,27 +317,26 @@ function _findMany(
   snapshots: Snapshot[]
 ): Promise<CollectionResourceDocument> {
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
-  const ids = snapshots.map((s) => s.id!);
-  assert(
-    `Cannot fetch a record without an id`,
-    ids.every((v) => v !== null)
-  );
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  assert(`Expected this adapter to implement findMany for coalescing`, adapter.findMany);
-  let promise = adapter.findMany(store, modelClass, ids, snapshots);
-  let label = `DS: Handle Adapter#findMany of '${modelName}'`;
+  let promise = Promise.resolve().then(() => {
+    const ids = snapshots.map((s) => s.id!);
+    assert(
+      `Cannot fetch a record without an id`,
+      ids.every((v) => v !== null)
+    );
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    assert(`Expected this adapter to implement findMany for coalescing`, adapter.findMany);
+    let ret = adapter.findMany(store, modelClass, ids, snapshots);
+    assert('adapter.findMany returned undefined, this was very likely a mistake', ret !== undefined);
+    return ret;
+  });
 
-  if (promise === undefined) {
-    throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
-  }
-
-  promise = guardDestroyedStore(promise, store, label) as Promise<AdapterPayload>;
+  promise = guardDestroyedStore(promise, store) as Promise<AdapterPayload>;
 
   return promise.then((adapterPayload) => {
     assert(
-      `You made a 'findMany' request for '${modelName}' records with ids '[${ids.join(
-        ','
-      )}]', but the adapter's response did not have any data`,
+      `You made a 'findMany' request for '${modelName}' records with ids '[${snapshots
+        .map((s) => s.id!)
+        .join(',')}]', but the adapter's response did not have any data`,
       !!payloadIsNotBlank(adapterPayload)
     );
     let serializer = store.serializerFor(modelName);
@@ -439,7 +412,7 @@ function handleFoundRecords(
   }
 
   if (included.length > 0) {
-    store._push({ data: null, included });
+    store._push({ data: null, included }, true);
   }
 
   if (snapshotsById.size === 0) {
@@ -463,10 +436,9 @@ function handleFoundRecords(
   rejectFetchedItems(fetchMap, rejected);
 }
 
-function _fetchRecord(store: Store, fetchItem: PendingFetchItem) {
+function _fetchRecord(store: Store, adapter: MinimumAdapterInterface, fetchItem: PendingFetchItem) {
   let identifier = fetchItem.identifier;
   let modelName = identifier.type;
-  let adapter = store.adapterFor(modelName);
 
   assert(`You tried to find a record but you have no adapter (for ${modelName})`, adapter);
   assert(
@@ -474,20 +446,16 @@ function _fetchRecord(store: Store, fetchItem: PendingFetchItem) {
     typeof adapter.findRecord === 'function'
   );
 
-  let snapshot = store._instanceCache.createSnapshot(identifier, fetchItem.options);
+  let snapshot = store._fetchManager.createSnapshot(identifier, fetchItem.options);
   let klass = store.modelFor(identifier.type);
   let id = identifier.id;
-  let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
 
-  let promise = guardDestroyedStore(
-    resolve().then(() => {
-      return adapter.findRecord(store, klass, identifier.id, snapshot);
-    }),
-    store,
-    label
-  ) as Promise<AdapterPayload>;
+  let promise = Promise.resolve().then(() => {
+    return adapter.findRecord(store, klass, identifier.id, snapshot);
+  });
 
   promise = promise.then((adapterPayload) => {
+    assert(`Async Leak Detected: Expected the store to not be destroyed`, _objectIsAlive(store));
     assert(
       `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
       !!payloadIsNotBlank(adapterPayload)
@@ -533,7 +501,7 @@ function _processCoalescedGroup(
         rejectFetchedItems(fetchMap, group, error);
       });
   } else if (group.length === 1) {
-    _fetchRecord(store, fetchMap.get(group[0])!);
+    _fetchRecord(store, adapter, fetchMap.get(group[0])!);
   } else {
     assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
   }
@@ -549,7 +517,7 @@ function _flushPendingFetchForType(store: Store, pendingFetchItems: PendingFetch
     let fetchMap = new Map<Snapshot, PendingFetchItem>();
     for (let i = 0; i < totalItems; i++) {
       let fetchItem = pendingFetchItems[i];
-      snapshots[i] = store._instanceCache.createSnapshot(fetchItem.identifier, fetchItem.options);
+      snapshots[i] = store._fetchManager.createSnapshot(fetchItem.identifier, fetchItem.options);
       fetchMap.set(snapshots[i], fetchItem);
     }
 
@@ -565,7 +533,7 @@ function _flushPendingFetchForType(store: Store, pendingFetchItems: PendingFetch
     }
   } else {
     for (let i = 0; i < totalItems; i++) {
-      _fetchRecord(store, pendingFetchItems[i]);
+      void _fetchRecord(store, adapter, pendingFetchItems[i]);
     }
   }
 }
@@ -585,24 +553,13 @@ function _flushPendingSave(store: Store, pending: PendingSaveItem) {
     typeof adapter[operation] === 'function'
   );
 
-  let promise: Promise<AdapterPayload> = resolve().then(() => adapter[operation](store, modelClass, snapshot));
+  let promise: Promise<AdapterPayload> = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer: SerializerWithParseErrors | null = store.serializerFor(modelName);
 
   assert(
     `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
     promise !== undefined
   );
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  promise = _guard(
-    guardDestroyedStore(
-      promise,
-      store,
-      DEBUG ? `DS: Extract and notify about ${operation} completion of ${identifier.lid}` : ''
-    ),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    _bind(_objectIsAlive, record)
-  ) as Promise<AdapterPayload>;
 
   promise = promise.then((adapterPayload) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call

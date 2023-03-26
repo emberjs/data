@@ -10,7 +10,6 @@ import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
@@ -129,59 +128,52 @@ module('integration/store - destroy', function (hooks) {
     }
   });
 
-  testInDebug('find calls do not resolve when the store is destroyed', async function (assert) {
-    assert.expect(3);
+  testInDebug('find calls error if they resolve when the store is destroyed', async function (assert) {
+    assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
+
+    // to await get into the adapter
+    let arrived;
+    const arrivedPromise = new Promise((resolve) => (arrived = resolve));
+
+    // to release from the adapter
     let next;
-    let nextPromise = new Promise((resolve) => (next = resolve));
-    let TestAdapter = Adapter.extend({
-      findRecord() {
-        next();
-        nextPromise = new Promise((resolve) => {
-          next = resolve;
-        }).then(() => {
-          return {
-            data: { type: 'car', id: '1' },
-          };
-        });
-        return nextPromise;
-      },
-    });
+    const nextPromise = new Promise((resolve) => (next = resolve));
+    class TestAdapter extends Adapter {
+      async findRecord() {
+        arrived();
+        await nextPromise;
 
+        return {
+          data: { type: 'car', id: '1' },
+        };
+      }
+    }
     this.owner.register('adapter:application', TestAdapter);
 
-    store.push = function () {
+    store._push = function () {
       assert('The test should have destroyed the store by now', store.isDestroyed);
 
       throw new Error("We shouldn't be pushing data into the store when it is destroyed");
     };
-    let requestPromise = store.findRecord('car', '1');
+    const requestPromise = store.findRecord('car', '1');
 
-    await nextPromise;
+    // ensure we make it into the adapter
+    await arrivedPromise;
+    run(() => store.destroy());
 
-    assert.throws(() => {
-      run(() => store.destroy());
-    }, /Async Request leaks detected/);
-
+    // release the adapter promise
     next();
-
-    await nextPromise;
 
     // ensure we allow the internal store promises
     // to flush, potentially pushing data into the store
-    await settled();
-    assert.ok(true, 'we made it to the end');
-
-    if (DEPRECATE_RSVP_PROMISE) {
-      assert.expectDeprecation({ id: 'ember-data:rsvp-unresolved-async', count: 1 });
+    try {
+      await requestPromise;
+      assert.ok(false, 'We should reject with a meaningful error');
+    } catch (e) {
+      assert.strictEqual(e.message, 'Assertion Failed: Async Leak Detected: Expected the store to not be destroyed');
     }
-
-    requestPromise.then(() => {
-      assert.ok(false, 'we should never make it here');
-    });
-
-    await settled();
   });
 
   test('destroying the store correctly cleans everything up', async function (assert) {
@@ -376,7 +368,7 @@ module('integration/store - findRecord', function (hooks) {
     };
 
     const proxiedCar = store.findRecord('car', '1');
-    const car = await proxiedCar;
+    const car = await proxiedCar; // load 1
 
     assert.strictEqual(car.model, 'Mini', 'car record is returned from cache');
     const proxiedCar2 = store.findRecord('car', '1'); // will trigger a backgroundReload
@@ -385,13 +377,15 @@ module('integration/store - findRecord', function (hooks) {
     assert.strictEqual(car2?.model, 'Mini', 'car record is returned from cache');
     assert.strictEqual(car, car2, 'we found the same car');
 
+    await store._getAllPending();
+
     const proxiedCar3 = store.findRecord('car', '1'); // will trigger a backgroundReload
     const car3 = await proxiedCar3;
 
     assert.strictEqual(car3?.model, 'Mini', 'car record is returned from cache');
     assert.strictEqual(car, car3, 'we found the same car');
 
-    await settled();
+    await store._getAllPending();
 
     assert.strictEqual(calls, 3, 'we triggered one background reload and one load');
   });
@@ -449,7 +443,7 @@ module('integration/store - findRecord', function (hooks) {
     assert.strictEqual(car4?.model, 'Mini', 'car record is returned from cache');
     assert.strictEqual(car, car4, 'we found the same car');
 
-    await settled();
+    await store._getAllPending();
 
     assert.strictEqual(calls, 2, 'we triggered one background reload and one load');
   });
@@ -587,49 +581,36 @@ module('integration/store - findRecord', function (hooks) {
     assert.expect(2);
 
     let calls = 0;
-    let resolveHandler = [];
-    let result = {
-      data: {
-        type: 'car',
-        id: '1',
-        attributes: {
-          make: 'BMC',
-          model: 'Mini',
-        },
-      },
-    };
-
-    const testAdapter = JSONAPIAdapter.extend({
+    class TestAdapter extends JSONAPIAdapter {
       shouldReloadRecord(store, type, id, snapshot) {
         assert.ok(false, 'shouldReloadRecord should not be called when { reload: true }');
-      },
+      }
       async findRecord() {
         calls++;
 
-        return new Promise((resolve) => {
-          resolveHandler.push(resolve);
-        });
-      },
-    });
+        return {
+          data: {
+            type: 'car',
+            id: '1',
+            attributes: {
+              make: 'BMC',
+              model: 'Mini',
+            },
+          },
+        };
+      }
+    }
 
-    this.owner.register('adapter:application', testAdapter);
+    this.owner.register('adapter:application', TestAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
-    let firstPromise, secondPromise;
 
-    run(() => {
-      firstPromise = store.findRecord('car', '1', { include: 'driver' });
-    });
+    const firstPromise = store.findRecord('car', '1', { include: 'driver' });
+    const secondPromise = store.findRecord('car', '1', { include: 'engine,tires' });
 
-    run(() => {
-      secondPromise = store.findRecord('car', '1', { include: 'engine,tires' });
-    });
+    const car1 = await firstPromise;
+    const car2 = await secondPromise;
 
     assert.strictEqual(calls, 2, 'We made two calls to findRecord');
-
-    resolveHandler.forEach((resolve) => resolve(result));
-    let car1 = await firstPromise;
-    let car2 = await secondPromise;
-
     assert.strictEqual(car1, car2, 'we receive the same car back');
   });
 

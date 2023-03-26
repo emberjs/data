@@ -30,6 +30,7 @@
   ],
   "peerDependencies": {
     "@ember-data/model": "workspace:4.12.0-alpha.11",
+    "@ember-data/legacy-compat": "workspace:4.12.0-alpha.11",
     "@ember-data/json-api": "workspace:4.12.0-alpha.11",
     "@ember-data/graph": "workspace:4.12.0-alpha.11",
     "@ember-data/tracking": "workspace:4.12.0-alpha.11",
@@ -41,6 +42,9 @@
       "optional": true
     },
     "@ember-data/graph": {
+      "optional": true
+    },
+    "@ember-data/legacy-compat": {
       "optional": true
     },
     "@ember-data/model": {

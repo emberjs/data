@@ -89,7 +89,9 @@ module('integration/request-state-service - Request State Service', function (ho
     let requestOp = {
       op: 'findRecord',
       recordIdentifier: identifier,
-      options: {},
+      options: {
+        reload: true,
+      },
     };
     assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
 
@@ -180,7 +182,9 @@ module('integration/request-state-service - Request State Service', function (ho
     let requestOp = {
       op: 'findRecord',
       recordIdentifier: identifier,
-      options: {},
+      options: {
+        reload: true,
+      },
     };
     let savingRequestOp = {
       op: 'saveRecord',

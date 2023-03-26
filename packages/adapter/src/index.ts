@@ -138,12 +138,9 @@
 import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 
-import { Promise as RSVPPromise } from 'rsvp';
-
 import { DEBUG } from '@ember-data/env';
-import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
+import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
-import type { Snapshot } from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { Dict } from '@ember-data/types/q/utils';
@@ -246,12 +243,11 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
     @public
   */
+  // @ts-expect-error
   findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findRecord override');
     }
-
-    return RSVPPromise.resolve();
   }
 
   /**
@@ -290,12 +286,11 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     type: ShimModelClass,
     neverSet,
     snapshotRecordArray: SnapshotRecordArray
+    // @ts-expect-error
   ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findAll override');
     }
-
-    return RSVPPromise.resolve();
   }
 
   /**
@@ -330,12 +325,11 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
     @public
   */
+  // @ts-expect-error
   query(store: Store, type: ShimModelClass, query): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a query override');
     }
-
-    return RSVPPromise.resolve();
   }
 
   /**
@@ -376,12 +370,11 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
     @public
   */
+  // @ts-expect-error
   queryRecord(store: Store, type: ShimModelClass, query, adapterOptions): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a queryRecord override');
     }
-
-    return RSVPPromise.resolve();
   }
 
   /**
@@ -487,12 +480,11 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
     @public
   */
+  // @ts-expect-error
   createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a createRecord override');
     }
-
-    return RSVPPromise.resolve();
   }
 
   /**
@@ -545,12 +537,11 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
     @public
   */
+  // @ts-expect-error
   updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a updateRecord override');
     }
-
-    return RSVPPromise.resolve();
   }
 
   /**
@@ -595,12 +586,11 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
     @public
   */
+  // @ts-expect-error
   deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a deleteRecord override');
     }
-
-    return RSVPPromise.resolve();
   }
 
   /**

@@ -316,9 +316,12 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the [St
  * @module @ember-data/request
  * @main @ember-data/request
  */
-import { isDevelopingApp, isTesting, macroCondition } from '@embroider/macros';
+import { importSync } from '@embroider/macros';
+
+import { DEBUG, TESTING } from '@ember-data/env';
 
 import { assertValidRequest } from './debug';
+import { upgradePromise } from './future';
 import { Future, GenericCreateArgs, Handler, RequestInfo } from './types';
 import { executeNextHandler } from './utils';
 /**
@@ -418,7 +421,7 @@ export class RequestManager {
    * @returns {void}
    */
   useCache(cacheHandler: Handler): void {
-    if (macroCondition(isDevelopingApp())) {
+    if (DEBUG) {
       if (this._hasCacheHandler) {
         throw new Error(`\`RequestManager.useCache(<handler>)\` May only be invoked once.`);
       }
@@ -446,7 +449,7 @@ export class RequestManager {
    */
   use(newHandlers: Handler[]): void {
     const handlers = this.#handlers;
-    if (macroCondition(isDevelopingApp())) {
+    if (DEBUG) {
       if (Object.isFrozen(handlers)) {
         throw new Error(`Cannot add a Handler to a RequestManager after a request has been made`);
       }
@@ -478,7 +481,7 @@ export class RequestManager {
    */
   request<T = unknown>(request: RequestInfo): Future<T> {
     const handlers = this.#handlers;
-    if (macroCondition(isDevelopingApp())) {
+    if (DEBUG) {
       if (!Object.isFrozen(handlers)) {
         Object.freeze(handlers);
       }
@@ -494,9 +497,14 @@ export class RequestManager {
       response: null,
       stream: null,
     });
-    if (macroCondition(isTesting())) {
-      // const { waitForPromise } = importSync('ember-test-waiters');
-      // promise = waitForPromise(promise);
+    if (TESTING) {
+      if (!request.disableTestWaiter) {
+        const { waitForPromise } = importSync('@ember/test-waiters') as {
+          waitForPromise: <T>(promise: Promise<T>) => Promise<T>;
+        };
+        const newPromise = waitForPromise(promise);
+        return upgradePromise(newPromise, promise);
+      }
     }
     return promise;
   }

@@ -16,8 +16,6 @@ export default {
     '@embroider/macros',
     '@ember-data/store/-private',
     '@ember/service',
-    'require',
-    'rsvp',
     'ember-inflector',
     '@ember/debug',
     '@ember/string',
@@ -25,7 +23,6 @@ export default {
     '@ember/object/mixin',
     '@ember/application',
     '@glimmer/env',
-    '@ember/runloop',
     '@ember/polyfills',
   ],
 

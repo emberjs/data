@@ -1,13 +1,16 @@
 'use strict';
 
+const getEnv = require('./utilities/get-env');
+
 const StripClassCallCheck = require.resolve('babel6-plugin-strip-class-callcheck');
 
 function isProduction(environment) {
   return /production/.test(environment);
 }
 
-module.exports = function (config) {
+module.exports = function (config = {}) {
   let plugins = [];
+  config.env = getEnv(config);
   const DebugMacros = require('./debug-macros')(config);
   let postTransformPlugins = [];
 

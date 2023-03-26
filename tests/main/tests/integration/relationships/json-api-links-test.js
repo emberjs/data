@@ -1,5 +1,4 @@
-import { get } from '@ember/object';
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
@@ -15,7 +14,7 @@ import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy'
 module('integration/relationship/json-api-links | Relationship state updates', function (hooks) {
   setupTest(hooks);
 
-  test('Loading link with inverse:null on other model caches the two ends separately', function (assert) {
+  test('Loading link with inverse:null on other model caches the two ends separately', async function (assert) {
     const User = Model.extend({
       organisation: belongsTo('organisation', { async: true, inverse: null }),
     });
@@ -71,29 +70,24 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       }
     );
 
-    return run(() => {
-      return store.findRecord('user', 1).then((user1) => {
-        assert.ok(user1, 'user should be populated');
+    const user1 = await store.findRecord('user', '1');
+    assert.ok(user1, 'user should be populated');
 
-        return store.findRecord('organisation', 2).then((org2FromFind) => {
-          assert.strictEqual(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
-          assert.strictEqual(user1.belongsTo('organisation').id(), '1', `user's belongsTo has its id populated`);
+    const org2FromFind = await store.findRecord('organisation', '2');
+    assert.strictEqual(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
+    assert.strictEqual(user1.belongsTo('organisation').id(), '1', `user's belongsTo has its id populated`);
 
-          return user1.organisation.then((orgFromUser) => {
-            assert.false(
-              user1.belongsTo('organisation').belongsToRelationship.state.isStale,
-              'user should have loaded its belongsTo relationship'
-            );
+    const orgFromUser = await user1.organisation;
+    assert.false(
+      user1.belongsTo('organisation').belongsToRelationship.state.isStale,
+      'user should have loaded its belongsTo relationship'
+    );
 
-            assert.ok(org2FromFind, 'organisation we found should be populated');
-            assert.ok(orgFromUser, "user's organisation should be populated");
-          });
-        });
-      });
-    });
+    assert.ok(org2FromFind, 'organisation we found should be populated');
+    assert.ok(orgFromUser, "user's organisation should be populated");
   });
 
-  test('Pushing child record should not mark parent:children as loaded', function (assert) {
+  test('Pushing child record should not mark parent:children as loaded', async function (assert) {
     const Child = Model.extend({
       parent: belongsTo('parent', { async: true, inverse: 'children' }),
     });
@@ -144,7 +138,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     assert.true(state.isStale, 'final: parent should think that children still needs to be loaded');
   });
 
-  test('pushing has-many payloads with data (no links), then more data (no links) works as expected', function (assert) {
+  test('pushing has-many payloads with data (no links), then more data (no links) works as expected', async function (assert) {
+    assert.expect(2);
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -183,43 +178,44 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     let store = this.owner.lookup('service:store');
 
     // push data, no links
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
         },
-      })
-    );
+      },
+    });
+
+    await settled();
 
     // push links, no data
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [
-                { type: 'pet', id: '2' },
-                { type: 'pet', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '2' },
+              { type: 'pet', id: '3' },
+            ],
           },
         },
-      })
-    );
+      },
+    });
 
-    let Chris = run(() => store.peekRecord('user', '1'));
-    run(() => get(Chris, 'pets'));
+    await settled();
+
+    let chris = store.peekRecord('user', '1');
+    await chris.pets;
   });
 
-  test('pushing has-many payloads with data (no links), then links (no data) works as expected', function (assert) {
+  test('pushing has-many payloads with data (no links), then links (no data) works as expected', async function (assert) {
+    assert.expect(1);
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -269,42 +265,39 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     let store = this.owner.lookup('service:store');
 
     // push data, no links
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
         },
-      })
-    );
+      },
+    });
 
     // push links, no data
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              links: {
-                related: './user/1/pets',
-              },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            links: {
+              related: './user/1/pets',
             },
           },
         },
-      })
-    );
+      },
+    });
 
-    let Chris = run(() => store.peekRecord('user', '1'));
-    run(() => get(Chris, 'pets'));
+    let chris = store.peekRecord('user', '1');
+    await chris.pets;
   });
 
-  test('pushing has-many payloads with links (no data), then data (no links) works as expected', function (assert) {
+  test('pushing has-many payloads with links (no data), then data (no links) works as expected', async function (assert) {
+    assert.expect(1);
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -354,44 +347,41 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     let store = this.owner.lookup('service:store');
 
     // push links, no data
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              links: {
-                related: './user/1/pets',
-              },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            links: {
+              related: './user/1/pets',
             },
           },
         },
-      })
-    );
+      },
+    });
 
     // push data, no links
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
         },
-      })
-    );
+      },
+    });
 
-    let Chris = run(() => store.peekRecord('user', '1'));
+    const chris = store.peekRecord('user', '1');
 
     // we expect to still use the link info
-    run(() => get(Chris, 'pets'));
+    await chris.pets;
   });
 
-  test('pushing has-many payloads with links, then links again works as expected', function (assert) {
+  test('pushing has-many payloads with links, then links again works as expected', async function (assert) {
+    assert.expect(1);
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -441,46 +431,44 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     let store = this.owner.lookup('service:store');
 
     // push links, no data
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              links: {
-                related: './user/1/not-pets',
-              },
+
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            links: {
+              related: './user/1/not-pets',
             },
           },
         },
-      })
-    );
+      },
+    });
 
     // push data, no links
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              links: {
-                related: './user/1/pets',
-              },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            links: {
+              related: './user/1/pets',
             },
           },
         },
-      })
-    );
+      },
+    });
 
-    let Chris = run(() => store.peekRecord('user', '1'));
+    const chris = store.peekRecord('user', '1');
 
     // we expect to use the link info from the second push
-    run(() => get(Chris, 'pets'));
+    await chris.pets;
   });
 
-  test('pushing has-many payloads with links and data works as expected', function (assert) {
+  test('pushing has-many payloads with links and data works as expected', async function (assert) {
+    assert.expect(1);
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -530,28 +518,27 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     let store = this.owner.lookup('service:store');
 
     // push data and links
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-              links: {
-                related: './user/1/pets',
-              },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+            links: {
+              related: './user/1/pets',
             },
           },
         },
-      })
-    );
+      },
+    });
 
-    let Chris = run(() => store.peekRecord('user', '1'));
-    run(() => get(Chris, 'pets'));
+    const chris = store.peekRecord('user', '1');
+    await chris.pets;
   });
 
-  test('pushing has-many payloads with links, then one with links and data works as expected', function (assert) {
+  test('pushing has-many payloads with links, then one with links and data works as expected', async function (assert) {
+    assert.expect(1);
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -601,44 +588,40 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     let store = this.owner.lookup('service:store');
 
     // push data, no links
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
         },
-      })
-    );
+      },
+    });
 
     // push links and data
-    run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [
-                { type: 'pet', id: '1' },
-                { type: 'pet', id: '2' },
-                { type: 'pet', id: '3' },
-              ],
-              links: {
-                related: './user/1/pets',
-              },
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '1' },
+              { type: 'pet', id: '2' },
+              { type: 'pet', id: '3' },
+            ],
+            links: {
+              related: './user/1/pets',
             },
           },
         },
-      })
-    );
+      },
+    });
 
-    let Chris = run(() => store.peekRecord('user', '1'));
-    run(() => get(Chris, 'pets'));
+    const chris = store.peekRecord('user', '1');
+    await chris.pets;
   });
 });
 
@@ -689,7 +672,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     Used for situations when even initially we should fetch via link
    */
   function shouldFetchLinkTests(description, payloads) {
-    test(`get+reload hasMany with ${description}`, function (assert) {
+    test(`get+reload hasMany with ${description}`, async function (assert) {
       assert.expect(3);
 
       let store = this.owner.lookup('service:store');
@@ -712,12 +695,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       };
 
       // setup user
-      let user = run(() => store.push(deepCopy(payloads.user)));
-      let pets = run(() => user.pets);
+      let user = store.push(deepCopy(payloads.user));
+      let pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
 
-      run(() => pets.reload());
+      await pets.reload();
     });
 
     test(`get+unload+get hasMany with ${description}`, async function (assert) {
@@ -769,7 +752,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       }
     });
 
-    test(`get+reload belongsTo with ${description}`, function (assert) {
+    test(`get+reload belongsTo with ${description}`, async function (assert) {
       assert.expect(3);
 
       let store = this.owner.lookup('service:store');
@@ -802,8 +785,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       };
 
       // setup user
-      let user = run(() => store.push(deepCopy(payloads.user)));
-      let home = run(() => user.home);
+      let user = store.push(deepCopy(payloads.user));
+      let home = user.home;
+      await home;
 
       if (homeRelWasEmpty) {
         assert.notOk(didFetchInitially, 'We did not fetch');
@@ -812,10 +796,10 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       assert.ok(!!home, 'We found our home');
       isInitialFetch = false;
 
-      run(() => home.reload());
+      await home.reload();
     });
 
-    test(`get+unload+get belongsTo with ${description}`, function (assert) {
+    test(`get+unload+get belongsTo with ${description}`, async function (assert) {
       assert.expect(3);
 
       let store = this.owner.lookup('service:store');
@@ -840,14 +824,15 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       };
 
       // setup user
-      let user = run(() => store.push(deepCopy(payloads.user)));
-      let home = run(() => user.home);
+      let user = store.push(deepCopy(payloads.user));
+      let home = await user.home;
 
       assert.ok(!!home, 'We found our home');
 
       if (!homeRelWasEmpty) {
-        run(() => home.then((h) => h.unloadRecord()));
-        run(() => user.home);
+        home.unloadRecord();
+        await settled();
+        await user.home;
       } else {
         assert.ok(true, `We cant dirty a relationship we have no knowledge of`);
         assert.ok(true, `Nor should we have fetched it.`);
@@ -988,7 +973,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     situations should be done via link
    */
   function shouldReloadWithLinkTests(description, payloads) {
-    test(`get+reload hasMany with ${description}`, function (assert) {
+    test(`get+reload hasMany with ${description}`, async function (assert) {
       assert.expect(2);
 
       let store = this.owner.lookup('service:store');
@@ -1011,13 +996,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       };
 
       // setup user and pets
-      let user = run(() => store.push(deepCopy(payloads.user)));
-      run(() => store.push(deepCopy(payloads.pets)));
-      let pets = run(() => user.pets);
+      let user = store.push(deepCopy(payloads.user));
+      store.push(deepCopy(payloads.pets));
+      let pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
 
-      run(() => pets.reload());
+      await pets.reload();
     });
 
     test(`get+unload+get hasMany with ${description}`, async function (assert) {
@@ -1055,7 +1040,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       assert.strictEqual(pets.length, 1, 'we have our pet again');
     });
 
-    test(`get+reload belongsTo with ${description}`, function (assert) {
+    test(`get+reload belongsTo with ${description}`, async function (assert) {
       assert.expect(2);
 
       let store = this.owner.lookup('service:store');
@@ -1078,16 +1063,19 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       };
 
       // setup user and home
-      let user = run(() => store.push(deepCopy(payloads.user)));
-      run(() => store.push(deepCopy(payloads.home)));
-      let home = run(() => user.home);
+      let user = store.push(deepCopy(payloads.user));
+      store.push(deepCopy(payloads.home));
+      await settled();
+      let home = user.home;
+
+      await home;
 
       assert.ok(!!home, 'We found our home');
 
-      run(() => home.reload());
+      await home.reload();
     });
 
-    test(`get+unload+get belongsTo with ${description}`, function (assert) {
+    test(`get+unload+get belongsTo with ${description}`, async function (assert) {
       assert.expect(2);
 
       let store = this.owner.lookup('service:store');
@@ -1110,15 +1098,16 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       };
 
       // setup user
-      let user = run(() => store.push(deepCopy(payloads.user)));
-      run(() => store.push(deepCopy(payloads.home)));
-      let home;
-      run(() => user.home.then((h) => (home = h)));
+      let user = store.push(deepCopy(payloads.user));
+      store.push(deepCopy(payloads.home));
+      await settled();
+      let home = await user.home;
 
       assert.ok(!!home, 'We found our home');
 
-      run(() => home.unloadRecord());
-      run(() => user.home);
+      home.unloadRecord();
+      await settled();
+      await user.home;
     });
   }
 
@@ -1319,7 +1308,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
    */
 
   // data, no links
-  test(`get+reload hasMany with data, no links`, function (assert) {
+  test(`get+reload hasMany with data, no links`, async function (assert) {
     assert.expect(3);
 
     let store = this.owner.lookup('service:store');
@@ -1354,30 +1343,28 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user
-    let user = run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          attributes: {
-            name: '@runspired',
+    let user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
+        },
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
-            home: {
-              data: { type: 'home', id: '1' },
-            },
+          home: {
+            data: { type: 'home', id: '1' },
           },
         },
-      })
-    );
-    let pets = run(() => user.pets);
+      },
+    });
+    let pets = await user.pets;
 
     assert.ok(!!pets, 'We found our pets');
 
-    run(() => pets.reload());
+    await pets.reload();
   });
 
   test(`get+unload+get hasMany with data, no links`, async function (assert) {
@@ -1440,7 +1427,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     assert.strictEqual(pets.length, 1, 'we reloaded our pet');
   });
 
-  test(`get+reload belongsTo with data, no links`, function (assert) {
+  test(`get+reload belongsTo with data, no links`, async function (assert) {
     assert.expect(3);
 
     let store = this.owner.lookup('service:store');
@@ -1475,33 +1462,31 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user
-    let user = run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          attributes: {
-            name: '@runspired',
+    let user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
+        },
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
-            home: {
-              data: { type: 'home', id: '1' },
-            },
+          home: {
+            data: { type: 'home', id: '1' },
           },
         },
-      })
-    );
-    let home = run(() => user.home);
-
+      },
+    });
+    let home = user.home;
+    await home;
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.reload());
+    await home.reload();
   });
 
-  test(`get+unload+get belongsTo with data, no links`, function (assert) {
+  test(`get+unload+get belongsTo with data, no links`, async function (assert) {
     assert.expect(3);
 
     let store = this.owner.lookup('service:store');
@@ -1536,31 +1521,30 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user
-    let user = run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          attributes: {
-            name: '@runspired',
+    let user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
+        },
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
-            home: {
-              data: { type: 'home', id: '1' },
-            },
+          home: {
+            data: { type: 'home', id: '1' },
           },
         },
-      })
-    );
-    let home = run(() => user.home);
+      },
+    });
+    let home = await user.home;
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.then((h) => h.unloadRecord()));
-    run(() => user.home);
+    home.unloadRecord();
+    await settled();
+    await user.home;
   });
 
   // missing data setup from the other side, no links
@@ -1711,7 +1695,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     assert.strictEqual(pets.length, 1, 'we reloaded our pets');
   });
 
-  test(`get+reload belongsTo with missing data setup from the other side, no links`, function (assert) {
+  test(`get+reload belongsTo with missing data setup from the other side, no links`, async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1746,42 +1730,42 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user and home
-    let user = run(() =>
-      store.push({
-        data: {
-          type: 'user',
+    const user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
+        },
+        relationships: {},
+      },
+      included: [
+        {
+          type: 'home',
           id: '1',
           attributes: {
-            name: '@runspired',
+            address: 'Oakland, CA',
           },
-          relationships: {},
-        },
-        included: [
-          {
-            type: 'home',
-            id: '1',
-            attributes: {
-              address: 'Oakland, CA',
-            },
-            relationships: {
-              owner: {
-                data: {
-                  type: 'user',
-                  id: '1',
-                },
+          relationships: {
+            owner: {
+              data: {
+                type: 'user',
+                id: '1',
               },
             },
           },
-        ],
-      })
-    );
-    let home = run(() => user.home);
+        },
+      ],
+    });
+    let home = user.home;
+
+    await home;
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.reload());
+    await home.reload();
   });
-  test(`get+unload+get belongsTo with missing data setup from the other side, no links`, function (assert) {
+  test(`get+unload+get belongsTo with missing data setup from the other side, no links`, async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1816,45 +1800,45 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user and home
-    let user = run(() =>
-      store.push({
-        data: {
-          type: 'user',
+    const user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
+        },
+        relationships: {},
+      },
+      included: [
+        {
+          type: 'home',
           id: '1',
           attributes: {
-            name: '@runspired',
+            address: 'Oakland, CA',
           },
-          relationships: {},
-        },
-        included: [
-          {
-            type: 'home',
-            id: '1',
-            attributes: {
-              address: 'Oakland, CA',
-            },
-            relationships: {
-              owner: {
-                data: {
-                  type: 'user',
-                  id: '1',
-                },
+          relationships: {
+            owner: {
+              data: {
+                type: 'user',
+                id: '1',
               },
             },
           },
-        ],
-      })
-    );
-    let home = run(() => user.home);
+        },
+      ],
+    });
+    let home = user.home;
+    let h = await home;
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.then((h) => h.unloadRecord()));
-    run(() => user.home);
+    h.unloadRecord();
+    await settled();
+    await user.home;
   });
 
   // empty data, no links
-  test(`get+reload hasMany with empty data, no links`, function (assert) {
+  test(`get+reload hasMany with empty data, no links`, async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1872,36 +1856,34 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user
-    let user = run(() =>
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          attributes: {
-            name: '@runspired',
+    let user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
+        },
+        relationships: {
+          pets: {
+            data: [],
           },
-          relationships: {
-            pets: {
-              data: [],
-            },
-            home: {
-              data: null,
-            },
+          home: {
+            data: null,
           },
         },
-      })
-    );
-    let pets = run(() => user.pets);
-
+      },
+    });
+    let pets = user.pets;
+    await pets;
     assert.ok(!!pets, 'We found our pets');
 
-    run(() => pets.reload());
+    await pets.reload();
   });
 
   /*
     Ad hoc situations where we do have a link
    */
-  test('We should not fetch a hasMany relationship with links that we know is empty', function (assert) {
+  test('We should not fetch a hasMany relationship with links that we know is empty', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1968,30 +1950,30 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup users
-    let user1 = run(() => store.push(deepCopy(user1Payload)));
-    let user2 = run(() => store.push(deepCopy(user2Payload)));
+    let user1 = store.push(deepCopy(user1Payload));
+    let user2 = store.push(deepCopy(user2Payload));
 
     // should not fire a request
     requestedUser = null;
     failureDescription = 'We improperly fetched the link for a known empty relationship';
-    run(() => user1.pets);
+    await user1.pets;
 
     // still should not fire a request
     requestedUser = null;
     failureDescription = 'We improperly fetched the link (again) for a known empty relationship';
-    run(() => user1.pets);
+    await user1.pets;
 
     // should fire a request
     requestedUser = user2Payload;
-    run(() => user2.pets);
+    await user2.pets;
 
     // should not fire a request
     requestedUser = null;
     failureDescription = 'We improperly fetched the link for a previously fetched and found to be empty relationship';
-    run(() => user2.pets);
+    await user2.pets;
   });
 
-  test('We should not fetch a sync hasMany relationship with a link that is missing the data member', function (assert) {
+  test('We should not fetch a sync hasMany relationship with a link that is missing the data member', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -2029,15 +2011,15 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup users
-    let shen = run(() => store.push(petPayload));
+    let shen = store.push(petPayload);
 
     // should not fire a request
-    run(() => shen.pets);
+    await shen.pets;
 
     assert.ok(true, 'We reached the end of the test');
   });
 
-  test('We should not fetch a sync belongsTo relationship with a link that is missing the data member', function (assert) {
+  test('We should not fetch a sync belongsTo relationship with a link that is missing the data member', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -2076,10 +2058,10 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup users
-    let shen = run(() => store.push(petPayload));
+    let shen = store.push(petPayload);
 
     // should not fire a request
-    run(() => shen.owner);
+    await shen.owner;
 
     assert.ok(true, 'We reached the end of the test');
   });

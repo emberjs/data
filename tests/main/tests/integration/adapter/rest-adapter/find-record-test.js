@@ -171,7 +171,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       // create an identifier that is un-fetchable
       const identifier = store.identifierCache.createIdentifierForNewRecord({ type: 'post' });
 
-      assert.expectAssertion(async () => {
+      await assert.expectAssertion(async () => {
         await store.findRecord(identifier);
       }, 'Assertion Failed: Attempted to schedule a fetch for a record without an id.');
     }
@@ -198,7 +198,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
         const record = store.createRecord('post');
         const identifier = recordIdentifierFor(record);
 
-        assert.expectAssertion(async () => {
+        await assert.expectAssertion(async () => {
           await store.findRecord(identifier, options);
         }, 'Assertion Failed: Attempted to schedule a fetch for a record without an id.');
       }

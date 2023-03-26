@@ -1,5 +1,5 @@
 import EmberObject from '@ember/object';
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
@@ -283,7 +283,8 @@ module('integration/load - Loading Records', function (hooks) {
     assert.false(_isLoading(instanceCache, identifier), 'after reload: We have loaded');
     assert.false(record.isReloading, 'after reload:: We are not reloading');
 
-    run(() => record.unloadRecord());
+    record.unloadRecord();
+    await settled();
 
     // test that after an unload our state is correct
     assert.true(cache.isEmpty(identifier), 'after unload: We are empty again');

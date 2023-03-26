@@ -1,10 +1,10 @@
 import { render, settled } from '@ember/test-helpers';
-import Ember from 'ember';
 
 import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
-import { Promise, reject, resolve } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 
+import { render as legacyRender } from 'ember-data/test-support';
 import { setupRenderingTest } from 'ember-qunit';
 
 import { ServerError } from '@ember-data/adapter/error';
@@ -70,13 +70,13 @@ class TestAdapter extends JSONAPIAdapter {
 
     if (payload === undefined) {
       this.assert.ok(false, 'Too many adapter requests have been made!');
-      return reject(new ServerError([], 'Too many adapter requests have been made!'));
+      return Promise.reject(new ServerError([], 'Too many adapter requests have been made!'));
     }
 
     if (payload instanceof ServerError) {
-      return reject(payload);
+      return Promise.reject(payload);
     }
-    return resolve(payload);
+    return Promise.resolve(payload);
   }
 
   // find by link
@@ -367,11 +367,12 @@ module('async belongs-to rendering tests', function (hooks) {
       this.set('chris', chris);
 
       await render(hbs`
-      <p>{{this.chris.bestDog.name}}</p>
+      <p>{{this.chris.name}} has {{this.chris.bestDog.name}}</p>
       `);
+      assert.strictEqual(this.element.textContent.trim(), 'Chris has', 'initially there is no name for bestDog');
       await settled();
 
-      assert.strictEqual(this.element.textContent.trim(), '', 'initially there is no name for bestDog');
+      assert.strictEqual(this.element.textContent.trim(), 'Chris has', 'initially there is no name for bestDog');
       assert.strictEqual(shen.bestHuman, null, 'precond - Shen has no best human');
       assert.strictEqual(pirate.bestHuman, null, 'precond - pirate has no best human');
       assert.strictEqual(bestDog, null, 'precond - Chris has no best dog');
@@ -381,7 +382,7 @@ module('async belongs-to rendering tests', function (hooks) {
       bestDog = await chris.bestDog;
       await settled();
 
-      assert.strictEqual(this.element.textContent.trim(), 'Shen');
+      assert.strictEqual(this.element.textContent.trim(), 'Chris has Shen');
       assert.strictEqual(shen.bestHuman, chris, "scene 1 - Chris is Shen's best human");
       assert.strictEqual(pirate.bestHuman, null, 'scene 1 - pirate has no best human');
       assert.strictEqual(bestDog, shen, "scene 1 - Shen is Chris's best dog");
@@ -391,7 +392,7 @@ module('async belongs-to rendering tests', function (hooks) {
       bestDog = await chris.bestDog;
       await settled();
 
-      assert.strictEqual(this.element.textContent.trim(), 'Pirate');
+      assert.strictEqual(this.element.textContent.trim(), 'Chris has Pirate');
       assert.strictEqual(shen.bestHuman, null, "scene 2 - Chris is no longer Shen's best human");
       assert.strictEqual(pirate.bestHuman, chris, 'scene 2 - pirate now has Chris as best human');
       assert.strictEqual(bestDog, pirate, "scene 2 - Pirate is now Chris's best dog");
@@ -401,7 +402,7 @@ module('async belongs-to rendering tests', function (hooks) {
       bestDog = await chris.bestDog;
       await settled();
 
-      assert.strictEqual(this.element.textContent.trim(), '');
+      assert.strictEqual(this.element.textContent.trim(), 'Chris has');
       assert.strictEqual(shen.bestHuman, null, "scene 3 - Chris remains no longer Shen's best human");
       assert.strictEqual(pirate.bestHuman, null, 'scene 3 - pirate no longer has Chris as best human');
       assert.strictEqual(bestDog, null, 'scene 3 - Chris has no best dog');
@@ -420,8 +421,8 @@ module('async belongs-to rendering tests', function (hooks) {
       // render
       this.set('sedona', sedona);
 
-      await render(hbs`
-      <p>{{this.sedona.parent.name}}</p>
+      await legacyRender(hbs`
+        <p>{{this.sedona.parent.name}}</p>
       `);
 
       assert.strictEqual(this.element.textContent.trim(), 'Kevin has two children and one parent');
@@ -465,7 +466,7 @@ module('async belongs-to rendering tests', function (hooks) {
       // render
       this.set('sedona', sedona);
 
-      await render(hbs`
+      await legacyRender(hbs`
       <p>{{this.sedona.parent.name}}</p>
       `);
 
@@ -491,28 +492,43 @@ module('async belongs-to rendering tests', function (hooks) {
       // render
       this.set('sedona', sedona);
 
-      let originalOnError = Ember.onerror;
       let hasFired = false;
-      Ember.onerror = function (e) {
+      // This function handles any unhandled promise rejections
+      const globalPromiseRejectionHandler = (event) => {
         if (!hasFired) {
           hasFired = true;
           assert.ok(true, 'Children promise did reject');
           assert.strictEqual(
-            e.message,
+            event.reason.message,
             'hard error while finding <person>5:has-parent-no-children.parent',
             'Rejection has the correct message'
           );
         } else {
-          assert.ok(false, 'We only reject a single time');
+          assert.strictEqual(event.reason.message, '<<No Error Should Exist>>', `We only reject a single time:`);
           adapter.pause(); // prevent further recursive calls to load the relationship
         }
+        event.preventDefault();
+        return false;
       };
 
-      await render(hbs`
-      <p>{{this.sedona.parent.name}}</p>
+      // Here we assign our handler to the corresponding global, window property
+      window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
+      let originalPushResult = assert.pushResult;
+      assert.pushResult = function (result) {
+        if (
+          result.result === false &&
+          result.message === 'global failure: Error: hard error while finding <person>5:has-parent-no-children.parent'
+        ) {
+          return;
+        }
+        return originalPushResult.call(this, result);
+      };
+
+      await legacyRender(hbs`
+      <p>'{{this.sedona.name}}' has parent '{{this.sedona.parent.name}}'</p>
       `);
 
-      assert.strictEqual(this.element.textContent.trim(), '', 'we have no parent');
+      assert.strictEqual(this.element.textContent.trim(), "'Sedona has a parent' has parent ''", 'we have no parent');
 
       const relationship = sedona.belongsTo('parent').belongsToRelationship;
       const { state, definition } = relationship;
@@ -530,20 +546,21 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.false(!!relationship.link, 'The relationship does not have a link');
 
       try {
-        let result = await sedona.parent.content;
+        let result = sedona.parent.content;
         assert.strictEqual(result, null, 're-access is safe');
       } catch (e) {
-        assert.ok(false, `Accessing resulted in rejected promise error: ${e.message}`);
+        assert.ok(false, `Re-accessing unexpectedly resulted in rejected promise error: ${e.message}`);
       }
 
       try {
         await sedona.parent;
         assert.ok(false, 're-access should throw original rejection');
       } catch (e) {
-        assert.ok(true, `Accessing resulted in rejected promise error: ${e.message}`);
+        assert.ok(true, `Re-accessing resulted in rejected promise error: ${e.message}`);
       }
 
-      Ember.onerror = originalOnError;
+      window.removeEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
+      assert.pushResult = originalPushResult;
     });
 
     test('accessing a linked async belongs-to whose fetch fails does not error for null proxy content', async function (assert) {
@@ -590,14 +607,24 @@ module('async belongs-to rendering tests', function (hooks) {
     // render
     this.set('sedona', sedona);
 
-    let originalOnError = Ember.onerror;
-    Ember.onerror = function (e) {
+    // This function handles any unhandled promise rejections
+    const globalPromiseRejectionHandler = (event) => {
       assert.ok(true, 'Rejects the first time');
+      event.preventDefault();
+      return false;
     };
 
-    await render(hbs`
-    <p>{{this.sedona.parent.name}}</p>
-    `);
+    // Here we assign our handler to the corresponding global, window property
+    window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
+    let originalPushResult = assert.pushResult;
+    assert.pushResult = function (result) {
+      if (result.result === false && result.message === 'global failure: Error: person not found') {
+        return;
+      }
+      return originalPushResult.call(this, result);
+    };
+
+    await render(hbs`<p>{{this.sedona.parent.name}}</p>`);
 
     const newParent = store.createRecord('person', { name: 'New Person' });
     sedona.set('parent', newParent);
@@ -617,6 +644,7 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.strictEqual(e.message, 'person not found', 'we threw a not found error');
       assert.strictEqual(adapter._payloads.length, 0, 'we hit network again');
     }
-    Ember.onerror = originalOnError;
+    window.removeEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
+    assert.pushResult = originalPushResult;
   });
 });

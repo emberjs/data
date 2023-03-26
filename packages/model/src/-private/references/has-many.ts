@@ -3,7 +3,6 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
-import { resolve } from 'rsvp';
 
 import { ManyArray } from 'ember-data/-private';
 
@@ -409,7 +408,9 @@ export default class HasManyReference {
     let payload = objectOrPromise;
     if (DEPRECATE_PROMISE_PROXIES) {
       if ((objectOrPromise as unknown as { then: unknown }).then) {
-        payload = await resolve(objectOrPromise);
+        payload = await (objectOrPromise as unknown as Promise<
+          ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
+        >);
         if (payload !== objectOrPromise) {
           deprecate(
             `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,

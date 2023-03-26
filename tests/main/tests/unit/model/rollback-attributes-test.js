@@ -1,9 +1,9 @@
 import { addObserver } from '@ember/object/observers';
-import { later, run } from '@ember/runloop';
+import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise, reject } from 'rsvp';
+import { reject } from 'rsvp';
 
 import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
@@ -80,52 +80,51 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       assert.false(person.hasDirtyAttributes);
     });
 
-    test('changes to attributes made after a record is in-flight only rolls back the local changes', function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+    test('changes to attributes made after a record is in-flight only rolls back the local changes', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
-      adapter.updateRecord = function (store, type, snapshot) {
+      let resolve;
+      let trap = new Promise((r) => (resolve = r));
+      adapter.updateRecord = async function (store, type, snapshot) {
+        resolve();
+        await trap;
         // Make sure the save is async
-        return new EmberPromise((resolve) => later(null, resolve, 15));
+        return new Promise((resolve) => setTimeout(resolve, 1));
       };
 
-      let person = run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              firstName: 'Tom',
-              lastName: 'Dale',
-            },
+      const person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            firstName: 'Tom',
+            lastName: 'Dale',
           },
-        });
-
-        let person = store.peekRecord('person', 1);
-        person.set('firstName', 'Thomas');
-
-        return person;
+        },
       });
 
-      return run(() => {
-        let saving = person.save();
+      person.firstName = 'Thomas';
 
-        assert.strictEqual(person.firstName, 'Thomas');
+      const promise = person.save();
+      assert.strictEqual(person.firstName, 'Thomas');
+      assert.true(person.isSaving, 'correct state after save');
+      await trap;
+      assert.strictEqual(person.firstName, 'Thomas');
+      assert.true(person.isSaving, 'correct state after save');
 
-        person.set('lastName', 'Dolly');
+      person.lastName = 'Dolly';
 
-        assert.strictEqual(person.lastName, 'Dolly');
+      assert.strictEqual(person.lastName, 'Dolly');
 
-        person.rollbackAttributes();
+      person.rollbackAttributes();
 
-        assert.strictEqual(person.firstName, 'Thomas');
-        assert.strictEqual(person.lastName, 'Dale');
-        assert.true(person.isSaving);
+      assert.strictEqual(person.firstName, 'Thomas', 'correct firstName after in-flight rollback');
+      assert.strictEqual(person.lastName, 'Dale', 'correct last name after in-flight rollback');
+      assert.true(person.isSaving, 'correct state after in-flight rollback');
 
-        return saving.then(() => {
-          assert.false(person.hasDirtyAttributes, 'The person is now clean');
-        });
-      });
+      await promise;
+      assert.false(person.hasDirtyAttributes, 'The person is now clean');
     });
 
     test("a record's changes can be made if it fails to save", async function (assert) {

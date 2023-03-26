@@ -1,4 +1,4 @@
-import { isDevelopingApp, macroCondition } from '@embroider/macros';
+import { DEBUG } from '@ember-data/env';
 
 import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
@@ -108,7 +108,7 @@ export function executeNextHandler<T>(
   i: number,
   god: GodContext
 ): Future<T> {
-  if (macroCondition(isDevelopingApp())) {
+  if (DEBUG) {
     if (i === wares.length) {
       throw new Error(`No handler was able to handle this request.`);
     }
@@ -125,7 +125,7 @@ export function executeNextHandler<T>(
   let outcome: Promise<T> | Future<T>;
   try {
     outcome = wares[i].request<T>(context, next);
-    if (macroCondition(isDevelopingApp())) {
+    if (DEBUG) {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       if (!outcome || (!(outcome instanceof Promise) && !(typeof outcome === 'object' && 'then' in outcome))) {
         // eslint-disable-next-line no-console

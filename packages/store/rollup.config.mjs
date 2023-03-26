@@ -19,6 +19,7 @@ export default {
     '@ember-data/legacy-compat/-private',
     '@ember-data/tracking/-private',
     '@ember-data/private-build-infra/deprecations',
+    '@ember/-internals/glimmer',
     '@ember/-internals/metal',
     '@glimmer/validator',
 
@@ -27,7 +28,6 @@ export default {
     '@ember/runloop',
     '@ember/string',
     'ember',
-    'rsvp',
 
     // investigate why these are present
     '@ember/application',

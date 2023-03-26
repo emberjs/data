@@ -3,7 +3,7 @@ import RSVP from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
-import { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
+import { FetchManager, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { RecordArray, SOURCE } from '@ember-data/store/-private';
@@ -431,7 +431,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('Create A SnapshotRecordArray', async function (assert) {
     this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
+    store._fetchManager = new FetchManager(store);
 
     let model1 = {
       id: '1',

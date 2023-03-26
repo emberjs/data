@@ -6,13 +6,10 @@ import { assert, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { join } from '@ember/runloop';
 
-import { Promise as RSVPPromise } from 'rsvp';
-
 import { DEBUG } from '@ember-data/env';
-import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
+import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -1114,7 +1111,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     } else {
       let hash: JQueryRequestInit = adapter.ajaxOptions(url, type, options);
 
-      return new RSVPPromise(function (resolve, reject) {
+      return new Promise(function (resolve, reject) {
         hash.success = function (payload, textStatus, jqXHR) {
           let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
           join(null, resolve, response);
@@ -1126,7 +1123,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
         };
 
         adapter._ajax(hash);
-      }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
+      });
     }
   }
 
@@ -1336,11 +1333,11 @@ function ajaxSuccess(
   try {
     response = adapter.handleResponse(responseData.status, responseData.headers, payload, requestData);
   } catch (error) {
-    return RSVPPromise.reject(error);
+    return Promise.reject(error);
   }
 
   if (response && response.isAdapterError) {
-    return RSVPPromise.reject(response);
+    return Promise.reject(response);
   } else {
     return response;
   }

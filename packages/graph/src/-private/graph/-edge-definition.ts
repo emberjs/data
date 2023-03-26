@@ -14,7 +14,17 @@ export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
 
 export interface UpgradedMeta {
   kind: 'hasMany' | 'belongsTo' | 'implicit';
+  /**
+   * The field name on `this` record
+   *
+   * @internal
+   */
   key: string;
+  /**
+   * The `type` of the related record
+   *
+   * @internal
+   */
   type: string;
   isAsync: boolean;
   isImplicit: boolean;
@@ -22,7 +32,15 @@ export interface UpgradedMeta {
   isPolymorphic: boolean;
 
   inverseKind: 'hasMany' | 'belongsTo' | 'implicit';
+  /**
+   * The field name on the opposing record
+   * @internal
+   */
   inverseKey: string;
+  /**
+   * The `type` of `this` record
+   * @internal
+   */
   inverseType: string;
   inverseIsAsync: boolean;
   inverseIsImplicit: boolean;

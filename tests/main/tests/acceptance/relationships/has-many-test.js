@@ -4,12 +4,12 @@ import { sort } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { click, find, findAll, render, rerender } from '@ember/test-helpers';
 import Component from '@glimmer/component';
-import Ember from 'ember';
 
 import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
 
+import { render as legacyRender } from 'ember-data/test-support';
 import { setupRenderingTest } from 'ember-qunit';
 
 import { ServerError } from '@ember-data/adapter/error';
@@ -39,7 +39,24 @@ class TestAdapter extends JSONAPIAdapter {
     return false;
   }
 
+  pause() {
+    this.isPaused = true;
+    this.pausePromise = new Promise((resolve) => {
+      this._resume = resolve;
+    });
+  }
+
+  resume() {
+    if (this.isPaused) {
+      this.isPaused = false;
+      this._resume();
+    }
+  }
+
   _nextPayload() {
+    if (this.isPaused) {
+      return this.pausePromise.then(() => this._nextPayload());
+    }
     let payload = this._payloads.shift();
 
     if (payload === undefined) {
@@ -225,13 +242,13 @@ module('async has-many rendering tests', function (hooks) {
       // render
       this.set('parent', parent);
 
-      await render(hbs`
-      <ul>
-      {{#each this.parent.children as |child|}}
-        <li>{{child.name}}</li>
-      {{/each}}
-      </ul>
-    `);
+      await legacyRender(hbs`
+        <ul>
+        {{#each this.parent.children as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+        </ul>
+      `);
 
       let names = findAll('li').map((e) => e.textContent);
 
@@ -252,13 +269,13 @@ module('async has-many rendering tests', function (hooks) {
       // render
       this.set('parent', parent);
 
-      await render(hbs`
-      <ul>
-      {{#each this.parent.children as |child|}}
-        <li>{{child.name}}</li>
-      {{/each}}
-      </ul>
-    `);
+      await legacyRender(hbs`
+        <ul>
+        {{#each this.parent.children as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+        </ul>
+      `);
 
       let items = findAll('li');
       let names = items.map((e) => e.textContent);
@@ -292,23 +309,45 @@ module('async has-many rendering tests', function (hooks) {
       // render
       this.set('parent', parent);
 
-      let originalOnError = Ember.onerror;
-      Ember.onerror = function (e) {
-        assert.ok(true, 'Children promise did reject');
-        assert.strictEqual(
-          e.message,
-          'hard error while finding <person>5:has-parent-no-children',
-          'Rejection has the correct message'
-        );
+      let hasFired = false;
+      // This function handles any unhandled promise rejections
+      const globalPromiseRejectionHandler = (event) => {
+        if (!hasFired) {
+          hasFired = true;
+          assert.ok(true, 'Children promise did reject');
+          assert.strictEqual(
+            event.reason.message,
+            'hard error while finding <person>5:has-parent-no-children',
+            'Rejection has the correct message'
+          );
+        } else {
+          assert.ok(false, 'We only reject a single time');
+          adapter.pause(); // prevent further recursive calls to load the relationship
+        }
+        event.preventDefault();
+        return false;
       };
 
-      await render(hbs`
-      <ul>
-      {{#each this.parent.children as |child|}}
-        <li>{{child.name}}</li>
-      {{/each}}
-      </ul>
-    `);
+      // Here we assign our handler to the corresponding global, window property
+      window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
+      let originalPushResult = assert.pushResult;
+      assert.pushResult = function (result) {
+        if (
+          result.result === false &&
+          result.message === 'global failure: Error: hard error while finding <person>5:has-parent-no-children'
+        ) {
+          return;
+        }
+        return originalPushResult.call(this, result);
+      };
+
+      await legacyRender(hbs`
+        <ul>
+        {{#each this.parent.children as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+        </ul>
+      `);
 
       let names = findAll('li').map((e) => e.textContent);
 
@@ -327,7 +366,8 @@ module('async has-many rendering tests', function (hooks) {
       assert.true(!!RelationshipProxyCache['children'], 'The relationship has a promise proxy');
       assert.false(!!relationshipState.link, 'The relationship does not have a link');
 
-      Ember.onerror = originalOnError;
+      window.removeEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
+      assert.pushResult = originalPushResult;
     });
   });
 
@@ -408,14 +448,37 @@ module('async has-many rendering tests', function (hooks) {
       // render
       this.set('parent', parent);
 
-      let originalOnError = Ember.onerror;
-      Ember.onerror = function (e) {
-        assert.ok(true, 'Children promise did reject');
-        assert.strictEqual(
-          e.message,
-          'hard error while finding link ./person/3:has-2-children-and-parent/children',
-          'Rejection has the correct message'
-        );
+      let hasFired = false;
+      // This function handles any unhandled promise rejections
+      const globalPromiseRejectionHandler = (event) => {
+        if (!hasFired) {
+          hasFired = true;
+          assert.ok(true, 'Children promise did reject');
+          assert.strictEqual(
+            event.reason.message,
+            'hard error while finding link ./person/3:has-2-children-and-parent/children',
+            'Rejection has the correct message'
+          );
+        } else {
+          assert.ok(false, 'We only reject a single time');
+          adapter.pause(); // prevent further recursive calls to load the relationship
+        }
+        event.preventDefault();
+        return false;
+      };
+
+      // Here we assign our handler to the corresponding global, window property
+      window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
+      let originalPushResult = assert.pushResult;
+      assert.pushResult = function (result) {
+        if (
+          result.result === false &&
+          result.message ===
+            'global failure: Error: hard error while finding link ./person/3:has-2-children-and-parent/children'
+        ) {
+          return;
+        }
+        return originalPushResult.call(this, result);
       };
 
       await render(hbs`
@@ -446,7 +509,8 @@ module('async has-many rendering tests', function (hooks) {
       assert.true(relationshipState.state.hasFailedLoadAttempt, 'The relationship has attempted a load');
       assert.true(!!(relationshipState.links && relationshipState.links.related), 'The relationship has a link');
 
-      Ember.onerror = originalOnError;
+      window.removeEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
+      assert.pushResult = originalPushResult;
     });
   });
 

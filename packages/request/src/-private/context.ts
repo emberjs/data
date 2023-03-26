@@ -1,4 +1,4 @@
-import { isDevelopingApp, macroCondition } from '@embroider/macros';
+import { DEBUG } from '@ember-data/env';
 
 import { deepFreeze } from './debug';
 import { createDeferred } from './future';
@@ -30,7 +30,7 @@ export class ContextOwner {
       { signal: god.controller.signal },
       request
     ) as ImmutableRequestInfo;
-    if (macroCondition(isDevelopingApp())) {
+    if (DEBUG) {
       request = deepFreeze(request) as ImmutableRequestInfo;
       enhancedRequest = deepFreeze(enhancedRequest);
     } else {
@@ -89,7 +89,7 @@ export class ContextOwner {
 
   setResponse(response: ResponseInfo | Response | null) {
     if (this.hasSetResponse) {
-      if (macroCondition(isDevelopingApp())) {
+      if (DEBUG) {
         throw new Error(`Cannot setResponse when a response has already been set`);
       }
       return;
@@ -112,7 +112,7 @@ export class ContextOwner {
         type,
         url,
       };
-      if (macroCondition(isDevelopingApp())) {
+      if (DEBUG) {
         responseData = deepFreeze(responseData);
       }
       this.response = responseData;

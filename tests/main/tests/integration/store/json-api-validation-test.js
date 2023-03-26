@@ -75,12 +75,12 @@ module('integration/store/json-validation', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(async function () {
+    await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
     }, /Top level of a JSON API document must be an object/);
   });
 
-  testInDebug('when normalizeResponse returns null, throws an error', function (assert) {
+  testInDebug('when normalizeResponse returns null, throws an error', async function (assert) {
     this.owner.register(
       'serializer:person',
       Serializer.extend({
@@ -101,7 +101,7 @@ module('integration/store/json-validation', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(async function () {
+    await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
     }, /Top level of a JSON API document must be an object/);
   });
@@ -127,7 +127,7 @@ module('integration/store/json-validation', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(async function () {
+    await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
     }, /One or more of the following keys must be present/);
   });
@@ -158,7 +158,7 @@ module('integration/store/json-validation', function (hooks) {
 
       let store = this.owner.lookup('service:store');
 
-      assert.expectAssertion(async function () {
+      await assert.expectAssertion(async function () {
         await store.findRecord('person', '1');
       }, /cannot both be present/);
     }
