@@ -1,30 +1,35 @@
 import { assert } from '@ember/debug';
 
-import { Promise, resolve } from 'rsvp';
+import { importSync } from '@embroider/macros';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG, TESTING } from '@ember-data/env';
 import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import type { Snapshot } from '@ember-data/store/-private';
-import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
+import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type {
   CollectionResourceDocument,
   JsonApiDocument,
+  Links,
+  PaginationLinks,
   SingleResourceDocument,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
 import { guardDestroyedStore } from './common';
 import FetchManager, { SaveOp } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';
+import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
+import { payloadIsNotBlank } from './legacy-data-utils';
 import { normalizeResponseHelper } from './serializer-response';
+import type Snapshot from './snapshot';
 import SnapshotRecordArray from './snapshot-record-array';
 
 type AdapterErrors = Error & { errors?: unknown[]; isAdapterError?: true; code?: string };
@@ -33,10 +38,10 @@ type SerializerWithParseErrors = MinimumSerializerInterface & {
 };
 
 export const LegacyNetworkHandler: Handler = {
-  request<T>(context: StoreRequestContext, next: NextFn<T>) {
+  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> {
     // if we are not a legacy request, move on
     if (context.request.url || !context.request.op) {
-      return next(context.request);
+      return next(context.request) as unknown as Promise<T>;
     }
 
     const { store } = context.request;
@@ -45,25 +50,110 @@ export const LegacyNetworkHandler: Handler = {
     }
 
     switch (context.request.op) {
-      case 'updateRecord':
-        return saveRecord(context);
-      case 'deleteRecord':
-        return saveRecord(context);
-      case 'createRecord':
-        return saveRecord(context);
       case 'findRecord':
         return findRecord(context);
       case 'findAll':
         return findAll(context);
-      case 'queryRecord':
-        return queryRecord(context);
       case 'query':
         return query(context);
+      case 'queryRecord':
+        return queryRecord(context);
+      case 'findBelongsTo':
+        return findBelongsTo(context);
+      case 'findHasMany':
+        return findHasMany(context);
+      case 'updateRecord':
+        return saveRecord(context);
+      case 'createRecord':
+        return saveRecord(context);
+      case 'deleteRecord':
+        return saveRecord(context);
       default:
-        return next(context.request);
+        return next(context.request) as unknown as Promise<T>;
     }
   },
 };
+
+function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
+  const { store, data, records: identifiers } = context.request;
+  const { options, record, links, useLink, field } = data as {
+    record: StableRecordIdentifier;
+    options: Record<string, unknown>;
+    links?: Links;
+    useLink: boolean;
+    field: RelationshipSchema;
+  };
+  const identifier = identifiers?.[0];
+
+  // short circuit if we are already loading
+  let pendingRequest = identifier && store._fetchManager.getPendingFetch(identifier, options);
+  if (pendingRequest) {
+    return pendingRequest as Promise<T>;
+  }
+
+  if (useLink) {
+    return _findBelongsTo(store, record, links!.related, field, options) as Promise<T>;
+  }
+
+  assert(`Expected an identifier`, Array.isArray(identifiers) && identifiers.length === 1);
+
+  const manager = store._fetchManager;
+  assertIdentifierHasId(identifier!);
+
+  return options.reload
+    ? (manager.scheduleFetch(identifier, options, context.request) as Promise<T>)
+    : (manager.fetchDataIfNeededForIdentifier(identifier, options, context.request) as Promise<T>);
+}
+
+function findHasMany<T>(context: StoreRequestContext): Promise<T> {
+  const { store, data, records: identifiers } = context.request;
+  const { options, record, links, useLink, field } = data as {
+    record: StableRecordIdentifier;
+    options: Record<string, unknown>;
+    links?: PaginationLinks | Links;
+    useLink: boolean;
+    field: RelationshipSchema;
+  };
+
+  // link case
+  if (useLink) {
+    const adapter = store.adapterFor(record.type);
+    /*
+    If a relationship was originally populated by the adapter as a link
+    (as opposed to a list of IDs), this method is called when the
+    relationship is fetched.
+
+    The link (which is usually a URL) is passed through unchanged, so the
+    adapter can make whatever request it wants.
+
+    The usual use-case is for the server to register a URL as a link, and
+    then use that URL in the future to make a request for the relationship.
+  */
+    assert(`You tried to load a hasMany relationship but you have no adapter (for ${record.type})`, adapter);
+    assert(
+      `You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'`,
+      typeof adapter.findHasMany === 'function'
+    );
+
+    return _findHasMany(adapter, store, record, links!.related, field, options) as Promise<T>;
+  }
+
+  // identifiers case
+
+  const fetches = new Array<globalThis.Promise<StableRecordIdentifier>>(identifiers!.length);
+  const manager = store._fetchManager;
+
+  for (let i = 0; i < identifiers!.length; i++) {
+    let identifier = identifiers![i];
+    // TODO we probably can be lenient here and return from cache for the isNew case
+    assertIdentifierHasId(identifier);
+    fetches[i] = options.reload
+      ? manager.scheduleFetch(identifier, options, context.request)
+      : manager.fetchDataIfNeededForIdentifier(identifier, options, context.request);
+  }
+
+  return Promise.all(fetches) as Promise<T>;
+}
 
 function saveRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, op: operation } = context.request;
@@ -119,7 +209,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
         cache.didCommit(identifier, data);
 
         if (payload && payload.included) {
-          store._push({ data: null, included: payload.included });
+          store._push({ data: null, included: payload.included }, true);
         }
       });
       return store.peekRecord(identifier);
@@ -216,16 +306,13 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
 
   // if not loaded start loading
   if (!store._instanceCache.recordIsLoaded(identifier)) {
-    promise = store._fetchManager.fetchDataIfNeededForIdentifier(
-      identifier,
-      options
-    ) as Promise<StableRecordIdentifier>;
+    promise = store._fetchManager.fetchDataIfNeededForIdentifier(identifier, options, context.request);
 
     // Refetch if the reload option is passed
   } else if (options.reload) {
     assertIdentifierHasId(identifier);
 
-    promise = store._fetchManager.scheduleFetch(identifier, options) as Promise<StableRecordIdentifier>;
+    promise = store._fetchManager.scheduleFetch(identifier, options, context.request);
   } else {
     let snapshot: Snapshot | null = null;
     let adapter = store.adapterFor(identifier.type);
@@ -234,10 +321,19 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
     if (
       typeof options.reload === 'undefined' &&
       adapter.shouldReloadRecord &&
-      adapter.shouldReloadRecord(store, (snapshot = store._instanceCache.createSnapshot(identifier, options)))
+      adapter.shouldReloadRecord(store, (snapshot = store._fetchManager.createSnapshot(identifier, options)))
     ) {
       assertIdentifierHasId(identifier);
-      promise = store._fetchManager.scheduleFetch(identifier, options) as Promise<StableRecordIdentifier>;
+      if (DEBUG) {
+        promise = store._fetchManager.scheduleFetch(
+          identifier,
+          Object.assign({}, options, { reload: true }),
+          context.request
+        );
+      } else {
+        options.reload = true;
+        promise = store._fetchManager.scheduleFetch(identifier, options, context.request);
+      }
     } else {
       // Trigger the background refetch if backgroundReload option is passed
       if (
@@ -246,15 +342,25 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
           !adapter.shouldBackgroundReloadRecord ||
           adapter.shouldBackgroundReloadRecord(
             store,
-            (snapshot = snapshot || store._instanceCache.createSnapshot(identifier, options))
+            (snapshot = snapshot || store._fetchManager.createSnapshot(identifier, options))
           ))
       ) {
         assertIdentifierHasId(identifier);
-        void store._fetchManager.scheduleFetch(identifier, options);
+
+        if (DEBUG) {
+          void store._fetchManager.scheduleFetch(
+            identifier,
+            Object.assign({}, options, { backgroundReload: true }),
+            context.request
+          );
+        } else {
+          options.backgroundReload = true;
+          void store._fetchManager.scheduleFetch(identifier, options, context.request);
+        }
       }
 
       // Return the cached record
-      promise = resolve(identifier) as Promise<StableRecordIdentifier>;
+      promise = Promise.resolve(identifier) as Promise<StableRecordIdentifier>;
     }
   }
 
@@ -288,7 +394,7 @@ function findAll<T>(context: StoreRequestContext): Promise<T> {
   let fetch: Promise<T> | undefined;
   if (shouldReload) {
     maybeRecordArray && (maybeRecordArray.isUpdating = true);
-    fetch = _findAll(adapter, store, type, snapshotArray);
+    fetch = _findAll(adapter, store, type, snapshotArray, context.request, true);
   } else {
     fetch = Promise.resolve(store.peekAll(type)) as Promise<T>;
 
@@ -298,36 +404,28 @@ function findAll<T>(context: StoreRequestContext): Promise<T> {
         (!adapter.shouldBackgroundReloadAll || adapter.shouldBackgroundReloadAll(store, snapshotArray)))
     ) {
       maybeRecordArray && (maybeRecordArray.isUpdating = true);
-      void _findAll(adapter, store, type, snapshotArray);
+      void _findAll(adapter, store, type, snapshotArray, context.request, false);
     }
   }
 
   return fetch;
 }
 
-function payloadIsNotBlank(adapterPayload: unknown) {
-  if (Array.isArray(adapterPayload)) {
-    return true;
-  } else {
-    return Object.keys(adapterPayload || {}).length;
-  }
-}
-
 function _findAll<T>(
   adapter: MinimumAdapterInterface,
   store: Store,
   type: string,
-  snapshotArray: SnapshotRecordArray
+  snapshotArray: SnapshotRecordArray,
+  request: StoreRequestInfo,
+  isAsyncFlush: boolean
 ): Promise<T> {
   const schema = store.modelFor(type);
-  let promise = Promise.resolve().then(() => adapter.findAll(store, schema, null, snapshotArray));
-  promise = guardDestroyedStore(
-    promise,
-    store,
-    DEBUG ? `DS: Handle Adapter#findAll of ${type}` : ''
-  ) as Promise<AdapterPayload>;
+  let promise: Promise<T> = Promise.resolve().then(() =>
+    adapter.findAll(store, schema, null, snapshotArray)
+  ) as Promise<T>;
+  promise = guardDestroyedStore(promise, store) as Promise<T>;
 
-  return promise.then((adapterPayload) => {
+  promise = promise.then((adapterPayload: T) => {
     assert(
       `You made a 'findAll' request for '${type}' records, but the adapter's response did not have any data`,
       payloadIsNotBlank(adapterPayload)
@@ -335,10 +433,26 @@ function _findAll<T>(
     const serializer = store.serializerFor(type);
     const payload = normalizeResponseHelper(serializer, store, schema, adapterPayload, null, 'findAll');
 
-    store._push(payload);
+    store._push(payload, isAsyncFlush);
     snapshotArray._recordArray.isUpdating = false;
+
+    if (LOG_PAYLOADS) {
+      // eslint-disable-next-line no-console
+      console.log(`request: findAll<${type}> background reload complete`);
+    }
     return snapshotArray._recordArray;
   }) as Promise<T>;
+
+  if (TESTING) {
+    if (!request.disableTestWaiter) {
+      const { waitForPromise } = importSync('@ember/test-waiters') as {
+        waitForPromise: <T>(promise: Promise<T>) => Promise<T>;
+      };
+      promise = waitForPromise(promise);
+    }
+  }
+
+  return promise;
 }
 
 function query<T>(context: StoreRequestContext): Promise<T> {
@@ -372,11 +486,7 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   const schema = store.modelFor(type);
   let promise = Promise.resolve().then(() => adapter.query(store, schema, query, recordArray, options));
 
-  promise = guardDestroyedStore(
-    promise,
-    store,
-    DEBUG ? `DS: Handle Adapter#query of ${type}` : ``
-  ) as Promise<AdapterPayload>;
+  promise = guardDestroyedStore(promise, store) as Promise<AdapterPayload>;
 
   return promise.then((adapterPayload) => {
     const serializer = store.serializerFor(type);
@@ -388,7 +498,7 @@ function query<T>(context: StoreRequestContext): Promise<T> {
       null,
       'query'
     );
-    const identifiers = store._push(payload);
+    const identifiers = store._push(payload, true);
 
     assert(
       'The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.',
@@ -422,7 +532,7 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
   const schema = store.modelFor(type);
   let promise = Promise.resolve().then(() => adapter.queryRecord(store, schema, query, options)) as Promise<T>;
 
-  promise = guardDestroyedStore(promise, store, DEBUG ? `DS: Handle Adapter#queryRecord of ${type}` : ``) as Promise<T>;
+  promise = guardDestroyedStore(promise, store) as Promise<T>;
 
   return promise.then((adapterPayload: T) => {
     const serializer = store.serializerFor(type);
@@ -437,6 +547,7 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
 
     assertSingleResourceDocument(payload);
 
-    return store.push(payload);
+    const identifier = store._push(payload, true) as StableRecordIdentifier;
+    return identifier ? store.peekRecord(identifier) : null;
   }) as Promise<T>;
 }

@@ -15,6 +15,7 @@ that has not explicitly activated it. To activate it set the appropriate flag to
           LOG_OPERATIONS: false, // updates to cache remote state
           LOG_MUTATIONS: false, // updates to cache local state
           LOG_NOTIFICATIONS: false,
+          LOG_REQUESTS: false,
           LOG_REQUEST_STATUS: false,
           LOG_IDENTIFIERS: false,
           LOG_GRAPH: false,
@@ -57,6 +58,13 @@ export const LOG_MUTATIONS = false;
  * @public
  */
 export const LOG_NOTIFICATIONS = false;
+/**
+ * log requests issued by the RequestManager
+ *
+ * @property {boolean} LOG_REQUESTS
+ * @public
+ */
+export const LOG_REQUESTS = false;
 /**
  * log updates to requests the store has issued to
  * the network (adapter) to fulfill.

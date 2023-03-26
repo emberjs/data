@@ -1,27 +1,28 @@
 import { assert, deprecate } from '@ember/debug';
 
-import { resolve } from 'rsvp';
-
 import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RSVP_PROMISE,
 } from '@ember-data/private-build-infra/deprecations';
 
-import { iterateData, normalizeResponseHelper } from './legacy-data-utils';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
+import { iterateData, payloadIsNotBlank } from './legacy-data-utils';
+import { normalizeResponseHelper } from './serializer-response';
 
 export function _findHasMany(adapter, store, identifier, link, relationship, options) {
-  const record = store._instanceCache.getRecord(identifier);
-  const snapshot = store._instanceCache.createSnapshot(identifier, options);
-  let modelClass = store.modelFor(relationship.type);
-  let useLink = !link || typeof link === 'string';
-  let relatedLink = useLink ? link : link.href;
-  let promise = adapter.findHasMany(store, snapshot, relatedLink, relationship);
-  let label = `DS: Handle Adapter#findHasMany of '${identifier.type}' : '${relationship.type}'`;
+  let promise = Promise.resolve().then(() => {
+    const snapshot = store._fetchManager.createSnapshot(identifier, options);
+    let useLink = !link || typeof link === 'string';
+    let relatedLink = useLink ? link : link.href;
+    return adapter.findHasMany(store, snapshot, relatedLink, relationship);
+  });
 
-  promise = guardDestroyedStore(promise, store, label);
+  promise = guardDestroyedStore(promise, store);
   promise = promise.then(
     (adapterPayload) => {
+      const record = store._instanceCache.getRecord(identifier);
+
       if (!_objectIsAlive(record)) {
         if (DEPRECATE_RSVP_PROMISE) {
           deprecate(
@@ -44,6 +45,8 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
         `You made a 'findHasMany' request for a ${identifier.type}'s '${relationship.key}' relationship, using link '${link}' , but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
       );
+      const modelClass = store.modelFor(relationship.type);
+
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findHasMany');
 
@@ -53,14 +56,15 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
       );
 
       payload = syncRelationshipDataFromLink(store, payload, identifier, relationship);
-
-      return store._push(payload);
+      return store._push(payload, true);
     },
     null,
     `DS: Extract payload of '${identifier.type}' : hasMany '${relationship.type}'`
   );
 
   if (DEPRECATE_RSVP_PROMISE) {
+    const record = store._instanceCache.getRecord(identifier);
+
     promise = _guard(promise, _bind(_objectIsAlive, record));
   }
 
@@ -68,28 +72,31 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
 }
 
 export function _findBelongsTo(store, identifier, link, relationship, options) {
-  const record = store._instanceCache.getRecord(identifier);
-  let adapter = store.adapterFor(identifier.type);
+  let promise = Promise.resolve().then(() => {
+    let adapter = store.adapterFor(identifier.type);
+    assert(`You tried to load a belongsTo relationship but you have no adapter (for ${identifier.type})`, adapter);
+    assert(
+      `You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'`,
+      typeof adapter.findBelongsTo === 'function'
+    );
+    let snapshot = store._fetchManager.createSnapshot(identifier, options);
+    let useLink = !link || typeof link === 'string';
+    let relatedLink = useLink ? link : link.href;
+    return adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
+  });
 
-  assert(`You tried to load a belongsTo relationship but you have no adapter (for ${identifier.type})`, adapter);
-  assert(
-    `You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'`,
-    typeof adapter.findBelongsTo === 'function'
-  );
-  let snapshot = store._instanceCache.createSnapshot(identifier, options);
-  let modelClass = store.modelFor(relationship.type);
-  let useLink = !link || typeof link === 'string';
-  let relatedLink = useLink ? link : link.href;
-  let promise = adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
-  let label = `DS: Handle Adapter#findBelongsTo of ${identifier.type} : ${relationship.type}`;
-
-  promise = guardDestroyedStore(promise, store, label);
-  promise = _guard(promise, _bind(_objectIsAlive, record));
+  if (DEPRECATE_RSVP_PROMISE) {
+    const record = store._instanceCache.getRecord(identifier);
+    promise = guardDestroyedStore(promise, store);
+    promise = _guard(promise, _bind(_objectIsAlive, record));
+  }
 
   promise = promise.then(
     (adapterPayload) => {
-      if (!_objectIsAlive(record)) {
-        if (DEPRECATE_RSVP_PROMISE) {
+      if (DEPRECATE_RSVP_PROMISE) {
+        const record = store._instanceCache.getRecord(identifier);
+
+        if (!_objectIsAlive(record)) {
           deprecate(
             `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
             false,
@@ -106,6 +113,7 @@ export function _findBelongsTo(store, identifier, link, relationship, options) {
         }
       }
 
+      let modelClass = store.modelFor(relationship.type);
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
@@ -121,15 +129,11 @@ export function _findBelongsTo(store, identifier, link, relationship, options) {
 
       payload = syncRelationshipDataFromLink(store, payload, identifier, relationship);
 
-      return store._push(payload);
+      return store._push(payload, true);
     },
     null,
     `DS: Extract payload of ${identifier.type} : ${relationship.type}`
   );
-
-  if (DEPRECATE_RSVP_PROMISE) {
-    promise = _guard(promise, _bind(_objectIsAlive, record));
-  }
 
   return promise;
 }
@@ -329,67 +333,4 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, type }) {
 
 function validateRelationshipEntry({ id }, { id: parentModelID }) {
   return id && id.toString() === parentModelID;
-}
-
-function _bind(fn, ...args) {
-  return function () {
-    return fn.apply(undefined, args);
-  };
-}
-
-function _guard(promise, test) {
-  let guarded = promise.finally(() => {
-    if (!test()) {
-      guarded._subscribers.length = 0;
-    }
-  });
-
-  return guarded;
-}
-
-function _objectIsAlive(object) {
-  return !(object.isDestroyed || object.isDestroying);
-}
-
-function payloadIsNotBlank(adapterPayload) {
-  if (Array.isArray(adapterPayload)) {
-    return true;
-  } else {
-    return Object.keys(adapterPayload || {}).length;
-  }
-}
-
-function guardDestroyedStore(promise, store, label) {
-  let token;
-  if (DEBUG) {
-    token = store._trackAsyncRequestStart(label);
-  }
-  let wrapperPromise = resolve(promise, label).then((_v) => {
-    if (!_objectIsAlive(store)) {
-      if (DEPRECATE_RSVP_PROMISE) {
-        deprecate(
-          `A Promise did not resolve by the time the store was destroyed. This will error in a future release.`,
-          false,
-          {
-            id: 'ember-data:rsvp-unresolved-async',
-            until: '5.0',
-            for: '@ember-data/store',
-            since: {
-              available: '4.5',
-              enabled: '4.5',
-            },
-          }
-        );
-      }
-    }
-
-    return promise;
-  });
-
-  return _guard(wrapperPromise, () => {
-    if (DEBUG) {
-      store._trackAsyncRequestEnd(token);
-    }
-    return _objectIsAlive(store);
-  });
 }

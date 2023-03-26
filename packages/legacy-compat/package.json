@@ -45,7 +45,18 @@
       "injected": true
     }
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "@ember-data/graph": "workspace:4.12.0-alpha.11",
+    "@ember-data/json-api": "workspace:4.12.0-alpha.11"
+  },
+  "peerDependenciesMeta": {
+    "@ember-data/graph": {
+      "optional": true
+    },
+    "@ember-data/json-api": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@embroider/addon-dev": "^3.0.0",
     "rollup": "^3.20.1",

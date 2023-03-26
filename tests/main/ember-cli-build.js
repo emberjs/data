@@ -47,6 +47,7 @@ module.exports = function (defaults) {
       LOG_OPERATIONS: process.env.DEBUG_DATA ? true : false,
       LOG_MUTATIONS: process.env.DEBUG_DATA ? true : false,
       LOG_NOTIFICATIONS: process.env.DEBUG_DATA ? true : false,
+      LOG_REQUESTS: process.env.DEBUG_DATA ? true : false,
       LOG_REQUEST_STATUS: process.env.DEBUG_DATA ? true : false,
       LOG_IDENTIFIERS: process.env.DEBUG_DATA ? true : false,
       LOG_GRAPH: process.env.DEBUG_DATA ? true : false,
@@ -54,6 +55,7 @@ module.exports = function (defaults) {
     },
     deprecations: require('@ember-data/private-build-infra/src/deprecations')(compatWith || null),
     features: require('@ember-data/private-build-infra/src/features')(isProd),
+    env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
   };
   let app = new EmberApp(defaults, {
     emberData: Object.assign({}, config),

@@ -783,56 +783,52 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     Local edits
   */
 
-  test('Pushing to the hasMany reflects the change on the belongsTo side - async', function (assert) {
+  test('Pushing to the hasMany reflects the change on the belongsTo side - async', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var user, message2;
-    run(function () {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            messages: {
-              data: [
-                {
-                  id: '1',
-                  type: 'message',
-                },
-              ],
-            },
+    let user, message2;
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          messages: {
+            data: [
+              {
+                id: '1',
+                type: 'message',
+              },
+            ],
           },
         },
-      });
-      store.push({
-        data: {
-          id: '1',
-          type: 'message',
-          attributes: {
-            title: 'EmberFest was great',
-          },
+      },
+    });
+    store.push({
+      data: {
+        id: '1',
+        type: 'message',
+        attributes: {
+          title: 'EmberFest was great',
         },
-      });
-      message2 = store.push({
-        data: {
-          id: '2',
-          type: 'message',
-          attributes: {
-            title: 'EmberFest was great',
-          },
+      },
+    });
+    message2 = store.push({
+      data: {
+        id: '2',
+        type: 'message',
+        attributes: {
+          title: 'EmberFest was great',
         },
-      });
+      },
     });
 
-    run(function () {
-      user.messages.then(function (fetchedMessages) {
-        fetchedMessages.push(message2);
-        message2.user.then(function (fetchedUser) {
-          assert.strictEqual(fetchedUser, user, 'user got set correctly');
-        });
+    await user.messages.then(async function (fetchedMessages) {
+      fetchedMessages.push(message2);
+      await message2.user.then(function (fetchedUser) {
+        assert.strictEqual(fetchedUser, user, 'user got set correctly');
       });
     });
   });
@@ -975,64 +971,62 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     assert.strictEqual(account.user, null, 'user got removed correctly');
   });
 
-  test('Pushing to the hasMany side keeps the oneToMany invariant on the belongsTo side - async', function (assert) {
+  test('Pushing to the hasMany side keeps the oneToMany invariant on the belongsTo side - async', async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
 
     var user, user2, message;
-    run(function () {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            messages: {
-              data: [
-                {
-                  id: '1',
-                  type: 'message',
-                },
-              ],
-            },
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          messages: {
+            data: [
+              {
+                id: '1',
+                type: 'message',
+              },
+            ],
           },
         },
-      });
-      user2 = store.push({
-        data: {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: 'Tomhuda',
-          },
+      },
+    });
+    user2 = store.push({
+      data: {
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: 'Tomhuda',
         },
-      });
-      message = store.push({
-        data: {
-          id: '1',
-          type: 'message',
-          attributes: {
-            title: 'EmberFest was great',
-          },
+      },
+    });
+    message = store.push({
+      data: {
+        id: '1',
+        type: 'message',
+        attributes: {
+          title: 'EmberFest was great',
         },
-      });
+      },
     });
 
-    run(function () {
-      user2.messages.then(function (fetchedMessages) {
-        fetchedMessages.push(message);
+    await user2.messages.then(async function (fetchedMessages) {
+      fetchedMessages.push(message);
 
-        message.user.then(function (fetchedUser) {
-          assert.strictEqual(fetchedUser, user2, 'user got set correctly');
-        });
-
-        user.messages.then(function (newFetchedMessages) {
-          assert.strictEqual(get(newFetchedMessages, 'length'), 0, 'message got removed from the old messages hasMany');
-        });
+      let p1 = message.user.then(function (fetchedUser) {
+        assert.strictEqual(fetchedUser, user2, 'user got set correctly');
       });
+
+      let p2 = user.messages.then(function (newFetchedMessages) {
+        assert.strictEqual(get(newFetchedMessages, 'length'), 0, 'message got removed from the old messages hasMany');
+      });
+
+      await Promise.allSettled([p1, p2]);
     });
   });
 

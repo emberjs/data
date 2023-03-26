@@ -146,7 +146,7 @@ module('unit/PromiseBelongsTo', function (hooks) {
     }
   }
 
-  test('meta property exists', function (assert) {
+  test('meta property exists', async function (assert) {
     const { owner } = this;
     owner.register('model:parent', Parent);
     owner.register('model:child', Child);
@@ -178,5 +178,7 @@ module('unit/PromiseBelongsTo', function (hooks) {
       belongsToProxy.meta;
     }, 'You attempted to access meta on the promise for the async belongsTo relationship ' + `child:child'.` + '\nUse `record.belongsTo(relationshipName).meta()` instead.');
     assert.strictEqual(parent.belongsTo('child').meta(), meta);
+
+    await belongsToProxy;
   });
 });

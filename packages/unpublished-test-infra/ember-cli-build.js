@@ -20,6 +20,7 @@ module.exports = function (defaults) {
           debug: {},
           features: {},
           deprecations: {},
+          env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
         }),
       ],
     },

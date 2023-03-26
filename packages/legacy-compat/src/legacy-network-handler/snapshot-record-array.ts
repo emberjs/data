@@ -7,12 +7,13 @@ import { deprecate } from '@ember/debug';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';
-import type Snapshot from '@ember-data/store/-private/network/snapshot';
 import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
+
+import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's
@@ -175,9 +176,9 @@ export default class SnapshotRecordArray {
       return this._snapshots;
     }
 
-    const { _instanceCache } = this.__store;
+    const { _fetchManager } = this.__store;
     this._snapshots = this._recordArray[SOURCE].map((identifier: StableRecordIdentifier) =>
-      _instanceCache.createSnapshot(identifier)
+      _fetchManager.createSnapshot(identifier)
     );
 
     return this._snapshots;

@@ -1,5 +1,6 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
@@ -69,38 +70,34 @@ module('unit/model - init properties', function (hooks) {
 
     let { store } = setupModels(this.owner, testState);
 
-    run(() => {
-      comment = store.push({
-        data: {
-          type: 'comment',
-          id: '1',
-          attributes: {
-            text: 'Hello darkness my old friend',
-          },
+    comment = store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: {
+          text: 'Hello darkness my old friend',
         },
-      });
-      author = store.push({
-        data: {
-          type: 'author',
-          id: '1',
-          attributes: {
-            name: '@runspired',
-          },
+      },
+    });
+    author = store.push({
+      data: {
+        type: 'author',
+        id: '1',
+        attributes: {
+          name: '@runspired',
         },
-      });
+      },
     });
 
-    run(() => {
-      store.createRecord('post', {
-        title: 'My Post',
-        randomProp: 'An unknown prop',
-        comments: [comment],
-        author,
-      });
+    store.createRecord('post', {
+      title: 'My Post',
+      randomProp: 'An unknown prop',
+      comments: [comment],
+      author,
     });
   });
 
-  test('store.push() makes properties available during record init', function (assert) {
+  test('store.push() makes properties available during record init', async function (assert) {
     assert.expect(3);
 
     function testState(types, record) {
@@ -111,44 +108,44 @@ module('unit/model - init properties', function (hooks) {
 
     let { store } = setupModels(this.owner, testState);
 
-    run(() =>
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            title: 'My Post',
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'My Post',
+        },
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
           },
-          relationships: {
-            comments: {
-              data: [{ type: 'comment', id: '1' }],
-            },
-            author: {
-              data: { type: 'author', id: '1' },
-            },
+          author: {
+            data: { type: 'author', id: '1' },
           },
         },
-        included: [
-          {
-            type: 'comment',
-            id: '1',
-            attributes: {
-              text: 'Hello darkness my old friend',
-            },
+      },
+      included: [
+        {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            text: 'Hello darkness my old friend',
           },
-          {
-            type: 'author',
-            id: '1',
-            attributes: {
-              name: '@runspired',
-            },
+        },
+        {
+          type: 'author',
+          id: '1',
+          attributes: {
+            name: '@runspired',
           },
-        ],
-      })
-    );
+        },
+      ],
+    });
+
+    await settled();
   });
 
-  test('store.findRecord(type, id) makes properties available during record init', function (assert) {
+  test('store.findRecord(type, id) makes properties available during record init', async function (assert) {
     assert.expect(3);
 
     function testState(types, record) {
@@ -195,10 +192,10 @@ module('unit/model - init properties', function (hooks) {
       });
     };
 
-    run(() => store.findRecord('post', '1'));
+    await store.findRecord('post', '1');
   });
 
-  test('store.queryRecord(type, query) makes properties available during record init', function (assert) {
+  test('store.queryRecord(type, query) makes properties available during record init', async function (assert) {
     assert.expect(3);
 
     function testState(types, record) {
@@ -245,7 +242,7 @@ module('unit/model - init properties', function (hooks) {
       });
     };
 
-    run(() => store.queryRecord('post', { id: '1' }));
+    await store.queryRecord('post', { id: '1' });
   });
 
   test('Model class does not get properties passed to setUknownProperty accidentally', function (assert) {

@@ -3,7 +3,6 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
-import { resolve } from 'rsvp';
 
 import { DEBUG } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
@@ -399,7 +398,7 @@ export default class BelongsToReference {
     let jsonApiDoc: SingleResourceDocument = data as SingleResourceDocument;
     if (DEPRECATE_PROMISE_PROXIES) {
       if ((data as { then: unknown }).then) {
-        jsonApiDoc = await resolve(data);
+        jsonApiDoc = await data;
         if (jsonApiDoc !== data) {
           deprecate(
             `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,

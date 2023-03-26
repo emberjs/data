@@ -1,34 +1,8 @@
 const requireModule = require('@ember-data/private-build-infra/src/utilities/require-module');
+const getEnv = require('@ember-data/private-build-infra/src/utilities/get-env');
+const detectModule = require('@ember-data/private-build-infra/src/utilities/detect-module');
 
 const pkg = require('./package.json');
-
-// do our best to detect being present
-// Note: when this is not enough, consuming apps may need
-// to "hoist" peer-deps or specify us as a direct dependency
-// in order to deal with peer-dep bugs in package managers
-function detectModule(moduleName) {
-  try {
-    // package managers have peer-deps bugs where another library
-    // bringing a peer-dependency doesn't necessarily result in all
-    // versions of the dependent getting the peer-dependency
-    //
-    // so we resolve from project as well as from our own location
-    //
-    // eslint-disable-next-line node/no-missing-require
-    require.resolve(moduleName, { paths: [process.cwd(), __dirname] });
-    return true;
-  } catch {
-    try {
-      // ember-data brings all packages so if present we are present
-      //
-      // eslint-disable-next-line node/no-missing-require
-      require.resolve('ember-data', { paths: [process.cwd(), __dirname] });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-}
 
 module.exports = {
   name: pkg.name,
@@ -53,6 +27,7 @@ module.exports = {
         LOG_OPERATIONS: false,
         LOG_MUTATIONS: false,
         LOG_NOTIFICATIONS: false,
+        LOG_REQUESTS: false,
         LOG_REQUEST_STATUS: false,
         LOG_IDENTIFIERS: false,
         LOG_GRAPH: false,
@@ -61,8 +36,8 @@ module.exports = {
       hostOptions.debug || {}
     );
 
-    const HAS_DEBUG_PACKAGE = detectModule('@ember-data/debug');
-    const HAS_META_PACKAGE = detectModule('ember-data');
+    const HAS_DEBUG_PACKAGE = detectModule(require, '@ember-data/debug', __dirname, pkg);
+    const HAS_META_PACKAGE = detectModule(require, 'ember-data', __dirname, pkg);
 
     const includeDataAdapterInProduction =
       typeof hostOptions.includeDataAdapterInProduction === 'boolean'
@@ -78,7 +53,7 @@ module.exports = {
     delete MACRO_PACKAGE_FLAGS['HAS_DEBUG_PACKAGE'];
 
     Object.keys(MACRO_PACKAGE_FLAGS).forEach((key) => {
-      MACRO_PACKAGE_FLAGS[key] = detectModule(MACRO_PACKAGE_FLAGS[key]);
+      MACRO_PACKAGE_FLAGS[key] = detectModule(require, MACRO_PACKAGE_FLAGS[key], __dirname, pkg);
     });
 
     // copy configs forward
@@ -89,6 +64,7 @@ module.exports = {
     ownConfig.features = Object.assign({}, FEATURES);
     ownConfig.includeDataAdapter = includeDataAdapter;
     ownConfig.packages = MACRO_PACKAGE_FLAGS;
+    ownConfig.env = getEnv(ownConfig);
 
     this._emberDataConfig = ownConfig;
     return ownConfig;

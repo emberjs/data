@@ -1,5 +1,3 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
 
@@ -22,7 +20,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
-  test('Collection will resolve save on success', function (assert) {
+  test('Collection will resolve save on success', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -39,10 +37,8 @@ module('integration/records/collection_save - Save Collection of Records', funct
       return resolve({ data: { id: id++, type: 'post' } });
     };
 
-    return run(() => {
-      return posts.save().then(() => {
-        assert.ok(true, 'save operation was resolved');
-      });
+    await posts.save().then(() => {
+      assert.ok(true, 'save operation was resolved');
     });
   });
 

@@ -12,7 +12,9 @@ import {
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
   DEPRECATE_V1_RECORD_DATA,
 } from '@ember-data/private-build-infra/deprecations';
+import type Store from '@ember-data/store';
 import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
+import { DSModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
@@ -20,14 +22,15 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import type Store from '../store-service';
-
 type RecordId = string | null;
 
 /**
   Snapshot is not directly instantiable.
   Instances are provided to a consuming application's
   adapters and serializers for certain requests.
+
+  Snapshots are only available when using `@ember-data/legacy-compat`
+  for legacy compatibility with adapters and serializers.
 
   @class Snapshot
   @public
@@ -59,10 +62,10 @@ export default class Snapshot implements Snapshot {
     this._store = store;
 
     this.__attributes = null;
-    this._belongsToRelationships = Object.create(null);
-    this._belongsToIds = Object.create(null);
-    this._hasManyRelationships = Object.create(null);
-    this._hasManyIds = Object.create(null);
+    this._belongsToRelationships = Object.create(null) as Dict<Snapshot>;
+    this._belongsToIds = Object.create(null) as Dict<RecordId>;
+    this._hasManyRelationships = Object.create(null) as Dict<Snapshot[]>;
+    this._hasManyIds = Object.create(null) as Dict<RecordId[]>;
 
     const hasRecord = !!store._instanceCache.peek({ identifier, bucket: 'record' });
     this.modelName = identifier.type;
@@ -155,11 +158,11 @@ export default class Snapshot implements Snapshot {
     return this._store._instanceCache.getRecord(this.identifier);
   }
 
-  get _attributes(): Dict<any> {
+  get _attributes(): Dict<unknown> {
     if (this.__attributes !== null) {
       return this.__attributes;
     }
-    const attributes = (this.__attributes = Object.create(null));
+    const attributes = (this.__attributes = Object.create(null) as Dict<unknown>);
     const { identifier } = this;
     const attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
     const cache = DEPRECATE_V1_RECORD_DATA
@@ -211,7 +214,7 @@ export default class Snapshot implements Snapshot {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
-    assert(`Model '${this.identifier}' has no attribute named '${keyName}' defined.`, false);
+    assert(`Model '${this.identifier.lid}' has no attribute named '${keyName}' defined.`, false);
   }
 
   /**
@@ -248,7 +251,7 @@ export default class Snapshot implements Snapshot {
    @public
    */
   changedAttributes(): ChangedAttributesHash {
-    let changedAttributes = Object.create(null);
+    let changedAttributes = Object.create(null) as ChangedAttributesHash;
     if (!this._changedAttributes) {
       return changedAttributes;
     }
@@ -257,7 +260,7 @@ export default class Snapshot implements Snapshot {
 
     for (let i = 0, length = changedAttributeKeys.length; i < length; i++) {
       let key = changedAttributeKeys[i];
-      changedAttributes[key] = this._changedAttributes[key].slice();
+      changedAttributes[key] = this._changedAttributes[key].slice() as [unknown, unknown];
     }
 
     return changedAttributes;
@@ -316,7 +319,7 @@ export default class Snapshot implements Snapshot {
       keyName
     ];
     assert(
-      `Model '${this.identifier}' has no belongsTo relationship named '${keyName}' defined.`,
+      `Model '${this.identifier.lid}' has no belongsTo relationship named '${keyName}' defined.`,
       relationshipMeta && relationshipMeta.kind === 'belongsTo'
     );
 
@@ -334,11 +337,15 @@ export default class Snapshot implements Snapshot {
     const relationship = graphFor(this._store).get(identifier, keyName) as BelongsToRelationship;
 
     assert(
-      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
+      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
+        identifier.id || ''
+      }, lid: ${identifier.lid} but no such relationship was found.`,
       relationship
     );
     assert(
-      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but that relationship is a hasMany.`,
+      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
+        identifier.id || ''
+      }, lid: ${identifier.lid} but that relationship is a hasMany.`,
       relationship.definition.kind === 'belongsTo'
     );
 
@@ -356,7 +363,7 @@ export default class Snapshot implements Snapshot {
         if (returnModeIsId) {
           result = inverseIdentifier.id;
         } else {
-          result = store._instanceCache.createSnapshot(inverseIdentifier);
+          result = store._fetchManager.createSnapshot(inverseIdentifier);
         }
       } else {
         result = null;
@@ -421,7 +428,7 @@ export default class Snapshot implements Snapshot {
       keyName
     ];
     assert(
-      `Model '${this.identifier}' has no hasMany relationship named '${keyName}' defined.`,
+      `Model '${this.identifier.lid}' has no hasMany relationship named '${keyName}' defined.`,
       relationshipMeta && relationshipMeta.kind === 'hasMany'
     );
 
@@ -438,11 +445,15 @@ export default class Snapshot implements Snapshot {
     const { identifier } = this;
     const relationship = graphFor(this._store).get(identifier, keyName) as ManyRelationship;
     assert(
-      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
+      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
+        identifier.id || ''
+      }, lid: ${identifier.lid} but no such relationship was found.`,
       relationship
     );
     assert(
-      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but that relationship is a belongsTo.`,
+      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
+        identifier.id || ''
+      }, lid: ${identifier.lid} but that relationship is a belongsTo.`,
       relationship.definition.kind === 'hasMany'
     );
 
@@ -458,7 +469,7 @@ export default class Snapshot implements Snapshot {
           if (returnModeIsIds) {
             (results as RecordId[]).push(inverseIdentifier.id);
           } else {
-            (results as Snapshot[]).push(store._instanceCache.createSnapshot(inverseIdentifier));
+            (results as Snapshot[]).push(store._fetchManager.createSnapshot(inverseIdentifier));
           }
         }
       });
@@ -558,7 +569,7 @@ export default class Snapshot implements Snapshot {
 
 if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
   Object.defineProperty(Snapshot.prototype, 'type', {
-    get() {
+    get(this: Snapshot) {
       deprecate(
         `Using Snapshot.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
         false,
@@ -569,7 +580,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._store.modelFor(this.identifier.type);
+      return this._store.modelFor(this.identifier.type) as DSModelSchema;
     },
   });
 }

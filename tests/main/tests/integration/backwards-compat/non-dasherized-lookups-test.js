@@ -1,5 +1,3 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -34,16 +32,14 @@ module(
 
       let store = this.owner.lookup('service:store');
 
-      run(() => {
-        store.pushPayload('post-note', {
-          data: {
-            type: 'post-notes',
-            id: '1',
-            attributes: {
-              name: 'Ember Data',
-            },
+      store.pushPayload('post-note', {
+        data: {
+          type: 'post-notes',
+          id: '1',
+          attributes: {
+            name: 'Ember Data',
           },
-        });
+        },
       });
 
       const postNote = await store.findRecord('postNote', '1');
@@ -56,16 +52,14 @@ module(
 
       let store = this.owner.lookup('service:store');
 
-      run(() => {
-        store.pushPayload('post-note', {
-          data: {
-            type: 'post-notes',
-            id: '1',
-            attributes: {
-              name: 'Ember Data',
-            },
+      store.pushPayload('post-note', {
+        data: {
+          type: 'post-notes',
+          id: '1',
+          attributes: {
+            name: 'Ember Data',
           },
-        });
+        },
       });
 
       const postNote = await store.findRecord('post_note', '1');
@@ -113,30 +107,28 @@ module(
 
       let store = this.owner.lookup('service:store');
 
-      run(() => {
-        store.pushPayload('post-note', {
-          data: {
-            type: 'post-notes',
-            id: '1',
-            attributes: {
-              name: 'Ember Data',
-            },
-            relationships: {
-              'note-post': {
-                data: { type: 'note-post', id: '1' },
-              },
+      store.pushPayload('post-note', {
+        data: {
+          type: 'post-notes',
+          id: '1',
+          attributes: {
+            name: 'Ember Data',
+          },
+          relationships: {
+            'note-post': {
+              data: { type: 'note-post', id: '1' },
             },
           },
-        });
-        store.pushPayload('notePost', {
-          data: {
-            type: 'note-posts',
-            id: '1',
-            attributes: {
-              name: 'Inverse',
-            },
+        },
+      });
+      store.pushPayload('notePost', {
+        data: {
+          type: 'note-posts',
+          id: '1',
+          attributes: {
+            name: 'Inverse',
           },
-        });
+        },
       });
 
       const postNote = await store.findRecord('post-note', '1');
@@ -148,29 +140,27 @@ module(
 
       let store = this.owner.lookup('service:store');
 
-      run(() => {
-        store.pushPayload('long_model_name', {
-          data: {
-            type: 'long-model-names',
-            id: '1',
-            attributes: {},
-            relationships: {
-              'post-notes': {
-                data: [{ type: 'post-note', id: '1' }],
-              },
+      store.pushPayload('long_model_name', {
+        data: {
+          type: 'long-model-names',
+          id: '1',
+          attributes: {},
+          relationships: {
+            'post-notes': {
+              data: [{ type: 'post-note', id: '1' }],
             },
           },
-        });
+        },
+      });
 
-        store.pushPayload('post-note', {
-          data: {
-            type: 'post-notes',
-            id: '1',
-            attributes: {
-              name: 'Ember Data',
-            },
+      store.pushPayload('post-note', {
+        data: {
+          type: 'post-notes',
+          id: '1',
+          attributes: {
+            name: 'Ember Data',
           },
-        });
+        },
       });
 
       const longModel = await store.findRecord('long_model_name', '1');

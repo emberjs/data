@@ -4,8 +4,6 @@ import { tracked } from '@glimmer/tracking';
 /**
   @module @ember-data/store
 */
-import RSVP, { resolve } from 'rsvp';
-
 import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -160,9 +158,9 @@ export default class RecordReference {
     @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
   */
-  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<RecordInstance> {
+  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
     // TODO @deprecate pushing unresolved payloads
-    return resolve(objectOrPromise).then((data) => {
+    return Promise.resolve(objectOrPromise).then((data) => {
       return this.store.push(data);
     });
   }

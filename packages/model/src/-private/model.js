@@ -9,7 +9,7 @@ import { run } from '@ember/runloop';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import { resolve } from 'rsvp';
+import { importSync } from '@embroider/macros';
 
 import { DEBUG } from '@ember-data/env';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
@@ -632,7 +632,7 @@ class Model extends EmberObject {
     @return {Object} an object whose values are primitive JSON values only
   */
   serialize(options) {
-    return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this)).serialize(options);
+    return storeFor(this).serializeRecord(this, options);
   }
 
   /*
@@ -740,7 +740,7 @@ class Model extends EmberObject {
     const { isNew } = this.currentState;
     this.deleteRecord();
     if (isNew) {
-      return resolve(this);
+      return Promise.resolve(this);
     }
     return this.save(options).then((_) => {
       run(() => {
@@ -869,7 +869,14 @@ class Model extends EmberObject {
   */
   // TODO @deprecate in favor of a public API or examples of how to test successfully
   _createSnapshot() {
-    return storeFor(this)._instanceCache.createSnapshot(recordIdentifierFor(this));
+    const store = storeFor(this);
+
+    if (!store._fetchManager) {
+      const FetchManager = importSync('@ember-data/legacy-compat/-private').FetchManager;
+      store._fetchManager = new FetchManager(store);
+    }
+
+    return store._fetchManager.createSnapshot(recordIdentifierFor(this));
   }
 
   /**
@@ -917,7 +924,7 @@ class Model extends EmberObject {
     let promise;
 
     if (this.currentState.isNew && this.currentState.isDeleted) {
-      promise = resolve(this);
+      promise = Promise.resolve(this);
     } else {
       promise = storeFor(this).saveRecord(this, options);
     }
@@ -958,19 +965,22 @@ class Model extends EmberObject {
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
-  reload(_options) {
-    let options = {};
-
-    if (typeof _options === 'object' && _options !== null && _options.adapterOptions) {
-      options.adapterOptions = _options.adapterOptions;
-    }
-
+  reload(options = {}) {
     options.isReloading = true;
-    let identifier = recordIdentifierFor(this);
+    options.reload = true;
+
+    const identifier = recordIdentifierFor(this);
     assert(`You cannot reload a record without an ID`, identifier.id);
+
     this.isReloading = true;
     const promise = storeFor(this)
-      ._fetchManager.scheduleFetch(identifier, options)
+      .request({
+        op: 'findRecord',
+        data: {
+          options,
+          record: identifier,
+        },
+      })
       .then(() => this)
       .finally(() => {
         this.isReloading = false;
@@ -1846,7 +1856,7 @@ class Model extends EmberObject {
       let key = relationships[i];
       let value = rels[key];
 
-      map.set(value.key, value);
+      map.set(value.name || value.key, value);
     }
 
     return map;
@@ -2401,11 +2411,16 @@ if (HAS_DEBUG_PACKAGE) {
    @private
    */
   Model.prototype._debugInfo = function () {
-    let attributes = ['id'];
     let relationships = {};
     let expensiveProperties = [];
 
-    this.eachAttribute((name, meta) => attributes.push(name));
+    const identifier = recordIdentifierFor(this);
+    const schema = this.store.getSchemaDefinitionService();
+    const attrDefs = schema.attributesDefinitionFor(identifier);
+    const relDefs = schema.relationshipsDefinitionFor(identifier);
+
+    const attributes = Object.keys(attrDefs);
+    attributes.unshift('id');
 
     let groups = [
       {
@@ -2415,7 +2430,9 @@ if (HAS_DEBUG_PACKAGE) {
       },
     ];
 
-    this.eachRelationship((name, relationship) => {
+    Object.keys(relDefs).forEach((name) => {
+      const relationship = relDefs[name];
+
       let properties = relationships[relationship.kind];
 
       if (properties === undefined) {

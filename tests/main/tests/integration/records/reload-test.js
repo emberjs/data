@@ -124,9 +124,12 @@ module('integration/reload - Reloading Records', function (hooks) {
       })
     );
 
-    await tom.reload().catch(() => {
-      assert.ok(true, 'we throw an error');
-    });
+    try {
+      await tom.reload();
+      assert.ok(false, 'we should throw an error');
+    } catch (e) {
+      assert.strictEqual(e.message, 'Request Rejected with an Unknown Error', 'correct error message');
+    }
 
     assert.true(tom.isError, 'Tom is now errored');
     assert.false(tom.isReloading, 'Tom is no longer reloading');

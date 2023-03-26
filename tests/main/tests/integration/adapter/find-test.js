@@ -31,7 +31,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
     }, `You cannot pass 'null' as id to the store's find method`);
   });
 
-  test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function (assert) {
+  test("When a single record is requested, the adapter's find method should be called unless it's loaded.", async function (assert) {
     assert.expect(2);
 
     class Person extends Model {
@@ -68,8 +68,11 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     const store = this.owner.lookup('service:store');
 
-    store.findRecord('person', '1');
-    store.findRecord('person', '1');
+    let promise1 = store.findRecord('person', '1');
+    let promise2 = store.findRecord('person', '1');
+
+    await promise1;
+    await promise2;
   });
 
   test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', async function (assert) {

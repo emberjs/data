@@ -1,16 +1,12 @@
 import { deprecate } from '@ember/debug';
 import { get } from '@ember/object';
 
-import { resolve } from 'rsvp';
-
 import { DEBUG } from '@ember-data/env';
 
 import { PromiseObject } from './promise-proxy-base';
 
 function promiseObject<T>(promise: Promise<T>): PromiseObject<T> {
-  return PromiseObject.create({
-    promise: resolve(promise),
-  }) as PromiseObject<T>;
+  return PromiseObject.create({ promise }) as PromiseObject<T>;
 }
 
 // constructor is accessed in some internals but not including it in the copyright for the deprecation

@@ -6,9 +6,9 @@ import { defer, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { Snapshot } from '@ember-data/store/-private';
 
 module('Integration | Identifiers - lid reflection', function (hooks: NestedHooks) {
   setupTest(hooks);

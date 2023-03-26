@@ -3,8 +3,8 @@
  */
 import type { Object as JSONObject } from 'json-typescript';
 
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
-import type Snapshot from '@ember-data/store/-private/network/snapshot';
 
 import type { ModelSchema } from './ds-model';
 import type { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';

@@ -35,7 +35,7 @@ module.exports = function (babel) {
               let getConfig = t.memberExpression(
                 t.memberExpression(
                   t.callExpression(state.importer.import(p, '@embroider/macros', 'getOwnConfig'), []),
-                  t.identifier('debug')
+                  t.identifier(state.opts.configKey)
                 ),
                 t.identifier(name)
               );

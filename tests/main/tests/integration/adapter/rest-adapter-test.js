@@ -17,10 +17,10 @@ import AdapterError, {
   UnauthorizedError,
 } from '@ember-data/adapter/error';
 import RESTAdapter from '@ember-data/adapter/rest';
+import { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
-import { Snapshot } from '@ember-data/store/-private';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -1947,7 +1947,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         },
       });
 
-      assert.expectWarning(
+      await assert.expectWarning(
         async () => {
           try {
             await post.comments;

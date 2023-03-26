@@ -148,6 +148,7 @@ that has not explicitly activated it. To activate it set the appropriate flag to
           LOG_OPERATIONS: false, // updates to cache remote state
           LOG_MUTATIONS: false, // updates to cache local state
           LOG_NOTIFICATIONS: false,
+          LOG_REQUESTS: false, // log Requests issued via the request manager
           LOG_REQUEST_STATUS: false,
           LOG_IDENTIFIERS: false,
           LOG_GRAPH: false,

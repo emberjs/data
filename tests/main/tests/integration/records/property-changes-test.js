@@ -1,5 +1,3 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
@@ -28,21 +26,17 @@ module('integration/records/property-changes - Property changes', function (hook
 
     let store = this.owner.lookup('service:store');
 
-    var person;
-
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
         },
-      });
-      person = store.peekRecord('person', 'wat');
+      },
     });
+    const person = store.peekRecord('person', 'wat');
 
     person.addObserver('firstName', function () {
       assert.ok(false, 'firstName observer should not be triggered');
@@ -52,41 +46,37 @@ module('integration/records/property-changes - Property changes', function (hook
       assert.ok(true, 'lastName observer should be triggered');
     });
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz!',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz!',
         },
-      });
+      },
     });
   });
 
-  test('Calling push does not trigger observers for locally changed attributes with the same value', function (assert) {
+  test('Calling push does not trigger observers for locally changed attributes with the same value', async function (assert) {
     assert.expect(0);
 
     let store = this.owner.lookup('service:store');
 
     var person;
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
         },
-      });
-      person = store.peekRecord('person', 'wat');
-      person.set('lastName', 'Katz!');
+      },
     });
+    person = store.peekRecord('person', 'wat');
+    person.set('lastName', 'Katz!');
 
     person.addObserver('firstName', function () {
       assert.ok(false, 'firstName observer should not be triggered');
@@ -96,21 +86,19 @@ module('integration/records/property-changes - Property changes', function (hook
       assert.ok(false, 'lastName observer should not be triggered');
     });
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz!',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz!',
         },
-      });
+      },
     });
   });
 
-  test('Saving a record trigger observers for locally changed attributes with the same canonical value', function (assert) {
+  test('Saving a record trigger observers for locally changed attributes with the same canonical value', async function (assert) {
     assert.expect(1);
     var person;
 
@@ -121,20 +109,18 @@ module('integration/records/property-changes - Property changes', function (hook
       return resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
     };
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
         },
-      });
-      person = store.peekRecord('person', 'wat');
-      person.set('lastName', 'Katz!');
+      },
     });
+    person = store.peekRecord('person', 'wat');
+    person.set('lastName', 'Katz!');
 
     person.addObserver('firstName', function () {
       assert.ok(false, 'firstName observer should not be triggered');
@@ -144,9 +130,7 @@ module('integration/records/property-changes - Property changes', function (hook
       assert.ok(true, 'lastName observer should be triggered');
     });
 
-    run(function () {
-      person.save();
-    });
+    await person.save();
   });
 
   test('store.push should not override a modified attribute', function (assert) {

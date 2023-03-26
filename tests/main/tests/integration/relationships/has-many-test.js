@@ -3886,7 +3886,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.strictEqual(count, 0);
   });
 
-  test('A hasMany relationship with a link will trigger the link request even if a inverse related object is pushed to the store', function (assert) {
+  test('A hasMany relationship with a link will trigger the link request even if a inverse related object is pushed to the store', async function (assert) {
     class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
@@ -3904,74 +3904,69 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     const postID = '1';
 
-    run(function () {
-      // load a record with a link hasMany relationship
-      store.push({
-        data: {
-          type: 'post',
-          id: postID,
-          relationships: {
-            comments: {
-              links: {
-                related: '/posts/1/comments',
-              },
+    // load a record with a link hasMany relationship
+    store.push({
+      data: {
+        type: 'post',
+        id: postID,
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
             },
           },
         },
-      });
-
-      // if a related comment is pushed into the store,
-      // the post.comments.link will not be requested
-      //
-      // If this comment is not inserted into the store, everything works properly
-      store.push({
-        data: {
-          type: 'comment',
-          id: '1',
-          attributes: { body: 'First' },
-          relationships: {
-            message: {
-              data: { type: 'post', id: postID },
-            },
-          },
-        },
-      });
-
-      adapter.findRecord = function (store, type, id, snapshot) {
-        throw new Error(`findRecord for ${type} should not be called`);
-      };
-
-      let hasManyCounter = 0;
-      adapter.findHasMany = function (store, snapshot, link, relationship) {
-        assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-        assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
-        assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
-        hasManyCounter++;
-
-        return resolve({
-          data: [
-            { id: '1', type: 'comment', attributes: { body: 'First' } },
-            { id: '2', type: 'comment', attributes: { body: 'Second' } },
-          ],
-        });
-      };
-
-      const post = store.peekRecord('post', postID);
-      post.comments.then(function (comments) {
-        assert.true(comments.isLoaded, 'comments are loaded');
-        assert.strictEqual(hasManyCounter, 1, 'link was requested');
-        assert.strictEqual(comments.length, 2, 'comments have 2 length');
-
-        post
-          .hasMany('comments')
-          .reload()
-          .then(function (comments) {
-            assert.true(comments.isLoaded, 'comments are loaded');
-            assert.strictEqual(hasManyCounter, 2, 'link was requested');
-            assert.strictEqual(comments.length, 2, 'comments have 2 length');
-          });
-      });
+      },
     });
+
+    // if a related comment is pushed into the store,
+    // the post.comments.link will not be requested
+    //
+    // If this comment is not inserted into the store, everything works properly
+    store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: { body: 'First' },
+        relationships: {
+          message: {
+            data: { type: 'post', id: postID },
+          },
+        },
+      },
+    });
+
+    adapter.findRecord = function (store, type, id, snapshot) {
+      throw new Error(`findRecord for ${type} should not be called`);
+    };
+
+    let hasManyCounter = 0;
+    adapter.findHasMany = function (store, snapshot, link, relationship) {
+      assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
+      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
+      hasManyCounter++;
+
+      return resolve({
+        data: [
+          { id: '1', type: 'comment', attributes: { body: 'First' } },
+          { id: '2', type: 'comment', attributes: { body: 'Second' } },
+        ],
+      });
+    };
+
+    const post = store.peekRecord('post', postID);
+
+    const comments = await post.comments;
+    assert.true(comments.isLoaded, 'comments are loaded');
+    assert.strictEqual(hasManyCounter, 1, 'link was requested');
+    assert.strictEqual(comments.length, 2, 'comments have 2 length');
+
+    const commentsAgain = await post.hasMany('comments').reload();
+
+    assert.true(commentsAgain.isLoaded, 'comments are loaded');
+    assert.strictEqual(hasManyCounter, 2, 'link was requested');
+    assert.strictEqual(commentsAgain.length, 2, 'comments have 2 length');
   });
 
   test('Pushing a relationship with duplicate identifiers results in a single entry for the record in the relationship', async function (assert) {

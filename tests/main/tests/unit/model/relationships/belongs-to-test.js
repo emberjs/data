@@ -592,7 +592,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     });
   });
 
-  test('When finding a belongsTo relationship the inverse belongsTo relationship is available immediately', function (assert) {
+  test('When finding a belongsTo relationship the inverse belongsTo relationship is available immediately', async function (assert) {
     assert.expect(1);
 
     const Occupation = Model.extend({
@@ -616,24 +616,22 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       return { data: { id: '5', type: 'occupation', attributes: { description: 'fifth' } } };
     };
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom Dale',
-          },
-          relationships: {
-            occupation: {
-              data: { type: 'occupation', id: '5' },
-            },
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
+        },
+        relationships: {
+          occupation: {
+            data: { type: 'occupation', id: '5' },
           },
         },
-      });
+      },
     });
 
-    run(() => store.peekRecord('person', 1).occupation);
+    await store.peekRecord('person', 1).occupation;
   });
 
   test('belongsTo supports relationships to models with id 0', async function (assert) {

@@ -456,7 +456,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has their boats');
   });
 
-  test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via relationship reload)', function (assert) {
+  test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via relationship reload)', async function (assert) {
     assert.expect(15);
 
     adapter.findRecord = (store, type, id) => {
@@ -467,23 +467,21 @@ module('integration/unload - Unloading Records', function (hooks) {
       });
     };
 
-    let person = run(() =>
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Could be Anybody',
-          },
-          relationships: {
-            boats: {
-              data: [{ type: 'boat', id: '1' }],
-            },
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Could be Anybody',
+        },
+        relationships: {
+          boats: {
+            data: [{ type: 'boat', id: '1' }],
           },
         },
-        included: [makeBoatOneForPersonOne()],
-      })
-    );
+      },
+      included: [makeBoatOneForPersonOne()],
+    });
 
     let boat = store.peekRecord('boat', '1');
     let relationshipState = person.hasMany('boats').hasManyRelationship;
@@ -492,32 +490,30 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.notStrictEqual(store.peekRecord('person', '1'), null);
     assert.notStrictEqual(store.peekRecord('boat', '1'), null);
 
-    // ensure the relationship was established (we reach through the async proxy here)
-    let peopleBoats = run(() => person.boats.content);
-    let boatPerson = run(() => boat.person.content);
+    let peopleBoats = await person.boats;
+    let boatPerson = await boat.person;
 
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should be 1');
     assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should be 1');
-    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
+    assert.strictEqual(peopleBoats.length, 1, 'Our person has a boat');
     assert.strictEqual(peopleBoats.at(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
 
-    run(() => {
-      store.unloadAll('boat');
-    });
+    store.unloadAll('boat');
+    await settled();
 
     // ensure that our new state is correct
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
     assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should still be 1');
-    assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
+    assert.strictEqual(peopleBoats.length, 0, 'Our person thinks they have no boats');
 
-    run(() => person.boats);
+    await person.boats;
 
     store.peekRecord('boat', '1');
 
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
     assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should still be 1');
-    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has their boats');
+    assert.strictEqual(peopleBoats.length, 1, 'Our person has their boats');
   });
 
   test('(regression) unloadRecord followed by push in the same run-loop', async function (assert) {
@@ -812,16 +808,18 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.false(record.isDestroyed, 'the record is NOT YET destroyed after unloadRecord');
     assert.true(cache.isEmpty(identifier), 'We are unloaded after unloadRecord');
 
-    let promise = store.findRecord('person', '1').then((newRecord) => {
-      assert.true(record.isDestroyed, 'the record is destroyed after findRecord');
-      assert.strictEqual(newRecord.bike, bike, 'the newRecord should retain knowledge of the bike');
-    });
+    const promise = store.findRecord('person', '1');
+
     assert.false(record.isDestroyed, 'the record is NOT YET destroyed after findRecord triggered');
-    await promise;
-    assert.true(record.isDestroyed, 'the record IS destroyed');
+
+    await settled();
+    const newRecord = await promise;
+
+    assert.true(record.isDestroyed, 'the record is destroyed after findRecord');
+    assert.strictEqual(newRecord.bike, bike, 'the newRecord should retain knowledge of the bike');
   });
 
-  test('after unloading a record, the record can be fetched again soon there after', function (assert) {
+  test('after unloading a record, the record can be fetched again soon there after', async function (assert) {
     let record;
 
     // stub findRecord
@@ -838,16 +836,14 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
 
     // populate initial record
-    run(function () {
-      record = store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
+    record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
         },
-      });
+      },
     });
 
     let identifier = recordIdentifierFor(record);
@@ -855,22 +851,20 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
-    run(function () {
-      store.unloadRecord(record);
-      assert.true(record.isDestroying, 'the record is destroying');
-      assert.true(cache.isEmpty(identifier), 'We are unloaded after unloadRecord');
-    });
+    store.unloadRecord(record);
+    assert.true(record.isDestroying, 'the record is destroying');
+    assert.true(cache.isEmpty(identifier), 'We are unloaded after unloadRecord');
 
-    run(function () {
-      store.findRecord('person', '1');
-    });
+    await settled();
+
+    await store.findRecord('person', '1');
 
     record = store.peekRecord('person', '1');
 
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
   });
 
-  test('after unloading a record, the record can be saved again immediately', function (assert) {
+  test('after unloading a record, the record can be saved again immediately', async function (assert) {
     assert.expect(0);
 
     const data = {
@@ -885,16 +879,14 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     adapter.createRecord = () => resolve(data);
 
-    run(() => {
-      // add an initial record with id '1' to the store
-      store.push(data);
+    // add an initial record with id '1' to the store
+    store.push(data);
 
-      // unload the initial record
-      store.peekRecord('person', '1').unloadRecord();
+    // unload the initial record
+    store.peekRecord('person', '1').unloadRecord();
 
-      // create a new record that will again get id '1' from the backend
-      store.createRecord('person').save();
-    });
+    // create a new record that will again get id '1' from the backend
+    await store.createRecord('person').save();
   });
 
   test('after unloading a record, pushing a new copy will setup relationships', function (assert) {

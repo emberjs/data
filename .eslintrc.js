@@ -217,7 +217,6 @@ module.exports = {
         'ember-data-types/q/ember-data-json-api.ts',
         'ember-data-types/q/ds-model.ts',
         'packages/store/src/-private/managers/record-data-store-wrapper.ts',
-        'packages/store/src/-private/network/snapshot.ts',
         'packages/store/src/-private/legacy-model-support/schema-definition-service.ts',
         'packages/store/src/-private/network/request-cache.ts',
         'packages/store/src/-private/legacy-model-support/record-reference.ts',

@@ -1,10 +1,12 @@
-import { isDevelopingApp, macroCondition } from '@embroider/macros';
+import { DEBUG } from '@ember-data/env';
 
 import { Context } from './context';
 import type { ImmutableHeaders, RequestInfo } from './types';
 
 const ValidKeys = new Map<string, string | string[]>([
+  ['records', 'array'],
   ['data', 'json'],
+  ['disableTestWaiter', 'boolean'],
   ['options', 'object'],
   ['cacheOptions', 'object'],
   [
@@ -141,7 +143,7 @@ export function deepFreeze<T = unknown>(value: T): T {
         case 'stream':
         default:
           // eslint-disable-next-line no-console
-          console.log(`Cannot deep-freeze ${_niceType}`);
+          // console.log(`Cannot deep-freeze ${_niceType}`);
           return value;
       }
     }
@@ -267,6 +269,11 @@ function validateKey(key: string, value: unknown, errors: string[]) {
         errors.push(`InvalidValue: key ${key} should be a boolean, received ${typeof value}`);
       }
       return;
+    } else if (schema === 'array') {
+      if (!Array.isArray(value)) {
+        errors.push(`InvalidValue: key ${key} should be an array, received ${typeof value}`);
+      }
+      return;
     }
   }
 }
@@ -277,7 +284,7 @@ export function assertValidRequest(
   request: RequestInfo | Context,
   isTopLevel: boolean
 ): asserts request is RequestInfo {
-  if (macroCondition(isDevelopingApp())) {
+  if (DEBUG) {
     // handle basic shape
     if (!request) {
       throw new Error(

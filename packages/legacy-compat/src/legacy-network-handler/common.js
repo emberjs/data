@@ -1,8 +1,5 @@
 import { deprecate } from '@ember/debug';
 
-import { resolve } from 'rsvp';
-
-import { DEBUG } from '@ember-data/env';
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
 export function _bind(fn, ...args) {
@@ -14,7 +11,7 @@ export function _bind(fn, ...args) {
 export function _guard(promise, test) {
   let guarded = promise.finally(() => {
     if (!test()) {
-      guarded._subscribers.length = 0;
+      guarded._subscribers ? (guarded._subscribers.length = 0) : null;
     }
   });
 
@@ -25,12 +22,8 @@ export function _objectIsAlive(object) {
   return !(object.isDestroyed || object.isDestroying);
 }
 
-export function guardDestroyedStore(promise, store, label) {
-  let token;
-  if (DEBUG) {
-    token = store._trackAsyncRequestStart(label);
-  }
-  let wrapperPromise = resolve(promise, label).then((_v) => {
+export function guardDestroyedStore(promise, store) {
+  return promise.then((_v) => {
     if (!_objectIsAlive(store)) {
       if (DEPRECATE_RSVP_PROMISE) {
         deprecate(
@@ -49,13 +42,6 @@ export function guardDestroyedStore(promise, store, label) {
       }
     }
 
-    return promise;
-  });
-
-  return _guard(wrapperPromise, () => {
-    if (DEBUG) {
-      store._trackAsyncRequestEnd(token);
-    }
-    return _objectIsAlive(store);
+    return _v;
   });
 }

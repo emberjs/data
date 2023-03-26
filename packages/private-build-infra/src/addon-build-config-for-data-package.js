@@ -1,5 +1,3 @@
-const path = require('path');
-
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 const Funnel = require('broccoli-funnel');
 const merge = require('broccoli-merge-trees');
@@ -7,34 +5,7 @@ const BroccoliDebug = require('broccoli-debug');
 const VersionChecker = require('ember-cli-version-checker');
 
 const rollupPrivateModule = require('./utilities/rollup-private-module');
-
-// do our best to detect being present
-// Note: when this is not enough, consuming apps may need
-// to "hoist" peer-deps or specify us as a direct dependency
-// in order to deal with peer-dep bugs in package managers
-function detectModule(moduleName) {
-  try {
-    // package managers have peer-deps bugs where another library
-    // bringing a peer-dependency doesn't necessarily result in all
-    // versions of the dependent getting the peer-dependency
-    //
-    // so we resolve from project as well as from our own location
-    //
-    // eslint-disable-next-line node/no-missing-require
-    require.resolve(moduleName, { paths: [process.cwd(), __dirname, path.join(__dirname, '../')] });
-    return true;
-  } catch {
-    try {
-      // ember-data brings all packages so if present we are present
-      //
-      // eslint-disable-next-line node/no-missing-require
-      require.resolve('ember-data', { paths: [process.cwd(), __dirname, path.join(__dirname, '../')] });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-}
+const detectModule = require('./utilities/detect-module');
 
 function isProductionEnv() {
   let isProd = /production/.test(process.env.EMBER_ENV);
@@ -43,9 +14,9 @@ function isProductionEnv() {
   return isProd && !isTest;
 }
 
-function addonBuildConfigForDataPackage(PackageName) {
+function addonBuildConfigForDataPackage(pkg) {
   return {
-    name: PackageName,
+    name: pkg.name,
 
     init() {
       this._super.init && this._super.init.apply(this, arguments);
@@ -56,7 +27,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       //     (typeof this.parent.name === 'function' ? this.parent.name() : this.parent.name)
       // );
       this._prodLikeWarning();
-      this.debugTree = BroccoliDebug.buildDebugCallback(`ember-data:${PackageName}`);
+      this.debugTree = BroccoliDebug.buildDebugCallback(`ember-data:${pkg.name}`);
       this.options = this.options || {};
       Object.assign(this.options, {
         '@embroider/macros': {
@@ -248,7 +219,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       let analyzer = this.registry.load('js').find((plugin) => plugin.name === 'ember-auto-import-analyzer');
 
       let privateTree = rollupPrivateModule(tree, {
-        packageName: PackageName,
+        packageName: pkg.name,
         babelCompiler: babel,
         babelOptions: this.options.babel,
         emberVersion: emberVersion,
@@ -262,7 +233,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       let withoutPrivate = new Funnel(tree, {
         exclude: ['-private', isProductionEnv() ? '-debug' : false].filter(Boolean),
 
-        destDir: PackageName,
+        destDir: pkg.name,
       });
 
       // use the default options
@@ -297,6 +268,7 @@ function addonBuildConfigForDataPackage(PackageName) {
           LOG_OPERATIONS: false,
           LOG_MUTATIONS: false,
           LOG_NOTIFICATIONS: false,
+          LOG_REQUESTS: false,
           LOG_REQUEST_STATUS: false,
           LOG_IDENTIFIERS: false,
           LOG_GRAPH: false,
@@ -306,8 +278,8 @@ function addonBuildConfigForDataPackage(PackageName) {
       );
       options.emberData.debug = debugOptions;
 
-      const HAS_DEBUG_PACKAGE = detectModule('@ember-data/debug');
-      const HAS_META_PACKAGE = detectModule('ember-data');
+      const HAS_DEBUG_PACKAGE = detectModule(require, '@ember-data/debug', __dirname, pkg);
+      const HAS_META_PACKAGE = detectModule(require, 'ember-data', __dirname, pkg);
 
       options.emberData.includeDataAdapterInProduction =
         typeof options.emberData.includeDataAdapterInProduction === 'boolean'

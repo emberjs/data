@@ -4,9 +4,9 @@ import { resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { FetchManager, Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { Snapshot } from '@ember-data/store/-private';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 let owner, store, _Post;
@@ -40,6 +40,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     owner.register('adapter:application', JSONAPIAdapter.extend());
     owner.register('serializer:application', class extends JSONAPISerializer {});
     store = owner.lookup('service:store');
+    store._fetchManager = new FetchManager(store);
   });
 
   test('snapshot.attributes() includes defaultValues when appropriate', function (assert) {
@@ -135,7 +136,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       });
       let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
-      let snapshot = await store._instanceCache.createSnapshot(identifier);
+      let snapshot = await store._fetchManager.createSnapshot(identifier);
 
       assert.false(postClassLoaded, 'model class is not eagerly loaded');
       assert.strictEqual(snapshot.type, _Post, 'type is correct');
@@ -143,7 +144,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     }
   );
 
-  test('an initial findRecord call has no record for internal-model when a snapshot is generated', function (assert) {
+  test('an initial findRecord call has no record for internal-model when a snapshot is generated', async function (assert) {
     assert.expect(2);
     store.adapterFor('application').findRecord = (store, type, id, snapshot) => {
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
@@ -161,7 +162,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       });
     };
 
-    store.findRecord('post', '1');
+    await store.findRecord('post', '1');
   });
 
   test('snapshots for un-materialized internal-models generate attributes lazily', function (assert) {
@@ -178,7 +179,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     });
 
     let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
-    let snapshot = store._instanceCache.createSnapshot(identifier);
+    let snapshot = store._fetchManager.createSnapshot(identifier);
     let expected = {
       author: undefined,
       title: 'Hello World',
@@ -203,7 +204,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     });
 
     let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
-    let snapshot = store._instanceCache.createSnapshot(identifier);
+    let snapshot = store._fetchManager.createSnapshot(identifier);
     let expected = {
       author: undefined,
       title: 'Hello World',

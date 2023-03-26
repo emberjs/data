@@ -1,5 +1,5 @@
 import { get, set } from '@ember/object';
-import { later, run } from '@ember/runloop';
+import { later } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -16,7 +16,7 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 module('unit/store/adapter-interop - Store working with a Adapter', function (hooks) {
   setupTest(hooks);
 
-  test('Calling Store#find invokes its adapter#find', function (assert) {
+  test('Calling Store#find invokes its adapter#find', async function (assert) {
     assert.expect(5);
 
     let currentStore = this.owner.lookup('service:store');
@@ -46,10 +46,10 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend());
 
-    return run(() => currentStore.findRecord('test', 1));
+    await currentStore.findRecord('test', '1');
   });
 
-  test('Calling Store#findRecord multiple times coalesces the calls into a adapter#findMany call', function (assert) {
+  test('Calling Store#findRecord multiple times coalesces the calls into a adapter#findMany call', async function (assert) {
     assert.expect(2);
 
     const ApplicationAdapter = Adapter.extend({
@@ -75,9 +75,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      return all([store.findRecord('test', 1), store.findRecord('test', 2)]);
-    });
+    await all([store.findRecord('test', '1'), store.findRecord('test', '2')]);
   });
 
   test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany and adapter#findRecord', async function (assert) {
@@ -144,7 +142,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     );
   });
 
-  test('Returning a promise from `findRecord` asynchronously loads data', function (assert) {
+  test('Returning a promise from `findRecord` asynchronously loads data', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -159,14 +157,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      return store.findRecord('test', 1).then((object) => {
-        assert.strictEqual(get(object, 'name'), 'Scumbag Dale', 'the data was pushed');
-      });
+    await store.findRecord('test', '1').then((object) => {
+      assert.strictEqual(get(object, 'name'), 'Scumbag Dale', 'the data was pushed');
     });
   });
 
-  test('IDs provided as numbers are coerced to strings', function (assert) {
+  test('IDs provided as numbers are coerced to strings', async function (assert) {
     assert.expect(5);
 
     const ApplicationAdapter = Adapter.extend({
@@ -182,37 +178,33 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      return store
-        .findRecord('test', 1)
-        .then((object) => {
-          assert.strictEqual(typeof object.id, 'string', 'id was coerced to a string');
-          run(() => {
-            store.push({
-              data: {
-                type: 'test',
-                id: '2',
-                attributes: {
-                  name: 'Scumbag Sam Saffron',
-                },
-              },
-            });
-          });
-
-          return store.findRecord('test', 2);
-        })
-        .then((object) => {
-          assert.ok(object, 'object was found');
-          assert.strictEqual(
-            typeof object.id,
-            'string',
-            'id is a string despite being supplied and searched for as a number'
-          );
+    await store
+      .findRecord('test', 1)
+      .then((object) => {
+        assert.strictEqual(typeof object.id, 'string', 'id was coerced to a string');
+        store.push({
+          data: {
+            type: 'test',
+            id: '2',
+            attributes: {
+              name: 'Scumbag Sam Saffron',
+            },
+          },
         });
-    });
+
+        return store.findRecord('test', '2');
+      })
+      .then((object) => {
+        assert.ok(object, 'object was found');
+        assert.strictEqual(
+          typeof object.id,
+          'string',
+          'id is a string despite being supplied and searched for as a number'
+        );
+      });
   });
 
-  test('can load data for the same record if it is not dirty', function (assert) {
+  test('can load data for the same record if it is not dirty', async function (assert) {
     assert.expect(3);
 
     const Person = Model.extend({
@@ -231,36 +223,34 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
+        },
+      },
+    });
+
+    await store.findRecord('person', '1').then((tom) => {
+      assert.false(get(tom, 'hasDirtyAttributes'), 'precond - record is not dirty');
+      assert.strictEqual(get(tom, 'name'), 'Tom Dale', 'returns the correct name');
+
       store.push({
         data: {
           type: 'person',
           id: '1',
           attributes: {
-            name: 'Tom Dale',
+            name: 'Captain Underpants',
           },
         },
       });
-
-      return store.findRecord('person', 1).then((tom) => {
-        assert.false(get(tom, 'hasDirtyAttributes'), 'precond - record is not dirty');
-        assert.strictEqual(get(tom, 'name'), 'Tom Dale', 'returns the correct name');
-
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Captain Underpants',
-            },
-          },
-        });
-        assert.strictEqual(get(tom, 'name'), 'Captain Underpants', 'updated record with new date');
-      });
+      assert.strictEqual(get(tom, 'name'), 'Captain Underpants', 'updated record with new date');
     });
   });
 
-  test('loadMany takes an optional Object and passes it on to the Adapter', function (assert) {
+  test('loadMany takes an optional Object and passes it on to the Adapter', async function (assert) {
     assert.expect(2);
 
     let passedQuery = { page: 1 };
@@ -283,7 +273,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    run(() => store.query('person', passedQuery));
+    await store.query('person', passedQuery);
   });
 
   test('Find with query calls the correct normalizeResponse', async function (assert) {
@@ -318,7 +308,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.strictEqual(callCount, 1, 'normalizeQueryResponse was called');
   });
 
-  test('peekAll(type) returns a record array of all records of a specific type', function (assert) {
+  test('peekAll(type) returns a record array of all records of a specific type', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -328,16 +318,14 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom Dale',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
         },
-      });
+      },
     });
 
     let results = store.peekAll('person');
@@ -345,16 +333,14 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.strictEqual(get(results, 'length'), 1, 'record array should have the original object');
     assert.strictEqual(results.at(0).name, 'Tom Dale', 'record has the correct information');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '2',
-          attributes: {
-            name: 'Yehuda Katz',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Yehuda Katz',
         },
-      });
+      },
     });
 
     assert.strictEqual(results.length, 2, 'record array should have the new object');
@@ -363,7 +349,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.strictEqual(results, store.peekAll('person'), 'subsequent calls to peekAll return the same recordArray)');
   });
 
-  test('a new record of a particular type is created via store.createRecord(type)', function (assert) {
+  test('a new record of a particular type is created via store.createRecord(type)', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -376,7 +362,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.true(get(person, 'isNew'), 'A newly created record is new');
     assert.true(get(person, 'hasDirtyAttributes'), 'A newly created record is dirty');
 
-    run(() => set(person, 'name', 'Braaahm Dale'));
+    set(person, 'name', 'Braaahm Dale');
 
     assert.strictEqual(get(person, 'name'), 'Braaahm Dale', 'Even if no hash is supplied, `set` still worked');
   });
@@ -417,7 +403,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.strictEqual(get(person, 'name'), 'Brohuda Katz', 'The initial data hash is provided');
   });
 
-  test('if an id is supplied in the initial data hash, it can be looked up using `store.find`', function (assert) {
+  test('if an id is supplied in the initial data hash, it can be looked up using `store.find`', async function (assert) {
     assert.expect(1);
 
     const Person = Model.extend({
@@ -433,16 +419,14 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      let person = store.createRecord('person', { id: '1', name: 'Brohuda Katz' });
+    let person = store.createRecord('person', { id: '1', name: 'Brohuda Katz' });
 
-      return store.findRecord('person', 1).then((again) => {
-        assert.strictEqual(person, again, 'the store returns the loaded object');
-      });
+    await store.findRecord('person', '1').then((again) => {
+      assert.strictEqual(person, again, 'the store returns the loaded object');
     });
   });
 
-  test('initial values of attributes can be passed in as the third argument to find', function (assert) {
+  test('initial values of attributes can be passed in as the third argument to find', async function (assert) {
     assert.expect(1);
 
     const TestModel = Model.extend({
@@ -462,10 +446,10 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => store.findRecord('test', 1, { preload: { name: 'Test' } }));
+    await store.findRecord('test', '1', { preload: { name: 'Test' } });
   });
 
-  test('initial values of belongsTo can be passed in as the third argument to find as records', function (assert) {
+  test('initial values of belongsTo can be passed in as the third argument to find as records', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -486,23 +470,21 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '2',
-          attributes: {
-            name: 'Tom',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Tom',
         },
-      });
-
-      let tom = store.peekRecord('person', 2);
-      return store.findRecord('person', 1, { preload: { friend: tom } });
+      },
     });
+
+    let tom = store.peekRecord('person', 2);
+    await store.findRecord('person', 1, { preload: { friend: tom } });
   });
 
-  test('initial values of belongsTo can be passed in as the third argument to find as ids', function (assert) {
+  test('initial values of belongsTo can be passed in as the third argument to find as ids', async function (assert) {
     assert.expect(1);
 
     const Person = Model.extend({
@@ -522,16 +504,14 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      return store.findRecord('person', 1, { preload: { friend: 2 } }).then(() => {
-        return store.peekRecord('person', 1).friend.then((friend) => {
-          assert.strictEqual(friend.id, '2', 'Preloaded belongsTo set');
-        });
+    await store.findRecord('person', '1', { preload: { friend: 2 } }).then(() => {
+      return store.peekRecord('person', '1').friend.then((friend) => {
+        assert.strictEqual(friend.id, '2', 'Preloaded belongsTo set');
       });
     });
   });
 
-  test('initial values of hasMany can be passed in as the third argument to find as records', function (assert) {
+  test('initial values of hasMany can be passed in as the third argument to find as records', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -552,23 +532,21 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '2',
-          attributes: {
-            name: 'Tom',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Tom',
         },
-      });
-
-      let tom = store.peekRecord('person', 2);
-      return store.findRecord('person', 1, { preload: { friends: [tom] } });
+      },
     });
+
+    let tom = store.peekRecord('person', '2');
+    await store.findRecord('person', '1', { preload: { friends: [tom] } });
   });
 
-  test('initial values of hasMany can be passed in as the third argument to find as ids', function (assert) {
+  test('initial values of hasMany can be passed in as the third argument to find as ids', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -589,10 +567,10 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => store.findRecord('person', 1, { preload: { friends: [2] } }));
+    await store.findRecord('person', '1', { preload: { friends: [2] } });
   });
 
-  test('initial empty values of hasMany can be passed in as the third argument to find as records', function (assert) {
+  test('initial empty values of hasMany can be passed in as the third argument to find as records', async function (assert) {
     assert.expect(1);
 
     const Person = Model.extend({
@@ -613,12 +591,10 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      return store.findRecord('person', 1, { preload: { friends: [] } });
-    });
+    await store.findRecord('person', '1', { preload: { friends: [] } });
   });
 
-  test('initial values of hasMany can be passed in as the third argument to find as ids', function (assert) {
+  test('initial values of hasMany can be passed in as the third argument to find as ids', async function (assert) {
     assert.expect(1);
 
     const Person = Model.extend({
@@ -639,10 +615,10 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => store.findRecord('person', 1, { preload: { friends: [] } }));
+    await store.findRecord('person', 1, { preload: { friends: [] } });
   });
 
-  test('records should have their ids updated when the adapter returns the id data', function (assert) {
+  test('records should have their ids updated when the adapter returns the id data', async function (assert) {
     assert.expect(2);
 
     const Person = Model.extend({
@@ -674,11 +650,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     let tom = store.createRecord('person', { name: 'Tom Dale' });
     let yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
 
-    return run(() => {
-      return all([tom.save(), yehuda.save()]).then(() => {
-        people.forEach((person, index) => {
-          assert.strictEqual(person.id, String(index + 1), `The record's id should be correct.`);
-        });
+    await all([tom.save(), yehuda.save()]).then(() => {
+      people.forEach((person, index) => {
+        assert.strictEqual(person.id, String(index + 1), `The record's id should be correct.`);
       });
     });
   });
@@ -723,7 +697,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.deepEqual(ids, ['10', '20', '21'], 'The promise fulfills with the identifiers');
   });
 
-  test('the promise returned by `findRecord`, when it resolves, does not depend on the promises returned to other calls to `findRecord` that are in the same run loop, but different groups', function (assert) {
+  test('the promise returned by `findRecord`, when it resolves, does not depend on the promises returned to other calls to `findRecord` that are in the same run loop, but different groups', async function (assert) {
     assert.expect(2);
 
     let davidResolved = false;
@@ -755,28 +729,26 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      let david = store.findRecord('test', 'david');
-      let igor = store.findRecord('test', 'igor');
-      let wait = [];
+    let david = store.findRecord('test', 'david');
+    let igor = store.findRecord('test', 'igor');
+    let wait = [];
 
-      wait.push(
-        igor.then(() => {
-          assert.false(davidResolved, 'Igor did not need to wait for David');
-        })
-      );
+    wait.push(
+      igor.then(() => {
+        assert.false(davidResolved, 'Igor did not need to wait for David');
+      })
+    );
 
-      wait.push(
-        david.then(() => {
-          assert.true(davidResolved, 'David resolved');
-        })
-      );
+    wait.push(
+      david.then(() => {
+        assert.true(davidResolved, 'David resolved');
+      })
+    );
 
-      return all(wait);
-    });
+    await all(wait);
   });
 
-  test('the promise returned by `findRecord`, when it rejects, does not depend on the promises returned to other calls to `findRecord` that are in the same run loop, but different groups', function (assert) {
+  test('the promise returned by `findRecord`, when it rejects, does not depend on the promises returned to other calls to `findRecord` that are in the same run loop, but different groups', async function (assert) {
     assert.expect(2);
 
     let davidResolved = false;
@@ -808,31 +780,29 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      let david = store.findRecord('test', 'david');
-      let igor = store.findRecord('test', 'igor');
-      let wait = [];
+    let david = store.findRecord('test', 'david');
+    let igor = store.findRecord('test', 'igor');
+    let wait = [];
 
-      wait.push(
-        igor.catch(() => {
-          assert.false(davidResolved, 'Igor did not need to wait for David');
-        })
-      );
+    wait.push(
+      igor.catch(() => {
+        assert.false(davidResolved, 'Igor did not need to wait for David');
+      })
+    );
 
-      wait.push(
-        david.then(() => {
-          assert.true(davidResolved, 'David resolved');
-        })
-      );
+    wait.push(
+      david.then(() => {
+        assert.true(davidResolved, 'David resolved');
+      })
+    );
 
-      return EmberPromise.all(wait);
-    });
+    await EmberPromise.all(wait);
   });
 
   testInDebug(
     'store.findRecord reject records that were not found, even when those requests were coalesced with records that were found',
-    function (assert) {
-      assert.expect(3);
+    async function (assert) {
+      assert.expect(2);
 
       const ApplicationAdapter = Adapter.extend({
         findMany(store, type, ids, snapshots) {
@@ -847,22 +817,25 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
       let store = this.owner.lookup('service:store');
 
-      let wait = [];
-      assert.expectWarning(() => {
-        run(() => {
-          let david = store.findRecord('test', 'david');
-          let igor = store.findRecord('test', 'igor');
+      await assert.expectWarning(async () => {
+        let david = store.findRecord('test', 'david');
+        let igor = store.findRecord('test', 'igor');
 
-          wait.push(david.then(() => assert.ok(true, 'David resolved')));
-          wait.push(igor.catch(() => assert.ok(true, 'Igor rejected')));
-        });
+        try {
+          await Promise.all([david, igor]);
+        } catch (e) {
+          assert.strictEqual(
+            e.message,
+            `Expected: '<test:igor>' to be present in the adapter provided payload, but it was not found.`,
+            'we erred'
+          );
+        }
       }, /expected to find records with the following ids/);
-
-      return EmberPromise.all(wait);
     }
   );
 
-  testInDebug('store.findRecord warns when records are missing', function (assert) {
+  testInDebug('store.findRecord warns when records are missing', async function (assert) {
+    assert.expect(3);
     const ApplicationAdapter = Adapter.extend({
       findMany(store, type, ids, snapshots) {
         let records = ids.map((id) => ({ id, type: 'test' })).filter(({ id }) => id === 'david');
@@ -877,36 +850,34 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    let wait = [];
     let igorDidReject = true;
 
-    assert.expectWarning(
-      () => {
-        run(() => {
-          wait.push(store.findRecord('test', 'david'));
-          wait.push(
-            store.findRecord('test', 'igor').catch((e) => {
-              igorDidReject = true;
-              assert.strictEqual(
-                e.message,
-                `Expected: '<test:igor>' to be present in the adapter provided payload, but it was not found.`
-              );
-            })
-          );
-        });
+    await assert.expectWarning(
+      async () => {
+        let wait = [];
+        wait.push(store.findRecord('test', 'david'));
+        wait.push(
+          store.findRecord('test', 'igor').catch((e) => {
+            igorDidReject = true;
+            assert.strictEqual(
+              e.message,
+              `Expected: '<test:igor>' to be present in the adapter provided payload, but it was not found.`
+            );
+          })
+        );
+
+        await Promise.all(wait);
       },
       { id: 'ds.store.missing-records-from-adapter' }
     );
 
-    return EmberPromise.all(wait).then(() => {
-      assert.ok(
-        igorDidReject,
-        'expected rejection that <test:igor> could not be found in the payload, but no such rejection occured'
-      );
-    });
+    assert.ok(
+      igorDidReject,
+      'expected rejection that <test:igor> could not be found in the payload, but no such rejection occured'
+    );
   });
 
-  test('store should not call shouldReloadRecord when the record is not in the store', function (assert) {
+  test('store should not call shouldReloadRecord when the record is not in the store', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -926,10 +897,10 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => store.findRecord('person', 1));
+    await store.findRecord('person', '1');
   });
 
-  test('store should not reload record when shouldReloadRecord returns false', function (assert) {
+  test('store should not reload record when shouldReloadRecord returns false', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -951,19 +922,17 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-        },
-      });
-
-      return store.findRecord('person', 1);
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+      },
     });
+
+    await store.findRecord('person', 1);
   });
 
-  test('store should reload record when shouldReloadRecord returns true', function (assert) {
+  test('store should reload record when shouldReloadRecord returns true', async function (assert) {
     assert.expect(3);
 
     const ApplicationAdapter = Adapter.extend({
@@ -983,21 +952,19 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-        },
-      });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+      },
+    });
 
-      return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.name, 'Tom');
-      });
+    await store.findRecord('person', 1).then((record) => {
+      assert.strictEqual(record.name, 'Tom');
     });
   });
 
-  test('store should not call shouldBackgroundReloadRecord when the store is already loading the record', function (assert) {
+  test('store should not call shouldBackgroundReloadRecord when the store is already loading the record', async function (assert) {
     assert.expect(2);
 
     const Person = Model.extend({
@@ -1023,17 +990,15 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-        },
-      });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+      },
+    });
 
-      return store.findRecord('person', 1).then((record) => {
-        assert.strictEqual(record.name, 'Tom');
-      });
+    await store.findRecord('person', 1).then((record) => {
+      assert.strictEqual(record.name, 'Tom');
     });
   });
 
@@ -1074,12 +1039,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     class ApplicationAdapter extends Adapter {
       shouldBackgroundReloadRecord(store, type, id, snapshot) {
-        assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
+        assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded from the cache');
         return true;
       }
       async findRecord() {
         await new Promise((r) => setTimeout(r, 1));
-        assert.ok(true, 'find should not be called');
+        assert.ok(true, 'adapter.findRecord should be called once for the background request');
         return Promise.resolve({ data: { id: '1', type: 'person', attributes: { name: 'Tom' } } });
       }
     }
@@ -1103,9 +1068,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     await store.findRecord('person', '1');
-    assert.strictEqual(record.name, undefined);
-    await settled();
-    assert.strictEqual(store.peekRecord('person', 1).name, 'Tom');
+    assert.strictEqual(record.name, undefined, 'Name is undefined after initial find');
+    await store._getAllPending();
+    assert.strictEqual(store.peekRecord('person', '1').name, 'Tom', 'Name is correct after background reload');
   });
 
   test('store should not reload record array when shouldReloadAll returns false', async function (assert) {

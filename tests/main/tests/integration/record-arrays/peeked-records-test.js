@@ -1,5 +1,3 @@
-import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -29,7 +27,7 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('repeated calls to peekAll in separate run-loops works as expected', async function (assert) {
-    let peekedRecordArray = run(() => store.peekAll('person'));
+    let peekedRecordArray = store.peekAll('person');
     let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
 
@@ -71,7 +69,7 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('peekAll in the same run-loop as push works as expected', async function (assert) {
-    let peekedRecordArray = run(() => store.peekAll('person'));
+    let peekedRecordArray = store.peekAll('person');
     let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
 
@@ -114,7 +112,7 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('newly created records notify the array as expected', async function (assert) {
-    let peekedRecordArray = run(() => store.peekAll('person'));
+    let peekedRecordArray = store.peekAll('person');
     let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
 
@@ -157,7 +155,7 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('unloading newly created records notify the array as expected', async function (assert) {
-    let peekedRecordArray = run(() => store.peekAll('person'));
+    let peekedRecordArray = store.peekAll('person');
     let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state init');
@@ -167,15 +165,14 @@ module('integration/peeked-records', function (hooks) {
 
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
-    run(() => {
-      aNewlyCreatedRecord.unloadRecord();
-    });
+    aNewlyCreatedRecord.unloadRecord();
+    await settled();
 
     assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state when a new record is unloaded');
   });
 
   test('immediately peeking after unloading newly created records works as expected', async function (assert) {
-    let peekedRecordArray = run(() => store.peekAll('person'));
+    let peekedRecordArray = store.peekAll('person');
     let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state init');
@@ -186,21 +183,73 @@ module('integration/peeked-records', function (hooks) {
 
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
-    run(() => {
-      aNewlyCreatedRecord.unloadRecord();
-      store.peekAll('person');
-    });
+    aNewlyCreatedRecord.unloadRecord();
+    store.peekAll('person');
+    await settled();
 
     assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state when a new record is unloaded');
   });
 
   test('unloadAll followed by peekAll in the same run-loop works as expected', async function (assert) {
-    let peekedRecordArray = run(() => store.peekAll('person'));
+    let peekedRecordArray = store.peekAll('person');
+    assert.strictEqual(peekedRecordArray.length, 0, 'length is 0');
     let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state init');
 
-    run(() => {
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'John',
+          },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Joe',
+          },
+        },
+      ],
+    });
+    await settled();
+
+    store.peekAll('person');
+
+    assert.strictEqual(peekedRecordArray.length, 2, 'length is 2');
+    assert.watchedPropertyCounts(
+      watcher,
+      { length: 2, '[]': 2 },
+      'RecordArray state after a single push with multiple records to add'
+    );
+
+    store.unloadAll('person');
+
+    assert.watchedPropertyCounts(
+      watcher,
+      { length: 2, '[]': 2 },
+      'RecordArray state after unloadAll has not changed yet'
+    );
+
+    assert.strictEqual(peekedRecordArray[SOURCE].length, 2, 'Array length is unchanged before the next peek');
+
+    await settled();
+    store.peekAll('person');
+
+    assert.strictEqual(peekedRecordArray.length, 0, 'We no longer have any array content');
+
+    assert.watchedPropertyCounts(
+      watcher,
+      { length: 3, '[]': 3 },
+      'RecordArray state after a follow up peekAll reflects unload changes'
+    );
+  });
+
+  test('push+materialize => unloadAll => push+materialize works as expected', async function (assert) {
+    async function push() {
       store.push({
         data: [
           {
@@ -219,67 +268,14 @@ module('integration/peeked-records', function (hooks) {
           },
         ],
       });
-    });
-
-    store.peekAll('person');
-
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state after a single push with multiple records to add'
-    );
-
-    store.unloadAll('person');
-
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state after unloadAll has not changed yet'
-    );
-
-    assert.strictEqual(peekedRecordArray[SOURCE].length, 2, 'Array length is unchanged before the next peek');
-
-    store.peekAll('person');
-
-    assert.strictEqual(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
-    await settled();
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 3, '[]': 3 },
-      'RecordArray state after a follow up peekAll reflects unload changes'
-    );
-  });
-
-  test('push+materialize => unloadAll => push+materialize works as expected', async function (assert) {
-    async function push() {
-      run(() => {
-        store.push({
-          data: [
-            {
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'John',
-              },
-            },
-            {
-              type: 'person',
-              id: '2',
-              attributes: {
-                name: 'Joe',
-              },
-            },
-          ],
-        });
-      });
       await settled();
     }
     async function unload() {
-      run(() => store.unloadAll('person'));
+      store.unloadAll('person');
       await settled();
     }
     async function peek() {
-      const result = run(() => store.peekAll('person'));
+      const result = store.peekAll('person');
       await settled();
       return result;
     }
@@ -297,46 +293,42 @@ module('integration/peeked-records', function (hooks) {
     );
 
     await unload();
-    assert.strictEqual(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
+    assert.strictEqual(peekedRecordArray.length, 0, 'We no longer have any array content');
     assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state has signaled the unload');
 
     await push();
-    assert.strictEqual(get(peekedRecordArray, 'length'), 2, 'We have array content');
+    assert.strictEqual(peekedRecordArray.length, 2, 'We have array content');
     assert.watchedPropertyCounts(watcher, { length: 4, '[]': 4 }, 'RecordArray state now has records again');
   });
 
   test('push-without-materialize => unloadAll => push-without-materialize works as expected', async function (assert) {
     async function _push() {
-      run(() => {
-        store._push({
-          data: [
-            {
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'John',
-              },
+      store._push({
+        data: [
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'John',
             },
-            {
-              type: 'person',
-              id: '2',
-              attributes: {
-                name: 'Joe',
-              },
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'Joe',
             },
-          ],
-        });
+          },
+        ],
       });
       await settled();
     }
     async function unload() {
-      run(() => {
-        return store.unloadAll('person');
-      });
+      store.unloadAll('person');
       await settled();
     }
     async function peek() {
-      const result = run(() => store.peekAll('person'));
+      const result = store.peekAll('person');
       await settled();
       return result;
     }
