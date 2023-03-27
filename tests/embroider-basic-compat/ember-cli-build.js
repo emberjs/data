@@ -42,7 +42,6 @@ module.exports = function (defaults) {
       ['@ember-data/tracking', null],
       ['@ember-data/request', null],
       ['@ember-data/private-build-infra', null],
-      ['@ember-data/canary-features', null],
       ['ember-data', null],
     ]),
     packageRules: [

@@ -34,9 +34,6 @@
     "ember-inflector": "^4.0.2"
   },
   "dependenciesMeta": {
-    "@ember-data/canary-features": {
-      "injected": true
-    },
     "@ember-data/private-build-infra": {
       "injected": true
     }

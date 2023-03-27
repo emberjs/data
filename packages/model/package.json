@@ -50,15 +50,11 @@
     }
   },
   "dependenciesMeta": {
-    "@ember-data/canary-features": {
-      "injected": true
-    },
     "@ember-data/private-build-infra": {
       "injected": true
     }
   },
   "dependencies": {
-    "@ember-data/canary-features": "workspace:4.12.0-alpha.11",
     "@ember-data/private-build-infra": "workspace:4.12.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",

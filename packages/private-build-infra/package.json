@@ -14,16 +14,10 @@
   "author": "",
   "directories": {},
   "scripts": {},
-  "dependenciesMeta": {
-    "@ember-data/canary-features": {
-      "injected": true
-    }
-  },
   "dependencies": {
     "@babel/core": "^7.21.3",
     "@babel/plugin-transform-block-scoping": "^7.21.0",
     "@babel/runtime": "^7.21.0",
-    "@ember-data/canary-features": "workspace:4.12.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
     "babel-import-util": "^1.3.0",

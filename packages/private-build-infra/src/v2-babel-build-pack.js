@@ -6,7 +6,7 @@ const requireModule = require('./utilities/require-module');
 
 const debugFlags = requireModule('@ember-data/private-build-infra/addon/debugging.ts');
 const deprecationFlags = requireModule('@ember-data/private-build-infra/addon/current-deprecations.ts');
-const featureFlags = requireModule('@ember-data/canary-features/addon/default-features.ts');
+const featureFlags = requireModule('@ember-data/private-build-infra/canary-features/index.js');
 
 const isCanary = pkg.version.includes('alpha');
 

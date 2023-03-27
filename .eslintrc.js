@@ -266,8 +266,6 @@ module.exports = {
         'packages/model/src/-private/model-for-mixin.ts',
         'packages/model/src/-private/record-state.ts',
         'packages/model/src/-private/notify-changes.ts',
-        'packages/canary-features/addon/index.ts',
-        'packages/canary-features/addon/default-features.ts',
         'packages/adapter/types/require/index.d.ts',
         'packages/adapter/src/rest.ts',
         'packages/adapter/src/json-api.ts',
