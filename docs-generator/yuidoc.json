@@ -15,7 +15,7 @@
       "../packages/-ember-data/addon",
       "../packages/debug/addon",
       "../packages/private-build-infra/addon",
-      "../packages/canary-features/addon",
+      "../packages/private-build-infra/canary-features",
       "../packages/adapter/src",
       "../packages/model/src",
       "../packages/serializer/src",

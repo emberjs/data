@@ -35,9 +35,6 @@
     "@ember-data/request": {
       "injected": true
     },
-    "@ember-data/canary-features": {
-      "injected": true
-    },
     "@ember-data/private-build-infra": {
       "injected": true
     },
@@ -54,7 +51,6 @@
   "devDependencies": {
     "@babel/core": "^7.21.3",
     "@babel/runtime": "^7.21.0",
-    "@ember-data/canary-features": "workspace:4.12.0-alpha.11",
     "@ember-data/model": "workspace:4.12.0-alpha.11",
     "@ember-data/private-build-infra": "workspace:4.12.0-alpha.11",
     "@ember-data/legacy-compat": "workspace:4.12.0-alpha.11",

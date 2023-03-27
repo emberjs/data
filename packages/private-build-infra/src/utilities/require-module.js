@@ -4,7 +4,9 @@ const path = require('path');
 const PGK_ROOT = path.join(__dirname, '../../');
 
 module.exports = function requireModule(modulePath) {
-  if (modulePath.startsWith('@ember-data/private-build-infra')) {
+  if (modulePath.startsWith('@ember-data/private-build-infra/')) {
+    modulePath = modulePath.replace('@ember-data/private-build-infra/', PGK_ROOT);
+  } else if (modulePath.startsWith('@ember-data/private-build-infra')) {
     modulePath = modulePath.replace('@ember-data/private-build-infra', PGK_ROOT);
   }
   const path = require.resolve(modulePath);

@@ -47,7 +47,6 @@ function addonBuildConfigForDataPackage(pkg) {
             '@ember-data/model',
             '@ember-data/json-api',
             '@ember-data/debug',
-            '@ember-data/canary-features',
             '@ember-data/tracking',
             '@glimmer/tracking',
           ],
@@ -118,11 +117,7 @@ function addonBuildConfigForDataPackage(pkg) {
 
     shouldIncludeChildAddon(addon) {
       if (addon.name.startsWith('@ember-data')) {
-        if (
-          this.name === 'ember-data' ||
-          addon.name === '@ember-data/canary-features' ||
-          addon.name === '@ember-data/tracking'
-        ) {
+        if (this.name === 'ember-data' || addon.name === '@ember-data/tracking') {
           return true;
         }
 

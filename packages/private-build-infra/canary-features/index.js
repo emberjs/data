@@ -169,6 +169,4 @@
   - false - The feature is disabled at all times, and cannot be enabled.
   - null - The feature is disabled by default, but can be enabled at runtime via `EmberDataENV`.
 */
-export default {
-  SAMPLE_FEATURE_FLAG: null,
-};
+export const SAMPLE_FEATURE_FLAG = null;

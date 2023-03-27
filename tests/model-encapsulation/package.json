@@ -25,9 +25,6 @@
     "@ember-data/adapter": {
       "injected": true
     },
-    "@ember-data/canary-features": {
-      "injected": true
-    },
     "@ember-data/private-build-infra": {
       "injected": true
     },
@@ -48,7 +45,6 @@
     "@babel/core": "^7.21.3",
     "@babel/runtime": "^7.21.0",
     "@ember-data/adapter": "workspace:4.12.0-alpha.11",
-    "@ember-data/canary-features": "workspace:4.12.0-alpha.11",
     "@ember-data/private-build-infra": "workspace:4.12.0-alpha.11",
     "@ember-data/serializer": "workspace:4.12.0-alpha.11",
     "@ember-data/store": "workspace:4.12.0-alpha.11",
