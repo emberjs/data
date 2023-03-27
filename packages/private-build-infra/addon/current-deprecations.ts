@@ -149,7 +149,14 @@ export const DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS = '4.5';
 export const DEPRECATE_STORE_FIND = '4.5';
 
 /**
- * id:
+ * id: ember-data:deprecate-has-record-for-id
+ *
+ * Deprecates `store.hasRecordForId(type, id)` in favor of `store.peekRecord({ type, id }) !== null`.
+ *
+ * Broadly speaking, while the ability to query for presence is important, a key distinction exists
+ * between these methods that make relying on `hasRecordForId` unsafe, as it may report `true` for a
+ * record which is not-yet loaded and un-peekable. `peekRecord` offers a safe mechanism by which to check
+ * for whether a record is present in a usable manner.
  *
  * @property DEPRECATE_HAS_RECIRD
  * @since 4.5
@@ -159,7 +166,18 @@ export const DEPRECATE_STORE_FIND = '4.5';
 export const DEPRECATE_HAS_RECORD = '4.5';
 
 /**
- * id:
+ * id: ember-data:deprecate-string-arg-schemas
+ *
+ * Deprecates `schema.attributesDefinitionFor(type)` and
+ * `schema.relationshipsDefinitionFor(type)` in favor of
+ * a consistent object signature (`identifier | { type }`).
+ *
+ * To resolve change
+ *
+ * ```diff
+ * - store.getSchemaDefinitionService().attributesDefinitionFor('user')
+ * + store.getSchemaDefinitionService().attributesDefinitionFor({ type: 'user' })
+ * ```
  *
  * @property DEPRECATE_STRING_ARG_SCHEMAS
  * @since 4.5
@@ -169,7 +187,20 @@ export const DEPRECATE_HAS_RECORD = '4.5';
 export const DEPRECATE_STRING_ARG_SCHEMAS = '4.5';
 
 /**
- * id:
+ * id:ember-data:deprecate-secret-adapter-fallback
+ *
+ * Deprecates the secret `-json-api` fallback adapter in favor
+ * or an explicit "catch all" application adapter. In addition
+ * to this deprecation ensuring the user has explicitly chosen an
+ * adapter, this ensures that the user may choose to use no adapter
+ * at all.
+ *
+ * Simplest fix:
+ *
+ * *<project>/app/adapters/application.js*
+ * ```js
+ * export { default } from '@ember-data/adapter/json-api';
+ * ```
  *
  * @property DEPRECATE_JSON_API_FALLBACK
  * @since 4.5
