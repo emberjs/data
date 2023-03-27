@@ -30,6 +30,27 @@
  * });
  * ```
  *
+ * Alternatively, individual deprecations can be resolved (and thus have its support stripped)
+ * via one of the flag names listed below. For instance, given a flag named `DEPRECATE_FOO_BEHAVIOR`.
+ *
+ * This capability is interopable with `compatWith`. You may set `compatWith` and then selectively resolve
+ * additional deprecations, or set compatWith and selectively un-resolve specific deprecations.
+ *
+ * Note: EmberData does not test against permutations of deprecations being stripped, our tests run against
+ * "all deprecated code included" and "all deprecated code removed". Unspecified behavior may sometimes occur
+ * when removing code for only some deprecations associated to a version number.
+ *
+ * ```js
+ * let app = new EmberApp(defaults, {
+ *   emberData: {
+ *     deprecations: {
+ *       DEPRECATE_FOO_BEHAVIOR: false // set to false to strip this code
+ *       DEPRECATE_BAR_BEHAVIOR: true // force to true to not strip this code
+ *     }
+ *   }
+ * })
+ * ```
+ *
  * The complete list of which versions specific deprecations will be removed in
  * can be found [here](https://github.com/emberjs/data/tree/main/packages/private-build-infra/addon/current-deprecations.ts "List of EmberData Deprecations")
  *
