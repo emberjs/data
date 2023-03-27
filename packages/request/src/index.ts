@@ -1,2 +1,2 @@
-export { RequestManager } from './-private/manager';
+export { RequestManager as default } from './-private/manager';
 export { createDeferred } from './-private/future';

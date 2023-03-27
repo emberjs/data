@@ -1,4 +1,4 @@
-export { default as Cache } from './-private/cache';
+export { default } from './-private/cache';
 
 /**
   This package provides the default cache implementation used

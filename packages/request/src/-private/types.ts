@@ -56,15 +56,20 @@ export type Deferred<T> = {
 };
 
 /**
+ * A Future is a Promise which resolves to a StructuredDocument
+ * while providing the ability to `abort` the underlying request,
+ * `getStream` the response before the outer promise resolves;
+ *
  * @class Future
- * @internal
+ * @extends Promise
+ * @public
  */
 export type Future<T> = Promise<StructuredDataDocument<T>> & {
   /**
    * Cancel this request by firing the AbortController's signal.
    *
    * @method abort
-   * @internal
+   * @public
    * @returns {void}
    */
   abort(): void;
@@ -72,11 +77,20 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * Get the response stream, if any, once made available.
    *
    * @method getStream
-   * @internal
+   * @public
    * @returns {Promise<ReadableStream | null>}
    */
   getStream(): Promise<ReadableStream | null>;
 
+  /**
+   *  Run a callback when this request completes. Use sparingly,
+   *  mostly useful for instrumentation and infrastructure.
+   *
+   * @method onFinalize
+   * @param cb the callback to run
+   * @public
+   * @returns void
+   */
   onFinalize(cb: () => void): void;
 };
 

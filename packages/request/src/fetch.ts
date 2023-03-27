@@ -20,7 +20,7 @@ const _fetch: typeof fetch =
  * `fetch` call presuming the response to be `json`.
  *
  * ```ts
- * import { Fetch } from '@ember-data/request/fetch';
+ * import Fetch from '@ember-data/request/fetch';
  *
  * manager.use([Fetch]);
  * ```
@@ -28,7 +28,7 @@ const _fetch: typeof fetch =
  * @class Fetch
  * @public
  */
-export const Fetch = {
+const Fetch = {
   async request(context: Context) {
     const response = await _fetch(context.request.url!, context.request);
     context.setResponse(response);
@@ -36,3 +36,5 @@ export const Fetch = {
     return response.json();
   },
 };
+
+export default Fetch;

@@ -29,7 +29,7 @@
  *
  * ```js
  * import Store from '@ember-data/store';
- * import { Cache } from '@ember-data/json-api';
+ * import Cache from '@ember-data/json-api';
  *
  * class extends Store {
  *   createCache(storeWrapper) {

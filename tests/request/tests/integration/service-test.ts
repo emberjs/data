@@ -9,7 +9,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { RequestManager } from '@ember-data/request';
+import RequestManager from '@ember-data/request';
 
 module('RequestManager | Ember Service Setup', function (hooks: NestedHooks) {
   setupTest(hooks);

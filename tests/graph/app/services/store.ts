@@ -1,6 +1,6 @@
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
-import { RequestManager } from '@ember-data/request';
-import { Fetch } from '@ember-data/request/fetch';
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
 import BaseStore from '@ember-data/store';
 
 export default class Store extends BaseStore {

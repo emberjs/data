@@ -8,7 +8,7 @@ import { _backburner as emberBackburner } from '@ember/runloop';
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@ember-data/env';
-import type { Cache as CacheClass } from '@ember-data/json-api';
+import type CacheClass from '@ember-data/json-api';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type DSModelClass from '@ember-data/model';
 import {
@@ -25,7 +25,7 @@ import {
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1_RECORD_DATA,
 } from '@ember-data/private-build-infra/deprecations';
-import type { RequestManager } from '@ember-data/request';
+import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
@@ -200,8 +200,8 @@ class Store {
    *
    * ```ts
    * import Store from '@ember-data/store';
-   * import { RequestManager } from '@ember-data/request';
-   * import { Fetch } from '@ember/data/request/fetch';
+   * import RequestManager from '@ember-data/request';
+   * import Fetch from '@ember/data/request/fetch';
    *
    * class extends Store {
    *   constructor() {
@@ -2361,7 +2361,7 @@ class Store {
   createCache(storeWrapper: CacheStoreWrapper): Cache {
     if (HAS_JSON_API_PACKAGE) {
       if (_Cache === undefined) {
-        _Cache = (importSync('@ember-data/json-api') as typeof import('@ember-data/json-api')).Cache;
+        _Cache = (importSync('@ember-data/json-api') as typeof import('@ember-data/json-api')).default;
       }
 
       return new _Cache(storeWrapper);
