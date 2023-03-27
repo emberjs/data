@@ -316,7 +316,7 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-cli-test-info: ^1.0.0
       ember-source: ~4.11.0
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
@@ -401,7 +401,7 @@ importers:
       '@rollup/plugin-node-resolve': ^15.0.1
       ember-cli-babel: ^7.26.11
       ember-source: ~4.11.0
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
@@ -459,7 +459,7 @@ importers:
       '@rollup/plugin-node-resolve': ^15.0.1
       ember-cli-babel: ^7.26.11
       ember-source: ~4.11.0
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
@@ -515,7 +515,7 @@ importers:
       '@rollup/plugin-babel': ^6.0.3
       '@rollup/plugin-node-resolve': ^15.0.1
       ember-cli-babel: ^7.26.11
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
@@ -571,7 +571,7 @@ importers:
       ember-cli-test-info: ^1.0.0
       ember-source: ~4.11.0
       inflection: ~2.0.1
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
@@ -693,7 +693,7 @@ importers:
       '@rollup/plugin-babel': ^6.0.3
       '@rollup/plugin-node-resolve': ^15.0.1
       ember-cli-babel: ^7.26.11
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
@@ -745,7 +745,7 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-cli-test-info: ^1.0.0
       ember-source: ~4.11.0
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
@@ -801,7 +801,7 @@ importers:
       ember-cached-decorator-polyfill: ^1.0.1
       ember-cli-babel: ^7.26.11
       ember-source: ~4.11.0
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
@@ -851,7 +851,7 @@ importers:
       '@rollup/plugin-babel': ^6.0.3
       '@rollup/plugin-node-resolve': ^15.0.1
       ember-cli-babel: ^7.26.11
-      rollup: ^3.20.1
+      rollup: ^3.20.2
       tslib: ^2.5.0
       typescript: ^4.9.5
       walk-sync: ^3.0.0
