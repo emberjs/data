@@ -69,7 +69,7 @@ The package `@ember-data/json-api` provides a `JSON:API` cache we can use. After
 
 ```js
 import Store from '@ember-data/store';
-import { Cache } from '@ember-data/json-api';
+import Cache from '@ember-data/json-api';
 
 class extends Store {
   createCache(storeWrapper) {

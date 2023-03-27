@@ -89,7 +89,7 @@ function makeCache(): CachedResource {
   This is the cache implementation used by `ember-data`.
 
   ```js
-  import { Cache } from '@ember-data/json-api';
+  import Cache from '@ember-data/json-api';
   import Store from '@ember-data/store';
 
   export default class extends Store {

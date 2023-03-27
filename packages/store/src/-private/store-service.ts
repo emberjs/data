@@ -200,8 +200,8 @@ class Store {
    *
    * ```ts
    * import Store from '@ember-data/store';
-   * import { RequestManager } from '@ember-data/request';
-   * import { Fetch } from '@ember/data/request/fetch';
+   * import RequestManager from '@ember-data/request';
+   * import Fetch from '@ember/data/request/fetch';
    *
    * class extends Store {
    *   constructor() {

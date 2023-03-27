@@ -4,8 +4,8 @@ import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ObjectProxy from '@ember/object/proxy';
 
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
-import { RequestManager } from '@ember-data/request';
-import { Fetch } from '@ember-data/request/fetch';
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
 import BaseStore from '@ember-data/store';
 
 export class Store extends BaseStore {

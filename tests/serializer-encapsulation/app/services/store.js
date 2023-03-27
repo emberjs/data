@@ -1,6 +1,6 @@
-import { Cache } from '@ember-data/json-api';
+import Cache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
-import { RequestManager } from '@ember-data/request';
+import RequestManager from '@ember-data/request';
 import Store from '@ember-data/store';
 
 export default class DefaultStore extends Store {

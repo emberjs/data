@@ -30,8 +30,8 @@ A `RequestManager` provides a request/response flow in which configured handlers
 The RequestManager on its own does not know how to fulfill requests. For this we must register at least one handler. A basic `Fetch` handler is provided that will take the request options provided and execute `fetch`.
 
 ```ts
-import { RequestManager } from '@ember-data/request';
-import { Fetch } from '@ember-data/request/fetch';
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
 import { apiUrl } from './config';
 
 // ... create manager and add our Fetch handler
@@ -258,8 +258,8 @@ Most applications will desire to have a single `RequestManager` instance, which 
 
 *services/request.ts*
 ```ts
-import { RequestManager } from '@ember-data/request';
-import { Fetch } from '@ember-data/request/fetch';
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
 import Auth from 'ember-simple-auth/ember-data-handler';
 
 export default class extends RequestManager {
@@ -276,8 +276,8 @@ To have a request service unique to a Store:
 
 ```ts
 import Store from '@ember-data/store';
-import { RequestManager } from '@ember-data/request';
-import { Fetch } from '@ember-data/request/fetch';
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
 
 class extends Store {
   requestManager = new RequestManager();
@@ -295,15 +295,15 @@ If using the package [ember-data](https://github.com/emberjs/data/tree/main/pack
 
 ```ts
 import Store from '@ember-data/store';
-import { RequestManager } from '@ember-data/request';
-import { LegacyHandler } from '@ember-data/legacy-network-handler';
+import RequestManager from '@ember-data/request';
+import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 
 export default class extends Store {
   requestManager = new RequestManager();
 
   constructor(args) {
     super(args);
-    this.requestManager.use([LegacyHandler]);
+    this.requestManager.use([LegacyNetworkHandler]);
   }
 }
 ```
@@ -326,7 +326,7 @@ import { Future, GenericCreateArgs, Handler, RequestInfo } from './types';
 import { executeNextHandler } from './utils';
 /**
  * ```js
- * import { RequestManager } from '@ember-data/request';
+ * import RequestManager from '@ember-data/request';
  * ```
  *
  * A RequestManager provides a request/response flow in which configured
@@ -342,8 +342,8 @@ import { executeNextHandler } from './utils';
  * For example:
  *
  * ```ts
- * import { RequestManager } from '@ember-data/request';
- * import { Fetch } from '@ember-data/request/fetch';
+ * import RequestManager from '@ember-data/request';
+ * import Fetch from '@ember-data/request/fetch';
  * import Auth from 'ember-simple-auth/ember-data-handler';
  * import Config from './config';
  *
