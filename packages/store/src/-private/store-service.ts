@@ -2361,7 +2361,7 @@ class Store {
   createCache(storeWrapper: CacheStoreWrapper): Cache {
     if (HAS_JSON_API_PACKAGE) {
       if (_Cache === undefined) {
-        _Cache = (importSync('@ember-data/json-api') as typeof import('@ember-data/json-api')).Cache;
+        _Cache = (importSync('@ember-data/json-api') as typeof import('@ember-data/json-api')).default;
       }
 
       return new _Cache(storeWrapper);
