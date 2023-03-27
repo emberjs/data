@@ -110,7 +110,18 @@ export const DEPRECATE_RSVP_PROMISE = '4.4';
 export const DEPRECATE_SAVE_PROMISE_ACCESS = '4.4';
 
 /**
- * id:
+ * id: ember-data:deprecate-snapshot-model-class-access
+ *
+ * Deprecates accessing the factory class for a given resource type
+ * via properties on various classes.
+ *
+ * Guards
+ *
+ * - SnapshotRecordArray.type
+ * - Snapshot.type
+ * - RecordArray.type
+ *
+ * Use `store.modelFor(<resource-type>)` instead.
  *
  * @property DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS
  * @since 4.5
@@ -120,7 +131,15 @@ export const DEPRECATE_SAVE_PROMISE_ACCESS = '4.4';
 export const DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS = '4.5';
 
 /**
- * id:
+ * id: ember-data:deprecate-store-find
+ *
+ * Deprecates using `store.find` instead of `store.findRecord`. Typically
+ * `store.find` is a mistaken call that occurs when using implicit route behaviors
+ * in Ember which attempt to derive how to load data via parsing the route params
+ * for a route which does not implement a `model` hook.
+ *
+ * To resolve, use `store.findRecord`. This may require implementing an associated
+ * route's `model() {}` hook.
  *
  * @property DEPRECATE_STORE_FIND
  * @since 4.5
