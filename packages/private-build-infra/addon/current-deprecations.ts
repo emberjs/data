@@ -45,8 +45,7 @@ export const DEPRECATE_CATCH_ALL = '99.0';
 export const DEPRECATE_3_12 = '3.12';
 
 /**
- * Flags:
- *  - `ember-data:rsvp-unresolved-async`
+ * id: ember-data:rsvp-unresolved-async
  *
  * Deprecates when a request promise did not resolve prior to the store tearing down.
  *
@@ -63,14 +62,11 @@ export const DEPRECATE_3_12 = '3.12';
 export const DEPRECATE_RSVP_PROMISE = '4.4';
 
 /**
- * Guards
+ * id: ember-data:model-save-promise
  *
+ * Affects
  * - model.save / store.saveRecord
  * - model.reload
- *
- * Flags
- *
- * - `ember-data:model-save-promise`
  *
  * Deprecates the promise-proxy returned by these methods in favor of
  * a Promise return value.
