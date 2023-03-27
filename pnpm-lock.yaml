@@ -101,7 +101,7 @@ importers:
       json-typescript: ^1.1.2
       lerna-changelog: ^2.2.0
       loader.js: ^4.7.0
-      prettier: ^2.8.6
+      prettier: ^2.8.7
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
       rimraf: ^4.4.1
