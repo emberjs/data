@@ -38,7 +38,9 @@
  */
 
 /**
- * @class Current Deprecations
+ * The following list represents deprecations currently active.
+ *
+ * @class CurrentDeprecations
  * @public
  */
 export const DEPRECATE_CATCH_ALL = '99.0';
@@ -58,6 +60,7 @@ export const DEPRECATE_3_12 = '3.12';
  * @property DEPRECATE_RSVP_PROMISE
  * @since 4.4
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_RSVP_PROMISE = '4.4';
 
@@ -81,159 +84,226 @@ export const DEPRECATE_RSVP_PROMISE = '4.4';
  * @property DEPRECATE_SAVE_PROMISE_ACCESS
  * @since 4.4
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_SAVE_PROMISE_ACCESS = '4.4';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS
  * @since 4.5
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS = '4.5';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_STORE_FIND
  * @since 4.5
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_STORE_FIND = '4.5';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_HAS_RECIRD
  * @since 4.5
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_HAS_RECORD = '4.5';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_STRING_ARG_SCHEMAS
  * @since 4.5
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_STRING_ARG_SCHEMAS = '4.5';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_JSON_API_FALLBACK
  * @since 4.5
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_JSON_API_FALLBACK = '4.5';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_MODEL_REOPEN
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_MODEL_REOPEN = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_EARLY_STATIC
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_EARLY_STATIC = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_CLASSIC
  * @since 4.9
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_CLASSIC = '4.9';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_HELPERS
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_HELPERS = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_V1CACHE_STORE_APIS
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_V1CACHE_STORE_APIS = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_V1_RECORD_DATA
  * @since 4.12
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_V1_RECORD_DATA = '4.12';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_A_USAGE
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_A_USAGE = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_PROMISE_PROXIES
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_PROMISE_PROXIES = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_ARRAY_LIKE
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_ARRAY_LIKE = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_COMPUTED_CHAINS
  * @since 5.0
  * @until 6.0
+ * @public
  */
 export const DEPRECATE_COMPUTED_CHAINS = '5.0';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_NON_EXPLICIT_POLYMORPHISM
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_INSTANTIATE_RECORD_ARGS
  * @since 4.7
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_INSTANTIATE_RECORD_ARGS = '4.12';
 
 /**
+ * id:
+ *
  * @property DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
  * @since 4.12
  * @until 5.0
+ * @public
  */
 export const DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK = '4.12';
