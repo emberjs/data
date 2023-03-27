@@ -1,4 +1,4 @@
-import CURRENT_DEPRECATIONS from './current-deprecations';
+import * as CURRENT_DEPRECATIONS from './current-deprecations';
 
 function deprecationState(deprecationName: keyof typeof CURRENT_DEPRECATIONS): boolean {
   // if we hit this at runtime and the deprecation exists it is always activated
