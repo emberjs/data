@@ -32,51 +32,15 @@
  *
  * ### Activating a Canary Feature
  *
- * Once you have installed canary, feature-flags can be activated at build-time by an environment
- * variable or at runtime using `window.EmberDataENV`.
+ * Once you have installed canary, feature-flags can be activated at build-time by either setting the
+ * environment variable `EMBER_DATA_FEATURE_OVERRIDE=<comma-separated-flag-names | ENABLE_ALL_OPTIONAL>`
+ * or by setting the appropriate flag to `true` in your `ember-cli-build` file (example below).
  *
- * The "off" branch of feature-flagged code is always stripped from production builds, so you
- * MUST use the build-time environment variable to activate a flag if testing production.
+ * The "off" branch of feature-flagged code is always stripped from production builds.
  *
- * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/main/packages/canary-features/addon/default-features.ts "List of EmberData FeatureFlags")
+ * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/main/packages/private-build-infra/canary-features/index.js "List of EmberData FeatureFlags")
  *
- * #### Runtime Configuration
- *
- * To configure feature-flags at runtime you will want to configure `window.EmberDataENV = {}` appropriately.
- * You should add this global property in your app prior to your application booting. At the top of
- * your `app.js` file is a convenient location, as is within ` index.html` as a script running prior
- * to loading any other scripts.
- *
- * *Example activating a single feature flags*
- *
- * ```js
- * window.EmberDataENV = {
- *   FEATURES: {
- *     RECORD_DATA_ERRORS: true,
- *   }
- * }
- * ```
- *
- * *Example activating multiple feature flags*
- *
- * ```js
- * window.EmberDataENV = {
- *   FEATURES: {
- *     RECORD_DATA_ERRORS: true,
- *     RECORD_DATA_STATE: true,
- *   }
- * }
- * ```
- *
- * *Example activating all feature flags*
- *
- * ```js
- * window.EmberDataENV = {
- *   ENABLE_OPTIONAL_FEATURES: true
- * }
- * ```
- *
- * #### Build Time Configuration
+ * #### Environment Based Build Configuration
  *
  * *Example activating a single feature flags*
  *
@@ -96,77 +60,47 @@
  * EMBER_DATA_FEATURE_OVERRIDE=ENABLE_ALL_OPTIONAL ember build
  * ```
  *
- * ### Preparing an Addon to use a Canary Feature
+ * #### Config Based Build Configuration
  *
- * For most addons and most features simple version detection should be
- * enough. Using the provided version compatibility helpers from
- * [ember-compatibility-helpers](https://github.com/pzuraq/ember-compatibility-helpers)
+ * In your app's `ember-cli-build` file:
+ *
+ * ```ts
+ * let app = new EmberApp(defaults, {
+ *   emberData: {
+ *     features: {
+ *       SAMPLE_FEATURE_FLAG: false // utliize existing behavior, strip code for the new feature
+ *       OTHER_FEATURE_FLAG: true // utilize this new feature, strip code for the older behavior
+ *     }
+ *   }
+ * })
+ * ```
+ *
+ * ### Preparing a Project to use a Canary Feature
+ *
+ * For most projects, simple version detection should be enough.
+ * Using the provided version compatibility helpers from [embroider-macros](https://github.com/embroider-build/embroider/tree/main/packages/macros#readme)
  * the following can be done:
  *
  * ```js
- * if (gte('@ember-data/store', '3.12.0')) {
- *
- * } else {
- *
- * }
- * ```
- *
- * For addons needing more advanced detection [babel-plugin-debug-macros](https://github.com/ember-cli/babel-plugin-debug-macros)
- * can be leveraged to provide code-stripping based on feature presence. For example in your addon's `index.js`:
- *
- * ```js
- * function debugMacros(features) {
- *   let plugins = [
- *     [
- *       require.resolve('babel-plugin-debug-macros'),
- *       {
- *         flags: [
- *           {
- *             source: '<addon-name>/feature-flags',
- *             flags: features,
- *           },
- *         ],
- *       },
- *       '<addon-name>/canary-features-stripping',
- *     ],
- *   ];
- *
- *   return plugins;
- * }
- *
- * module.exports = {
- *   name: '<addon-name>',
- *
- *   init() {
- *     this._super.init.apply(this, arguments);
- *
- *     let features;
- *     try {
- *       features = this.project.require('@ember-data/private-build-infra/src/features')();
- *     } catch (e) {
- *       features = { CUSTOM_MODEL_CLASS: false };
- *     }
- *
- *     this.options = this.options || {};
- *     this.options.babel = this.options.babel || {};
- *     // this ensures that the same `@ember-data/canary-features` processing that the various
- *     // ember-data addons do is done for this addon
- *     this.options.babel.plugins = [...debugMacros(features)];
- *   }
+ * if (macroCondition(dependencySatisfies('@ember-data/store', '5.0'))) {
+ *   // do thing
  * }
  * ```
  *
    @module @ember-data/canary-features
    @main @ember-data/canary-features
  */
-/*
-  This list of features is used both at build time (by `@ember-data/private-build-infra`)
-  and at runtime (by `@ember-data/canary-features`).
+/**
+  This is the current list of features used at build time (by `@ember-data/private-build-infra`)
+  for canary releases. If empty there are no features currently gated by feature flags.
 
   The valid values are:
 
   - true - The feature is enabled at all times, and cannot be disabled.
   - false - The feature is disabled at all times, and cannot be enabled.
-  - null - The feature is disabled by default, but can be enabled at runtime via `EmberDataENV`.
+  - null - The feature is disabled by default, but can be enabled via configuration.
+
+  @class CanaryFeatureFlags
+  @public
 */
 export const SAMPLE_FEATURE_FLAG = null;
