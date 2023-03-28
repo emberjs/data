@@ -11,7 +11,7 @@ import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
   DEPRECATE_V1_RECORD_DATA,
-} from '@ember-data/private-build-infra/deprecations';
+} from '@ember-data/private-build-infra/current-deprecations';
 import type Store from '@ember-data/store';
 import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
 import { DSModelSchema } from '@ember-data/types/q/ds-model';

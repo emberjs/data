@@ -1,7 +1,7 @@
 import config from 'dummy/config/environment';
 import { module, test } from 'qunit';
 
-import { DEPRECATE_3_12 } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_3_12 } from '@ember-data/private-build-infra/current-deprecations';
 
 const { compatWith } = config;
 

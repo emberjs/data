@@ -4,7 +4,7 @@
 
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/current-deprecations';
 
 import _normalize from './utils/normalize-model-name';
 

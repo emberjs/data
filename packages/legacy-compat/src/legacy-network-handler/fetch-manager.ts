@@ -4,7 +4,7 @@ import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@ember-data/env';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/current-deprecations';
 import { createDeferred } from '@ember-data/request';
 import type { Deferred } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';

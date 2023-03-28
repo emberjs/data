@@ -3,7 +3,7 @@
  */
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/current-deprecations';
 
 /**
   A `AdapterError` is used by an adapter to signal that an error occurred

@@ -48,7 +48,7 @@ module.exports = {
     const DEPRECATIONS = require('@ember-data/private-build-infra/src/deprecations')(hostOptions.compatWith || null);
     const FEATURES = require('@ember-data/private-build-infra/src/features')(isProd);
 
-    const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
+    const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/virtual-packages/available-packages.js');
     const MACRO_PACKAGE_FLAGS = Object.assign({}, ALL_PACKAGES.default);
     delete MACRO_PACKAGE_FLAGS['HAS_DEBUG_PACKAGE'];
 

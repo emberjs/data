@@ -4,7 +4,7 @@
 
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/private-build-infra/current-deprecations';
 import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';
 import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';

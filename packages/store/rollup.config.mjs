@@ -18,7 +18,7 @@ export default {
 
     '@ember-data/legacy-compat/-private',
     '@ember-data/tracking/-private',
-    '@ember-data/private-build-infra/deprecations',
+    '@ember-data/private-build-infra/current-deprecations',
     '@ember/-internals/glimmer',
     '@ember/-internals/metal',
     '@glimmer/validator',

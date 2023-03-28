@@ -3,7 +3,7 @@
 */
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/current-deprecations';
 import type Store from '@ember-data/store';
 import {
   IDENTIFIER_ARRAY_TAG,

@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
 
-import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/private-build-infra/current-deprecations';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the

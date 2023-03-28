@@ -16,7 +16,7 @@ import { ServerError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
-import { DEPRECATE_ARRAY_LIKE } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_ARRAY_LIKE } from '@ember-data/private-build-infra/current-deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 

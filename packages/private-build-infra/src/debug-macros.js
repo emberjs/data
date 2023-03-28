@@ -9,7 +9,7 @@ module.exports = function debugMacros(config) {
   const TransformFeatures = require.resolve('./transforms/babel-plugin-transform-features');
   const TransformHasDebugPackage = require.resolve('./transforms/babel-plugin-transform-has-debug-package');
 
-  const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/addon/available-packages.ts');
+  const ALL_PACKAGES = requireModule('@ember-data/private-build-infra/virtual-packages/available-packages.js');
   const MACRO_PACKAGE_FLAGS = Object.assign({}, ALL_PACKAGES.default);
   delete MACRO_PACKAGE_FLAGS['HAS_DEBUG_PACKAGE'];
 
@@ -32,7 +32,7 @@ module.exports = function debugMacros(config) {
     [
       TransformDeprecations,
       {
-        source: '@ember-data/private-build-infra/deprecations',
+        source: '@ember-data/private-build-infra/current-deprecations',
         flags: config.deprecations,
       },
       '@ember-data/deprecation-stripping',

@@ -4,9 +4,9 @@ const getEnv = require('./utilities/get-env');
 // eslint-disable-next-line import/order
 const requireModule = require('./utilities/require-module');
 
-const debugFlags = requireModule('@ember-data/private-build-infra/addon/debugging.ts');
-const deprecationFlags = requireModule('@ember-data/private-build-infra/addon/current-deprecations.ts');
-const featureFlags = requireModule('@ember-data/private-build-infra/canary-features/index.js');
+const debugFlags = requireModule('@ember-data/private-build-infra/virtual-packages/debugging.js');
+const deprecationFlags = requireModule('@ember-data/private-build-infra/virtual-packages/current-deprecations.js');
+const featureFlags = requireModule('@ember-data/private-build-infra/virtual-packages/canary-features.js');
 
 const isCanary = pkg.version.includes('alpha');
 

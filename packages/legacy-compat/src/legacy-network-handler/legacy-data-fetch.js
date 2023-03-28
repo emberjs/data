@@ -4,7 +4,7 @@ import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RSVP_PROMISE,
-} from '@ember-data/private-build-infra/deprecations';
+} from '@ember-data/private-build-infra/current-deprecations';
 
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import { iterateData, payloadIsNotBlank } from './legacy-data-utils';

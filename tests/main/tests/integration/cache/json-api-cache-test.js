@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/current-deprecations';
 import { recordIdentifierFor } from '@ember-data/store';
 
 module('@ember-data/json-api | Cache', function (hooks) {

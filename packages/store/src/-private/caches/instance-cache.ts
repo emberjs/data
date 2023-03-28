@@ -12,7 +12,7 @@ import {
   DEPRECATE_INSTANTIATE_RECORD_ARGS,
   DEPRECATE_V1_RECORD_DATA,
   DEPRECATE_V1CACHE_STORE_APIS,
-} from '@ember-data/private-build-infra/deprecations';
+} from '@ember-data/private-build-infra/current-deprecations';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {

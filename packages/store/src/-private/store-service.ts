@@ -17,14 +17,14 @@ import {
   HAS_JSON_API_PACKAGE,
   HAS_MODEL_PACKAGE,
 } from '@ember-data/private-build-infra';
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/private-build-infra/debugging';
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1_RECORD_DATA,
-} from '@ember-data/private-build-infra/deprecations';
+} from '@ember-data/private-build-infra/current-deprecations';
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/private-build-infra/debugging';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';

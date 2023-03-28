@@ -9,7 +9,7 @@ import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/inde
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/current-deprecations';
 import type Store from '@ember-data/store';
 import {
   fastPush,

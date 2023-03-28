@@ -10,7 +10,7 @@ import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { DEPRECATE_ARRAY_LIKE } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_ARRAY_LIKE } from '@ember-data/private-build-infra/current-deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';

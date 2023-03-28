@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/current-deprecations';
 
 export function _bind(fn, ...args) {
   return function () {

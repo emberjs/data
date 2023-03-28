@@ -20,7 +20,7 @@ import {
   DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
-} from '@ember-data/private-build-infra/deprecations';
+} from '@ember-data/private-build-infra/current-deprecations';
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';

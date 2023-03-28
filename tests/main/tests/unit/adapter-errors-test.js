@@ -12,7 +12,7 @@ import AdapterError, {
   TimeoutError,
   UnauthorizedError,
 } from '@ember-data/adapter/error';
-import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_HELPERS } from '@ember-data/private-build-infra/current-deprecations';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/adapter-errors - AdapterError', function () {

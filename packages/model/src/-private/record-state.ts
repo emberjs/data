@@ -3,7 +3,7 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
 import { DEBUG } from '@ember-data/env';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/current-deprecations';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { peekCache, recordIdentifierFor } from '@ember-data/store/-private';
