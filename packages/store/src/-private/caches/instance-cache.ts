@@ -6,13 +6,13 @@ import { DEBUG } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { peekGraph } from '@ember-data/graph/-private/graph/index';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
-import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import {
   DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
   DEPRECATE_INSTANTIATE_RECORD_ARGS,
   DEPRECATE_V1_RECORD_DATA,
   DEPRECATE_V1CACHE_STORE_APIS,
 } from '@ember-data/private-build-infra/current-deprecations';
+import { LOG_INSTANCE_CACHE } from '@ember-data/private-build-infra/debugging';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {

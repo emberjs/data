@@ -3,8 +3,8 @@ import { assert } from '@ember/debug';
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@ember-data/env';
-import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/current-deprecations';
+import { LOG_PAYLOADS } from '@ember-data/private-build-infra/debugging';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';

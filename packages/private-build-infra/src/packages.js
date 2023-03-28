@@ -34,7 +34,9 @@ function detectPackage(dep, packageName, seen) {
 }
 
 function getPackages(app) {
-  const { default: POSSIBLE_PACKAGES } = requireModule('@ember-data/private-build-infra/virtual-packages/available-packages.js');
+  const { default: POSSIBLE_PACKAGES } = requireModule(
+    '@ember-data/private-build-infra/virtual-packages/available-packages.js'
+  );
   const flags = {};
   const excludeDebugInProduction =
     app && app.options && app.options.emberData && app.options.emberData.includeDataAdapterInProduction === false;

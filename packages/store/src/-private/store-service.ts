@@ -16,7 +16,11 @@ import {
   HAS_GRAPH_PACKAGE,
   HAS_JSON_API_PACKAGE,
   HAS_MODEL_PACKAGE,
+<<<<<<< HEAD
 } from '@ember-data/private-build-infra';
+=======
+} from '@ember-data/private-build-infra/available-packages';
+>>>>>>> d6af4139c (lint fixes)
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
