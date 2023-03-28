@@ -8,7 +8,7 @@ const requireModule = require('./utilities/require-module');
 
 function getFeatures(isProd) {
   const { default: org_features } = requireModule(
-    '@ember-data/private-build-infra/virtual-packages/canary-features/index.js'
+    '@ember-data/private-build-infra/virtual-packages/canary-features.js'
   );
   const features = Object.assign({}, org_features);
 

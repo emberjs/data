@@ -7,7 +7,7 @@ import { importSync } from '@embroider/macros';
 
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra/available-packages';
 import {
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
   DEPRECATE_V1_RECORD_DATA,

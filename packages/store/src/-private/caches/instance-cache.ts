@@ -5,7 +5,7 @@ import { importSync } from '@embroider/macros';
 import { DEBUG } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { peekGraph } from '@ember-data/graph/-private/graph/index';
-import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra/available-packages';
 import {
   DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
   DEPRECATE_INSTANTIATE_RECORD_ARGS,

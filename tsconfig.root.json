@@ -69,7 +69,7 @@
       "@ember-data/json-api/*": ["packages/json-api/src/*"],
       "@ember-data/legacy-compat": ["packages/legacy-compat/src"],
       "@ember-data/legacy-compat/*": ["packages/legacy-compat/src/*"],
-      "@ember-data/canary-features": ["packages/private-build-infra/virtual-packages/canary-features/index.d.ts"],
+      "@ember-data/canary-features": ["packages/private-build-infra/virtual-packages/canary-features.d.ts"],
       "@ember-data/private-build-infra": ["packages/private-build-infra/virtual-packages"],
       "@ember-data/private-build-infra/*": ["packages/private-build-infra/virtual-packages/*"],
       "@ember-data/unpublished-test-infra/test-support": ["packages/unpublished-test-infra/addon-test-support"],
