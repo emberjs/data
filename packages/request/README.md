@@ -328,7 +328,7 @@ export default class extends RequestManager {
 To have a request service unique to a Store:
 
 ```ts
-import Store from '@ember-data/store';
+import Store, { CacheHandler } from '@ember-data/store';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 
@@ -338,6 +338,7 @@ class extends Store {
   constructor(args) {
     super(args);
     this.requestManager.use([Fetch]);
+    this.requestManager.useCache(CacheHandler);
   }
 }
 ```
@@ -347,7 +348,7 @@ class extends Store {
 If using the package [ember-data](https://github.com/emberjs/data/tree/main/packages/-ember-data), the following configuration will automatically be done in order to preserve the legacy [Adapter](https://github.com/emberjs/data/tree/main/packages/adapter) and [Serializer](https://github.com/emberjs/data/tree/main/packages/serializer) behavior. Additional handlers or a service injection like the above would need to be done by the consuming application in order to make broader use of `RequestManager`.
 
 ```ts
-import Store from '@ember-data/store';
+import Store, { CacheHandler } from '@ember-data/store';
 import RequestManager from '@ember-data/request';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 
@@ -357,6 +358,7 @@ export default class extends Store {
   constructor(args) {
     super(args);
     this.requestManager.use([LegacyNetworkHandler]);
+    this.requestManager.useCache(CacheHandler);
   }
 }
 ```
