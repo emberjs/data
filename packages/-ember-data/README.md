@@ -85,13 +85,23 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 
 *Ember***Data** is organized into primitives that compose together via public APIs.
 
-- [@ember-data/store](./packages/store) is the core and handles coordination
-- [@ember-data/tracking](./packages/tracking) is required when using the core and provides tracking primitives for change notification of Tracked properties
-- [@ember-data/json-api](./packages/json-api) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createRecordDataFor`
+- [@ember-data/request](./packages/request) provides managed `fetch` via its RequestManager and can be used without any other parts of EmberData.
+- [@ember-data/store](./packages/store) is the "core" of EmberData and handles coordination between the RequestManager, the Cache, and Presentation Concerns.
+- [@ember-data/tracking](./packages/tracking) is currently required when using the core and provides tracking primitives for change notification of Tracked properties.
+- [@ember-data/json-api](./packages/json-api) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createCache`
 - [@ember-data/model](./packages/model) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
-- [@ember-data/adapter](./packages/adapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
-- [@ember-data/serializer](./packages/serializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/json-api`.
-- [@ember-data/debug](./packages/debug) provides debugging support for the `ember-inspector`.
+- [@ember-data/debug](./packages/debug) provides (optional) debugging support for the `ember-inspector`.
+
+
+Some EmberData APIs are older than others, and these still interop via well-defined public API boundaries but are
+no longer the ideal approach.
+
+- [@ember-data/legacy-compat](./packages/legacy-compat) provides support for older paradigms that are being phased out
+- [@ember-data/adapter](./packages/adapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions. It integrates with the Store via `store.adapterFor`, and with the request pipeline via the `LegacyNetworkHandler` available via `@ember-data/legacy-compat` which utilizes the Minimum Adapter Interface.
+- [@ember-data/serializer](./packages/serializer) pairs with `@ember-data/adapter` and the `LegacyNetworkHandler` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/json-api`.
+
+And finally:
+
 - [ember-data](./packages/-ember-data) is a "meta" package which bundles all of these together for convenience
 
 The packages interop with each other through well defined public API boundaries. The core

@@ -24,7 +24,7 @@
  * npm install --save-dev ember-data@canary
  * ```
  *
- * *Using `yarn` to install the latest canary*
+ * *Using `pnpm` to install the latest canary*
  *
  * ```cli
  * pnpm add ember-data@canary
