@@ -10,7 +10,6 @@ export const DEPRECATE_STRING_ARG_SCHEMAS: boolean;
 export const DEPRECATE_JSON_API_FALLBACK: boolean;
 export const DEPRECATE_MODEL_REOPEN: boolean;
 export const DEPRECATE_EARLY_STATIC: boolean;
-export const DEPRECATE_CLASSIC: boolean;
 export const DEPRECATE_HELPERS: boolean;
 export const DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS: boolean;
 export const DEPRECATE_V1CACHE_STORE_APIS: boolean;
