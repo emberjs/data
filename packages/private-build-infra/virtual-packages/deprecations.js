@@ -61,6 +61,9 @@
 /**
  * The following list represents deprecations currently active.
  *
+ * Some deprecation flags guard multiple deprecation IDs. All
+ * associated IDs are listed.
+ *
  * @class CurrentDeprecations
  * @public
  */
@@ -187,7 +190,7 @@ export const DEPRECATE_HAS_RECORD = '4.5';
 export const DEPRECATE_STRING_ARG_SCHEMAS = '4.5';
 
 /**
- * id:ember-data:deprecate-secret-adapter-fallback
+ * id: ember-data:deprecate-secret-adapter-fallback
  *
  * Deprecates the secret `-json-api` fallback adapter in favor
  * or an explicit "catch all" application adapter. In addition
@@ -210,7 +213,54 @@ export const DEPRECATE_STRING_ARG_SCHEMAS = '4.5';
 export const DEPRECATE_JSON_API_FALLBACK = '4.5';
 
 /**
- * id:
+ * id: ember-data:deprecate-model-reopen
+ * =====================================
+ *
+ * For properties known ahead of time, instead of
+ *
+ * ```ts
+ * class User extends Model { @attr firstName; }
+ *
+ * User.reopen({ lastName: attr() });
+ * ```
+ *
+ * Extend `User` again or include it in the initial definition.
+ *
+ * ```ts
+ * class User extends Model { @attr firstName; @attr lastName }
+ * ```
+ *
+ * For properties generated dynamically, consider registering
+ * a `SchemaDefinitionService` with the store , as such services
+ * are capable of dynamically adjusting their schemas, and utilize
+ * the `instantiateRecord` hook to create a Proxy based class that
+ * can react to the changes in the schema.
+ *
+ *
+ * Use Foo extends Model to extend your class instead
+ *
+ *
+ *
+ *
+ * id: ember-data:deprecate-model-reopenclass
+ * =====================================
+ *
+ * Instead of reopenClass, define `static` properties with native class syntax
+ * or add them to the final object.
+ *
+ * ```ts
+ * // instead of
+ * User.reopenClass({ aStaticMethod() {} });
+ *
+ * // do this
+ * class User {
+ *   static aStaticMethod() {}
+ * }
+ *
+ * // or do this
+ * User.aStaticMethod = function() {}
+ * ```
+ *
  *
  * @property DEPRECATE_MODEL_REOPEN
  * @since 4.7
