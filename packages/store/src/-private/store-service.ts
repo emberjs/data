@@ -45,7 +45,7 @@ import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definit
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { CacheHandler, type LifetimesService, type StoreRequestInfo } from './cache-handler';
+import { type LifetimesService, type StoreRequestInfo } from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -199,7 +199,7 @@ class Store {
    * it as a service or by initializing it.
    *
    * ```ts
-   * import Store from '@ember-data/store';
+   * import Store, { CacheHandler } from '@ember-data/store';
    * import RequestManager from '@ember-data/request';
    * import Fetch from '@ember/data/request/fetch';
    *
@@ -208,6 +208,7 @@ class Store {
    *     super(...arguments);
    *     this.requestManager = new RequestManager();
    *     this.requestManager.use([Fetch]);
+   *     this.requestManager.useCache(CacheHandler);
    *   }
    * }
    * ```
@@ -221,13 +222,22 @@ class Store {
    * A Property which an App may set to provide a Lifetimes Service
    * to control when a cached request becomes stale.
    *
+   * Note, when defined, these methods will only be invoked if `key` `url` and `method`
+   * are all present.
+   *
+   * `isSoftExpired` will only be invoked if `isHardExpired` returns `false`.
+   *
    * ```ts
    * store.lifetimes = {
    *   // make the request and ignore the current cache state
-   *   isHardExpired() {}
+   *   isHardExpired(key: string, url: string, method?: HTTPMethod): boolean {
+   *     return false;
+   *   }
    *
    *   // make the request in the background if true, return cache state
-   *   isSoftExpired() {}
+   *   isSoftExpired(key: string, url: string, method: HTTPMethod): boolean {
+   *     return false;
+   *   }
    * }
    * ```
    *
@@ -245,7 +255,6 @@ class Store {
   declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
 
-  declare _hasRegisteredCacheHandler: boolean;
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   declare _forceShim: boolean;
   declare _enableAsyncFlush: boolean | null;
@@ -276,14 +285,6 @@ class Store {
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
     this._modelFactoryCache = Object.create(null);
-  }
-
-  _registerCacheHandler() {
-    if (this._hasRegisteredCacheHandler) {
-      return;
-    }
-    this.requestManager.useCache(CacheHandler);
-    this._hasRegisteredCacheHandler = true;
   }
 
   _run(cb: () => void) {
@@ -375,7 +376,6 @@ class Store {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
-    this._registerCacheHandler();
     let opts: { store: Store; disableTestWaiter?: boolean } = { store: this };
 
     if (TESTING) {

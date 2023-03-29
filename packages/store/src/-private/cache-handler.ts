@@ -119,8 +119,8 @@ function fetchContentAndHydrate<T>(
 
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-    // if we are a legacy request, skip cache handling
-    if (context.request.op && !context.request.url) {
+    // if we are a legacy request or did not originate from the store, skip cache handling
+    if (!context.request.store || (context.request.op && !context.request.url)) {
       return next(context.request);
     }
     const { store } = context.request;

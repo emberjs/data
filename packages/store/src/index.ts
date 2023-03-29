@@ -145,6 +145,7 @@
 
 export {
   Store as default,
+  CacheHandler,
   normalizeModelName,
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,
