@@ -19,7 +19,7 @@ import {
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
-import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_DEBUG_PACKAGE } from '@ember-data/packages';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId, peekCache } from '@ember-data/store/-private';
 

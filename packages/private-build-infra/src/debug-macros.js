@@ -25,14 +25,14 @@ module.exports = function debugMacros(config) {
     [
       TransformPackages,
       {
-        source: '@ember-data/private-build-infra',
+        source: '@ember-data/packages',
         flags: MACRO_PACKAGE_FLAGS,
       },
     ],
     [
       TransformDeprecations,
       {
-        source: '@ember-data/private-build-infra/current-deprecations',
+        source: '@ember-data/deprecations',
         flags: config.deprecations,
       },
       '@ember-data/deprecation-stripping',
@@ -40,7 +40,7 @@ module.exports = function debugMacros(config) {
     [
       TransformDebugLogging,
       {
-        source: '@ember-data/private-build-infra/debugging',
+        source: '@ember-data/debugging',
         configKey: 'debug',
         flags: config.debug,
       },
@@ -62,7 +62,7 @@ module.exports = function debugMacros(config) {
     [
       TransformHasDebugPackage,
       {
-        source: '@ember-data/private-build-infra',
+        source: '@ember-data/packages',
         flags: { HAS_DEBUG_PACKAGE: true },
       },
       '@ember-data/optional-packages-stripping',
