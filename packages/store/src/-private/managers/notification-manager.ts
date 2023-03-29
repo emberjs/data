@@ -4,8 +4,8 @@
 import { assert } from '@ember/debug';
 import { _backburner } from '@ember/runloop';
 
+import { LOG_NOTIFICATIONS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import { LOG_NOTIFICATIONS } from '@ember-data/private-build-infra/debugging';
 import type { Identifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { isStableIdentifier } from '../caches/identifier-cache';

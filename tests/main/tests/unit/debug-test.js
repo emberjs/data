@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_DEBUG_PACKAGE } from '@ember-data/packages';
 
 // TODO move these tests to the @ember-data/debug package
 if (HAS_DEBUG_PACKAGE) {

@@ -3,9 +3,9 @@ import { deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
+import { DEPRECATE_STRING_ARG_SCHEMAS } from '@ember-data/deprecations';
 import type Model from '@ember-data/model';
-import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
-import { DEPRECATE_STRING_ARG_SCHEMAS } from '@ember-data/private-build-infra/deprecations';
+import { HAS_MODEL_PACKAGE } from '@ember-data/packages';
 import type { RecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 

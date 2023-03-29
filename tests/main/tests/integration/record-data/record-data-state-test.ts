@@ -7,9 +7,9 @@ import { Promise } from 'rsvp';
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
+import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr } from '@ember-data/model';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';

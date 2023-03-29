@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
+import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';

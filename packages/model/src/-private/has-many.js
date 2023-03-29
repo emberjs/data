@@ -8,12 +8,12 @@ import { dasherize } from '@ember/string';
 
 import { singularize } from 'ember-inflector';
 
-import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
-} from '@ember-data/private-build-infra/deprecations';
+} from '@ember-data/deprecations';
+import { DEBUG } from '@ember-data/env';
 
 import { lookupLegacySupport } from './model';
 import { computedMacroWithOptionalParams } from './util';

@@ -6,8 +6,8 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
 import Model, { attr } from '@ember-data/model';
-import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/private-build-infra/deprecations';
 
 class Person extends Model {
   @attr name;

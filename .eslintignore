@@ -1,6 +1,7 @@
 # unconventional js
 **/blueprints/*/*files/
 **/vendor/
+**/*.d.ts
 
 # compiled output
 **/dist/

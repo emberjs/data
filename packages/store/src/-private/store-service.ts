@@ -7,24 +7,19 @@ import { _backburner as emberBackburner } from '@ember/runloop';
 
 import { importSync } from '@embroider/macros';
 
-import { DEBUG, TESTING } from '@ember-data/env';
-import type CacheClass from '@ember-data/json-api';
-import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
-import type DSModelClass from '@ember-data/model';
-import {
-  HAS_COMPAT_PACKAGE,
-  HAS_GRAPH_PACKAGE,
-  HAS_JSON_API_PACKAGE,
-  HAS_MODEL_PACKAGE,
-} from '@ember-data/private-build-infra';
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/private-build-infra/debugging';
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1_RECORD_DATA,
-} from '@ember-data/private-build-infra/deprecations';
+} from '@ember-data/deprecations';
+import { DEBUG, TESTING } from '@ember-data/env';
+import type CacheClass from '@ember-data/json-api';
+import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
+import type DSModelClass from '@ember-data/model';
+import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';

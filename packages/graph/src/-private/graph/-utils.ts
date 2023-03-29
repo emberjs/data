@@ -1,6 +1,6 @@
 import { assert, inspect, warn } from '@ember/debug';
 
-import { LOG_GRAPH } from '@ember-data/private-build-infra/debugging';
+import { LOG_GRAPH } from '@ember-data/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';

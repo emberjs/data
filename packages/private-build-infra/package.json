@@ -2,9 +2,6 @@
   "name": "@ember-data/private-build-infra",
   "version": "4.12.0-alpha.14",
   "description": "The default blueprint for ember-data private packages.",
-  "keywords": [
-    "ember-addon"
-  ],
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
