@@ -37,10 +37,22 @@ type SerializerWithParseErrors = MinimumSerializerInterface & {
   extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): unknown;
 };
 
+const PotentialLegacyOperations = new Set([
+  'findRecord',
+  'findAll',
+  'query',
+  'queryRecord',
+  'findBelongsTo',
+  'findHasMany',
+  'updateRecord',
+  'createRecord',
+  'deleteRecord',
+]);
+
 export const LegacyNetworkHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> {
     // if we are not a legacy request, move on
-    if (context.request.url || !context.request.op) {
+    if (context.request.url || !context.request.op || !PotentialLegacyOperations.has(context.request.op)) {
       return next(context.request) as unknown as Promise<T>;
     }
 
