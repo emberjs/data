@@ -563,7 +563,14 @@ export const DEPRECATE_PROMISE_PROXIES = '4.7';
 export const DEPRECATE_ARRAY_LIKE = '4.7';
 
 /**
- * id:
+ * id: <none yet assigned>
+ *
+ * This is a planned deprecation which will trigger when observer or computed
+ * chains are used to watch for changes on any EmberData RecordArray, ManyArray
+ * or PromiseManyArray.
+ *
+ * Support for these chains is currently guarded by the inactive deprecation flag
+ * listed here.
  *
  * @property DEPRECATE_COMPUTED_CHAINS
  * @since 5.0
@@ -573,7 +580,36 @@ export const DEPRECATE_ARRAY_LIKE = '4.7';
 export const DEPRECATE_COMPUTED_CHAINS = '5.0';
 
 /**
- * id:
+ * id: ember-data:non-explicit-relationships
+ *
+ * Deprecates when polymorphic relationships are detected via inheritance or mixins
+ * and no polymorphic relationship configuration has been setup.
+ *
+ * For further reading please review [RFC#793](https://rfcs.emberjs.com/id/0793-polymporphic-relations-without-inheritance)
+ * which introduced support for explicit relationship polymorphism without
+ * mixins or inheritance.
+ *
+ * You may still use mixins and inheritance to setup your polymorphism; however, the class
+ * structure is no longer what drives the design. Instead polymorphism is "traits" based or "structural":
+ * so long as each model which can satisfy the polymorphic relationship defines the inverse in the same
+ * way they work.
+ *
+ * Notably: `inverse: null` relationships can receive any type as a record with no additional configuration
+ * at all.
+ *
+ * Example Polymorphic Relationship Configuration
+ *
+ * ```ts
+ * // polymorphic relationship
+ * class Tag extends Model {
+ *    @hasMany("taggable", { async: false, polymorphic: true, inverse: "tags" }) tagged;
+ * }
+ *
+ * // an inverse concrete relationship (e.g. satisfies "taggable")
+ * class Post extends Model {
+ *    @hasMany("tag", { async: false, inverse: "tagged", as: "taggable" }) tags;
+ * }
+ * ```
  *
  * @property DEPRECATE_NON_EXPLICIT_POLYMORPHISM
  * @since 4.7
