@@ -3,26 +3,18 @@ import { DEBUG } from '@ember-data/env';
 import { Context } from './context';
 import type { ImmutableHeaders, RequestInfo } from './types';
 
-const ValidKeys = new Map<string, string | string[]>([
+const BODY_TYPES = {
+  type: 'string',
+  klass: ['Blob', 'ArrayBuffer', 'TypedArray', 'DataView', 'FormData', 'URLSearchParams', 'ReadableStream'],
+};
+const ValidKeys = new Map<string, string | string[] | typeof BODY_TYPES>([
   ['records', 'array'],
   ['data', 'json'],
+  ['body', BODY_TYPES],
   ['disableTestWaiter', 'boolean'],
   ['options', 'object'],
   ['cacheOptions', 'object'],
-  [
-    'op',
-    [
-      'findAll',
-      'query',
-      'queryRecord',
-      'findRecord',
-      'updateRecord',
-      'deleteRecord',
-      'createRecord',
-      'findBelongsTo',
-      'findHasMany',
-    ],
-  ],
+  ['op', 'string'],
   ['store', 'object'],
   ['url', 'string'],
   ['cache', ['default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload']],
@@ -204,6 +196,21 @@ function validateKey(key: string, value: unknown, errors: string[]) {
     return;
   }
   if (schema) {
+    if (schema === BODY_TYPES) {
+      if (typeof value === 'string' || value instanceof ReadableStream) {
+        return;
+      }
+      let type = niceTypeOf(value);
+      if (schema.klass.includes(type)) {
+        return;
+      }
+      errors.push(
+        `InvalidValue: key 'body' should be a string or one of '${schema.klass.join("', '")}', received ${
+          '<a value of type ' + niceTypeOf(value) + '>'
+        }`
+      );
+      return;
+    }
     if (Array.isArray(schema)) {
       if (!schema.includes(value as string)) {
         errors.push(
