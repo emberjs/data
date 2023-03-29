@@ -4,8 +4,8 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 class Person extends Model {
   @hasMany('pet', { inverse: null, async: false })

@@ -5,12 +5,12 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
 } from '@ember-data/deprecations';
+import { DEBUG } from '@ember-data/env';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import { FindOptions } from '@ember-data/types/q/store';

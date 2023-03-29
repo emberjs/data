@@ -7,8 +7,8 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
-import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/deprecations';
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
