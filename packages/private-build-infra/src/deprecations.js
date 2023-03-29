@@ -10,7 +10,7 @@ function deprecationIsResolved(deprecatedSince, compatVersion) {
 
 function getDeprecations(compatVersion) {
   const { default: CURRENT_DEPRECATIONS } = requireModule(
-    '@ember-data/private-build-infra/virtual-packages/current-deprecations.js'
+    '@ember-data/private-build-infra/virtual-packages/deprecations.js'
   );
   const flags = {};
 

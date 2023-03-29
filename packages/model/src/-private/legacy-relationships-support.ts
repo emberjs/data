@@ -2,14 +2,14 @@ import { assert, deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
+import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/graph/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import { HAS_JSON_API_PACKAGE } from '@ember-data/private-build-infra/available-packages';
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/private-build-infra/current-deprecations';
+import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
 import {
   fastPush,

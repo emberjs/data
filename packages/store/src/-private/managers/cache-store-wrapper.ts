@@ -1,9 +1,6 @@
 import { assert, deprecate } from '@ember/debug';
 
-import {
-  DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
-  DEPRECATE_V1CACHE_STORE_APIS,
-} from '@ember-data/private-build-infra/current-deprecations';
+import { DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/deprecations';
 import type { Cache } from '@ember-data/types/q/cache';
 import type {
   LegacyCacheStoreWrapper,

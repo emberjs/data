@@ -13,14 +13,14 @@ import { tracked } from '@glimmer/tracking';
 import { dirtyTag } from '@glimmer/validator';
 import Ember from 'ember';
 
-import { DEBUG } from '@ember-data/env';
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_ARRAY_LIKE,
   DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
-} from '@ember-data/private-build-infra/current-deprecations';
+} from '@ember-data/deprecations';
+import { DEBUG } from '@ember-data/env';
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';

@@ -7,7 +7,7 @@ import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
-} from '@ember-data/private-build-infra/current-deprecations';
+} from '@ember-data/deprecations';
 
 import { lookupLegacySupport } from './model';
 import { computedMacroWithOptionalParams } from './util';
