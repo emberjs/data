@@ -45,7 +45,6 @@ module.exports = {
     '(private) @ember-data/debug InspectorDataAdapter#watchTypeIfUnseen',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_ARRAY_LIKE',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_A_USAGE',
-    '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_CLASSIC',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_COMPUTED_CHAINS',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_EARLY_STATIC',
