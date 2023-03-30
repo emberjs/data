@@ -173,7 +173,6 @@ export default class JSONAPICache implements Cache {
     doc: StructuredDocument<T>
   ): ResourceMetaDocument | ResourceErrorDocument;
   put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
-    debugger;
     assert(`Cannot currently cache an ErrorDocument`, !('error' in doc));
     const jsonApiDoc = doc.content;
     let included = jsonApiDoc.included;
