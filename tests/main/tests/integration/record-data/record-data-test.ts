@@ -33,7 +33,7 @@ import type {
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
 
 class Person extends Model {
@@ -75,11 +75,11 @@ class V1TestRecordData {
 
   willCommit() {}
 
-  _errors: JsonApiValidationError[] = [];
-  getErrors(recordIdentifier: StableRecordIdentifier): JsonApiValidationError[] {
+  _errors: JsonApiError[] = [];
+  getErrors(recordIdentifier: StableRecordIdentifier): JsonApiError[] {
     return this._errors;
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiError[]): void {
     this._errors = errors;
   }
 
@@ -127,7 +127,7 @@ class V1TestRecordData {
 class V2TestRecordData implements Cache {
   version: '2' = '2';
 
-  _errors?: JsonApiValidationError[];
+  _errors?: JsonApiError[];
   _isNew: boolean = false;
   _storeWrapper: CacheStoreWrapper;
   _identifier: StableRecordIdentifier;
@@ -210,7 +210,7 @@ class V2TestRecordData implements Cache {
   }
   willCommit(identifier: StableRecordIdentifier): void {}
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {}
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -242,7 +242,7 @@ class V2TestRecordData implements Cache {
     throw new Error('Method not implemented.');
   }
 
-  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
     return this._errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {

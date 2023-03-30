@@ -43,11 +43,11 @@ export interface StructuredDataDocument<T> {
   response: Response | ResponseInfo | null;
   content: T;
 }
-export interface StructuredErrorDocument extends Error {
+export interface StructuredErrorDocument<T = unknown> extends Error {
   request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
   error: string | object;
-  content?: unknown;
+  content?: T;
 }
 
 export type Deferred<T> = {

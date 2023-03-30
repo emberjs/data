@@ -80,7 +80,9 @@ function getHydratedContent<T>(store: Store, request: StoreRequestInfo, document
       case 'findBelongsTo':
       case 'queryRecord':
       case 'findRecord':
-        return (document.data ? store.peekRecord(document.data) : null) as T;
+        return Object.assign({}, document, {
+          data: document.data ? store.peekRecord(document.data) : null,
+        }) as T;
       default:
         return document.data as T;
     }

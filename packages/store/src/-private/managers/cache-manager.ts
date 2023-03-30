@@ -12,7 +12,7 @@ import type {
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
@@ -584,7 +584,7 @@ export class NonSingletonCacheManager implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]) {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
     this.#cache.commitWasRejected(identifier || this.#identifier, errors);
   }
 
@@ -963,7 +963,7 @@ export class NonSingletonCacheManager implements Cache {
    * @param identifier
    * @returns
    */
-  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
     return this.#cache.getErrors(identifier || this.#identifier);
   }
 
@@ -1083,7 +1083,7 @@ export class SingletonCacheManager implements Cache {
     this.#cache.didCommit(identifier, data);
   }
 
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
     this.#cache.commitWasRejected(identifier, errors);
   }
 
@@ -1131,7 +1131,7 @@ export class SingletonCacheManager implements Cache {
     this.#cache.setIsDeleted(identifier, isDeleted);
   }
 
-  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
     return this.#cache.getErrors(identifier);
   }
 

@@ -1,7 +1,7 @@
 import { Cache } from '../cache/cache';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
-import type { JsonApiResource, JsonApiValidationError } from './record-data-json-api';
+import type { JsonApiError, JsonApiResource } from './record-data-json-api';
 import { Dict } from './utils';
 /**
   @module @ember-data/store
@@ -30,7 +30,7 @@ export interface CacheV1 {
 
   willCommit(): void;
   didCommit(data: JsonApiResource | null): void;
-  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiValidationError[]): void;
+  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiError[]): void;
 
   unloadRecord(): void;
 
@@ -55,7 +55,7 @@ export interface CacheV1 {
   // State
   // =============
   setIsDeleted(isDeleted: boolean): void;
-  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[];
+  getErrors(identifier: StableRecordIdentifier): JsonApiError[];
   isEmpty?(identifier: StableRecordIdentifier): boolean; // needs rfc
   isNew(identifier: StableRecordIdentifier): boolean;
   isDeleted(identifier: StableRecordIdentifier): boolean;

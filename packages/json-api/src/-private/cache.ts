@@ -11,6 +11,7 @@ import type { LocalRelationshipOperation } from '@ember-data/graph/-private/grap
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
+import { StructuredErrorDocument } from '@ember-data/request/-private/types';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
@@ -31,12 +32,11 @@ import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
   ExistingResourceObject,
-  JsonApiDocument,
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { AttributesHash, JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -61,7 +61,7 @@ interface CachedResource {
   localAttrs: Dict<unknown> | null;
   inflightAttrs: Dict<unknown> | null;
   changes: Dict<unknown[]> | null;
-  errors: JsonApiValidationError[] | null;
+  errors: JsonApiError[] | null;
   isNew: boolean;
   isDeleted: boolean;
   isDeletionCommitted: boolean;
@@ -169,12 +169,16 @@ export default class JSONAPICache implements Cache {
    */
   put<T extends SingleResourceDocument>(doc: StructuredDocument<T>): SingleResourceDataDocument;
   put<T extends CollectionResourceDocument>(doc: StructuredDocument<T>): CollectionResourceDataDocument;
-  put<T extends ResourceMetaDocument | ResourceErrorDocument>(
-    doc: StructuredDocument<T>
-  ): ResourceMetaDocument | ResourceErrorDocument;
-  put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
-    assert(`Cannot currently cache an ErrorDocument`, !('error' in doc));
-    const jsonApiDoc = doc.content;
+  put<T extends ResourceErrorDocument>(doc: StructuredErrorDocument<T>): ResourceErrorDocument;
+  put<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
+  put(doc: StructuredDocument<ResourceDocument>): ResourceDocument {
+    if (isErrorDocument(doc)) {
+      return this._putDocument(doc as StructuredErrorDocument<ResourceErrorDocument>);
+    } else if (isMetaDocument(doc)) {
+      return this._putDocument(doc);
+    }
+
+    const jsonApiDoc = doc.content as SingleResourceDocument | CollectionResourceDocument;
     let included = jsonApiDoc.included;
     let i: number, length: number;
     const { identifierCache } = this.__storeWrapper;
@@ -208,6 +212,8 @@ export default class JSONAPICache implements Cache {
     return this._putDocument(doc as StructuredDataDocument<SingleResourceDocument>, identifier);
   }
 
+  _putDocument<T extends ResourceErrorDocument>(doc: StructuredErrorDocument<T>): ResourceErrorDocument;
+  _putDocument<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
   _putDocument<T extends SingleResourceDocument>(
     doc: StructuredDataDocument<T>,
     data: StableExistingRecordIdentifier | null
@@ -216,24 +222,25 @@ export default class JSONAPICache implements Cache {
     doc: StructuredDataDocument<T>,
     data: StableExistingRecordIdentifier[]
   ): CollectionResourceDataDocument;
-  _putDocument<T extends SingleResourceDocument | CollectionResourceDocument>(
-    doc: StructuredDataDocument<T>,
-    data: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null
-  ): SingleResourceDataDocument | CollectionResourceDataDocument {
+  _putDocument<T extends ResourceDocument>(
+    doc: StructuredDocument<T>,
+    data?: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null
+  ): SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument | ResourceMetaDocument {
     // @ts-expect-error narrowing within is just horrible  in TS :/
-    const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument = {
-      data,
-    };
+    const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument =
+      data !== undefined
+        ? {
+            data,
+          }
+        : isErrorDocument(doc)
+        ? fromStructuredError(doc)
+        : {};
     const request = doc.request as StoreRequestInfo | undefined;
     const cacheKey = request?.cacheOptions?.key || request?.url;
 
     const jsonApiDoc = doc.content;
-    const { links, meta } = jsonApiDoc;
-    if (links) {
-      resourceDocument.links = links;
-    }
-    if (meta) {
-      resourceDocument.meta = meta;
+    if (jsonApiDoc) {
+      copyLinksAndMeta(resourceDocument, jsonApiDoc);
     }
 
     if (cacheKey) {
@@ -741,7 +748,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
     const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
       let keys = Object.keys(cached.inflightAttrs);
@@ -1021,7 +1028,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @returns {ValidationError[]}
    */
-  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
     return this.__peek(identifier, true).errors || [];
   }
 
@@ -1439,4 +1446,43 @@ function _allRelatedIdentifiers(
   }
 
   return array;
+}
+
+function isMetaDocument(
+  doc: StructuredDocument<ResourceDocument>
+): doc is StructuredDataDocument<ResourceMetaDocument> {
+  return !(doc instanceof Error) && !('data' in doc.content) && !('included' in doc.content) && 'meta' in doc.content;
+}
+
+function isErrorDocument(
+  doc: StructuredDocument<ResourceDocument>
+): doc is StructuredErrorDocument<ResourceErrorDocument> {
+  return doc instanceof Error;
+}
+
+function fromStructuredError(doc: StructuredErrorDocument<ResourceErrorDocument>): ResourceErrorDocument {
+  const errorDoc: ResourceErrorDocument = {} as ResourceErrorDocument;
+
+  if (doc.content) {
+    copyLinksAndMeta(errorDoc, doc.content);
+
+    if ('errors' in doc.content) {
+      errorDoc.errors = doc.content.errors;
+    } else if (typeof doc.error === 'object' && 'errors' in doc.error) {
+      errorDoc.errors = doc.error.errors as Array<object>;
+    } else {
+      errorDoc.errors = [{ title: doc.message }];
+    }
+  }
+
+  return errorDoc;
+}
+
+function copyLinksAndMeta(target: { links?: unknown; meta?: unknown }, source: object) {
+  if ('links' in source) {
+    target.links = source.links;
+  }
+  if ('meta' in source) {
+    target.meta = source.meta;
+  }
 }

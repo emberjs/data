@@ -1,4 +1,10 @@
-import type { CollectionResourceRelationship, Links, Meta, SingleResourceRelationship } from './ember-data-json-api';
+import type {
+  CollectionResourceRelationship,
+  Link,
+  Links,
+  Meta,
+  SingleResourceRelationship,
+} from './ember-data-json-api';
 import type { Dict } from './utils';
 
 /**
@@ -17,12 +23,22 @@ export interface JsonApiResource {
   links?: Links;
 }
 
-export interface JsonApiValidationError {
-  title: string;
-  detail: string;
-  source: {
-    pointer: string;
+export interface JsonApiError {
+  id?: string;
+  title?: string;
+  detail?: string;
+  links?: {
+    about?: Link;
+    type?: Link;
   };
+  status?: string;
+  code?: string;
+  source?: {
+    pointer: string;
+    parameter?: string;
+    header?: string;
+  };
+  meta?: Meta;
 }
 
 export type JsonApiRelationship = SingleResourceRelationship | CollectionResourceRelationship;

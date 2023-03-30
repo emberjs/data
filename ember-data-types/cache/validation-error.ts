@@ -13,9 +13,9 @@
 // schema of these Errors, then EmberData
 // has no reason to enforce this shape.
 export interface ValidationError {
-  title: string;
-  detail: string;
-  source: {
-    pointer: string;
+  title?: string;
+  detail?: string;
+  source?: {
+    pointer?: string;
   };
 }

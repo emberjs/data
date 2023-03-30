@@ -34,7 +34,7 @@ import type {
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
 
 if (!DEPRECATE_V1_RECORD_DATA) {
@@ -99,7 +99,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     }
     version: '2' = '2';
 
-    _errors?: JsonApiValidationError[];
+    _errors?: JsonApiError[];
     _isNew: boolean = false;
 
     upsert(
@@ -120,7 +120,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     }
     willCommit(identifier: StableRecordIdentifier): void {}
     didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {}
-    commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
+    commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
       this._errors = errors;
     }
     unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -160,7 +160,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       throw new Error('Method not implemented.');
     }
 
-    getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+    getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
       return this._errors || [];
     }
     isEmpty(identifier: StableRecordIdentifier): boolean {
@@ -186,7 +186,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       const { owner } = this;
 
       class LifecycleRecordData extends TestRecordData {
-        commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]) {
+        commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
           super.commitWasRejected(identifier, errors);
           assert.strictEqual(errors?.[0]?.detail, 'is a generally unsavoury character', 'received the error');
           assert.strictEqual(errors?.[0]?.source.pointer, '/data/attributes/name', 'pointer is correct');
@@ -247,7 +247,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       const { owner } = this;
 
       class LifecycleRecordData extends TestRecordData {
-        commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[]) {
+        commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
           super.commitWasRejected(identifier, errors);
           assert.strictEqual(errors, undefined, 'Did not pass adapter errors');
         }
@@ -293,11 +293,11 @@ if (!DEPRECATE_V1_RECORD_DATA) {
 
     test('RecordData Invalid Errors Can Be Reflected On The Record', async function (assert) {
       const { owner } = this;
-      let errorsToReturn: JsonApiValidationError[] | undefined;
+      let errorsToReturn: JsonApiError[] | undefined;
       let storeWrapper;
 
       class LifecycleRecordData extends TestRecordData {
-        getErrors(): JsonApiValidationError[] {
+        getErrors(): JsonApiError[] {
           return errorsToReturn || [];
         }
       }
@@ -405,11 +405,11 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         }
       }
 
-      _errors: JsonApiValidationError[] = [];
-      getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
+      _errors: JsonApiError[] = [];
+      getErrors(recordIdentifier: RecordIdentifier): JsonApiError[] {
         return this._errors;
       }
-      commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void {
+      commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiError[]): void {
         this._errors = errors;
       }
 
@@ -636,7 +636,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
           storeWrapper = sw;
         }
 
-        getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
+        getErrors(recordIdentifier: RecordIdentifier): JsonApiError[] {
           return errorsToReturn;
         }
       }
