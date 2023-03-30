@@ -11,6 +11,7 @@ import type { LocalRelationshipOperation } from '@ember-data/graph/-private/grap
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
+import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
 import type { Change } from '@ember-data/types/cache/change';
@@ -172,6 +173,7 @@ export default class JSONAPICache implements Cache {
     doc: StructuredDocument<T>
   ): ResourceMetaDocument | ResourceErrorDocument;
   put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
+    debugger;
     assert(`Cannot currently cache an ErrorDocument`, !('error' in doc));
     const jsonApiDoc = doc.content;
     let included = jsonApiDoc.included;
@@ -223,10 +225,9 @@ export default class JSONAPICache implements Cache {
     const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument = {
       data,
     };
-    if (!doc.request?.url) {
-      return resourceDocument;
-    }
-    resourceDocument.lid = doc.request.url;
+    const request = doc.request as StoreRequestInfo | undefined;
+    const cacheKey = request?.cacheOptions?.key || request?.url;
+
     const jsonApiDoc = doc.content;
     const { links, meta } = jsonApiDoc;
     if (links) {
@@ -235,9 +236,14 @@ export default class JSONAPICache implements Cache {
     if (meta) {
       resourceDocument.meta = meta;
     }
-    // @ts-expect-error
-    doc.content = resourceDocument;
-    this.__documents.set(doc.request.url!, doc as StructuredDocument<ResourceDocument>);
+
+    if (cacheKey) {
+      resourceDocument.lid = cacheKey;
+
+      // @ts-expect-error
+      doc.content = resourceDocument;
+      this.__documents.set(cacheKey, doc as StructuredDocument<ResourceDocument>);
+    }
 
     return resourceDocument;
   }

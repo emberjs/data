@@ -411,6 +411,7 @@ class Store {
       if (requestConfig.op === 'findBelongsTo' && !requestConfig.url) {
         return;
       }
+      debugger;
       this.notifications._flush();
     });
 

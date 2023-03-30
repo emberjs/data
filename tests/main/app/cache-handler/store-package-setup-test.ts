@@ -9,8 +9,13 @@ import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import Store, { CacheHandler } from '@ember-data/store';
+import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+
+type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
 module('Store | CacheHandler - setup with @ember-data/store', function (hooks) {
   setupTest(hooks);
@@ -31,6 +36,31 @@ module('Store | CacheHandler - setup with @ember-data/store', function (hooks) {
 
       createCache(wrapper: CacheStoreWrapper) {
         return new Cache(wrapper);
+      }
+
+      instantiateRecord(identifier: StableRecordIdentifier) {
+        const { id, lid, type } = identifier;
+        const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
+        Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+
+        let token = this.notifications.subscribe(
+          identifier,
+          (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
+            if (kind === 'attributes' && key) {
+              record[key] = this.cache.getAttr(identifier, key);
+            }
+          }
+        );
+
+        record.destroy = () => {
+          this.notifications.unsubscribe(token);
+        };
+
+        return record;
+      }
+
+      teardownRecord(record: FakeRecord) {
+        record.destroy();
       }
     }
 

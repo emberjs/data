@@ -124,14 +124,28 @@ function fetchContentAndHydrate<T>(
   const { store } = context.request;
   return next(context.request).then(
     (document) => {
-      const response = store.cache.put(document);
+      store._enableAsyncFlush = true;
+      let response: ResourceDataDocument;
+      store._join(() => {
+        response = store.cache.put(document) as ResourceDataDocument;
+
+        if (shouldFetch) {
+          response = getHydratedContent(store, context.request, response);
+        }
+      });
+      store._enableAsyncFlush = null;
 
       if (shouldFetch) {
-        return getHydratedContent(store, context.request, response as ResourceDataDocument);
+        return response!;
       }
     },
     (error: StructuredErrorDocument) => {
-      store.cache.put(error);
+      store._enableAsyncFlush = true;
+      store._join(() => {
+        store.cache.put(error);
+      });
+      store._enableAsyncFlush = null;
+
       // TODO @runspired this is probably not the right thing to throw so make sure we add a test
       if (!shouldBackgroundFetch) {
         throw error;
