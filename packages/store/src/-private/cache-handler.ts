@@ -17,6 +17,18 @@ export interface LifetimesService {
   isSoftExpired(key: string, url: string, method: HTTPMethod): boolean;
 }
 
+const CacheOperations = new Set([
+  'findRecord',
+  'findAll',
+  'query',
+  'queryRecord',
+  'findBelongsTo',
+  'findHasMany',
+  'updateRecord',
+  'createRecord',
+  'deleteRecord',
+]);
+
 export interface StoreRequestInfo extends ImmutableRequestInfo {
   cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
   store?: Store;
@@ -38,7 +50,10 @@ export interface StoreRequestContext extends RequestContext {
   request: StoreRequestInfo & { store: Store };
 }
 
-function getHydratedContent<T>(store: Store, request: ImmutableRequestInfo, document: ResourceDataDocument): T {
+function getHydratedContent<T>(store: Store, request: StoreRequestInfo, document: ResourceDataDocument): T {
+  if (!request.op || !CacheOperations.has(request.op)) {
+    return document as T;
+  }
   if (Array.isArray(document.data)) {
     const { lid } = document;
     const { recordArrayManager } = store;
@@ -61,7 +76,14 @@ function getHydratedContent<T>(store: Store, request: ImmutableRequestInfo, docu
     }
     return managed as T;
   } else {
-    return (document.data ? store.peekRecord(document.data) : null) as T;
+    switch (request.op) {
+      case 'findBelongsTo':
+      case 'queryRecord':
+      case 'findRecord':
+        return (document.data ? store.peekRecord(document.data) : null) as T;
+      default:
+        return document.data as T;
+    }
   }
 }
 
@@ -72,9 +94,11 @@ function calcShouldFetch(
   lid: string | null | undefined
 ): boolean {
   const { cacheOptions, url, method } = request;
-  return cacheOptions?.reload || !hasCachedValue || (store.lifetimes && lid && url && method)
-    ? store.lifetimes!.isHardExpired(lid as string, url as string, method as HTTPMethod)
-    : false;
+  return (
+    cacheOptions?.reload ||
+    !hasCachedValue ||
+    (store.lifetimes && lid && url && method ? store.lifetimes.isHardExpired(lid, url, method as HTTPMethod) : false)
+  );
 }
 
 function calcShouldBackgroundFetch(
@@ -86,9 +110,8 @@ function calcShouldBackgroundFetch(
   const { cacheOptions, url, method } = request;
   return (
     !willFetch &&
-    (cacheOptions?.backgroundReload || (store.lifetimes && lid && url && method)
-      ? store.lifetimes!.isSoftExpired(lid as string, url as string, method as HTTPMethod)
-      : false)
+    (cacheOptions?.backgroundReload ||
+      (store.lifetimes && lid && url && method ? store.lifetimes.isSoftExpired(lid, url, method as HTTPMethod) : false))
   );
 }
 
@@ -101,14 +124,28 @@ function fetchContentAndHydrate<T>(
   const { store } = context.request;
   return next(context.request).then(
     (document) => {
-      const response = store.cache.put(document);
+      store._enableAsyncFlush = true;
+      let response: ResourceDataDocument;
+      store._join(() => {
+        response = store.cache.put(document) as ResourceDataDocument;
+
+        if (shouldFetch) {
+          response = getHydratedContent(store, context.request, response);
+        }
+      });
+      store._enableAsyncFlush = null;
 
       if (shouldFetch) {
-        return getHydratedContent(store, context.request, response as ResourceDataDocument);
+        return response!;
       }
     },
     (error: StructuredErrorDocument) => {
-      store.cache.put(error);
+      store._enableAsyncFlush = true;
+      store._join(() => {
+        store.cache.put(error);
+      });
+      store._enableAsyncFlush = null;
+
       // TODO @runspired this is probably not the right thing to throw so make sure we add a test
       if (!shouldBackgroundFetch) {
         throw error;
@@ -120,7 +157,10 @@ function fetchContentAndHydrate<T>(
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
     // if we are a legacy request or did not originate from the store, skip cache handling
-    if (!context.request.store || (context.request.op && !context.request.url)) {
+    if (
+      !context.request.store ||
+      (context.request.op && CacheOperations.has(context.request.op) && !context.request.url)
+    ) {
       return next(context.request);
     }
     const { store } = context.request;

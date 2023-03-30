@@ -365,7 +365,7 @@ export class InstanceCache {
   }
 
   recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
-    const cache = DEPRECATE_V1_RECORD_DATA ? this.__instances.resourceCache.get(identifier) : this.cache;
+    const cache = DEPRECATE_V1_RECORD_DATA ? this.__instances.resourceCache.get(identifier) || this.cache : this.cache;
     if (!cache) {
       return false;
     }

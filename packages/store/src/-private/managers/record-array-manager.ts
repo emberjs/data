@@ -98,6 +98,7 @@ class RecordArrayManager {
     this._managed = new Set();
     this._pending = new Map();
     this._staged = new Map();
+    this._keyedArrays = new Map();
     this._identifiers = RecordArraysCache;
 
     this._subscription = this.store.notifications.subscribe(

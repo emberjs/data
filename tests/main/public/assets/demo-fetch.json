@@ -1,0 +1,15 @@
+{
+  "links": {
+    "self": "/assets/demo-fetch.json"
+  },
+  "meta": {
+    "expiration": 120000
+  },
+  "data": {
+    "type": "user",
+    "id": "1",
+    "attributes": {
+      "name": "Chris Thoburn"
+    }
+  }
+}
