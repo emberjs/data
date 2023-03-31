@@ -12,6 +12,6 @@
  * applications interfacing with EmberData would need
  * to conform to.
  *
- * @module @ember-data/experimental-preview-types
- * @main @ember-data/experimental-preview-types
+  @module @ember-data/experimental-preview-types
+  @main @ember-data/experimental-preview-types
  */

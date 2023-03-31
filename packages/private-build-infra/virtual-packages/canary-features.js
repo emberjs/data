@@ -16,53 +16,31 @@
  *
  * To test a feature you MUST be using a canary build. Canary builds are published
  * to `npm` and can be installed using a precise tag (such as `ember-data@3.16.0-alpha.1`)
- * or by installing the latest dist-tag published to the `canary` channel.
- *
- * *Using `npm` to install the latest canary*
- *
- * ```cli
- * npm install --save-dev ember-data@canary
- * ```
- *
- * *Using `pnpm` to install the latest canary*
- *
- * ```cli
- * pnpm add ember-data@canary
- * ```
+ * or by installing the latest dist-tag published to the `canary` channel using your javascript
+ * package manager of choice. For instance with [pnpm](https://pnpm.io/)
+
+  ```cli
+  pnpm add ember-data@canary
+  ```
  *
  * ### Activating a Canary Feature
  *
- * Once you have installed canary, feature-flags can be activated at build-time by either setting the
- * environment variable `EMBER_DATA_FEATURE_OVERRIDE=<comma-separated-flag-names | ENABLE_ALL_OPTIONAL>`
- * or by setting the appropriate flag to `true` in your `ember-cli-build` file (example below).
+ * Once you have installed canary, feature-flags can be activated at build-time
  *
- * The "off" branch of feature-flagged code is always stripped from production builds.
+ * by setting an environment variable:
  *
- * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/main/packages/virtual-packages/canary-features.js "List of EmberData FeatureFlags")
+ * ```cli
+ * # Activate a single flag
+ * EMBER_DATA_FEATURE_OVERRIDE=SOME_FLAG ember build
  *
- * #### Environment Based Build Configuration
+ * # Activate multiple flags by separating with commas
+ * EMBER_DATA_FEATURE_OVERRIDE=SOME_FLAG,OTHER_FLAG ember build
  *
- * *Example activating a single feature flags*
- *
- * ```js
- * EMBER_DATA_FEATURE_OVERRIDE=SAMPLE_FEATURE_FLAG ember build
- * ```
- *
- * *Example activating multiple feature flags*
- *
- * ```js
- * EMBER_DATA_FEATURE_OVERRIDE=SAMPLE_FEATURE_FLAG,CUSTOM_MODEL_CLASS ember build
- * ```
- *
- * *Example activating all feature flags*
- *
- * ```js
+ * # Activate all flags
  * EMBER_DATA_FEATURE_OVERRIDE=ENABLE_ALL_OPTIONAL ember build
  * ```
  *
- * #### Config Based Build Configuration
- *
- * In your app's `ember-cli-build` file:
+ * or by setting the appropriate flag in your `ember-cli-build` file:
  *
  * ```ts
  * let app = new EmberApp(defaults, {
@@ -74,6 +52,11 @@
  *   }
  * })
  * ```
+ *
+ * **The "off" branch of feature-flagged code is always stripped from production builds.**
+ *
+ * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/main/packages/private-build-infra/virtual-packages/canary-features.js "List of EmberData FeatureFlags")
+ *
  *
  * ### Preparing a Project to use a Canary Feature
  *
@@ -91,14 +74,14 @@
    @main @ember-data/canary-features
  */
 /**
-  This is the current list of features used at build time (by `@ember-data/private-build-infra`)
-  for canary releases. If empty there are no features currently gated by feature flags.
+  This is the current list of features used at build time for canary releases.
+  If empty there are no features currently gated by feature flags.
 
   The valid values are:
 
-  - true - The feature is enabled at all times, and cannot be disabled.
-  - false - The feature is disabled at all times, and cannot be enabled.
-  - null - The feature is disabled by default, but can be enabled via configuration.
+  - `true` | The feature is **enabled** at all times, and cannot be disabled.
+  - `false` | The feature is **disabled** at all times, and cannot be enabled.
+  - `null` | The feature is **disabled by default**, but can be enabled via configuration.
 
   @class CanaryFeatureFlags
   @public

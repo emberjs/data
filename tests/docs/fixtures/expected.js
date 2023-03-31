@@ -48,7 +48,7 @@ module.exports = {
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_COMPUTED_CHAINS',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_EARLY_STATIC',
-    '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_HAS_RECIRD',
+    '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_HAS_RECORD',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_HELPERS',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_INSTANTIATE_RECORD_ARGS',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_JSON_API_FALLBACK',
