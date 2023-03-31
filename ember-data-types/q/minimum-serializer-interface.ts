@@ -25,6 +25,14 @@ export type RequestType =
   | 'updateRecord';
 
 /**
+ * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
+  <p>
+    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+    If starting a new app or thinking of implementing a new adapter, consider writing a
+    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/emberjs/data/tree/main/packages/request#readme">RequestManager</a>
+  </p>
+  </blockquote>
+
   The following documentation describes the methods an application
   serializer should implement with descriptions around when an
   application might expect these methods to be called.

@@ -1,6 +1,14 @@
 /**
   ## Overview
 
+  <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
+  <p>
+    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+    If starting a new app or thinking of implementing a new adapter, consider writing a
+    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/emberjs/data/tree/main/packages/request#readme">RequestManager</a>
+  </p>
+  </blockquote>
+
   In order to properly fetch and update data, EmberData
   needs to understand how to connect to your API.
 
@@ -117,6 +125,48 @@
     }
   }
   ```
+
+  ### Overriding `Store.adapterFor`
+
+  ```js
+  import Store from '@ember-data/store';
+  import Adapter from '@ember-data/adapter/json-api';
+
+  class extends Store {
+    #adapter = new Adapter();
+
+    adapterFor() {
+      return this.#adapter;
+    }
+  }
+  ```
+
+
+Note: If you are using Ember and would like to make use of `service` injections in your adapter, you will want to additionally `setOwner` for the Adapter.
+
+  ```js
+  import Store from '@ember-data/store';
+  import Adapter from '@ember-data/adapter/json-api';
+  import { getOwner, setOwner } from '@ember/application';
+
+  class extends Store {
+    #adapter = null;
+
+    adapterFor() {
+      let adapter = this.#adapter;
+      if (!adapter) {
+        const owner = getOwner(this);
+        adapter = new Adapter();
+        setOwner(adapter, owner);
+        this.#adapter = adapter;
+      }
+
+      return adapter;
+    }
+  }
+  ```
+
+By default when using with Ember you only need to implement this hook if you want your adapter usage to be statically analyzeable. *Ember***Data** will attempt to resolve adapters using Ember's resolver. To provide a single Adapter for your application like the above you would provide it as the default export of the file `app/adapters/application.{js/ts}`
 
   ### Using an Adapter
 

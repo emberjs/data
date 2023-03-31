@@ -215,7 +215,8 @@ is intended to allow.
    etc.) and the rest from another source (a different API, a WebWorker, etc.)
 - to coalesce multiple requests
 - to decorate a request with additional info
-    - e.g. an Auth handler that ensures the correct tokens or headers or cookies are attached.
+  - e.g. an Auth handler that ensures the correct tokens or headers or cookies are attached.
+
 
 `await fetch(<req>)` resolves at the moment headers are received. This allows for the body of the request to be processed as a stream by application
 code *while chunks are still being received by the browser*.

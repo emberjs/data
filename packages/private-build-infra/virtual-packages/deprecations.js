@@ -52,7 +52,7 @@
  * ```
  *
  * The complete list of which versions specific deprecations will be removed in
- * can be found [here](https://github.com/emberjs/data/tree/main/packages/private-build-infra/addon/current-deprecations.ts "List of EmberData Deprecations")
+ * can be found [here](https://github.com/emberjs/data/blob/main/packages/private-build-infra/virtual-packages/deprecations.js "List of EmberData Deprecations")
  *
  * @module @ember-data/deprecations
  * @main @ember-data/deprecations
@@ -71,7 +71,7 @@ export const DEPRECATE_CATCH_ALL = '99.0';
 export const DEPRECATE_3_12 = '3.12';
 
 /**
- * id: ember-data:rsvp-unresolved-async
+ * **id: ember-data:rsvp-unresolved-async**
  *
  * Deprecates when a request promise did not resolve prior to the store tearing down.
  *
@@ -89,7 +89,7 @@ export const DEPRECATE_3_12 = '3.12';
 export const DEPRECATE_RSVP_PROMISE = '4.4';
 
 /**
- * id: ember-data:model-save-promise
+ * **id: ember-data:model-save-promise**
  *
  * Affects
  * - model.save / store.saveRecord
@@ -113,7 +113,7 @@ export const DEPRECATE_RSVP_PROMISE = '4.4';
 export const DEPRECATE_SAVE_PROMISE_ACCESS = '4.4';
 
 /**
- * id: ember-data:deprecate-snapshot-model-class-access
+ * **id: ember-data:deprecate-snapshot-model-class-access**
  *
  * Deprecates accessing the factory class for a given resource type
  * via properties on various classes.
@@ -134,7 +134,7 @@ export const DEPRECATE_SAVE_PROMISE_ACCESS = '4.4';
 export const DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS = '4.5';
 
 /**
- * id: ember-data:deprecate-store-find
+ * **id: ember-data:deprecate-store-find**
  *
  * Deprecates using `store.find` instead of `store.findRecord`. Typically
  * `store.find` is a mistaken call that occurs when using implicit route behaviors
@@ -152,7 +152,7 @@ export const DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS = '4.5';
 export const DEPRECATE_STORE_FIND = '4.5';
 
 /**
- * id: ember-data:deprecate-has-record-for-id
+ * **id: ember-data:deprecate-has-record-for-id**
  *
  * Deprecates `store.hasRecordForId(type, id)` in favor of `store.peekRecord({ type, id }) !== null`.
  *
@@ -161,7 +161,7 @@ export const DEPRECATE_STORE_FIND = '4.5';
  * record which is not-yet loaded and un-peekable. `peekRecord` offers a safe mechanism by which to check
  * for whether a record is present in a usable manner.
  *
- * @property DEPRECATE_HAS_RECIRD
+ * @property DEPRECATE_HAS_RECORD
  * @since 4.5
  * @until 5.0
  * @public
@@ -169,7 +169,7 @@ export const DEPRECATE_STORE_FIND = '4.5';
 export const DEPRECATE_HAS_RECORD = '4.5';
 
 /**
- * id: ember-data:deprecate-string-arg-schemas
+ * **id: ember-data:deprecate-string-arg-schemas**
  *
  * Deprecates `schema.attributesDefinitionFor(type)` and
  * `schema.relationshipsDefinitionFor(type)` in favor of
@@ -190,7 +190,7 @@ export const DEPRECATE_HAS_RECORD = '4.5';
 export const DEPRECATE_STRING_ARG_SCHEMAS = '4.5';
 
 /**
- * id: ember-data:deprecate-secret-adapter-fallback
+ * **id: ember-data:deprecate-secret-adapter-fallback**
  *
  * Deprecates the secret `-json-api` fallback adapter in favor
  * or an explicit "catch all" application adapter. In addition
@@ -213,8 +213,9 @@ export const DEPRECATE_STRING_ARG_SCHEMAS = '4.5';
 export const DEPRECATE_JSON_API_FALLBACK = '4.5';
 
 /**
- * id: ember-data:deprecate-model-reopen
- * =====================================
+ * **id: ember-data:deprecate-model-reopen**
+ *
+ * ----
  *
  * For properties known ahead of time, instead of
  *
@@ -242,8 +243,9 @@ export const DEPRECATE_JSON_API_FALLBACK = '4.5';
  *
  *
  *
- * id: ember-data:deprecate-model-reopenclass
- * =====================================
+ * **id: ember-data:deprecate-model-reopenclass**
+ *
+ * ----
  *
  * Instead of reopenClass, define `static` properties with native class syntax
  * or add them to the final object.
@@ -270,7 +272,7 @@ export const DEPRECATE_JSON_API_FALLBACK = '4.5';
 export const DEPRECATE_MODEL_REOPEN = '4.7';
 
 /**
- * id: ember-data:deprecate-early-static
+ * **id: ember-data:deprecate-early-static**
  *
  * This deprecation triggers if static computed properties
  * or methods are triggered without looking up the record
@@ -311,9 +313,9 @@ export const DEPRECATE_MODEL_REOPEN = '4.7';
 export const DEPRECATE_EARLY_STATIC = '4.7';
 
 /**
- * id: ember-data:deprecate-errors-hash-to-array-helper
- * id: ember-data:deprecate-errors-array-to-hash-helper
- * id: ember-data:deprecate-normalize-modelname-helper
+ * **id: ember-data:deprecate-errors-hash-to-array-helper**
+ * **id: ember-data:deprecate-errors-array-to-hash-helper**
+ * **id: ember-data:deprecate-normalize-modelname-helper**
  *
  * Deprecates `errorsHashToArray` `errorsArrayToHash` and `normalizeModelName`
  *
@@ -333,7 +335,7 @@ export const DEPRECATE_EARLY_STATIC = '4.7';
 export const DEPRECATE_HELPERS = '4.7';
 
 /**
- * id: ember-data:deprecate-promise-many-array-behavior
+ * **id: ember-data:deprecate-promise-many-array-behavior**
  *
  * [RFC Documentation](https://rfcs.emberjs.com/id/0745-ember-data-deprecate-methods-on-promise-many-array)
  *
@@ -371,7 +373,7 @@ export const DEPRECATE_HELPERS = '4.7';
 export const DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS = '4.7';
 
 /**
- * id: ember-data:deprecate-v1cache-store-apis
+ * **id: ember-data:deprecate-v1cache-store-apis**
  *
  * @property DEPRECATE_V1CACHE_STORE_APIS
  * @since 4.7
@@ -381,7 +383,7 @@ export const DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS = '4.7';
 export const DEPRECATE_V1CACHE_STORE_APIS = '4.7';
 
 /**
- * id: ember-data:deprecate-non-strict-relationships
+ * **id: ember-data:deprecate-non-strict-relationships**
  *
  * Deprecates when belongsTo and hasMany relationships are defined
  * without specifying the inverse record's type.
@@ -417,7 +419,7 @@ export const DEPRECATE_V1CACHE_STORE_APIS = '4.7';
 export const DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE = '4.7';
 
 /**
- * id: ember-data:deprecate-non-strict-relationships
+ * **id: ember-data:deprecate-non-strict-relationships**
  *
  * Deprecates when belongsTo and hasMany relationships are defined
  * without specifying whether the relationship is asynchronous.
@@ -456,7 +458,7 @@ export const DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE = '4.7';
 export const DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC = '4.7';
 
 /**
- * id: ember-data:deprecate-non-strict-relationships
+ * **id: ember-data:deprecate-non-strict-relationships**
  *
  * Deprecates when belongsTo and hasMany relationships are defined
  * without specifying the inverse field on the related type.
@@ -523,7 +525,7 @@ export const DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC = '4.7';
 export const DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE = '4.7';
 
 /**
- * id:
+ * **id: **
  *
  * @property DEPRECATE_V1_RECORD_DATA
  * @since 4.12
@@ -533,7 +535,7 @@ export const DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE = '4.7';
 export const DEPRECATE_V1_RECORD_DATA = '4.12';
 
 /**
- * id:
+ * **id: **
  *
  * @property DEPRECATE_A_USAGE
  * @since 4.7
@@ -543,7 +545,7 @@ export const DEPRECATE_V1_RECORD_DATA = '4.12';
 export const DEPRECATE_A_USAGE = '4.7';
 
 /**
- * id:
+ * **id: **
  *
  * @property DEPRECATE_PROMISE_PROXIES
  * @since 4.7
@@ -553,7 +555,7 @@ export const DEPRECATE_A_USAGE = '4.7';
 export const DEPRECATE_PROMISE_PROXIES = '4.7';
 
 /**
- * id:
+ * **id: **
  *
  * @property DEPRECATE_ARRAY_LIKE
  * @since 4.7
@@ -563,7 +565,7 @@ export const DEPRECATE_PROMISE_PROXIES = '4.7';
 export const DEPRECATE_ARRAY_LIKE = '4.7';
 
 /**
- * id: <none yet assigned>
+ * **id: <none yet assigned>**
  *
  * This is a planned deprecation which will trigger when observer or computed
  * chains are used to watch for changes on any EmberData RecordArray, ManyArray
@@ -580,7 +582,7 @@ export const DEPRECATE_ARRAY_LIKE = '4.7';
 export const DEPRECATE_COMPUTED_CHAINS = '5.0';
 
 /**
- * id: ember-data:non-explicit-relationships
+ * **id: ember-data:non-explicit-relationships**
  *
  * Deprecates when polymorphic relationships are detected via inheritance or mixins
  * and no polymorphic relationship configuration has been setup.
@@ -619,7 +621,7 @@ export const DEPRECATE_COMPUTED_CHAINS = '5.0';
 export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
 
 /**
- * id:
+ * **id: **
  *
  * @property DEPRECATE_INSTANTIATE_RECORD_ARGS
  * @since 4.7
@@ -629,7 +631,7 @@ export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
 export const DEPRECATE_INSTANTIATE_RECORD_ARGS = '4.12';
 
 /**
- * id:
+ * **id: **
  *
  * @property DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
  * @since 4.12
