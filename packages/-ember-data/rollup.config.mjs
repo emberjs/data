@@ -32,6 +32,7 @@ export default {
     addon.publicEntrypoints(['src/**/*.js', 'index.js']),
 
     addon.appReexports(['app/**/*.js']),
+
     nodeResolve({ extensions: ['.ts', '.js'] }),
     babel({
       extensions: ['.ts', '.js'],

@@ -1,6 +1,8 @@
 const requireModule = require('@ember-data/private-build-infra/src/utilities/require-module');
 const getEnv = require('@ember-data/private-build-infra/src/utilities/get-env');
 const detectModule = require('@ember-data/private-build-infra/src/utilities/detect-module');
+const merge = require('broccoli-merge-trees');
+const version = require('@ember-data/private-build-infra/src/create-version-module');
 
 const pkg = require('./package.json');
 
@@ -73,6 +75,13 @@ module.exports = {
   included() {
     this.configureEmberData();
     return this._super.included.call(this, ...arguments);
+  },
+
+  treeForAddon(tree) {
+    // if we don't do this we won't have a super in addonBaseConfig
+    // as a regex is used to decide if to add one for the method
+    tree = merge([tree, version()]);
+    return this._super.treeForAddon.call(this, tree);
   },
 
   treeForVendor() {
