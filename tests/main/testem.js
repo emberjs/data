@@ -23,7 +23,7 @@ module.exports = {
       ci: [
         '--headless',
         '--no-sandbox',
-        '--enable-logging',
+        // '--enable-logging',
 
         // this may help debug CI in some situations
         // '--enable-logging',
@@ -51,7 +51,7 @@ module.exports = {
         // ubuntu-16-core seems to be unhappy with this being set to a non-zero port
         // throws: ERROR:socket_posix.cc(147)] bind() failed: Address already in use (98)
         '--remote-debugging-port=0',
-        '--remote-debugging-address=0.0.0.0',
+        // '--remote-debugging-address=0.0.0.0',
         '--window-size=1440,900',
         '--proxy-bypass-list=*',
         "--proxy-server='direct://'",
