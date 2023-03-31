@@ -230,14 +230,13 @@ const FetchHandler = {
 For context, it helps to understand a few of the use-cases that RequestManager
 is intended to allow.
 
-- to manage and return streaming content (such as video files)
-- to fulfill a request from multiple sources or by splitting one request into multiple requests
-  - for instance one API call for a user and another for the user's friends
-  - or e.g. fulfilling part of the request from one source (one API, in-memory, localStorage, IndexedDB
-   etc.) and the rest from another source (a different API, a WebWorker, etc.)
-- to coalesce multiple requests
-- to decorate a request with additional info
-  - e.g. an Auth handler that ensures the correct tokens or headers or cookies are attached.
+ - to manage and return streaming content (such as video files)
+ - to fulfill a request from multiple sources or by splitting one request into multiple requests
+   - for instance one API call for a user and another for the user's friends
+   - or e.g. fulfilling part of the request from one source (one API, in-memory, localStorage, IndexedDB etc.) and the rest from another source (a different API, a WebWorker, etc.)
+ - to coalesce multiple requests
+ - to decorate a request with additional info
+   - e.g. an Auth handler that ensures the correct tokens or headers or cookies are attached.
 
 ----
 
