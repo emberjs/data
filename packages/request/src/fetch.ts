@@ -1,5 +1,12 @@
 /**
- * A very basic Fetch Handler
+ * A basic Fetch Handler which converts a request into a
+ * `fetch` call presuming the response to be `json`.
+ *
+ * ```ts
+ * import Fetch from '@ember-data/request/fetch';
+ *
+ * manager.use([Fetch]);
+ * ```
  *
  * @module @ember-data/request/fetch
  * @main @ember-data/request/fetch
@@ -16,7 +23,7 @@ const _fetch: typeof fetch =
         throw new Error('No Fetch Implementation Found');
       }) as typeof fetch);
 /**
- * A basic handler which onverts a request into a
+ * A basic handler which converts a request into a
  * `fetch` call presuming the response to be `json`.
  *
  * ```ts
