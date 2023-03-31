@@ -145,7 +145,7 @@
   },
   "volta": {
     "node": "18.15.0",
-    "pnpm": "7.30.4"
+    "pnpm": "7.30.5"
   },
   "packageManager": "pnpm@7.30.5",
   "changelog": {
