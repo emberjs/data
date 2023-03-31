@@ -1,6 +1,10 @@
 /**
   ## Overview
 
+  > ⚠️ This is LEGACY documentation for a feature that is no longer encouraged to be used.
+  > If starting a new app or thinking of implementing a new adapter, consider writing a
+  > [<Interface> Handler](/ember-data/release/classes/%3CInterface%3E%20Handler) instead to be used with the [RequestManager](https://github.com/emberjs/data/tree/main/packages/request#readme)
+
   In order to properly fetch and update data, EmberData
   needs to understand how to connect to your API.
 
