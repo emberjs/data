@@ -38,7 +38,7 @@
  *
  * The "off" branch of feature-flagged code is always stripped from production builds.
  *
- * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/main/packages/private-build-infra/canary-features/index.js "List of EmberData FeatureFlags")
+ * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/main/packages/virtual-packages/canary-features.js "List of EmberData FeatureFlags")
  *
  * #### Environment Based Build Configuration
  *
