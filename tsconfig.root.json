@@ -39,8 +39,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "ember-data": ["packages/-ember-data/addon"],
-      "ember-data/*": ["packages/-ember-data/addon/*"],
+      "ember-data": ["packages/-ember-data/src"],
+      "ember-data/*": ["packages/-ember-data/src/*"],
       "@ember-data/types": ["ember-data-types"],
       "@ember-data/types/*": ["ember-data-types/*"],
       "@ember-data/store": ["packages/store/src"],

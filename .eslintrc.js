@@ -267,7 +267,7 @@ module.exports = {
         'packages/adapter/src/-private/utils/continue-on-reject.ts',
         'packages/adapter/src/-private/fastboot-interface.ts',
         'packages/adapter/src/-private/build-url-mixin.ts',
-        'packages/-ember-data/addon/store.ts',
+        'packages/-ember-data/src/store.ts',
         'tests/main/tests/unit/custom-class-support/custom-class-model-test.ts',
         'tests/main/tests/integration/request-state-service-test.ts',
         'tests/main/tests/integration/record-data/store-wrapper-test.ts',
