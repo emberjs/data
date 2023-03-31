@@ -93,6 +93,7 @@
     "packages/**/app/**/*",
     "packages/**/addon/**/*",
     "packages/**/tests/**/*",
+    "packages/-ember-data/src/**/*",
     "packages/tracking/src/**/*",
     "packages/request/src/**/*",
     "packages/store/src/**/*",
