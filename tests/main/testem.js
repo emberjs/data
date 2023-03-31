@@ -23,7 +23,7 @@ module.exports = {
       ci: [
         '--headless',
         '--no-sandbox',
-        '--enable-logging',
+        // '--enable-logging',
 
         // this may help debug CI in some situations
         // '--enable-logging',
@@ -55,7 +55,7 @@ module.exports = {
         '--window-size=1440,900',
         '--proxy-bypass-list=*',
         "--proxy-server='direct://'",
-      ],
+      ].filter(Boolean),
       dev: [
         '--headless',
         '--no-sandbox',
@@ -88,7 +88,7 @@ module.exports = {
         '--window-size=1440,900',
         '--proxy-bypass-list=*',
         "--proxy-server='direct://'",
-      ],
+      ].filter(Boolean),
     },
     Firefox: {
       ci: ['--headless', '--width=1440', '--height=900'],
