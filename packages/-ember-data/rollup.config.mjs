@@ -29,7 +29,26 @@ export default {
   plugins: [
     // These are the modules that users should be able to import from your
     // addon. Anything not listed here may get optimized away.
-    addon.publicEntrypoints(['src/**/*.js', 'index.js']),
+    addon.publicEntrypoints([
+      '-private/core.js',
+      '-private/index.js',
+      'adapters/errors.js',
+      'adapters/json-api.js',
+      'adapters/rest.js',
+      'serializers/embedded-records-mixin.js',
+      'serializers/json-api.js',
+      'serializers/json.js',
+      'serializers/rest.js',
+      'adapter.js',
+      'attr.js',
+      'index.js',
+      'model.js',
+      'relationships.js',
+      'serializer.js',
+      'setup-container.js',
+      'store.js',
+      'transform.js',
+    ]),
 
     nodeResolve({ extensions: ['.ts', '.js'] }),
     babel({
