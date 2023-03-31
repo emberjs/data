@@ -51,11 +51,11 @@ module.exports = {
         // ubuntu-16-core seems to be unhappy with this being set to a non-zero port
         // throws: ERROR:socket_posix.cc(147)] bind() failed: Address already in use (98)
         '--remote-debugging-port=0',
-        // '--remote-debugging-address=0.0.0.0',
+        '--remote-debugging-address=0.0.0.0',
         '--window-size=1440,900',
         '--proxy-bypass-list=*',
         "--proxy-server='direct://'",
-      ],
+      ].filter(Boolean),
       dev: [
         '--headless',
         '--no-sandbox',
@@ -88,7 +88,7 @@ module.exports = {
         '--window-size=1440,900',
         '--proxy-bypass-list=*',
         "--proxy-server='direct://'",
-      ],
+      ].filter(Boolean),
     },
     Firefox: {
       ci: ['--headless', '--width=1440', '--height=900'],
