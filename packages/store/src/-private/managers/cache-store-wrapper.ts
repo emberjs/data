@@ -8,7 +8,7 @@ import type {
 } from '@ember-data/types/q/cache-store-wrapper';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
-import { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
+import { SchemaService } from '@ember-data/types/q/schema-service';
 
 import { IdentifierCache, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
@@ -143,7 +143,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
     return this._store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
   }
 
-  getSchemaDefinitionService(): SchemaDefinitionService {
+  getSchemaDefinitionService(): SchemaService {
     return this._store.getSchemaDefinitionService();
   }
 
@@ -404,7 +404,7 @@ class V2CacheStoreWrapper implements StoreWrapper {
     this._store.notifications.notify(identifier, namespace, key);
   }
 
-  getSchemaDefinitionService(): SchemaDefinitionService {
+  getSchemaDefinitionService(): SchemaService {
     return this._store.getSchemaDefinitionService();
   }
 

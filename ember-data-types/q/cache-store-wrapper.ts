@@ -4,7 +4,7 @@ import { NotificationType } from '@ember-data/store/-private/managers/notificati
 import type { Cache } from './cache';
 import { StableRecordIdentifier } from './identifier';
 import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
-import { SchemaDefinitionService } from './schema-definition-service';
+import { SchemaService } from './schema-service';
 
 /**
   @module @ember-data/store
@@ -46,7 +46,7 @@ export interface LegacyCacheStoreWrapper {
    * @method getSchemaDefinitionService
    * @public
    */
-  getSchemaDefinitionService(): SchemaDefinitionService;
+  getSchemaDefinitionService(): SchemaService;
 
   /**
    * Proxies to the schema service's `relationshipsDefinitionFor`
@@ -253,7 +253,7 @@ export interface LegacyCacheStoreWrapper {
 
 export interface V2CacheStoreWrapper {
   identifierCache: IdentifierCache;
-  getSchemaDefinitionService(): SchemaDefinitionService;
+  getSchemaDefinitionService(): SchemaService;
 
   setRecordId(identifier: StableRecordIdentifier, id: string): void;
 
