@@ -254,7 +254,6 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     const store = owner.lookup('service:store') as TestStore;
     const userDocument = await store.requestManager.request<SingleResourceDataDocument>({
-      // @ts-expect-error
       store,
       url: '/assets/users/1.json',
     });

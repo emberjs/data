@@ -142,6 +142,47 @@ module('Integration | @ember-data/json-api Cache.put(<DataDocument>)', function 
     );
   });
 
+  test('data documents respect cacheOptions.key', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+
+    const responseDocument = store.cache.put({
+      request: { url: 'https://api.example.com/v1/users/1', cacheOptions: { key: 'user-1' } },
+      content: {
+        data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
+      },
+    } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+
+    assert.strictEqual(responseDocument.data, identifier, 'We were given the correct data back');
+
+    const structuredDocument = store.cache.peekRequest({ lid: 'user-1' });
+    const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users/1' });
+    assert.strictEqual(structuredDocument2, null, 'we did not use the url as the key');
+    assert.deepEqual(
+      structuredDocument,
+      {
+        request: { url: 'https://api.example.com/v1/users/1', cacheOptions: { key: 'user-1' } },
+        content: {
+          lid: 'user-1',
+          data: identifier,
+        },
+      },
+      'We got the cached structured document back'
+    );
+
+    const cachedResponse = store.cache.peek({ lid: 'user-1' });
+    const cachedResponse2 = store.cache.peek({ lid: 'https://api.example.com/v1/users/1' });
+    assert.strictEqual(cachedResponse2, null, 'we did not use the url as the key');
+    assert.deepEqual(
+      cachedResponse,
+      {
+        lid: 'user-1',
+        data: identifier,
+      },
+      'We got the cached response document back'
+    );
+  });
+
   test('collection resource documents are correctly cached', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
 

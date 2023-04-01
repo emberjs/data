@@ -63,6 +63,48 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     );
   });
 
+  test('meta documents respect cacheOptions.key', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+
+    const responseDocument = store.cache.put({
+      request: { url: 'https://api.example.com/v1/users', cacheOptions: { key: 'users' } },
+      content: {
+        meta: { count: 4 },
+      },
+    } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+
+    assert.false('data' in responseDocument, 'No data is associated');
+    assert.deepEqual(responseDocument.meta, { count: 4 }, 'meta is correct');
+    assert.strictEqual(JSON.stringify(responseDocument.meta), JSON.stringify({ count: 4 }), 'meta is correct');
+    assert.strictEqual(responseDocument.lid, 'users', 'lid is correct');
+
+    const structuredDocument = store.cache.peekRequest({ lid: 'users' });
+    const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
+    assert.strictEqual(structuredDocument2, null, 'url is not cache key');
+    assert.deepEqual(
+      structuredDocument,
+      {
+        request: { url: 'https://api.example.com/v1/users', cacheOptions: { key: 'users' } },
+        content: {
+          lid: 'users',
+          meta: { count: 4 },
+        },
+      },
+      'We got the cached structured document back'
+    );
+    const cachedResponse = store.cache.peek({ lid: 'users' });
+    const cachedResponse2 = store.cache.peek({ lid: 'https://api.example.com/v1/users' });
+    assert.strictEqual(cachedResponse2, null, 'url is not cache key');
+    assert.deepEqual(
+      cachedResponse,
+      {
+        lid: 'users',
+        meta: { count: 4 },
+      },
+      'We got the cached response document back'
+    );
+  });
+
   test('meta documents are correctly updated', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
 
