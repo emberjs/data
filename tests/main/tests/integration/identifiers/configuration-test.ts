@@ -20,6 +20,7 @@ import Store, {
 } from '@ember-data/store';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
+  GenerationMethod,
   IdentifierBucket,
   ResourceData,
   StableIdentifier,
@@ -46,7 +47,13 @@ module('Integration | Identifiers - configuration', function (hooks) {
     owner.register('model:user', User);
 
     let localIdInc = 9000;
-    const generationMethod = (resource: ResourceData | { type: string }) => {
+    const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket) => {
+      if (bucket !== 'record') {
+        throw new Error('Test cannot generate an lid for a non-record');
+      }
+      if (typeof resource !== 'object' || resource === null) {
+        throw new Error('Test cannot generate an lid for a non-object');
+      }
       if (!('type' in resource) || typeof resource.type !== 'string' || resource.type.length < 1) {
         throw new Error(`Cannot generate an lid for a record without a type`);
       }
@@ -91,7 +98,13 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
   test(`The configured generation method is used for newly created records`, async function (assert) {
     let localIdInc = 9000;
-    const generationMethod = (resource: ResourceData | { type: string }) => {
+    const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket) => {
+      if (bucket !== 'record') {
+        throw new Error('Test cannot generate an lid for a non-record');
+      }
+      if (typeof resource !== 'object' || resource === null) {
+        throw new Error('Test cannot generate an lid for a non-object');
+      }
       if (!('type' in resource) || typeof resource.type !== 'string' || resource.type.length < 1) {
         throw new Error(`Cannot generate an lid for a record without a type`);
       }
@@ -368,7 +381,13 @@ module('Integration | Identifiers - configuration', function (hooks) {
     this.owner.register('serializer:application', TestSerializer);
 
     let generateLidCalls = 0;
-    setIdentifierGenerationMethod((resource: ResourceData | { type: string }) => {
+    setIdentifierGenerationMethod((resource: unknown, bucket: IdentifierBucket) => {
+      if (bucket !== 'record') {
+        throw new Error('Test cannot generate an lid for a non-record');
+      }
+      if (typeof resource !== 'object' || resource === null || !('type' in resource)) {
+        throw new Error('Test cannot generate an lid for a non-object');
+      }
       if (!('id' in resource)) {
         throw new Error(`Unexpected generation of new resource identifier`);
       }

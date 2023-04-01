@@ -8,12 +8,13 @@ import type {
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import { CollectionResourceDataDocument, ResourceDataDocument } from '@ember-data/types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 
 export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export interface LifetimesService {
-  isHardExpired(key: string, url: string, method: HTTPMethod): boolean;
-  isSoftExpired(key: string, url: string, method: HTTPMethod): boolean;
+  isHardExpired(identifier: StableDocumentIdentifier): boolean;
+  isSoftExpired(identifier: StableDocumentIdentifier): boolean;
 }
 
 export type StoreRequestInfo = ImmutableRequestInfo;
@@ -55,13 +56,13 @@ function calcShouldFetch(
   store: Store,
   request: StoreRequestInfo,
   hasCachedValue: boolean,
-  lid: string | null | undefined
+  identifier: StableDocumentIdentifier | null
 ): boolean {
-  const { cacheOptions, url, method } = request;
+  const { cacheOptions } = request;
   return (
     cacheOptions?.reload ||
     !hasCachedValue ||
-    (store.lifetimes && lid && url && method ? store.lifetimes.isHardExpired(lid, url, method as HTTPMethod) : false)
+    (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier) : false)
   );
 }
 
@@ -69,13 +70,13 @@ function calcShouldBackgroundFetch(
   store: Store,
   request: StoreRequestInfo,
   willFetch: boolean,
-  lid: string | null | undefined
+  identifier: StableDocumentIdentifier | null
 ): boolean {
-  const { cacheOptions, url, method } = request;
+  const { cacheOptions } = request;
   return (
     !willFetch &&
     (cacheOptions?.backgroundReload ||
-      (store.lifetimes && lid && url && method ? store.lifetimes.isSoftExpired(lid, url, method as HTTPMethod) : false))
+      (store.lifetimes && identifier ? store.lifetimes.isSoftExpired(identifier) : false))
   );
 }
 
@@ -123,22 +124,22 @@ function fetchContentAndHydrate<T>(
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
     // if we have no cache or no cache-key skip cache handling
-    if (!context.request.store || !(context.request.cacheOptions?.key || context.request.url)) {
+    if (!context.request.store) {
       return next(context.request);
     }
 
     const { store } = context.request;
-    const { cacheOptions, url, method } = context.request;
-    const lid = cacheOptions?.key || (method === 'GET' && url) ? url : null;
-    const peeked = lid ? store.cache.peekRequest({ lid }) : null;
+    const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
+
+    const peeked = identifier ? store.cache.peekRequest(identifier) : null;
 
     // determine if we should skip cache
-    if (calcShouldFetch(store, context.request, !!peeked, lid)) {
+    if (calcShouldFetch(store, context.request, !!peeked, identifier)) {
       return fetchContentAndHydrate(next, context, true, false);
     }
 
     // if we have not skipped cache, determine if we should update behind the scenes
-    if (calcShouldBackgroundFetch(store, context.request, false, lid)) {
+    if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
       void fetchContentAndHydrate(next, context, false, true);
     }
 

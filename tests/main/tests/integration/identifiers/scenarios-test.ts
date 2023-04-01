@@ -17,6 +17,7 @@ import {
 } from '@ember-data/store';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
+  GenerationMethod,
   IdentifierBucket,
   ResourceData,
   StableIdentifier,
@@ -28,7 +29,7 @@ function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;
 }
 
-function isResourceData(resource: ResourceData | { type: string }): resource is ResourceData {
+function isResourceData(resource: object): resource is ResourceData {
   return 'lid' in resource || 'id' in resource || 'attributes' in resource;
 }
 
@@ -101,7 +102,13 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         id: Object.create(null),
         username: Object.create(null),
       };
-      const generationMethod = (resource: ResourceData | { type: string }) => {
+      const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket) => {
+        if (bucket !== 'record') {
+          throw new Error('Test cannot generate an lid for a non-record');
+        }
+        if (typeof resource !== 'object' || resource === null) {
+          throw new Error('Test cannot generate an lid for a non-object');
+        }
         if (!('type' in resource) || typeof resource.type !== 'string' || resource.type.length < 1) {
           throw new Error(`Cannot generate an lid for a record without a type`);
         }
@@ -347,12 +354,21 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         throw new Error(`Unexpected resource type ${'type' in resource ? resource.type : 'NO TYPE DECLARED'}`);
       }
 
-      const generationMethod = (resource: ResourceData | { type: string }, bucket: IdentifierBucket): string => {
+      const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket): string => {
+        if (bucket !== 'record') {
+          throw new Error('Test cannot generate an lid for a non-record');
+        }
+        if (typeof resource !== 'object' || resource === null) {
+          throw new Error('Test cannot generate an lid for a non-object');
+        }
         if (!('type' in resource) || typeof resource.type !== 'string' || resource.type.length < 1) {
           throw new Error(`Cannot generate an lid for a record without a type`);
         }
 
         if (resource.type === 'user') {
+          if (!isResourceData(resource)) {
+            throw new Error(`Invalid resource data for user in test`);
+          }
           return lidForUser(resource);
         }
 

@@ -232,20 +232,23 @@ class Store {
    * A Property which an App may set to provide a Lifetimes Service
    * to control when a cached request becomes stale.
    *
-   * Note, when defined, these methods will only be invoked if `key` `url` and `method`
-   * are all present.
+   * Note, when defined, these methods will only be invoked if a
+   * cache key exists for the request, either because the request
+   * contains `cacheOptions.key` or because the [IdentifierCache](/ember-data/release/classes/IdentifierCache)
+   * was able to generate a key for the request using the configured
+   * [generation method](/ember-data/release/functions/@ember-data%2Fstore/setIdentifierGenerationMethod).
    *
    * `isSoftExpired` will only be invoked if `isHardExpired` returns `false`.
    *
    * ```ts
    * store.lifetimes = {
    *   // make the request and ignore the current cache state
-   *   isHardExpired(key: string, url: string, method?: HTTPMethod): boolean {
+   *   isHardExpired(identifier: StableDocumentIdentifier): boolean {
    *     return false;
    *   }
    *
    *   // make the request in the background if true, return cache state
-   *   isSoftExpired(key: string, url: string, method: HTTPMethod): boolean {
+   *   isSoftExpired(identifier: StableDocumentIdentifier): boolean {
    *     return false;
    *   }
    * }

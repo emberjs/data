@@ -2,6 +2,7 @@
   @module @ember-data/store
 */
 
+import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import {
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
@@ -10,7 +11,7 @@ import {
 import type { ExistingResourceObject, ResourceIdentifierObject } from './ember-data-json-api';
 
 export type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
-export type IdentifierBucket = 'record';
+export type IdentifierBucket = 'record' | 'document';
 
 export interface Identifier {
   lid: string;
@@ -119,13 +120,15 @@ export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewR
   This configuration MUST occur prior to the store instance being created.
 
   Takes a method which can expect to receive various data as its first argument
-  and the name of a bucket as its second argument. Currently the second
-  argument will always be `record` data should conform to a `json-api`
-  `Resource` interface, but will be the normalized json data for a single
-  resource that has been given to the store.
+  and the name of a bucket as its second argument.
 
-  The method must return a unique (to at-least the given bucket) string identifier
-  for the given data as a string to be used as the `lid` of an `Identifier` token.
+  Currently there are two buckets, 'record' and 'document'.
+
+  ### Resource (`Record`) Identity
+
+  If the bucket is `record` the method must return a unique (to at-least
+  the given bucket) string identifier for the given data as a string to be
+  used as the `lid` of an `Identifier` token.
 
   This method will only be called by either `getOrCreateRecordIdentifier` or
   `createIdentifierForNewRecord` when an identifier for the supplied data
@@ -156,13 +159,41 @@ export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewR
   };
   ```
 
+  ### Document Identity
+
+  If the bucket is `document` the method will receive the associated
+  immutable `request` passed to `store.request` as its first argument
+  and should return a unique string for the given request if the document
+  should be cached, and `null` if it should not be cached.
+
+  Note, the request result will still be passed to the cache via `Cache.put`,
+  but caches should take this as a signal that the document should not itself
+  be cached, while its contents may still be used to update other cache state.
+
+  The presence of `cacheOptions.key` on the request will take precedence
+  for the document cache key, and this method will not be called if it is
+  present.
+
+  The default method implementation for this bucket is to return `null`
+  for all requests whose method is not `GET`, and to return the `url` for
+  those where it is.
+
+  This means that queries via `POST` MUST provide `cacheOptions.key` or
+  implement this hook.
+
+  ⚠️ Caution: Requests that do not have a `method` assigned are assumed to be `GET`
+
   @method setIdentifierGenerationMethod
   @for @ember-data/store
   @param method
   @public
   @static
 */
-export type GenerationMethod = (data: ResourceData | { type: string }, bucket: IdentifierBucket) => string;
+export interface GenerationMethod {
+  (data: ImmutableRequestInfo, bucket: 'document'): string | null;
+  (data: ResourceData | { type: string }, bucket: 'record'): string;
+  (data: unknown, bucket: IdentifierBucket): string | null;
+}
 
 /**
  Configure a callback for when the identifier cache encounters new resource
