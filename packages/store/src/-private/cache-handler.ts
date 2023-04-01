@@ -8,7 +8,6 @@ import type {
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import { CollectionResourceDataDocument, ResourceDataDocument } from '@ember-data/types/cache/document';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -17,23 +16,7 @@ export interface LifetimesService {
   isSoftExpired(key: string, url: string, method: HTTPMethod): boolean;
 }
 
-export interface StoreRequestInfo extends ImmutableRequestInfo {
-  cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
-  store?: Store;
-
-  op?:
-    | 'findRecord'
-    | 'updateRecord'
-    | 'query'
-    | 'queryRecord'
-    | 'findAll'
-    | 'findBelongsTo'
-    | 'findHasMany'
-    | 'createRecord'
-    | 'deleteRecord'
-    | string;
-  records?: StableRecordIdentifier[];
-}
+export type StoreRequestInfo = ImmutableRequestInfo;
 
 export interface StoreRequestContext extends RequestContext {
   request: StoreRequestInfo & { store: Store };
