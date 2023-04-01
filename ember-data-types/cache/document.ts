@@ -2,6 +2,8 @@ import type { ImmutableRequestInfo, ResponseInfo as ImmutableResponseInfo } from
 import { Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import { StableExistingRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { JsonApiError } from '../q/record-data-json-api';
+
 export type RequestInfo = ImmutableRequestInfo;
 export type ResponseInfo = ImmutableResponseInfo;
 
@@ -12,36 +14,38 @@ export interface ResourceMetaDocument {
   links?: Links | PaginationLinks;
 }
 
-export interface SingleResourceDataDocument {
+export interface SingleResourceDataDocument<T = StableExistingRecordIdentifier> {
   // the url or cache-key associated with the structured document
   lid?: string;
   links?: Links | PaginationLinks;
   meta?: Meta;
-  data: StableExistingRecordIdentifier | null;
+  data: T | null;
 }
 
-export interface CollectionResourceDataDocument {
+export interface CollectionResourceDataDocument<T = StableExistingRecordIdentifier> {
   // the url or cache-key associated with the structured document
   lid?: string;
   links?: Links | PaginationLinks;
   meta?: Meta;
-  data: StableExistingRecordIdentifier[];
+  data: T[];
 }
 
-export type ResourceDataDocument = SingleResourceDataDocument | CollectionResourceDataDocument;
+export type ResourceDataDocument<T = StableExistingRecordIdentifier> =
+  | SingleResourceDataDocument<T>
+  | CollectionResourceDataDocument<T>;
 
 export interface ResourceErrorDocument {
   // the url or cache-key associated with the structured document
   lid?: string;
   links?: Links | PaginationLinks;
   meta?: Meta;
-  error: string | object;
+  errors: JsonApiError[];
 }
 
-export type ResourceDocument =
+export type ResourceDocument<T = StableExistingRecordIdentifier> =
   | ResourceMetaDocument
-  | SingleResourceDataDocument
-  | CollectionResourceDataDocument
+  | SingleResourceDataDocument<T>
+  | CollectionResourceDataDocument<T>
   | ResourceErrorDocument;
 
 export interface StructuredDataDocument<T> {
@@ -49,10 +53,10 @@ export interface StructuredDataDocument<T> {
   response?: ResponseInfo | Response | null;
   content: T;
 }
-export interface StructuredErrorDocument extends Error {
+export interface StructuredErrorDocument<T> extends Error {
   request?: RequestInfo;
   response?: ResponseInfo | Response | null;
   error: string | object;
-  content?: unknown;
+  content?: T;
 }
-export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument;
+export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument<T>;

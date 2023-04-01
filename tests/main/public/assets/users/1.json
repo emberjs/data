@@ -1,6 +1,6 @@
 {
   "links": {
-    "self": "/assets/demo-fetch.json"
+    "self": "/assets/users/1.json"
   },
   "meta": {
     "expiration": 120000

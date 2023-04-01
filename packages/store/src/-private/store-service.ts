@@ -371,7 +371,11 @@ class Store {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
-    let opts: { store: Store; disableTestWaiter?: boolean } = { store: this };
+    const storeSymbol = Symbol.for('ember-data:enable-hydration');
+    let opts: { store: Store; disableTestWaiter?: boolean; [storeSymbol]: true } = {
+      store: this,
+      [storeSymbol]: true,
+    };
 
     if (TESTING) {
       if (this.DISABLE_WAITER) {

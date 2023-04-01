@@ -20,7 +20,7 @@ import type {
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
 import { guardDestroyedStore } from './common';
@@ -241,7 +241,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
 function adapterDidInvalidate(
   store: Store,
   identifier: StableRecordIdentifier,
-  error: Error & { errors?: JsonApiValidationError[]; isAdapterError?: true; code?: string }
+  error: Error & { errors?: JsonApiError[]; isAdapterError?: true; code?: string }
 ) {
   if (error && error.isAdapterError === true && error.code === 'InvalidError') {
     let serializer = store.serializerFor(identifier.type) as SerializerWithParseErrors;
@@ -266,7 +266,7 @@ function adapterDidInvalidate(
       typeof cache.getErrors === 'function'
     );
 
-    let jsonApiErrors: JsonApiValidationError[] = error.errors;
+    let jsonApiErrors: JsonApiError[] = error.errors;
     if (jsonApiErrors.length === 0) {
       jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
     }
@@ -281,8 +281,8 @@ function makeArray<T>(value: T | T[]): T[] {
 }
 
 const PRIMARY_ATTRIBUTE_KEY = 'base';
-function errorsHashToArray(errors: Record<string, string | string[]>): JsonApiValidationError[] {
-  const out: JsonApiValidationError[] = [];
+function errorsHashToArray(errors: Record<string, string | string[]>): JsonApiError[] {
+  const out: JsonApiError[] = [];
 
   if (errors) {
     Object.keys(errors).forEach((key) => {

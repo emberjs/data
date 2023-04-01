@@ -33,7 +33,7 @@ import type {
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource, JsonApiValidationError } from '@ember-data/types/q/record-data-json-api';
+import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import { Dict } from '@ember-data/types/q/utils';
 
 class Person extends Model {
@@ -68,11 +68,11 @@ class V1TestRecordData implements CacheV1 {
   id: string | null = '1';
   clientId: string | null = 'test-record-data-1';
   modelName = 'tst';
-  _errors: JsonApiValidationError[] = [];
-  getErrors(recordIdentifier: RecordIdentifier): JsonApiValidationError[] {
+  _errors: JsonApiError[] = [];
+  getErrors(recordIdentifier: RecordIdentifier): JsonApiError[] {
     return this._errors;
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiValidationError[]): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiError[]): void {
     this._errors = errors;
   }
 
@@ -222,7 +222,7 @@ class V2TestRecordData implements Cache {
   }
   version: '2' = '2';
 
-  _errors?: JsonApiValidationError[];
+  _errors?: JsonApiError[];
   _isNew: boolean = false;
 
   clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
@@ -232,7 +232,7 @@ class V2TestRecordData implements Cache {
   }
   willCommit(identifier: StableRecordIdentifier): void {}
   didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {}
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiValidationError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -272,7 +272,7 @@ class V2TestRecordData implements Cache {
     throw new Error('Method not implemented.');
   }
 
-  getErrors(identifier: StableRecordIdentifier): JsonApiValidationError[] {
+  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
     return this._errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {

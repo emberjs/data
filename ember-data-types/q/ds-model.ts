@@ -3,7 +3,7 @@ import type EmberObject from '@ember/object';
 import type { Errors } from '@ember-data/model/-private';
 import type Store from '@ember-data/store';
 
-import type { JsonApiValidationError } from './record-data-json-api';
+import type { JsonApiError } from './record-data-json-api';
 import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from './record-data-schemas';
 
 // Placeholder until model.js is typed
@@ -15,7 +15,7 @@ export interface DSModel extends EmberObject {
   save(): Promise<DSModel>;
   eachRelationship<T>(callback: (this: T, key: string, meta: RelationshipSchema) => void, binding?: T): void;
   eachAttribute<T>(callback: (this: T, key: string, meta: AttributeSchema) => void, binding?: T): void;
-  invalidErrorsChanged(errors: JsonApiValidationError[]): void;
+  invalidErrorsChanged(errors: JsonApiError[]): void;
   rollbackAttributes(): void;
   changedAttributes(): Record<string, [unknown, unknown]>;
   [key: string]: unknown;

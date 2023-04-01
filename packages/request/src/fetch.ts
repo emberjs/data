@@ -40,7 +40,23 @@ const Fetch = {
     const response = await _fetch(context.request.url!, context.request);
     context.setResponse(response);
 
-    return response.json();
+    // if we are an error, we will want to throw
+    if (!response.ok || response.status >= 400) {
+      const text = await response.text();
+      let errorPayload: object | undefined;
+      try {
+        errorPayload = JSON.parse(text) as object;
+      } catch {
+        // void;
+      }
+      const error: Error & { content: object | undefined } = new Error(
+        `[${response.status}] ${response.statusText} - ${response.url}`
+      ) as Error & { content: object | undefined };
+      error.content = errorPayload;
+      throw error;
+    } else {
+      return response.json();
+    }
   },
 };
 
