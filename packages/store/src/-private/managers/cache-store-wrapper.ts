@@ -83,7 +83,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
     namespace: NotificationType | 'added' | 'removed',
     key?: string
   ): void {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier) || isDocumentIdentifier(identifier));
 
     // TODO do we still get value from this?
     if (namespace === 'relationships' && key) {
