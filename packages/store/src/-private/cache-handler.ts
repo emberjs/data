@@ -17,18 +17,6 @@ export interface LifetimesService {
   isSoftExpired(key: string, url: string, method: HTTPMethod): boolean;
 }
 
-const CacheOperations = new Set([
-  'findRecord',
-  'findAll',
-  'query',
-  'queryRecord',
-  'findBelongsTo',
-  'findHasMany',
-  'updateRecord',
-  'createRecord',
-  'deleteRecord',
-]);
-
 export interface StoreRequestInfo extends ImmutableRequestInfo {
   cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
   store?: Store;
@@ -52,9 +40,6 @@ export interface StoreRequestContext extends RequestContext {
 }
 
 function getHydratedContent<T>(store: Store, request: StoreRequestInfo, document: ResourceDataDocument): T {
-  if (!request.op || !CacheOperations.has(request.op)) {
-    return document as T;
-  }
   if (Array.isArray(document.data)) {
     const { lid } = document;
     const { recordArrayManager } = store;
@@ -77,16 +62,9 @@ function getHydratedContent<T>(store: Store, request: StoreRequestInfo, document
     }
     return managed as T;
   } else {
-    switch (request.op) {
-      case 'findBelongsTo':
-      case 'queryRecord':
-      case 'findRecord':
-        return Object.assign({}, document, {
-          data: document.data ? store.peekRecord(document.data) : null,
-        }) as T;
-      default:
-        return document.data as T;
-    }
+    return Object.assign({}, document, {
+      data: document.data ? store.peekRecord(document.data) : null,
+    }) as T;
   }
 }
 

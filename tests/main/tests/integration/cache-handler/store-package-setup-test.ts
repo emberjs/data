@@ -13,6 +13,7 @@ import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { ResourceDataDocument, SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -84,47 +85,12 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     owner.register('service:request', RequestManagerService);
   });
 
-  test('fetching a resource document loads the resource into the cache', async function (assert) {
-    const { owner } = this;
-
-    const store = owner.lookup('service:store') as TestStore;
-    const userDocument = await store.request<SingleResourceDataDocument>({
-      url: '/assets/users/1.json',
-    });
-
-    assert.strictEqual(
-      userDocument.content.data,
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' }),
-      'we get a stable identifier back as data'
-    );
-
-    assert.strictEqual(userDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
-
-    assert.deepEqual(
-      userDocument.content.links,
-      { self: '/assets/users/1.json' },
-      'we get access to the document links'
-    );
-
-    assert.deepEqual(
-      userDocument.content.meta,
-      {
-        expiration: 120000,
-      },
-      'we get access to the document meta'
-    );
-
-    const record = store.peekRecord(userDocument.content.data!);
-    assert.strictEqual(record?.name, 'Chris Thoburn');
-  });
-
-  test('fetching a resource document with `op: findRecord` hydrates the record', async function (assert) {
+  test('fetching a resource document with loads the cache and hydrates the record', async function (assert) {
     const { owner } = this;
 
     const store = owner.lookup('service:store') as TestStore;
     const userDocument = await store.request<ResourceDataDocument<RecordInstance>>({
       url: '/assets/users/1.json',
-      op: 'findRecord',
     });
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
     const record = store.peekRecord(identifier);
@@ -215,18 +181,18 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     const store = owner.lookup('service:store') as TestStore;
     const userDocument = await store.request<SingleResourceDataDocument<RecordInstance>>({
       op: 'random-op',
-      url: '/assets/demo-fetch.json',
+      url: '/assets/users/1.json',
     });
-    const record = store.peekRecord(userDocument.content.data!);
+    const identifier = recordIdentifierFor(userDocument.content.data!);
+    const record = store.peekRecord(identifier);
     assert.strictEqual(record?.name, 'Chris Thoburn');
-
     assert.strictEqual(userDocument.content.data, record, 'we get a hydrated record back as data');
 
-    assert.strictEqual(userDocument.content.lid, '/assets/demo-fetch.json', 'we get back url as the cache key');
+    assert.strictEqual(userDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
 
     assert.deepEqual(
       userDocument.content.links,
-      { self: '/assets/demo-fetch.json' },
+      { self: '/assets/users/1.json' },
       'we get access to the document links'
     );
 
@@ -288,7 +254,9 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     const store = owner.lookup('service:store') as TestStore;
     const userDocument = await store.requestManager.request<SingleResourceDataDocument>({
-      url: '/assets/demo-fetch.json',
+      // @ts-expect-error
+      store,
+      url: '/assets/users/1.json',
     });
 
     assert.strictEqual(
@@ -297,11 +265,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       'we get a stable identifier back as data'
     );
 
-    assert.strictEqual(userDocument.content.lid, '/assets/demo-fetch.json', 'we get back url as the cache key');
+    assert.strictEqual(userDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
 
     assert.deepEqual(
       userDocument.content.links,
-      { self: '/assets/demo-fetch.json' },
+      { self: '/assets/users/1.json' },
       'we get access to the document links'
     );
 
@@ -315,5 +283,89 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     const record = store.peekRecord(userDocument.content.data!);
     assert.strictEqual(record?.name, 'Chris Thoburn');
+  });
+
+  test('When using @ember-data/store, the cache-handler will neither cache nor hydrate if the request does not originate from the store and no store is included', async function (assert) {
+    const { owner } = this;
+
+    class RequestManagerService extends RequestManager {
+      constructor() {
+        super(...arguments);
+        this.use([LegacyNetworkHandler, Fetch]);
+        this.useCache(CacheHandler);
+      }
+    }
+
+    class TestStore extends Store {
+      @service('request') declare requestManager: RequestManager;
+
+      createCache(wrapper: CacheStoreWrapper) {
+        return new Cache(wrapper);
+      }
+
+      instantiateRecord(identifier: StableRecordIdentifier) {
+        const { id, lid, type } = identifier;
+        const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
+        Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+
+        let token = this.notifications.subscribe(
+          identifier,
+          (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
+            if (kind === 'attributes' && key) {
+              record[key] = this.cache.getAttr(identifier, key);
+            }
+          }
+        );
+
+        record.destroy = () => {
+          this.notifications.unsubscribe(token);
+        };
+
+        return record;
+      }
+
+      teardownRecord(record: FakeRecord) {
+        record.destroy();
+      }
+    }
+
+    owner.register('service:store', TestStore);
+    owner.register('service:request', RequestManagerService);
+
+    const store = owner.lookup('service:store') as TestStore;
+    const userDocument = await store.requestManager.request<SingleResourceDataDocument<JsonApiResource>>({
+      url: '/assets/users/1.json',
+    });
+
+    assert.deepEqual(
+      userDocument.content.data,
+      {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn',
+        },
+      },
+      'we the raw json back as data'
+    );
+
+    assert.strictEqual(userDocument.content.lid, undefined, 'no cache key was set');
+
+    assert.deepEqual(
+      userDocument.content.links,
+      { self: '/assets/users/1.json' },
+      'we get access to the document links'
+    );
+
+    assert.deepEqual(
+      userDocument.content.meta,
+      {
+        expiration: 120000,
+      },
+      'we get access to the document meta'
+    );
+
+    const record = store.peekRecord(userDocument.content.data as ResourceIdentifierObject);
+    assert.strictEqual(record, null, 'we did not get inserted into the cache');
   });
 });
