@@ -4,13 +4,13 @@
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { CollectionResourceRelationship, SingleResourceRelationship } from '../q/ember-data-json-api';
+import { JsonApiError } from '../q/record-data-json-api';
 import { ResourceBlob } from './aliases';
 import { Change } from './change';
 import { ResourceDocument, StructuredDocument } from './document';
 import { StableDocumentIdentifier } from './identifier';
 import { Mutation } from './mutations';
 import { Operation } from './operations';
-import { ValidationError } from './validation-error';
 
 /**
  * The interface for EmberData Caches.
@@ -284,7 +284,7 @@ export interface Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ValidationError[]): void;
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that all data for a resource
@@ -395,9 +395,9 @@ export interface Cache {
    * @method getErrors
    * @public
    * @param identifier
-   * @returns {ValidationError[]}
+   * @returns {JsonApiError[]}
    */
-  getErrors(identifier: StableRecordIdentifier): ValidationError[];
+  getErrors(identifier: StableRecordIdentifier): JsonApiError[];
 
   /**
    * Query the cache for whether a given resource has any available data

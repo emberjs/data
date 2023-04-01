@@ -189,7 +189,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
           super.commitWasRejected(identifier, errors);
           assert.strictEqual(errors?.[0]?.detail, 'is a generally unsavoury character', 'received the error');
-          assert.strictEqual(errors?.[0]?.source.pointer, '/data/attributes/name', 'pointer is correct');
+          assert.strictEqual(errors?.[0]?.source?.pointer, '/data/attributes/name', 'pointer is correct');
         }
       }
       class TestStore extends Store {

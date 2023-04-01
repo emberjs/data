@@ -1026,7 +1026,7 @@ export default class JSONAPICache implements Cache {
    * @method getErrors
    * @public
    * @param identifier
-   * @returns {ValidationError[]}
+   * @returns {JsonApiError[]}
    */
   getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
     return this.__peek(identifier, true).errors || [];
