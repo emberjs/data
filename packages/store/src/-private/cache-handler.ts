@@ -122,6 +122,8 @@ function fetchContentAndHydrate<T>(
   shouldBackgroundFetch: boolean
 ): Promise<T> {
   const { store } = context.request;
+  const shouldHydrate: boolean =
+    (context.request[Symbol.for('ember-data:enable-hydration')] as boolean | undefined) || false;
   return next(context.request).then(
     (document) => {
       store._enableAsyncFlush = true;
@@ -129,7 +131,7 @@ function fetchContentAndHydrate<T>(
       store._join(() => {
         response = store.cache.put(document) as ResourceDataDocument;
 
-        if (shouldFetch) {
+        if (shouldFetch && shouldHydrate) {
           response = getHydratedContent(store, context.request, response);
         }
       });
@@ -156,13 +158,11 @@ function fetchContentAndHydrate<T>(
 
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-    // if we are a legacy request or did not originate from the store, skip cache handling
-    if (
-      !context.request.store ||
-      (context.request.op && CacheOperations.has(context.request.op) && !context.request.url)
-    ) {
+    // if we have no cache or no cache-key skip cache handling
+    if (!context.request.store || !(context.request.cacheOptions?.key || context.request.url)) {
       return next(context.request);
     }
+
     const { store } = context.request;
     const { cacheOptions, url, method } = context.request;
     const lid = cacheOptions?.key || (method === 'GET' && url) ? url : null;
@@ -181,6 +181,14 @@ export const CacheHandler: Handler = {
     if ('error' in peeked!) {
       throw peeked.error;
     }
-    return Promise.resolve(getHydratedContent<T>(store, context.request, peeked!.content as ResourceDataDocument));
+
+    const shouldHydrate: boolean =
+      (context.request[Symbol.for('ember-data:enable-hydration')] as boolean | undefined) || false;
+
+    return Promise.resolve(
+      shouldHydrate
+        ? getHydratedContent<T>(store, context.request, peeked!.content as ResourceDataDocument)
+        : (peeked!.content as T)
+    );
   },
 };
