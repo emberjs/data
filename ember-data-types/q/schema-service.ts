@@ -52,10 +52,10 @@ import type { AttributesSchema, RelationshipsSchema } from './record-data-schema
  *
  * This is not a class and cannot be instantiated.
  *
- * @class SchemaDefinitionService
+ * @class SchemaService
  * @public
  */
-export interface SchemaDefinitionService {
+export interface SchemaService {
   /**
    * Queries whether the schema-definition-service recognizes `type` as a resource type
    *

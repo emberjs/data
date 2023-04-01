@@ -6,9 +6,10 @@ import { _backburner } from '@ember/runloop';
 
 import { LOG_NOTIFICATIONS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import type { Identifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import { isStableIdentifier } from '../caches/identifier-cache';
+import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 
 export type UnsubscribeToken = object;
@@ -27,10 +28,10 @@ function runLoopIsFlushing(): boolean {
 }
 
 const Cache = new Map<
-  StableRecordIdentifier | 'resource' | 'document',
+  StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
   Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
 >();
-const Tokens = new Map<UnsubscribeToken, StableRecordIdentifier | 'resource' | 'document'>();
+const Tokens = new Map<UnsubscribeToken, StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'>();
 
 export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state';
 
@@ -47,7 +48,7 @@ export interface ResourceOperationCallback {
 
 export interface DocumentOperationCallback {
   // document updates
-  (identifier: Identifier, notificationType: CacheOperation): void;
+  (identifier: StableDocumentIdentifier, notificationType: CacheOperation): void;
 }
 
 // TODO this isn't importable anyway, remove and use a map on the manager?
@@ -83,7 +84,7 @@ export function unsubscribe(token: UnsubscribeToken) {
 export default class NotificationManager {
   declare store: Store;
   declare isDestroyed: boolean;
-  declare _buffered: Map<StableRecordIdentifier, [string, string | undefined][]>;
+  declare _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | undefined][]>;
   declare _hasFlush: boolean;
   declare _onFlushCB?: () => void;
 
@@ -111,13 +112,20 @@ export default class NotificationManager {
    * @param {NotificationCallback} callback
    * @returns {UnsubscribeToken} an opaque token to be used with unsubscribe
    */
+  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
+  subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
+  subscribe(identifier: StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
+  subscribe(identifier: 'document', callback: DocumentOperationCallback): UnsubscribeToken;
   subscribe(
-    identifier: StableRecordIdentifier | 'resource' | 'document',
+    identifier: StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
     callback: NotificationCallback | ResourceOperationCallback | DocumentOperationCallback
   ): UnsubscribeToken {
     assert(
       `Expected to receive a stable Identifier to subscribe to`,
-      identifier === 'resource' || identifier === 'document' || isStableIdentifier(identifier)
+      identifier === 'resource' ||
+        identifier === 'document' ||
+        isStableIdentifier(identifier) ||
+        isDocumentIdentifier(identifier)
     );
     let map = Cache.get(identifier);
 
@@ -157,13 +165,17 @@ export default class NotificationManager {
    */
   notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
   notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
-  notify(identifier: StableRecordIdentifier, value: NotificationType | CacheOperation, key?: string): boolean {
+  notify(identifier: StableRecordIdentifier | StableDocumentIdentifier, value: CacheOperation): boolean;
+  notify(
+    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    value: NotificationType | CacheOperation,
+    key?: string
+  ): boolean {
     assert(
       `Notify does not accept a key argument for the namespace '${value}'. Received key '${key || ''}'.`,
       !key || value === 'attributes' || value === 'relationships'
     );
-    if (!isStableIdentifier(identifier)) {
+    if (!isStableIdentifier(identifier) && !isDocumentIdentifier(identifier)) {
       if (LOG_NOTIFICATIONS) {
         // eslint-disable-next-line no-console
         console.log(
@@ -178,7 +190,7 @@ export default class NotificationManager {
 
     if (LOG_NOTIFICATIONS) {
       // eslint-disable-next-line no-console
-      console.log(`Buffering Notify: ${String(identifier)}\t${value}\t${key || ''}`);
+      console.log(`Buffering Notify: ${String(identifier.lid)}\t${value}\t${key || ''}`);
     }
 
     const hasSubscribers = Boolean(Cache.get(identifier)?.size);
@@ -236,9 +248,9 @@ export default class NotificationManager {
 
   _flushNotification(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
   _flushNotification(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  _flushNotification(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
+  _flushNotification(identifier: StableRecordIdentifier | StableDocumentIdentifier, value: CacheOperation): boolean;
   _flushNotification(
-    identifier: StableRecordIdentifier,
+    identifier: StableRecordIdentifier | StableDocumentIdentifier,
     value: NotificationType | CacheOperation,
     key?: string
   ): boolean {
@@ -249,10 +261,14 @@ export default class NotificationManager {
 
     // TODO for documents this will need to switch based on Identifier kind
     if (isCacheOperationValue(value)) {
-      let callbackMap = Cache.get('resource') as Map<UnsubscribeToken, ResourceOperationCallback>;
+      let callbackMap = Cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Map<
+        UnsubscribeToken,
+        ResourceOperationCallback | DocumentOperationCallback
+      >;
+
       if (callbackMap) {
-        callbackMap.forEach((cb: ResourceOperationCallback) => {
-          cb(identifier, value);
+        callbackMap.forEach((cb: ResourceOperationCallback | DocumentOperationCallback) => {
+          cb(identifier as StableRecordIdentifier, value);
         });
       }
     }

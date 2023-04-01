@@ -2,6 +2,9 @@
 /**
  * @module @ember-data/request
  */
+import type Store from '@ember-data/store';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+
 interface Request {
   controller?: AbortController;
   /* Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. */
@@ -102,6 +105,12 @@ export type DeferredFuture<T> = {
 };
 
 export interface RequestInfo extends Request {
+  cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
+  store?: Store;
+
+  op?: string;
+  records?: StableRecordIdentifier[];
+
   disableTestWaiter?: boolean;
   /*
    * data that a handler should convert into
@@ -116,6 +125,12 @@ export interface RequestInfo extends Request {
 }
 
 export interface ImmutableRequestInfo {
+  readonly cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
+  readonly store?: Store;
+
+  readonly op?: string;
+  readonly records?: StableRecordIdentifier[];
+
   readonly disableTestWaiter?: boolean;
   /* Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. */
   readonly cache?: RequestCache;

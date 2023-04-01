@@ -36,7 +36,7 @@ import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@em
 import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
+import type { SchemaService } from '@ember-data/types/q/schema-service';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -174,6 +174,21 @@ class Store {
   declare notifications: NotificationManager;
 
   /**
+   * Provides access to the SchemaService instance
+   * for this Store instance.
+   *
+   * The SchemaService can be used to query for
+   * information about the schema of a resource.
+   *
+   * @property {SchemaService} schema
+   * @public
+   */
+  get schema(): SchemaService {
+    return this.getSchemaDefinitionService();
+  }
+  declare _schema: SchemaService;
+
+  /**
    * Provides access to the IdentifierCache instance
    * for this store.
    *
@@ -247,7 +262,6 @@ class Store {
   declare _modelFactoryCache: Dict<unknown>;
   declare _fetchManager: FetchManager;
   declare _requestCache: RequestCache;
-  declare _schemaDefinitionService: SchemaDefinitionService;
   declare _instanceCache: InstanceCache;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
@@ -497,30 +511,29 @@ class Store {
    * @method getSchemaDefinitionService
    * @public
    */
-  getSchemaDefinitionService(): SchemaDefinitionService {
+  getSchemaDefinitionService(): SchemaService {
     if (HAS_MODEL_PACKAGE) {
-      if (!this._schemaDefinitionService) {
+      if (!this._schema) {
         // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
         // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
-        this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
+        this._schema = new DSModelSchemaDefinitionService(this);
       }
     }
-    assert(
-      `You must registerSchemaDefinitionService with the store to use custom model classes`,
-      this._schemaDefinitionService
-    );
-    return this._schemaDefinitionService;
+    assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
+    return this._schema;
   }
 
   /**
-   * Allows an app to register a custom SchemaDefinitionService
+   * DEPRECATED - Use `registerSchema` instead.
+   *
+   * Allows an app to register a custom SchemaService
    * for use when information about a resource's schema needs
    * to be queried.
    *
    * This method can only be called more than once, but only one schema
    * definition service may exist. Therefore if you wish to chain services
    * you must lookup the existing service and close over it with the new
-   * service by calling `getSchemaDefinitionService` prior to registration.
+   * service by accessing `store.schema` prior to registration.
    *
    * For Example:
    *
@@ -553,18 +566,73 @@ class Store {
    *   constructor(...args) {
    *     super(...args);
    *
-   *     const schema = this.getSchemaDefinitionService();
+   *     const schema = this.schema;
    *     this.registerSchemaDefinitionService(new SchemaDelegator(schema));
    *   }
    * }
    * ```
    *
    * @method registerSchemaDefinitionService
-   * @param {SchemaDefinitionService} schema
+   * @param {SchemaService} schema
+   * @deprecated
    * @public
    */
-  registerSchemaDefinitionService(schema: SchemaDefinitionService) {
-    this._schemaDefinitionService = schema;
+  registerSchemaDefinitionService(schema: SchemaService) {
+    this._schema = schema;
+  }
+  /**
+   * Allows an app to register a custom SchemaService
+   * for use when information about a resource's schema needs
+   * to be queried.
+   *
+   * This method can only be called more than once, but only one schema
+   * definition service may exist. Therefore if you wish to chain services
+   * you must lookup the existing service and close over it with the new
+   * service by accessing `store.schema` prior to registration.
+   *
+   * For Example:
+   *
+   * ```ts
+   * import Store from '@ember-data/store';
+   *
+   * class SchemaDelegator {
+   *   constructor(schema) {
+   *     this._schema = schema;
+   *   }
+   *
+   *   doesTypeExist(type: string): boolean {
+   *     if (AbstractSchemas.has(type)) {
+   *       return true;
+   *     }
+   *     return this._schema.doesTypeExist(type);
+   *   }
+   *
+   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+   *     return this._schema.attributesDefinitionFor(identifier);
+   *   }
+   *
+   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+   *     const schema = AbstractSchemas.get(identifier.type);
+   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
+   *   }
+   * }
+   *
+   * export default class extends Store {
+   *   constructor(...args) {
+   *     super(...args);
+   *
+   *     const schema = this.schema;
+   *     this.registerSchema(new SchemaDelegator(schema));
+   *   }
+   * }
+   * ```
+   *
+   * @method registerSchema
+   * @param {SchemaService} schema
+   * @public
+   */
+  registerSchema(schema: SchemaService) {
+    this._schema = schema;
   }
 
   /**

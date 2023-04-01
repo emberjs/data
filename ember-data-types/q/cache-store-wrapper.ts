@@ -1,10 +1,11 @@
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 
+import { StableDocumentIdentifier } from '../cache/identifier';
 import type { Cache } from './cache';
 import { StableRecordIdentifier } from './identifier';
 import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
-import { SchemaDefinitionService } from './schema-definition-service';
+import { SchemaService } from './schema-service';
 
 /**
   @module @ember-data/store
@@ -46,7 +47,7 @@ export interface LegacyCacheStoreWrapper {
    * @method getSchemaDefinitionService
    * @public
    */
-  getSchemaDefinitionService(): SchemaDefinitionService;
+  getSchemaDefinitionService(): SchemaService;
 
   /**
    * Proxies to the schema service's `relationshipsDefinitionFor`
@@ -253,7 +254,7 @@ export interface LegacyCacheStoreWrapper {
 
 export interface V2CacheStoreWrapper {
   identifierCache: IdentifierCache;
-  getSchemaDefinitionService(): SchemaDefinitionService;
+  getSchemaDefinitionService(): SchemaService;
 
   setRecordId(identifier: StableRecordIdentifier, id: string): void;
 
@@ -264,10 +265,11 @@ export interface V2CacheStoreWrapper {
   recordDataFor(identifier: StableRecordIdentifier): Cache;
 
   notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
+  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed'): void;
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
   notifyChange(
-    identifier: StableRecordIdentifier,
-    namespace: NotificationType | 'added' | 'removed',
+    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    namespace: NotificationType | 'added' | 'removed' | 'updated',
     key?: string
   ): void;
 }

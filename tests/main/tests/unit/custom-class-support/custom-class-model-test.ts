@@ -13,7 +13,7 @@ import { Cache } from '@ember-data/types/q/cache';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
+import type { SchemaService } from '@ember-data/types/q/schema-service';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('unit/model - Custom Class Model', function (hooks) {
@@ -146,7 +146,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       }
       this.owner.register('service:store', CreationStore);
       store = this.owner.lookup('service:store') as Store;
-      let schema: SchemaDefinitionService = {
+      let schema: SchemaService = {
         attributesDefinitionFor({ type: string }): AttributesSchema {
           return {
             name: {
@@ -235,7 +235,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     }
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
-    let schema: SchemaDefinitionService = {
+    let schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         if (typeof identifier === 'string') {
           assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
@@ -371,7 +371,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     }
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
-    let schema: SchemaDefinitionService = {
+    let schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {

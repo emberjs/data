@@ -1,6 +1,7 @@
 import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/deprecations';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache } from '@ember-data/types/q/cache';
 import type {
   LegacyCacheStoreWrapper,
@@ -8,9 +9,9 @@ import type {
 } from '@ember-data/types/q/cache-store-wrapper';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
-import { SchemaDefinitionService } from '@ember-data/types/q/schema-definition-service';
+import { SchemaService } from '@ember-data/types/q/schema-service';
 
-import { IdentifierCache, isStableIdentifier } from '../caches/identifier-cache';
+import { IdentifierCache, isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 import coerceId from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
@@ -82,7 +83,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
     namespace: NotificationType | 'added' | 'removed',
     key?: string
   ): void {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier) || isDocumentIdentifier(identifier));
 
     // TODO do we still get value from this?
     if (namespace === 'relationships' && key) {
@@ -143,7 +144,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
     return this._store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
   }
 
-  getSchemaDefinitionService(): SchemaDefinitionService {
+  getSchemaDefinitionService(): SchemaService {
     return this._store.getSchemaDefinitionService();
   }
 
@@ -386,17 +387,18 @@ class V2CacheStoreWrapper implements StoreWrapper {
   }
 
   notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
+  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed'): void;
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
   notifyChange(
-    identifier: StableRecordIdentifier,
-    namespace: NotificationType | 'added' | 'removed',
+    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    namespace: NotificationType | 'added' | 'removed' | 'updated',
     key?: string
   ): void {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+    assert(`Expected a stable identifier`, isStableIdentifier(identifier) || isDocumentIdentifier(identifier));
 
     // TODO do we still get value from this?
     if (namespace === 'relationships' && key) {
-      this._scheduleNotification(identifier, key);
+      this._scheduleNotification(identifier as StableRecordIdentifier, key);
       return;
     }
 
@@ -404,7 +406,7 @@ class V2CacheStoreWrapper implements StoreWrapper {
     this._store.notifications.notify(identifier, namespace, key);
   }
 
-  getSchemaDefinitionService(): SchemaDefinitionService {
+  getSchemaDefinitionService(): SchemaService {
     return this._store.getSchemaDefinitionService();
   }
 
