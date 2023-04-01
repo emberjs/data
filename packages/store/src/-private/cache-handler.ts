@@ -42,7 +42,8 @@ export interface StoreRequestInfo extends ImmutableRequestInfo {
     | 'findBelongsTo'
     | 'findHasMany'
     | 'createRecord'
-    | 'deleteRecord';
+    | 'deleteRecord'
+    | string;
   records?: StableRecordIdentifier[];
 }
 
