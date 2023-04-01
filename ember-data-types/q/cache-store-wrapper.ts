@@ -1,6 +1,7 @@
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 
+import { StableDocumentIdentifier } from '../cache/identifier';
 import type { Cache } from './cache';
 import { StableRecordIdentifier } from './identifier';
 import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
@@ -264,10 +265,11 @@ export interface V2CacheStoreWrapper {
   recordDataFor(identifier: StableRecordIdentifier): Cache;
 
   notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
+  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed'): void;
   notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
   notifyChange(
-    identifier: StableRecordIdentifier,
-    namespace: NotificationType | 'added' | 'removed',
+    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    namespace: NotificationType | 'added' | 'removed' | 'updated',
     key?: string
   ): void;
 }

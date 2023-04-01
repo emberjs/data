@@ -236,19 +236,22 @@ export default class JSONAPICache implements Cache {
         ? fromStructuredError(doc)
         : {};
     const request = doc.request as StoreRequestInfo | undefined;
-    const cacheKey = request?.cacheOptions?.key || request?.url;
+    const identifier = request ? this.__storeWrapper.identifierCache.getOrCreateDocumentIdentifier(request) : null;
 
     const jsonApiDoc = doc.content;
     if (jsonApiDoc) {
       copyLinksAndMeta(resourceDocument, jsonApiDoc);
     }
 
-    if (cacheKey) {
-      resourceDocument.lid = cacheKey;
+    if (identifier) {
+      resourceDocument.lid = identifier.lid;
 
       // @ts-expect-error
       doc.content = resourceDocument;
-      this.__documents.set(cacheKey, doc as StructuredDocument<ResourceDocument>);
+      const hasExisting = this.__documents.has(identifier.lid);
+      this.__documents.set(identifier.lid, doc as StructuredDocument<ResourceDocument>);
+
+      this.__storeWrapper.notifyChange(identifier, hasExisting ? 'updated' : 'added');
     }
 
     return resourceDocument;

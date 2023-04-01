@@ -4,11 +4,13 @@ import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
 import Store from '@ember-data/store';
+import { CacheOperation } from '@ember-data/store/-private/managers/notification-manager';
 import type {
   CollectionResourceDataDocument,
   ResourceMetaDocument,
   StructuredDocument,
 } from '@ember-data/types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 
@@ -259,5 +261,61 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       },
       'We got the cached response document back'
     );
+  });
+
+  test("notifications are generated for create and update of the document's cache key", function (assert) {
+    assert.expect(10);
+    const store = this.owner.lookup('service:store') as Store;
+    const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      url: '/api/v1/query?type=user&name=Chris&limit=1',
+    })!;
+
+    let isUpdating = false;
+    store.notifications.subscribe('document', (identifier: StableDocumentIdentifier, type: CacheOperation) => {
+      if (isUpdating) {
+        assert.strictEqual(type, 'updated', 'We were notified of an update');
+        assert.strictEqual(identifier, documentIdentifier, 'We were notified of the correct document');
+      } else {
+        assert.strictEqual(type, 'added', 'We were notified of an add');
+        assert.strictEqual(identifier, documentIdentifier, 'We were notified of the correct document');
+      }
+    });
+
+    store.notifications.subscribe(documentIdentifier, (identifier: StableDocumentIdentifier, type: CacheOperation) => {
+      if (isUpdating) {
+        assert.strictEqual(type, 'updated', 'We were notified of an update');
+        assert.strictEqual(identifier, documentIdentifier, 'We were notified of the correct document');
+      } else {
+        assert.strictEqual(type, 'added', 'We were notified of an add');
+        assert.strictEqual(identifier, documentIdentifier, 'We were notified of the correct document');
+      }
+    });
+
+    store._run(() => {
+      const responseDocument = store.cache.put({
+        request: {
+          url: '/api/v1/query?type=user&name=Chris&limit=1',
+        },
+        content: {
+          meta: { count: 4 },
+        },
+      } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+
+      assert.strictEqual(responseDocument.meta.count, 4, 'We were given the correct data back');
+    });
+
+    isUpdating = true;
+    store._run(() => {
+      const responseDocument2 = store.cache.put({
+        request: {
+          url: '/api/v1/query?type=user&name=Chris&limit=1',
+        },
+        content: {
+          meta: { count: 3 },
+        },
+      } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+
+      assert.strictEqual(responseDocument2.meta.count, 3, 'We were given the correct data back');
+    });
   });
 });

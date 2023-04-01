@@ -4,14 +4,15 @@ import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
 import Store from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { SingleResourceDataDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import { DSModel } from '@ember-data/types/q/ds-model';
+import type { DSModel } from '@ember-data/types/q/ds-model';
 import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
@@ -160,6 +161,63 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       },
       'We got the cached response document back'
     );
+  });
+
+  test("notifications are generated for create and update of the document's cache key", function (assert) {
+    assert.expect(10);
+    const store = this.owner.lookup('service:store') as Store;
+    const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      url: '/api/v1/query?type=user&name=Chris&limit=1',
+    })!;
+
+    let isUpdating = false;
+    store.notifications.subscribe('document', (identifier: StableDocumentIdentifier, type: CacheOperation) => {
+      if (isUpdating) {
+        assert.strictEqual(type, 'updated', 'We were notified of an update');
+        assert.strictEqual(identifier, documentIdentifier, 'We were notified of the correct document');
+      } else {
+        assert.strictEqual(type, 'added', 'We were notified of an add');
+        assert.strictEqual(identifier, documentIdentifier, 'We were notified of the correct document');
+      }
+    });
+
+    store.notifications.subscribe(documentIdentifier, (identifier: StableDocumentIdentifier, type: CacheOperation) => {
+      if (isUpdating) {
+        assert.strictEqual(type, 'updated', 'We were notified of an update');
+        assert.strictEqual(identifier, documentIdentifier, 'We were notified of the correct document');
+      } else {
+        assert.strictEqual(type, 'added', 'We were notified of an add');
+        assert.strictEqual(identifier, documentIdentifier, 'We were notified of the correct document');
+      }
+    });
+
+    store._run(() => {
+      const responseDocument = store.cache.put({
+        request: {
+          url: '/api/v1/query?type=user&name=Chris&limit=1',
+        },
+        content: {
+          data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
+        },
+      } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+
+      assert.strictEqual(responseDocument.data, identifier, 'We were given the correct data back');
+    });
+
+    isUpdating = true;
+    store._run(() => {
+      const responseDocument2 = store.cache.put({
+        request: {
+          url: '/api/v1/query?type=user&name=Chris&limit=1',
+        },
+        content: {
+          data: { type: 'user', id: '2', attributes: { name: 'Chris' } },
+        },
+      } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      assert.strictEqual(responseDocument2.data, identifier2, 'We were given the correct data back');
+    });
   });
 
   test('resources are accessible via `peek`', function (assert) {

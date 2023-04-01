@@ -7,6 +7,8 @@ import { getOwnConfig, macroCondition } from '@embroider/macros';
 
 import { LOG_IDENTIFIERS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
+import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
   ForgetMethod,
@@ -29,9 +31,14 @@ import normalizeModelName from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';
 
 const IDENTIFIERS = new Set();
+const DOCUMENTS = new Set();
 
-export function isStableIdentifier(identifier: Object): identifier is StableRecordIdentifier {
+export function isStableIdentifier(identifier: unknown): identifier is StableRecordIdentifier {
   return IDENTIFIERS.has(identifier);
+}
+
+export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
+  return DOCUMENTS.has(identifier);
 }
 
 const isFastBoot = typeof FastBoot !== 'undefined';
@@ -131,6 +138,7 @@ export class IdentifierCache {
   _cache = {
     lids: new Map<string, StableRecordIdentifier>(),
     types: Object.create(null) as TypeMap,
+    documents: new Map<string, StableDocumentIdentifier>(),
   };
   declare _generate: GenerationMethod;
   declare _update: UpdateMethod;
@@ -326,6 +334,34 @@ export class IdentifierCache {
    */
   peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
     return this._getRecordIdentifier(resource, false);
+  }
+
+  /**
+    Returns the DocumentIdentifier for the given Request, creates one if it does not yet exist.
+    Returns `null` if the request does not have a `cacheKey` or `url`.
+
+    @method getOrCreateDocumentIdentifier
+    @param request
+    @returns {StableDocumentIdentifier | null}
+    @public
+  */
+  getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): StableDocumentIdentifier | null {
+    const cacheKey = request.cacheOptions?.key || request.url;
+    if (!cacheKey) {
+      return null;
+    }
+    let identifier = this._cache.documents.get(cacheKey);
+
+    if (identifier === undefined) {
+      identifier = { lid: cacheKey };
+      if (DEBUG) {
+        Object.freeze(identifier);
+      }
+      DOCUMENTS.add(identifier);
+      this._cache.documents.set(cacheKey, identifier);
+    }
+
+    return identifier;
   }
 
   /**
@@ -540,6 +576,9 @@ export class IdentifierCache {
   }
 
   destroy() {
+    this._cache.documents.forEach((identifier) => {
+      DOCUMENTS.delete(identifier);
+    });
     this._reset();
   }
 }

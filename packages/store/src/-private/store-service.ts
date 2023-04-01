@@ -519,7 +519,7 @@ class Store {
         this._schema = new DSModelSchemaDefinitionService(this);
       }
     }
-    assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this.schema);
+    assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
     return this._schema;
   }
 
