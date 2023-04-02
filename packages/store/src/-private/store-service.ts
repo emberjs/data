@@ -40,7 +40,7 @@ import type { SchemaService } from '@ember-data/types/q/schema-service';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { type LifetimesService, type StoreRequestInfo } from './cache-handler';
+import { EnableHydration, type LifetimesService, SkipCache, type StoreRequestInfo } from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -388,10 +388,9 @@ class Store {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
-    const storeSymbol = Symbol.for('ember-data:enable-hydration');
-    let opts: { store: Store; disableTestWaiter?: boolean; [storeSymbol]: true } = {
+    let opts: { store: Store; disableTestWaiter?: boolean; [EnableHydration]: true } = {
       store: this,
-      [storeSymbol]: true,
+      [EnableHydration]: true,
     };
 
     if (TESTING) {
@@ -1325,6 +1324,7 @@ class Store {
         record: identifier,
         options,
       },
+      cacheOptions: { [SkipCache as symbol]: true },
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
@@ -1602,6 +1602,7 @@ class Store {
         query,
         options: options || {},
       },
+      cacheOptions: { [SkipCache as symbol]: true },
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
@@ -1730,6 +1731,7 @@ class Store {
         query,
         options: options || {},
       },
+      cacheOptions: { [SkipCache as symbol]: true },
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
@@ -1945,6 +1947,7 @@ class Store {
         type: normalizeModelName(modelName),
         options: options || {},
       },
+      cacheOptions: { [SkipCache as symbol]: true },
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
@@ -2413,6 +2416,7 @@ class Store {
         options,
         record: identifier,
       },
+      cacheOptions: { [SkipCache as symbol]: true },
     }).then((document) => document.content);
   }
 

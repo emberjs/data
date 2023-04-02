@@ -980,6 +980,7 @@ class Model extends EmberObject {
           options,
           record: identifier,
         },
+        cacheOptions: { [Symbol.for('ember-data:skip-cache')]: true },
       })
       .then(() => this)
       .finally(() => {

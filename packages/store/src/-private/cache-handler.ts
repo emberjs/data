@@ -121,10 +121,13 @@ function fetchContentAndHydrate<T>(
   ) as Promise<T>;
 }
 
+export const SkipCache = Symbol.for('ember-data:skip-cache');
+export const EnableHydration = Symbol.for('ember-data:enable-hydration');
+
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
     // if we have no cache or no cache-key skip cache handling
-    if (!context.request.store) {
+    if (!context.request.store || context.request.cacheOptions?.[SkipCache]) {
       return next(context.request);
     }
 
@@ -147,8 +150,7 @@ export const CacheHandler: Handler = {
       throw peeked.error;
     }
 
-    const shouldHydrate: boolean =
-      (context.request[Symbol.for('ember-data:enable-hydration')] as boolean | undefined) || false;
+    const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
 
     return Promise.resolve(
       shouldHydrate

@@ -124,8 +124,15 @@ export interface RequestInfo extends Request {
   options?: Record<string, unknown>;
 }
 
+const SkipCache = Symbol.for('ember-data:skip-cache');
+
 export interface ImmutableRequestInfo {
-  readonly cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
+  readonly cacheOptions?: {
+    key?: string;
+    reload?: boolean;
+    backgroundReload?: boolean;
+    [SkipCache]?: true;
+  };
   readonly store?: Store;
 
   readonly op?: string;
