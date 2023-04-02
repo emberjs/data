@@ -1,4 +1,3 @@
-/* global Proxy */
 import QUnit, { skip, test } from 'qunit';
 
 import { DEBUG } from '@ember-data/env';

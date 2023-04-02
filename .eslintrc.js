@@ -29,7 +29,7 @@ module.exports = {
   parser: '@babel/eslint-parser',
   root: true,
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaVersion: 2022,
     sourceType: 'module',
     babelOptions: {
       // eslint-disable-next-line node/no-unpublished-require
@@ -84,15 +84,11 @@ module.exports = {
     'qunit/no-identical-names': 'off',
     'qunit/require-expect': 'off',
   },
-  globals: {
-    Map: false,
-    WeakMap: true,
-    Set: true,
-    Promise: false,
-  },
+  globals: {},
   env: {
     browser: true,
     node: false,
+    es6: true,
   },
   overrides: [
     {

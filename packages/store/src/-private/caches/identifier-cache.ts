@@ -100,18 +100,39 @@ export function setIdentifierResetMethod(method: ResetMethod | null): void {
 type WithLid = { lid: string };
 type WithId = { id: string | null; type: string };
 
-function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: IdentifierBucket): string {
-  if (isNonEmptyString((data as WithLid).lid)) {
-    return (data as WithLid).lid;
-  }
-  if ((data as WithId).id !== undefined) {
-    let { type, id } = data as WithId;
-    // TODO: add test for id not a string
-    if (isNonEmptyString(coerceId(id))) {
-      return `@lid:${normalizeModelName(type)}-${id}`;
+function assertIsRequest(request: unknown): asserts request is ImmutableRequestInfo {
+  return;
+}
+
+function defaultGenerationMethod(data: ImmutableRequestInfo, bucket: 'document'): string | null;
+function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 'record'): string;
+function defaultGenerationMethod(
+  data: ImmutableRequestInfo | ResourceData | { type: string },
+  bucket: IdentifierBucket
+): string | null {
+  if (bucket === 'record') {
+    if (isNonEmptyString((data as WithLid).lid)) {
+      return (data as WithLid).lid;
     }
+    if ((data as WithId).id !== undefined) {
+      let { type, id } = data as WithId;
+      // TODO: add test for id not a string
+      if (isNonEmptyString(coerceId(id))) {
+        return `@lid:${normalizeModelName(type)}-${id}`;
+      }
+    }
+    return uuidv4();
+  } else if (bucket === 'document') {
+    assertIsRequest(data);
+    if (!data.url) {
+      return null;
+    }
+    if (!data.method || data.method.toUpperCase() === 'GET') {
+      return data.url;
+    }
+    return null;
   }
-  return uuidv4();
+  assert(`Unknown bucket ${bucket}`, false);
 }
 
 function defaultEmptyCallback(...args: any[]): any {}
@@ -150,7 +171,7 @@ export class IdentifierCache {
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
     // be configured prior and is not allowed to be changed
-    this._generate = configuredGenerationMethod || defaultGenerationMethod;
+    this._generate = configuredGenerationMethod || (defaultGenerationMethod as GenerationMethod);
     this._update = configuredUpdateMethod || defaultEmptyCallback;
     this._forget = configuredForgetMethod || defaultEmptyCallback;
     this._reset = configuredResetMethod || defaultEmptyCallback;
@@ -346,10 +367,16 @@ export class IdentifierCache {
     @public
   */
   getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): StableDocumentIdentifier | null {
-    const cacheKey = request.cacheOptions?.key || request.url;
+    let cacheKey: string | null | undefined = request.cacheOptions?.key;
+
+    if (!cacheKey) {
+      cacheKey = this._generate(request, 'document');
+    }
+
     if (!cacheKey) {
       return null;
     }
+
     let identifier = this._cache.documents.get(cacheKey);
 
     if (identifier === undefined) {
