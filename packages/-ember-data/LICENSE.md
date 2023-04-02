@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (C) 2017-2022 Ember.js contributors
+Copyright (C) 2017-2023 Ember.js contributors
 Portions Copyright (C) 2011-2017 Tilde, Inc. and contributors.
 Portions Copyright (C) 2011 LivingSocial Inc.
 

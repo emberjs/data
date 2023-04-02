@@ -28,7 +28,11 @@
   },
   "files": [
     "addon-main.js",
-    "addon"
+    "addon",
+    "README.md",
+    "LICENSE.md",
+    "ember-data-logo-dark.svg",
+    "ember-data-logo-light.svg"
   ],
   "scripts": {
     "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",

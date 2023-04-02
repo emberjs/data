@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/debug",
   "version": "4.12.0-alpha.17",
-  "description": "Provides developer ergonomics and dev-mode enhancements for apps built with ember-data",
+  "description": "Provides support for the ember-inspector for apps built with Ember and EmberData",
   "keywords": [
     "ember-addon"
   ],

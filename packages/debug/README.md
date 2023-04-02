@@ -1,21 +1,28 @@
 # @ember-data/debug
 
-Provides developer ergonomics and dev-mode enhancements for apps built with EmberData including a DataAdapter for ember-inspector support
-
-## Compatibility
-
-- Ember.js v3.4 or above
-- Ember CLI v2.13 or above
-
+Provides ember-inspector support for Ember apps built with EmberData
 ## Installation
 
+> **Note** If using `ember-data`, this library comes pre-installed.
+
 ```
-ember install @ember-data/debug
+pnpm install @ember-data/debug
 ```
 
 ## Usage
 
-[Longer description of how to use the addon in apps.]
+### removing inspector support in production
+
+If you do not want to ship inspector support in your production application, you can specify
+that all support for it should be stripped from the build.
+
+```ts
+let app = new EmberApp(defaults, {
+  emberData: {
+    includeDataAdapterInProduction: false,
+  },
+});
+```
 
 ## License
 
