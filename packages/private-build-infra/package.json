@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/private-build-infra",
-  "version": "4.12.0-alpha.17",
+  "version": "4.12.0-alpha.18",
   "description": "The default blueprint for ember-data private packages.",
   "repository": {
     "type": "git",
