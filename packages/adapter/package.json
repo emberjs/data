@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/adapter",
   "version": "4.12.0-alpha.17",
-  "description": "Reference Adapter Implementations for use with @ember-data/store",
+  "description": "Provides Legacy JSON:API and REST Implementations of the Adapter Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
   ],

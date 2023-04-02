@@ -2,16 +2,16 @@
   <img
     class="project-logo"
     src="./ember-data-logo-dark.svg#gh-dark-mode-only"
-    alt="EmberData RequestManager"
+    alt="EmberData JSON:API Cache"
     width="240px"
-    title="EmberData RequestManager"
+    title="EmberData JSON:API Cache"
     />
   <img
     class="project-logo"
     src="./ember-data-logo-light.svg#gh-light-mode-only"
-    alt="EmberData RequestManager"
+    alt="EmberData JSON:API Cache"
     width="240px"
-    title="EmberData RequestManager"
+    title="EmberData JSON:API Cache"
     />
 </p>
 
