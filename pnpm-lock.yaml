@@ -111,7 +111,7 @@ importers:
       testem: ^3.10.1
       typescript: ~4.9.5
       url: ^0.11.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
       yuidocjs: ^0.10.2
       zlib: 1.0.5
     devDependencies:
@@ -165,7 +165,7 @@ importers:
       command-line-args: 5.2.1
       common-tags: 1.8.2
       debug: 4.3.4
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0_debug@4.3.4
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
@@ -184,9 +184,9 @@ importers:
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_ember-source@4.11.0
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
       eslint: 8.36.0
@@ -217,7 +217,7 @@ importers:
       testem: 3.10.1_debug@4.3.4
       typescript: 4.9.5
       url: 0.11.0
-      webpack: 5.76.3
+      webpack: 5.77.0
       yuidocjs: 0.10.2
       zlib: 1.0.5
 
@@ -245,10 +245,10 @@ importers:
       ember-cli-babel: ^7.26.11
       ember-inflector: ^4.0.2
       ember-source: ~4.11.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     dependencies:
       '@ember-data/adapter': file:packages/adapter_u5uwuuyo3mibs3j3coejh5gan4
-      '@ember-data/debug': file:packages/debug_webpack@5.76.3
+      '@ember-data/debug': file:packages/debug_webpack@5.77.0
       '@ember-data/graph': file:packages/graph_crnxzmslrixya6mueoldbjlvfm
       '@ember-data/json-api': file:packages/json-api_yhnfbr3532gmb5g7nxv5gjnxbm
       '@ember-data/legacy-compat': file:packages/legacy-compat_yqsmpvycp5zvejiuvqvc2l7jze
@@ -262,15 +262,15 @@ importers:
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       '@glimmer/env': 0.1.7
       broccoli-merge-trees: 4.2.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
       ember-inflector: 4.0.2
     devDependencies:
       '@babel/core': 7.21.3
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
-      webpack: 5.76.3
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -356,15 +356,15 @@ importers:
       '@embroider/macros': ^1.10.0
       ember-auto-import: ^2.6.1
       ember-cli-babel: ^7.26.11
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
     devDependencies:
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -882,13 +882,13 @@ importers:
       rsvp: ^4.8.5
       semver: ^7.3.8
       testem: ^3.10.1
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       broccoli-merge-trees: 4.2.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
       ember-get-config: 2.1.1
@@ -897,7 +897,7 @@ importers:
       rsvp: 4.8.5
       semver: 7.3.8
       testem: 3.10.1
-      webpack: 5.76.3
+      webpack: 5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
@@ -915,9 +915,9 @@ importers:
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_ember-source@4.11.0
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -960,11 +960,11 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     dependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
-      '@ember-data/debug': file:packages/debug_umlqmudestbjemnlssj7ce7xfu
+      '@ember-data/debug': file:packages/debug_zar76rbm4wi2ooaywsdfkceyui
       '@ember-data/graph': file:packages/graph_crnxzmslrixya6mueoldbjlvfm
       '@ember-data/json-api': file:packages/json-api_yhnfbr3532gmb5g7nxv5gjnxbm
       '@ember-data/legacy-compat': file:packages/legacy-compat_yqsmpvycp5zvejiuvqvc2l7jze
@@ -980,7 +980,7 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
@@ -991,13 +991,13 @@ importers:
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/debug':
         injected: true
@@ -1086,7 +1086,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
@@ -1102,7 +1102,7 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
@@ -1113,13 +1113,13 @@ importers:
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -1180,11 +1180,11 @@ importers:
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     dependencies:
       '@ember/string': 3.0.1
-      ember-auto-import: 2.6.1_webpack@5.76.3
-      ember-data: file:packages/-ember-data_23psyprb4wnumqxcflewniklsu
+      ember-auto-import: 2.6.1_webpack@5.77.0
+      ember-data: file:packages/-ember-data_jnccokdsjjypjsz6bz4j5odbdq
       ember-inflector: 4.0.2
     devDependencies:
       '@babel/core': 7.21.3
@@ -1194,7 +1194,7 @@ importers:
       '@ember/test-helpers': 2.9.3_vhmtgy5g3g675connghzwama5y
       '@embroider/compat': 2.1.1_@embroider+core@2.1.1
       '@embroider/core': 2.1.1
-      '@embroider/webpack': 2.1.1_cipg6wwfqradoyifz33pvp4zde
+      '@embroider/webpack': 2.1.1_g3rxxhkma7zofi3mrsy4b5wfka
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       '@types/ember': 4.0.3_@babel+core@7.21.3
@@ -1207,21 +1207,21 @@ importers:
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-fastboot: 4.1.0
-      ember-cli-fastboot-testing: 0.6.0_webpack@5.76.3
+      ember-cli-fastboot-testing: 0.6.0_webpack@5.77.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
       ember-simple-tree: 0.8.3_@babel+core@7.21.3
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
       typescript: 4.9.5
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/unpublished-test-infra':
         injected: true
@@ -1264,11 +1264,11 @@ importers:
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     dependencies:
       '@ember/string': 3.0.1
-      ember-auto-import: 2.6.1_webpack@5.76.3
-      ember-data: file:packages/-ember-data_23psyprb4wnumqxcflewniklsu
+      ember-auto-import: 2.6.1_webpack@5.77.0
+      ember-data: file:packages/-ember-data_jnccokdsjjypjsz6bz4j5odbdq
       ember-inflector: 4.0.2
     devDependencies:
       '@babel/core': 7.21.3
@@ -1288,20 +1288,20 @@ importers:
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-fastboot: 4.1.0
-      ember-cli-fastboot-testing: 0.6.0_webpack@5.76.3
+      ember-cli-fastboot-testing: 0.6.0_webpack@5.77.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-inject-live-reload: 2.1.0
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
       ember-simple-tree: 0.8.3_@babel+core@7.21.3
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
       typescript: 4.9.5
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/unpublished-test-infra':
         injected: true
@@ -1332,7 +1332,7 @@ importers:
       ember-resolver: ^10.0.0
       ember-source: ~4.11.0
       loader.js: ^4.7.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
       zlib: 1.0.5
     devDependencies:
       '@babel/core': 7.21.3
@@ -1343,21 +1343,21 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-dependency-checker: 3.3.1_ember-cli@4.11.0
       ember-cli-htmlbars: 6.2.0
       ember-cli-terser: 4.0.2
-      ember-data: file:packages/-ember-data_23psyprb4wnumqxcflewniklsu
+      ember-data: file:packages/-ember-data_jnccokdsjjypjsz6bz4j5odbdq
       ember-export-application-global: 2.0.1
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
-      webpack: 5.76.3
+      webpack: 5.77.0
       zlib: 1.0.5
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -1410,7 +1410,7 @@ importers:
       qunit-console-grouper: ^0.3.0
       qunit-dom: ^2.0.0
       silent-error: ^1.1.1
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
@@ -1430,7 +1430,7 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
@@ -1445,9 +1445,9 @@ importers:
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
       loader.js: 4.7.0
@@ -1455,7 +1455,7 @@ importers:
       qunit-console-grouper: 0.3.0
       qunit-dom: 2.0.0
       silent-error: 1.1.1
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -1518,7 +1518,7 @@ importers:
       qunit-console-grouper: ^0.3.0
       qunit-dom: ^2.0.0
       silent-error: ^1.1.1
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
@@ -1535,7 +1535,7 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
@@ -1550,9 +1550,9 @@ importers:
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
       loader.js: 4.7.0
@@ -1560,7 +1560,7 @@ importers:
       qunit-console-grouper: 0.3.0
       qunit-dom: 2.0.0
       silent-error: 1.1.1
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -1611,12 +1611,12 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
       '@ember-data/adapter': file:packages/adapter_jhwq7wzloi2pj6pd7tqklki43y
-      '@ember-data/debug': file:packages/debug_umlqmudestbjemnlssj7ce7xfu
+      '@ember-data/debug': file:packages/debug_zar76rbm4wi2ooaywsdfkceyui
       '@ember-data/legacy-compat': file:packages/legacy-compat
       '@ember-data/model': file:packages/model_uzvqdeevcmuxm6a6lyqsacpdha
       '@ember-data/request': file:packages/request
@@ -1630,7 +1630,7 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
@@ -1641,13 +1641,13 @@ importers:
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -1724,7 +1724,7 @@ importers:
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
       typescript: ~4.9.5
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/plugin-transform-typescript': 7.21.3_@babel+core@7.21.3
@@ -1753,7 +1753,7 @@ importers:
       broccoli-string-replace: 0.1.2
       broccoli-test-helper: 2.0.0
       broccoli-uglify-sourcemap: 4.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cached-decorator-polyfill: 1.0.1_vhmtgy5g3g675connghzwama5y
       ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
@@ -1764,15 +1764,15 @@ importers:
       ember-cli-terser: 4.0.2
       ember-cli-test-loader: 3.0.0
       ember-compatibility-helpers: 1.2.6_@babel+core@7.21.3
-      ember-data: file:packages/-ember-data_23psyprb4wnumqxcflewniklsu
+      ember-data: file:packages/-ember-data_jnccokdsjjypjsz6bz4j5odbdq
       ember-decorators-polyfill: 1.1.5_@babel+core@7.21.3
       ember-disable-prototype-extensions: 1.1.3
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
       loader.js: 4.7.0
@@ -1780,7 +1780,7 @@ importers:
       qunit: 2.19.4
       qunit-dom: 2.0.0
       typescript: 4.9.5
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -1840,7 +1840,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
@@ -1856,7 +1856,7 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
@@ -1867,13 +1867,13 @@ importers:
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -1911,12 +1911,12 @@ importers:
       ember-resolver: ^10.0.0
       ember-source: ~4.11.0
       loader.js: ^4.7.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
       zlib: 1.0.5
     dependencies:
       '@ember/string': 3.0.1
-      ember-auto-import: 2.6.1_webpack@5.76.3
-      ember-data: file:packages/-ember-data_23psyprb4wnumqxcflewniklsu
+      ember-auto-import: 2.6.1_webpack@5.77.0
+      ember-data: file:packages/-ember-data_jnccokdsjjypjsz6bz4j5odbdq
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
@@ -1934,9 +1934,9 @@ importers:
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
-      webpack: 5.76.3
+      webpack: 5.77.0
       zlib: 1.0.5
     dependenciesMeta:
       ember-data:
@@ -1981,7 +1981,7 @@ importers:
       qunit-console-grouper: ^0.3.0
       qunit-dom: ^2.0.0
       silent-error: ^1.1.1
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
@@ -1995,7 +1995,7 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
@@ -2010,9 +2010,9 @@ importers:
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       ember-source-channel-url: 3.0.0
       ember-try: 2.0.0
       loader.js: 4.7.0
@@ -2020,7 +2020,7 @@ importers:
       qunit-console-grouper: 0.3.0
       qunit-dom: 2.0.0
       silent-error: 1.1.1
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -2065,7 +2065,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      webpack: ^5.76.3
+      webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.3
       '@babel/runtime': 7.21.0
@@ -2084,7 +2084,7 @@ importers:
       '@glimmer/component': 1.1.2_@babel+core@7.21.3
       '@glimmer/tracking': 1.1.2
       broccoli-asset-rev: 3.0.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli: 4.11.0
       ember-cli-app-version: 6.0.0_ember-source@4.11.0
       ember-cli-babel: 7.26.11
@@ -2095,13 +2095,13 @@ importers:
       ember-inflector: 4.0.2
       ember-load-initializers: 2.1.2_@babel+core@7.21.3
       ember-maybe-import-regenerator: 1.0.0
-      ember-qunit: 6.2.0_sskarem5gaxhkvkslmesjujjfq
+      ember-qunit: 6.2.0_riy32iign6v67wx5u6xqjyoogu
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
-      webpack: 5.76.3
+      webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -3443,7 +3443,7 @@ packages:
       ember-cli-babel: 7.26.11
       ember-cli-htmlbars: 6.2.0
       ember-destroyable-polyfill: 2.0.3_@babel+core@7.21.3
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -3482,7 +3482,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@embroider/babel-loader-8/2.0.0_bnmr2oyb3bbgfm3sdtecqcxenm:
+  /@embroider/babel-loader-8/2.0.0_ya7v76irtnzlenyr5xdnlhn2k4:
     resolution: {integrity: sha512-a1bLodfox8JEgNHuhiIBIcXJ4b8NNnKWYkMIpJx216pn80Jf1jcFosQpxnqC8hYHrnG0XRKzQ9zJYgJXoa1wfg==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
@@ -3490,7 +3490,7 @@ packages:
     dependencies:
       '@babel/core': 7.21.3_supports-color@8.1.1
       '@embroider/core': 2.1.1
-      babel-loader: 8.3.0_qtovpurzjlo3biun26ymnwui7i
+      babel-loader: 8.3.0_qrnkonb34kkdrxlmibxkyhtqlq
     transitivePeerDependencies:
       - supports-color
       - webpack
@@ -3587,7 +3587,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@embroider/hbs-loader/2.0.0_cipg6wwfqradoyifz33pvp4zde:
+  /@embroider/hbs-loader/2.0.0_g3rxxhkma7zofi3mrsy4b5wfka:
     resolution: {integrity: sha512-rWcZyZ3n35LwlPTS6/fYsdHqPWUh4QO/cVTIJOSeLqJCATNTho7tjBXS6pBvV9cZgvqP/Xph/08xjdUyOWUOxQ==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
@@ -3595,7 +3595,7 @@ packages:
       webpack: ^5
     dependencies:
       '@embroider/core': 2.1.1
-      webpack: 5.76.3
+      webpack: 5.77.0
     dev: true
 
   /@embroider/macros/1.10.0_xahliinzuq7jqnkqqzon2ivk4y:
@@ -3640,11 +3640,11 @@ packages:
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       broccoli-funnel: 3.0.8
       ember-cli-babel: 7.26.11
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
     transitivePeerDependencies:
       - supports-color
 
-  /@embroider/webpack/2.1.1_cipg6wwfqradoyifz33pvp4zde:
+  /@embroider/webpack/2.1.1_g3rxxhkma7zofi3mrsy4b5wfka:
     resolution: {integrity: sha512-1IzXXexv/QxDyk4N6kamtiTk92HszlaQZXGB+xhnRCMY4F7Hgxad4gSPvnSy/oSkbHTMWSGjCTS5e4tQcUC8Cg==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
@@ -3652,28 +3652,28 @@ packages:
       webpack: ^5.0.0
     dependencies:
       '@babel/core': 7.21.3_supports-color@8.1.1
-      '@embroider/babel-loader-8': 2.0.0_bnmr2oyb3bbgfm3sdtecqcxenm
+      '@embroider/babel-loader-8': 2.0.0_ya7v76irtnzlenyr5xdnlhn2k4
       '@embroider/core': 2.1.1
-      '@embroider/hbs-loader': 2.0.0_cipg6wwfqradoyifz33pvp4zde
+      '@embroider/hbs-loader': 2.0.0_g3rxxhkma7zofi3mrsy4b5wfka
       '@embroider/shared-internals': 2.0.0
       '@types/source-map': 0.5.7
       '@types/supports-color': 8.1.1
-      babel-loader: 8.3.0_qtovpurzjlo3biun26ymnwui7i
+      babel-loader: 8.3.0_qrnkonb34kkdrxlmibxkyhtqlq
       babel-preset-env: 1.7.0_supports-color@8.1.1
-      css-loader: 5.2.7_webpack@5.76.3
+      css-loader: 5.2.7_webpack@5.77.0
       csso: 4.2.0
       debug: 4.3.4_supports-color@8.1.1
       fs-extra: 9.1.0
       jsdom: 16.7.0_supports-color@8.1.1
       lodash: 4.17.21
-      mini-css-extract-plugin: 2.7.5_webpack@5.76.3
+      mini-css-extract-plugin: 2.7.5_webpack@5.77.0
       semver: 7.3.8
       source-map-url: 0.4.1
-      style-loader: 2.0.0_webpack@5.76.3
+      style-loader: 2.0.0_webpack@5.77.0
       supports-color: 8.1.1
       terser: 5.16.8
-      thread-loader: 3.0.4_webpack@5.76.3
-      webpack: 5.76.3
+      thread-loader: 3.0.4_webpack@5.77.0
+      webpack: 5.77.0
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -4282,12 +4282,12 @@ packages:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
       '@types/eslint': 8.21.3
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
 
   /@types/eslint/8.21.3:
     resolution: {integrity: sha512-fa7GkppZVEByMWGbTtE5MbmXWJTVbrjjaS8K6uQj+XtuuUv1fsuPAxhygfqLmsb/Ufb3CV8deFCpiMfAgi00Sw==}
     dependencies:
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
 
   /@types/estree/0.0.51:
@@ -4295,7 +4295,6 @@ packages:
 
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
-    dev: true
 
   /@types/express-serve-static-core/4.17.33:
     resolution: {integrity: sha512-TPBqmR/HRYI3eC2E5hmiivIzv+bidAfXofM+sbonAGvyDhySGw9/PQZFt2BLOrjUUR++4eJVpx6KnLQK1Fk9tA==}
@@ -5221,7 +5220,7 @@ packages:
       make-dir: 3.1.0
       schema-utils: 2.7.1
 
-  /babel-loader/8.3.0_qtovpurzjlo3biun26ymnwui7i:
+  /babel-loader/8.3.0_qrnkonb34kkdrxlmibxkyhtqlq:
     resolution: {integrity: sha512-H8SvsMF+m9t15HNLMipppzkC+Y2Yq+v3SonZyU70RBL/h1gxPkH08Ot8pEE9Z4Kd+czyWJClmFS8qzIP9OZ04Q==}
     engines: {node: '>= 8.9'}
     peerDependencies:
@@ -5233,7 +5232,7 @@ packages:
       loader-utils: 2.0.4
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.76.3
+      webpack: 5.77.0
 
   /babel-messages/6.23.0:
     resolution: {integrity: sha512-Bl3ZiA+LjqaMtNYopA9TYE9HP1tQ+E5dLxE0XrAzcIJeK2UqF0/EaqXwBn9esd4UmTfEab+P+UYQ1GnioFIb/w==}
@@ -7234,7 +7233,7 @@ packages:
       schema-utils: 3.1.1
       semver: 7.3.8
 
-  /css-loader/5.2.7_webpack@5.76.3:
+  /css-loader/5.2.7_webpack@5.77.0:
     resolution: {integrity: sha512-Q7mOvpBNBG7YrVGMxRxcBJZFL75o+cH2abNASdibkj/fffYD8qWbInZrD0S9ccI6vZclF3DsHE7njGlLtaHbhg==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -7250,7 +7249,7 @@ packages:
       postcss-value-parser: 4.2.0
       schema-utils: 3.1.1
       semver: 7.3.8
-      webpack: 5.76.3
+      webpack: 5.77.0
 
   /css-tree/1.1.3:
     resolution: {integrity: sha512-tRpdppF7TRazZrjJ6v3stzv93qxRcSsFmW6cX0Zm2NVKpxE1WV1HblnghVv9TreireHkqI/VDEsfolRF1p6y7Q==}
@@ -7629,7 +7628,7 @@ packages:
       - supports-color
       - webpack
 
-  /ember-auto-import/2.6.1_webpack@5.76.3:
+  /ember-auto-import/2.6.1_webpack@5.77.0:
     resolution: {integrity: sha512-3bCRi/pXp4QslmuCXGlSz9xwR7DF5oDx3zZO5OXKzNZihtkqAM1xvGuRIdQSl46pvbAXOkp8Odl5fOen1i0dRw==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
@@ -7639,7 +7638,7 @@ packages:
       '@babel/preset-env': 7.20.2_@babel+core@7.21.3
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       '@embroider/shared-internals': 2.0.0
-      babel-loader: 8.3.0_qtovpurzjlo3biun26ymnwui7i
+      babel-loader: 8.3.0_qrnkonb34kkdrxlmibxkyhtqlq
       babel-plugin-ember-modules-api-polyfill: 3.5.0
       babel-plugin-htmlbars-inline-precompile: 5.3.1
       babel-plugin-syntax-dynamic-import: 6.18.0
@@ -7648,19 +7647,19 @@ packages:
       broccoli-merge-trees: 4.2.0
       broccoli-plugin: 4.0.7
       broccoli-source: 3.0.1
-      css-loader: 5.2.7_webpack@5.76.3
+      css-loader: 5.2.7_webpack@5.77.0
       debug: 4.3.4
       fs-extra: 10.1.0
       fs-tree-diff: 2.0.1
       handlebars: 4.7.7
       js-string-escape: 1.0.1
       lodash: 4.17.21
-      mini-css-extract-plugin: 2.7.5_webpack@5.76.3
+      mini-css-extract-plugin: 2.7.5_webpack@5.77.0
       parse5: 6.0.1
       resolve: 1.22.1
       resolve-package-path: 4.0.3
       semver: 7.3.8
-      style-loader: 2.0.0_webpack@5.76.3
+      style-loader: 2.0.0_webpack@5.77.0
       typescript-memoize: 1.1.1
       walk-sync: 3.0.0
     transitivePeerDependencies:
@@ -7733,7 +7732,7 @@ packages:
       ember-source: ^3.28.0 || ^4.0.0
     dependencies:
       ember-cli-babel: 7.26.11
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       git-repo-info: 2.1.1
     transitivePeerDependencies:
       - supports-color
@@ -7809,12 +7808,12 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli-fastboot-testing/0.6.0_webpack@5.76.3:
+  /ember-cli-fastboot-testing/0.6.0_webpack@5.77.0:
     resolution: {integrity: sha512-ppZyrb4qKjaF+JqsHgDtSic04V5Ut4i1z3FkT2n0IizzL1duQN3rqQgE0sKa8wR7B4tBd7Fc+JQL3VIkVwzBow==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
       body-parser: 1.20.2
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
       fastboot: 3.3.2
       json-fn: 1.1.1
@@ -8481,7 +8480,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-qunit/6.2.0_sskarem5gaxhkvkslmesjujjfq:
+  /ember-qunit/6.2.0_riy32iign6v67wx5u6xqjyoogu:
     resolution: {integrity: sha512-mC+0bp8DwWzJLn8SW3GS8KDZIkl4yLsNYwMi5Dw6+aFllq7FM2crd/dfY4MuOIHK7GKdjtmWJTMGnjSpeSayaw==}
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
@@ -8493,10 +8492,10 @@ packages:
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 3.0.2
       common-tags: 1.8.2
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
       ember-cli-test-loader: 3.0.0
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
       qunit: 2.19.4
       resolve-package-path: 4.0.3
       silent-error: 1.1.1
@@ -8516,7 +8515,7 @@ packages:
         optional: true
     dependencies:
       ember-cli-babel: 7.26.11
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -8533,7 +8532,7 @@ packages:
     dependencies:
       '@ember/string': 3.0.1
       ember-cli-babel: 7.26.11
-      ember-source: 4.11.0_yvbegj3kxsokgk3cppr5gzxagu
+      ember-source: 4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4
     transitivePeerDependencies:
       - supports-color
 
@@ -8609,7 +8608,7 @@ packages:
       - supports-color
       - webpack
 
-  /ember-source/4.11.0_yvbegj3kxsokgk3cppr5gzxagu:
+  /ember-source/4.11.0_y42yqxzy2tixp7ngb4sk5dd6l4:
     resolution: {integrity: sha512-SNRHsQOvF3C9emS7Rg4zcFdwY6aiSkV/7CG+KBpmzLY6hIWQNruzEDZINpNgqBn7CicAJ6g573WG7zu6458agQ==}
     engines: {node: '>= 14.*'}
     peerDependencies:
@@ -8628,7 +8627,7 @@ packages:
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 4.2.0
       chalk: 4.1.2
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
       ember-cli-get-component-path-option: 1.0.0
       ember-cli-is-package-missing: 1.0.0
@@ -11871,14 +11870,14 @@ packages:
     dependencies:
       schema-utils: 4.0.0
 
-  /mini-css-extract-plugin/2.7.5_webpack@5.76.3:
+  /mini-css-extract-plugin/2.7.5_webpack@5.77.0:
     resolution: {integrity: sha512-9HaR++0mlgom81s95vvNjxkg52n2b5s//3ZTI1EtzFb98awsLSivs2LMsVqnQ3ay0PVhqWcGNyDaTE961FOcjQ==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
     dependencies:
       schema-utils: 4.0.0
-      webpack: 5.76.3
+      webpack: 5.77.0
 
   /minimatch/3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
@@ -13939,7 +13938,7 @@ packages:
       loader-utils: 2.0.4
       schema-utils: 3.1.1
 
-  /style-loader/2.0.0_webpack@5.76.3:
+  /style-loader/2.0.0_webpack@5.77.0:
     resolution: {integrity: sha512-Z0gYUJmzZ6ZdRUqpg1r8GsaFKypE+3xAzuFeMuoHgjc9KZv3wMyCRjQIWEbhoFSq7+7yoHXySDJyyWQaPajeiQ==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -13947,7 +13946,7 @@ packages:
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.1.1
-      webpack: 5.76.3
+      webpack: 5.77.0
 
   /styled_string/0.0.1:
     resolution: {integrity: sha512-DU2KZiB6VbPkO2tGSqQ9n96ZstUPjW7X4sGO6V2m1myIQluX0p1Ol8BrA/l6/EesqhMqXOIXs3cJNOy1UuU2BA==}
@@ -14044,7 +14043,7 @@ packages:
       mkdirp: 0.5.6
       rimraf: 2.6.3
 
-  /terser-webpack-plugin/5.3.7_webpack@5.76.3:
+  /terser-webpack-plugin/5.3.7_webpack@5.77.0:
     resolution: {integrity: sha512-AfKwIktyP7Cu50xNjXF/6Qb5lBNzYaWpU6YfoX3uZicTx0zTy0stDDCsvjDapKsSDvOeWo5MEq4TmdBy2cNoHw==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -14065,7 +14064,7 @@ packages:
       schema-utils: 3.1.1
       serialize-javascript: 6.0.1
       terser: 5.16.8
-      webpack: 5.76.3
+      webpack: 5.77.0
 
   /terser/5.16.8:
     resolution: {integrity: sha512-QI5g1E/ef7d+PsDifb+a6nnVgC4F22Bg6T0xrBrz6iloVB4PUkkunp6V8nzoOOZJIzjWVdAGqCdlKlhLq/TbIA==}
@@ -14295,7 +14294,7 @@ packages:
   /theredoc/1.0.0:
     resolution: {integrity: sha512-KU3SA3TjRRM932jpNfD3u4Ec3bSvedyo5ITPI7zgWYnKep7BwQQaxlhI9qbO+lKJoRnoAbEVfMcAHRuKVYikDA==}
 
-  /thread-loader/3.0.4_webpack@5.76.3:
+  /thread-loader/3.0.4_webpack@5.77.0:
     resolution: {integrity: sha512-ByaL2TPb+m6yArpqQUZvP+5S1mZtXsEP7nWKKlAUTm7fCml8kB5s1uI3+eHRP2bk5mVYfRSBI7FFf+tWEyLZwA==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -14306,7 +14305,7 @@ packages:
       loader-utils: 2.0.4
       neo-async: 2.6.2
       schema-utils: 3.1.1
-      webpack: 5.76.3
+      webpack: 5.77.0
     dev: true
 
   /through/2.3.8:
@@ -14867,8 +14866,8 @@ packages:
     resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
     engines: {node: '>=10.13.0'}
 
-  /webpack/5.76.3:
-    resolution: {integrity: sha512-18Qv7uGPU8b2vqGeEEObnfICyw2g39CHlDEK4I7NK13LOur1d0HGmGNKGT58Eluwddpn3oEejwvBPoP4M7/KSA==}
+  /webpack/5.77.0:
+    resolution: {integrity: sha512-sbGNjBr5Ya5ss91yzjeJTLKyfiwo5C628AFjEa6WSXcZa4E+F57om3Cc8xLb1Jh0b243AWuSYRf3dn7HVeFQ9Q==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -14898,7 +14897,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.1.1
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.7_webpack@5.76.3
+      terser-webpack-plugin: 5.3.7_webpack@5.77.0
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
@@ -15215,7 +15214,7 @@ packages:
     engines: {node: '>=0.2.0'}
     dev: true
 
-  file:packages/-ember-data_23psyprb4wnumqxcflewniklsu:
+  file:packages/-ember-data_jnccokdsjjypjsz6bz4j5odbdq:
     resolution: {directory: packages/-ember-data, type: directory}
     id: file:packages/-ember-data
     name: ember-data
@@ -15225,7 +15224,7 @@ packages:
       '@ember/string': ^3.0.1
     dependencies:
       '@ember-data/adapter': file:packages/adapter_jhwq7wzloi2pj6pd7tqklki43y
-      '@ember-data/debug': file:packages/debug_umlqmudestbjemnlssj7ce7xfu
+      '@ember-data/debug': file:packages/debug_zar76rbm4wi2ooaywsdfkceyui
       '@ember-data/graph': file:packages/graph_crnxzmslrixya6mueoldbjlvfm
       '@ember-data/json-api': file:packages/json-api_yhnfbr3532gmb5g7nxv5gjnxbm
       '@ember-data/legacy-compat': file:packages/legacy-compat_yqsmpvycp5zvejiuvqvc2l7jze
@@ -15240,7 +15239,7 @@ packages:
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       '@glimmer/env': 0.1.7
       broccoli-merge-trees: 4.2.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
       ember-inflector: 4.0.2
     transitivePeerDependencies:
@@ -15310,7 +15309,25 @@ packages:
       - supports-color
     dev: false
 
-  file:packages/debug_umlqmudestbjemnlssj7ce7xfu:
+  file:packages/debug_webpack@5.77.0:
+    resolution: {directory: packages/debug, type: directory}
+    id: file:packages/debug
+    name: '@ember-data/debug'
+    version: 4.12.0-alpha.18
+    engines: {node: ^14.8.0 || 16.* || >= 18.*}
+    peerDependencies:
+      '@ember/string': ^3.0.1
+    dependencies:
+      '@ember-data/private-build-infra': file:packages/private-build-infra
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
+      ember-auto-import: 2.6.1_webpack@5.77.0
+      ember-cli-babel: 7.26.11
+    transitivePeerDependencies:
+      - supports-color
+      - webpack
+
+  file:packages/debug_zar76rbm4wi2ooaywsdfkceyui:
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
@@ -15323,25 +15340,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.0.1
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
-      ember-auto-import: 2.6.1_webpack@5.76.3
-      ember-cli-babel: 7.26.11
-    transitivePeerDependencies:
-      - supports-color
-      - webpack
-
-  file:packages/debug_webpack@5.76.3:
-    resolution: {directory: packages/debug, type: directory}
-    id: file:packages/debug
-    name: '@ember-data/debug'
-    version: 4.12.0-alpha.18
-    engines: {node: ^14.8.0 || 16.* || >= 18.*}
-    peerDependencies:
-      '@ember/string': ^3.0.1
-    dependencies:
-      '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - supports-color
@@ -15530,7 +15529,7 @@ packages:
       '@ember-data/json-api':
         optional: true
     dependencies:
-      '@ember-data/debug': file:packages/debug_umlqmudestbjemnlssj7ce7xfu
+      '@ember-data/debug': file:packages/debug_zar76rbm4wi2ooaywsdfkceyui
       '@ember-data/graph': file:packages/graph_crnxzmslrixya6mueoldbjlvfm
       '@ember-data/json-api': file:packages/json-api_yhnfbr3532gmb5g7nxv5gjnxbm
       '@ember-data/legacy-compat': file:packages/legacy-compat_yqsmpvycp5zvejiuvqvc2l7jze
@@ -15574,7 +15573,7 @@ packages:
       '@ember-data/json-api':
         optional: true
     dependencies:
-      '@ember-data/debug': file:packages/debug_webpack@5.76.3
+      '@ember-data/debug': file:packages/debug_webpack@5.77.0
       '@ember-data/graph': file:packages/graph_crnxzmslrixya6mueoldbjlvfm
       '@ember-data/json-api': file:packages/json-api_yhnfbr3532gmb5g7nxv5gjnxbm
       '@ember-data/legacy-compat': file:packages/legacy-compat_yqsmpvycp5zvejiuvqvc2l7jze
@@ -15617,7 +15616,7 @@ packages:
       '@ember-data/json-api':
         optional: true
     dependencies:
-      '@ember-data/debug': file:packages/debug_umlqmudestbjemnlssj7ce7xfu
+      '@ember-data/debug': file:packages/debug_zar76rbm4wi2ooaywsdfkceyui
       '@ember-data/legacy-compat': file:packages/legacy-compat
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/store': file:packages/store_q3z5n5zw5dhcnevtnd35wtuvha
@@ -16037,7 +16036,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0_xahliinzuq7jqnkqqzon2ivk4y
       broccoli-merge-trees: 4.2.0
-      ember-auto-import: 2.6.1_webpack@5.76.3
+      ember-auto-import: 2.6.1_webpack@5.77.0
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
       ember-get-config: 2.1.1
@@ -16046,7 +16045,7 @@ packages:
       rsvp: 4.8.5
       semver: 7.3.8
       testem: 3.10.1
-      webpack: 5.76.3
+      webpack: 5.77.0
     transitivePeerDependencies:
       - '@swc/core'
       - arc-templates
