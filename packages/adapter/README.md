@@ -28,7 +28,7 @@ This package is currently installed when installing `ember-data`.
 If installing `@ember-data/` packages individually install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
 ```no-highlight
-pnpm add @ember-data/json-api
+pnpm add @ember-data/adapter
 ```
 
 ## 🚀 Setup
