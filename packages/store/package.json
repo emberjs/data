@@ -26,7 +26,13 @@
   },
   "files": [
     "addon-main.js",
-    "addon"
+    "addon",
+    "README.md",
+    "LICENSE.md",
+    "ember-data-logo-dark.svg",
+    "ember-data-logo-light.svg",
+    "ember-data-logo-dark.svg",
+    "ember-data-logo-light.svg"
   ],
   "peerDependencies": {
     "@ember-data/model": "workspace:4.12.0-alpha.17",
