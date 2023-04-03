@@ -19,7 +19,8 @@
 
 This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `Store` class.
 
-The `Store` coordinates interaction between your application, the `Cache`, and sources of data (such as your `API` or a local persistence layer).
+The `Store` coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
+and sources of data (such as your API or a local persistence layer) accessed via a [RequestManager](https://github.com/emberjs/data/tree/main/packages/request).
 
 ```mermaid
 flowchart LR
@@ -57,15 +58,15 @@ After installing you will want to configure your first `Store`. Read more below 
 
 ## 🔨 Creating A Store
 
-To use a `Store` we will need to do few things: add a `Cache` to store data **in-memory**, add an `Adapter` to fetch data from a source, and implement `instantiateRecord` to tell the store how to display the data for individual resources. 
+To use a `Store` we will need to do few things: add a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache) to store data **in-memory**, add a [Handler](https://github.com/emberjs/data/tree/main/packages/request#handling-requests) to fetch data from a source, and implement `instantiateRecord` to tell the store how to display the data for individual resources. 
 
 > **Note** If you are using the package `ember-data` then a `JSON:API` cache and `instantiateRecord` are configured for you by default.
 
 ### Configuring A Cache
 
-To start, let's install a `JSON:API` cache. If your app uses `GraphQL` or `REST` other caches may better fit your data. You can author your own cache by creating one that conforms to the [spec]().
+To start, let's install a [JSON:API](https://jsonapi.org/) cache. If your app uses `GraphQL` or `REST` other caches may better fit your data. You can author your own cache by creating one that conforms to the [spec](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache).
 
-The package `@ember-data/json-api` provides a `JSON:API` cache we can use. After installing it, we can configure the store to use this cache.
+The package [@ember-data/json-api](https://github.com/emberjs/data/tree/main/packages/json-api) provides a [JSON:API](https://jsonapi.org/) cache we can use. After installing it, we can configure the store to use this cache.
 
 ```js
 import Store from '@ember-data/store';
@@ -80,9 +81,7 @@ class extends Store {
 
 Now that we have a `cache` let's setup something to handle fetching and saving data via our API.
 
-> **Note** [1] the cache from `@ember-data/json-api` is a special cache: if the package is present the `createCache` hook will automatically do the above wiring if the hook is not implemented. We still recommend implementing the hook.
->
-> **Note** [2] The `ember-data` package automatically includes the `@ember-data/json-api` cache for you.
+> **Note** The `ember-data` package automatically includes and configures the `@ember-data/json-api` cache for you.
 
 ### Handling Requests
 
@@ -135,7 +134,8 @@ export default class extends Store {
 
 ### Presenting Data from the Cache
 
-Now that we have a source and a cach for our data, we need to configure how the Store delivers that data back to our application. We do this via the hook `instantiateRecord`, which allows us to transform the data for a resource before handing it to the application.
+Now that we have a source and a cach for our data, we need to configure how the Store delivers that data back to our application. We do this via the hook [instantiateRecord](https://api.emberjs.com/ember-data/release/classes/Store/methods/instantiateRecord%20(hook)?anchor=instantiateRecord%20(hook)),
+which allows us to transform the data for a resource before handing it to the application.
 
 A naive way to present the data would be to return it as JSON. Typically instead this hook will be used to add reactivity and make each unique resource a singleton, ensuring that if the cache updates our presented data will reflect the new state.
 
@@ -182,6 +182,5 @@ Typically you will choose an existing record implementation such as `@ember-data
 
 Because of the boundaries around instantiation and the cache, record implementations should be capable of interop both with each other and with any `Cache`. Due to this, if needed an application can utilize multiple record implementations and multiple cache implementations either to support enhanced features for only a subset of records or to be able to incrementally migrate from one record/cache to another record or cache.
 
-> Note: [1] `@ember-data/model` is a special record implementation: currently, if the package is present the `instantiateRecord` hook will automatically do the above wiring if the hook is not implemented.
->
-> Note: [2] The `ember-data` package automatically includes the `@ember-data/model` implementation for you.
+> **Note:** The `ember-data` package automatically includes the `@ember-data/model`
+> package and configures it for you.

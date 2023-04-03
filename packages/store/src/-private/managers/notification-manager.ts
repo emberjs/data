@@ -67,16 +67,12 @@ export function unsubscribe(token: UnsubscribeToken) {
   }
 }
 
-/*
-  Currently only support a single callback per identifier
-*/
-
 /**
  * The NotificationManager provides the ability to subscribe to
  * changes to Cache state.
  *
  * This Feature is what allows EmberData to create subscriptions that
- * work with any framework or change notification system.
+ * work with any framework or change-notification system.
  *
  * @class NotificationManager
  * @public
@@ -96,20 +92,30 @@ export default class NotificationManager {
   }
 
   /**
-   * Subscribe to changes for a given resource identifier
+   * Subscribe to changes for a given resource identifier, resource addition/removal, or document addition/removal.
    *
    * ```ts
-   * interface NotificationCallback {
+   * export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
+   *
+   * export interface NotificationCallback {
    *   (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
    *   (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
    *   (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+   * }
+   * export interface ResourceOperationCallback {
+   *   // resource updates
+   *   (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
+   * }
+   * export interface DocumentOperationCallback {
+   *   // document updates
+   *   (identifier: StableDocumentIdentifier, notificationType: CacheOperation): void;
    * }
    * ```
    *
    * @method subscribe
    * @public
-   * @param {StableRecordIdentifier} identifier
-   * @param {NotificationCallback} callback
+   * @param {StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'} identifier
+   * @param {NotificationCallback | ResourceOperationCallback | DocumentOperationCallback} callback
    * @returns {UnsubscribeToken} an opaque token to be used with unsubscribe
    */
   subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
