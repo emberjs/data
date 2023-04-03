@@ -66,7 +66,7 @@ To use a `Store` we will need to do few things: add a [Cache](https://api.emberj
 
 To start, let's install a [JSON:API](https://jsonapi.org/) cache. If your app uses `GraphQL` or `REST` other caches may better fit your data. You can author your own cache by creating one that conforms to the [spec](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache).
 
-The package `@ember-data/json-api` provides a [JSON:API](https://jsonapi.org/) cache we can use. After installing it, we can configure the store to use this cache.
+The package [@ember-data/json-api](https://github.com/emberjs/data/tree/main/packages/json-api) provides a [JSON:API](https://jsonapi.org/) cache we can use. After installing it, we can configure the store to use this cache.
 
 ```js
 import Store from '@ember-data/store';
