@@ -42,7 +42,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.21.3",
+    "@babel/core": "^7.21.4",
     "@babel/runtime": "^7.21.0",
     "@ember-data/adapter": "workspace:4.12.0-alpha.18",
     "@ember-data/model": "workspace:4.12.0-alpha.18",
