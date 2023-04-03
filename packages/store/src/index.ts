@@ -168,15 +168,11 @@
  * Because of the boundaries around instantiation and the cache, record implementations
  * should be capable of interop both with each other and with any `Cache`. Due to this,
  * if needed an application can utilize multiple record implementations and multiple cache
- * implementations either to support enhanced features for only a subset of records or to be able to incrementally migrate from one record/cache to another record or cache.
+ * implementations either to support enhanced features for only a subset of records or to
+ * be able to incrementally migrate from one record/cache to another record or cache.
  *
- * > Note: [1] `@ember-data/model` is a special record implementation: if the package is
- * > present the `instantiateRecord` hook will automatically do the above wiring if the hook
- * > is not implemented. Due to the complexity of this legacy package's use of Ember's
- * > resolver, we do not recommend wiring this package manually.
- * >
- * > Note: [2] The `ember-data` package automatically includes the `@ember-data/model`
- * > implementation for you.
+ * > **Note:** The `ember-data` package automatically includes the `@ember-data/model`
+ * > package and configures it for you.
  *
  * @module @ember-data/store
  * @main @ember-data/store
