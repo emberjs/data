@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/tracking",
   "description": "Tracking Primitives for controlling change notification of Tracked properties when working with EmberData",
-  "version": "4.12.0-alpha.18",
+  "version": "4.12.0-alpha.19",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
