@@ -11,12 +11,13 @@ import { StructuredErrorDocument } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { ResourceDataDocument, SingleResourceDataDocument } from '@ember-data/types/cache/document';
+import type { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { Document } from '@ember-data/store/-private/document';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
@@ -89,7 +90,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     const { owner } = this;
 
     const store = owner.lookup('service:store') as TestStore;
-    const userDocument = await store.request<ResourceDataDocument<RecordInstance>>({
+    const userDocument = await store.request<Document<RecordInstance>>({
       url: '/assets/users/1.json',
     });
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -99,7 +100,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
     assert.strictEqual(data, record, 'record was returned as data');
     assert.strictEqual(data && recordIdentifierFor(data as RecordInstance), identifier, 'we get a record back as data');
-    assert.strictEqual(userDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
+    assert.strictEqual(userDocument.content.identifier?.lid, '/assets/users/1.json', 'we get back url as the cache key');
     assert.deepEqual(
       userDocument.content.links,
       { self: '/assets/users/1.json' },
@@ -179,7 +180,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     owner.register('service:request', RequestManagerService);
 
     const store = owner.lookup('service:store') as TestStore;
-    const userDocument = await store.request<SingleResourceDataDocument<RecordInstance>>({
+    const userDocument = await store.request<Document<RecordInstance>>({
       op: 'random-op',
       url: '/assets/users/1.json',
     });
@@ -188,7 +189,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     assert.strictEqual(record?.name, 'Chris Thoburn');
     assert.strictEqual(userDocument.content.data, record, 'we get a hydrated record back as data');
 
-    assert.strictEqual(userDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
+    assert.strictEqual(userDocument.content.identifier?.lid, '/assets/users/1.json', 'we get back url as the cache key');
 
     assert.deepEqual(
       userDocument.content.links,
