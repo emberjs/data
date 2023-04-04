@@ -67,12 +67,20 @@ type ResponseData = {
 declare const jQuery: JQueryStatic | undefined;
 
 /**
+ * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
+  <p>
+    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+    If starting a new app or thinking of implementing a new adapter, consider writing a
+    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/emberjs/data/tree/main/packages/request#readme">RequestManager</a>
+  </p>
+  </blockquote>
+
   The REST adapter allows your store to communicate with an HTTP server by
-  transmitting JSON via XHR. Most Ember.js apps that consume a JSON API
-  should use the REST adapter.
+  transmitting JSON via XHR.
 
   This adapter is designed around the idea that the JSON exchanged with
-  the server should be conventional.
+  the server should be conventional. It builds URLs in a manner that follows
+  the structure of most common REST-style web services.
 
   ## Success and failure
 

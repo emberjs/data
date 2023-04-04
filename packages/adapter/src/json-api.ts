@@ -16,10 +16,18 @@ import type { FetchRequestInit, JQueryRequestInit } from './rest';
 import RESTAdapter from './rest';
 
 /**
-  The `JSONAPIAdapter` is the default adapter used by Ember Data. It
-  is responsible for transforming the store's requests into HTTP
-  requests that follow the [JSON API](http://jsonapi.org/format/)
-  format.
+  ## Overview
+
+  <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
+  <p>
+    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+    If starting a new app or thinking of implementing a new adapter, consider writing a
+    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/emberjs/data/tree/main/packages/request#readme">RequestManager</a>
+  </p>
+  </blockquote>
+
+  The `JSONAPIAdapter` is an adapter whichtransforms the store's
+  requests into HTTP requests that follow the [JSON API format](http://jsonapi.org/format/).
 
   ## JSON API Conventions
 
