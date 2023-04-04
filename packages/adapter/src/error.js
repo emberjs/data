@@ -6,19 +6,19 @@ import { assert, deprecate } from '@ember/debug';
 import { DEPRECATE_HELPERS } from '@ember-data/deprecations';
 
 /**
-  A `AdapterError` is used by an adapter to signal that an error occurred
-  during a request to an external API. It indicates a generic error, and
-  subclasses are used to indicate specific error states. The following
-  subclasses are provided:
+  ## Overview
 
-  - `InvalidError`
-  - `TimeoutError`
-  - `AbortError`
-  - `UnauthorizedError`
-  - `ForbiddenError`
-  - `NotFoundError`
-  - `ConflictError`
-  - `ServerError`
+  <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
+  <p>
+    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+    If starting a new app or thinking of implementing a new adapter, consider writing a
+    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/emberjs/data/tree/main/packages/request#readme">RequestManager</a>
+  </p>
+  </blockquote>
+
+  An `AdapterError` is used by an adapter to signal that an error occurred
+  during a request to an external API. It indicates a generic error, and
+  subclasses are used to indicate specific error states.
 
   To create a custom error to signal a specific error state in communicating
   with an external API, extend the `AdapterError`. For example, if the
