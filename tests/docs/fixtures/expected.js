@@ -8,6 +8,7 @@ module.exports = {
     '@ember-data/debug',
     '@ember-data/deprecations',
     '@ember-data/experimental-preview-types',
+    '@ember-data/graph',
     '@ember-data/json-api',
     '@ember-data/legacy-compat',
     '@ember-data/model',
@@ -22,6 +23,9 @@ module.exports = {
     'ember-data-overview',
   ],
   classitems: [
+    '(public) @ember-data/store RequestStateService#getLastRequestForRecord',
+    '(public) @ember-data/store RequestStateService#getPendingRequestsForRecord',
+    '(public) @ember-data/store RequestStateService#subscribeForRecord',
     '(public) @ember-data/store IdentifierCache#getOrCreateDocumentIdentifier',
     '(public) @ember-data/store Store#registerSchema',
     '(public) @ember-data/store Store#schema',

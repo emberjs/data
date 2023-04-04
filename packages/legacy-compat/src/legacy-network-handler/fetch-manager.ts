@@ -12,7 +12,7 @@ import { coerceId } from '@ember-data/store/-private';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type RequestCache from '@ember-data/store/-private/network/request-cache';
+import type RequestStateService from '@ember-data/store/-private/network/request-cache';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
 import type {
@@ -60,7 +60,7 @@ interface PendingSaveItem {
 
 export default class FetchManager {
   declare isDestroyed: boolean;
-  declare requestCache: RequestCache;
+  declare requestCache: RequestStateService;
   // fetches pending in the runloop, waiting to be coalesced
   declare _pendingFetch: Map<string, PendingFetchItem[]>;
   declare _store: Store;
@@ -106,7 +106,7 @@ export default class FetchManager {
       queryRequest,
     };
 
-    const monitored = this.requestCache.enqueue(resolver.promise, pendingSaveItem.queryRequest);
+    const monitored = this.requestCache._enqueue(resolver.promise, pendingSaveItem.queryRequest);
     _flushPendingSave(this._store, pendingSaveItem);
 
     return monitored;
@@ -146,7 +146,7 @@ export default class FetchManager {
     const store = this._store;
     const isInitialLoad = !store._instanceCache.recordIsLoaded(identifier); // we don't use isLoading directly because we are the request
 
-    const monitored = this.requestCache.enqueue(resolverPromise, pendingFetchItem.queryRequest);
+    const monitored = this.requestCache._enqueue(resolverPromise, pendingFetchItem.queryRequest);
     let promise = monitored.then(
       (payload) => {
         // ensure that regardless of id returned we assign to the correct record

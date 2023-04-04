@@ -1,14 +1,15 @@
 /**
- In EmberData a `Model` is a class defining the attributes and relationships
-  of a specific resource `type` (model name). In this sense it represents a static "schema".
+ * This package provides a Presentation Model for resource data in an EmberData Cache.
+ *
+ * Models are defined as classes extending from `import Model from '@ember-data/model';` and the
+ * attributes and relationships on these classes are parsed at runtime to supply static "schema"
+ * to EmberData's SchemaService.
+ *
+ * Resource data for individual resources fetched from your API is presented to the UI via instances
+ * of the `Model`s you define. An instantiated `Model` is referred to as a `record`.
 
-  Data for individual resources fetched from your API is presented
-  to the UI via instances of the `Model`s you define.
-
-  An instantiated `Model` is referred to as a `record`.
-
-  When we refer to the `ModelClass` we are referring to the class definition
-  and the static schema methods present on it.
+  When we refer to the `ModelClass` as opposed to a `Model` or `Record` we are referring
+  specifically to the class definition and the static schema methods present on it.
 
   When we refer to a `record` we refer to a specific class instance presenting
   the resource data for a given `type` and `id`.

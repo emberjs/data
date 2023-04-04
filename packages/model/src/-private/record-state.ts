@@ -8,7 +8,7 @@ import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { peekCache, recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type RequestCache from '@ember-data/store/-private/network/request-cache';
+import type RequestStateService from '@ember-data/store/-private/network/request-cache';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -149,7 +149,7 @@ export default class RecordState {
   declare store: Store;
   declare identifier: StableRecordIdentifier;
   declare record: Model;
-  declare rs: RequestCache;
+  declare rs: RequestStateService;
 
   declare pendingCount: number;
   declare fulfilledCount: number;

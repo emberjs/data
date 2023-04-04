@@ -107,7 +107,7 @@ function computeOnce(target, key, desc) {
 }
 
 /**
-  Base class from which Models can be define.
+  Base class from which Models can be defined.
 
   ```js
   import Model, { attr } from '@ember-data/model';
