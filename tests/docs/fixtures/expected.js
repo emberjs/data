@@ -8,6 +8,7 @@ module.exports = {
     '@ember-data/debug',
     '@ember-data/deprecations',
     '@ember-data/experimental-preview-types',
+    '@ember-data/graph',
     '@ember-data/json-api',
     '@ember-data/legacy-compat',
     '@ember-data/model',
