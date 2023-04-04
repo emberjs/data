@@ -9,6 +9,9 @@ import type {
 import type Store from '@ember-data/store';
 import { CollectionResourceDataDocument, ResourceDataDocument } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import { RecordInstance } from '@ember-data/types/q/record-instance';
+
+import { Document } from './document';
 
 export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -23,32 +26,68 @@ export interface StoreRequestContext extends RequestContext {
   request: StoreRequestInfo & { store: Store };
 }
 
-function getHydratedContent<T>(store: Store, request: StoreRequestInfo, document: ResourceDataDocument): T {
+function getHydratedContent<T>(
+  store: Store,
+  request: StoreRequestInfo,
+  identifier: StableDocumentIdentifier | null,
+  document: ResourceDataDocument
+): T {
   if (Array.isArray(document.data)) {
-    const { lid } = document;
     const { recordArrayManager } = store;
-    if (!lid) {
-      return recordArrayManager.createArray({
+    if (!identifier) {
+      const data = recordArrayManager.createArray({
         identifiers: document.data,
         doc: document as CollectionResourceDataDocument,
         query: request,
       }) as T;
+
+      const doc = new Document(store, null);
+      doc.data = data;
+      doc.meta = document.meta;
+      doc.links = document.links;
+
+      return doc as T;
     }
-    let managed = recordArrayManager._keyedArrays.get(lid);
+    let managed = recordArrayManager._keyedArrays.get(identifier.lid);
     if (!managed) {
       managed = recordArrayManager.createArray({
         identifiers: document.data,
         doc: document as CollectionResourceDataDocument,
       });
-      recordArrayManager._keyedArrays.set(lid, managed);
+      recordArrayManager._keyedArrays.set(identifier.lid, managed);
+      const doc = new Document<RecordInstance[]>(store, identifier);
+      doc.data = managed;
+      doc.meta = document.meta;
+      doc.links = document.links;
+      store._documentCache.set(identifier, doc);
     } else {
       recordArrayManager.populateManagedArray(managed, document.data, document as CollectionResourceDataDocument);
+      const doc = store._documentCache.get(identifier)!;
+      doc.data = managed;
+      doc.meta = document.meta;
+      doc.links = document.links;
     }
     return managed as T;
   } else {
-    return Object.assign({}, document, {
-      data: document.data ? store.peekRecord(document.data) : null,
-    }) as T;
+    const data = document.data ? store.peekRecord(document.data) : null;
+    let doc: Document<RecordInstance | null> | undefined;
+    if (identifier) {
+      doc = store._documentCache.get(identifier) as Document<RecordInstance | null> | undefined;
+    }
+
+    if (!doc) {
+      doc = new Document<RecordInstance | null>(store, identifier);
+
+      if (identifier) {
+        store._documentCache.set(identifier, doc);
+      }
+    }
+
+    doc.data = data;
+    doc.meta = document.meta;
+    doc.links = document.links;
+
+    return doc as T;
   }
 }
 
@@ -83,6 +122,7 @@ function calcShouldBackgroundFetch(
 function fetchContentAndHydrate<T>(
   next: NextFn<T>,
   context: StoreRequestContext,
+  identifier: StableDocumentIdentifier | null,
   shouldFetch: boolean,
   shouldBackgroundFetch: boolean
 ): Promise<T> {
@@ -97,7 +137,7 @@ function fetchContentAndHydrate<T>(
         response = store.cache.put(document) as ResourceDataDocument;
 
         if (shouldFetch && shouldHydrate) {
-          response = getHydratedContent(store, context.request, response);
+          response = getHydratedContent(store, context.request, identifier, response);
         }
       });
       store._enableAsyncFlush = null;
@@ -138,12 +178,12 @@ export const CacheHandler: Handler = {
 
     // determine if we should skip cache
     if (calcShouldFetch(store, context.request, !!peeked, identifier)) {
-      return fetchContentAndHydrate(next, context, true, false);
+      return fetchContentAndHydrate(next, context, identifier, true, false);
     }
 
     // if we have not skipped cache, determine if we should update behind the scenes
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
-      void fetchContentAndHydrate(next, context, false, true);
+      void fetchContentAndHydrate(next, context, identifier, false, true);
     }
 
     if ('error' in peeked!) {
@@ -154,7 +194,7 @@ export const CacheHandler: Handler = {
 
     return Promise.resolve(
       shouldHydrate
-        ? getHydratedContent<T>(store, context.request, peeked!.content as ResourceDataDocument)
+        ? getHydratedContent<T>(store, context.request, identifier, peeked!.content as ResourceDataDocument)
         : (peeked!.content as T)
     );
   },
