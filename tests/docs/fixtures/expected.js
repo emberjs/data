@@ -22,6 +22,9 @@ module.exports = {
     'ember-data-overview',
   ],
   classitems: [
+    '(public) @ember-data/store RequestStateService#getLastRequestForRecord',
+    '(public) @ember-data/store RequestStateService#getPendingRequestsForRecord',
+    '(public) @ember-data/store RequestStateService#subscribeForRecord',
     '(public) @ember-data/store IdentifierCache#getOrCreateDocumentIdentifier',
     '(public) @ember-data/store Store#registerSchema',
     '(public) @ember-data/store Store#schema',

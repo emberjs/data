@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/store
+ */
 import { assert } from '@ember/debug';
 
 import type {
@@ -25,7 +28,14 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
   return 'recordIdentifier' in op;
 }
 
-export default class RequestCache {
+/**
+ * The RequestStateService is used to track the state of requests
+ * for fetching or updating known resource identifies that are inflight.
+ *
+ * @class RequestStateService
+ * @public
+ */
+export default class RequestStateService {
   _pending: { [lid: string]: InternalRequest[] } = Object.create(null);
   _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _subscriptions: { [lid: string]: Function[] } = Object.create(null);
@@ -40,7 +50,7 @@ export default class RequestCache {
     this._done.delete(identifier);
   }
 
-  enqueue<T>(promise: Promise<T>, queryRequest: Request): Promise<T> {
+  _enqueue<T>(promise: Promise<T>, queryRequest: Request): Promise<T> {
     let query = queryRequest.data[0];
     if (hasRecordIdentifier(query)) {
       let lid = query.recordIdentifier.lid;
@@ -146,6 +156,35 @@ export default class RequestCache {
     });
   }
 
+  /**
+   * Subscribe to requests for a given resource identity.
+   *
+   * The callback will receive the current state of the request.
+   *
+   * ```ts
+   * interface RequestState {
+   *   state: 'pending' | 'fulfilled' | 'rejected';
+   *   type: 'query' | 'mutation';
+   *   request: Request;
+   *   response?: { data: unknown };
+   * }
+   * ```
+   *
+   * Note: It should be considered dangerous to use this API for more than simple
+   * state derivation or debugging. The `request` and `response` properties are poorly
+   * spec'd and may change unexpectedly when shifting what Handlers are in use or how
+   * requests are issued from the Store.
+   *
+   * We expect to revisit this API in the near future as we continue to refine the
+   * RequestManager ergonomics, as a simpler but more powerful direct integration
+   * with the RequestManager for these purposes is likely to be a better long-term
+   * design.
+   *
+   * @method subscribeForRecord
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @param {(state: RequestState) => void} callback
+   */
   subscribeForRecord(identifier: RecordIdentifier, callback: (requestState: RequestState) => void) {
     if (!this._subscriptions[identifier.lid]) {
       this._subscriptions[identifier.lid] = [];
@@ -153,6 +192,14 @@ export default class RequestCache {
     this._subscriptions[identifier.lid].push(callback);
   }
 
+  /**
+   * Retrieve all active requests for a given resource identity.
+   *
+   * @method getPendingRequestsForRecord
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {RequestState[]} an array of request states for any pending requests for the given identifier
+   */
   getPendingRequestsForRecord(identifier: RecordIdentifier): RequestState[] {
     if (this._pending[identifier.lid]) {
       return this._pending[identifier.lid];
@@ -160,6 +207,14 @@ export default class RequestCache {
     return [];
   }
 
+  /**
+   * Retrieve the last completed request for a given resource identity.
+   *
+   * @method getLastRequestForRecord
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {RequestState | null} the state of the most recent request for the given identifier
+   */
   getLastRequestForRecord(identifier: RecordIdentifier): RequestState | null {
     let requests = this._done.get(identifier);
     if (requests) {

@@ -60,7 +60,7 @@ import { getShimClass } from './legacy-model-support/shim-model-class';
 import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
-import RequestCache, { RequestPromise } from './network/request-cache';
+import RequestStateService, { RequestPromise } from './network/request-cache';
 import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
@@ -210,7 +210,7 @@ class Store {
   declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
   declare _modelFactoryCache: Dict<unknown>;
   declare _fetchManager: FetchManager;
-  declare _requestCache: RequestCache;
+  declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
@@ -238,7 +238,7 @@ class Store {
     this.recordArrayManager = new RecordArrayManager({ store: this });
 
     // private
-    this._requestCache = new RequestCache(this);
+    this._requestCache = new RequestStateService(this);
     this._instanceCache = new InstanceCache(this);
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
@@ -286,7 +286,7 @@ class Store {
    * @returns {RequestStateService}
    * @public
    */
-  getRequestStateService(): RequestCache {
+  getRequestStateService(): RequestStateService {
     return this._requestCache;
   }
 

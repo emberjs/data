@@ -92,7 +92,7 @@ To start, let's install the `FetchManager` from `@ember-data/request` and the ba
 > **Note** If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/emberjs/data/tree/main/packages/request#handling-requests).
 
 ```ts
-import Store from '@ember-data/store';
+import Store, { CacheHandler } from '@ember-data/store';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 
@@ -101,6 +101,7 @@ export default class extends Store {
     super(...arguments);
     this.requestManager = new RequestManager();
     this.requestManager.use([Fetch]);
+    this.requestManager.useCache(CacheHandler);
   }
 }
 ```
@@ -112,12 +113,14 @@ Alternatively if you have configured the `RequestManager` to be a service you ma
 *app/services/request.js*
 ```ts
 import RequestManager from '@ember-data/request';
+import { CacheHandler } from '@ember-data/store';
 import Fetch from '@ember-data/request/fetch';
 
 export default class extends RequestManager {
   constructor(createArgs) {
     super(createArgs);
     this.use([Fetch]);
+    this.useCache(CacheHandler);
   }
 }
 ```
