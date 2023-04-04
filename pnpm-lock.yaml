@@ -109,7 +109,7 @@ importers:
       semver: ^7.3.8
       silent-error: ^1.1.1
       testem: ^3.10.1
-      typescript: ~4.9.5
+      typescript: ~5.0.3
       url: ^0.11.0
       webpack: ^5.77.0
       yuidocjs: ^0.10.2
@@ -148,8 +148,8 @@ importers:
       '@types/htmlbars-inline-precompile': 3.0.0
       '@types/qunit': 2.19.4
       '@types/rsvp': 4.0.4
-      '@typescript-eslint/eslint-plugin': 5.57.0_x4rubgibnu7ujqspfqdeho4yiu
-      '@typescript-eslint/parser': 5.57.0_ip5up2nocltd47wbnuyybe5dxu
+      '@typescript-eslint/eslint-plugin': 5.57.0_z24sz2fazj3bxoipp6m4s7b2mi
+      '@typescript-eslint/parser': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
       babel-plugin-debug-macros: 0.3.4_@babel+core@7.21.4
       babel-plugin-filter-imports: 4.0.0
       babel6-plugin-strip-class-callcheck: 6.0.0
@@ -215,7 +215,7 @@ importers:
       semver: 7.3.8
       silent-error: 1.1.1
       testem: 3.10.1_debug@4.3.4
-      typescript: 4.9.5
+      typescript: 5.0.3
       url: 0.11.0
       webpack: 5.77.0
       yuidocjs: 0.10.2
@@ -318,7 +318,7 @@ importers:
       ember-source: ~4.11.0
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -343,7 +343,7 @@ importers:
       ember-source: 4.11.0_xb7jmnbadcegk3bgvfutiz46f4
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -392,7 +392,7 @@ importers:
       ember-source: ~4.11.0
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -417,7 +417,7 @@ importers:
       ember-source: 4.11.0_xb7jmnbadcegk3bgvfutiz46f4
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -446,7 +446,7 @@ importers:
       ember-source: ~4.11.0
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -471,7 +471,7 @@ importers:
       ember-source: 4.11.0_xb7jmnbadcegk3bgvfutiz46f4
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
     dependenciesMeta:
       '@ember-data/graph':
@@ -499,7 +499,7 @@ importers:
       ember-cli-babel: ^7.26.11
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -521,7 +521,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.20.2
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -554,7 +554,7 @@ importers:
       inflection: ~2.0.1
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -583,7 +583,7 @@ importers:
       ember-source: 4.11.0_xb7jmnbadcegk3bgvfutiz46f4
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -668,7 +668,7 @@ importers:
       ember-cli-babel: ^7.26.11
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -691,7 +691,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.20.2
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -720,7 +720,7 @@ importers:
       ember-source: ~4.11.0
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -745,7 +745,7 @@ importers:
       ember-source: 4.11.0_xb7jmnbadcegk3bgvfutiz46f4
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -774,7 +774,7 @@ importers:
       ember-source: ~4.11.0
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -799,7 +799,7 @@ importers:
       ember-source: 4.11.0_xb7jmnbadcegk3bgvfutiz46f4
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
@@ -822,7 +822,7 @@ importers:
       ember-cli-babel: ^7.26.11
       rollup: ^3.20.2
       tslib: ^2.5.0
-      typescript: ^4.9.5
+      typescript: ^5.0.3
       walk-sync: ^3.0.0
     dependencies:
       ember-cli-babel: 7.26.11
@@ -841,7 +841,7 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.20.2
       rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       walk-sync: 3.0.0
 
   packages/unpublished-eslint-rules:
@@ -1179,7 +1179,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      typescript: ~4.9.5
+      typescript: ~5.0.3
       webpack: ^5.77.0
     dependencies:
       '@ember/string': 3.0.1
@@ -1220,7 +1220,7 @@ importers:
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/unpublished-test-infra':
@@ -1263,7 +1263,7 @@ importers:
       loader.js: ^4.7.0
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      typescript: ~4.9.5
+      typescript: ~5.0.3
       webpack: ^5.77.0
     dependencies:
       '@ember/string': 3.0.1
@@ -1300,7 +1300,7 @@ importers:
       loader.js: 4.7.0
       qunit: 2.19.4
       qunit-dom: 2.0.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/unpublished-test-infra':
@@ -1723,7 +1723,7 @@ importers:
       pretender: ^3.4.7
       qunit: ^2.19.4
       qunit-dom: ^2.0.0
-      typescript: ~4.9.5
+      typescript: ~5.0.3
       webpack: ^5.77.0
     devDependencies:
       '@babel/core': 7.21.4
@@ -1779,7 +1779,7 @@ importers:
       pretender: 3.4.7
       qunit: 2.19.4
       qunit-dom: 2.0.0
-      typescript: 4.9.5
+      typescript: 5.0.3
       webpack: 5.77.0
     dependenciesMeta:
       '@ember-data/adapter':
@@ -4615,7 +4615,7 @@ packages:
       '@types/yargs-parser': 21.0.0
     dev: true
 
-  /@typescript-eslint/eslint-plugin/5.57.0_x4rubgibnu7ujqspfqdeho4yiu:
+  /@typescript-eslint/eslint-plugin/5.57.0_z24sz2fazj3bxoipp6m4s7b2mi:
     resolution: {integrity: sha512-itag0qpN6q2UMM6Xgk6xoHa0D0/P+M17THnr4SVgqn9Rgam5k/He33MA7/D7QoJcdMxHFyX7U9imaBonAX/6qA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4627,23 +4627,23 @@ packages:
         optional: true
     dependencies:
       '@eslint-community/regexpp': 4.4.1
-      '@typescript-eslint/parser': 5.57.0_ip5up2nocltd47wbnuyybe5dxu
+      '@typescript-eslint/parser': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
       '@typescript-eslint/scope-manager': 5.57.0
-      '@typescript-eslint/type-utils': 5.57.0_ip5up2nocltd47wbnuyybe5dxu
-      '@typescript-eslint/utils': 5.57.0_ip5up2nocltd47wbnuyybe5dxu
+      '@typescript-eslint/type-utils': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
+      '@typescript-eslint/utils': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
       debug: 4.3.4
       eslint: 8.37.0
       grapheme-splitter: 1.0.4
       ignore: 5.2.4
       natural-compare-lite: 1.4.0
       semver: 7.3.8
-      tsutils: 3.21.0_typescript@4.9.5
-      typescript: 4.9.5
+      tsutils: 3.21.0_typescript@5.0.3
+      typescript: 5.0.3
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/parser/5.57.0_ip5up2nocltd47wbnuyybe5dxu:
+  /@typescript-eslint/parser/5.57.0_vwh6htx42aidho2qgfca5u5rwm:
     resolution: {integrity: sha512-orrduvpWYkgLCyAdNtR1QIWovcNZlEm6yL8nwH/eTxWLd8gsP+25pdLHYzL2QdkqrieaDwLpytHqycncv0woUQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4655,10 +4655,10 @@ packages:
     dependencies:
       '@typescript-eslint/scope-manager': 5.57.0
       '@typescript-eslint/types': 5.57.0
-      '@typescript-eslint/typescript-estree': 5.57.0_typescript@4.9.5
+      '@typescript-eslint/typescript-estree': 5.57.0_typescript@5.0.3
       debug: 4.3.4
       eslint: 8.37.0
-      typescript: 4.9.5
+      typescript: 5.0.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4671,7 +4671,7 @@ packages:
       '@typescript-eslint/visitor-keys': 5.57.0
     dev: true
 
-  /@typescript-eslint/type-utils/5.57.0_ip5up2nocltd47wbnuyybe5dxu:
+  /@typescript-eslint/type-utils/5.57.0_vwh6htx42aidho2qgfca5u5rwm:
     resolution: {integrity: sha512-kxXoq9zOTbvqzLbdNKy1yFrxLC6GDJFE2Yuo3KqSwTmDOFjUGeWSakgoXT864WcK5/NAJkkONCiKb1ddsqhLXQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4681,12 +4681,12 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/typescript-estree': 5.57.0_typescript@4.9.5
-      '@typescript-eslint/utils': 5.57.0_ip5up2nocltd47wbnuyybe5dxu
+      '@typescript-eslint/typescript-estree': 5.57.0_typescript@5.0.3
+      '@typescript-eslint/utils': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
       debug: 4.3.4
       eslint: 8.37.0
-      tsutils: 3.21.0_typescript@4.9.5
-      typescript: 4.9.5
+      tsutils: 3.21.0_typescript@5.0.3
+      typescript: 5.0.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4696,7 +4696,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@typescript-eslint/typescript-estree/5.57.0_typescript@4.9.5:
+  /@typescript-eslint/typescript-estree/5.57.0_typescript@5.0.3:
     resolution: {integrity: sha512-LTzQ23TV82KpO8HPnWuxM2V7ieXW8O142I7hQTxWIHDcCEIjtkat6H96PFkYBQqGFLW/G/eVVOB9Z8rcvdY/Vw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4711,13 +4711,13 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.3.8
-      tsutils: 3.21.0_typescript@4.9.5
-      typescript: 4.9.5
+      tsutils: 3.21.0_typescript@5.0.3
+      typescript: 5.0.3
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/utils/5.57.0_ip5up2nocltd47wbnuyybe5dxu:
+  /@typescript-eslint/utils/5.57.0_vwh6htx42aidho2qgfca5u5rwm:
     resolution: {integrity: sha512-ps/4WohXV7C+LTSgAL5CApxvxbMkl9B9AUZRtnEFonpIxZDIT7wC1xfvuJONMidrkB9scs4zhtRyIwHh4+18kw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -4728,7 +4728,7 @@ packages:
       '@types/semver': 7.3.13
       '@typescript-eslint/scope-manager': 5.57.0
       '@typescript-eslint/types': 5.57.0
-      '@typescript-eslint/typescript-estree': 5.57.0_typescript@4.9.5
+      '@typescript-eslint/typescript-estree': 5.57.0_typescript@5.0.3
       eslint: 8.37.0
       eslint-scope: 5.1.1
       semver: 7.3.8
@@ -9084,7 +9084,7 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 5.57.0_ip5up2nocltd47wbnuyybe5dxu
+      '@typescript-eslint/parser': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
       debug: 3.2.7
       eslint: 8.37.0
       eslint-import-resolver-node: 0.3.7
@@ -9136,7 +9136,7 @@ packages:
       '@typescript-eslint/parser':
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 5.57.0_ip5up2nocltd47wbnuyybe5dxu
+      '@typescript-eslint/parser': 5.57.0_vwh6htx42aidho2qgfca5u5rwm
       array-includes: 3.1.6
       array.prototype.flat: 1.3.1
       array.prototype.flatmap: 1.3.1
@@ -14654,14 +14654,14 @@ packages:
   /tslib/2.5.0:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
 
-  /tsutils/3.21.0_typescript@4.9.5:
+  /tsutils/3.21.0_typescript@5.0.3:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
       typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     dependencies:
       tslib: 1.14.1
-      typescript: 4.9.5
+      typescript: 5.0.3
     dev: true
 
   /tunnel-agent/0.4.3:
@@ -14729,9 +14729,9 @@ packages:
   /typescript-memoize/1.1.1:
     resolution: {integrity: sha512-GQ90TcKpIH4XxYTI2F98yEQYZgjNMOGPpOgdjIBhaLaWji5HPWlRnZ4AeA1hfBxtY7bCGDJsqDDHk/KaHOl5bA==}
 
-  /typescript/4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
+  /typescript/5.0.3:
+    resolution: {integrity: sha512-xv8mOEDnigb/tN9PSMTwSEqAnUvkoXMQlicOb0IUVDBSQCgBSaAAROUZYy2IcUy5qU6XajK5jjjO7TMWqBTKZA==}
+    engines: {node: '>=12.20'}
     hasBin: true
     dev: true
 
