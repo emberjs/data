@@ -9,7 +9,6 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 class Person extends Model {
   @attr()
