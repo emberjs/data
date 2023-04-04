@@ -1,31 +1,55 @@
-@ember-data/model
-==============================================================================
+<p align="center">
+  <img
+    class="project-logo"
+    src="./ember-data-logo-dark.svg#gh-dark-mode-only"
+    alt="EmberData Model"
+    width="240px"
+    title="EmberData Model"
+    />
+  <img
+    class="project-logo"
+    src="./ember-data-logo-light.svg#gh-light-mode-only"
+    alt="EmberData Model"
+    width="240px"
+    title="EmberData Model"
+    />
+</p>
 
-[Short description of the addon.]
+<p align="center">Provides a Presentation Model for resource data in an EmberData Cache</p>
 
+This package implements the EmberData Store's `instantiateRecord` and `teardownRecord` hooks
+as well as configures an associated `SchemaService` implementation.
 
-Compatibility
-------------------------------------------------------------------------------
+Models are defined as classes extending from `import Model from '@ember-data/model';` and the
+attributes and relationships on these classes are parsed at runtime to supply static "schema"
+to EmberData's SchemaService.
 
-* Ember.js v3.4 or above
-* Ember CLI v2.13 or above
+Resource data for individual resources fetched from your API is presented to the UI via instances
+of the `Model`s you define. An instantiated `Model` is referred to as a `record`.
 
+When we refer to the `ModelClass` as opposed to a `Model` or `Record` we are referring
+specifically to the class definition and the static schema methods present on it.
 
-Installation
-------------------------------------------------------------------------------
+When we refer to a `record` we refer to a specific class instance presenting
+the resource data for a given `type` and `id`.
 
-```
-ember install @ember-data/model
-```
+  ### Defining a Model
 
+ *app/models/person.js*
+  ```ts
+  import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-Usage
-------------------------------------------------------------------------------
+  export default class PersonModel extends Model {
+    @attr name;
 
-[Longer description of how to use the addon in apps.]
+    @belongsTo('pet', { inverse: 'owners', async: false }) dog;
 
+    @hasMany('person', { inverse: 'friends', async: true }) friends;
+  }
+  ```
 
-License
-------------------------------------------------------------------------------
+  ### modelName convention
 
-This project is licensed under the [MIT License](LICENSE.md).
+  By convention, the name of a given model (its `type`) matches the name
+  of the file in the `app/models` folder and should be lowercase, singular
+  and dasherized.
