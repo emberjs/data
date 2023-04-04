@@ -1718,6 +1718,7 @@ importers:
       ember-resolver: ^10.0.0
       ember-source: ~4.11.0
       ember-source-channel-url: ^3.0.0
+      ember-strict-resolver: ^1.3.0
       ember-try: ^2.0.0
       loader.js: ^4.7.0
       pretender: ^3.4.7
@@ -1774,6 +1775,7 @@ importers:
       ember-resolver: 10.0.0_kzwsaxkqup2inborfmd55uo3na
       ember-source: 4.11.0_ix5dd5chltqnvuhjnw3zal3pwi
       ember-source-channel-url: 3.0.0
+      ember-strict-resolver: 1.3.0
       ember-try: 2.0.0
       loader.js: 4.7.0
       pretender: 3.4.7
@@ -8820,6 +8822,15 @@ packages:
       - '@babel/core'
       - supports-color
       - webpack
+
+  /ember-strict-resolver/1.3.0:
+    resolution: {integrity: sha512-GeI1LLLt470sjaq/huKGQTDJPDOH0FlrX8FFVcSZPXO2U9FQH7Kc8BaXb4GpViJbfLLC4d7tIUZI4NBnuXSmKg==}
+    engines: {node: 10.* || >= 12}
+    dependencies:
+      ember-cli-babel: 7.26.11
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
 
   /ember-template-imports/3.4.2:
     resolution: {integrity: sha512-OS8TUVG2kQYYwP3netunLVfeijPoOKIs1SvPQRTNOQX4Pu8xGGBEZmrv0U1YTnQn12Eg+p6w/0UdGbUnITjyzw==}

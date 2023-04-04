@@ -28,23 +28,17 @@ class Tool extends Model {
   person;
 }
 
-module('unit/record-array - RecordArray', function (hooks) {
+module('integration/record-array - RecordArray', function (hooks) {
   setupTest(hooks);
-  let store;
 
   hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:person', Person);
-    owner.register('model:tag', Tag);
-    owner.register('model:tool', Tool);
-    owner.register('adapter:application', JSONAPIAdapter.extend());
-    owner.register('serializer:application', class extends JSONAPISerializer {});
-
-    store = owner.lookup('service:store');
   });
 
   test('acts as a live query', async function (assert) {
+    const store = this.owner.lookup('service:store');
     let recordArray = store.peekAll('person');
 
     store.push({
@@ -77,7 +71,7 @@ module('unit/record-array - RecordArray', function (hooks) {
   });
 
   test('acts as a live query (normalized names)', async function (assert) {
-    this.owner.register('model:Person', Person);
+    const store = this.owner.lookup('service:store');
 
     let recordArray = store.peekAll('Person');
     let otherRecordArray = store.peekAll('person');
@@ -94,8 +88,6 @@ module('unit/record-array - RecordArray', function (hooks) {
       },
     });
 
-    await settled();
-
     assert.deepEqual(
       recordArray.map((v) => v.name),
       ['John Churchill']
@@ -111,8 +103,6 @@ module('unit/record-array - RecordArray', function (hooks) {
       },
     });
 
-    await settled();
-
     assert.deepEqual(
       recordArray.map((v) => v.name),
       ['John Churchill', 'Winston Churchill']
@@ -121,6 +111,9 @@ module('unit/record-array - RecordArray', function (hooks) {
 
   test('a loaded record is removed from a record array when it is deleted', async function (assert) {
     assert.expect(5);
+
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:tool', Tool);
     this.owner.register(
       'adapter:application',
       Adapter.extend({
@@ -132,6 +125,7 @@ module('unit/record-array - RecordArray', function (hooks) {
         },
       })
     );
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -227,6 +221,50 @@ module('unit/record-array - RecordArray', function (hooks) {
     assert.strictEqual(recordArray.length, 2, 'updated length 2');
   });
 
+  test('destroyRecord on a newly create record that is staged for a live record array only removes itself', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.peekAll('person');
+
+    assert.strictEqual(recordArray.length, 0, 'initial length 0');
+
+    store.push({
+      data: [
+        { type: 'person', id: '1', attributes: { name: 'Chris' } },
+        { type: 'person', id: '2', attributes: { name: 'Ross' } },
+        { type: 'person', id: '3', attributes: { name: 'Cajun' } },
+      ],
+    });
+
+    assert.strictEqual(recordArray.length, 3, 'populated length 3');
+
+    const person = store.createRecord('person', {});
+    await person.destroyRecord();
+
+    assert.strictEqual(recordArray.length, 3, 'populated length 3');
+  });
+
+  test('unloadRecord on a newly create record that is staged for a live record array only removes itself', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.peekAll('person');
+
+    assert.strictEqual(recordArray.length, 0, 'initial length 0');
+
+    store.push({
+      data: [
+        { type: 'person', id: '1', attributes: { name: 'Chris' } },
+        { type: 'person', id: '2', attributes: { name: 'Ross' } },
+        { type: 'person', id: '3', attributes: { name: 'Cajun' } },
+      ],
+    });
+
+    assert.strictEqual(recordArray.length, 3, 'populated length 3');
+
+    const person = store.createRecord('person', {});
+    person.unloadRecord();
+
+    assert.strictEqual(recordArray.length, 3, 'populated length 3');
+  });
+
   test("a loaded record is not removed from a relationship ManyArray when it is deleted even if the belongsTo side isn't defined", async function (assert) {
     class Person extends Model {
       @attr()
@@ -238,8 +276,6 @@ module('unit/record-array - RecordArray', function (hooks) {
       people;
     }
 
-    this.owner.unregister('model:person');
-    this.owner.unregister('model:tag');
     this.owner.register('model:person', Person);
     this.owner.register('model:tag', Tag);
     this.owner.register(
@@ -250,6 +286,7 @@ module('unit/record-array - RecordArray', function (hooks) {
         },
       })
     );
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -290,6 +327,9 @@ module('unit/record-array - RecordArray', function (hooks) {
         },
       })
     );
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:tool', Tool);
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -336,6 +376,8 @@ module('unit/record-array - RecordArray', function (hooks) {
 
   // GitHub Issue #168
   test('a newly created record is removed from a record array when it is deleted', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
     let recordArray = store.peekAll('person');
     let scumbag = store.createRecord('person', {
       name: 'Scumbag Dale',
@@ -359,6 +401,8 @@ module('unit/record-array - RecordArray', function (hooks) {
   });
 
   test("a record array returns undefined when asking for a member outside of its content Array's range", async function (assert) {
+    const store = this.owner.lookup('service:store');
+
     store.push({
       data: [
         {
@@ -392,6 +436,8 @@ module('unit/record-array - RecordArray', function (hooks) {
 
   // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
   test('a record array should be able to be enumerated in any order', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
     store.push({
       data: [
         {
@@ -426,6 +472,8 @@ module('unit/record-array - RecordArray', function (hooks) {
   });
 
   test("an AdapterPopulatedRecordArray knows if it's loaded or not", async function (assert) {
+    const store = this.owner.lookup('service:store');
+
     assert.expect(2);
     let adapter = store.adapterFor('person');
 

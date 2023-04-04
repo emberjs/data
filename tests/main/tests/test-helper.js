@@ -13,14 +13,6 @@ import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/
 import Application from '../app';
 import config from '../config/environment';
 
-if (window.Promise === undefined) {
-  window.Promise = RSVP.Promise;
-}
-
-// Handle testing feature flags
-if (QUnit.urlParams.enableoptionalfeatures) {
-  window.EmberDataENV = { ENABLE_OPTIONAL_FEATURES: true };
-}
 QUnit.dump.maxDepth = 3;
 setup(QUnit.assert);
 
@@ -47,8 +39,5 @@ QUnit.begin(function () {
 });
 
 QUnit.config.testTimeout = 2000;
-QUnit.config.urlConfig.push({
-  id: 'enableoptionalfeatures',
-  label: 'Enable Opt Features',
-});
+
 start({ setupTestIsolationValidation: true });
