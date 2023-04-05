@@ -97,7 +97,7 @@ importers:
       fromentries: ^1.3.2
       git-repo-info: ^2.1.1
       git-repo-version: ^1.0.2
-      glob: ^9.3.2
+      glob: ^9.3.4
       json-typescript: ^1.1.2
       lerna-changelog: ^2.2.0
       loader.js: ^4.7.0
@@ -203,7 +203,7 @@ importers:
       fromentries: 1.3.2
       git-repo-info: 2.1.1
       git-repo-version: 1.0.2
-      glob: 9.3.2
+      glob: 9.3.4
       json-typescript: 1.1.2
       lerna-changelog: 2.2.0
       loader.js: 4.7.0
@@ -612,7 +612,7 @@ importers:
       ember-cli-string-utils: ^1.1.0
       ember-cli-version-checker: ^5.1.2
       git-repo-info: ^2.1.1
-      glob: ^9.3.2
+      glob: ^9.3.4
       npm-git-info: ^1.0.3
       rimraf: ^4.4.1
       rsvp: ^4.8.5
@@ -640,7 +640,7 @@ importers:
       ember-cli-string-utils: 1.1.0
       ember-cli-version-checker: 5.1.2
       git-repo-info: 2.1.1
-      glob: 9.3.2
+      glob: 9.3.4
       npm-git-info: 1.0.3
       rimraf: 4.4.1
       rsvp: 4.8.5
@@ -10297,12 +10297,12 @@ packages:
       minimatch: 5.1.6
       once: 1.4.0
 
-  /glob/9.3.2:
-    resolution: {integrity: sha512-BTv/JhKXFEHsErMte/AnfiSv8yYOLLiyH2lTg8vn02O21zWFgHPTfxtgn1QRe7NRgggUhC8hacR2Re94svHqeA==}
+  /glob/9.3.4:
+    resolution: {integrity: sha512-qaSc49hojMOv1EPM4EuyITjDSgSKI0rthoHnvE81tcOi1SCVndHko7auqxdQ14eiQG2NDBJBE86+2xIrbIvrbA==}
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       fs.realpath: 1.0.0
-      minimatch: 7.4.3
+      minimatch: 8.0.3
       minipass: 4.2.5
       path-scurry: 1.6.3
 
@@ -12088,9 +12088,9 @@ packages:
     dependencies:
       brace-expansion: 2.0.1
 
-  /minimatch/7.4.3:
-    resolution: {integrity: sha512-5UB4yYusDtkRPbRiy1cqZ1IpGNcJCGlEMG17RKzPddpyiPKoCdwohbED8g4QXT0ewCt8LTkQXuljsUfQ3FKM4A==}
-    engines: {node: '>=10'}
+  /minimatch/8.0.3:
+    resolution: {integrity: sha512-tEEvU9TkZgnFDCtpnrEYnPsjT7iUx42aXfs4bzmQ5sMA09/6hZY0jeZcGkXyDagiBOvkUjNo8Viom+Me6+2x7g==}
+    engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       brace-expansion: 2.0.1
 
@@ -13460,7 +13460,7 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
-      glob: 9.3.2
+      glob: 9.3.4
 
   /rollup-plugin-copy-assets/2.0.3_rollup@3.20.2:
     resolution: {integrity: sha512-ETShhQGb9SoiwcNrvb3BhUNSGR89Jao0+XxxfzzLW1YsUzx8+rMO4z9oqWWmo6OHUmfNQRvqRj0cAyPkS9lN9w==}
@@ -15894,7 +15894,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-version-checker: 5.1.2
       git-repo-info: 2.1.1
-      glob: 9.3.2
+      glob: 9.3.4
       npm-git-info: 1.0.3
       rimraf: 4.4.1
       rsvp: 4.8.5
