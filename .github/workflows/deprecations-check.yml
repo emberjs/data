@@ -1,8 +1,7 @@
-name: 'Nightly'
+name: 'Check Deprecations'
 
 on:
-  schedule:
-    - cron: '0 14 * * *' # 14:00 in UTC is 6am PST
+  workflow_dispatch:
 
 jobs:
   test-all-deprecations:
