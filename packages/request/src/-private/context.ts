@@ -15,8 +15,10 @@ export class ContextOwner {
   nextCalled: number = 0;
   declare god: GodContext;
   declare controller: AbortController;
+  declare requestId: number;
 
   constructor(request: RequestInfo, god: GodContext) {
+    this.requestId = god.id;
     this.controller = request.controller || god.controller;
     if (request.controller) {
       if (request.controller !== god.controller) {
@@ -127,8 +129,10 @@ export class ContextOwner {
 export class Context {
   #owner: ContextOwner;
   declare request: ImmutableRequestInfo;
+  declare id: number;
 
   constructor(owner: ContextOwner) {
+    this.id = owner.requestId;
     this.#owner = owner;
     this.request = owner.enhancedRequest;
   }

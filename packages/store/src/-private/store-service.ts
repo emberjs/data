@@ -302,6 +302,7 @@ class Store {
       lids.forEach((lid) => {
         all.push(...pending[lid].map((v) => v[RequestPromise]!));
       });
+      this.requestManager._pending.forEach((v) => all.push(v));
       const promise: Promise<unknown[]> & { length: number } = Promise.allSettled(all) as Promise<unknown[]> & {
         length: number;
       };

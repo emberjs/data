@@ -327,6 +327,8 @@ import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
 import { Future, GenericCreateArgs, Handler, RequestInfo } from './types';
 import { executeNextHandler } from './utils';
+
+let REQ_ID = 0;
 /**
  * ```js
  * import RequestManager from '@ember-data/request';
@@ -406,9 +408,11 @@ import { executeNextHandler } from './utils';
 export class RequestManager {
   #handlers: Handler[] = [];
   declare _hasCacheHandler: boolean;
+  declare _pending: Map<number, Promise<unknown>>;
 
   constructor(options?: GenericCreateArgs) {
     Object.assign(this, options);
+    this._pending = new Map();
   }
 
   /**
@@ -499,6 +503,7 @@ export class RequestManager {
       controller,
       response: null,
       stream: null,
+      id: REQ_ID++,
     });
     if (TESTING) {
       if (!request.disableTestWaiter) {

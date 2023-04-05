@@ -26,15 +26,25 @@ export interface StoreRequestContext extends RequestContext {
   request: StoreRequestInfo & { store: Store };
 }
 
-function getHydratedContent<T>(
+function maybeUpdateUiObjects<T>(
   store: Store,
   request: StoreRequestInfo,
-  identifier: StableDocumentIdentifier | null,
-  document: ResourceDataDocument
+  options: {
+    shouldHydrate?: boolean;
+    shouldFetch?: boolean;
+    shouldBackgroundFetch?: boolean;
+    identifier: StableDocumentIdentifier | null;
+  },
+  document: ResourceDataDocument,
+  isFromCache: boolean
 ): T {
+  const { identifier } = options;
   if (Array.isArray(document.data)) {
     const { recordArrayManager } = store;
     if (!identifier) {
+      if (!options.shouldHydrate) {
+        return document as T;
+      }
       const data = recordArrayManager.createArray({
         identifiers: document.data,
         doc: document as CollectionResourceDataDocument,
@@ -49,6 +59,7 @@ function getHydratedContent<T>(
       return doc as T;
     }
     let managed = recordArrayManager._keyedArrays.get(identifier.lid);
+
     if (!managed) {
       managed = recordArrayManager.createArray({
         identifiers: document.data,
@@ -60,15 +71,23 @@ function getHydratedContent<T>(
       doc.meta = document.meta;
       doc.links = document.links;
       store._documentCache.set(identifier, doc);
+
+      return options.shouldHydrate ? (doc as T) : (document as T);
     } else {
-      recordArrayManager.populateManagedArray(managed, document.data, document as CollectionResourceDataDocument);
       const doc = store._documentCache.get(identifier)!;
-      doc.data = managed;
-      doc.meta = document.meta;
-      doc.links = document.links;
+      if (!isFromCache) {
+        recordArrayManager.populateManagedArray(managed, document.data, document as CollectionResourceDataDocument);
+        doc.data = managed;
+        doc.meta = document.meta;
+        doc.links = document.links;
+      }
+
+      return options.shouldHydrate ? (doc as T) : (document as T);
     }
-    return managed as T;
   } else {
+    if (!identifier && !options.shouldHydrate) {
+      return document as T;
+    }
     const data = document.data ? store.peekRecord(document.data) : null;
     let doc: Document<RecordInstance | null> | undefined;
     if (identifier) {
@@ -77,17 +96,20 @@ function getHydratedContent<T>(
 
     if (!doc) {
       doc = new Document<RecordInstance | null>(store, identifier);
+      doc.data = data;
+      doc.meta = document.meta;
+      doc.links = document.links;
 
       if (identifier) {
         store._documentCache.set(identifier, doc);
       }
+    } else if (!isFromCache) {
+      doc.data = data;
+      doc.meta = document.meta;
+      doc.links = document.links;
     }
 
-    doc.data = data;
-    doc.meta = document.meta;
-    doc.links = document.links;
-
-    return doc as T;
+    return options.shouldHydrate ? (doc as T) : (document as T);
   }
 }
 
@@ -131,22 +153,29 @@ function fetchContentAndHydrate<T>(
     (context.request[Symbol.for('ember-data:enable-hydration')] as boolean | undefined) || false;
   return next(context.request).then(
     (document) => {
+      store.requestManager._pending.delete(context.id);
       store._enableAsyncFlush = true;
       let response: ResourceDataDocument;
       store._join(() => {
         response = store.cache.put(document) as ResourceDataDocument;
-
-        if (shouldFetch && shouldHydrate) {
-          response = getHydratedContent(store, context.request, identifier, response);
-        }
+        response = maybeUpdateUiObjects(
+          store,
+          context.request,
+          { shouldHydrate, shouldFetch, shouldBackgroundFetch, identifier },
+          response,
+          false
+        );
       });
       store._enableAsyncFlush = null;
 
       if (shouldFetch) {
         return response!;
+      } else if (shouldBackgroundFetch) {
+        store.notifications._flush();
       }
     },
     (error: StructuredErrorDocument) => {
+      store.requestManager._pending.delete(context.id);
       store._enableAsyncFlush = true;
       store._join(() => {
         store.cache.put(error);
@@ -183,7 +212,8 @@ export const CacheHandler: Handler = {
 
     // if we have not skipped cache, determine if we should update behind the scenes
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
-      void fetchContentAndHydrate(next, context, identifier, false, true);
+      let promise = fetchContentAndHydrate(next, context, identifier, false, true);
+      store.requestManager._pending.set(context.id, promise);
     }
 
     if ('error' in peeked!) {
@@ -194,7 +224,13 @@ export const CacheHandler: Handler = {
 
     return Promise.resolve(
       shouldHydrate
-        ? getHydratedContent<T>(store, context.request, identifier, peeked!.content as ResourceDataDocument)
+        ? maybeUpdateUiObjects<T>(
+            store,
+            context.request,
+            { shouldHydrate, identifier },
+            peeked!.content as ResourceDataDocument,
+            true
+          )
         : (peeked!.content as T)
     );
   },
