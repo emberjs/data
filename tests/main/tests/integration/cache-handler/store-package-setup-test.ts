@@ -12,7 +12,7 @@ import Fetch from '@ember-data/request/fetch';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CollectionResourceDataDocument, SingleResourceDataDocument } from '@ember-data/types/cache/document';
+import type { CollectionResourceDataDocument, ResourceDataDocument, SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -466,6 +466,429 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       const record = store.peekRecord(userDocument.content.data as ResourceIdentifierObject);
       assert.strictEqual(record, null, 'we did not get inserted into the cache');
+    });
+
+    test('background re-fetching a resource returns from cache as expected, updates once complete', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+
+      let handlerCalls = 0;
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          request<T>() {
+            if (handlerCalls > 1) {
+              assert.ok(false, 'fetch handler should not be called again');
+              throw new Error('fetch handler should not be called again');
+            }
+            handlerCalls++;
+            return Promise.resolve({
+              links:
+                handlerCalls === 1
+                  ? {
+                      self: '/assets/users/1.json',
+                    }
+                  : {
+                      self: '/assets/users/1.json',
+                      related: '/assets/users/company/1.json',
+                    },
+              meta: {
+                expiration: 120000,
+                total: handlerCalls,
+              },
+              data: handlerCalls === 1
+                  ? {
+                    type: 'user',
+                    id: '1',
+                    attributes: {
+                      name: 'Chris Thoburn',
+                    },
+                  } : {
+                      type: 'user',
+                      id: '2',
+                      attributes: {
+                        name: 'Wesley Thoburn',
+                      },
+                    },
+            }) as T;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const userDocument = await store.request<Document<RecordInstance>>({
+        url: '/assets/users/1.json',
+      });
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const record = store.peekRecord(identifier);
+      const data = userDocument.content.data!;
+
+      assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
+      assert.strictEqual(data, record, '<Initial> record was returned as data');
+      assert.strictEqual(data && recordIdentifierFor(data), identifier, '<Initial> we get a record back as data');
+      assert.strictEqual(
+        userDocument.content.identifier?.lid,
+        '/assets/users/1.json',
+        '<Initial> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument.content.links,
+        { self: '/assets/users/1.json' },
+        '<Initial> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<Initial> we get access to the document meta'
+      );
+
+      const userDocument2 = await store.request<Document<RecordInstance>>({
+        url: '/assets/users/1.json',
+        cacheOptions: { backgroundReload: true },
+      });
+      const data2 = userDocument2.content.data!;
+
+      assert.strictEqual(data2, record, '<Cached> record was returned as data');
+      assert.strictEqual(data2 && recordIdentifierFor(data2), identifier, '<Cached> we get a record back as data');
+      assert.strictEqual(
+        userDocument2.content.identifier?.lid,
+        '/assets/users/1.json',
+        '<Cached> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument2.content.links,
+        { self: '/assets/users/1.json' },
+        '<Cached> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument2.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<Cached> we get access to the document meta'
+      );
+
+      await store._getAllPending();
+
+      const data3 = userDocument2.content.data!;
+      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const record2 = store.peekRecord(identifier2);
+
+      assert.strictEqual(record2?.name, 'Wesley Thoburn', '<Updated> record2 name is correct');
+      assert.strictEqual(userDocument.content, userDocument2.content, '<Updated> documents are the same');
+      assert.strictEqual(data3, record2, '<Updated> record2 was returned as data');
+      assert.strictEqual(data3 && recordIdentifierFor(data3), identifier2, '<Updated> we get a record back as data');
+      assert.strictEqual(
+        userDocument2.content.identifier?.lid,
+        '/assets/users/1.json',
+        '<Updated> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument2.content.links,
+        {
+          related: '/assets/users/company/1.json',
+          self: '/assets/users/1.json',
+        },
+        '<Updated> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument2.content.meta,
+        {
+          expiration: 120000,
+          total: 2,
+        },
+        '<Updated> we get access to the document meta'
+      );
+      assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
+    });
+
+    test('fetching with hydration, then background re-fetching a resource without hydration returns from cache as expected, updates once complete', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+
+      let handlerCalls = 0;
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          request<T>() {
+            if (handlerCalls > 1) {
+              assert.ok(false, 'fetch handler should not be called again');
+              throw new Error('fetch handler should not be called again');
+            }
+            handlerCalls++;
+            return Promise.resolve({
+              links:
+                handlerCalls === 1
+                  ? {
+                      self: '/assets/users/1.json',
+                    }
+                  : {
+                      self: '/assets/users/1.json',
+                      related: '/assets/users/company/1.json',
+                    },
+              meta: {
+                expiration: 120000,
+                total: handlerCalls,
+              },
+              data: handlerCalls === 1
+                  ? {
+                    type: 'user',
+                    id: '1',
+                    attributes: {
+                      name: 'Chris Thoburn',
+                    },
+                  } : {
+                      type: 'user',
+                      id: '2',
+                      attributes: {
+                        name: 'Wesley Thoburn',
+                      },
+                    },
+            }) as T;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const userDocument = await store.request<Document<RecordInstance>>({
+        url: '/assets/users/1.json',
+      });
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const record = store.peekRecord(identifier);
+      const data = userDocument.content.data!;
+
+      assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
+      assert.strictEqual(data, record, '<Initial> record was returned as data');
+      assert.strictEqual(data && recordIdentifierFor(data), identifier, '<Initial> we get a record back as data');
+      assert.strictEqual(
+        userDocument.content.identifier?.lid,
+        '/assets/users/1.json',
+        '<Initial> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument.content.links,
+        { self: '/assets/users/1.json' },
+        '<Initial> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<Initial> we get access to the document meta'
+      );
+
+      // Backgrond Re-Fetch without Hydration
+      const userDocument2 = await store.requestManager.request<SingleResourceDataDocument>({
+        store,
+        url: '/assets/users/1.json',
+        cacheOptions: { backgroundReload: true },
+      });
+      const data2 = userDocument2.content.data!;
+
+      assert.strictEqual(data2, identifier, '<Cached> identifier was returned as data');
+      assert.strictEqual(
+        userDocument2.content.lid,
+        '/assets/users/1.json',
+        '<Cached> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument2.content.links,
+        { self: '/assets/users/1.json' },
+        '<Cached> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument2.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<Cached> we get access to the document meta'
+      );
+
+      // Await the Background Re-Fetch
+      await store._getAllPending();
+
+      // Assert the initial document was updated
+      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const record2 = store.peekRecord(identifier2);
+
+      assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
+      assert.strictEqual(record2?.name, 'Wesley Thoburn', 'record2 name is correct');
+      const data3 = userDocument.content.data!;
+
+      assert.strictEqual(record2?.name, 'Wesley Thoburn', '<Updated> record2 name is correct');
+      assert.strictEqual(userDocument.content, userDocument.content, '<Updated> documents are the same');
+      assert.strictEqual(data3, record2, '<Updated> record2 was returned as data');
+      assert.strictEqual(data3 && recordIdentifierFor(data3), identifier2, '<Updated> we get a record back as data');
+      assert.strictEqual(
+        userDocument.content.identifier?.lid,
+        '/assets/users/1.json',
+        '<Updated> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument.content.links,
+        {
+          related: '/assets/users/company/1.json',
+          self: '/assets/users/1.json',
+        },
+        '<Updated> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument.content.meta,
+        {
+          expiration: 120000,
+          total: 2,
+        },
+        '<Updated> we get access to the document meta'
+      );
+    });
+
+    test('background re-fetching a resource without hydration returns from cache as expected, updates once complete', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+
+      let handlerCalls = 0;
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          request<T>() {
+            if (handlerCalls > 1) {
+              assert.ok(false, 'fetch handler should not be called again');
+              throw new Error('fetch handler should not be called again');
+            }
+            handlerCalls++;
+            return Promise.resolve({
+              links:
+                handlerCalls === 1
+                  ? {
+                      self: '/assets/users/1.json',
+                    }
+                  : {
+                      self: '/assets/users/1.json',
+                      related: '/assets/users/company/1.json',
+                    },
+              meta: {
+                expiration: 120000,
+                total: handlerCalls,
+              },
+              data: handlerCalls === 1
+                  ? {
+                    type: 'user',
+                    id: '1',
+                    attributes: {
+                      name: 'Chris Thoburn',
+                    },
+                  } : {
+                      type: 'user',
+                      id: '2',
+                      attributes: {
+                        name: 'Wesley Thoburn',
+                      },
+                    },
+            }) as T;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      // Initial Fetch
+      const userDocument = await store.requestManager.request<ResourceDataDocument>({
+        store,
+        url: '/assets/users/1.json',
+      });
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const record = store.peekRecord(identifier);
+      const data = userDocument.content.data!;
+
+      assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
+      assert.strictEqual(data, identifier, '<Initial> record was returned as data');
+      assert.strictEqual(
+        userDocument.content.lid,
+        '/assets/users/1.json',
+        '<Initial> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument.content.links,
+        { self: '/assets/users/1.json' },
+        '<Initial> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<Initial> we get access to the document meta'
+      );
+
+      // Trigger the background re-fetch
+      const userDocument2 = await store.requestManager.request<ResourceDataDocument>({
+        store,
+        url: '/assets/users/1.json',
+        cacheOptions: { backgroundReload: true },
+      });
+      const data2 = userDocument2.content.data;
+
+      assert.strictEqual(data2, identifier, '<Cached> identifier was returned as data');
+      assert.strictEqual(
+        userDocument2.content.lid,
+        '/assets/users/1.json',
+        '<Cached> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument2.content.links,
+        { self: '/assets/users/1.json' },
+        '<Cached> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument2.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<Cached> we get access to the document meta'
+      );
+
+      await store._getAllPending();
+
+      const updatedUserDocument = store.cache.peekRequest(
+        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/1.json' })!
+      ) as unknown as StructuredDataDocument<ResourceDataDocument>;
+      const data3 = updatedUserDocument?.content?.data;
+      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+
+      assert.strictEqual(data3, identifier2, 'we get an identifier back as data');
+      assert.strictEqual(
+        updatedUserDocument.content.lid,
+        '/assets/users/1.json',
+        'we get back url as the cache key'
+      );
+      assert.deepEqual(
+        updatedUserDocument.content.links,
+        {
+          related: '/assets/users/company/1.json',
+          self: '/assets/users/1.json',
+        },
+        'we get access to the document links'
+      );
+      assert.deepEqual(
+        updatedUserDocument.content.meta,
+        {
+          expiration: 120000,
+          total: 2,
+        },
+        'we get access to the document meta'
+      );
+      assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
     });
   });
 
