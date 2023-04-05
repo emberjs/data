@@ -24,6 +24,7 @@
   "dependencies": {
     "ember-auto-import": "^2.6.1",
     "ember-data": "workspace:4.12.0-alpha.19",
+    "@ember-data/unpublished-test-infra": "workspace:4.12.0-alpha.19",
     "@ember/string": "^3.0.1",
     "ember-inflector": "^4.0.2"
   },
@@ -38,7 +39,6 @@
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@babel/runtime": "^7.21.0",
-    "@ember-data/unpublished-test-infra": "workspace:4.12.0-alpha.19",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.9.3",
     "@glimmer/component": "^1.1.2",
@@ -49,6 +49,7 @@
     "@types/rsvp": "^4.0.4",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~4.11.0",
+    "ember-cli-version-checker": "^5.1.2",
     "ember-cli-app-version": "^6.0.0",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-dependency-checker": "^3.3.1",
@@ -69,7 +70,7 @@
     "webpack": "^5.77.0"
   },
   "engines": {
-    "node": "^14.8.0 || 16.* || >= 18.*"
+    "node": "16.* || >= 18.*"
   },
   "ember": {
     "edition": "octane"
@@ -81,5 +82,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@7.30.5"
+  "packageManager": "pnpm@8.1.0"
 }
