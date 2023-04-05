@@ -5,6 +5,8 @@ interface FastbootCrypto {
   randomFillSync(v: Uint8Array): Uint8Array;
 }
 
+type UUIDv4 = `${string}-${string}-${string}-${string}-${string}`;
+
 export default function installPolyfill() {
   const isFastBoot = typeof FastBoot !== 'undefined';
   const CRYPTO: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
@@ -33,7 +35,7 @@ export default function installPolyfill() {
       byteToHex[i] = (i + 0x100).toString(16).substr(1);
     }
 
-    const bytesToUuid = function (buf: Uint8Array) {
+    const bytesToUuid = function (buf: Uint8Array): UUIDv4 {
       let bth = byteToHex;
       // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
       return [
@@ -57,10 +59,10 @@ export default function installPolyfill() {
         bth[buf[13]],
         bth[buf[14]],
         bth[buf[15]],
-      ].join('');
+      ].join('') as UUIDv4;
     };
 
-    CRYPTO.randomUUID = function uuidv4(): string {
+    CRYPTO.randomUUID = function uuidv4(): UUIDv4 {
       let rnds = rng();
 
       // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
