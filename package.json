@@ -127,12 +127,13 @@
     }
   },
   "pnpm": {
-    "patchedDependencies": {
-      "@embroider/macros@1.10.0": "patches/@embroider__macros@1.10.0.patch"
-    },
     "overrides": {
+      "ember-auto-import": "^2.6.1",
       "@embroider/macros": "1.10.0",
-      "ember-cli-babel": "^7.26.11"
+      "broccoli-funnel": "^3.0.8",
+      "broccoli-merge-trees": "^4.2.0",
+      "ember-cli-babel": "^7.26.11",
+      "ember-cli-htmlbars": "^6.2.0"
     }
   }
 }
