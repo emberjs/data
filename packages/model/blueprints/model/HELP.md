@@ -17,8 +17,8 @@ would result in the following model:
 import Model, { belongsTo, hasMany, attr } from '@ember-data/model';
 
 export default class TacoModel extends Model {
-  @belongsTo('protein') filling;
-  @hasMany('topping') toppings;
+  @belongsTo('protein', { async: false, inverse: null }) filling;
+  @hasMany('topping', { async: false, inverse: null }) toppings;
   @attr('string') name;
   @attr('number') price;
   @attr misc;

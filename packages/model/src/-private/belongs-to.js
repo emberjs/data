@@ -59,6 +59,7 @@ function normalizeType(type) {
   ```
 
   #### One-To-Many
+
   To declare a one-to-many relationship between two models, use
   `belongsTo` in combination with `hasMany`, like this:
 
@@ -66,7 +67,7 @@ function normalizeType(type) {
   import Model, { hasMany } from '@ember-data/model';
 
   export default class PostModel extends Model {
-    @hasMany('comment') comments;
+    @hasMany('comment', { async: false, inverse: 'post' }) comments;
   }
   ```
 
@@ -74,22 +75,9 @@ function normalizeType(type) {
   import Model, { belongsTo } from '@ember-data/model';
 
   export default class CommentModel extends Model {
-    @belongsTo('post') post;
+    @belongsTo('post', { async: false, inverse: 'comments' }) post;
   }
   ```
-
-  You can avoid passing a string as the first parameter. In that case Ember Data
-  will infer the type from the key name.
-
-  ```app/models/comment.js
-  import Model, { belongsTo } from '@ember-data/model';
-
-  export default class CommentModel extends Model {
-    @belongsTo post;
-  }
-  ```
-
-  will lookup for a Post type.
 
   #### Sync relationships
 
@@ -102,7 +90,8 @@ function normalizeType(type) {
 
   export default class CommentModel extends Model {
     @belongsTo('post', {
-      async: false
+      async: false,
+      inverse: null
     })
     post;
   }

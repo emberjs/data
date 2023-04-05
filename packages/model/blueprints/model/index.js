@@ -118,19 +118,11 @@ function nativeAttr(attr) {
     result;
 
   if (type === 'belongs-to') {
-    if (name === propertyName) {
-      result = '@belongsTo';
-    } else {
-      result = "@belongsTo('" + name + "')";
-    }
+    result = "@belongsTo('" + name + "', { async: false, inverse: null })";
   } else if (type === 'has-many') {
-    if (inflection.pluralize(name) === propertyName) {
-      result = '@hasMany';
-    } else {
-      result = "@hasMany('" + name + "')";
-    }
+    result = "@hasMany('" + name + "', { async: false, inverse: null })";
   } else if (type === '') {
-    result = '@attr()';
+    result = '@attr';
   } else {
     result = "@attr('" + type + "')";
   }
@@ -144,9 +136,9 @@ function classicAttr(attr) {
     result;
 
   if (type === 'belongs-to') {
-    result = "belongsTo('" + name + "')";
+    result = "belongsTo('" + name + "', { async: false, inverse: null })";
   } else if (type === 'has-many') {
-    result = "hasMany('" + name + "')";
+    result = "hasMany('" + name + "', { async: false, inverse: null })";
   } else if (type === '') {
     //"If you don't specify the type of the attribute, it will be whatever was provided by the server"
     //https://emberjs.com/guides/models/defining-models/
