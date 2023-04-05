@@ -12,7 +12,11 @@ import Fetch from '@ember-data/request/fetch';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CollectionResourceDataDocument, ResourceDataDocument, SingleResourceDataDocument } from '@ember-data/types/cache/document';
+import type {
+  CollectionResourceDataDocument,
+  ResourceDataDocument,
+  SingleResourceDataDocument,
+} from '@ember-data/types/cache/document';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -497,14 +501,16 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
                 expiration: 120000,
                 total: handlerCalls,
               },
-              data: handlerCalls === 1
+              data:
+                handlerCalls === 1
                   ? {
-                    type: 'user',
-                    id: '1',
-                    attributes: {
-                      name: 'Chris Thoburn',
-                    },
-                  } : {
+                      type: 'user',
+                      id: '1',
+                      attributes: {
+                        name: 'Chris Thoburn',
+                      },
+                    }
+                  : {
                       type: 'user',
                       id: '2',
                       attributes: {
@@ -636,14 +642,16 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
                 expiration: 120000,
                 total: handlerCalls,
               },
-              data: handlerCalls === 1
+              data:
+                handlerCalls === 1
                   ? {
-                    type: 'user',
-                    id: '1',
-                    attributes: {
-                      name: 'Chris Thoburn',
-                    },
-                  } : {
+                      type: 'user',
+                      id: '1',
+                      attributes: {
+                        name: 'Chris Thoburn',
+                      },
+                    }
+                  : {
                       type: 'user',
                       id: '2',
                       attributes: {
@@ -780,14 +788,16 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
                 expiration: 120000,
                 total: handlerCalls,
               },
-              data: handlerCalls === 1
+              data:
+                handlerCalls === 1
                   ? {
-                    type: 'user',
-                    id: '1',
-                    attributes: {
-                      name: 'Chris Thoburn',
-                    },
-                  } : {
+                      type: 'user',
+                      id: '1',
+                      attributes: {
+                        name: 'Chris Thoburn',
+                      },
+                    }
+                  : {
                       type: 'user',
                       id: '2',
                       attributes: {
@@ -867,11 +877,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
 
       assert.strictEqual(data3, identifier2, 'we get an identifier back as data');
-      assert.strictEqual(
-        updatedUserDocument.content.lid,
-        '/assets/users/1.json',
-        'we get back url as the cache key'
-      );
+      assert.strictEqual(updatedUserDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
       assert.deepEqual(
         updatedUserDocument.content.links,
         {
