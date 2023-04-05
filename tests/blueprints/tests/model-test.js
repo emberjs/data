@@ -75,8 +75,8 @@ describe('Acceptance: generate and destroy model blueprints', function () {
         expect(_file('app/models/comment.js'))
           .to.contain(`import Model, { belongsTo } from '@ember-data/model';`)
           .to.contain('export default Model.extend(')
-          .to.contain("  post: belongsTo('post'),")
-          .to.contain("  author: belongsTo('user')");
+          .to.contain("  post: belongsTo('post', { async: false, inverse: null }),")
+          .to.contain("  author: belongsTo('user', { async: false, inverse: null })");
 
         expect(_file('tests/unit/models/comment-test.js')).to.equal(
           fixture(__dirname, 'model-test/comment-default.js')
@@ -91,8 +91,8 @@ describe('Acceptance: generate and destroy model blueprints', function () {
         expect(_file('app/models/post.js'))
           .to.contain(`import Model, { hasMany } from '@ember-data/model';`)
           .to.contain('export default Model.extend(')
-          .to.contain("  comments: hasMany('comment')")
-          .to.contain("  otherComments: hasMany('comment')");
+          .to.contain("  comments: hasMany('comment', { async: false, inverse: null })")
+          .to.contain("  otherComments: hasMany('comment', { async: false, inverse: null })");
 
         expect(_file('tests/unit/models/post-test.js')).to.equal(fixture(__dirname, 'model-test/post-default.js'));
       });
@@ -197,7 +197,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
         expect(_file('app/models/foo.js'))
           .to.contain(`import Model, { attr } from '@ember-data/model';`)
           .to.contain('export default class FooModel extends Model {')
-          .to.contain('  @attr() misc;')
+          .to.contain('  @attr misc;')
           .to.contain("  @attr('array') skills;")
           .to.contain("  @attr('boolean') isActive;")
           .to.contain("  @attr('date') birthday;")
@@ -217,8 +217,8 @@ describe('Acceptance: generate and destroy model blueprints', function () {
         expect(_file('app/models/comment.js'))
           .to.contain(`import Model, { belongsTo } from '@ember-data/model';`)
           .to.contain('export default class CommentModel extends Model {')
-          .to.contain('  @belongsTo post;')
-          .to.contain("  @belongsTo('user') author;");
+          .to.contain(`  @belongsTo('post', { async: false, inverse: null }) post;`)
+          .to.contain("  @belongsTo('user', { async: false, inverse: null }) author;");
 
         expect(_file('tests/unit/models/comment-test.js')).to.equal(
           fixture(__dirname, 'model-test/comment-default.js')
@@ -233,8 +233,8 @@ describe('Acceptance: generate and destroy model blueprints', function () {
         expect(_file('app/models/post.js'))
           .to.contain(`import Model, { hasMany } from '@ember-data/model';`)
           .to.contain('export default class PostModel extends Model {')
-          .to.contain('  @hasMany comments;')
-          .to.contain("  @hasMany('comment') otherComments;");
+          .to.contain(`  @hasMany('comment', { async: false, inverse: null }) comments;`)
+          .to.contain("  @hasMany('comment', { async: false, inverse: null }) otherComments;");
 
         expect(_file('tests/unit/models/post-test.js')).to.equal(fixture(__dirname, 'model-test/post-default.js'));
       });

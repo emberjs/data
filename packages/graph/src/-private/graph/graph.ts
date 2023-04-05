@@ -182,7 +182,7 @@ export class Graph {
 
    export default class Post extends Model {
      @attr title;
-     @hasMany('comment') comments;
+     @hasMany('comment', { async: true, inverse: null }) comments;
    }
    ```
 
