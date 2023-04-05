@@ -5,7 +5,6 @@ import { settled } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { reject } from 'rsvp';
 
-import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
@@ -386,20 +385,6 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         assert.ok(true, 'errors.name did change');
       });
 
-      if (!gte('4.0.0')) {
-        dog.errors.addArrayObserver(
-          {},
-          {
-            willChange() {
-              assert.ok(true, 'errors will change');
-            },
-            didChange() {
-              assert.ok(true, 'errors did change');
-            },
-          }
-        );
-      }
-
       try {
         assert.ok(true, 'saving');
         await dog.save();
@@ -413,10 +398,6 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         assert.strictEqual(dog.name, 'Pluto', 'Name is rolled back');
         assert.notOk(dog.errors.name, 'We have no errors for name anymore');
         assert.ok(dog.isValid, 'We are now in a valid state');
-      }
-
-      if (!gte('4.0.0')) {
-        assert.expectDeprecation({ id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } });
       }
     });
   });

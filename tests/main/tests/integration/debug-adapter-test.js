@@ -5,7 +5,6 @@ import { settled } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import require, { has } from 'require';
 
-import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
@@ -186,17 +185,8 @@ if (has('@ember-data/debug')) {
 
       await settled();
 
-      if (gte('3.26.0')) {
-        assert.strictEqual(removedRecords.length, 1, 'We are notified of the total posts removed');
-        assert.strictEqual(removedRecords[0][0].object, post, 'The removed post is correct');
-      } else {
-        assert.strictEqual(
-          removedRecords[0],
-          1,
-          'We are notified of the start index of a removal when we remove posts'
-        );
-        assert.strictEqual(removedRecords[1], 1, 'We are notified of the total posts removed');
-      }
+      assert.strictEqual(removedRecords.length, 1, 'We are notified of the total posts removed');
+      assert.strictEqual(removedRecords[0][0].object, post, 'The removed post is correct');
     });
 
     test('Column names', function (assert) {

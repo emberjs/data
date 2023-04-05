@@ -2,7 +2,6 @@ import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
 
-import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import Model, { belongsTo, hasMany } from '@ember-data/model';
@@ -130,38 +129,36 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
     assert.strictEqual(relationship.name, 'streamItems', 'relationship name has not been changed');
   });
 
-  if (gte('3.10.0')) {
-    deprecatedTest(
-      'decorators works without parens',
-      { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 6 },
-      function (assert) {
-        let store;
-        let { owner } = this;
+  deprecatedTest(
+    'decorators works without parens',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 6 },
+    function (assert) {
+      let store;
+      let { owner } = this;
 
-        class StreamItem extends Model {
-          @belongsTo user;
-        }
-
-        class User extends Model {
-          @hasMany streamItems;
-        }
-
-        owner.unregister('model:user');
-        owner.register('model:stream-item', StreamItem);
-        owner.register('model:user', User);
-
-        store = owner.lookup('service:store');
-
-        let user = store.modelFor('user');
-
-        const relationships = get(user, 'relationships');
-
-        assert.ok(relationships.has('stream-item'), 'relationship key has been normalized');
-
-        const relationship = relationships.get('stream-item')[0];
-
-        assert.strictEqual(relationship.name, 'streamItems', 'relationship name has not been changed');
+      class StreamItem extends Model {
+        @belongsTo user;
       }
-    );
-  }
+
+      class User extends Model {
+        @hasMany streamItems;
+      }
+
+      owner.unregister('model:user');
+      owner.register('model:stream-item', StreamItem);
+      owner.register('model:user', User);
+
+      store = owner.lookup('service:store');
+
+      let user = store.modelFor('user');
+
+      const relationships = get(user, 'relationships');
+
+      assert.ok(relationships.has('stream-item'), 'relationship key has been normalized');
+
+      const relationship = relationships.get('stream-item')[0];
+
+      assert.strictEqual(relationship.name, 'streamItems', 'relationship name has not been changed');
+    }
+  );
 });

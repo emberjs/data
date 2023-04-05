@@ -70,10 +70,10 @@
     "edition": "octane"
   },
   "engines": {
-    "node": "^14.8.0 || 16.* || >= 18.*"
+    "node": "16.* || >= 18.*"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@7.30.5"
+  "packageManager": "pnpm@8.1.0"
 }

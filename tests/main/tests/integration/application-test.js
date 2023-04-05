@@ -1,13 +1,10 @@
 // ensure DS namespace is set
 import Application from '@ember/application';
-import Namespace from '@ember/application/namespace';
 import Controller from '@ember/controller';
 import Service, { inject as service } from '@ember/service';
 
 import { module, test } from 'qunit';
 
-import { gte } from 'ember-compatibility-helpers';
-import DS from 'ember-data';
 import initializeEmberData from 'ember-data/setup-container';
 import { setupTest } from 'ember-qunit';
 import Resolver from 'ember-resolver';
@@ -97,18 +94,6 @@ module('integration/application - Injecting the Default Store', function (hooks)
     let fooController = this.owner.lookup('controller:foo');
     assert.ok(fooController.store instanceof Store, 'the store was injected');
   });
-
-  if (!gte('4.0.0')) {
-    test('the DS namespace should be accessible', async function (assert) {
-      assert.ok(DS, 'DS is imported');
-      assert.expectDeprecation(
-        () => {
-          assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');
-        },
-        { id: 'ember-global', count: 2, when: { ember: '>=3.27.0' } }
-      );
-    });
-  }
 });
 
 module('integration/application - Using the store as a service', function (hooks) {

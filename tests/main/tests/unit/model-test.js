@@ -3,7 +3,6 @@ import { computed, get, observer, set } from '@ember/object';
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
 
-import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
@@ -1274,41 +1273,39 @@ module('unit/model - Model', function (hooks) {
       assert.deepEqual(changes, {}, 'changedAttributes() reset after save');
     });
 
-    if (gte('3.10.0')) {
-      test('@attr decorator works without parens', async function (assert) {
-        assert.expect(1);
-        let cat;
+    test('@attr decorator works without parens', async function (assert) {
+      assert.expect(1);
+      let cat;
 
-        class Mascot extends Model {
-          @attr name;
-        }
+      class Mascot extends Model {
+        @attr name;
+      }
 
-        this.owner.register('model:mascot', Mascot);
-        adapter.updateRecord = function () {
-          assert.deepEqual(cat.changedAttributes(), {
-            name: ['Argon', 'Helia'],
-          });
+      this.owner.register('model:mascot', Mascot);
+      adapter.updateRecord = function () {
+        assert.deepEqual(cat.changedAttributes(), {
+          name: ['Argon', 'Helia'],
+        });
 
-          return { data: { id: '1', type: 'mascot' } };
-        };
+        return { data: { id: '1', type: 'mascot' } };
+      };
 
-        cat = store.push({
-          data: {
-            type: 'mascot',
-            id: '1',
-            attributes: {
-              name: 'Argon',
-            },
+      cat = store.push({
+        data: {
+          type: 'mascot',
+          id: '1',
+          attributes: {
+            name: 'Argon',
           },
-        });
-
-        cat.setProperties({
-          name: 'Helia',
-        });
-
-        await cat.save();
+        },
       });
-    }
+
+      cat.setProperties({
+        name: 'Helia',
+      });
+
+      await cat.save();
+    });
   });
 
   module('Misc', function () {

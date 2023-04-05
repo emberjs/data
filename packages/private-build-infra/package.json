@@ -35,16 +35,14 @@
     "git-repo-info": "^2.1.1",
     "glob": "^9.3.4",
     "npm-git-info": "^1.0.3",
-    "rimraf": "^4.4.1",
-    "rsvp": "^4.8.5",
     "semver": "^7.3.8",
     "silent-error": "^1.1.1"
   },
   "engines": {
-    "node": "^14.8.0 || 16.* || >= 18.*"
+    "node": "16.* || >= 18.*"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@7.30.5"
+  "packageManager": "pnpm@8.1.0"
 }

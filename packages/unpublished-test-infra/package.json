@@ -31,7 +31,6 @@
     "ember-get-config": "^2.1.1",
     "qunit": "^2.19.4",
     "qunit-dom": "^2.0.0",
-    "rsvp": "^4.8.5",
     "semver": "^7.3.8",
     "testem": "^3.10.1",
     "webpack": "^5.77.0"
@@ -64,7 +63,7 @@
     "loader.js": "^4.7.0"
   },
   "engines": {
-    "node": "^14.8.0 || 16.* || >= 18.*"
+    "node": "16.* || >= 18.*"
   },
   "ember": {
     "edition": "octane"
@@ -75,5 +74,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@7.30.5"
+  "packageManager": "pnpm@8.1.0"
 }
