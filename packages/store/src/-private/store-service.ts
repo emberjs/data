@@ -22,6 +22,7 @@ import type DSModelClass from '@ember-data/model';
 import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel } from '@ember-data/types/q/ds-model';
@@ -53,6 +54,7 @@ import {
   storeFor,
   StoreMap,
 } from './caches/instance-cache';
+import { Document } from './document';
 import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
@@ -212,6 +214,7 @@ class Store {
   declare _fetchManager: FetchManager;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
+  declare _documentCache: Map<StableDocumentIdentifier, Document<RecordInstance | RecordInstance[] | null>>;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   declare _forceShim: boolean;
@@ -243,6 +246,7 @@ class Store {
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
     this._modelFactoryCache = Object.create(null);
+    this._documentCache = new Map();
   }
 
   _run(cb: () => void) {
@@ -298,6 +302,7 @@ class Store {
       lids.forEach((lid) => {
         all.push(...pending[lid].map((v) => v[RequestPromise]!));
       });
+      this.requestManager._pending.forEach((v) => all.push(v));
       const promise: Promise<unknown[]> & { length: number } = Promise.allSettled(all) as Promise<unknown[]> & {
         length: number;
       };

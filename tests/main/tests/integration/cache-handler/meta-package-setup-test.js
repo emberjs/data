@@ -32,7 +32,11 @@ module('Store | CacheHandler - setup with ember-data/store', function (hooks) {
     assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
     assert.strictEqual(data, record, 'record was returned as data');
     assert.strictEqual(data && recordIdentifierFor(data), identifier, 'we get a record back as data');
-    assert.strictEqual(userDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
+    assert.strictEqual(
+      userDocument.content.identifier?.lid,
+      '/assets/users/1.json',
+      'we get back url as the cache key'
+    );
     assert.deepEqual(
       userDocument.content.links,
       { self: '/assets/users/1.json' },

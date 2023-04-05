@@ -39,6 +39,7 @@ export interface GodContext {
   controller: AbortController;
   response: ResponseInfo | null;
   stream: ReadableStream | Promise<ReadableStream | null> | null;
+  id: number;
 }
 
 export interface StructuredDataDocument<T> {
@@ -189,6 +190,7 @@ export interface ResponseInfo {
 
 export interface RequestContext {
   request: ImmutableRequestInfo;
+  id: number;
 
   setStream(stream: ReadableStream): void;
   setResponse(response: Response | ResponseInfo): void;
