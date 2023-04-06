@@ -1791,4 +1791,303 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       );
     });
   });
+
+  module('AbortController', function() {
+    test('aborting a request pre-cache-insert does not affect the cache', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+      const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })!;
+
+      let resolve, resolveNext;
+      const promise = new Promise((r) => (resolve = r));
+      const next = new Promise((r) => (resolveNext = r));
+
+      let handlerCalls = 0;
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          async request<T>(_request: Context, _nextFn: NextFn<T>): Promise<T> {
+            handlerCalls++;
+            resolve();
+            await next;
+            return Promise.resolve({
+              data: {
+                type: 'user',
+                id: '1',
+                attributes: { name: 'Chris' },
+              }
+            } as T)
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const request = store.request<CollectionResourceDataDocument>({
+        url: '/assets/users/list.json',
+      });
+      await promise;
+      request.abort('request no longer needed');
+      resolveNext();
+
+      try {
+        await request;
+        assert.ok(false, 'request should be aborted');
+      } catch (e: unknown) {
+        assert.true(e instanceof Error, 'error is thrown');
+        assert.strictEqual((e as Error).name, 'AbortError', 'error is AbortError');
+        assert.strictEqual((e as Error).message, 'AbortError: request no longer needed', 'error is AbortError');
+      }
+
+      assert.strictEqual(store.peekRecord(resourceIdentifier), null, 'record is not in the cache');
+      assert.strictEqual(store.cache.peekRequest(documentIdentifier), null, 'document is not in the cache');
+
+      assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
+    });
+
+    test('aborting a request post-cache-insert maintains cache-update but returns abort rejection', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+      const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })!;
+
+      let resolve, resolveNext;
+      const promise = new Promise((r) => (resolve = r));
+      const nextPromise = new Promise((r) => (resolveNext = r));
+
+      let handlerCalls = 0;
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          async request<T>(_request: Context, _nextFn: NextFn<T>): Promise<T> {
+            handlerCalls++;
+            return Promise.resolve({
+              data: {
+                type: 'user',
+                id: '1',
+                attributes: { name: 'Chris' },
+              }
+            } as T)
+          },
+        },
+      ]);
+      store.requestManager.useCache({
+        async request<T>(context: Context, next: NextFn<T>): Promise<T> {
+          const cacheComplete = await CacheHandler.request<T>(context, next);
+          resolve();
+          await nextPromise;
+          return cacheComplete as T;
+        }
+      });
+
+      const request = store.request<CollectionResourceDataDocument>({
+        url: '/assets/users/list.json',
+      });
+      await promise;
+      request.abort('request no longer needed');
+      resolveNext();
+
+      try {
+        await request;
+        assert.ok(false, 'request should be aborted');
+      } catch (e: unknown) {
+        assert.true(e instanceof Error, 'error is thrown');
+        assert.strictEqual((e as Error).name, 'AbortError', 'error is AbortError');
+        assert.strictEqual((e as Error).message, 'AbortError: request no longer needed', 'error is AbortError');
+      }
+
+      assert.true(store.peekRecord(resourceIdentifier) !== null, 'record IS in the cache');
+      assert.true(store.cache.peekRequest(documentIdentifier) !== null, 'document IS in the cache');
+
+      assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
+    });
+
+    test('aborting a request post-request does nothing', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as TestStore;
+      const request = store.request<Document<RecordInstance>>({
+        url: '/assets/users/1.json',
+      });
+      const userDocument = await request;
+      request.abort();
+
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const record = store.peekRecord(identifier);
+      const data = userDocument.content.data;
+
+      assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
+      assert.strictEqual(data, record, 'record was returned as data');
+      assert.strictEqual(data && recordIdentifierFor(data), identifier, 'we get a record back as data');
+      assert.strictEqual(
+        userDocument.content.identifier?.lid,
+        '/assets/users/1.json',
+        'we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument.content.links,
+        { self: '/assets/users/1.json' },
+        'we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument.content.meta,
+        {
+          expiration: 120000,
+        },
+        'we get access to the document meta'
+      );
+    });
+
+    test('aborting a background-request does not result in an uncaught error', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+
+      let handlerCalls = 0;
+      let resolve;
+      const advance = new Promise((r) => (resolve = r));
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          async request<T>(_context: Context, _next: NextFn<T>): Promise<T> {
+            if (handlerCalls > 1) {
+              assert.ok(false, 'fetch handler should not be called again');
+              throw new Error('fetch handler should not be called again');
+            }
+            handlerCalls++;
+            if (handlerCalls === 2) {
+              // hold the background request until we can abort it
+              await advance;
+            }
+            return Promise.resolve({
+              links:
+                handlerCalls === 1
+                  ? {
+                      self: '/assets/users/1.json',
+                    }
+                  : {
+                      self: '/assets/users/1.json',
+                      related: '/assets/users/company/1.json',
+                    },
+              meta: {
+                expiration: 120000,
+                total: handlerCalls,
+              },
+              data:
+                handlerCalls === 1
+                  ? {
+                      type: 'user',
+                      id: '1',
+                      attributes: {
+                        name: 'Chris Thoburn',
+                      },
+                    }
+                  : {
+                      type: 'user',
+                      id: '2',
+                      attributes: {
+                        name: 'Wesley Thoburn',
+                      },
+                    },
+            }) as T;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const userDocument = await store.request<Document<RecordInstance>>({
+        url: '/assets/users/1.json',
+      });
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const record = store.peekRecord(identifier);
+      const data = userDocument.content.data!;
+
+      assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
+      assert.strictEqual(data, record, '<Initial> record was returned as data');
+      assert.strictEqual(data && recordIdentifierFor(data), identifier, '<Initial> we get a record back as data');
+      assert.strictEqual(
+        userDocument.content.identifier?.lid,
+        '/assets/users/1.json',
+        '<Initial> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument.content.links,
+        { self: '/assets/users/1.json' },
+        '<Initial> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<Initial> we get access to the document meta'
+      );
+
+      const request2 = store.request<Document<RecordInstance>>({
+        url: '/assets/users/1.json',
+        cacheOptions: { backgroundReload: true },
+      });
+      const userDocument2 = await request2;
+      const data2 = userDocument2.content.data!;
+
+      assert.strictEqual(data2, record, '<Cached> record was returned as data');
+      assert.strictEqual(data2 && recordIdentifierFor(data2), identifier, '<Cached> we get a record back as data');
+      assert.strictEqual(
+        userDocument2.content.identifier?.lid,
+        '/assets/users/1.json',
+        '<Cached> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument2.content.links,
+        { self: '/assets/users/1.json' },
+        '<Cached> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument2.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<Cached> we get access to the document meta'
+      );
+
+      request2.abort();
+      resolve();
+      await store._getAllPending();
+
+      const data3 = userDocument2.content.data!;
+      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const record2 = store.peekRecord(identifier2);
+
+      assert.strictEqual(record2, null, '<(NOT) Updated> record2 is not in the cache');
+      assert.strictEqual(userDocument.content, userDocument2.content, '<(NOT) Updated> documents are the same');
+      assert.strictEqual(data3, record, '<(NOT) Updated> record was returned as data');
+      assert.strictEqual(data3 && recordIdentifierFor(data3), identifier, '<(NOT) Updated> we get the right record back as data');
+      assert.notStrictEqual(data3 && recordIdentifierFor(data3), identifier2, '<(NOT) Updated> we get a record back as data');
+      assert.strictEqual(
+        userDocument2.content.identifier?.lid,
+        '/assets/users/1.json',
+        '<(NOT) Updated> we get back url as the cache key'
+      );
+      assert.deepEqual(
+        userDocument2.content.links,
+        {
+          self: '/assets/users/1.json',
+        },
+        '<(NOT) Updated> we get access to the document links'
+      );
+      assert.deepEqual(
+        userDocument2.content.meta,
+        {
+          expiration: 120000,
+          total: 1,
+        },
+        '<(NOT) Updated> we get access to the document meta'
+      );
+      assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
+    });
+  });
 });

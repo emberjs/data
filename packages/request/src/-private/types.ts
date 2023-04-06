@@ -74,10 +74,11 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * Cancel this request by firing the AbortController's signal.
    *
    * @method abort
+   * @param {string} [reason] optional reason for aborting the request
    * @public
    * @returns {void}
    */
-  abort(): void;
+  abort(reason?: string): void;
   /**
    * Get the response stream, if any, once made available.
    *

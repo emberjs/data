@@ -49,9 +49,13 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   promise.getStream = () => {
     return owner.getStream();
   };
-  promise.abort = () => {
-    owner.abort();
+  promise.abort = (reason?: string) => {
+    owner.abort(enhanceReason(reason));
   };
   deferred.promise = promise;
   return deferred;
+}
+
+function enhanceReason(reason?: string) {
+  return new DOMException(reason || 'The user aborted a request.', 'AbortError');
 }

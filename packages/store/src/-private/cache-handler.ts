@@ -207,6 +207,10 @@ function fetchContentAndHydrate<T>(
     },
     (error: StructuredErrorDocument) => {
       store.requestManager._pending.delete(context.id);
+      if (context.request.signal?.aborted) {
+        throw error;
+      }
+      store.requestManager._pending.delete(context.id);
       store._enableAsyncFlush = true;
       let response: ResourceErrorDocument;
       store._join(() => {
