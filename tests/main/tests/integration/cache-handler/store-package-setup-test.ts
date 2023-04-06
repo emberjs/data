@@ -1523,10 +1523,22 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
       const store = owner.lookup('service:store') as TestStore;
 
-      function getErrorPayload(lid?: string) {
+      function getErrorPayload(lid?: string | StableDocumentIdentifier) {
         if (lid) {
+          if (typeof lid === 'string') {
+            return {
+              lid,
+              errors: [
+                {
+                  source: { parameter: 'include' },
+                  title: 'Invalid Query Parameter',
+                  detail: 'The resource does not have an `author` relationship path.',
+                },
+              ],
+            };
+          }
           return {
-            lid,
+            identifier: lid,
             errors: [
               {
                 source: { parameter: 'include' },
@@ -1580,8 +1592,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         assertIsErrorDocument(assert, errorDocument);
         assert.true(errorDocument.message.startsWith('[400] Bad Request - '), 'We receive the correct error');
         assert.deepEqual(
-          errorDocument.content,
-          getErrorPayload(docIdentifier.lid),
+          JSON.parse(JSON.stringify(errorDocument.content)),
+          getErrorPayload(docIdentifier),
           'We receive the correct error content'
         );
       }
@@ -1598,8 +1610,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         assertIsErrorDocument(assert, errorDocument);
         assert.true(errorDocument.message.startsWith('[400] Bad Request - '), 'We receive the correct error');
         assert.deepEqual(
-          errorDocument.content,
-          getErrorPayload(docIdentifier.lid),
+          JSON.parse(JSON.stringify(errorDocument.content)),
+          getErrorPayload(docIdentifier),
           'We receive the correct error content'
         );
       }
