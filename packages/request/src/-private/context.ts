@@ -23,13 +23,13 @@ export class ContextOwner {
     if (request.controller) {
       if (request.controller !== god.controller) {
         god.controller.signal.addEventListener('abort', () => {
-          this.controller.abort();
+          this.controller.abort(god.controller.signal.reason);
         });
       }
       delete request.controller;
     }
     let enhancedRequest: ImmutableRequestInfo = Object.assign(
-      { signal: god.controller.signal },
+      { signal: this.controller.signal },
       request
     ) as ImmutableRequestInfo;
     if (DEBUG) {
@@ -69,8 +69,8 @@ export class ContextOwner {
     this.hasSubscribers = true;
     return this.stream.promise;
   }
-  abort() {
-    this.controller.abort();
+  abort(reason: DOMException) {
+    this.controller.abort(reason);
   }
 
   setStream(stream: ReadableStream | Promise<ReadableStream | null> | null) {

@@ -65,7 +65,9 @@ export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbo
     (content: T) => {
       if (owner.controller.signal.aborted) {
         // the next function did not respect the signal, we handle it here
-        outbound.reject(new DOMException((owner.controller.signal.reason as string) || 'AbortError'));
+        outbound.reject(
+          new DOMException((owner.controller.signal.reason as string) || 'The user aborted a request.', 'AbortError')
+        );
         return;
       }
       if (isDoc(content)) {
