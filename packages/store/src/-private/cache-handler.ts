@@ -217,7 +217,7 @@ export const CacheHandler: Handler = {
     }
 
     if ('error' in peeked!) {
-      throw peeked.error;
+      throw peeked;
     }
 
     const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;

@@ -7,11 +7,12 @@ import { setupTest } from 'ember-qunit';
 import Cache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import RequestManager from '@ember-data/request';
-import type { StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request/-private/types';
+import type { Future, NextFn, StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
@@ -22,6 +23,7 @@ import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-js
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import { Context } from '@ember-data/request/-private/context';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
@@ -1452,6 +1454,60 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
       assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
+    });
+  });
+
+  module('Errors', function () {
+    test('fetching a resource document that errors, request can be replayed', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+
+      let handlerCalls = 0;
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          request<T>(context: Context, next: NextFn<T>): Future<T> {
+            if (handlerCalls > 0) {
+              assert.ok(false, 'fetch handler should not be called again');
+            }
+            handlerCalls++;
+            return next(context.request);
+          },
+        },
+        Fetch
+      ]);
+      store.requestManager.useCache(CacheHandler);
+      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json' })!;
+
+      try {
+        await store.request<Collection>({
+          url: '/assets/users/2.json',
+        });
+        assert.ok(false, 'we should error');
+      } catch (errorDocument: unknown) {
+        assertIsErrorDocument(assert, errorDocument);
+        assert.true(errorDocument.message.startsWith('[404] Not Found - '), 'We receive the correct error');
+      }
+      assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
+
+      const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
+
+      try {
+        await store.request<Collection>({
+          url: '/assets/users/2.json',
+        });
+        assert.ok(false, 'we should error');
+      } catch (errorDocument: unknown) {
+        assertIsErrorDocument(assert, errorDocument);
+        assert.true(errorDocument.message.startsWith('[404] Not Found - '), 'We receive the correct error');
+      }
+      assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
+
+      const doc2 = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
+
+      assert.strictEqual(doc, doc2, 'we get back the same document');
+      assert.true(typeof doc.error === 'string' && doc.error.startsWith('[404] Not Found - '), 'We receive the correct error')
     });
   });
 });
