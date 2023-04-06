@@ -227,9 +227,8 @@ export default class JSONAPICache implements Cache {
     data?: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null
   ): SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument | ResourceMetaDocument {
     // @ts-expect-error narrowing within is just horrible  in TS :/
-    const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument = isErrorDocument(doc)
-        ? fromStructuredError(doc)
-        : fromBaseDocument(doc);
+    const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument =
+      isErrorDocument(doc) ? fromStructuredError(doc) : fromBaseDocument(doc);
 
     if (data !== undefined) {
       (resourceDocument as SingleResourceDataDocument | CollectionResourceDataDocument).data = data;

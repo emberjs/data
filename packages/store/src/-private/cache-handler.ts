@@ -7,7 +7,11 @@ import type {
   StructuredErrorDocument,
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import { CollectionResourceDataDocument, ResourceDataDocument, ResourceErrorDocument } from '@ember-data/types/cache/document';
+import {
+  CollectionResourceDataDocument,
+  ResourceDataDocument,
+  ResourceErrorDocument,
+} from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import { RecordInstance } from '@ember-data/types/q/record-instance';
 
@@ -229,7 +233,10 @@ function fetchContentAndHydrate<T>(
 }
 
 function cloneError(error: Error & { error: string | object }) {
-  const cloned: Error & { error: string | object; content: object } = new Error(error.message) as Error & { error: string | object; content: object };
+  const cloned: Error & { error: string | object; content: object } = new Error(error.message) as Error & {
+    error: string | object;
+    content: object;
+  };
   cloned.stack = error.stack;
   cloned.error = error.error;
   return cloned;
@@ -264,14 +271,15 @@ export const CacheHandler: Handler = {
     const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
 
     if ('error' in peeked!) {
-      const content = shouldHydrate ? maybeUpdateUiObjects<T>(
-          store,
-          context.request,
-          { shouldHydrate, identifier },
-          peeked!.content as ResourceErrorDocument,
-          true
-        )
-      : peeked.content;
+      const content = shouldHydrate
+        ? maybeUpdateUiObjects<T>(
+            store,
+            context.request,
+            { shouldHydrate, identifier },
+            peeked.content as ResourceErrorDocument,
+            true
+          )
+        : peeked.content;
       const newError = cloneError(peeked);
       newError.content = content as object;
       throw newError;
@@ -291,8 +299,7 @@ export const CacheHandler: Handler = {
   },
 };
 
-
-function copyDocumentProperties(target: { links?: unknown; meta?: unknown; errors?: unknown; }, source: object) {
+function copyDocumentProperties(target: { links?: unknown; meta?: unknown; errors?: unknown }, source: object) {
   if ('links' in source) {
     target.links = source.links;
   }

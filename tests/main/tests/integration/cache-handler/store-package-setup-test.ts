@@ -24,12 +24,12 @@ import type {
   ResourceDataDocument,
   SingleResourceDataDocument,
 } from '@ember-data/types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
@@ -1527,24 +1527,24 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         if (lid) {
           return {
             lid,
-            "errors": [
+            errors: [
               {
-                "source": { "parameter": "include" },
-                "title":  "Invalid Query Parameter",
-                "detail": "The resource does not have an `author` relationship path."
-              }
-            ]
-          }
+                source: { parameter: 'include' },
+                title: 'Invalid Query Parameter',
+                detail: 'The resource does not have an `author` relationship path.',
+              },
+            ],
+          };
         }
         return {
-          "errors": [
+          errors: [
             {
-              "source": { "parameter": "include" },
-              "title":  "Invalid Query Parameter",
-              "detail": "The resource does not have an `author` relationship path."
-            }
-          ]
-        }
+              source: { parameter: 'include' },
+              title: 'Invalid Query Parameter',
+              detail: 'The resource does not have an `author` relationship path.',
+            },
+          ],
+        };
       }
 
       let handlerCalls = 0;
@@ -1552,20 +1552,24 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          request<T>() {
+          request() {
             if (handlerCalls > 1) {
               assert.ok(false, 'fetch handler should not be called again');
               throw new Error('fetch handler should not be called again');
             }
             handlerCalls++;
-            const error: Error & { content: object } = new Error(`[400] Bad Request - /assets/users/2.json?include=author`) as Error & { content: object };
+            const error: Error & { content: object } = new Error(
+              `[400] Bad Request - /assets/users/2.json?include=author`
+            ) as Error & { content: object };
             error.content = getErrorPayload();
             throw error;
           },
         },
       ]);
       store.requestManager.useCache(CacheHandler);
-      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json?include=author' })!;
+      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+        url: '/assets/users/2.json?include=author',
+      })!;
 
       try {
         await store.request<Collection>({
@@ -1575,7 +1579,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       } catch (errorDocument: unknown) {
         assertIsErrorDocument(assert, errorDocument);
         assert.true(errorDocument.message.startsWith('[400] Bad Request - '), 'We receive the correct error');
-        assert.deepEqual(errorDocument.content, getErrorPayload(docIdentifier.lid), 'We receive the correct error content');
+        assert.deepEqual(
+          errorDocument.content,
+          getErrorPayload(docIdentifier.lid),
+          'We receive the correct error content'
+        );
       }
       assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
 
@@ -1589,7 +1597,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       } catch (errorDocument: unknown) {
         assertIsErrorDocument(assert, errorDocument);
         assert.true(errorDocument.message.startsWith('[400] Bad Request - '), 'We receive the correct error');
-        assert.deepEqual(errorDocument.content, getErrorPayload(docIdentifier.lid), 'We receive the correct error content');
+        assert.deepEqual(
+          errorDocument.content,
+          getErrorPayload(docIdentifier.lid),
+          'We receive the correct error content'
+        );
       }
       assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
 
@@ -1612,34 +1624,34 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           if (typeof lid === 'string') {
             return {
               lid,
-              "errors": [
+              errors: [
                 {
-                  "source": { "parameter": "include" },
-                  "title":  "Invalid Query Parameter",
-                  "detail": "The resource does not have an `author` relationship path."
-                }
-              ]
+                  source: { parameter: 'include' },
+                  title: 'Invalid Query Parameter',
+                  detail: 'The resource does not have an `author` relationship path.',
+                },
+              ],
             };
           }
           return {
             identifier: lid,
-            "errors": [
+            errors: [
               {
-                "source": { "parameter": "include" },
-                "title":  "Invalid Query Parameter",
-                "detail": "The resource does not have an `author` relationship path."
-              }
-            ]
+                source: { parameter: 'include' },
+                title: 'Invalid Query Parameter',
+                detail: 'The resource does not have an `author` relationship path.',
+              },
+            ],
           };
         }
         return {
-          "errors": [
+          errors: [
             {
-              "source": { "parameter": "include" },
-              "title":  "Invalid Query Parameter",
-              "detail": "The resource does not have an `author` relationship path."
-            }
-          ]
+              source: { parameter: 'include' },
+              title: 'Invalid Query Parameter',
+              detail: 'The resource does not have an `author` relationship path.',
+            },
+          ],
         };
       }
 
@@ -1656,7 +1668,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
                   id: '1',
                   type: 'user',
                   attributes: { name: 'Chris' },
-                }
+                },
               }) as T;
             }
             if (handlerCalls > 2) {
@@ -1664,22 +1676,27 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
               throw new Error('fetch handler should not be called again');
             }
             handlerCalls++;
-            const error: Error & { content: object } = new Error(`[400] Bad Request - /assets/users/2.json?include=author`) as Error & { content: object };
+            const error: Error & { content: object } = new Error(
+              `[400] Bad Request - /assets/users/2.json?include=author`
+            ) as Error & { content: object };
             error.content = getErrorPayload();
             throw error;
           },
         },
       ]);
       store.requestManager.useCache(CacheHandler);
-      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json?include=author' })!;
+      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+        url: '/assets/users/2.json?include=author',
+      })!;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-
 
       // Initial successful fetch
       const originalDoc = await store.request<Document<RecordInstance>>({
         url: '/assets/users/2.json?include=author',
       });
-      const originalRawDoc = store.cache.peekRequest(docIdentifier) as StructuredDataDocument<SingleResourceDataDocument>;
+      const originalRawDoc = store.cache.peekRequest(
+        docIdentifier
+      ) as StructuredDataDocument<SingleResourceDataDocument>;
       assert.strictEqual(originalDoc.content.data?.name, 'Chris', '<Initial> We receive the correct data');
       assert.strictEqual(originalRawDoc.content.data, resourceIdentifier, '<Initial> We receive the correct data');
       assert.strictEqual(handlerCalls, 1, '<Initial> fetch handler should be called once');
@@ -1688,13 +1705,20 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       try {
         await store.request<Collection>({
           url: '/assets/users/2.json?include=author',
-          cacheOptions: { reload: true }
+          cacheOptions: { reload: true },
         });
         assert.ok(false, '<First Failure> we should error');
       } catch (errorDocument: unknown) {
         assertIsErrorDocument(assert, errorDocument);
-        assert.true(errorDocument.message.startsWith('[400] Bad Request - '), '<First Failure> We receive the correct error');
-        assert.deepEqual(JSON.parse(JSON.stringify(errorDocument.content)), getErrorPayload(docIdentifier), '<First Failure> We receive the correct error content');
+        assert.true(
+          errorDocument.message.startsWith('[400] Bad Request - '),
+          '<First Failure> We receive the correct error'
+        );
+        assert.deepEqual(
+          JSON.parse(JSON.stringify(errorDocument.content)),
+          getErrorPayload(docIdentifier),
+          '<First Failure> We receive the correct error content'
+        );
       }
       assert.strictEqual(handlerCalls, 2, '<First Failure> fetch handler should be called again');
 
@@ -1708,8 +1732,15 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         assert.ok(false, '<Second Failure> we should error');
       } catch (errorDocument: unknown) {
         assertIsErrorDocument(assert, errorDocument);
-        assert.true(errorDocument.message.startsWith('[400] Bad Request - '), '<Second Failure> We receive the correct error');
-        assert.deepEqual(JSON.parse(JSON.stringify(errorDocument.content)), getErrorPayload(docIdentifier), '<Second Failure> We receive the correct error content');
+        assert.true(
+          errorDocument.message.startsWith('[400] Bad Request - '),
+          '<Second Failure> We receive the correct error'
+        );
+        assert.deepEqual(
+          JSON.parse(JSON.stringify(errorDocument.content)),
+          getErrorPayload(docIdentifier),
+          '<Second Failure> We receive the correct error content'
+        );
       }
       assert.strictEqual(handlerCalls, 2, '<Second Failure> fetch handler should be not be called again');
 
@@ -1720,16 +1751,32 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         typeof doc.error === 'string' && doc.error.startsWith('[400] Bad Request - '),
         '<Cache Peek> We receive the correct error'
       );
-      assert.deepEqual(doc.content, getErrorPayload(docIdentifier.lid), '<Cache Peek> We receive the correct error content');
+      assert.deepEqual(
+        doc.content,
+        getErrorPayload(docIdentifier.lid),
+        '<Cache Peek> We receive the correct error content'
+      );
 
       // we update original document presentation class
       assert.strictEqual(originalDoc.content.data, undefined, '<Stability> original document is now in error state');
-      assert.deepEqual(originalDoc.content.errors, getErrorPayload(docIdentifier).errors, '<Stability> original document reflects error state');
+      assert.deepEqual(
+        originalDoc.content.errors,
+        getErrorPayload(docIdentifier).errors,
+        '<Stability> original document reflects error state'
+      );
 
       // we do not mutate original raw
-      assert.strictEqual(originalRawDoc.content.data, resourceIdentifier, '<Stability> We do not mutate the original request document data');
-      // @ts-expect-error
-      assert.strictEqual(originalRawDoc.content.errors, undefined, '<Stability> We do not mutate the original request document errors');
+      assert.strictEqual(
+        originalRawDoc.content.data,
+        resourceIdentifier,
+        '<Stability> We do not mutate the original request document data'
+      );
+      assert.strictEqual(
+        // @ts-expect-error
+        originalRawDoc.content.errors,
+        undefined,
+        '<Stability> We do not mutate the original request document errors'
+      );
     });
   });
 });
