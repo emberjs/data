@@ -1792,14 +1792,17 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     });
   });
 
-  module('AbortController', function() {
+  module('AbortController', function () {
     test('aborting a request pre-cache-insert does not affect the cache', async function (assert) {
       const { owner } = this;
       const store = owner.lookup('service:store') as TestStore;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })!;
+      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+        url: '/assets/users/list.json',
+      })!;
 
-      let resolve, resolveNext;
+      let resolve!: (v?: unknown) => void;
+      let resolveNext!: (v?: unknown) => void;
       const promise = new Promise((r) => (resolve = r));
       const next = new Promise((r) => (resolveNext = r));
 
@@ -1817,8 +1820,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
                 type: 'user',
                 id: '1',
                 attributes: { name: 'Chris' },
-              }
-            } as T)
+              },
+            } as T);
           },
         },
       ]);
@@ -1850,9 +1853,12 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
       const store = owner.lookup('service:store') as TestStore;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })!;
+      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+        url: '/assets/users/list.json',
+      })!;
 
-      let resolve, resolveNext;
+      let resolve!: (v?: unknown) => void;
+      let resolveNext!: (v?: unknown) => void;
       const promise = new Promise((r) => (resolve = r));
       const nextPromise = new Promise((r) => (resolveNext = r));
 
@@ -1868,8 +1874,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
                 type: 'user',
                 id: '1',
                 attributes: { name: 'Chris' },
-              }
-            } as T)
+              },
+            } as T);
           },
         },
       ]);
@@ -1879,7 +1885,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           resolve();
           await nextPromise;
           return cacheComplete as T;
-        }
+        },
       });
 
       const request = store.request<CollectionResourceDataDocument>({
@@ -1898,8 +1904,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         assert.strictEqual((e as Error).message, 'AbortError: request no longer needed', 'error is AbortError');
       }
 
-      assert.true(store.peekRecord(resourceIdentifier) !== null, 'record IS in the cache');
-      assert.true(store.cache.peekRequest(documentIdentifier) !== null, 'document IS in the cache');
+      assert.notStrictEqual(store.peekRecord(resourceIdentifier), null, 'record IS in the cache');
+      assert.notStrictEqual(store.cache.peekRequest(documentIdentifier), null, 'document IS in the cache');
 
       assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
     });
@@ -1945,7 +1951,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const store = owner.lookup('service:store') as TestStore;
 
       let handlerCalls = 0;
-      let resolve;
+      let resolve!: (v?: unknown) => void;
       const advance = new Promise((r) => (resolve = r));
       store.requestManager = new RequestManager();
       store.requestManager.use([
@@ -2065,8 +2071,16 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       assert.strictEqual(record2, null, '<(NOT) Updated> record2 is not in the cache');
       assert.strictEqual(userDocument.content, userDocument2.content, '<(NOT) Updated> documents are the same');
       assert.strictEqual(data3, record, '<(NOT) Updated> record was returned as data');
-      assert.strictEqual(data3 && recordIdentifierFor(data3), identifier, '<(NOT) Updated> we get the right record back as data');
-      assert.notStrictEqual(data3 && recordIdentifierFor(data3), identifier2, '<(NOT) Updated> we get a record back as data');
+      assert.strictEqual(
+        data3 && recordIdentifierFor(data3),
+        identifier,
+        '<(NOT) Updated> we get the right record back as data'
+      );
+      assert.notStrictEqual(
+        data3 && recordIdentifierFor(data3),
+        identifier2,
+        '<(NOT) Updated> we get a record back as data'
+      );
       assert.strictEqual(
         userDocument2.content.identifier?.lid,
         '/assets/users/1.json',

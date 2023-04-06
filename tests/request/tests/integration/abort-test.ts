@@ -104,17 +104,15 @@ module('RequestManager | Abort', function () {
   test('We fully abort even when a handler supplies its own controller', async function (assert) {
     assert.expect(4);
     const manager = new RequestManager();
-    let resolveBefore;
-    let resolvePre;
+    let resolveBefore!: (v?: unknown) => void;
+    let resolvePre!: (v?: unknown) => void;
     const preFetch = new Promise((r) => (resolvePre = r));
     const beforeFetch = new Promise((r) => (resolveBefore = r));
-    let signal;
-    let controller;
+    let controller!: AbortController;
     const handler1: Handler = {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         const request = Object.assign({}, context.request) as RequestInfo;
-        signal = request.signal;
         delete request.signal;
         controller = new AbortController();
         request.controller = controller;
@@ -127,7 +125,11 @@ module('RequestManager | Abort', function () {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive an abort signal in handler2');
-        assert.strictEqual(context.request.signal, controller.signal, 'we receive the expected abort signal in handler2');
+        assert.strictEqual(
+          context.request.signal,
+          controller.signal,
+          'we receive the expected abort signal in handler2'
+        );
         resolvePre();
         await beforeFetch;
 
@@ -157,17 +159,17 @@ module('RequestManager | Abort', function () {
   test('A sub-signal can abort independently', async function (assert) {
     assert.expect(5);
     const manager = new RequestManager();
-    let resolveBefore;
-    let resolvePre;
+    let resolveBefore!: (v?: unknown) => void;
+    let resolvePre!: (v?: unknown) => void;
     const preFetch = new Promise((r) => (resolvePre = r));
     const beforeFetch = new Promise((r) => (resolveBefore = r));
-    let signal;
-    let controller;
+    let signal!: AbortSignal;
+    let controller!: AbortController;
     const handler1: Handler = {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         const request = Object.assign({}, context.request) as RequestInfo;
-        signal = request.signal;
+        signal = request.signal!;
         delete request.signal;
         controller = new AbortController();
         request.controller = controller;
@@ -180,7 +182,11 @@ module('RequestManager | Abort', function () {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive an abort signal in handler2');
-        assert.strictEqual(context.request.signal, controller.signal, 'we receive the expected abort signal in handler2');
+        assert.strictEqual(
+          context.request.signal,
+          controller.signal,
+          'we receive the expected abort signal in handler2'
+        );
         resolvePre();
         await beforeFetch;
 
