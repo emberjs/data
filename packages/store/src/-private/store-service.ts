@@ -214,7 +214,7 @@ class Store {
   declare _fetchManager: FetchManager;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
-  declare _documentCache: Map<StableDocumentIdentifier, Document<RecordInstance | RecordInstance[] | null>>;
+  declare _documentCache: Map<StableDocumentIdentifier, Document<RecordInstance | RecordInstance[] | null | undefined>>;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   declare _forceShim: boolean;

@@ -59,4 +59,22 @@ export class Document<T> {
   last(options?: object): Promise<Document<T> | null> {
     return this.#request('last', options);
   }
+
+  toJSON(): object {
+    const data: Partial<Document<T>> = {};
+    data.identifier = this.identifier;
+    if (this.data !== undefined) {
+      data.data = this.data;
+    }
+    if (this.links !== undefined) {
+      data.links = this.links;
+    }
+    if (this.errors !== undefined) {
+      data.errors = this.errors;
+    }
+    if (this.meta !== undefined) {
+      data.meta = this.meta;
+    }
+    return data;
+  }
 }
