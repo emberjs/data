@@ -7,7 +7,13 @@ import { setupTest } from 'ember-qunit';
 import Cache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import RequestManager from '@ember-data/request';
-import type { Future, NextFn, StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request/-private/types';
+import type { Context } from '@ember-data/request/-private/context';
+import type {
+  Future,
+  NextFn,
+  StructuredDataDocument,
+  StructuredErrorDocument,
+} from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
@@ -23,7 +29,7 @@ import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-js
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import { Context } from '@ember-data/request/-private/context';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
@@ -1475,7 +1481,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
             return next(context.request);
           },
         },
-        Fetch
+        Fetch,
       ]);
       store.requestManager.useCache(CacheHandler);
       const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json' })!;
@@ -1507,7 +1513,223 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const doc2 = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
 
       assert.strictEqual(doc, doc2, 'we get back the same document');
-      assert.true(typeof doc.error === 'string' && doc.error.startsWith('[404] Not Found - '), 'We receive the correct error')
+      assert.true(
+        typeof doc.error === 'string' && doc.error.startsWith('[404] Not Found - '),
+        'We receive the correct error'
+      );
+    });
+
+    test('fetching a resource document that errors with detail, errors available as content', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+
+      function getErrorPayload(lid?: string) {
+        if (lid) {
+          return {
+            lid,
+            "errors": [
+              {
+                "source": { "parameter": "include" },
+                "title":  "Invalid Query Parameter",
+                "detail": "The resource does not have an `author` relationship path."
+              }
+            ]
+          }
+        }
+        return {
+          "errors": [
+            {
+              "source": { "parameter": "include" },
+              "title":  "Invalid Query Parameter",
+              "detail": "The resource does not have an `author` relationship path."
+            }
+          ]
+        }
+      }
+
+      let handlerCalls = 0;
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          request<T>() {
+            if (handlerCalls > 1) {
+              assert.ok(false, 'fetch handler should not be called again');
+              throw new Error('fetch handler should not be called again');
+            }
+            handlerCalls++;
+            const error: Error & { content: object } = new Error(`[400] Bad Request - /assets/users/2.json?include=author`) as Error & { content: object };
+            error.content = getErrorPayload();
+            throw error;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json?include=author' })!;
+
+      try {
+        await store.request<Collection>({
+          url: '/assets/users/2.json?include=author',
+        });
+        assert.ok(false, 'we should error');
+      } catch (errorDocument: unknown) {
+        assertIsErrorDocument(assert, errorDocument);
+        assert.true(errorDocument.message.startsWith('[400] Bad Request - '), 'We receive the correct error');
+        assert.deepEqual(errorDocument.content, getErrorPayload(docIdentifier.lid), 'We receive the correct error content');
+      }
+      assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
+
+      const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
+
+      try {
+        await store.request<Collection>({
+          url: '/assets/users/2.json?include=author',
+        });
+        assert.ok(false, 'we should error');
+      } catch (errorDocument: unknown) {
+        assertIsErrorDocument(assert, errorDocument);
+        assert.true(errorDocument.message.startsWith('[400] Bad Request - '), 'We receive the correct error');
+        assert.deepEqual(errorDocument.content, getErrorPayload(docIdentifier.lid), 'We receive the correct error content');
+      }
+      assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
+
+      const doc2 = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
+
+      assert.strictEqual(doc, doc2, 'we get back the same document');
+      assert.true(
+        typeof doc.error === 'string' && doc.error.startsWith('[400] Bad Request - '),
+        'We receive the correct error'
+      );
+      assert.deepEqual(doc.content, getErrorPayload(docIdentifier.lid), 'We receive the correct error content');
+    });
+
+    test('fetching a resource document that succeeds, then later errors with detail, errors available as content', async function (assert) {
+      const { owner } = this;
+      const store = owner.lookup('service:store') as TestStore;
+
+      function getErrorPayload(lid?: string | StableDocumentIdentifier) {
+        if (lid) {
+          if (typeof lid === 'string') {
+            return {
+              lid,
+              "errors": [
+                {
+                  "source": { "parameter": "include" },
+                  "title":  "Invalid Query Parameter",
+                  "detail": "The resource does not have an `author` relationship path."
+                }
+              ]
+            };
+          }
+          return {
+            identifier: lid,
+            "errors": [
+              {
+                "source": { "parameter": "include" },
+                "title":  "Invalid Query Parameter",
+                "detail": "The resource does not have an `author` relationship path."
+              }
+            ]
+          };
+        }
+        return {
+          "errors": [
+            {
+              "source": { "parameter": "include" },
+              "title":  "Invalid Query Parameter",
+              "detail": "The resource does not have an `author` relationship path."
+            }
+          ]
+        };
+      }
+
+      let handlerCalls = 0;
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        LegacyNetworkHandler,
+        {
+          request<T>() {
+            if (handlerCalls === 0) {
+              handlerCalls++;
+              return Promise.resolve({
+                data: {
+                  id: '1',
+                  type: 'user',
+                  attributes: { name: 'Chris' },
+                }
+              }) as T;
+            }
+            if (handlerCalls > 2) {
+              assert.ok(false, 'fetch handler should not be called again');
+              throw new Error('fetch handler should not be called again');
+            }
+            handlerCalls++;
+            const error: Error & { content: object } = new Error(`[400] Bad Request - /assets/users/2.json?include=author`) as Error & { content: object };
+            error.content = getErrorPayload();
+            throw error;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json?include=author' })!;
+      const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+
+
+      // Initial successful fetch
+      const originalDoc = await store.request<Document<RecordInstance>>({
+        url: '/assets/users/2.json?include=author',
+      });
+      const originalRawDoc = store.cache.peekRequest(docIdentifier) as StructuredDataDocument<SingleResourceDataDocument>;
+      assert.strictEqual(originalDoc.content.data?.name, 'Chris', '<Initial> We receive the correct data');
+      assert.strictEqual(originalRawDoc.content.data, resourceIdentifier, '<Initial> We receive the correct data');
+      assert.strictEqual(handlerCalls, 1, '<Initial> fetch handler should be called once');
+
+      // First failed fetch
+      try {
+        await store.request<Collection>({
+          url: '/assets/users/2.json?include=author',
+          cacheOptions: { reload: true }
+        });
+        assert.ok(false, '<First Failure> we should error');
+      } catch (errorDocument: unknown) {
+        assertIsErrorDocument(assert, errorDocument);
+        assert.true(errorDocument.message.startsWith('[400] Bad Request - '), '<First Failure> We receive the correct error');
+        assert.deepEqual(JSON.parse(JSON.stringify(errorDocument.content)), getErrorPayload(docIdentifier), '<First Failure> We receive the correct error content');
+      }
+      assert.strictEqual(handlerCalls, 2, '<First Failure> fetch handler should be called again');
+
+      const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
+
+      // Replay of failed fetch
+      try {
+        await store.request<Collection>({
+          url: '/assets/users/2.json?include=author',
+        });
+        assert.ok(false, '<Second Failure> we should error');
+      } catch (errorDocument: unknown) {
+        assertIsErrorDocument(assert, errorDocument);
+        assert.true(errorDocument.message.startsWith('[400] Bad Request - '), '<Second Failure> We receive the correct error');
+        assert.deepEqual(JSON.parse(JSON.stringify(errorDocument.content)), getErrorPayload(docIdentifier), '<Second Failure> We receive the correct error content');
+      }
+      assert.strictEqual(handlerCalls, 2, '<Second Failure> fetch handler should be not be called again');
+
+      const doc2 = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
+
+      assert.strictEqual(doc, doc2, '<Cache Peek> we get back the same document');
+      assert.true(
+        typeof doc.error === 'string' && doc.error.startsWith('[400] Bad Request - '),
+        '<Cache Peek> We receive the correct error'
+      );
+      assert.deepEqual(doc.content, getErrorPayload(docIdentifier.lid), '<Cache Peek> We receive the correct error content');
+
+      // we update original document presentation class
+      assert.strictEqual(originalDoc.content.data, undefined, '<Stability> original document is now in error state');
+      assert.deepEqual(originalDoc.content.errors, getErrorPayload(docIdentifier).errors, '<Stability> original document reflects error state');
+
+      // we do not mutate original raw
+      assert.strictEqual(originalRawDoc.content.data, resourceIdentifier, '<Stability> We do not mutate the original request document data');
+      // @ts-expect-error
+      assert.strictEqual(originalRawDoc.content.errors, undefined, '<Stability> We do not mutate the original request document errors');
     });
   });
 });

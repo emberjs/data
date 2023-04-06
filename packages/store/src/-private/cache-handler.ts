@@ -7,7 +7,7 @@ import type {
   StructuredErrorDocument,
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import { CollectionResourceDataDocument, ResourceDataDocument } from '@ember-data/types/cache/document';
+import { CollectionResourceDataDocument, ResourceDataDocument, ResourceErrorDocument } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import { RecordInstance } from '@ember-data/types/q/record-instance';
 
@@ -26,6 +26,10 @@ export interface StoreRequestContext extends RequestContext {
   request: StoreRequestInfo & { store: Store };
 }
 
+function isErrorDocument(document: ResourceDataDocument | ResourceErrorDocument): document is ResourceErrorDocument {
+  return 'errors' in document;
+}
+
 function maybeUpdateUiObjects<T>(
   store: Store,
   request: StoreRequestInfo,
@@ -35,10 +39,35 @@ function maybeUpdateUiObjects<T>(
     shouldBackgroundFetch?: boolean;
     identifier: StableDocumentIdentifier | null;
   },
-  document: ResourceDataDocument,
+  document: ResourceDataDocument | ResourceErrorDocument,
   isFromCache: boolean
 ): T {
   const { identifier } = options;
+
+  if (isErrorDocument(document)) {
+    if (!identifier && !options.shouldHydrate) {
+      return document as T;
+    }
+    let doc: Document<undefined> | undefined;
+    if (identifier) {
+      doc = store._documentCache.get(identifier) as Document<undefined> | undefined;
+    }
+
+    if (!doc) {
+      doc = new Document<undefined>(store, identifier);
+      copyDocumentProperties(doc, document);
+
+      if (identifier) {
+        store._documentCache.set(identifier, doc);
+      }
+    } else if (!isFromCache) {
+      doc.data = undefined;
+      copyDocumentProperties(doc, document);
+    }
+
+    return options.shouldHydrate ? (doc as T) : (document as T);
+  }
+
   if (Array.isArray(document.data)) {
     const { recordArrayManager } = store;
     if (!identifier) {
@@ -97,16 +126,14 @@ function maybeUpdateUiObjects<T>(
     if (!doc) {
       doc = new Document<RecordInstance | null>(store, identifier);
       doc.data = data;
-      doc.meta = document.meta;
-      doc.links = document.links;
+      copyDocumentProperties(doc, document);
 
       if (identifier) {
         store._documentCache.set(identifier, doc);
       }
     } else if (!isFromCache) {
       doc.data = data;
-      doc.meta = document.meta;
-      doc.links = document.links;
+      copyDocumentProperties(doc, document);
     }
 
     return options.shouldHydrate ? (doc as T) : (document as T);
@@ -177,17 +204,35 @@ function fetchContentAndHydrate<T>(
     (error: StructuredErrorDocument) => {
       store.requestManager._pending.delete(context.id);
       store._enableAsyncFlush = true;
+      let response: ResourceErrorDocument;
       store._join(() => {
-        store.cache.put(error);
+        response = store.cache.put(error) as ResourceErrorDocument;
+        response = maybeUpdateUiObjects(
+          store,
+          context.request,
+          { shouldHydrate, shouldFetch, shouldBackgroundFetch, identifier },
+          response,
+          false
+        );
       });
       store._enableAsyncFlush = null;
 
-      // TODO @runspired this is probably not the right thing to throw so make sure we add a test
       if (!shouldBackgroundFetch) {
-        throw error;
+        const newError = cloneError(error);
+        newError.content = response!;
+        throw newError;
+      } else {
+        store.notifications._flush();
       }
     }
   ) as Promise<T>;
+}
+
+function cloneError(error: Error & { error: string | object }) {
+  const cloned: Error & { error: string | object; content: object } = new Error(error.message) as Error & { error: string | object; content: object };
+  cloned.stack = error.stack;
+  cloned.error = error.error;
+  return cloned;
 }
 
 export const SkipCache = Symbol.for('ember-data:skip-cache');
@@ -216,11 +261,21 @@ export const CacheHandler: Handler = {
       store.requestManager._pending.set(context.id, promise);
     }
 
-    if ('error' in peeked!) {
-      throw peeked;
-    }
-
     const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
+
+    if ('error' in peeked!) {
+      const content = shouldHydrate ? maybeUpdateUiObjects<T>(
+          store,
+          context.request,
+          { shouldHydrate, identifier },
+          peeked!.content as ResourceErrorDocument,
+          true
+        )
+      : peeked.content;
+      const newError = cloneError(peeked);
+      newError.content = content as object;
+      throw newError;
+    }
 
     return Promise.resolve(
       shouldHydrate
@@ -235,3 +290,16 @@ export const CacheHandler: Handler = {
     );
   },
 };
+
+
+function copyDocumentProperties(target: { links?: unknown; meta?: unknown; errors?: unknown; }, source: object) {
+  if ('links' in source) {
+    target.links = source.links;
+  }
+  if ('meta' in source) {
+    target.meta = source.meta;
+  }
+  if ('errors' in source) {
+    target.errors = source.errors;
+  }
+}

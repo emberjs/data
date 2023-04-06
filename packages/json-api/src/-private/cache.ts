@@ -227,21 +227,16 @@ export default class JSONAPICache implements Cache {
     data?: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null
   ): SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument | ResourceMetaDocument {
     // @ts-expect-error narrowing within is just horrible  in TS :/
-    const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument =
-      data !== undefined
-        ? {
-            data,
-          }
-        : isErrorDocument(doc)
+    const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument = isErrorDocument(doc)
         ? fromStructuredError(doc)
-        : {};
+        : fromBaseDocument(doc);
+
+    if (data !== undefined) {
+      (resourceDocument as SingleResourceDataDocument | CollectionResourceDataDocument).data = data;
+    }
+
     const request = doc.request as StoreRequestInfo | undefined;
     const identifier = request ? this.__storeWrapper.identifierCache.getOrCreateDocumentIdentifier(request) : null;
-
-    const jsonApiDoc = doc.content;
-    if (jsonApiDoc) {
-      copyLinksAndMeta(resourceDocument, jsonApiDoc);
-    }
 
     if (identifier) {
       resourceDocument.lid = identifier.lid;
@@ -1461,6 +1456,15 @@ function isErrorDocument(
   doc: StructuredDocument<ResourceDocument>
 ): doc is StructuredErrorDocument<ResourceErrorDocument> {
   return doc instanceof Error;
+}
+
+function fromBaseDocument(doc: StructuredDocument<ResourceDocument>): Partial<ResourceDocument> {
+  const resourceDocument = {} as Partial<ResourceDocument>;
+  const jsonApiDoc = doc.content;
+  if (jsonApiDoc) {
+    copyLinksAndMeta(resourceDocument, jsonApiDoc);
+  }
+  return resourceDocument;
 }
 
 function fromStructuredError(doc: StructuredErrorDocument<ResourceErrorDocument>): ResourceErrorDocument {
