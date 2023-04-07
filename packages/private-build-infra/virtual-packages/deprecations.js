@@ -375,6 +375,17 @@ export const DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS = '4.7';
 /**
  * **id: ember-data:deprecate-v1cache-store-apis**
  *
+ * Deprecates various methods on the store and store-cache-wrapper
+ * that were specific to the v1 cache.
+ *
+ * Most applications should not encounter this deprecation, but if you
+ * do it means that an addon you are using is likely using these methods
+ * as part of having implemented its own cache.
+ *
+ * The implementation will need to update to the V2 Cache API equivalent method
+ * as detailed in the deprecation method. Generally this means the implementation
+ * needs to be more broadly reworked to use the newer V2.1 Cache API.
+ *
  * @property DEPRECATE_V1CACHE_STORE_APIS
  * @since 4.7
  * @until 5.0
@@ -525,7 +536,17 @@ export const DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC = '4.7';
 export const DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE = '4.7';
 
 /**
- * **id: **
+ * **id: ember-data:deprecate-v1-cache**
+ *
+ * Deprecates instantiating a non-singleton cache via `store.createRecordDataFor`
+ * in favor of a singleton-cache via `store.createCache`.
+ *
+ * Most applications should not encounter this deprecation, but if you
+ * do it means that an addon you are using is likely using an unsupported cache
+ * implementation.
+ *
+ * The implementation will need to update to the V2 Cache API and be integrated
+ * via the `createCache` hook.
  *
  * @property DEPRECATE_V1_RECORD_DATA
  * @since 4.12
@@ -535,7 +556,35 @@ export const DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE = '4.7';
 export const DEPRECATE_V1_RECORD_DATA = '4.12';
 
 /**
- * **id: **
+ * **id: ember-data:no-a-with-array-like**
+ *
+ * Deprecates when calling `A()` on an EmberData ArrayLike class
+ * is detected. This deprecation may not always trigger due to complexities
+ * in ember-source versions and the use (or disabling) of prototype extensions.
+ *
+ * To fix, just use the native array methods instead of the EmberArray methods
+ * and refrain from wrapping the array in `A()`.
+ *
+ * Note that some computed property macros may themselves utilize `A()`, in which
+ * scenario the computed properties need to be upgraded to octane syntax.
+ *
+ * For instance, instead of:
+ *
+ * ```ts
+ * class extends Component {
+ *   @filterBy('items', 'isComplete') completedItems;
+ * }
+ * ```
+ *
+ * Use the following:
+ *
+ * ```ts
+ * class extends Component {
+ *   get completedItems() {
+ *     return this.items.filter(item => item.isComplete);
+ *   }
+ * }
+ * ```
  *
  * @property DEPRECATE_A_USAGE
  * @since 4.7
@@ -545,7 +594,25 @@ export const DEPRECATE_V1_RECORD_DATA = '4.12';
 export const DEPRECATE_A_USAGE = '4.7';
 
 /**
- * **id: **
+ * **id: ember-data:deprecate-promise-proxies**
+ *
+ * Additional Reading: [RFC#846 Deprecate Proxies](https://rfcs.emberjs.com/id/0846-ember-data-deprecate-proxies)
+ *
+ * Deprecates using the proxy object/proxy array capabilities of values returned from
+ *
+ *  - `store.findRecord`
+ *  - `store.findAll`
+ *  - `store.query`
+ *  - `store.queryRecord`
+ *  - `record.save`
+ *  - `recordArray.save`
+ *  - `recordArray.update`
+ *
+ * These methods will now return a native Promise that resolves with the value.
+ *
+ * Note that this does not deprecate the proxy behaviors of `PromiseBelongsTo`. See RFC for reasoning.
+ * The opportunity should still be taken if available to stop using these proxy behaviors; however, this class
+ * will remain until `import Model from '@ember-data/model';` is deprecated more broadly.
  *
  * @property DEPRECATE_PROMISE_PROXIES
  * @since 4.7
@@ -555,7 +622,28 @@ export const DEPRECATE_A_USAGE = '4.7';
 export const DEPRECATE_PROMISE_PROXIES = '4.7';
 
 /**
- * **id: **
+ * **id: ember-data:deprecate-array-like**
+ *
+ * Deprecates Ember "Array-like" methods on RecordArray and ManyArray.
+ *
+ * These are the arrays returned respectively by `store.peekAll()`, `store.findAll()`and
+ * hasMany relationships on instance of Model or `record.hasMany('relationshipName').value()`.
+ *
+ * The appropriate refactor is to treat these arrays as native arrays and to use native array methods.
+ *
+ * For instance, instead of:
+ *
+ *  ```ts
+ * users.firstObject;
+ * ```
+ *
+ * Use:
+ *
+ * ```ts
+ * users[0];
+ * // or
+ * users.at(0);
+ * ```
  *
  * @property DEPRECATE_ARRAY_LIKE
  * @since 4.7
@@ -621,7 +709,28 @@ export const DEPRECATE_COMPUTED_CHAINS = '5.0';
 export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
 
 /**
- * **id: **
+ * **id: ember-data:deprecate-instantiate-record-args**
+ *
+ * Deprecates using the former 3rd and 4th arguments to `Store.instantiateRecord` which are now
+ * available as properties on the store.
+ *
+ * **old**
+ * ```ts
+ * {
+ *   instantiateRecord(identifier, createArgs, recordDataFor, notifications) {
+ *     const cache = recordDataFor(identifier);
+ *   }
+ * }
+ * ```
+ *
+ * **new**
+ * ```ts
+ * {
+ *   instantiateRecord(identifier, createArgs) {
+ *      const { cache, notifications } = this;
+ *   }
+ * }
+ * ```
  *
  * @property DEPRECATE_INSTANTIATE_RECORD_ARGS
  * @since 4.7
@@ -629,13 +738,3 @@ export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
  * @public
  */
 export const DEPRECATE_INSTANTIATE_RECORD_ARGS = '4.12';
-
-/**
- * **id: **
- *
- * @property DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
- * @since 4.12
- * @until 5.0
- * @public
- */
-export const DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK = '4.12';
