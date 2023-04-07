@@ -594,7 +594,25 @@ export const DEPRECATE_V1_RECORD_DATA = '4.12';
 export const DEPRECATE_A_USAGE = '4.7';
 
 /**
- * **id: **
+ * **id: ember-data:deprecate-promise-proxies**
+ *
+ * Additional Reading: [RFC#846 Deprecate Proxies](https://rfcs.emberjs.com/id/0846-ember-data-deprecate-proxies)
+ *
+ * Deprecates using the proxy object/proxy array capabilities of values returned from
+ *
+ *  - `store.findRecord`
+ *  - `store.findAll`
+ *  - `store.query`
+ *  - `store.queryRecord`
+ *  - `record.save`
+ *  - `recordArray.save`
+ *  - `recordArray.update`
+ *
+ * These methods will now return a native Promise that resolves with the value.
+ *
+ * Note that this does not deprecate the proxy behaviors of `PromiseBelongsTo`. See RFC for reasoning.
+ * The opportunity should still be taken if available to stop using these proxy behaviors; however, this class
+ * will remain until `import Model from '@ember-data/model';` is deprecated more broadly.
  *
  * @property DEPRECATE_PROMISE_PROXIES
  * @since 4.7
@@ -604,7 +622,28 @@ export const DEPRECATE_A_USAGE = '4.7';
 export const DEPRECATE_PROMISE_PROXIES = '4.7';
 
 /**
- * **id: **
+ * **id: ember-data:deprecate-array-like**
+ *
+ * Deprecates Ember "Array-like" methods on RecordArray and ManyArray.
+ *
+ * These are the arrays returned respectively by `store.peekAll()`, `store.findAll()`and
+ * hasMany relationships on instance of Model or `record.hasMany('relationshipName').value()`.
+ *
+ * The appropriate refactor is to treat these arrays as native arrays and to use native array methods.
+ *
+ * For instance, instead of:
+ *
+ *  ```ts
+ * users.firstObject;
+ * ```
+ *
+ * Use:
+ *
+ * ```ts
+ * users[0];
+ * // or
+ * users.at(0);
+ * ```
  *
  * @property DEPRECATE_ARRAY_LIKE
  * @since 4.7
