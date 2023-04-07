@@ -1,6 +1,6 @@
 {
   "name": "docs-tests",
-  "version": "4.12.0-alpha.20",
+  "version": "5.0.0-alpha.0",
   "private": true,
   "description": "Provides tests for blueprints",
   "repository": {
