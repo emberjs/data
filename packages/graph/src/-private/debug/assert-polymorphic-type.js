@@ -1,8 +1,6 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
 
-import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
-
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
   relationship of the `record`.
@@ -49,7 +47,7 @@ if (DEBUG) {
       }
     }
 
-    if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+    if (true) {
       if (!asserted) {
         store = store._store ? store._store : store; // allow usage with storeWrapper
         let addedModelName = addedIdentifier.type;

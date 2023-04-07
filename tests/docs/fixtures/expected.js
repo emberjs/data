@@ -60,7 +60,6 @@ module.exports = {
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_INSTANTIATE_RECORD_ARGS',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_JSON_API_FALLBACK',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_MODEL_REOPEN',
-    '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_NON_EXPLICIT_POLYMORPHISM',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_PROMISE_PROXIES',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC',
