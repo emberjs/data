@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "4.12.0-beta.9",
+  "version": "4.12.0",
   "description": "A basic Ember implementation of a resource presentation layer for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -34,12 +34,12 @@
     "ember-data-logo-light.svg"
   ],
   "peerDependencies": {
-    "@ember-data/debug": "workspace:4.12.0-beta.9",
-    "@ember-data/json-api": "workspace:4.12.0-beta.9",
-    "@ember-data/legacy-compat": "workspace:4.12.0-beta.9",
-    "@ember-data/graph": "workspace:4.12.0-beta.9",
-    "@ember-data/store": "workspace:4.12.0-beta.9",
-    "@ember-data/tracking": "workspace:4.12.0-beta.9",
+    "@ember-data/debug": "workspace:4.12.0",
+    "@ember-data/json-api": "workspace:4.12.0",
+    "@ember-data/legacy-compat": "workspace:4.12.0",
+    "@ember-data/graph": "workspace:4.12.0",
+    "@ember-data/store": "workspace:4.12.0",
+    "@ember-data/tracking": "workspace:4.12.0",
     "@ember/string": "^3.0.1",
     "ember-inflector": "^4.0.2"
   },
@@ -60,7 +60,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:4.12.0-beta.9",
+    "@ember-data/private-build-infra": "workspace:4.12.0",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
     "ember-cached-decorator-polyfill": "^1.0.1",
