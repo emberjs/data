@@ -59,6 +59,14 @@ will skip the in-memory cache and return raw responses.
 
 ## Usage
 
+```ts
+const userList = await manager.request({
+  url: `/api/v1/users.list`
+});
+
+const users = userList.content;
+```
+
 <details>
   <summary><strong>Making Requests</strong></summary>
 
@@ -66,17 +74,20 @@ will skip the in-memory cache and return raw responses.
 
 ```ts
 class RequestManager {
-  async request<T>(req: RequestInfo): Future<T>;
+  request<T>(req: RequestInfo): Future<T>;
 }
 ```
 
-`manager.request` accepts a `RequestInfo`, an object containing the information
+`manager.request(<RequestInfo>)` accepts an object containing the information
 necessary for the request to be handled successfully.
 
-`RequestInfo` extends the [options](https://developer.mozilla.org/en-US/docs/Web/API/fetch#parameters) provided to `fetch`, and can accept a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request). All properties accepted by Request options and fetch options are valid on `RequestInfo`.
+These options extend the [options](https://developer.mozilla.org/en-US/docs/Web/API/fetch#parameters) provided to `fetch`, and can accept a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request). All properties accepted by Request options and fetch options are valid.
 
 ```ts
 interface RequestInfo extends FetchOptions {
+  op?: string;
+  store?: Store;
+
   url: string;
    // data that a handler should convert into
    // the query (GET) or body (POST)
@@ -96,7 +107,17 @@ interface RequestInfo extends FetchOptions {
 
 `manager.request` returns a `Future`, which allows access to limited information about the request while it is still pending and fulfills with the final state when the request completes and the response has been read.
 
+```ts
+const usersFuture = manager.request({
+  url: `/api/v1/users.list`
+});
+```
+
 A `Future` is cancellable via `abort`.
+
+```ts
+usersFuture.abort();
+```
 
 Handlers may *optionally* expose a ReadableStream to the `Future` for streaming data; however, when doing so the handler should not resolve until it has fully read the response stream itself.
 
@@ -199,6 +220,68 @@ manager.use([Handler1, Handler2])
 Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
 
 </details>
+
+
+<details>
+  <summary><strong>Error Handling</strong></summary><br>
+
+  Each handler in the chain can catch errors from upstream and choose to
+  either handle the error, re-throw the error, or throw a new error.
+
+  ```ts
+  const MAX_RETRIES = 5;
+
+  const Handler = {
+    async request(context, next) {
+      let attempts = 0;
+
+      while (attempts < MAX_RETRIES) {
+        attempts++;
+        try {
+          const response = await next(context.request);
+          return response;
+        } catch (e) {
+          if (isTimeoutError(e) && attempts < MAX_RETRIES) {
+            // retry request
+            continue;
+          }
+          // rethrow if it is not a timeout error
+          throw e;
+        }
+      }
+    }
+  }
+  ```
+</details>
+
+<details>
+  <summary><strong>Handling Abort</strong></summary><br>
+
+  Aborting a request will reject the current handler in the chain. However,
+  every handler can potentially catch this error. If your handler needs to
+  separate AbortError from other Error types, it is recommended to check
+  `context.request.signal.aborted` (or if a custom controller was supplied `controller.signal.aborted`).
+
+  In this manner it is possible for a request to recover from an abort and
+  still proceed; however, as a best practice this should be used for necessary
+  cleanup only and the original AbortError rethrown if the abort signal comes
+  from the root controller.
+
+  **AbortControllers are Always Present and Always Entangled**
+
+  If the initial request does not supply an [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), one will be generated.
+
+  The [signal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for this controller is automatically added to the request passed into the first handler.
+
+  Each handler has the option to supply a new controller to the request when calling `next`. If a new controller is provided it will be automatically
+  entangled with the root controller. If the root controller aborts, so will
+  any entangled controllers.
+
+  If an entangled controller aborts, the root controller will not abort. This
+  allows for advanced request-flow scenarios to abort subsections of the request tree without aborting the entire request.
+
+</details>
+
 
 <details>
   <summary><strong>Stream Currying</strong></summary><br>
