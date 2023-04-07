@@ -12,6 +12,69 @@ import type { Graph } from './graph';
 
 export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
 
+/**
+ *
+ * Given RHS (Right Hand Side)
+ *
+ * ```ts
+ * class User extends Model {
+ *   @hasMany('animal', { async: false, inverse: 'owner' }) pets;
+ * }
+ * ```
+ *
+ * Given LHS (Left Hand Side)
+ *
+ * ```ts
+ * class Animal extends Model {
+ *  @belongsTo('user', { async: false, inverse: 'pets' }) owner;
+ * }
+ * ```
+ *
+ * The UpgradedMeta for the RHS would be:
+ *
+ * ```ts
+ * {
+ *   kind: 'hasMany',
+ *   key: 'pets',
+ *   type: 'animal',
+ *   isAsync: false,
+ *   isImplicit: false,
+ *   isCollection: true,
+ *   isPolymorphic: false,
+ *   inverseKind: 'belongsTo',
+ *   inverseKey: 'owner',
+ *   inverseType: 'user',
+ *   inverseIsAsync: false,
+ *   inverseIsImplicit: false,
+ *   inverseIsCollection: false,
+ *   inverseIsPolymorphic: false,
+ * }
+ *
+ * The UpgradeMeta for the LHS would be:
+ *
+ * ```ts
+ * {
+ *   kind: 'belongsTo',
+ *   key: 'owner',
+ *   type: 'user',
+ *   isAsync: false,
+ *   isImplicit: false,
+ *   isCollection: false,
+ *   isPolymorphic: false,
+ *   inverseKind: 'hasMany',
+ *   inverseKey: 'pets',
+ *   inverseType: 'animal',
+ *   inverseIsAsync: false,
+ *   inverseIsImplicit: false,
+ *   inverseIsCollection: true,
+ *   inverseIsPolymorphic: false,
+ * }
+ * ```
+ *
+ *
+ * @class UpgradedMeta
+ * @internal
+ */
 export interface UpgradedMeta {
   kind: 'hasMany' | 'belongsTo' | 'implicit';
   /**
