@@ -4,7 +4,6 @@ import { importSync } from '@embroider/macros';
 
 import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
 import {
-  DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK,
   DEPRECATE_INSTANTIATE_RECORD_ARGS,
   DEPRECATE_V1_RECORD_DATA,
   DEPRECATE_V1CACHE_STORE_APIS,
@@ -138,7 +137,7 @@ export class InstanceCache {
 
     this._storeWrapper = new CacheStoreWrapper(this.store);
 
-    if (DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+    if (DEPRECATE_V1_RECORD_DATA) {
       this.__cacheFor = (resource: RecordIdentifier) => {
         // TODO enforce strict
         const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource);
@@ -197,7 +196,7 @@ export class InstanceCache {
             record: staleIdentifier,
             value: keptIdentifier,
           });
-        } else if (!DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+        } else if (!DEPRECATE_V1_RECORD_DATA) {
           this.store.cache.patch({
             op: 'mergeIdentifiers',
             record: staleIdentifier,

@@ -1,6 +1,6 @@
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/deprecations';
+import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/deprecations';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache } from '@ember-data/types/q/cache';
 import type {
@@ -242,7 +242,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
       identifier = type;
     }
 
-    const cache = DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+    const cache = DEPRECATE_V1_RECORD_DATA
       ? this._store._instanceCache.getResourceCache(identifier)
       : this._store.cache;
 
@@ -411,7 +411,7 @@ class V2CacheStoreWrapper implements StoreWrapper {
   }
 
   recordDataFor(identifier: StableRecordIdentifier): Cache {
-    if (DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK) {
+    if (DEPRECATE_V1_RECORD_DATA) {
       deprecate(
         `StoreWrapper.recordDataFor is deprecated. With Singleton Cache, this method is no longer needed as the caller is its own cache reference.`,
         false,
@@ -425,7 +425,7 @@ class V2CacheStoreWrapper implements StoreWrapper {
     }
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
 
-    return DEPRECATE_CREATE_RECORD_DATA_FOR_HOOK
+    return DEPRECATE_V1_RECORD_DATA
       ? this._store._instanceCache.getResourceCache(identifier)
       : (void 0 as unknown as Cache);
   }
