@@ -1,5 +1,118 @@
 # Ember Data Changelog
 
+## 4.12.0 (2023-04-06)
+
+#### :rocket: Enhancement
+  * [#8547](https://github.com/emberjs/data/pull/8547) feat: Future.abort, additional tests and minor fixes ([@runspired](https://github.com/runspired))
+  * [#8539](https://github.com/emberjs/data/pull/8539) feat: Rich Documents ([@runspired](https://github.com/runspired))
+  * [#8544](https://github.com/emberjs/data/pull/8544) feat: error documents ([@runspired](https://github.com/runspired))
+  * [#8471](https://github.com/emberjs/data/pull/8471) feat: cache.peek(<RecordIdentifier>) ([@runspired](https://github.com/runspired))
+  * [#8375](https://github.com/emberjs/data/pull/8375) feat: Cache.put ([@runspired](https://github.com/runspired))
+  * [#8456](https://github.com/emberjs/data/pull/8456) feat: rename cache.pushData to cache.upsert ([@runspired](https://github.com/runspired))
+  * [#8455](https://github.com/emberjs/data/pull/8455) chore: rename Cache.sync to Cache.patch to mirror RFC ([@runspired](https://github.com/runspired))
+  * [#8542](https://github.com/emberjs/data/pull/8542) feat: full-relationship definitions when scaffolding with blueprints ([@runspired](https://github.com/runspired))
+  * [#8531](https://github.com/emberjs/data/pull/8531) feat: stable document identity ([@runspired](https://github.com/runspired))
+  * [#8518](https://github.com/emberjs/data/pull/8518) feat: enable request cache without hydration, better error handling by Fetch Handler ([@runspired](https://github.com/runspired))
+  * [#8501](https://github.com/emberjs/data/pull/8501) chore: update imports to support RFC tweaks ([@runspired](https://github.com/runspired))
+  * [#8487](https://github.com/emberjs/data/pull/8487) feat: relationship fetching as legacy op ([@runspired](https://github.com/runspired))
+  * [#8484](https://github.com/emberjs/data/pull/8484) feat: break saveRecord up into legacy operations ([@runspired](https://github.com/runspired))
+  * [#8472](https://github.com/emberjs/data/pull/8472) feat: Store.request ([@runspired](https://github.com/runspired))
+  * [#8473](https://github.com/emberjs/data/pull/8473) chore: remove ember-fetch weirdness ([@runspired](https://github.com/runspired))
+  * [#8468](https://github.com/emberjs/data/pull/8468) feat: cache.peek and store.request ([@runspired](https://github.com/runspired))
+  * [#8458](https://github.com/emberjs/data/pull/8458) feat: Store.cache and Store.createCache ([@runspired](https://github.com/runspired))
+  * [#8454](https://github.com/emberjs/data/pull/8454) feat: public API to support cache insert/remove operations ([@runspired](https://github.com/runspired))
+  * [#8358](https://github.com/emberjs/data/pull/8358) feat: Store.notifications ([@runspired](https://github.com/runspired))
+  * [#8353](https://github.com/emberjs/data/pull/8353) feat: prebuilt v1 addons ([@runspired](https://github.com/runspired))
+  * [#8285](https://github.com/emberjs/data/pull/8285) feat: @ember-data/store as v2-lite addon ([@runspired](https://github.com/runspired))
+  * [#8347](https://github.com/emberjs/data/pull/8347) feat: don't extend EmberObject/Service for Store ([@runspired](https://github.com/runspired))
+  * [#8342](https://github.com/emberjs/data/pull/8342) fix: assign preload data always ([@runspired](https://github.com/runspired))
+  * [#7668](https://github.com/emberjs/data/pull/7668) feat: allow .load()ing sync relationships ([@machty](https://github.com/machty))
+
+#### :bug: Bug Fix
+  * [#8517](https://github.com/emberjs/data/pull/8517) fix: ensure cache-handler works as expected ([@runspired](https://github.com/runspired))
+  * [#8511](https://github.com/emberjs/data/pull/8511) updates to lifetimes service and CacheHandler install ([@runspired](https://github.com/runspired))
+  * [#8453](https://github.com/emberjs/data/pull/8453) chore: fix ArrayLike.setObjects deprecation message ([@runspired](https://github.com/runspired))
+  * [#8435](https://github.com/emberjs/data/pull/8435) fix: de-cycle ember-concurrency access of promise ([@runspired](https://github.com/runspired))
+  * [#8400](https://github.com/emberjs/data/pull/8400) fix: deprecated record-array reject use callback ([@mrloop](https://github.com/mrloop))
+  * [#8399](https://github.com/emberjs/data/pull/8399) fix: deprecated record-array rejectBy use optional value if supplied ([@mrloop](https://github.com/mrloop))
+  * [#8436](https://github.com/emberjs/data/pull/8436) perf: fix: eliminate SSR/Test memory leak ([@runspired](https://github.com/runspired))
+  * [#8432](https://github.com/emberjs/data/pull/8432) fix: ensure classic computed chains support ([@runspired](https://github.com/runspired))
+  * [#8410](https://github.com/emberjs/data/pull/8410) fix: add better embroider test and fix embroider compat ([@mkszepp](https://github.com/mkszepp))
+  * [#8354](https://github.com/emberjs/data/pull/8354) fix: improve error/deprecation messaging for inverse fields ([@runspired](https://github.com/runspired))
+  * [#8348](https://github.com/emberjs/data/pull/8348) fix: don't use isEqual from @ember/utils for comparing cache values ([@runspired](https://github.com/runspired))
+  * [#8345](https://github.com/emberjs/data/pull/8345) fix: give more meaningful error if id matches but is number instead of string ([@runspired](https://github.com/runspired))
+  * [#8344](https://github.com/emberjs/data/pull/8344) fix: improve object stringify and verbiage for relationship identifier errors ([@runspired](https://github.com/runspired))
+  * [#8338](https://github.com/emberjs/data/pull/8338) fix: json-api-cache should reflect dirty state during save ([@runspired](https://github.com/runspired))
+  * [#8335](https://github.com/emberjs/data/pull/8335) fix: <Cache>.changedAttrs should be empty if no local mutations exist ([@timmorey](https://github.com/timmorey))
+  * [#8346](https://github.com/emberjs/data/pull/8346) fix: Schema.eachTransformedAttribute API should match Model.eachTransformedAttribute ([@runspired](https://github.com/runspired))
+  * [#7900](https://github.com/emberjs/data/pull/7900) fix: rollbackAttributes|unloadRecord during hasMany forEach should not error ([@runspired](https://github.com/runspired))
+  * [#8336](https://github.com/emberjs/data/pull/8336) fix: dont notify RecordArrayManager if deletion already accounted ([@runspired](https://github.com/runspired))
+  * [#8323](https://github.com/emberjs/data/pull/8323) fix: Only remove object(s) from record array if in collection #8318 ([@rossketron](https://github.com/rossketron))
+  * [#8341](https://github.com/emberjs/data/pull/8341) fix: add meaningful error and proper rejection for id assertion during createRecord commit ([@runspired](https://github.com/runspired))
+
+#### :shower: Deprecation Removal
+
+  * [#8423](https://github.com/emberjs/data/pull/8423) cleanup: move @ember/string to ember-data peer-dependencies ([@runspired](https://github.com/runspired))
+  * [#8412](https://github.com/emberjs/data/pull/8412) cleanup: Switch all uses of `@ember/error` to native Error ([@chriskrycho](https://github.com/chriskrycho))
+
+#### :memo: Documentation
+
+  * [#8548](https://github.com/emberjs/data/pull/8548) docs: updates to deprecation guides for remaining 4.x deprecations ([@runspired](https://github.com/runspired))
+  * [#8538](https://github.com/emberjs/data/pull/8538) chore: mark legacy docs as legacy ([@runspired](https://github.com/runspired))
+  * [#8537](https://github.com/emberjs/data/pull/8537) feat: documentation for Model, the RequestStateService + some docs fixes ([@runspired](https://github.com/runspired))
+  * [#8534](https://github.com/emberjs/data/pull/8534) feat: Store and Graph READMEs + Store Overview ([@runspired](https://github.com/runspired))
+  * [#8533](https://github.com/emberjs/data/pull/8533) Feat: README files for Debug, Adapter and Serializer ([@runspired](https://github.com/runspired))
+  * [#8526](https://github.com/emberjs/data/pull/8526) docs: small cleanups for style ([@runspired](https://github.com/runspired))
+  * [#8505](https://github.com/emberjs/data/pull/8505) docs: various documentation cleanup to support new features in 4.12 ([@runspired](https://github.com/runspired))
+  * [#8513](https://github.com/emberjs/data/pull/8513) docs: add additional 4.x deprecation guides ([@runspired](https://github.com/runspired))
+  * [#8511](https://github.com/emberjs/data/pull/8511) updates to lifetimes service and CacheHandler install ([@runspired](https://github.com/runspired))
+  * [#8500](https://github.com/emberjs/data/pull/8500) feat: deprecation guides for most 4.x deprecations ([@runspired](https://github.com/runspired))
+  * [#8467](https://github.com/emberjs/data/pull/8467) docs: add module overview for Store ([@runspired](https://github.com/runspired))
+  * [#8461](https://github.com/emberjs/data/pull/8461) docs: update READMEs to be more useful ([@runspired](https://github.com/runspired))
+  * [#8440](https://github.com/emberjs/data/pull/8440) Correction made to the Model.relatedTypes documentation ([@Shubhi-73](https://github.com/Shubhi-73))
+
+#### :goal_net: Test
+
+  * [#8529](https://github.com/emberjs/data/pull/8529) tests: add tests for meta documents ([@runspired](https://github.com/runspired))
+  * [#8410](https://github.com/emberjs/data/pull/8410) fix: add better embroider test and fix embroider compat ([@mkszepp](https://github.com/mkszepp))
+  * [#8343](https://github.com/emberjs/data/pull/8343) test: show #5882 is no longer the case ([@runspired](https://github.com/runspired))
+  * [#8340](https://github.com/emberjs/data/pull/8340) test: show that pushing data in can move a record to committed and clean ([@runspired](https://github.com/runspired))
+  * [#8339](https://github.com/emberjs/data/pull/8339) test: ensure we do not error if updating the remote state of a locally deleted record ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+
+  * [#8544](https://github.com/emberjs/data/pull/8544) feat: error documents ([@runspired](https://github.com/runspired))
+  * [#8540](https://github.com/emberjs/data/pull/8540) chore: updated/added some test coverage for RecordArray ([@runspired](https://github.com/runspired))
+  * [#8485](https://github.com/emberjs/data/pull/8485) chore: fixup some tests ([@runspired](https://github.com/runspired))
+  * [#8486](https://github.com/emberjs/data/pull/8486) chore: reduce PR CI noise ([@runspired](https://github.com/runspired))
+  * [#8479](https://github.com/emberjs/data/pull/8479) fix fastboot testing ([@runspired](https://github.com/runspired))
+  * [#8470](https://github.com/emberjs/data/pull/8470) chore: nicer CI jobs ([@runspired](https://github.com/runspired))
+  * [#8469](https://github.com/emberjs/data/pull/8469) chore:  reduce CI workload ([@runspired](https://github.com/runspired))
+  * [#8429](https://github.com/emberjs/data/pull/8429) chore: ci speedups ([@runspired](https://github.com/runspired))
+  * [#8476](https://github.com/emberjs/data/pull/8476) chore: legacy-handler findRecord support ([@runspired](https://github.com/runspired))
+  * [#8482](https://github.com/emberjs/data/pull/8482) chore: begin restricting imports ([@runspired](https://github.com/runspired))
+  * [#8481](https://github.com/emberjs/data/pull/8481) chore: bump pnpm, remove @glimmer/env dependency ([@runspired](https://github.com/runspired))
+  * [#8462](https://github.com/emberjs/data/pull/8462) chore: port types from #8315 ([@runspired](https://github.com/runspired))
+  * [#8463](https://github.com/emberjs/data/pull/8463) chore: cleanup RecordData naming remnants ([@runspired](https://github.com/runspired))
+  * [#8359](https://github.com/emberjs/data/pull/8359) chore: rebrand RecordData types to Cache ([@runspired](https://github.com/runspired))
+  * [#8356](https://github.com/emberjs/data/pull/8356) feat: @ember-data/json-api/-private/graph => @ember-data/graph ([@runspired](https://github.com/runspired))
+  * [#8357](https://github.com/emberjs/data/pull/8357) chore: update package flags ([@runspired](https://github.com/runspired))
+  * [#8355](https://github.com/emberjs/data/pull/8355) chore: rename record-data => json-api ([@runspired](https://github.com/runspired))
+  * [#8504](https://github.com/emberjs/data/pull/8504) chore: remove canary-features package in favor of type files ([@richgt](https://github.com/richgt))
+
+
+
+#### Committers: 9
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Ewan McDougall ([@mrloop](https://github.com/mrloop))
+- Rich Glazerman ([@richgt](https://github.com/richgt))
+- Snigdha Srivastava ([@Shubhi-73](https://github.com/Shubhi-73))
+- [@mkszepp](https://github.com/mkszepp)
+- Alex Matchneer ([@machty](https://github.com/machty))
+- Chris Krycho ([@chriskrycho](https://github.com/chriskrycho))
+- Ross Ketron ([@rossketron](https://github.com/rossketron))
+- Timothy Morey ([@timmorey](https://github.com/timmorey))
+
 ## 4.11.3 (2023-02-27)
 
 #### :bug: Bug Fix
