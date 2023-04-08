@@ -44,6 +44,7 @@ jobs:
           experiment-serve-command: pnpm --filter performance-test-app exec ember s --path dist-experiment --port 4201
           control-build-command: pnpm install && pnpm --filter performance-test-app exec ember build -e production --output-path dist-control --suppress-sizes
           control-serve-command: pnpm --filter performance-test-app exec ember s --path dist-control
+          control-sha: origin/main
           sample-timeout: 60
           use-pnpm: true
           scenarios: |
