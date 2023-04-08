@@ -2,17 +2,18 @@ import { A } from '@ember/array';
 import { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
+import { importSync } from '@embroider/macros';
 import { module, test } from 'qunit';
-import require, { has } from 'require';
 
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
+import { HAS_DEBUG_PACKAGE } from '@ember-data/packages';
 
 // TODO move these tests to the DEBUG package
-if (has('@ember-data/debug')) {
-  const DebugAdapter = require('@ember-data/debug').default;
+if (HAS_DEBUG_PACKAGE) {
+  const DebugAdapter = importSync('@ember-data/debug').default;
 
   module('integration/debug-adapter - DebugAdapter', function (hooks) {
     setupTest(hooks);
@@ -33,6 +34,30 @@ if (has('@ember-data/debug')) {
         },
       });
       owner.register('data-adapter:main', _adapter);
+    });
+
+    test('Watching Types Seen Before Inspector Initialized', async function (assert) {
+      assert.expect(4);
+      store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Post Title',
+          },
+        },
+      });
+      await settled();
+
+      let debugAdapter = this.owner.lookup('data-adapter:main');
+      function added(types) {
+        assert.strictEqual(types.length, 1, 'added one type');
+        assert.strictEqual(types[0].name, 'post', 'the type is post');
+        assert.strictEqual(types[0].count, 1, 'we added one post');
+        assert.strictEqual(types[0].object, store.modelFor('post'), 'we received the ModelClass for post');
+      }
+
+      debugAdapter.watchModelTypes(added, () => null);
     });
 
     test('Watching Model Types', async function (assert) {

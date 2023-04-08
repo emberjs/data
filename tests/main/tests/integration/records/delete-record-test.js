@@ -330,11 +330,6 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     assert.true(cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-    assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
-      undefined,
-      'The cache is destroyed'
-    );
 
     await record.save();
   });
@@ -365,11 +360,6 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     assert.true(cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-    assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
-      undefined,
-      'The cache is destroyed'
-    );
 
     record.unloadRecord();
     await settled();

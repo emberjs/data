@@ -449,43 +449,38 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   testInDebug("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    var stanley, igor;
-    run(function () {
-      stanley = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '2',
-                type: 'user',
-              },
+    const stanley = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '2',
+              type: 'user',
             },
           },
         },
-      });
-      igor = store.push({
-        data: {
-          id: '3',
-          type: 'user',
-          attributes: {
-            name: 'Igor',
-          },
+      },
+    });
+    const igor = store.push({
+      data: {
+        id: '3',
+        type: 'user',
+        attributes: {
+          name: 'Igor',
         },
-      });
+      },
     });
 
     assert.expectAssertion(function () {
-      run(function () {
-        stanley.set('bestFriend', resolve(igor));
-      });
-    }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
+      stanley.set('bestFriend', resolve(igor));
+    }, '[object Object] is not a record instantiated by @ember-data/store');
   });
 
   test('Setting a OneToOne relationship to null reflects correctly on the other side - async', function (assert) {

@@ -1,4 +1,3 @@
-import EmberObject from '@ember/object';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -277,17 +276,19 @@ module('unit/store/push - Store#push', function (hooks) {
 
   testInDebug('calling push without data argument as an object raises an error', function (assert) {
     const store = this.owner.lookup('service:store');
-    let invalidValues = [null, 1, 'string', EmberObject.create(), EmberObject.extend(), true];
+    let invalidValues = [null, 1, 'string', class {}, true];
 
-    assert.expect(invalidValues.length);
+    assert.expect(invalidValues.length + 1);
 
     invalidValues.forEach((invalidValue) => {
       assert.expectAssertion(() => {
-        run(() => {
-          store.push('person', invalidValue);
-        });
-      }, /object/);
+        store.push(invalidValue);
+      }, /Expected a JSON:API Document as the content provided to the cache/);
     });
+
+    assert.expectAssertion(() => {
+      store.push({});
+    }, /Expected a resource object in the 'data' property in the document provided to the cache/);
   });
 
   testInDebug('Calling push with a link for a non async relationship should warn if no data', function (assert) {
@@ -406,7 +407,7 @@ module('unit/store/push - Store#push', function (hooks) {
           },
         });
       });
-    }, /You tried to push data with a type 'unknown' but no model could be found with that name/);
+    }, "Missing Resource Type: received resource data with a type 'unknown' but no schema could be found with that name.");
   });
 
   test('Calling push with a link containing an object', function (assert) {
@@ -487,17 +488,17 @@ module('unit/store/push - Store#push', function (hooks) {
   });
 
   testInDebug('calling push with missing or invalid `id` throws assertion error', function (assert) {
+    this.owner.register('model:user', class extends Model {});
     const store = this.owner.lookup('service:store');
-    let invalidValues = [{}, { id: null }, { id: '' }];
+
+    let invalidValues = [{ type: 'user' }, { id: null, type: 'user' }, { id: '', type: 'user' }];
 
     assert.expect(invalidValues.length);
 
     invalidValues.forEach((invalidValue) => {
       assert.expectAssertion(() => {
-        run(() => {
-          store.push({
-            data: invalidValue,
-          });
+        store.push({
+          data: invalidValue,
         });
       }, /You must include an 'id'/);
     });

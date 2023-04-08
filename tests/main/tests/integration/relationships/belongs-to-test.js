@@ -1132,18 +1132,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     assert.strictEqual(book.author, author, 'Book has an author after rollback attributes');
   });
 
-  testInDebug('Passing a model as type to belongsTo should not work', function (assert) {
-    assert.expect(1);
-
-    assert.expectAssertion(() => {
-      const User = Model.extend();
-
-      Model.extend({
-        user: belongsTo(User, { async: false, inverse: null }),
-      });
-    }, /The first argument to belongsTo must be a string/);
-  });
-
   test('belongsTo hasAnyRelationshipData async loaded', async function (assert) {
     assert.expect(1);
     class Book extends Model {

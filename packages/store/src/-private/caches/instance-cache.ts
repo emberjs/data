@@ -11,14 +11,9 @@ import type { Cache } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   ExistingResourceIdentifierObject,
-  ExistingResourceObject,
   NewResourceIdentifierObject,
 } from '@ember-data/types/q/ember-data-json-api';
-import type {
-  RecordIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@ember-data/types/q/identifier';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiRelationship, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -28,9 +23,6 @@ import { CacheManager } from '../managers/cache-manager';
 import { CacheStoreWrapper } from '../managers/cache-store-wrapper';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
-import coerceId, { ensureStringId } from '../utils/coerce-id';
-import constructResource from '../utils/construct-resource';
-import normalizeModelName from '../utils/normalize-model-name';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
 
 let _peekGraph: peekGraph;
@@ -109,7 +101,6 @@ export function storeFor(record: RecordInstance): Store | undefined {
 
 type Caches = {
   record: Map<StableRecordIdentifier, RecordInstance>;
-  resourceCache: Map<StableRecordIdentifier, Cache>;
   reference: WeakMap<StableRecordIdentifier, RecordReference>;
 };
 
@@ -122,7 +113,6 @@ export class InstanceCache {
   declare __cacheManager: CacheManager;
   __instances: Caches = {
     record: new Map<StableRecordIdentifier, RecordInstance>(),
-    resourceCache: new Map<StableRecordIdentifier, Cache>(),
     reference: new WeakMap<StableRecordIdentifier, RecordReference>(),
   };
 
@@ -193,16 +183,8 @@ export class InstanceCache {
       }
     );
   }
-  peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'record' }): RecordInstance | undefined;
-  peek({ identifier, bucket }: { identifier: StableRecordIdentifier; bucket: 'resourceCache' }): Cache | undefined;
-  peek({
-    identifier,
-    bucket,
-  }: {
-    identifier: StableRecordIdentifier;
-    bucket: 'record' | 'resourceCache';
-  }): Cache | RecordInstance | undefined {
-    return this.__instances[bucket]?.get(identifier);
+  peek(identifier: StableRecordIdentifier): Cache | RecordInstance | undefined {
+    return this.__instances.record.get(identifier);
   }
 
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
@@ -213,7 +195,8 @@ export class InstanceCache {
         `Cannot create a new record instance while the store is being destroyed`,
         !this.store.isDestroying && !this.store.isDestroyed
       );
-      const cache = this.getResourceCache(identifier);
+      const cache = this.store.cache;
+      setCacheFor(identifier, cache);
 
       record = this.store.instantiateRecord(identifier, properties || {});
 
@@ -229,14 +212,6 @@ export class InstanceCache {
     }
 
     return record;
-  }
-
-  getResourceCache(identifier: StableRecordIdentifier): Cache {
-    const cache = this.store.cache;
-    setCacheFor(identifier, cache);
-
-    this.__instances.resourceCache.set(identifier, cache);
-    return cache;
   }
 
   getReference(identifier: StableRecordIdentifier) {
@@ -287,7 +262,6 @@ export class InstanceCache {
     }
 
     this.store.identifierCache.forgetRecordIdentifier(identifier);
-    this.__instances.resourceCache.delete(identifier);
     removeRecordDataFor(identifier);
     this.store._requestCache._clearEntries(identifier);
     if (LOG_INSTANCE_CACHE) {
@@ -332,7 +306,6 @@ export class InstanceCache {
 
       if (cache) {
         cache.unloadRecord(identifier);
-        this.__instances.resourceCache.delete(identifier);
         removeRecordDataFor(identifier);
         if (LOG_INSTANCE_CACHE) {
           // eslint-disable-next-line no-console
@@ -363,7 +336,6 @@ export class InstanceCache {
     } else {
       const typeCache = cache.types;
       let identifiers = typeCache[type]?.lid;
-      // const rds = this.__instances.resourceCache;
       if (identifiers) {
         identifiers.forEach((identifier) => {
           // if (rds.has(identifier)) {
@@ -423,46 +395,6 @@ export class InstanceCache {
     // TODO handle consequences of identifier merge for notifications
     this.store.notifications.notify(identifier, 'identity');
   }
-
-  // TODO ths should be wrapped in a deprecation flag since cache.put
-  // handles this the rest of the time
-  loadData(data: ExistingResourceObject): StableExistingRecordIdentifier {
-    let modelName = data.type;
-    assert(
-      `You must include an 'id' for ${modelName} in an object passed to 'push'`,
-      data.id !== null && data.id !== undefined && data.id !== ''
-    );
-    assert(
-      `You tried to push data with a type '${modelName}' but no model could be found with that name.`,
-      this.store.getSchemaDefinitionService().doesTypeExist(modelName)
-    );
-
-    const resource = constructResource(normalizeModelName(data.type), ensureStringId(data.id), coerceId(data.lid));
-    let identifier = this.store.identifierCache.peekRecordIdentifier(resource);
-    let isUpdate = false;
-
-    // store.push will be from empty
-    // findRecord will be from root.loading
-    // this cannot be loading state if we do not already have an identifier
-    // all else will be updates
-    if (identifier) {
-      const isLoading = _isLoading(this, identifier) || !this.recordIsLoaded(identifier);
-      isUpdate = !_isEmpty(this, identifier) && !isLoading;
-
-      // exclude store.push (root.empty) case
-      if (isUpdate || isLoading) {
-        identifier = this.store.identifierCache.updateRecordIdentifier(identifier, data);
-      }
-    } else {
-      identifier = this.store.identifierCache.getOrCreateRecordIdentifier(data);
-    }
-
-    const cache = this.getResourceCache(identifier);
-    const hasRecord = this.__instances.record.has(identifier);
-    cache.upsert(identifier, data, hasRecord);
-
-    return identifier as StableExistingRecordIdentifier;
-  }
 }
 
 function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache): boolean {
@@ -511,7 +443,7 @@ export function preloadData(store: Store, identifier: StableRecordIdentifier, pr
     }
   });
   const cache = store.cache;
-  const hasRecord = Boolean(store._instanceCache.peek({ identifier, bucket: 'record' }));
+  const hasRecord = Boolean(store._instanceCache.peek(identifier));
   cache.upsert(identifier, jsonPayload, hasRecord);
 }
 
@@ -544,30 +476,6 @@ function _convertPreloadRelationshipToJSON(
   // TODO if not a record instance assert it's an identifier
   // and allow identifiers to be used
   return recordIdentifierFor(value);
-}
-
-function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  const cache = instanceCache.cache;
-  if (!cache) {
-    return true;
-  }
-  const isNew = cache.isNew(identifier);
-  const isDeleted = cache.isDeleted(identifier);
-  const isEmpty = cache.isEmpty(identifier);
-
-  return (!isNew || isDeleted) && isEmpty;
-}
-
-function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  const req = cache.store.getRequestStateService();
-  // const fulfilled = req.getLastRequestForRecord(identifier);
-  const isLoaded = cache.recordIsLoaded(identifier);
-
-  return (
-    !isLoaded &&
-    // fulfilled === null &&
-    req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
-  );
 }
 
 export function _clearCaches() {

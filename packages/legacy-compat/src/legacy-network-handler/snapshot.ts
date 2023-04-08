@@ -61,7 +61,7 @@ export default class Snapshot implements Snapshot {
     this._hasManyRelationships = Object.create(null) as Record<string, Snapshot[]>;
     this._hasManyIds = Object.create(null) as Record<string, RecordId[]>;
 
-    const hasRecord = !!store._instanceCache.peek({ identifier, bucket: 'record' });
+    const hasRecord = !!store._instanceCache.peek(identifier);
     this.modelName = identifier.type;
 
     /**

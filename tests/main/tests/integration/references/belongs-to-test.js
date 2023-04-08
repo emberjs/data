@@ -49,7 +49,7 @@ module('integration/references/belongs-to', function (hooks) {
 
     assert.expectAssertion(function () {
       person.belongsTo('unknown-relationship');
-    }, 'Expected to find a relationship definition for person.unknown-relationship but none was found');
+    }, "Expected a relationship schema for 'person.unknown-relationship', but no relationship schema was found.");
   });
 
   testInDebug(

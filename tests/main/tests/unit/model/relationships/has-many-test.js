@@ -2321,7 +2321,6 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     tag.unloadRecord();
     assert.true(people.isDestroying, 'people is destroying sync after unloadRecord');
-    assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying after the run post unloadRecord');
     assert.true(peopleProxy.isDestroyed, 'peopleProxy is destroyed after the run post unloadRecord');
 
     await settled();

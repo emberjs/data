@@ -171,6 +171,10 @@ export default class JSONAPICache implements Cache {
   put<T extends ResourceErrorDocument>(doc: StructuredErrorDocument<T>): ResourceErrorDocument;
   put<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
   put(doc: StructuredDocument<ResourceDocument>): ResourceDocument {
+    assert(
+      `Expected a JSON:API Document as the content provided to the cache, received ${doc.content}`,
+      doc instanceof Error || (typeof doc.content === 'object' && doc.content !== null)
+    );
     if (isErrorDocument(doc)) {
       return this._putDocument(doc as StructuredErrorDocument<ResourceErrorDocument>);
     } else if (isMetaDocument(doc)) {
@@ -203,7 +207,7 @@ export default class JSONAPICache implements Cache {
     }
 
     assert(
-      `Expected an object in the 'data' property in a call to 'push', but was ${typeof jsonApiDoc.data}`,
+      `Expected a resource object in the 'data' property in the document provided to the cache, but was ${typeof jsonApiDoc.data}`,
       typeof jsonApiDoc.data === 'object'
     );
 
@@ -1342,6 +1346,14 @@ function putOne(
   identifiers: IdentifierCache,
   resource: ExistingResourceObject
 ): StableExistingRecordIdentifier {
+  assert(
+    `You must include an 'id' for the resource data ${resource.type}`,
+    resource.id !== null && resource.id !== undefined && resource.id !== ''
+  );
+  assert(
+    `Missing Resource Type: received resource data with a type '${resource.type}' but no schema could be found with that name.`,
+    cache.__storeWrapper.getSchemaDefinitionService().doesTypeExist(resource.type)
+  );
   let identifier: StableRecordIdentifier | undefined = identifiers.peekRecordIdentifier(resource);
 
   if (identifier) {
@@ -1449,7 +1461,13 @@ function _allRelatedIdentifiers(
 function isMetaDocument(
   doc: StructuredDocument<ResourceDocument>
 ): doc is StructuredDataDocument<ResourceMetaDocument> {
-  return !(doc instanceof Error) && !('data' in doc.content) && !('included' in doc.content) && 'meta' in doc.content;
+  return (
+    !(doc instanceof Error) &&
+    doc.content &&
+    !('data' in doc.content) &&
+    !('included' in doc.content) &&
+    'meta' in doc.content
+  );
 }
 
 function isErrorDocument(

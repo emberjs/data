@@ -2750,18 +2750,6 @@ If using this relationship in a polymorphic manner is desired, the relationships
     });
   });
 
-  testInDebug('Passing a model as type to hasMany should not work', function (assert) {
-    assert.expect(3);
-
-    assert.expectAssertion(() => {
-      class User extends Model {}
-
-      Model.extend({
-        users: hasMany(User, { async: false, inverse: null }),
-      });
-    }, /The first argument to hasMany must be a string/);
-  });
-
   test('Relationship.clear removes all records correctly', async function (assert) {
     class Post extends Model {
       @attr title;

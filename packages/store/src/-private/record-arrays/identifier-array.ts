@@ -559,25 +559,11 @@ function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord
   );
 }
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
-  if (!recordOrPromiseRecord) {
+function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance | null) {
+  if (!record) {
     return null;
   }
 
-  if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.content;
-    assert(
-      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
-      content !== undefined && content !== null
-    );
-    assertRecordPassedToHasMany(content);
-    return recordIdentifierFor(content);
-  }
-
-  assertRecordPassedToHasMany(recordOrPromiseRecord);
-  return recordIdentifierFor(recordOrPromiseRecord);
-}
-
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
+  assertRecordPassedToHasMany(record);
+  return recordIdentifierFor(record);
 }

@@ -210,9 +210,9 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   testInDebug('Errors when pushing payload with unknown type included in relationship', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    var documentHash = {
+    const documentHash = {
       data: {
         type: 'users',
         id: '1',
@@ -229,10 +229,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     };
 
     assert.expectAssertion(function () {
-      run(function () {
-        store.pushPayload(documentHash);
-      });
-    }, /No model was found for 'unknown-type'/);
+      store.pushPayload(documentHash);
+    }, "Missing Schema: Encountered a relationship identifier with type 'unknown-type' for the belongsTo relationship 'company' on <user:1>, Expected an identifier with type 'company'. No schema was found for 'unknown-type'.");
   });
 
   testInDebug('Warns when normalizing with type missing', function (assert) {

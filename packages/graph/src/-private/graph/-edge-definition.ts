@@ -366,7 +366,7 @@ export function upgradeDefinition(
 
     // CASE: We don't have a relationship at all
     // we should only hit this in prod
-    assert(`Expected to find a relationship definition for ${type}.${propertyName} but none was found.`, meta);
+    assert(`Expected a relationship schema for '${type}.${propertyName}', but no relationship schema was found.`, meta);
 
     cache[type]![propertyName] = null;
     return null;
@@ -411,7 +411,11 @@ export function upgradeDefinition(
         .relationshipsDefinitionFor({ type: inverseType });
       assert(`Expected to have a relationship definition for ${inverseType} but none was found.`, inverseDefinitions);
       let meta = inverseDefinitions[inverseKey];
-      assert(`Expected to find a relationship definition for ${inverseType}.${inverseKey} but none was found.`, meta);
+      assert(
+        `Expected a relationship schema for '${inverseType}.${inverseKey}' to match the inverse of '${type}.${propertyName}', but no relationship schema was found.`,
+        meta
+      );
+
       inverseDefinition = upgradeMeta(meta);
     }
   }

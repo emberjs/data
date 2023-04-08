@@ -50,7 +50,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'createRecord',
     'deleteRecord',
     'unloadRecord',
-    'find',
     'findRecord',
     'getReference',
     'peekRecord',

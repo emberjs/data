@@ -695,12 +695,12 @@ function handleCompletedRelationshipRequest(
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
-  if (!recordOrPromiseRecord) {
+function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance | null) {
+  if (!record) {
     return null;
   }
 
-  return recordIdentifierFor(recordOrPromiseRecord);
+  return recordIdentifierFor(record);
 }
 
 function anyUnloaded(store: Store, relationship: ManyRelationship) {

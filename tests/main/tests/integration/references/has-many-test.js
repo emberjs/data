@@ -51,7 +51,7 @@ module('integration/references/has-many', function (hooks) {
 
     assert.expectAssertion(function () {
       family.hasMany('unknown-relationship');
-    }, 'Expected to find a relationship definition for family.unknown-relationship but none was found');
+    }, "Expected a relationship schema for 'family.unknown-relationship', but no relationship schema was found.");
   });
 
   testInDebug(

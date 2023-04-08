@@ -97,7 +97,7 @@ export class CacheStoreWrapper implements StoreWrapper {
   }
 
   hasRecord(identifier: StableRecordIdentifier): boolean {
-    return Boolean(this._store._instanceCache.peek({ identifier, bucket: 'record' }));
+    return Boolean(this._store._instanceCache.peek(identifier));
   }
 
   disconnectRecord(identifier: StableRecordIdentifier): void {
