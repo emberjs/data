@@ -5,7 +5,6 @@ import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addTransactionCB } from '@ember-data/tracking/-private';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import IdentifierArray, {
   Collection,
@@ -164,7 +163,7 @@ class RecordArrayManager {
 
   createArray(config: {
     type?: string;
-    query?: ImmutableRequestInfo | Dict<unknown>;
+    query?: ImmutableRequestInfo | Record<string, unknown>;
     identifiers?: StableRecordIdentifier[];
     doc?: CollectionResourceDocument;
   }): Collection {

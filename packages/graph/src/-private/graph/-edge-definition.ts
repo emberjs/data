@@ -1,18 +1,15 @@
 import { assert } from '@ember/debug';
 
-import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
-import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { assertInheritedSchema } from '../debug/assert-polymorphic-type';
 import { expandingGet, expandingSet, getStore } from './-utils';
 import type { Graph } from './graph';
 
-export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
+export type EdgeCache = Record<string, Record<string, EdgeDefinition | null>>;
 
 /**
  *
@@ -531,21 +528,10 @@ export function upgradeDefinition(
   return info;
 }
 
-function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
-  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
-}
-
 function inverseForRelationship(store: Store, identifier: StableRecordIdentifier | { type: string }, key: string) {
   const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
   if (!definition) {
     return null;
-  }
-
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
-    if (metaIsRelationshipDefinition(definition)) {
-      const modelClass = store.modelFor(identifier.type);
-      return definition._inverseKey(store, modelClass);
-    }
   }
 
   assert(

@@ -8,6 +8,4 @@ export {
   ServerError,
   TimeoutError,
   UnauthorizedError,
-  errorsArrayToHash,
-  errorsHashToArray,
 } from '@ember-data/adapter/error';

@@ -5,7 +5,6 @@ import QUnit from 'qunit';
 import semver from 'semver';
 
 import { DEBUG } from '@ember-data/env';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
@@ -29,7 +28,7 @@ interface DeprecationConfig {
   message?: string | RegExp;
   url?: string;
   stacktrace?: string;
-  when?: Dict<string>;
+  when?: Record<string, string>;
 }
 interface FoundDeprecation {
   message: string;

@@ -7,7 +7,6 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -34,7 +33,6 @@ import type {
 } from '@ember-data/types/q/ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import type { Dict } from '@ember-data/types/q/utils';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -54,77 +52,7 @@ class House extends Model {
   tenants;
 }
 
-// TODO: this should work
-// class TestRecordData implements RecordDatav1
-class V1TestRecordData {
-  _storeWrapper: CacheStoreWrapper;
-  _identifier: StableRecordIdentifier;
-
-  constructor(wrapper: CacheStoreWrapper, identifier: StableRecordIdentifier) {
-    this._storeWrapper = wrapper;
-    this._identifier = identifier;
-  }
-
-  pushData(data: object, calculateChange: true): string[];
-  pushData(data: object, calculateChange?: false): void;
-  pushData(data: object, calculateChange?: boolean): string[] | void {
-    this._storeWrapper.notifyChange(this._identifier, 'added');
-  }
-
-  clientDidCreate() {}
-
-  willCommit() {}
-
-  _errors: JsonApiError[] = [];
-  getErrors(recordIdentifier: StableRecordIdentifier): JsonApiError[] {
-    return this._errors;
-  }
-  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiError[]): void {
-    this._errors = errors;
-  }
-
-  unloadRecord() {}
-  rollbackAttributes() {}
-  changedAttributes(): any {}
-
-  hasChangedAttributes(): boolean {
-    return false;
-  }
-
-  setDirtyAttribute(key: string, value: any) {}
-
-  getAttr(key: string): string {
-    return 'test';
-  }
-
-  getHasMany(key: string) {
-    return {};
-  }
-
-  addToHasMany(key: string, recordDatas: this[], idx?: number) {}
-  removeFromHasMany(key: string, recordDatas: this[]) {}
-  setDirtyHasMany(key: string, recordDatas: this[]) {}
-
-  getBelongsTo(key: string) {}
-
-  setDirtyBelongsTo(name: string, recordData: this | null) {}
-
-  didCommit(data) {}
-
-  isDeletionCommitted() {
-    return false;
-  }
-
-  _initRecordCreateOptions(options) {}
-  isNew() {
-    return false;
-  }
-  isDeleted() {
-    return false;
-  }
-}
-
-class V2TestRecordData implements Cache {
+class TestRecordData implements Cache {
   version: '2' = '2';
 
   _errors?: JsonApiError[];
@@ -204,7 +132,10 @@ class V2TestRecordData implements Cache {
     this._storeWrapper.notifyChange(identifier, 'relationships');
   }
 
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+  clientDidCreate(
+    identifier: StableRecordIdentifier,
+    options?: Record<string, unknown> | undefined
+  ): Record<string, unknown> {
     this._isNew = true;
     return {};
   }
@@ -259,17 +190,6 @@ class V2TestRecordData implements Cache {
   }
 }
 
-const TestRecordData: typeof V2TestRecordData | typeof V1TestRecordData = !DEPRECATE_V1_RECORD_DATA
-  ? V2TestRecordData
-  : V1TestRecordData;
-
-class CustomStore extends Store {
-  // @ts-expect-error
-  createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-    return new TestRecordData(storeWrapper, identifier);
-  }
-}
-
 module('integration/record-data - Custom RecordData Implementations', function (hooks) {
   setupTest(hooks);
 
@@ -279,7 +199,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('model:person', Person);
     owner.register('model:house', House);
     owner.unregister('service:store');
-    owner.register('service:store', CustomStore);
+    owner.register('service:store', Store);
     owner.register('adapter:application', JSONAPIAdapter.extend());
     owner.register('serializer:application', class extends JSONAPISerializer {});
   });
@@ -325,13 +245,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
     await settled();
 
     assert.strictEqual(all.length, 3, 'we have 3 records');
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 6 });
-    }
   });
 
   test('Record Data push, create and save lifecycle', async function (assert) {
-    assert.expect(DEPRECATE_V1_RECORD_DATA ? 20 : 19);
+    assert.expect(19);
     let called = 0;
     const personHash = {
       type: 'person',
@@ -351,26 +268,17 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let isNew = false;
 
     class LifecycleRecordData extends TestRecordData {
-      pushData(data: object, calculateChange: true): string[];
-      pushData(data: object, calculateChange?: false): void;
-      pushData(data: object, calculateChange?: boolean): string[] | void {
-        if (DEPRECATE_V1_RECORD_DATA) {
-          calledUpsert++;
-        } else {
-          throw new Error(`Unexpected pushData call`);
-        }
-      }
-
       upsert() {
-        if (DEPRECATE_V1_RECORD_DATA) {
-          throw new Error(`Unexpected upsert call`);
-        }
         calledUpsert++;
       }
 
-      clientDidCreate() {
+      clientDidCreate(
+        identifier: StableRecordIdentifier,
+        options?: Record<string, unknown> | undefined
+      ): Record<string, unknown> {
         calledClientDidCreate++;
         isNew = true;
+        return {};
       }
 
       willCommit() {
@@ -388,6 +296,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
       rollbackAttrs() {
         calledRollbackAttributes++;
+        return [];
       }
       rollbackAttributes() {
         calledRollbackAttributes++;
@@ -404,10 +313,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
     }
 
     class TestStore extends Store {
-      // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-        return new LifecycleRecordData(storeWrapper, identifier);
-      }
       createCache(storeWrapper: CacheStoreWrapper) {
         // @ts-expect-error
         return new LifecycleRecordData(storeWrapper) as Cache;
@@ -492,13 +397,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     await settled();
     assert.strictEqual(calledUpsert, 0, 'Did not call pushData');
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 4 });
-    }
   });
 
   test('Record Data attribute setting', async function (assert) {
-    let expectedCount = DEPRECATE_V1_RECORD_DATA ? 14 : 13;
+    let expectedCount = 13;
     assert.expect(expectedCount);
     const personHash = {
       type: 'person',
@@ -540,21 +442,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
       getAttr(identifier: StableRecordIdentifier, key: string): string {
         calledGet++;
-        if (!DEPRECATE_V1_RECORD_DATA) {
-          assert.strictEqual(key, 'name', 'key passed to getAttr');
-        } else {
-          assert.strictEqual(identifier as unknown as string, 'name', 'key passed to getAttr');
-        }
+        assert.strictEqual(key, 'name', 'key passed to getAttr');
+
         return 'new attribute';
       }
     }
 
     class TestStore extends Store {
-      // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, storeWrapper: CacheStoreWrapper) {
-        return new AttributeRecordData(storeWrapper, identifier);
-      }
-
       createCache(storeWrapper: CacheStoreWrapper) {
         // @ts-expect-error
         return new AttributeRecordData(storeWrapper) as Cache;
@@ -584,8 +478,5 @@ module('integration/record-data - Custom RecordData Implementations', function (
       { name: ['old', 'new'] },
       'changed attributes passes through RD value'
     );
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
-    }
   });
 });

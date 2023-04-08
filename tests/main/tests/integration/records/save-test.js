@@ -7,7 +7,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
-import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/deprecations';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -37,35 +36,12 @@ module('integration/records/save - Save Record', function (hooks) {
 
     let saved = post.save();
 
-    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
-      // `save` returns a PromiseObject which allows to call get on it
-      assert.strictEqual(saved.get('id'), undefined, `<proxy>.get('id') is undefined before save resolves`);
-    }
-
     deferred.resolve({ data: { id: '123', type: 'post' } });
     let model = await saved;
     assert.ok(true, 'save operation was resolved');
-    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
-      assert.strictEqual(saved.get('id'), '123', `<proxy>.get('id') is '123' after save resolves`);
-      assert.strictEqual(model.id, '123', `record.id is '123' after save resolves`);
-    } else {
-      assert.strictEqual(saved.id, undefined, `<proxy>.id is undefined after save resolves`);
-      assert.strictEqual(model.id, '123', `record.id is '123' after save resolves`);
-    }
+    assert.strictEqual(saved.id, undefined, `<proxy>.id is undefined after save resolves`);
+    assert.strictEqual(model.id, '123', `record.id is '123' after save resolves`);
     assert.strictEqual(model, post, 'resolves with the model');
-    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
-      // We don't care about the exact value of the property, but accessing it
-      // should not throw an error and only show a deprecation.
-      saved.__ec_cancel__ = true;
-      assert.true(saved.__ec_cancel__, '__ec_cancel__ can be accessed on the proxy');
-      assert.strictEqual(
-        model.__ec_cancel__,
-        undefined,
-        '__ec_cancel__ can be accessed on the record but is not present'
-      );
-
-      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 10 });
-    }
   });
 
   test('Will reject save on error', async function (assert) {

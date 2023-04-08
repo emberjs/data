@@ -11,7 +11,6 @@ import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-p
 import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 import type { FastBoot } from './-private/fastboot-interface';
@@ -27,7 +26,7 @@ import AdapterError, {
 } from './error';
 import Adapter, { BuildURLMixin } from './index';
 
-type Payload = Error | Dict<unknown> | unknown[] | string | undefined;
+type Payload = Error | Record<string, unknown> | unknown[] | string | undefined;
 
 type QueryState = {
   include?: unknown;
@@ -60,7 +59,7 @@ export type RequestData = {
 type ResponseData = {
   status: number;
   textStatus: string;
-  headers: Dict<any>;
+  headers: Record<string, any>;
   errorThrown?: any;
 };
 
@@ -410,7 +409,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @return {Object}
     @public
   */
-  sortQueryParams(obj): Dict<unknown> {
+  sortQueryParams(obj): Record<string, unknown> {
     let keys = Object.keys(obj);
     let len = keys.length;
     if (len < 2) {
@@ -547,7 +546,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @public
     @type {Object}
    */
-  declare headers: Dict<unknown> | undefined;
+  declare headers: Record<string, unknown> | undefined;
 
   /**
     Called by the store in order to fetch the JSON for a given
@@ -658,8 +657,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   queryRecord(
     store: Store,
     type: ShimModelClass,
-    query: Dict<unknown>,
-    adapterOptions: Dict<unknown>
+    query: Record<string, unknown>,
+    adapterOptions: Record<string, unknown>
   ): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
 
@@ -746,7 +745,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findHasMany(store: Store, snapshot: Snapshot, url: string, relationship: Dict<unknown>): Promise<AdapterPayload> {
+  findHasMany(
+    store: Store,
+    snapshot: Snapshot,
+    url: string,
+    relationship: Record<string, unknown>
+  ): Promise<AdapterPayload> {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -1011,7 +1015,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   */
   handleResponse(
     status: number,
-    headers: Dict<unknown>,
+    headers: Record<string, unknown>,
     payload: Payload,
     requestData: RequestData
   ): Payload | AdapterError {
@@ -1054,7 +1058,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Boolean}
   */
-  isSuccess(status: number, _headers: Dict<unknown>, _payload: Payload): boolean {
+  isSuccess(status: number, _headers: Record<string, unknown>, _payload: Payload): boolean {
     return (status >= 200 && status < 300) || status === 304;
   }
 
@@ -1070,7 +1074,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Boolean}
   */
-  isInvalid(status: number, _headers: Dict<unknown>, _payload: Payload): boolean {
+  isInvalid(status: number, _headers: Record<string, unknown>, _payload: Payload): boolean {
     return status === 422;
   }
 
@@ -1240,7 +1244,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {String} responseText
     @return {Object}
   */
-  parseErrorResponse(responseText: string): Dict<unknown> | string {
+  parseErrorResponse(responseText: string): Record<string, unknown> | string {
     let json: string = responseText;
 
     try {
@@ -1260,7 +1264,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Array} errors payload
   */
-  normalizeErrorResponse(status: number, _headers: Dict<unknown>, payload: Payload): Dict<unknown>[] {
+  normalizeErrorResponse(
+    status: number,
+    _headers: Record<string, unknown>,
+    payload: Payload
+  ): Record<string, unknown>[] {
     if (payload && typeof payload === 'object' && 'errors' in payload && Array.isArray(payload.errors)) {
       return payload.errors;
     } else {
@@ -1356,7 +1364,7 @@ function ajaxError(
   payload: Payload,
   requestData: RequestData,
   responseData: ResponseData
-): Error | TimeoutError | AbortError | Dict<unknown> {
+): Error | TimeoutError | AbortError | Record<string, unknown> {
   let error;
 
   if (responseData.errorThrown instanceof Error && payload !== '') {
@@ -1472,7 +1480,7 @@ function ajaxResponseData(jqXHR: JQuery.jqXHR): ResponseData {
   };
 }
 
-function headersToObject(headers: Headers): Dict<unknown> {
+function headersToObject(headers: Headers): Record<string, unknown> {
   let headersObject = {};
 
   if (headers) {

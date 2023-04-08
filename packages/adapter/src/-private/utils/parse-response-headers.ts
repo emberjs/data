@@ -1,9 +1,7 @@
-import type { Dict } from '@ember-data/types/q/utils';
-
 const newline = /\r?\n/;
 
-export default function parseResponseHeaders(headersString: string): Dict<string> {
-  const headers = Object.create(null) as Dict<string>;
+export default function parseResponseHeaders(headersString: string): Record<string, string> {
+  const headers = Object.create(null) as Record<string, string>;
 
   if (!headersString) {
     return headers;

@@ -2,14 +2,13 @@ import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
-import { defer, resolve } from 'rsvp';
+import { resolve } from 'rsvp';
 
 import { setupRenderingTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 import createTrackingContext from '../../helpers/create-tracking-context';
@@ -369,48 +368,6 @@ module('integration/references/has-many', function (hooks) {
       });
     });
   });
-
-  deprecatedTest(
-    'push(promise)',
-    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
-    async function (assert) {
-      const store = this.owner.lookup('service:store');
-      const deferred = defer();
-
-      const family = store.push({
-        data: {
-          type: 'family',
-          id: '1',
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: '1' },
-                { type: 'person', id: '2' },
-              ],
-            },
-          },
-        },
-      });
-      const personsReference = family.hasMany('persons');
-      let pushResult = personsReference.push(deferred.promise);
-
-      assert.ok(pushResult.then, 'HasManyReference.push returns a promise');
-
-      const payload = {
-        data: [
-          { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
-          { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
-        ],
-      };
-
-      deferred.resolve(payload);
-
-      const records = await pushResult;
-      assert.strictEqual(get(records, 'length'), 2);
-      assert.strictEqual(records.at(0).name, 'Vito');
-      assert.strictEqual(records.at(1).name, 'Michael');
-    }
-  );
 
   test('push valid json:api', async function (assert) {
     const store = this.owner.lookup('service:store');

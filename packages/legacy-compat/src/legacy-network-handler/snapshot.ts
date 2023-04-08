@@ -1,23 +1,20 @@
 /**
   @module @ember-data/store
 */
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS, DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
-import { DSModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
 
 type RecordId = string | null;
 
@@ -33,18 +30,18 @@ type RecordId = string | null;
   @public
 */
 export default class Snapshot implements Snapshot {
-  declare __attributes: Dict<unknown> | null;
-  declare _belongsToRelationships: Dict<Snapshot>;
-  declare _belongsToIds: Dict<RecordId>;
-  declare _hasManyRelationships: Dict<Snapshot[]>;
-  declare _hasManyIds: Dict<RecordId[]>;
+  declare __attributes: Record<string, unknown> | null;
+  declare _belongsToRelationships: Record<string, Snapshot>;
+  declare _belongsToIds: Record<string, RecordId>;
+  declare _hasManyRelationships: Record<string, Snapshot[]>;
+  declare _hasManyIds: Record<string, RecordId[]>;
   declare _changedAttributes: ChangedAttributesHash;
 
   declare identifier: StableRecordIdentifier;
   declare modelName: string;
   declare id: string | null;
   declare include?: unknown;
-  declare adapterOptions?: Dict<unknown>;
+  declare adapterOptions?: Record<string, unknown>;
   declare _store: Store;
 
   /**
@@ -59,10 +56,10 @@ export default class Snapshot implements Snapshot {
     this._store = store;
 
     this.__attributes = null;
-    this._belongsToRelationships = Object.create(null) as Dict<Snapshot>;
-    this._belongsToIds = Object.create(null) as Dict<RecordId>;
-    this._hasManyRelationships = Object.create(null) as Dict<Snapshot[]>;
-    this._hasManyIds = Object.create(null) as Dict<RecordId[]>;
+    this._belongsToRelationships = Object.create(null) as Record<string, Snapshot>;
+    this._belongsToIds = Object.create(null) as Record<string, RecordId>;
+    this._hasManyRelationships = Object.create(null) as Record<string, Snapshot[]>;
+    this._hasManyIds = Object.create(null) as Record<string, RecordId[]>;
 
     const hasRecord = !!store._instanceCache.peek({ identifier, bucket: 'record' });
     this.modelName = identifier.type;
@@ -130,9 +127,7 @@ export default class Snapshot implements Snapshot {
      */
     this.modelName = identifier.type;
     if (hasRecord) {
-      const cache = DEPRECATE_V1_RECORD_DATA
-        ? this._store._instanceCache.getResourceCache(identifier)
-        : this._store.cache;
+      const cache = this._store.cache;
       this._changedAttributes = cache.changedAttrs(identifier);
     }
   }
@@ -155,16 +150,14 @@ export default class Snapshot implements Snapshot {
     return this._store._instanceCache.getRecord(this.identifier);
   }
 
-  get _attributes(): Dict<unknown> {
+  get _attributes(): Record<string, unknown> {
     if (this.__attributes !== null) {
       return this.__attributes;
     }
-    const attributes = (this.__attributes = Object.create(null) as Dict<unknown>);
+    const attributes = (this.__attributes = Object.create(null) as Record<string, unknown>);
     const { identifier } = this;
     const attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
-    const cache = DEPRECATE_V1_RECORD_DATA
-      ? this._store._instanceCache.getResourceCache(identifier)
-      : this._store.cache;
+    const cache = this._store.cache;
 
     attrs.forEach((keyName) => {
       attributes[keyName] = cache.getAttr(identifier, keyName);
@@ -173,19 +166,8 @@ export default class Snapshot implements Snapshot {
     return attributes;
   }
 
-  /**
-   The type of the underlying record for this snapshot, as a Model.
-
-   @property type
-    @public
-    @deprecated
-   @type {Model}
-   */
-
   get isNew(): boolean {
-    const cache = DEPRECATE_V1_RECORD_DATA
-      ? this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'resourceCache' })
-      : this._store.cache;
+    const cache = this._store.cache;
     return cache?.isNew(this.identifier) || false;
   }
 
@@ -228,7 +210,7 @@ export default class Snapshot implements Snapshot {
    @return {Object} All attributes of the current snapshot
    @public
    */
-  attributes(): Dict<unknown> {
+  attributes(): Record<string, unknown> {
     return { ...this._attributes };
   }
 
@@ -352,11 +334,9 @@ export default class Snapshot implements Snapshot {
     let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      const cache = DEPRECATE_V1_RECORD_DATA
-        ? inverseIdentifier && store._instanceCache.getResourceCache(inverseIdentifier)
-        : store.cache;
+      const cache = store.cache;
 
-      if (inverseIdentifier && !cache!.isDeleted(inverseIdentifier)) {
+      if (inverseIdentifier && !cache.isDeleted(inverseIdentifier)) {
         if (returnModeIsId) {
           result = inverseIdentifier.id;
         } else {
@@ -460,7 +440,7 @@ export default class Snapshot implements Snapshot {
       results = [];
       value.data.forEach((member) => {
         let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
-        const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(inverseIdentifier) : store.cache;
+        const cache = store.cache;
 
         if (!cache.isDeleted(inverseIdentifier)) {
           if (returnModeIsIds) {
@@ -503,7 +483,7 @@ export default class Snapshot implements Snapshot {
   eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
     let attrDefs = this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier);
     Object.keys(attrDefs).forEach((key) => {
-      callback.call(binding, key, attrDefs[key] as AttributeSchema);
+      callback.call(binding, key, attrDefs[key]);
     });
   }
 
@@ -527,7 +507,7 @@ export default class Snapshot implements Snapshot {
   eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
     let relationshipDefs = this._store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier);
     Object.keys(relationshipDefs).forEach((key) => {
-      callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
+      callback.call(binding, key, relationshipDefs[key]);
     });
   }
 
@@ -562,22 +542,4 @@ export default class Snapshot implements Snapshot {
     assert(`Cannot serialize record, no serializer found`, serializer);
     return serializer.serialize(this, options);
   }
-}
-
-if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
-  Object.defineProperty(Snapshot.prototype, 'type', {
-    get(this: Snapshot) {
-      deprecate(
-        `Using Snapshot.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
-        false,
-        {
-          id: 'ember-data:deprecate-snapshot-model-class-access',
-          until: '5.0',
-          for: 'ember-data',
-          since: { available: '4.5.0', enabled: '4.5.0' },
-        }
-      );
-      return this._store.modelFor(this.identifier.type) as DSModelSchema;
-    },
-  });
 }

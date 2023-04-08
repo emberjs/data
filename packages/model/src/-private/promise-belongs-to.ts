@@ -6,7 +6,6 @@ import { cached } from '@glimmer/tracking';
 
 import type Store from '@ember-data/store';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { LegacySupport } from './legacy-relationships-support';
 import { PromiseObject } from './promise-proxy-base';
@@ -73,7 +72,7 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
     return;
   }
 
-  async reload(options: Dict<unknown>): Promise<this> {
+  async reload(options: Record<string, unknown>): Promise<this> {
     assert('You are trying to reload an async belongsTo before it has been created', this.content !== undefined);
     let { key, legacySupport } = this._belongsToState;
     await legacySupport.reloadBelongsTo(key, options);

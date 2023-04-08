@@ -5,7 +5,6 @@ import { DEBUG } from '@ember-data/env';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
@@ -67,8 +66,8 @@ export const Graphs = new Map<CacheStoreWrapper, Graph>();
  */
 export class Graph {
   declare _definitionCache: EdgeCache;
-  declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
-  declare identifiers: Map<StableRecordIdentifier, Dict<RelationshipEdge>>;
+  declare _potentialPolymorphicTypes: Record<string, Record<string, boolean>>;
+  declare identifiers: Map<StableRecordIdentifier, Record<string, RelationshipEdge>>;
   declare store: CacheStoreWrapper;
   declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
@@ -84,7 +83,7 @@ export class Graph {
 
   constructor(store: CacheStoreWrapper) {
     this._definitionCache = Object.create(null) as EdgeCache;
-    this._potentialPolymorphicTypes = Object.create(null) as Dict<Dict<boolean>>;
+    this._potentialPolymorphicTypes = Object.create(null) as Record<string, Record<string, boolean>>;
     this.identifiers = new Map();
     this.store = store;
     this.isDestroyed = false;
@@ -108,7 +107,7 @@ export class Graph {
     assert(`expected propertyName`, propertyName);
     let relationships = this.identifiers.get(identifier);
     if (!relationships) {
-      relationships = Object.create(null) as Dict<RelationshipEdge>;
+      relationships = Object.create(null) as Record<string, RelationshipEdge>;
       this.identifiers.set(identifier, relationships);
     }
 
@@ -156,13 +155,13 @@ export class Graph {
     const typeCache = this._potentialPolymorphicTypes;
     let t1 = typeCache[type1];
     if (!t1) {
-      t1 = typeCache[type1] = Object.create(null) as Dict<boolean>;
+      t1 = typeCache[type1] = Object.create(null) as Record<string, boolean>;
     }
     t1[type2] = true;
 
     let t2 = typeCache[type2];
     if (!t2) {
-      t2 = typeCache[type2] = Object.create(null) as Dict<boolean>;
+      t2 = typeCache[type2] = Object.create(null) as Record<string, boolean>;
     }
     t2[type1] = true;
   }
@@ -204,7 +203,7 @@ export class Graph {
     }
     const keys = Object.keys(relationships);
     for (let i = 0; i < keys.length; i++) {
-      const relationship = relationships[keys[i]] as RelationshipEdge;
+      const relationship: RelationshipEdge = relationships[keys[i]];
       assert(`Expected a relationship`, relationship);
       if (relationship.definition.inverseIsAsync) {
         return false;
@@ -230,6 +229,7 @@ export class Graph {
         }
         destroyRelationship(this, rel, silenceNotifications);
         if (isImplicit(rel)) {
+          // @ts-expect-error
           relationships[key] = undefined;
         }
       });
@@ -318,6 +318,7 @@ export class Graph {
               return;
             }
             // works together with the has check
+            // @ts-expect-error
             relationships[key] = undefined;
             removeCompletelyFromInverse(this, rel);
           });

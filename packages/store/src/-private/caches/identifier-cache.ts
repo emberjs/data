@@ -22,7 +22,6 @@ import type {
   StableRecordIdentifier,
   UpdateMethod,
 } from '@ember-data/types/q/identifier';
-import type { ConfidentDict } from '@ember-data/types/q/utils';
 
 import coerceId from '../utils/coerce-id';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifier-debug-consts';
@@ -67,9 +66,8 @@ interface KeyOptions {
   lid: IdentifierMap;
   id: IdentifierMap;
 }
-
+type TypeMap = { [key: string]: KeyOptions };
 type IdentifierMap = Map<string, StableRecordIdentifier>;
-type TypeMap = ConfidentDict<KeyOptions>;
 export type MergeMethod = (
   targetIdentifier: StableRecordIdentifier,
   matchedIdentifier: StableRecordIdentifier,
@@ -726,7 +724,7 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
 }
 
 function detectMerge(
-  typesCache: ConfidentDict<KeyOptions>,
+  typesCache: { [key: string]: KeyOptions },
   identifier: StableRecordIdentifier,
   data: ResourceIdentifierObject | ExistingResourceObject,
   newId: string | null,

@@ -2,19 +2,12 @@
   @module @ember-data/store
  */
 import { getOwner, setOwner } from '@ember/application';
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
 import { importSync } from '@embroider/macros';
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
-import {
-  DEPRECATE_HAS_RECORD,
-  DEPRECATE_JSON_API_FALLBACK,
-  DEPRECATE_PROMISE_PROXIES,
-  DEPRECATE_STORE_FIND,
-  DEPRECATE_V1_RECORD_DATA,
-} from '@ember-data/deprecations';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type CacheClass from '@ember-data/json-api';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
@@ -39,10 +32,9 @@ import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-ser
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaService } from '@ember-data/types/q/schema-service';
 import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { EnableHydration, type LifetimesService, SkipCache, type StoreRequestInfo } from './cache-handler';
-import peekCache, { setCacheFor } from './caches/cache-utils';
+import { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -59,11 +51,10 @@ import RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
-import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
+import { CacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import RequestStateService, { RequestPromise } from './network/request-cache';
-import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
 import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
@@ -208,9 +199,9 @@ class Store {
   declare lifetimes?: LifetimesService;
 
   // Private
-  declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
-  declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
-  declare _modelFactoryCache: Dict<unknown>;
+  declare _adapterCache: Record<string, MinimumAdapterInterface & { store: Store }>;
+  declare _serializerCache: Record<string, MinimumSerializerInterface & { store: Store }>;
+  declare _modelFactoryCache: Record<string, unknown>;
   declare _fetchManager: FetchManager;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
@@ -412,7 +403,7 @@ class Store {
     if (HAS_MODEL_PACKAGE) {
       let modelName = identifier.type;
 
-      const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(identifier) : this.cache;
+      const cache = this.cache;
       // TODO deprecate allowing unknown args setting
       let createOptions: any = {
         _createProps: createRecordArgs,
@@ -726,14 +717,9 @@ class Store {
         }
 
         const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
-        const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(identifier) : this.cache;
+        const cache = this.cache;
 
-        const createOptions = normalizeProperties(
-          this,
-          identifier,
-          properties,
-          (cache as NonSingletonCacheManager).managedVersion === '1'
-        );
+        const createOptions = normalizeProperties(this, identifier, properties);
         const resultProps = cache.clientDidCreate(identifier, createOptions);
 
         record = this._instanceCache.getRecord(identifier, resultProps);
@@ -765,10 +751,8 @@ class Store {
     }
 
     const identifier = peekRecordIdentifier(record);
-    const cache =
-      identifier &&
-      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'resourceCache' }) : this.cache);
-    assert(`expected a cache instance to exist for the record`, cache);
+    const cache = this.cache;
+    assert(`expected the record to be connected to a cache`, identifier);
     this._join(() => {
       cache.setIsDeleted(identifier, true);
 
@@ -804,60 +788,6 @@ class Store {
     if (identifier) {
       this._instanceCache.unloadRecord(identifier);
     }
-  }
-
-  /**
-    @method find
-    @param {String} modelName
-    @param {String|Integer} id
-    @param {Object} options
-    @return {Promise} promise
-    @deprecated
-    @private
-  */
-  find(modelName: string, id: string | number, options?): PromiseObject<RecordInstance> {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'find');
-    }
-    // The default `model` hook in Route calls `find(modelName, id)`,
-    // that's why we have to keep this method around even though `findRecord` is
-    // the public way to get a record by modelName and id.
-    assert(
-      `Using store.find(type) has been removed. Use store.findAll(modelName) to retrieve all records for a given type.`,
-      arguments.length !== 1
-    );
-    assert(
-      `Calling store.find(modelName, id, { preload: preload }) is no longer supported. Use store.findRecord(modelName, id, { preload: preload }) instead.`,
-      !options
-    );
-    assert(`You need to pass the model name and id to the store's find method`, arguments.length === 2);
-    assert(
-      `You cannot pass '${id}' as id to the store's find method`,
-      typeof id === 'string' || typeof id === 'number'
-    );
-    assert(
-      `Calling store.find() with a query object is no longer supported. Use store.query() instead.`,
-      typeof id !== 'object'
-    );
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-
-    if (DEPRECATE_STORE_FIND) {
-      deprecate(
-        `Using store.find is deprecated, use store.findRecord instead. Likely this means you are relying on the implicit store fetching behavior of routes unknowingly.`,
-        false,
-        {
-          id: 'ember-data:deprecate-store-find',
-          since: { available: '4.5', enabled: '4.5' },
-          for: 'ember-data',
-          until: '5.0',
-        }
-      );
-      return this.findRecord(modelName, id);
-    }
-    assert(`store.find has been removed. Use store.findRecord instead.`);
   }
 
   /**
@@ -1227,13 +1157,13 @@ class Store {
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord(resource: string, id: string | number, options?: FindOptions): PromiseObject<RecordInstance>;
-  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): PromiseObject<RecordInstance>;
+  findRecord(resource: string, id: string | number, options?: FindOptions): Promise<RecordInstance>;
+  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): Promise<RecordInstance>;
   findRecord(
     resource: string | ResourceIdentifierObject,
     id?: string | number | FindOptions,
     options?: FindOptions
-  ): PromiseObject<RecordInstance> {
+  ): Promise<RecordInstance> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
     }
@@ -1278,17 +1208,9 @@ class Store {
       cacheOptions: { [SkipCache as symbol]: true },
     });
 
-    if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseObject(
-        promise.then((document) => {
-          return document.content;
-        })
-      );
-    }
-
     return promise.then((document) => {
       return document.content;
-    }) as PromiseObject<RecordInstance>;
+    });
   }
 
   /**
@@ -1433,54 +1355,6 @@ class Store {
   }
 
   /**
-   This method returns true if a record for a given modelName and id is already
-   loaded in the store. Use this function to know beforehand if a findRecord()
-   will result in a request or that it will be a cache hit.
-
-   Example
-
-   ```javascript
-   store.hasRecordForId('post', 1); // false
-   store.findRecord('post', 1).then(function() {
-     store.hasRecordForId('post', 1); // true
-   });
-   ```
-
-    @method hasRecordForId
-    @deprecated
-    @public
-    @param {String} modelName
-    @param {(String|Integer)} id
-    @return {Boolean}
-  */
-  hasRecordForId(modelName: string, id: string | number): boolean {
-    if (DEPRECATE_HAS_RECORD) {
-      deprecate(`store.hasRecordForId has been deprecated in favor of store.peekRecord`, false, {
-        id: 'ember-data:deprecate-has-record-for-id',
-        since: { available: '4.5', enabled: '4.5' },
-        until: '5.0',
-        for: 'ember-data',
-      });
-      if (DEBUG) {
-        assertDestroyingStore(this, 'hasRecordForId');
-      }
-      assert(`You need to pass a model name to the store's hasRecordForId method`, modelName);
-      assert(
-        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-        typeof modelName === 'string'
-      );
-
-      const type = normalizeModelName(modelName);
-      const trueId = ensureStringId(id);
-      const resource = { type, id: trueId };
-
-      const identifier = this.identifierCache.peekRecordIdentifier(resource);
-      return Boolean(identifier && this._instanceCache.recordIsLoaded(identifier));
-    }
-    assert(`store.hasRecordForId has been removed`);
-  }
-
-  /**
     This method delegates a query to the adapter. This is the one place where
     adapter-level semantics are exposed to the application.
 
@@ -1535,7 +1409,7 @@ class Store {
     modelName: string,
     query: Record<string, unknown>,
     options: { [key: string]: unknown; adapterOptions?: Record<string, unknown> }
-  ): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
+  ): Promise<Collection> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1556,9 +1430,6 @@ class Store {
       cacheOptions: { [SkipCache as symbol]: true },
     });
 
-    if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(promise.then((document) => document.content));
-    }
     return promise.then((document) => document.content);
   }
 
@@ -1660,11 +1531,7 @@ class Store {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(
-    modelName: string,
-    query: Record<string, unknown>,
-    options?
-  ): PromiseObject<RecordInstance | null> | Promise<RecordInstance | null> {
+  queryRecord(modelName: string, query: Record<string, unknown>, options?): Promise<RecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
@@ -1685,9 +1552,6 @@ class Store {
       cacheOptions: { [SkipCache as symbol]: true },
     });
 
-    if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseObject(promise.then((document) => document.content));
-    }
     return promise.then((document) => document.content);
   }
 
@@ -1879,10 +1743,7 @@ class Store {
     @param {Object} options
     @return {Promise} promise
   */
-  findAll(
-    modelName: string,
-    options: { reload?: boolean; backgroundReload?: boolean } = {}
-  ): PromiseArray<RecordInstance, IdentifierArray> {
+  findAll(modelName: string, options: { reload?: boolean; backgroundReload?: boolean } = {}): Promise<IdentifierArray> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findAll');
     }
@@ -1901,10 +1762,7 @@ class Store {
       cacheOptions: { [SkipCache as symbol]: true },
     });
 
-    if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(promise.then((document) => document.content));
-    }
-    return promise.then((document) => document.content) as PromiseArray<RecordInstance, IdentifierArray>;
+    return promise.then((document) => document.content);
   }
 
   /**
@@ -2197,11 +2055,7 @@ class Store {
     }
     let ret;
     this._join(() => {
-      if (DEPRECATE_V1_RECORD_DATA) {
-        ret = legacyCachePut(this, { content: jsonApiDoc });
-      } else {
-        ret = this.cache.put({ content: jsonApiDoc });
-      }
+      ret = this.cache.put({ content: jsonApiDoc });
     });
 
     this._enableAsyncFlush = null;
@@ -2296,7 +2150,7 @@ class Store {
   }
 
   // TODO @runspired @deprecate records should implement their own serialization if desired
-  serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
+  serializeRecord(record: RecordInstance, options?: Record<string, unknown>): unknown {
     // TODO we used to check if the record was destroyed here
     if (HAS_COMPAT_PACKAGE) {
       if (!this._fetchManager) {
@@ -2321,17 +2175,15 @@ class Store {
    * @param options
    * @returns {Promise<RecordInstance>}
    */
-  saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
+  saveRecord(record: RecordInstance, options: Record<string, unknown> = {}): Promise<RecordInstance> {
     if (DEBUG) {
       assertDestroyingStore(this, 'saveRecord');
     }
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
     let identifier = recordIdentifierFor(record);
-    const cache =
-      identifier &&
-      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'resourceCache' }) : this.cache);
+    const cache = this.cache;
 
-    if (!cache) {
+    if (!identifier) {
       // this commonly means we're disconnected
       // but just in case we reject here to prevent bad things.
       return Promise.reject(`Record Is Disconnected`);
@@ -2339,7 +2191,7 @@ class Store {
     // TODO we used to check if the record was destroyed here
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier}`,
-      cache && this._instanceCache.recordIsLoaded(identifier)
+      this._instanceCache.recordIsLoaded(identifier)
     );
     if (resourceIsFullyDeleted(this._instanceCache, identifier)) {
       return Promise.resolve(record);
@@ -2407,25 +2259,11 @@ class Store {
     if (!cache) {
       cache = this._instanceCache.cache = this.createCache(this._instanceCache._storeWrapper);
       if (DEBUG) {
-        cache = new SingletonCacheManager(cache);
+        cache = new CacheManager(cache);
       }
     }
     return cache;
   }
-
-  /**
-   * [DEPRECATED] use Store.createCache
-   *
-   * Instantiation hook allowing applications or addons to configure the store
-   * to utilize a custom RecordData implementation.
-   *
-   * @method createRecordDataFor (hook)
-   * @deprecated
-   * @public
-   * @param identifier
-   * @param storeWrapper
-   * @returns {Cache}
-   */
 
   /**
     `normalize` converts a json payload into the normalized form that
@@ -2513,28 +2351,6 @@ class Store {
       _adapterCache[normalizedModelName] = adapter;
       _adapterCache.application = adapter;
       return adapter;
-    }
-
-    if (DEPRECATE_JSON_API_FALLBACK) {
-      // final fallback, no model specific adapter, no application adapter, no
-      // `adapter` property on store: use json-api adapter
-      adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
-      if (adapter !== undefined) {
-        deprecate(
-          `Your application is utilizing a deprecated hidden fallback adapter (-json-api). Please implement an application adapter to function as your fallback.`,
-          false,
-          {
-            id: 'ember-data:deprecate-secret-adapter-fallback',
-            for: 'ember-data',
-            until: '5.0',
-            since: { available: '4.5', enabled: '4.5' },
-          }
-        );
-        _adapterCache[normalizedModelName] = adapter;
-        _adapterCache['-json-api'] = adapter;
-
-        return adapter;
-      }
     }
 
     assert(`No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`);
@@ -2677,8 +2493,7 @@ function isDSModel(record: RecordInstance | null): record is DSModel {
 function normalizeProperties(
   store: Store,
   identifier: StableRecordIdentifier,
-  properties?: { [key: string]: unknown },
-  isForV1: boolean = false
+  properties?: { [key: string]: unknown }
 ): { [key: string]: unknown } | undefined {
   // assert here
   if (properties !== undefined) {
@@ -2708,9 +2523,9 @@ function normalizeProperties(
             if (DEBUG) {
               assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
             }
-            relationshipValue = extractIdentifiersFromRecords(properties[prop] as RecordInstance[], isForV1);
+            relationshipValue = extractIdentifiersFromRecords(properties[prop] as RecordInstance[]);
           } else {
-            relationshipValue = extractIdentifierFromRecord(properties[prop] as RecordInstance, isForV1);
+            relationshipValue = extractIdentifierFromRecord(properties[prop] as RecordInstance);
           }
 
           properties[prop] = relationshipValue;
@@ -2740,50 +2555,19 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
   );
 }
 
-function extractIdentifiersFromRecords(records: RecordInstance[], isForV1: boolean = false): StableRecordIdentifier[] {
-  return records.map((record) => extractIdentifierFromRecord(record, isForV1)) as StableRecordIdentifier[];
+function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
+  return records.map((record) => extractIdentifierFromRecord(record)) as StableRecordIdentifier[];
 }
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 
-function extractIdentifierFromRecord(
-  recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null,
-  isForV1: boolean = false
-) {
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
   if (!recordOrPromiseRecord) {
     return null;
   }
-  const extract = isForV1 ? peekCache : recordIdentifierFor;
-
-  if (DEPRECATE_PROMISE_PROXIES) {
-    if (isPromiseRecord(recordOrPromiseRecord)) {
-      let content = recordOrPromiseRecord.content;
-      assert(
-        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
-        content !== undefined
-      );
-      deprecate(
-        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
-        false,
-        {
-          id: 'ember-data:deprecate-promise-proxies',
-          until: '5.0',
-          since: {
-            enabled: '4.7',
-            available: '4.7',
-          },
-          for: 'ember-data',
-        }
-      );
-      return content ? extract(content) : null;
-    }
-  }
+  const extract = recordIdentifierFor;
 
   return extract(recordOrPromiseRecord);
-}
-
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
 }
 
 function secretInit(record: RecordInstance, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {

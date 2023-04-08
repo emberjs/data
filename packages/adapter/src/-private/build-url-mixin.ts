@@ -4,7 +4,6 @@ import { camelize } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
-import type { Dict } from '@ember-data/types/q/utils';
 
 /**
   @module @ember-data/adapter
@@ -41,7 +40,7 @@ interface BuildURLMixin {
     id: null,
     snapshot: null,
     requestType: 'query',
-    query: Dict<unknown>
+    query: Record<string, unknown>
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
@@ -49,7 +48,7 @@ interface BuildURLMixin {
     id: null,
     snapshot: null,
     requestType: 'queryRecord',
-    query: Dict<unknown>
+    query: Record<string, unknown>
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
@@ -97,8 +96,8 @@ interface BuildURLMixin {
   _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string;
   urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
   urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: SnapshotRecordArray): string;
-  urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string;
-  urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string;
+  urlForQueryRecord(this: MixtBuildURLMixin, query: Record<string, unknown>, modelName: string): string;
+  urlForQuery(this: MixtBuildURLMixin, query: Record<string, unknown>, modelName: string): string;
   urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: string, snapshots: Snapshot[]): string;
   urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
   urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
@@ -185,7 +184,7 @@ function buildURL(
   id: null,
   snapshot: null,
   requestType: 'query',
-  query: Dict<unknown>
+  query: Record<string, unknown>
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
@@ -193,7 +192,7 @@ function buildURL(
   id: null,
   snapshot: null,
   requestType: 'queryRecord',
-  query: Dict<unknown>
+  query: Record<string, unknown>
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
@@ -241,7 +240,7 @@ function buildURL(this: MixtBuildURLMixin, modelName: string, id: string, snapsh
 function buildURL(
   this: MixtBuildURLMixin,
   modelName: string,
-  id: string | string[] | Dict<unknown> | null,
+  id: string | string[] | Record<string, unknown> | null,
   snapshot: Snapshot | Snapshot[] | SnapshotRecordArray | null,
   requestType?:
     | 'findRecord'
@@ -254,7 +253,7 @@ function buildURL(
     | 'createRecord'
     | 'updateRecord'
     | 'deleteRecord',
-  query?: Dict<unknown>
+  query?: Record<string, unknown>
 ): string {
   /*
       Switch statements in typescript don't currently narrow even when the function is implemented
@@ -408,7 +407,7 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
    @param {String} modelName
    @return {String} url
    */
-function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string {
+function urlForQuery(this: MixtBuildURLMixin, query: Record<string, unknown>, modelName: string): string {
   return this._buildURL(modelName);
 }
 
@@ -434,7 +433,7 @@ function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: s
    @param {String} modelName
    @return {String} url
    */
-function urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string {
+function urlForQueryRecord(this: MixtBuildURLMixin, query: Record<string, unknown>, modelName: string): string {
   return this._buildURL(modelName);
 }
 

@@ -1,18 +1,17 @@
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import type Store from '../store-service';
 
 // if modelFor turns out to be a bottleneck we should replace with a Map
 // and clear it during store teardown.
-const AvailableShims = new WeakMap<Store, Dict<ShimModelClass>>();
+const AvailableShims = new WeakMap<Store, Record<string, ShimModelClass>>();
 
 export function getShimClass(store: Store, modelName: string): ShimModelClass {
   let shims = AvailableShims.get(store);
 
   if (!shims) {
-    shims = Object.create(null) as Dict<ShimModelClass>;
+    shims = Object.create(null) as Record<string, ShimModelClass>;
     AvailableShims.set(store, shims);
   }
 
@@ -24,7 +23,7 @@ export function getShimClass(store: Store, modelName: string): ShimModelClass {
   return shim;
 }
 
-function mapFromHash<T>(hash: Dict<T>): Map<string, T> {
+function mapFromHash<T>(hash: Record<string, T>): Map<string, T> {
   let map = new Map();
   for (let i in hash) {
     if (Object.prototype.hasOwnProperty.call(hash, i)) {

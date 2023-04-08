@@ -3,7 +3,6 @@ import { assert } from '@ember/debug';
 import { importSync } from '@embroider/macros';
 
 import { LOG_PAYLOADS } from '@ember-data/debugging';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
@@ -18,12 +17,11 @@ import type {
   SingleResourceDocument,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
+import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
-import { guardDestroyedStore } from './common';
 import FetchManager, { SaveOp } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
@@ -189,6 +187,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
           console.log(`EmberData | Payload - ${operation!}`, payload);
         }
       }
+      let actualIdentifier: StableRecordIdentifier = identifier;
       /*
       // TODO @runspired re-evaluate the below claim now that
       // the save request pipeline is more streamlined.
@@ -211,20 +210,19 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
         }
 
         const identifierCache = store.identifierCache;
-        let actualIdentifier = identifier;
         if (operation !== 'deleteRecord' && data) {
           actualIdentifier = identifierCache.updateRecordIdentifier(identifier, data);
         }
 
         //We first make sure the primary data has been updated
-        const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(actualIdentifier) : store.cache;
-        cache.didCommit(identifier, data);
+        const cache = store.cache;
+        cache.didCommit(actualIdentifier, data);
 
         if (payload && payload.included) {
           store._push({ data: null, included: payload.included }, true);
         }
       });
-      return store.peekRecord(identifier);
+      return store.peekRecord(actualIdentifier);
     })
     .catch((e: unknown) => {
       let err = e;
@@ -256,7 +254,7 @@ function adapterDidInvalidate(
       error.errors = errorsHashToArray(errorsHash);
     }
   }
-  const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+  const cache = store.cache;
 
   if (error.errors) {
     assert(
@@ -435,7 +433,6 @@ function _findAll<T>(
   let promise: Promise<T> = Promise.resolve().then(() =>
     adapter.findAll(store, schema, null, snapshotArray)
   ) as Promise<T>;
-  promise = guardDestroyedStore(promise, store) as Promise<T>;
 
   promise = promise.then((adapterPayload: T) => {
     assert(
@@ -498,8 +495,6 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   const schema = store.modelFor(type);
   let promise = Promise.resolve().then(() => adapter.query(store, schema, query, recordArray, options));
 
-  promise = guardDestroyedStore(promise, store) as Promise<AdapterPayload>;
-
   return promise.then((adapterPayload) => {
     const serializer = store.serializerFor(type);
     const payload = normalizeResponseHelper(
@@ -543,8 +538,6 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
 
   const schema = store.modelFor(type);
   let promise = Promise.resolve().then(() => adapter.queryRecord(store, schema, query, options)) as Promise<T>;
-
-  promise = guardDestroyedStore(promise, store) as Promise<T>;
 
   return promise.then((adapterPayload: T) => {
     const serializer = store.serializerFor(type);

@@ -1,9 +1,7 @@
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 
-import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE, DEPRECATE_RSVP_PROMISE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import { iterateData, payloadIsNotBlank } from './legacy-data-utils';
 import { normalizeResponseHelper } from './serializer-response';
 
@@ -15,29 +13,8 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
     return adapter.findHasMany(store, snapshot, relatedLink, relationship);
   });
 
-  promise = guardDestroyedStore(promise, store);
   promise = promise.then(
     (adapterPayload) => {
-      const record = store._instanceCache.getRecord(identifier);
-
-      if (!_objectIsAlive(record)) {
-        if (DEPRECATE_RSVP_PROMISE) {
-          deprecate(
-            `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
-            false,
-            {
-              id: 'ember-data:rsvp-unresolved-async',
-              until: '5.0',
-              for: '@ember-data/store',
-              since: {
-                available: '4.5',
-                enabled: '4.5',
-              },
-            }
-          );
-        }
-      }
-
       assert(
         `You made a 'findHasMany' request for a ${identifier.type}'s '${relationship.key}' relationship, using link '${link}' , but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
@@ -59,12 +36,6 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
     `DS: Extract payload of '${identifier.type}' : hasMany '${relationship.type}'`
   );
 
-  if (DEPRECATE_RSVP_PROMISE) {
-    const record = store._instanceCache.getRecord(identifier);
-
-    promise = _guard(promise, _bind(_objectIsAlive, record));
-  }
-
   return promise;
 }
 
@@ -82,34 +53,8 @@ export function _findBelongsTo(store, identifier, link, relationship, options) {
     return adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
   });
 
-  if (DEPRECATE_RSVP_PROMISE) {
-    const record = store._instanceCache.getRecord(identifier);
-    promise = guardDestroyedStore(promise, store);
-    promise = _guard(promise, _bind(_objectIsAlive, record));
-  }
-
   promise = promise.then(
     (adapterPayload) => {
-      if (DEPRECATE_RSVP_PROMISE) {
-        const record = store._instanceCache.getRecord(identifier);
-
-        if (!_objectIsAlive(record)) {
-          deprecate(
-            `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
-            false,
-            {
-              id: 'ember-data:rsvp-unresolved-async',
-              until: '5.0',
-              for: '@ember-data/store',
-              since: {
-                available: '4.5',
-                enabled: '4.5',
-              },
-            }
-          );
-        }
-      }
-
       let modelClass = store.modelFor(relationship.type);
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
@@ -236,22 +181,12 @@ function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, paren
   }
 }
 
-function metaIsRelationshipDefinition(meta) {
-  return typeof meta._inverseKey === 'function';
-}
-
 function inverseForRelationship(store, identifier, key) {
   const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
   if (!definition) {
     return null;
   }
 
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
-    if (metaIsRelationshipDefinition(definition)) {
-      const modelClass = store.modelFor(identifier.type);
-      return definition._inverseKey(store, modelClass);
-    }
-  }
   assert(
     `Expected the relationship defintion to specify the inverse type or null.`,
     definition.options?.inverse === null ||

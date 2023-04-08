@@ -9,7 +9,6 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/relationships/one_to_one_test - OneToOne relationships', function (hooks) {
@@ -449,123 +448,6 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     assert.strictEqual(job.user, user, 'User relationship was set up correctly');
   });
 
-  deprecatedTest(
-    'Setting a BelongsTo to a promise unwraps the promise before setting- async',
-    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
-    function (assert) {
-      let store = this.owner.lookup('service:store');
-
-      var stanley, stanleysFriend, newFriend;
-      run(function () {
-        stanley = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Stanley',
-            },
-            relationships: {
-              bestFriend: {
-                data: {
-                  id: '2',
-                  type: 'user',
-                },
-              },
-            },
-          },
-        });
-        stanleysFriend = store.push({
-          data: {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: "Stanley's friend",
-            },
-          },
-        });
-        newFriend = store.push({
-          data: {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'New friend',
-            },
-          },
-        });
-      });
-      run(function () {
-        newFriend.set('bestFriend', stanleysFriend.bestFriend);
-        stanley.bestFriend.then(function (fetchedUser) {
-          assert.strictEqual(
-            fetchedUser,
-            newFriend,
-            `Stanley's bestFriend relationship was updated correctly to newFriend`
-          );
-        });
-        newFriend.bestFriend.then(function (fetchedUser) {
-          assert.strictEqual(
-            fetchedUser,
-            stanley,
-            `newFriend's bestFriend relationship was updated correctly to be Stanley`
-          );
-        });
-      });
-    }
-  );
-
-  deprecatedTest(
-    'Setting a BelongsTo to a promise works when the promise returns null- async',
-    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
-    function (assert) {
-      let store = this.owner.lookup('service:store');
-
-      var igor, newFriend;
-      run(function () {
-        store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Stanley',
-            },
-          },
-        });
-        igor = store.push({
-          data: {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Igor',
-            },
-          },
-        });
-        newFriend = store.push({
-          data: {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'New friend',
-            },
-            relationships: {
-              bestFriend: {
-                data: {
-                  id: '1',
-                  type: 'user',
-                },
-              },
-            },
-          },
-        });
-      });
-      run(function () {
-        newFriend.set('bestFriend', igor.bestFriend);
-        newFriend.bestFriend.then(function (fetchedUser) {
-          assert.strictEqual(fetchedUser, null, 'User relationship was updated correctly');
-        });
-      });
-    }
-  );
-
   testInDebug("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function (assert) {
     let store = this.owner.lookup('service:store');
 
@@ -605,77 +487,6 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
     }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
   });
-
-  deprecatedTest(
-    'Setting a BelongsTo to a promise multiple times is resistant to race conditions when the first set resolves quicker',
-    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 2 },
-    async function (assert) {
-      const store = this.owner.lookup('service:store');
-      const adapter = store.adapterFor('application');
-
-      const stanley = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '2',
-                type: 'user',
-              },
-            },
-          },
-        },
-      });
-      const igor = store.push({
-        data: {
-          id: '3',
-          type: 'user',
-          attributes: {
-            name: 'Igor',
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '5',
-                type: 'user',
-              },
-            },
-          },
-        },
-      });
-      const newFriend = store.push({
-        data: {
-          id: '7',
-          type: 'user',
-          attributes: {
-            name: 'New friend',
-          },
-        },
-      });
-
-      adapter.findRecord = function (store, type, id, snapshot) {
-        if (id === '5') {
-          return resolve({ data: { id: '5', type: 'user', attributes: { name: "Igor's friend" } } });
-        } else if (id === '2') {
-          return resolve({ data: { id: '2', type: 'user', attributes: { name: "Stanley's friend" } } });
-        }
-      };
-
-      let stanleyPromise = stanley.bestFriend;
-      let igorPromise = igor.bestFriend;
-
-      await Promise.all([stanleyPromise, igorPromise]);
-      newFriend.bestFriend = stanleyPromise;
-      newFriend.bestFriend = igorPromise;
-
-      const fetchedUser = await newFriend.bestFriend;
-      assert.strictEqual(fetchedUser?.name, "Igor's friend", 'User relationship was updated correctly');
-    }
-  );
 
   test('Setting a OneToOne relationship to null reflects correctly on the other side - async', function (assert) {
     let store = this.owner.lookup('service:store');

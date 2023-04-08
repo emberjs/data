@@ -1,13 +1,11 @@
 import type { Value as JSONValue } from 'json-typescript';
 
-import type { Dict } from './utils';
-
 /**
   @module @ember-data/store
 */
 
-export type Meta = Dict<JSONValue>;
-export type LinkObject = { href: string; meta?: Dict<JSONValue> };
+export type Meta = Record<string, JSONValue>;
+export type LinkObject = { href: string; meta?: Record<string, JSONValue> };
 export type Link = string | LinkObject;
 export interface Links {
   related?: Link;
@@ -101,13 +99,13 @@ export type ResourceIdentifierObject =
 // TODO disallow NewResource, make narrowable
 export interface SingleResourceRelationship {
   data?: ExistingResourceIdentifierObject | NewResourceIdentifierObject | null;
-  meta?: Dict<JSONValue>;
+  meta?: Record<string, JSONValue>;
   links?: Links;
 }
 
 export interface CollectionResourceRelationship {
   data?: Array<ExistingResourceIdentifierObject | NewResourceIdentifierObject>;
-  meta?: Dict<JSONValue>;
+  meta?: Record<string, JSONValue>;
   links?: PaginationLinks;
 }
 
@@ -116,16 +114,16 @@ export interface CollectionResourceRelationship {
  * @internal
  */
 export interface ExistingResourceObject extends ExistingResourceIdentifierObject {
-  meta?: Dict<JSONValue>;
-  attributes?: Dict<JSONValue>;
-  relationships?: Dict<SingleResourceRelationship | CollectionResourceRelationship>;
+  meta?: Record<string, JSONValue>;
+  attributes?: Record<string, JSONValue>;
+  relationships?: Record<string, SingleResourceRelationship | CollectionResourceRelationship>;
   links?: Links;
 }
 
 interface Document {
-  meta?: Dict<JSONValue>;
+  meta?: Record<string, JSONValue>;
   included?: ExistingResourceObject[];
-  jsonapi?: Dict<JSONValue>;
+  jsonapi?: Record<string, JSONValue>;
   links?: Links | PaginationLinks;
   errors?: JSONValue[];
 }

@@ -27,7 +27,7 @@ import type {
 } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper, V2CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -38,7 +38,6 @@ import type {
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { Dict } from '@ember-data/types/q/utils';
 
 function isImplicit(
   relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
@@ -57,10 +56,10 @@ const EMPTY_ITERATOR = {
 };
 
 interface CachedResource {
-  remoteAttrs: Dict<unknown> | null;
-  localAttrs: Dict<unknown> | null;
-  inflightAttrs: Dict<unknown> | null;
-  changes: Dict<unknown[]> | null;
+  remoteAttrs: Record<string, unknown> | null;
+  localAttrs: Record<string, unknown> | null;
+  inflightAttrs: Record<string, unknown> | null;
+  changes: Record<string, unknown[]> | null;
   errors: JsonApiError[] | null;
   isNew: boolean;
   isDeleted: boolean;
@@ -113,12 +112,12 @@ export default class JSONAPICache implements Cache {
    * @property version
    */
   declare version: '2';
-  declare __storeWrapper: V2CacheStoreWrapper;
+  declare __storeWrapper: CacheStoreWrapper;
   declare __cache: Map<StableRecordIdentifier, CachedResource>;
   declare __destroyedCache: Map<StableRecordIdentifier, CachedResource>;
   declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
 
-  constructor(storeWrapper: V2CacheStoreWrapper) {
+  constructor(storeWrapper: CacheStoreWrapper) {
     this.version = '2';
     this.__storeWrapper = storeWrapper;
     this.__cache = new Map();
@@ -581,7 +580,10 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param createArgs
    */
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+  clientDidCreate(
+    identifier: StableRecordIdentifier,
+    options?: Record<string, unknown> | undefined
+  ): Record<string, unknown> {
     if (LOG_MUTATIONS) {
       try {
         let _data = options ? JSON.parse(JSON.stringify(options)) : options;
@@ -900,7 +902,6 @@ export default class JSONAPICache implements Cache {
    *
    * @method changedAttrs
    * @public
-   * @deprecated
    * @param identifier
    * @returns { <field>: [<old>, <new>] }
    */
@@ -1137,7 +1138,7 @@ export default class JSONAPICache implements Cache {
   }
 }
 
-function areAllModelsUnloaded(wrapper: V2CacheStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
+function areAllModelsUnloaded(wrapper: CacheStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
     let identifier = identifiers[i];
     if (wrapper.hasRecord(identifier)) {

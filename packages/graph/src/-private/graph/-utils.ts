@@ -5,7 +5,6 @@ import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { coerceId } from '../coerce-id';
 import type BelongsToRelationship from '../relationships/state/belongs-to';
@@ -18,12 +17,12 @@ export function getStore(wrapper: CacheStoreWrapper | { _store: Store }): Store 
   return wrapper._store;
 }
 
-export function expandingGet<T>(cache: Dict<Dict<T>>, key1: string, key2: string): T | undefined {
+export function expandingGet<T>(cache: Record<string, Record<string, T>>, key1: string, key2: string): T | undefined {
   let mainCache = (cache[key1] = cache[key1] || Object.create(null));
   return mainCache[key2];
 }
 
-export function expandingSet<T>(cache: Dict<Dict<T>>, key1: string, key2: string, value: T): void {
+export function expandingSet<T>(cache: Record<string, Record<string, T>>, key1: string, key2: string, value: T): void {
   let mainCache = (cache[key1] = cache[key1] || Object.create(null));
   mainCache[key2] = value;
 }

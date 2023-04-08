@@ -1,9 +1,8 @@
 /**
   @module @ember-data/store
 */
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
 import {
   IDENTIFIER_ARRAY_TAG,
@@ -21,7 +20,6 @@ import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { LegacySupport } from './legacy-relationships-support';
 
@@ -34,7 +32,7 @@ export interface ManyArrayCreateArgs {
 
   identifier: StableRecordIdentifier;
   cache: Cache;
-  meta: Dict<unknown> | null;
+  meta: Record<string, unknown> | null;
   links: Links | PaginationLinks | null;
   key: string;
   isPolymorphic: boolean;
@@ -140,7 +138,7 @@ export default class RelatedCollection extends RecordArray {
     @property {Object | null} meta
     @public
     */
-  declare meta: Dict<unknown> | null;
+  declare meta: Record<string, unknown> | null;
   /**
      * Retrieve the links for this relationship
      *
@@ -375,35 +373,6 @@ function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordI
 }
 
 function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance) {
-  if (DEPRECATE_PROMISE_PROXIES) {
-    if (isPromiseRecord(recordOrPromiseRecord)) {
-      let content = recordOrPromiseRecord.content;
-      assert(
-        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
-        content !== undefined && content !== null
-      );
-      deprecate(
-        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
-        false,
-        {
-          id: 'ember-data:deprecate-promise-proxies',
-          until: '5.0',
-          since: {
-            enabled: '4.7',
-            available: '4.7',
-          },
-          for: 'ember-data',
-        }
-      );
-      assertRecordPassedToHasMany(content);
-      return recordIdentifierFor(content);
-    }
-  }
-
   assertRecordPassedToHasMany(recordOrPromiseRecord);
   return recordIdentifierFor(recordOrPromiseRecord);
-}
-
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
 }

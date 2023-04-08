@@ -5,12 +5,10 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import { DEPRECATE_ARRAY_LIKE } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT, PromiseManyArray } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
@@ -2088,7 +2086,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
   });
 
   test('possible to replace items in a relationship using setObjects w/ Ember Enumerable Array/Object as the argument (GH-2533)', function (assert) {
-    assert.expect(DEPRECATE_ARRAY_LIKE ? 3 : 2);
+    assert.expect(2);
 
     const Tag = Model.extend({
       name: attr('string'),
@@ -2152,77 +2150,12 @@ module('unit/model/relationships - hasMany', function (hooks) {
     let sylvain = store.peekRecord('person', '2');
     // Test that since sylvain.tags instanceof ManyArray,
     // adding records on Relationship iterates correctly.
-    if (DEPRECATE_ARRAY_LIKE) {
-      tom.tags.setObjects(sylvain.tags);
-      assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
-    } else {
-      tom.tags.length = 0;
-      tom.tags.push(...sylvain.tags);
-    }
+    tom.tags.length = 0;
+    tom.tags.push(...sylvain.tags);
 
     assert.strictEqual(tom.tags.length, 1);
     assert.strictEqual(tom.tags.at(0), store.peekRecord('tag', 2));
   });
-
-  deprecatedTest(
-    'Replacing `has-many` with non-array will throw assertion',
-    { id: 'ember-data:deprecate-array-like', until: '5.0' },
-    function (assert) {
-      assert.expect(1);
-
-      const Tag = Model.extend({
-        name: attr('string'),
-        person: belongsTo('person', { async: false, inverse: 'tags' }),
-      });
-
-      const Person = Model.extend({
-        name: attr('string'),
-        tags: hasMany('tag', { async: false, inverse: 'person' }),
-      });
-
-      this.owner.register('model:tag', Tag);
-      this.owner.register('model:person', Person);
-
-      let store = this.owner.lookup('service:store');
-
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              tags: {
-                data: [{ type: 'tag', id: '1' }],
-              },
-            },
-          },
-          {
-            type: 'tag',
-            id: '1',
-            attributes: {
-              name: 'ember',
-            },
-          },
-          {
-            type: 'tag',
-            id: '2',
-            attributes: {
-              name: 'ember-data',
-            },
-          },
-        ],
-      });
-
-      let tom = store.peekRecord('person', '1');
-      let tag = store.peekRecord('tag', '2');
-      assert.expectAssertion(() => {
-        tom.tags.setObjects(tag);
-      }, /Assertion Failed: ManyArray.setObjects expects to receive an array as its argument/);
-    }
-  );
 
   test('it is possible to remove an item from a relationship', async function (assert) {
     assert.expect(2);
@@ -2775,40 +2708,4 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     await settled();
   });
-
-  deprecatedTest(
-    'checks if passed array only contains instances of Model',
-    { id: 'ember-data:deprecate-promise-proxies', count: 4, until: '5.0' },
-    async function (assert) {
-      const Person = Model.extend();
-      const Tag = Model.extend({
-        people: hasMany('person', { async: true, inverse: null }),
-      });
-
-      this.owner.register('model:tag', Tag);
-      this.owner.register('model:person', Person);
-
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
-
-      adapter.findRecord = function () {
-        return {
-          data: {
-            type: 'person',
-            id: '1',
-          },
-        };
-      };
-
-      let tag = store.createRecord('tag');
-      let person = store.findRecord('person', '1');
-      await person;
-
-      tag.people = [person];
-
-      assert.expectAssertion(() => {
-        tag.people = [person, {}];
-      }, /All elements of a hasMany relationship must be instances of Model/);
-    }
-  );
 });

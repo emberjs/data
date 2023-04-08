@@ -1,4 +1,3 @@
-import { deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
@@ -6,7 +5,6 @@ import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
 import { ManyArray } from 'ember-data/-private';
 
-import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
@@ -24,7 +22,6 @@ import type {
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
@@ -149,9 +146,7 @@ export default class HasManyReference {
   }
 
   _resource() {
-    const cache = DEPRECATE_V1_RECORD_DATA
-      ? this.store._instanceCache.getResourceCache(this.___identifier)
-      : this.store.cache;
+    const cache = this.store.cache;
     return cache.getRelationship(this.___identifier, this.key) as CollectionResourceRelationship;
   }
 
@@ -349,7 +344,7 @@ export default class HasManyReference {
   @return {Object} The meta information for the belongs-to relationship.
   */
   meta() {
-    let meta: Dict<JSONValue> | null = null;
+    let meta: Record<string, JSONValue> | null = null;
     let resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
@@ -406,28 +401,6 @@ export default class HasManyReference {
     objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
   ): Promise<ManyArray> {
     let payload = objectOrPromise;
-    if (DEPRECATE_PROMISE_PROXIES) {
-      if ((objectOrPromise as unknown as { then: unknown }).then) {
-        payload = await (objectOrPromise as unknown as Promise<
-          ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
-        >);
-        if (payload !== objectOrPromise) {
-          deprecate(
-            `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
-            false,
-            {
-              id: 'ember-data:deprecate-promise-proxies',
-              until: '5.0',
-              since: {
-                enabled: '4.7',
-                available: '4.7',
-              },
-              for: 'ember-data',
-            }
-          );
-        }
-      }
-    }
     let array: Array<ExistingResourceObject | SingleResourceDocument>;
 
     if (!Array.isArray(payload) && typeof payload === 'object' && Array.isArray(payload.data)) {

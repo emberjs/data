@@ -5,20 +5,19 @@ import type {
   Meta,
   SingleResourceRelationship,
 } from './ember-data-json-api';
-import type { Dict } from './utils';
 
 /**
   @module @ember-data/store
 */
 
-export type AttributesHash = Dict<unknown>;
+export type AttributesHash = Record<string, unknown>;
 
 export interface JsonApiResource {
   id?: string | null;
   type?: string;
   lid?: string;
   attributes?: AttributesHash;
-  relationships?: Dict<SingleResourceRelationship | CollectionResourceRelationship>;
+  relationships?: Record<string, SingleResourceRelationship | CollectionResourceRelationship>;
   meta?: Meta;
   links?: Links;
 }
