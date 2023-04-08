@@ -374,8 +374,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.4)(@glimmer/component@1.1.2)
@@ -475,8 +475,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.4)(@glimmer/component@1.1.2)
@@ -551,8 +551,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.4)(@glimmer/component@1.1.2)
@@ -623,8 +623,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       rollup:
         specifier: ^3.20.2
         version: 3.20.2
@@ -708,8 +708,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.4)(@glimmer/component@1.1.2)
@@ -859,8 +859,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       rollup:
         specifier: ^3.20.2
         version: 3.20.2
@@ -932,8 +932,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.4)(@glimmer/component@1.1.2)
@@ -1008,8 +1008,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.4)(@glimmer/component@1.1.2)
@@ -1069,8 +1069,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.21.4)(rollup@3.20.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@3.20.2)
+        specifier: ^15.0.2
+        version: 15.0.2(rollup@3.20.2)
       rollup:
         specifier: ^3.20.2
         version: 3.20.2
@@ -4713,8 +4713,8 @@ packages:
       rollup: 3.20.2
     dev: true
 
-  /@rollup/plugin-node-resolve@15.0.1(rollup@3.20.2):
-    resolution: {integrity: sha512-ReY88T7JhJjeRVbfCyNj+NXAG3IIsVMsX9b5/9jC98dRP8/yxlZdz7mHZbHk5zHr24wZZICS5AcXsFZAXYUQEg==}
+  /@rollup/plugin-node-resolve@15.0.2(rollup@3.20.2):
+    resolution: {integrity: sha512-Y35fRGUjC3FaurG722uhUuG8YHOJRJQbI6/CkbRkdPotSpDj9NtIN85z1zrcyDcCQIW4qp5mgG72U+gJ0TAFEg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.78.0||^3.0.0
