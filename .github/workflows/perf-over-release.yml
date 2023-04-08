@@ -90,7 +90,7 @@ jobs:
               }
             }
           fidelity: 60
-          control-sha: v4.11.3
+          control-sha: tags/v4.11.3
           experiment-sha: origin/release
           upload-traces: true
           upload-results: true
