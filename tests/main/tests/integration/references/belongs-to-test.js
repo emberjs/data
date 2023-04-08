@@ -252,7 +252,7 @@ module('integration/references/belongs-to', function (hooks) {
 
     await assert.expectAssertion(async function () {
       await familyReference.push(anotherPerson);
-    }, "The '<person>.family' relationship expects only 'family' records since it is not polymorphic. Received a Record of type 'person'");
+    }, "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. If this relationship should be polymorphic, mark person.family as `polymorphic: true` and person.persons as implementing it via `as: 'family'`.");
   });
 
   testInDebug('push(object) works with polymorphic types', async function (assert) {

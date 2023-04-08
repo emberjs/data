@@ -1,12 +1,14 @@
 import { assert } from '@ember/debug';
 
 import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@ember-data/deprecations';
+import { DEBUG } from '@ember-data/env';
 import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import { assertInheritedSchema } from '../debug/assert-polymorphic-type';
 import { expandingGet, expandingSet, getStore } from './-utils';
 import type { Graph } from './graph';
 
@@ -127,7 +129,24 @@ export interface EdgeDefinition {
   rhs_isPolymorphic: boolean;
 
   hasInverse: boolean;
+
+  /**
+   * Whether this relationship points back at the same type.
+   *
+   * If the relationship is polymorphic, this will be true if
+   * it points back at the same abstract type.
+   *
+   * @internal
+   */
   isSelfReferential: boolean;
+
+  /**
+   * If this is a reflexive relationship, this is true
+   * if the relationship also points back at the same
+   * field.
+   *
+   * @internal
+   */
   isReflexive: boolean;
 }
 
@@ -170,9 +189,109 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
   return niceMeta;
 }
 
+function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
+  if (DEBUG) {
+    let isSelfReferential = info.isSelfReferential;
+
+    if (isSelfReferential) {
+      return true;
+    }
+
+    let isRHS =
+      key === info.rhs_relationshipName &&
+      (type === info.rhs_baseModelName || // base or non-polymorphic
+        // if the other side is polymorphic then we need to scan our modelNames
+        (info.lhs_isPolymorphic && info.rhs_modelNames.indexOf(type) !== -1)); // polymorphic
+    let isLHS =
+      key === info.lhs_relationshipName &&
+      (type === info.lhs_baseModelName || // base or non-polymorphic
+        // if the other side is polymorphic then we need to scan our modelNames
+        (info.rhs_isPolymorphic && info.lhs_modelNames.indexOf(type) !== -1)); // polymorphic;
+
+    if (!isRHS && !isLHS) {
+      /*
+        this occurs when we are likely polymorphic but not configured to be polymorphic
+        most often due to extending a class that has a relationship definition on it.
+
+        e.g.
+
+        ```ts
+        class Pet extends Model {
+          @belongsTo('human', { async: false, inverse: 'pet' }) owner;
+        }
+        class Human extends Model {
+          @belongsTo('pet', { async: false, inverse: 'owner' }) pet;
+        }
+        class Farmer extends Human {}
+        ```
+
+        In the above case, the following would trigger this error:
+
+        ```ts
+        let pet = store.createRecord('pet');
+        let farmer = store.createRecord('farmer');
+        farmer.pet = pet; // error
+        ```
+
+        The correct way to fix this is to specify the polymorphic option on Pet
+        and to specify the abstract type 'human' on the Human base class.
+
+        ```ts
+        class Pet extends Model {
+          @belongsTo('human', { async: false, inverse: 'pet', polymorphic: true }) owner;
+        }
+        class Human extends Model {
+          @belongsTo('pet', { async: false, inverse: 'owner', as: 'human' }) pet;
+        }
+        class Farmer extends Human {}
+        ```
+
+        Alternatively both Human and Farmer could declare the relationship, because relationship
+        definitions are "structural".
+
+        ```ts
+        class Pet extends Model {
+          @belongsTo('human', { async: false, inverse: 'pet', polymorphic: true }) owner;
+        }
+        class Human extends Model {
+          @belongsTo('pet', { async: false, inverse: 'owner', as: 'human' }) pet;
+        }
+        class Farmer extends Model {
+          @belongsTo('pet', { async: false, inverse: 'owner', as: 'human' }) pet;
+        }
+        ```
+
+       */
+      if (key === info.lhs_relationshipName && info.lhs_modelNames.indexOf(type) !== -1) {
+        // parentIdentifier, parentDefinition, addedIdentifier, store
+        assertInheritedSchema(info.lhs_definition, type);
+      } else if (key === info.rhs_relationshipName && info.rhs_modelNames.indexOf(type) !== -1) {
+        assertInheritedSchema(info.lhs_definition, type);
+      }
+      // OPEN AN ISSUE :: we would like to improve our errors but need to understand what corner case got us here
+      throw new Error(
+        `PLEASE OPEN AN ISSUE :: Found a relationship that is neither the LHS nor RHS of the same edge. This is not supported. Please report this to the EmberData team.`
+      );
+    }
+
+    if (isRHS && isLHS) {
+      // not sure how we get here but it's probably the result of some form of inheritance
+      // without having specified polymorphism correctly leading to it not being self-referential
+      // OPEN AN ISSUE :: we would like to improve our errors but need to understand what corner case got us here
+      throw new Error(
+        `PLEASE OPEN AN ISSUE :: Found a relationship that is both the LHS and RHS of the same edge but is not self-referential. This is not supported. Please report this to the EmberData team.`
+      );
+    }
+  }
+}
+
 export function isLHS(info: EdgeDefinition, type: string, key: string): boolean {
   let isSelfReferential = info.isSelfReferential;
   let isRelationship = key === info.lhs_relationshipName;
+
+  if (DEBUG) {
+    assertConfiguration(info, type, key);
+  }
 
   if (isRelationship === true) {
     return (
@@ -189,6 +308,10 @@ export function isLHS(info: EdgeDefinition, type: string, key: string): boolean 
 export function isRHS(info: EdgeDefinition, type: string, key: string): boolean {
   let isSelfReferential = info.isSelfReferential;
   let isRelationship = key === info.rhs_relationshipName;
+
+  if (DEBUG) {
+    assertConfiguration(info, type, key);
+  }
 
   if (isRelationship === true) {
     return (
@@ -230,12 +353,15 @@ export function upgradeDefinition(
   let meta = relationships[propertyName];
 
   if (!meta) {
+    // TODO potentially we should just be permissive here since this is an implicit relationship
+    // and not require the lookup table to be populated
     if (polymorphicLookup[type]) {
       const altTypes = Object.keys(polymorphicLookup[type] as {});
       for (let i = 0; i < altTypes.length; i++) {
         let cached = expandingGet<EdgeDefinition | null>(cache, altTypes[i], propertyName);
         if (cached) {
           expandingSet<EdgeDefinition | null>(cache, type, propertyName, cached);
+          cached.rhs_modelNames.push(type);
           return cached;
         }
       }
@@ -318,10 +444,10 @@ export function upgradeDefinition(
       lhs_definition: definition,
       lhs_isPolymorphic: definition.isPolymorphic,
 
-      rhs_key: '',
-      rhs_modelNames: [],
+      rhs_key: inverseDefinition.key,
+      rhs_modelNames: [inverseType],
       rhs_baseModelName: inverseType,
-      rhs_relationshipName: '',
+      rhs_relationshipName: inverseDefinition.key,
       rhs_definition: inverseDefinition,
       rhs_isPolymorphic: false,
 
@@ -374,7 +500,7 @@ export function upgradeDefinition(
   if (type !== baseType) {
     lhs_modelNames.push(baseType);
   }
-  const isSelfReferential = type === inverseType;
+  const isSelfReferential = baseType === inverseType;
   const info = {
     lhs_key: `${baseType}:${propertyName}`,
     lhs_modelNames,
