@@ -23,6 +23,7 @@ jobs:
         with:
           fetch-depth: 3
       - run: git fetch origin main --depth=1
+      - run: git fetch origin release --depth=1 --tags
       - name: Check SHA
         run: |
           sha=$(git rev-parse --short=8 HEAD)
