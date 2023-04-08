@@ -49,8 +49,8 @@ class TestStore extends Store {
 type Schemas<T extends string> = Record<T, { attributes: AttributesSchema; relationships: RelationshipsSchema }>;
 class TestSchema<T extends string> {
   declare schemas: Schemas<T>;
-  constructor(schemas: Schemas<T>) {
-    this.schemas = schemas;
+  constructor(schemas?: Schemas<T>) {
+    this.schemas = schemas || ({} as Schemas<T>);
   }
 
   attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
@@ -62,7 +62,7 @@ class TestSchema<T extends string> {
   }
 
   doesTypeExist(type: string) {
-    return type === 'user';
+    return type in this.schemas ? true : Object.keys(this.schemas).length === 0 ? true : false;
   }
 }
 
@@ -75,6 +75,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test('simple single resource documents are correctly managed', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
+    store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
       content: {
@@ -88,6 +89,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test('single resource documents are correctly cached', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
+    store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users/1' },
@@ -124,6 +126,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test('data documents respect cacheOptions.key', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
+    store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users/1', cacheOptions: { key: 'user-1' } },
@@ -166,6 +169,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   test("notifications are generated for create and update of the document's cache key", function (assert) {
     assert.expect(10);
     const store = this.owner.lookup('service:store') as Store;
+    store.registerSchemaDefinitionService(new TestSchema());
     const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
       url: '/api/v1/query?type=user&name=Chris&limit=1',
     })!;
@@ -222,6 +226,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test('resources are accessible via `peek`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
+    store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
       content: {

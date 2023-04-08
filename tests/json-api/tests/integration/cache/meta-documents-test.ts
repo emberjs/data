@@ -13,10 +13,31 @@ import type {
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
+import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
 class TestStore extends Store {
   createCache(wrapper: CacheStoreWrapper) {
     return new Cache(wrapper);
+  }
+}
+
+type Schemas<T extends string> = Record<T, { attributes: AttributesSchema; relationships: RelationshipsSchema }>;
+class TestSchema<T extends string> {
+  declare schemas: Schemas<T>;
+  constructor(schemas?: Schemas<T>) {
+    this.schemas = schemas || ({} as Schemas<T>);
+  }
+
+  attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
+    return this.schemas[identifier.type]?.attributes || {};
+  }
+
+  relationshipsDefinitionFor(identifier: { type: T }): RelationshipsSchema {
+    return this.schemas[identifier.type]?.relationships || {};
+  }
+
+  doesTypeExist(type: string) {
+    return type in this.schemas ? true : Object.keys(this.schemas).length === 0 ? true : false;
   }
 }
 
@@ -185,6 +206,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
   test('updating cache with a meta document disregards prior data', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
+    store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users' },
