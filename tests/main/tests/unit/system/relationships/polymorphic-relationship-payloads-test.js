@@ -519,14 +519,14 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
   });
 
   test('push polymorphic self-referential non-reflexive relationship', function (assert) {
-    let Hat = Model.extend({
-      type: attr('string'),
-      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true, as: 'hat' }),
-      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true, as: 'hat' }),
-    });
+    class Hat extends Model {
+      @attr type;
+      @belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true, as: 'hat' }) hat;
+      @hasMany('hat', { async: false, inverse: 'hat', polymorphic: true, as: 'hat' }) hats;
+    }
 
     this.owner.register('model:hat', Hat);
-    this.owner.register('model:big-hat', Hat.extend({}));
+    this.owner.register('model:big-hat', class extends Hat {});
 
     const hat1Data = {
       data: {
@@ -548,8 +548,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       },
     };
 
-    const hat1 = run(() => this.store.push(hat1Data));
-    const hat2 = run(() => this.store.push(hat2Data));
+    const hat1 = this.store.push(hat1Data);
+    const hat2 = this.store.push(hat2Data);
 
     const expectedHatReference = { id: '2', type: 'big-hat' };
     const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];

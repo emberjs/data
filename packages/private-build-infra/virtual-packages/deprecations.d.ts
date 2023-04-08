@@ -21,5 +21,4 @@ export const DEPRECATE_A_USAGE: boolean;
 export const DEPRECATE_PROMISE_PROXIES: boolean;
 export const DEPRECATE_ARRAY_LIKE: boolean;
 export const DEPRECATE_COMPUTED_CHAINS: boolean;
-export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM: boolean;
 export const DEPRECATE_INSTANTIATE_RECORD_ARGS: boolean;

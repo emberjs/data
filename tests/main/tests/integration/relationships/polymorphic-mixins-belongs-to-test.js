@@ -136,9 +136,30 @@ module(
           ],
         });
 
-        assert.expectAssertion(function () {
-          user.bestMessage = video;
-        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message'/);
+        assert.expectAssertion(
+          function () {
+            user.bestMessage = video;
+          },
+          `No 'user' field exists on 'not-message'. To use this type in the polymorphic relationship 'user.bestMessage' the relationships schema definition for not-message should include:
+
+\`\`\`
+{
+  user: {
+    name: 'user',
+    type: 'user',
+    kind: 'belongsTo',
+    options: {
+      as: 'message',
+      async: true,
+      polymorphic: false,
+      inverse: 'bestMessage'
+    }
+  }
+}
+\`\`\`
+
+`
+        );
       }
     );
   }

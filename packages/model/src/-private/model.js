@@ -14,7 +14,6 @@ import { importSync } from '@embroider/macros';
 import {
   DEPRECATE_EARLY_STATIC,
   DEPRECATE_MODEL_REOPEN,
-  DEPRECATE_NON_EXPLICIT_POLYMORPHISM,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_SAVE_PROMISE_ACCESS,
 } from '@ember-data/deprecations';
@@ -1506,58 +1505,28 @@ class Model extends EmberObject {
     // ensure inverse is properly configured
     if (DEBUG) {
       if (isPolymorphic) {
-        if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
-          if (!inverseOptions.as) {
-            deprecate(
-              `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
-              false,
-              {
-                id: 'ember-data:non-explicit-relationships',
-                since: { enabled: '4.7', available: '4.7' },
-                until: '5.0',
-                for: 'ember-data',
-              }
-            );
-          }
-        } else {
-          assert(
-            `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
-            inverseOptions.as
-          );
-          assert(
-            `options.as should match the expected type of the polymorphic relationship. Expected field '${fieldOnInverse}' on type '${inverseSchema.modelName}' to specify '${relationship.type}' but found '${inverseOptions.as}'`,
-            !!inverseOptions.as && relationship.type === inverseOptions.as
-          );
-        }
+        assert(
+          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
+          inverseOptions.as
+        );
+        assert(
+          `options.as should match the expected type of the polymorphic relationship. Expected field '${fieldOnInverse}' on type '${inverseSchema.modelName}' to specify '${relationship.type}' but found '${inverseOptions.as}'`,
+          !!inverseOptions.as && relationship.type === inverseOptions.as
+        );
       }
     }
 
     // ensure we are properly configured
     if (DEBUG) {
       if (inverseOptions.polymorphic) {
-        if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
-          if (!options.as) {
-            deprecate(
-              `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
-              false,
-              {
-                id: 'ember-data:non-explicit-relationships',
-                since: { enabled: '4.7', available: '4.7' },
-                until: '5.0',
-                for: 'ember-data',
-              }
-            );
-          }
-        } else {
-          assert(
-            `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
-            options.as
-          );
-          assert(
-            `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${this.modelName}' to specify '${inverseRelationship.type}' but found '${options.as}'`,
-            !!options.as && inverseRelationship.type === options.as
-          );
-        }
+        assert(
+          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
+          options.as
+        );
+        assert(
+          `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${this.modelName}' to specify '${inverseRelationship.type}' but found '${options.as}'`,
+          !!options.as && inverseRelationship.type === options.as
+        );
       }
     }
 
@@ -1890,6 +1859,11 @@ class Model extends EmberObject {
         meta.name = name;
         meta.parentModelName = modelName;
         relationships[name] = DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE ? relationshipFromMeta(meta) : meta;
+
+        assert(
+          `You should not specify both options.as and options.inverse as null on ${modelName}.${meta.name}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
+          !(meta.options.inverse === null && meta.options.as?.length > 0)
+        );
       }
     });
     return relationships;

@@ -116,6 +116,13 @@ export class Graph {
     if (!relationship) {
       const info = upgradeDefinition(this, identifier, propertyName);
       assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
+
+      if (info.rhs_definition?.kind === 'implicit') {
+        // we should possibly also do this
+        // but it would result in being extremely permissive for other relationships by accident
+        // this.registerPolymorphicType(info.rhs_baseModelName, identifier.type);
+      }
+
       const meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
 
       if (meta.kind !== 'implicit') {

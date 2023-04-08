@@ -184,9 +184,30 @@ module(
         });
 
         const fetchedMessages = await user.messages;
-        assert.expectAssertion(function () {
-          fetchedMessages.push(notMessage);
-        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message/);
+        assert.expectAssertion(
+          function () {
+            fetchedMessages.push(notMessage);
+          },
+          `No 'user' field exists on 'not-message'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for not-message should include:
+
+\`\`\`
+{
+  user: {
+    name: 'user',
+    type: 'user',
+    kind: 'belongsTo',
+    options: {
+      as: 'message',
+      async: true,
+      polymorphic: false,
+      inverse: 'messages'
+    }
+  }
+}
+\`\`\`
+
+`
+        );
       }
     );
 
@@ -222,44 +243,5 @@ module(
       const fetchedUser = await video.user;
       assert.strictEqual(fetchedUser, user, 'user got set correctly');
     });
-
-    /*
-    Local edits
-  */
-    testInDebug(
-      'Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true',
-      async function (assert) {
-        const store = this.owner.lookup('service:store');
-
-        const [user, notMessage] = store.push({
-          data: [
-            {
-              type: 'user',
-              id: '1',
-              attributes: {
-                name: 'Stanley',
-              },
-              relationships: {
-                messages: {
-                  data: [],
-                },
-              },
-            },
-            {
-              type: 'not-message',
-              id: '2',
-              attributes: {
-                video: 'Here comes Youtube',
-              },
-            },
-          ],
-        });
-
-        const fetchedMessages = await user.messages;
-        assert.expectAssertion(function () {
-          fetchedMessages.push(notMessage);
-        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
-      }
-    );
   }
 );
