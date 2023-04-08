@@ -169,8 +169,6 @@ import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
   AbortError,
   ConflictError,
-  errorsArrayToHash,
-  errorsHashToArray,
   ForbiddenError,
   InvalidError,
   NotFoundError,
@@ -187,7 +185,6 @@ import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 import Transform from '@ember-data/serializer/transform';
-import { normalizeModelName } from '@ember-data/store';
 
 import {
   DS,
@@ -227,9 +224,6 @@ DS.NotFoundError = NotFoundError;
 DS.ConflictError = ConflictError;
 DS.ServerError = ServerError;
 
-DS.errorsHashToArray = errorsHashToArray;
-DS.errorsArrayToHash = errorsArrayToHash;
-
 DS.Serializer = Serializer;
 
 if (macroCondition(dependencySatisfies('@ember-data/debug', '*'))) {
@@ -261,12 +255,5 @@ DS.belongsTo = belongsTo;
 DS.hasMany = hasMany;
 
 DS._setupContainer = setupContainer;
-
-Object.defineProperty(DS, 'normalizeModelName', {
-  enumerable: true,
-  writable: false,
-  configurable: false,
-  value: normalizeModelName,
-});
 
 export default DS;

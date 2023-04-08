@@ -50,17 +50,16 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.strictEqual(recordArray.links, 'foo');
   });
 
-  testInDebug('#replace() throws error', function (assert) {
+  testInDebug('mutation throws error', function (assert) {
     let recordArray = new AdapterPopulatedRecordArray({ type: 'recordType', identifiers: [] });
 
     assert.throws(
       () => {
-        recordArray.replace();
+        recordArray.splice(0, 1);
       },
       Error('Assertion Failed: Mutating this array of records via splice is not allowed.'),
       'throws error'
     );
-    assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
   });
 
   test('#update uses _update enabling query specific behavior', async function (assert) {

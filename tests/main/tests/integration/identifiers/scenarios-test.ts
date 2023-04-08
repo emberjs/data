@@ -23,7 +23,6 @@ import type {
   StableIdentifier,
   StableRecordIdentifier,
 } from '@ember-data/types/q/identifier';
-import type { ConfidentDict } from '@ember-data/types/q/utils';
 
 function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;
@@ -40,8 +39,8 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     let calls;
     let isQuery = false;
     let secondaryCache: {
-      id: ConfidentDict<string>;
-      username: ConfidentDict<string>;
+      id: { [key: string]: string };
+      username: { [key: string]: string };
     };
     class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
@@ -252,7 +251,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
   module('Secondary Cache using an attribute as an alternate id', function (hooks) {
     let calls;
     let isQuery = false;
-    let secondaryCache: ConfidentDict<string>;
+    let secondaryCache: { [key: string]: string };
     class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;

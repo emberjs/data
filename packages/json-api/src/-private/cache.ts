@@ -27,7 +27,7 @@ import type {
 } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper, V2CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -38,7 +38,6 @@ import type {
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { Dict } from '@ember-data/types/q/utils';
 
 function isImplicit(
   relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
@@ -57,10 +56,10 @@ const EMPTY_ITERATOR = {
 };
 
 interface CachedResource {
-  remoteAttrs: Dict<unknown> | null;
-  localAttrs: Dict<unknown> | null;
-  inflightAttrs: Dict<unknown> | null;
-  changes: Dict<unknown[]> | null;
+  remoteAttrs: Record<string, unknown> | null;
+  localAttrs: Record<string, unknown> | null;
+  inflightAttrs: Record<string, unknown> | null;
+  changes: Record<string, unknown[]> | null;
   errors: JsonApiError[] | null;
   isNew: boolean;
   isDeleted: boolean;
@@ -113,12 +112,12 @@ export default class JSONAPICache implements Cache {
    * @property version
    */
   declare version: '2';
-  declare __storeWrapper: V2CacheStoreWrapper;
+  declare __storeWrapper: CacheStoreWrapper;
   declare __cache: Map<StableRecordIdentifier, CachedResource>;
   declare __destroyedCache: Map<StableRecordIdentifier, CachedResource>;
   declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
 
-  constructor(storeWrapper: V2CacheStoreWrapper) {
+  constructor(storeWrapper: CacheStoreWrapper) {
     this.version = '2';
     this.__storeWrapper = storeWrapper;
     this.__cache = new Map();
@@ -172,6 +171,10 @@ export default class JSONAPICache implements Cache {
   put<T extends ResourceErrorDocument>(doc: StructuredErrorDocument<T>): ResourceErrorDocument;
   put<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
   put(doc: StructuredDocument<ResourceDocument>): ResourceDocument {
+    assert(
+      `Expected a JSON:API Document as the content provided to the cache, received ${doc.content}`,
+      doc instanceof Error || (typeof doc.content === 'object' && doc.content !== null)
+    );
     if (isErrorDocument(doc)) {
       return this._putDocument(doc as StructuredErrorDocument<ResourceErrorDocument>);
     } else if (isMetaDocument(doc)) {
@@ -204,7 +207,7 @@ export default class JSONAPICache implements Cache {
     }
 
     assert(
-      `Expected an object in the 'data' property in a call to 'push', but was ${typeof jsonApiDoc.data}`,
+      `Expected a resource object in the 'data' property in the document provided to the cache, but was ${typeof jsonApiDoc.data}`,
       typeof jsonApiDoc.data === 'object'
     );
 
@@ -581,7 +584,10 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param createArgs
    */
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+  clientDidCreate(
+    identifier: StableRecordIdentifier,
+    options?: Record<string, unknown> | undefined
+  ): Record<string, unknown> {
     if (LOG_MUTATIONS) {
       try {
         let _data = options ? JSON.parse(JSON.stringify(options)) : options;
@@ -900,7 +906,6 @@ export default class JSONAPICache implements Cache {
    *
    * @method changedAttrs
    * @public
-   * @deprecated
    * @param identifier
    * @returns { <field>: [<old>, <new>] }
    */
@@ -1137,7 +1142,7 @@ export default class JSONAPICache implements Cache {
   }
 }
 
-function areAllModelsUnloaded(wrapper: V2CacheStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
+function areAllModelsUnloaded(wrapper: CacheStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
     let identifier = identifiers[i];
     if (wrapper.hasRecord(identifier)) {
@@ -1341,6 +1346,14 @@ function putOne(
   identifiers: IdentifierCache,
   resource: ExistingResourceObject
 ): StableExistingRecordIdentifier {
+  assert(
+    `You must include an 'id' for the resource data ${resource.type}`,
+    resource.id !== null && resource.id !== undefined && resource.id !== ''
+  );
+  assert(
+    `Missing Resource Type: received resource data with a type '${resource.type}' but no schema could be found with that name.`,
+    cache.__storeWrapper.getSchemaDefinitionService().doesTypeExist(resource.type)
+  );
   let identifier: StableRecordIdentifier | undefined = identifiers.peekRecordIdentifier(resource);
 
   if (identifier) {
@@ -1448,7 +1461,13 @@ function _allRelatedIdentifiers(
 function isMetaDocument(
   doc: StructuredDocument<ResourceDocument>
 ): doc is StructuredDataDocument<ResourceMetaDocument> {
-  return !(doc instanceof Error) && !('data' in doc.content) && !('included' in doc.content) && 'meta' in doc.content;
+  return (
+    !(doc instanceof Error) &&
+    doc.content &&
+    !('data' in doc.content) &&
+    !('included' in doc.content) &&
+    'meta' in doc.content
+  );
 }
 
 function isErrorDocument(

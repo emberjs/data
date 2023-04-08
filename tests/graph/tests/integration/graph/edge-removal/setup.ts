@@ -14,7 +14,6 @@ import type {
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { Dict } from '@ember-data/types/q/utils';
 
 class AbstractMap {
   constructor(private store: Store, private isImplicit: boolean) {}
@@ -45,7 +44,7 @@ class AbstractGraph {
     return graphFor(this.store).get(identifier, propertyName);
   }
 
-  getImplicit(identifier: StableRecordIdentifier): Dict<ImplicitRelationship> {
+  getImplicit(identifier: StableRecordIdentifier): Record<string, ImplicitRelationship> {
     const rels = graphFor(this.store).identifiers.get(identifier);
     let implicits = Object.create(null);
     if (rels) {

@@ -10,7 +10,6 @@ import { all, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -736,7 +735,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     let identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
@@ -794,7 +793,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     let identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     const bike = store.peekRecord('bike', '1');
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
@@ -847,7 +846,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     let identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 

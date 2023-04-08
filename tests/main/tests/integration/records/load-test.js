@@ -237,23 +237,20 @@ module('integration/load - Loading Records', function (hooks) {
 
     let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
     const instanceCache = store._instanceCache;
-    let cache = instanceCache.peek({ identifier, bucket: 'resourceCache' });
+    let cache = store.cache;
 
     // test that our initial state is correct
-    assert.strictEqual(cache, undefined, 'We begin in the empty state');
     assert.false(_isLoading(instanceCache, identifier), 'We have not triggered a load');
 
     let recordPromise = store.findRecord('person', '1');
 
     // test that during the initial load our state is correct
-    cache = instanceCache.peek({ identifier, bucket: 'resourceCache' });
-    assert.strictEqual(cache, undefined, 'awaiting first fetch: We remain in the empty state');
     assert.true(_isLoading(instanceCache, identifier), 'awaiting first fetch: We have now triggered a load');
 
     let record = await recordPromise;
 
     // test that after the initial load our state is correct
-    cache = instanceCache.peek({ identifier, bucket: 'resourceCache' });
+    cache = store.cache;
     assert.false(cache.isEmpty(identifier), 'after first fetch: We are no longer empty');
     assert.false(_isLoading(instanceCache, identifier), 'after first fetch: We have loaded');
     assert.false(record.isReloading, 'after first fetch: We are not reloading');
@@ -296,18 +293,13 @@ module('integration/load - Loading Records', function (hooks) {
     // test that during a reload-due-to-unload our state is correct
     //   This requires a retainer (the async bestFriend relationship)
     assert.true(cache.isEmpty(identifier), 'awaiting second find: We remain empty');
-    let newRecordData = instanceCache.peek({ identifier, bucket: 'resourceCache' });
-    assert.strictEqual(newRecordData, undefined, 'We have no resource data during second find');
     assert.true(_isLoading(instanceCache, identifier), 'awaiting second find: We are loading again');
     assert.false(record.isReloading, 'awaiting second find: We are not reloading');
 
     await recordPromise;
 
     // test that after the reload-due-to-unload our state is correct
-    newRecordData = instanceCache.peek({ identifier, bucket: 'resourceCache' });
     assert.false(cache.isEmpty(identifier), 'after second find: Our resource data is no longer empty');
-
-    assert.false(newRecordData.isEmpty(identifier), 'after second find: We are no longer empty');
     assert.false(_isLoading(instanceCache, identifier), 'after second find: We have loaded');
     assert.false(record.isReloading, 'after second find: We are not reloading');
   });

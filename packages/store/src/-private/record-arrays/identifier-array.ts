@@ -3,34 +3,23 @@
 */
 // @ts-expect-error
 import { tagForProperty } from '@ember/-internals/metal';
-import { assert, deprecate } from '@ember/debug';
-import { get, set } from '@ember/object';
+import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
-// eslint-disable-next-line no-restricted-imports
-import { compare } from '@ember/utils';
 import { tracked } from '@glimmer/tracking';
 // @ts-expect-error
 import { dirtyTag } from '@glimmer/validator';
 import Ember from 'ember';
 
-import {
-  DEPRECATE_A_USAGE,
-  DEPRECATE_ARRAY_LIKE,
-  DEPRECATE_COMPUTED_CHAINS,
-  DEPRECATE_PROMISE_PROXIES,
-  DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
-} from '@ember-data/deprecations';
+import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import { Dict } from '@ember-data/types/q/utils';
 
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type RecordArrayManager from '../managers/record-array-manager';
-import { PromiseArray, promiseArray } from '../proxies/promise-proxies';
 import type Store from '../store-service';
 
 type KeyType = string | symbol | number;
@@ -122,25 +111,12 @@ export type IdentifierArrayCreateOptions = {
   allowMutation: boolean;
   manager: RecordArrayManager;
   links?: Links | PaginationLinks | null;
-  meta?: Dict<unknown> | null;
+  meta?: Record<string, unknown> | null;
 };
-
-function deprecateArrayLike(className: string, fnName: string, replName: string) {
-  deprecate(
-    `The \`${fnName}\` method on the class ${className} is deprecated. Use the native array method \`${replName}\` instead.`,
-    false,
-    {
-      id: 'ember-data:deprecate-array-like',
-      until: '5.0',
-      since: { enabled: '4.7', available: '4.7' },
-      for: 'ember-data',
-    }
-  );
-}
 
 interface PrivateState {
   links: Links | PaginationLinks | null;
-  meta: Dict<unknown> | null;
+  meta: Record<string, unknown> | null;
 }
 type ForEachCB = (record: RecordInstance, index: number, context: IdentifierArray) => void;
 function safeForEach(
@@ -204,7 +180,7 @@ class IdentifierArray {
   isLoaded: boolean = true;
   isDestroying: boolean = false;
   isDestroyed: boolean = false;
-  _updatingPromise: PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> | null = null;
+  _updatingPromise: Promise<IdentifierArray> | null = null;
 
   [IS_COLLECTION] = true;
   [IDENTIFIER_ARRAY_TAG] = new Tag();
@@ -214,16 +190,7 @@ class IdentifierArray {
   }
 
   declare links: Links | PaginationLinks | null;
-  declare meta: Dict<unknown> | null;
-
-  /**
-   The modelClass represented by this record array.
-
-   @property type
-    @public
-    @deprecated
-   @type {subclass of Model}
-   */
+  declare meta: Record<string, unknown> | null;
   declare modelName?: string;
   /**
     The store that created this record array.
@@ -361,16 +328,6 @@ class IdentifierArray {
         }
 
         if (prop in self) {
-          if (DEPRECATE_ARRAY_LIKE) {
-            if (prop === 'firstObject') {
-              deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop, '[0]');
-              return receiver[0];
-            } else if (prop === 'lastObject') {
-              deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop, 'at(-1)');
-              return receiver[receiver.length - 1];
-            }
-          }
-
           if (prop === NOTIFY || prop === IDENTIFIER_ARRAY_TAG || prop === SOURCE) {
             return self[prop];
           }
@@ -418,7 +375,7 @@ class IdentifierArray {
           return true;
         }
         if (prop === 'meta') {
-          PrivateState.meta = (value || null) as Dict<unknown> | null;
+          PrivateState.meta = (value || null) as Record<string, unknown> | null;
           return true;
         }
         let index = convertToInt(prop);
@@ -460,22 +417,7 @@ class IdentifierArray {
       },
     }) as IdentifierArray;
 
-    if (DEPRECATE_A_USAGE) {
-      const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
-        deprecate(`Do not call A() on EmberData RecordArrays`, false, {
-          id: 'ember-data:no-a-with-array-like',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-          for: 'ember-data',
-        });
-        // @ts-expect-error ArrayMixin is more than a type
-        if (mixin === NativeArray || mixin === ArrayMixin) {
-          return true;
-        }
-        return false;
-      };
-    } else if (DEBUG) {
+    if (DEBUG) {
       const meta = Ember.meta(this);
       meta.hasMixin = (mixin: Object) => {
         assert(`Do not call A() on EmberData RecordArrays`);
@@ -507,7 +449,7 @@ class IdentifierArray {
     @method update
     @public
   */
-  update(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
+  update(): Promise<IdentifierArray> {
     if (this.isUpdating) {
       return this._updatingPromise!;
     }
@@ -532,7 +474,7 @@ class IdentifierArray {
     Update this RecordArray and return a promise which resolves once the update
     is finished.
    */
-  _update(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
+  _update(): Promise<IdentifierArray> {
     assert(`_update cannot be used with this array`, this.modelName);
     return this.store.findAll(this.modelName, { reload: true });
   }
@@ -553,14 +495,10 @@ class IdentifierArray {
 
     @method save
     @public
-    @return {PromiseArray} promise
+    @return {Promise<IdentifierArray>} promise
   */
-  save(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
+  save(): Promise<IdentifierArray> {
     let promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
-
-    if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray<RecordInstance, IdentifierArray>(promise);
-    }
 
     return promise;
   }
@@ -568,36 +506,13 @@ class IdentifierArray {
 
 export default IdentifierArray;
 
-if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
-  Object.defineProperty(IdentifierArray.prototype, 'type', {
-    get() {
-      deprecate(
-        `Using RecordArray.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
-        false,
-        {
-          id: 'ember-data:deprecate-snapshot-model-class-access',
-          until: '5.0',
-          for: 'ember-data',
-          since: { available: '4.5.0', enabled: '4.5.0' },
-        }
-      );
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (!this.modelName) {
-        return null;
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      return this.store.modelFor(this.modelName);
-    },
-  });
-}
-
 export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
-  query: ImmutableRequestInfo | Dict<unknown> | null;
+  query: ImmutableRequestInfo | Record<string, unknown> | null;
   isLoaded: boolean;
 };
 
 export class Collection extends IdentifierArray {
-  query: ImmutableRequestInfo | Dict<unknown> | null = null;
+  query: ImmutableRequestInfo | Record<string, unknown> | null = null;
 
   constructor(options: CollectionCreateOptions) {
     super(options as IdentifierArrayCreateOptions);
@@ -605,17 +520,14 @@ export class Collection extends IdentifierArray {
     this.isLoaded = options.isLoaded || false;
   }
 
-  _update(): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
+  _update(): Promise<Collection> {
     const { store, query } = this;
 
     // TODO save options from initial request?
     assert(`update cannot be used with this array`, this.modelName);
     assert(`update cannot be used with no query`, query);
-    const promise = store.query(this.modelName, query as Dict<unknown>, { _recordArray: this });
+    const promise = store.query(this.modelName, query as Record<string, unknown>, { _recordArray: this });
 
-    if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(promise);
-    }
     return promise;
   }
 
@@ -630,352 +542,6 @@ Collection.prototype.query = null;
 
 // Ensure instanceof works correctly
 //Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
-
-if (DEPRECATE_ARRAY_LIKE) {
-  IdentifierArray.prototype.DEPRECATED_CLASS_NAME = 'RecordArray';
-  Collection.prototype.DEPRECATED_CLASS_NAME = 'RecordArray';
-  const EmberObjectMethods = [
-    'addObserver',
-    'cacheFor',
-    'decrementProperty',
-    'get',
-    'getProperties',
-    'incrementProperty',
-    'notifyPropertyChange',
-    'removeObserver',
-    'set',
-    'setProperties',
-    'toggleProperty',
-  ];
-  EmberObjectMethods.forEach((method) => {
-    IdentifierArray.prototype[method] = function delegatedMethod(...args: unknown[]): unknown {
-      deprecate(
-        `The EmberObject ${method} method on the class ${this.DEPRECATED_CLASS_NAME} is deprecated. Use dot-notation javascript get/set access instead.`,
-        false,
-        {
-          id: 'ember-data:deprecate-array-like',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-          for: 'ember-data',
-        }
-      );
-      return (Ember[method] as (...args: unknown[]) => unknown)(this, ...args);
-    };
-  });
-
-  IdentifierArray.prototype.addObject = function (obj: RecordInstance) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'addObject', 'push');
-    let index = this.indexOf(obj);
-    if (index === -1) {
-      this.push(obj);
-    }
-    return this;
-  };
-
-  IdentifierArray.prototype.addObjects = function (objs: RecordInstance[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'addObjects', 'push');
-    objs.forEach((obj: RecordInstance) => {
-      let index = this.indexOf(obj);
-      if (index === -1) {
-        this.push(obj);
-      }
-    });
-    return this;
-  };
-
-  IdentifierArray.prototype.popObject = function () {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'popObject', 'pop');
-    return this.pop() as RecordInstance;
-  };
-
-  IdentifierArray.prototype.pushObject = function (obj: RecordInstance) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'pushObject', 'push');
-    this.push(obj);
-    return obj;
-  };
-
-  IdentifierArray.prototype.pushObjects = function (objs: RecordInstance[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'pushObjects', 'push');
-    this.push(...objs);
-    return this;
-  };
-
-  IdentifierArray.prototype.shiftObject = function () {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'shiftObject', 'shift');
-    return this.shift()!;
-  };
-
-  IdentifierArray.prototype.unshiftObject = function (obj: RecordInstance) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'unshiftObject', 'unshift');
-    this.unshift(obj);
-    return obj;
-  };
-
-  IdentifierArray.prototype.unshiftObjects = function (objs: RecordInstance[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'unshiftObjects', 'unshift');
-    this.unshift(...objs);
-    return this;
-  };
-
-  IdentifierArray.prototype.objectAt = function (index: number) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectAt', 'at');
-    //For negative index values go back from the end of the array
-    let arrIndex = Math.sign(index) === -1 ? this.length + index : index;
-    return this[arrIndex];
-  };
-
-  IdentifierArray.prototype.objectsAt = function (indeces: number[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectsAt', 'at');
-    return indeces.map((index) => this.objectAt(index)!);
-  };
-
-  IdentifierArray.prototype.removeAt = function (index: number) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeAt', 'splice');
-    this.splice(index, 1);
-    return this;
-  };
-
-  IdentifierArray.prototype.insertAt = function (index: number, obj: RecordInstance) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'insertAt', 'splice');
-    this.splice(index, 0, obj);
-    return this;
-  };
-
-  IdentifierArray.prototype.removeObject = function (obj: RecordInstance) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeObject', 'splice');
-    const index = this.indexOf(obj);
-    if (index !== -1) {
-      this.splice(index, 1);
-    }
-    return this;
-  };
-
-  IdentifierArray.prototype.removeObjects = function (objs: RecordInstance[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeObjects', 'splice');
-    objs.forEach((obj) => {
-      const index = this.indexOf(obj);
-      if (index !== -1) {
-        this.splice(index, 1);
-      }
-    });
-    return this;
-  };
-
-  IdentifierArray.prototype.toArray = function () {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'toArray', 'slice');
-    return this.slice();
-  };
-
-  IdentifierArray.prototype.replace = function (idx: number, amt: number, objects?: RecordInstance[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'replace', 'splice');
-    if (objects) {
-      this.splice(idx, amt, ...objects);
-    } else {
-      this.splice(idx, amt);
-    }
-  };
-
-  IdentifierArray.prototype.clear = function () {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'clear', 'length = 0');
-    this.splice(0, this.length);
-    return this;
-  };
-
-  IdentifierArray.prototype.setObjects = function (objects: RecordInstance[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setObjects', '`arr.length = 0; arr.push(objects);`');
-    assert(
-      `${this.DEPRECATED_CLASS_NAME}.setObjects expects to receive an array as its argument`,
-      Array.isArray(objects)
-    );
-    this.splice(0, this.length);
-    this.push(...objects);
-    return this;
-  };
-
-  IdentifierArray.prototype.reverseObjects = function () {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reverseObjects', 'reverse');
-    this.reverse();
-    return this;
-  };
-
-  IdentifierArray.prototype.compact = function () {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'compact', 'filter');
-    return this.filter((v) => v !== null && v !== undefined);
-  };
-
-  IdentifierArray.prototype.any = function (callback, target) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'any', 'some');
-    return this.some(callback, target);
-  };
-
-  IdentifierArray.prototype.isAny = function (prop, value) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isAny', 'some');
-    let hasValue = arguments.length === 2;
-    return this.some((v) => (hasValue ? v[prop] === value : v[prop] === true));
-  };
-
-  IdentifierArray.prototype.isEvery = function (prop, value) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isEvery', 'every');
-    let hasValue = arguments.length === 2;
-    return this.every((v) => (hasValue ? v[prop] === value : v[prop] === true));
-  };
-
-  IdentifierArray.prototype.getEach = function (key: string) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'getEach', 'map');
-    return this.map((value) => get(value, key));
-  };
-
-  IdentifierArray.prototype.mapBy = function (key: string) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'mapBy', 'map');
-    return this.map((value) => get(value, key));
-  };
-
-  IdentifierArray.prototype.findBy = function (key: string, value?: unknown) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'findBy', 'find');
-    if (arguments.length === 2) {
-      return this.find((val) => {
-        return get(val, key) === value;
-      });
-    } else {
-      return this.find((val) => Boolean(get(val, key)));
-    }
-  };
-
-  IdentifierArray.prototype.filterBy = function (key: string, value?: unknown) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'filterBy', 'filter');
-    if (arguments.length === 2) {
-      return this.filter((record) => {
-        return get(record, key) === value;
-      });
-    }
-    return this.filter((record) => {
-      return Boolean(get(record, key));
-    });
-  };
-
-  IdentifierArray.prototype.sortBy = function (...sortKeys: string[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'sortBy', '.slice().sort');
-    return this.slice().sort((a, b) => {
-      for (let i = 0; i < sortKeys.length; i++) {
-        let key = sortKeys[i];
-        let propA = get(a, key);
-        let propB = get(b, key);
-        // return 1 or -1 else continue to the next sortKey
-        let compareValue = compare(propA, propB);
-
-        if (compareValue) {
-          return compareValue;
-        }
-      }
-      return 0;
-    });
-  };
-
-  // @ts-expect-error
-  IdentifierArray.prototype.invoke = function (key: string, ...args: unknown[]) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'invoke', 'forEach');
-    return this.map((value) => (value[key] as (...args: unknown[]) => unknown)(...args));
-  };
-
-  // @ts-expect-error
-  IdentifierArray.prototype.addArrayObserver = function () {
-    deprecateArrayLike(
-      this.DEPRECATED_CLASS_NAME,
-      'addArrayObserver',
-      'derived state or reacting at the change source'
-    );
-  };
-
-  // @ts-expect-error
-  IdentifierArray.prototype.removeArrayObserver = function () {
-    deprecateArrayLike(
-      this.DEPRECATED_CLASS_NAME,
-      'removeArrayObserver',
-      'derived state or reacting at the change source'
-    );
-  };
-
-  // @ts-expect-error
-  IdentifierArray.prototype.arrayContentWillChange = function () {
-    deprecateArrayLike(
-      this.DEPRECATED_CLASS_NAME,
-      'arrayContentWillChange',
-      'derived state or reacting at the change source'
-    );
-  };
-
-  // @ts-expect-error
-  IdentifierArray.prototype.arrayContentDidChange = function () {
-    deprecateArrayLike(
-      this.DEPRECATED_CLASS_NAME,
-      'arrayContentDidChange',
-      'derived state or reacting at the change source.'
-    );
-  };
-
-  IdentifierArray.prototype.reject = function (callback, target?: unknown) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reject', 'filter');
-    assert('`reject` expects a function as first argument.', typeof callback === 'function');
-    return this.filter((...args) => {
-      return !callback.apply(target, args);
-    });
-  };
-
-  IdentifierArray.prototype.rejectBy = function (key: string, value?: unknown) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'rejectBy', 'filter');
-    if (arguments.length === 2) {
-      return this.filter((record) => {
-        return get(record, key) !== value;
-      });
-    }
-    return this.filter((record) => {
-      return !get(record, key);
-    });
-  };
-
-  IdentifierArray.prototype.setEach = function (key: string, value: unknown) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setEach', 'forEach');
-    this.forEach((item) => set(item, key, value));
-  };
-
-  IdentifierArray.prototype.uniq = function () {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniq', 'filter');
-    // all current managed arrays are already enforced as unique
-    return this.slice();
-  };
-
-  // @ts-expect-error
-  IdentifierArray.prototype.uniqBy = function (key: string) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniqBy', 'filter');
-    // all current managed arrays are already enforced as unique
-    let seen = new Set();
-    let result: RecordInstance[] = [];
-    this.forEach((item) => {
-      let value = get(item, key);
-      if (seen.has(value)) {
-        return;
-      }
-      seen.add(value);
-      result.push(item);
-    });
-    return result;
-  };
-
-  IdentifierArray.prototype.without = function (value: RecordInstance) {
-    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'without', 'slice');
-    const newArr = this.slice();
-    const index = this.indexOf(value);
-    if (index !== -1) {
-      newArr.splice(index, 1);
-    }
-    return newArr;
-  };
-
-  // @ts-expect-error
-  IdentifierArray.prototype.firstObject = null;
-  // @ts-expect-error
-  IdentifierArray.prototype.lastObject = null;
-}
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 
@@ -993,25 +559,11 @@ function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord
   );
 }
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
-  if (!recordOrPromiseRecord) {
+function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance | null) {
+  if (!record) {
     return null;
   }
 
-  if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.content;
-    assert(
-      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
-      content !== undefined && content !== null
-    );
-    assertRecordPassedToHasMany(content);
-    return recordIdentifierFor(content);
-  }
-
-  assertRecordPassedToHasMany(recordOrPromiseRecord);
-  return recordIdentifierFor(recordOrPromiseRecord);
-}
-
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
+  assertRecordPassedToHasMany(record);
+  return recordIdentifierFor(record);
 }

@@ -1,8 +1,7 @@
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/graph/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
@@ -19,7 +18,6 @@ import {
   SOURCE,
   storeFor,
 } from '@ember-data/store/-private';
-import type { NonSingletonCacheManager } from '@ember-data/store/-private/managers/cache-manager';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
@@ -27,7 +25,6 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import RelatedCollection from './many-array';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
@@ -43,11 +40,11 @@ export class LegacySupport {
   declare record: DSModel;
   declare store: Store;
   declare cache: Cache;
-  declare references: Dict<BelongsToReference | HasManyReference>;
+  declare references: Record<string, BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
-  declare _manyArrayCache: Dict<RelatedCollection>;
-  declare _relationshipPromisesCache: Dict<Promise<RelatedCollection | RecordInstance>>;
-  declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo>;
+  declare _manyArrayCache: Record<string, RelatedCollection>;
+  declare _relationshipPromisesCache: Record<string, Promise<RelatedCollection | RecordInstance>>;
+  declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo>;
 
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
@@ -58,10 +55,13 @@ export class LegacySupport {
     this.identifier = recordIdentifierFor(record);
     this.cache = peekCache(record);
 
-    this._manyArrayCache = Object.create(null) as Dict<RelatedCollection>;
-    this._relationshipPromisesCache = Object.create(null) as Dict<Promise<RelatedCollection | RecordInstance>>;
-    this._relationshipProxyCache = Object.create(null) as Dict<PromiseManyArray | PromiseBelongsTo>;
-    this.references = Object.create(null) as Dict<BelongsToReference>;
+    this._manyArrayCache = Object.create(null) as Record<string, RelatedCollection>;
+    this._relationshipPromisesCache = Object.create(null) as Record<
+      string,
+      Promise<RelatedCollection | RecordInstance>
+    >;
+    this._relationshipProxyCache = Object.create(null) as Record<string, PromiseManyArray | PromiseBelongsTo>;
+    this.references = Object.create(null) as Record<string, BelongsToReference>;
   }
 
   _syncArray(array: RelatedCollection) {
@@ -190,11 +190,7 @@ export class LegacySupport {
     identifier: StableRecordIdentifier,
     field: string
   ): [StableRecordIdentifier[], CollectionResourceRelationship] {
-    let jsonApi = (this.cache as NonSingletonCacheManager).getRelationship(
-      identifier,
-      field,
-      true
-    ) as CollectionResourceRelationship;
+    let jsonApi = this.cache.getRelationship(identifier, field) as CollectionResourceRelationship;
     const cache = this.store._instanceCache;
     let identifiers: StableRecordIdentifier[] = [];
     if (jsonApi.data) {
@@ -594,7 +590,7 @@ export class LegacySupport {
   destroy() {
     this.isDestroying = true;
 
-    let cache: Dict<{ destroy(): void }> = this._manyArrayCache;
+    let cache: Record<string, { destroy(): void }> = this._manyArrayCache;
     this._manyArrayCache = Object.create(null);
     Object.keys(cache).forEach((key) => {
       cache[key]!.destroy();
@@ -699,40 +695,12 @@ function handleCompletedRelationshipRequest(
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
-  if (!recordOrPromiseRecord) {
+function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance | null) {
+  if (!record) {
     return null;
   }
 
-  if (DEPRECATE_PROMISE_PROXIES) {
-    if (isPromiseRecord(recordOrPromiseRecord)) {
-      let content = recordOrPromiseRecord.content;
-      assert(
-        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
-        content !== undefined
-      );
-      deprecate(
-        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
-        false,
-        {
-          id: 'ember-data:deprecate-promise-proxies',
-          until: '5.0',
-          since: {
-            enabled: '4.7',
-            available: '4.7',
-          },
-          for: 'ember-data',
-        }
-      );
-      return content ? recordIdentifierFor(content) : null;
-    }
-  }
-
-  return recordIdentifierFor(recordOrPromiseRecord);
-}
-
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
+  return recordIdentifierFor(record);
 }
 
 function anyUnloaded(store: Store, relationship: ManyRelationship) {

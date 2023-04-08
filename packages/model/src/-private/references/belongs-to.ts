@@ -1,10 +1,8 @@
-import { deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
-import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
@@ -19,7 +17,6 @@ import type {
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
@@ -282,7 +279,7 @@ export default class BelongsToReference {
    @return {Object} The meta information for the belongs-to relationship.
    */
   meta() {
-    let meta: Dict<JSONValue> | null = null;
+    let meta: Record<string, JSONValue> | null = null;
     let resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
@@ -292,9 +289,7 @@ export default class BelongsToReference {
 
   _resource() {
     this._ref; // subscribe
-    const cache = DEPRECATE_V1_RECORD_DATA
-      ? this.store._instanceCache.getResourceCache(this.___identifier)
-      : this.store.cache;
+    const cache = this.store.cache;
     return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship;
   }
 
@@ -391,31 +386,11 @@ export default class BelongsToReference {
 
    @method push
     @public
-   @param {Object|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
+   @param {Object} object a JSONAPI document object describing the new value of this relationship.
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
-  async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
+  push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
     let jsonApiDoc: SingleResourceDocument = data as SingleResourceDocument;
-    if (DEPRECATE_PROMISE_PROXIES) {
-      if ((data as { then: unknown }).then) {
-        jsonApiDoc = await data;
-        if (jsonApiDoc !== data) {
-          deprecate(
-            `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
-            false,
-            {
-              id: 'ember-data:deprecate-promise-proxies',
-              until: '5.0',
-              since: {
-                enabled: '4.7',
-                available: '4.7',
-              },
-              for: 'ember-data',
-            }
-          );
-        }
-      }
-    }
     let record = this.store.push(jsonApiDoc);
 
     if (DEBUG) {
@@ -438,7 +413,7 @@ export default class BelongsToReference {
       });
     });
 
-    return record;
+    return Promise.resolve(record);
   }
 
   /**
@@ -558,7 +533,7 @@ export default class BelongsToReference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
-  load(options?: Dict<unknown>) {
+  load(options?: Record<string, unknown>) {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
@@ -619,7 +594,7 @@ export default class BelongsToReference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
-  reload(options?: Dict<unknown>) {
+  reload(options?: Record<string, unknown>) {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;

@@ -2,29 +2,18 @@
   @module @ember-data/model
 */
 import { A } from '@ember/array';
-import { assert, deprecate, inspect } from '@ember/debug';
+import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import { dasherize } from '@ember/string';
 
 import { singularize } from 'ember-inflector';
 
-import {
-  DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
-  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
-  DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
-} from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 
 import { lookupLegacySupport } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
 function normalizeType(type) {
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
-    if (!type) {
-      return;
-    }
-  }
-
   return singularize(dasherize(type));
 }
 
@@ -170,65 +159,7 @@ function normalizeType(type) {
   @return {Ember.computed} relationship
 */
 function hasMany(type, options) {
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
-    if (typeof type !== 'string' || !type.length) {
-      deprecate(
-        'hasMany(<type>, <options>) must specify the string type of the related resource as the first parameter',
-        false,
-        {
-          id: 'ember-data:deprecate-non-strict-relationships',
-          for: 'ember-data',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-        }
-      );
-      if (typeof type === 'object') {
-        options = type;
-        type = undefined;
-      }
-
-      assert(
-        `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
-          type
-        )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
-        typeof type === 'string' || typeof type === 'undefined'
-      );
-    }
-  }
-
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC) {
-    if (!options || typeof options.async !== 'boolean') {
-      options = options || {};
-      if (!('async' in options)) {
-        options.async = true;
-      }
-      deprecate('hasMany(<type>, <options>) must specify options.async as either `true` or `false`.', false, {
-        id: 'ember-data:deprecate-non-strict-relationships',
-        for: 'ember-data',
-        until: '5.0',
-        since: { enabled: '4.7', available: '4.7' },
-      });
-    } else {
-      assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
-    }
-  } else {
-    assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
-  }
-
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
-    if (options.inverse !== null && (typeof options.inverse !== 'string' || options.inverse.length === 0)) {
-      deprecate(
-        'hasMany(<type>, <options>) must specify options.inverse as either `null` or the name of the field on the related resource type.',
-        false,
-        {
-          id: 'ember-data:deprecate-non-strict-relationships',
-          for: 'ember-data',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-        }
-      );
-    }
-  }
+  assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
 
   // Metadata about relationships is stored on the meta of
   // the relationship. This is used for introspection and

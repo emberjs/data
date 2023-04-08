@@ -330,7 +330,6 @@ export interface Cache {
    *
    * @method changedAttrs
    * @public
-   * @deprecated
    * @param identifier
    * @returns { <field>: [<old>, <new>] }
    */

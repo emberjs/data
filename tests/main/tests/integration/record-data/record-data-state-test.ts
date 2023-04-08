@@ -7,7 +7,6 @@ import { Promise } from 'rsvp';
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -23,7 +22,7 @@ import type {
   StructuredDocument,
 } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
+import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceDocument,
@@ -32,9 +31,8 @@ import type {
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
-import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import { Dict } from '@ember-data/types/q/utils';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -45,103 +43,7 @@ class Person extends Model {
   lastName;
 }
 
-class TestRecordIdentifier implements NewRecordIdentifier {
-  constructor(public id: string | null, public lid: string, public type: string) {}
-}
-
-class V1TestRecordData implements CacheV1 {
-  _storeWrapper: CacheStoreWrapper;
-  _identifier: StableRecordIdentifier;
-
-  constructor(wrapper: CacheStoreWrapper, identifier: StableRecordIdentifier) {
-    this._storeWrapper = wrapper;
-    this._identifier = identifier;
-  }
-
-  setIsDeleted(isDeleted: boolean): void {
-    throw new Error('Method not implemented.');
-  }
-  version?: '1' | undefined;
-  isDeletionCommitted(): boolean {
-    throw new Error('Method not implemented.');
-  }
-  id: string | null = '1';
-  clientId: string | null = 'test-record-data-1';
-  modelName = 'tst';
-  _errors: JsonApiError[] = [];
-  getErrors(recordIdentifier: RecordIdentifier): JsonApiError[] {
-    return this._errors;
-  }
-  commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiError[]): void {
-    this._errors = errors;
-  }
-
-  getResourceIdentifier() {
-    if (this.clientId !== null) {
-      return new TestRecordIdentifier(this.id, this.clientId, this.modelName);
-    }
-  }
-
-  pushData(data: object, calculateChange: true): string[];
-  pushData(data: object, calculateChange?: false): void;
-  pushData(data: object, calculateChange?: boolean): string[] | void {
-    this._storeWrapper.notifyChange(this._identifier, 'added');
-  }
-
-  clientDidCreate() {
-    this._storeWrapper.notifyChange(this._identifier, 'added');
-  }
-
-  willCommit() {}
-
-  isRecordInUse() {
-    return false;
-  }
-  unloadRecord() {}
-  rollbackAttributes() {
-    return [];
-  }
-  changedAttributes(): any {}
-
-  hasChangedAttributes(): boolean {
-    return false;
-  }
-
-  setDirtyAttribute(key: string, value: any) {}
-
-  getAttr(key: string): string {
-    return 'test';
-  }
-
-  getHasMany(key: string) {
-    return {};
-  }
-
-  isNew() {
-    return false;
-  }
-
-  isDeleted() {
-    return false;
-  }
-
-  addToHasMany(key: string, recordDatas: Cache[], idx?: number) {}
-  removeFromHasMany(key: string, recordDatas: Cache[]) {}
-  setDirtyHasMany(key: string, recordDatas: Cache[]) {}
-
-  getBelongsTo(key: string) {
-    return {};
-  }
-
-  setDirtyBelongsTo(name: string, recordData: Cache | null) {}
-
-  didCommit(data) {}
-
-  _initRecordCreateOptions(options) {
-    return {};
-  }
-}
-class V2TestRecordData implements Cache {
+class TestRecordData implements Cache {
   _storeWrapper: CacheStoreWrapper;
   _identifier: StableRecordIdentifier;
 
@@ -225,7 +127,10 @@ class V2TestRecordData implements Cache {
   _errors?: JsonApiError[];
   _isNew: boolean = false;
 
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+  clientDidCreate(
+    identifier: StableRecordIdentifier,
+    options?: Record<string, unknown> | undefined
+  ): Record<string, unknown> {
     this._isNew = true;
     this._storeWrapper.notifyChange(identifier, 'added');
     return {};
@@ -288,13 +193,6 @@ class V2TestRecordData implements Cache {
     return false;
   }
 }
-const TestRecordData = DEPRECATE_V1_RECORD_DATA ? V1TestRecordData : V2TestRecordData;
-
-class CustomStore extends Store {
-  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
-    return new TestRecordData(wrapper, identifier);
-  }
-}
 
 module('integration/record-data - Record Data State', function (hooks) {
   setupTest(hooks);
@@ -306,12 +204,12 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     owner.register('model:person', Person);
     owner.unregister('service:store');
-    owner.register('service:store', CustomStore);
+    owner.register('service:store', Store);
     owner.register('serializer:application', JSONAPISerializer);
   });
 
   test('Record Data state saving', async function (assert) {
-    assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
+    assert.expect(3);
 
     let isDeleted, isNew, isDeletionCommitted;
     let calledDelete = false;
@@ -346,10 +244,6 @@ module('integration/record-data - Record Data State', function (hooks) {
     }
 
     class TestStore extends Store {
-      // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
-        return new LifecycleRecordData(wrapper, identifier);
-      }
       createCache(wrapper: CacheStoreWrapper) {
         // @ts-expect-error
         return new LifecycleRecordData(wrapper) as Cache;
@@ -397,13 +291,10 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     await person.save();
     assert.true(calledUpdate, 'called update if record isnt deleted or new');
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
-    }
   });
 
   test('Record Data state record flags', async function (assert) {
-    assert.expect(DEPRECATE_V1_RECORD_DATA ? 14 : 13);
+    assert.expect(13);
     let isDeleted, isNew, isDeletionCommitted;
     let calledSetIsDeleted = false;
     let storeWrapper;
@@ -439,17 +330,13 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(value: boolean): void {
+      setIsDeleted(identifier: StableRecordIdentifier, value: boolean): void {
         isDeleted = true;
         calledSetIsDeleted = true;
       }
     }
 
     class TestStore extends Store {
-      // @ts-expect-error
-      createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
-        return new LifecycleRecordData(wrapper, identifier);
-      }
       createCache(wrapper: CacheStoreWrapper) {
         // @ts-expect-error
         return new LifecycleRecordData(wrapper) as Cache;
@@ -500,8 +387,5 @@ module('integration/record-data - Record Data State', function (hooks) {
     storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
     assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
-    if (DEPRECATE_V1_RECORD_DATA) {
-      assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
-    }
   });
 });

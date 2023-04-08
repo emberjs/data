@@ -29,9 +29,19 @@ import DataAdapter from '@ember/debug/data-adapter';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';
 import { capitalize, underscore } from '@ember/string';
-import { next } from '@ember/runloop';
 
-import { typesMapFor } from './setup';
+const StoreTypesMap = new WeakMap();
+
+function typesMapFor(store) {
+  let typesMap = StoreTypesMap.get(store);
+
+  if (typesMap === undefined) {
+    typesMap = new Map();
+    StoreTypesMap.set(store, typesMap);
+  }
+
+  return typesMap;
+}
 
 /**
   Implements `@ember/debug/data-adapter` with for EmberData
@@ -41,8 +51,8 @@ import { typesMapFor } from './setup';
   @extends DataAdapter
   @private
 */
-export default DataAdapter.extend({
-  store: service('store'),
+export default class extends DataAdapter {
+  @service('store') store;
 
   /**
     Specifies how records can be filtered based on the state of the record
@@ -60,11 +70,11 @@ export default DataAdapter.extend({
       { name: 'isModified', desc: 'Modified' },
       { name: 'isClean', desc: 'Clean' },
     ];
-  },
+  }
 
   _nameToClass(type) {
     return this.store.modelFor(type);
-  },
+  }
 
   /**
     Fetch the model types and observe them for changes.
@@ -80,21 +90,27 @@ export default DataAdapter.extend({
   */
   watchModelTypes(typesAdded, typesUpdated) {
     const { store } = this;
+
+    const unsub = store.notifications.subscribe('resource', (identifier, notificationType) => {
+      if (notificationType === 'added') {
+        this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods);
+      }
+    });
+
     const __getResourceCache = store._instanceCache.getResourceCache;
-    const _releaseMethods = [];
+    const _releaseMethods = [() => {
+      store.notifications.unsubscribe(unsub);
+    }];
     const discoveredTypes = typesMapFor(store);
+
+    Object.keys(store.identifierCache._cache.types).forEach((type) => {
+      discoveredTypes.set(type, false);
+    });
 
     // Add any models that were added during initialization of the app, before the inspector was opened
     discoveredTypes.forEach((_, type) => {
       this.watchTypeIfUnseen(store, discoveredTypes, type, typesAdded, typesUpdated, _releaseMethods);
     });
-
-    // Overwrite _createRecordData so newly added models will get added to the list
-    store._instanceCache.getResourceCache = (identifier) => {
-      // defer to ensure first-create does not result in an infinite loop, see https://github.com/emberjs/data/issues/8006
-      next(() => this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods));
-      return __getResourceCache.call(store._instanceCache, identifier);
-    };
 
     let release = () => {
       _releaseMethods.forEach((fn) => fn());
@@ -109,7 +125,7 @@ export default DataAdapter.extend({
     };
     this.releaseMethods.pushObject(release);
     return release;
-  },
+  }
 
   /**
    * Loop over the discovered types and use the callbacks from watchModelTypes to notify
@@ -132,7 +148,7 @@ export default DataAdapter.extend({
       typesAdded([wrapped]);
       discoveredTypes.set(type, true);
     }
-  },
+  }
 
   /**
     Creates a human readable string used for column headers
@@ -144,7 +160,7 @@ export default DataAdapter.extend({
   */
   columnNameToDesc(name) {
     return capitalize(underscore(name).replace(/_/g, ' ').trim());
-  },
+  }
 
   /**
     Get the columns for a given model type
@@ -173,7 +189,7 @@ export default DataAdapter.extend({
       columns.push({ name: name, desc: desc });
     });
     return columns;
-  },
+  }
 
   /**
     Fetches all loaded records for a given type
@@ -199,7 +215,7 @@ export default DataAdapter.extend({
     }
     assert('Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support', !!modelName);
     return this.store.peekAll(modelName);
-  },
+  }
 
   /**
     Gets the values for each column
@@ -221,7 +237,7 @@ export default DataAdapter.extend({
       columnValues[key] = record[key];
     });
     return columnValues;
-  },
+  }
 
   /**
     Returns keywords to match when searching records
@@ -237,7 +253,7 @@ export default DataAdapter.extend({
     record.eachAttribute((key) => keys.push(key));
     keys.forEach((key) => keywords.push(record[key]));
     return keywords;
-  },
+  }
 
   /**
     Returns the values of filters defined by `getFilters`
@@ -254,7 +270,7 @@ export default DataAdapter.extend({
       isModified: record.hasDirtyAttributes && !record.isNew,
       isClean: !record.hasDirtyAttributes,
     };
-  },
+  }
 
   /**
     Returns a color that represents the record's state
@@ -273,7 +289,7 @@ export default DataAdapter.extend({
       color = 'blue';
     }
     return color;
-  },
+  }
 
   /**
     Observes all relevant properties and re-sends the wrapped record
@@ -307,5 +323,5 @@ export default DataAdapter.extend({
     };
 
     return release;
-  },
-});
+  }
+}

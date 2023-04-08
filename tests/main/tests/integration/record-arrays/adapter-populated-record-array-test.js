@@ -153,7 +153,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     assert.strictEqual(recordArray.links.first, '/foo?page=1', 'expected links.first to be "/foo?page=1" from payload');
   });
 
-  test('recordArray.replace() throws error', async function (assert) {
+  test('recordArray.splice() throws error', async function (assert) {
     let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
@@ -161,12 +161,11 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     assert.expectAssertion(
       () => {
-        recordArray.replace();
+        recordArray.splice(0, 1);
       },
       'Assertion Failed: Mutating this array of records via splice is not allowed.',
       'throws error'
     );
-    assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
   });
 
   test('recordArray mutation throws error', async function (assert) {

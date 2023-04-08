@@ -1,5 +1,4 @@
 import type { DSModel } from './ds-model';
-import type { Dict } from './utils';
 /**
   @module @ember-data/store
 */
@@ -15,4 +14,4 @@ import type { Dict } from './utils';
   The type belows allows for anything extending object.
 */
 
-export type RecordInstance = DSModel | Dict<unknown>;
+export type RecordInstance = DSModel | Record<string, unknown>;

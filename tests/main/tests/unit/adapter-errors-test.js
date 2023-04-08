@@ -3,8 +3,6 @@ import { module, test } from 'qunit';
 import AdapterError, {
   AbortError,
   ConflictError,
-  errorsArrayToHash,
-  errorsHashToArray,
   ForbiddenError,
   InvalidError,
   NotFoundError,
@@ -12,7 +10,6 @@ import AdapterError, {
   TimeoutError,
   UnauthorizedError,
 } from '@ember-data/adapter/error';
-import { DEPRECATE_HELPERS } from '@ember-data/deprecations';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/adapter-errors - AdapterError', function () {
@@ -112,83 +109,6 @@ module('unit/adapter-errors - AdapterError', function () {
 
     assert.strictEqual(error.message, 'custom error!');
   });
-
-  if (DEPRECATE_HELPERS) {
-    const errorsHash = {
-      name: ['is invalid', 'must be a string'],
-      age: ['must be a number'],
-    };
-
-    const errorsArray = [
-      {
-        title: 'Invalid Attribute',
-        detail: 'is invalid',
-        source: { pointer: '/data/attributes/name' },
-      },
-      {
-        title: 'Invalid Attribute',
-        detail: 'must be a string',
-        source: { pointer: '/data/attributes/name' },
-      },
-      {
-        title: 'Invalid Attribute',
-        detail: 'must be a number',
-        source: { pointer: '/data/attributes/age' },
-      },
-    ];
-
-    const errorsPrimaryHash = {
-      base: ['is invalid', 'error message'],
-    };
-
-    const errorsPrimaryArray = [
-      {
-        title: 'Invalid Document',
-        detail: 'is invalid',
-        source: { pointer: '/data' },
-      },
-      {
-        title: 'Invalid Document',
-        detail: 'error message',
-        source: { pointer: '/data' },
-      },
-    ];
-
-    test('errorsHashToArray', function (assert) {
-      let result = errorsHashToArray(errorsHash);
-      assert.deepEqual(result, errorsArray);
-      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
-    });
-
-    test('errorsHashToArray for primary data object', function (assert) {
-      let result = errorsHashToArray(errorsPrimaryHash);
-      assert.deepEqual(result, errorsPrimaryArray);
-      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
-    });
-
-    test('errorsArrayToHash', function (assert) {
-      let result = errorsArrayToHash(errorsArray);
-      assert.deepEqual(result, errorsHash);
-      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
-    });
-
-    test('errorsArrayToHash without trailing slash', function (assert) {
-      let result = errorsArrayToHash([
-        {
-          detail: 'error message',
-          source: { pointer: 'data/attributes/name' },
-        },
-      ]);
-      assert.deepEqual(result, { name: ['error message'] });
-      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
-    });
-
-    test('errorsArrayToHash for primary data object', function (assert) {
-      let result = errorsArrayToHash(errorsPrimaryArray);
-      assert.deepEqual(result, errorsPrimaryHash);
-      assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
-    });
-  }
 
   testInDebug('InvalidError will normalize errors hash will assert', function (assert) {
     assert.expectAssertion(function () {

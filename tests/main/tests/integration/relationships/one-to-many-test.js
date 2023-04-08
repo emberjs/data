@@ -9,7 +9,6 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('integration/relationships/one_to_many_test - OneToMany relationships', function (hooks) {
   setupTest(hooks);
@@ -1592,50 +1591,4 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     assert.strictEqual(user.accounts.length, 0, 'User does not have the account anymore');
     assert.strictEqual(account.user, null, 'Account does not have the user anymore');
   });
-
-  deprecatedTest(
-    'createRecord updates inverse record array which has observers',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 3 },
-    async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
-
-      adapter.findAll = () => {
-        return {
-          data: [
-            {
-              id: '2',
-              type: 'user',
-              attributes: {
-                name: 'Stanley',
-              },
-            },
-          ],
-        };
-      };
-
-      const users = await store.findAll('user');
-      assert.strictEqual(users.length, 1, 'Exactly 1 user');
-
-      let user = users.at(0);
-      assert.strictEqual(user.messages.length, 0, 'Record array is initially empty');
-
-      // set up an observer
-      user.addObserver('messages.@each.title', () => {});
-      user.messages.objectAt(0);
-
-      const messages = await user.messages;
-
-      assert.strictEqual(messages.length, 0, 'we have no messages');
-      assert.strictEqual(user.messages.length, 0, 'we have no messages');
-
-      let message = store.createRecord('message', { user, title: 'EmberFest was great' });
-      assert.strictEqual(messages.length, 1, 'The message is added to the record array');
-      assert.strictEqual(user.messages.length, 1, 'The message is added to the record array');
-
-      let messageFromArray = user.messages.objectAt(0);
-      assert.strictEqual(message, messageFromArray, 'Only one message record instance should be created');
-      assert.expectDeprecation({ id: 'ember-data:deprecate-array-like', count: 3 });
-    }
-  );
 });

@@ -22,7 +22,7 @@ export { Errors } from '@ember-data/model/-private';
 export { Snapshot } from '@ember-data/legacy-compat/-private';
 
 // `ember-data-model-fragments' and `ember-data-change-tracker` rely on `normalizeModelName`
-export { RecordArrayManager, normalizeModelName, coerceId } from '@ember-data/store/-private';
+export { RecordArrayManager, coerceId } from '@ember-data/store/-private';
 export { ManyArray, PromiseManyArray } from '@ember-data/model/-private';
 export { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 

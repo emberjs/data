@@ -7,7 +7,6 @@ import type { Collection } from '@ember-data/store/-private/record-arrays/identi
 
 import type { ModelSchema } from './ds-model';
 import type { RelationshipSchema } from './record-data-schemas';
-import type { Dict } from './utils';
 
 type Group = Snapshot[];
 // TODO this should probably just alias unknown
@@ -15,7 +14,7 @@ type Group = Snapshot[];
 // however those deserialization cases are handled
 // far easier in the adapter itself and are unlikely
 // to be passed to the serializer today.
-export type AdapterPayload = Dict<unknown> | unknown[];
+export type AdapterPayload = Record<string, unknown> | unknown[];
 
 /**
  * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
@@ -136,7 +135,7 @@ export interface MinimumAdapterInterface {
   query(
     store: Store,
     schema: ModelSchema,
-    query: Dict<unknown>,
+    query: Record<string, unknown>,
     recordArray: Collection,
     options: { adapterOptions?: unknown }
   ): Promise<AdapterPayload>;
@@ -167,7 +166,7 @@ export interface MinimumAdapterInterface {
   queryRecord(
     store: Store,
     schema: ModelSchema,
-    query: Dict<unknown>,
+    query: Record<string, unknown>,
     options: { adapterOptions?: unknown }
   ): Promise<AdapterPayload>;
 

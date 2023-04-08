@@ -6,7 +6,6 @@ import { setupTest } from 'ember-qunit';
 
 import { FetchManager, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import Model, { attr } from '@ember-data/model';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('Unit - snapshot-record-array', function (hooks) {
   setupTest(hooks);
@@ -75,43 +74,4 @@ module('Unit - snapshot-record-array', function (hooks) {
     assert.strictEqual(snapshot.snapshots()[0], snapshotsTaken[0], 'should return the exact same snapshot');
     assert.strictEqual(didTakeSnapshot, 1, 'still only one snapshot should have been taken');
   });
-
-  deprecatedTest(
-    'SnapshotRecordArray.type loads the class lazily',
-    {
-      id: 'ember-data:deprecate-snapshot-model-class-access',
-      count: 1,
-      until: '5.0',
-    },
-    function (assert) {
-      let array = A([1, 2]);
-      let typeLoaded = false;
-
-      Object.defineProperty(array, 'type', {
-        get() {
-          typeLoaded = true;
-          return 'some type';
-        },
-      });
-
-      let options = {
-        adapterOptions: 'some options',
-        include: 'include me',
-      };
-
-      let snapshot = new SnapshotRecordArray(
-        {
-          peekAll() {
-            return array;
-          },
-        },
-        'user',
-        options
-      );
-
-      assert.false(typeLoaded, 'model class is not eager loaded');
-      assert.strictEqual(snapshot.type, 'some type');
-      assert.true(typeLoaded, 'model class is loaded');
-    }
-  );
 });

@@ -1,5 +1,3 @@
-import { TestContext } from '@ember/test-helpers';
-
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
@@ -14,7 +12,6 @@ import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaService } from '@ember-data/types/q/schema-service';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('unit/model - Custom Class Model', function (hooks) {
   let store: Store;
@@ -128,47 +125,6 @@ module('unit/model - Custom Class Model', function (hooks) {
     assert.strictEqual(returnValue, person, 'createRecord returns the instantiated record');
     assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
   });
-
-  deprecatedTest(
-    'recordData lookup',
-    { id: 'ember-data:deprecate-instantiate-record-args', count: 1, until: '5.0' },
-    function (this: TestContext, assert: Assert) {
-      assert.expect(1);
-      let rd;
-      class CreationStore extends Store {
-        // @ts-expect-error
-        instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
-          rd = recordDataFor(identifier);
-          assert.strictEqual(rd.getAttr(identifier, 'name'), 'chris', 'Can look up record data from recordDataFor');
-          return {};
-        }
-        teardownRecord(record) {}
-      }
-      this.owner.register('service:store', CreationStore);
-      store = this.owner.lookup('service:store') as Store;
-      let schema: SchemaService = {
-        attributesDefinitionFor({ type: string }): AttributesSchema {
-          return {
-            name: {
-              type: 'string',
-              options: {},
-              name: 'name',
-              kind: 'attribute',
-            },
-          };
-        },
-        relationshipsDefinitionFor({ type: string }): RelationshipsSchema {
-          return {};
-        },
-        doesTypeExist() {
-          return true;
-        },
-      };
-      store.registerSchemaDefinitionService(schema);
-
-      store.createRecord('person', { name: 'chris' });
-    }
-  );
 
   test('attribute and relationship with custom schema definition', async function (assert) {
     assert.expect(18);

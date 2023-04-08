@@ -1,14 +1,13 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { defer, resolve } from 'rsvp';
+import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/references/belongs-to', function (hooks) {
@@ -50,7 +49,7 @@ module('integration/references/belongs-to', function (hooks) {
 
     assert.expectAssertion(function () {
       person.belongsTo('unknown-relationship');
-    }, 'Expected to find a relationship definition for person.unknown-relationship but none was found');
+    }, "Expected a relationship schema for 'person.unknown-relationship', but no relationship schema was found.");
   });
 
   testInDebug(
@@ -171,49 +170,6 @@ module('integration/references/belongs-to', function (hooks) {
     assert.ok(Family.detectInstance(record), 'push resolves with the referenced record');
     assert.strictEqual(get(record, 'name'), 'Coreleone', 'name is set');
   });
-
-  deprecatedTest(
-    'push(promise)',
-    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
-    async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let Family = store.modelFor('family');
-
-      let push;
-      let deferred = defer();
-
-      let person = store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          relationships: {
-            family: {
-              data: { type: 'family', id: '1' },
-            },
-          },
-        },
-      });
-      let familyReference = person.belongsTo('family');
-      push = familyReference.push(deferred.promise);
-
-      assert.ok(push.then, 'BelongsToReference.push returns a promise');
-
-      deferred.resolve({
-        data: {
-          type: 'family',
-          id: '1',
-          attributes: {
-            name: 'Coreleone',
-          },
-        },
-      });
-
-      await push.then(function (record) {
-        assert.ok(record instanceof Family, 'push resolves with the record');
-        assert.strictEqual(record.name, 'Coreleone', 'name is updated');
-      });
-    }
-  );
 
   testInDebug('push(object) asserts for invalid modelClass', async function (assert) {
     class Family extends Model {

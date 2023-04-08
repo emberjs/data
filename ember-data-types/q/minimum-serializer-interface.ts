@@ -9,9 +9,8 @@ import type Store from '@ember-data/store';
 import type { ModelSchema } from './ds-model';
 import type { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
 import type { AdapterPayload } from './minimum-adapter-interface';
-import type { Dict } from './utils';
 
-export type OptionsHash = Dict<unknown>;
+export type OptionsHash = Record<string, unknown>;
 export type RequestType =
   | 'findRecord'
   | 'queryRecord'

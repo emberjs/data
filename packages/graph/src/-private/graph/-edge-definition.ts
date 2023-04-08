@@ -1,18 +1,15 @@
 import { assert } from '@ember/debug';
 
-import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
-import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { assertInheritedSchema } from '../debug/assert-polymorphic-type';
 import { expandingGet, expandingSet, getStore } from './-utils';
 import type { Graph } from './graph';
 
-export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
+export type EdgeCache = Record<string, Record<string, EdgeDefinition | null>>;
 
 /**
  *
@@ -369,7 +366,7 @@ export function upgradeDefinition(
 
     // CASE: We don't have a relationship at all
     // we should only hit this in prod
-    assert(`Expected to find a relationship definition for ${type}.${propertyName} but none was found.`, meta);
+    assert(`Expected a relationship schema for '${type}.${propertyName}', but no relationship schema was found.`, meta);
 
     cache[type]![propertyName] = null;
     return null;
@@ -414,7 +411,11 @@ export function upgradeDefinition(
         .relationshipsDefinitionFor({ type: inverseType });
       assert(`Expected to have a relationship definition for ${inverseType} but none was found.`, inverseDefinitions);
       let meta = inverseDefinitions[inverseKey];
-      assert(`Expected to find a relationship definition for ${inverseType}.${inverseKey} but none was found.`, meta);
+      assert(
+        `Expected a relationship schema for '${inverseType}.${inverseKey}' to match the inverse of '${type}.${propertyName}', but no relationship schema was found.`,
+        meta
+      );
+
       inverseDefinition = upgradeMeta(meta);
     }
   }
@@ -531,21 +532,10 @@ export function upgradeDefinition(
   return info;
 }
 
-function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
-  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
-}
-
 function inverseForRelationship(store: Store, identifier: StableRecordIdentifier | { type: string }, key: string) {
   const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
   if (!definition) {
     return null;
-  }
-
-  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
-    if (metaIsRelationshipDefinition(definition)) {
-      const modelClass = store.modelFor(identifier.type);
-      return definition._inverseKey(store, modelClass);
-    }
   }
 
   assert(

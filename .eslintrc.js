@@ -199,7 +199,6 @@ module.exports = {
         'packages/store/src/index.ts',
         'packages/store/src/-private/utils/is-non-empty-string.ts',
         'packages/store/src/-private/utils/construct-resource.ts',
-        'ember-data-types/q/utils.ts',
         'ember-data-types/q/schema-definition-service.ts',
         'ember-data-types/q/record-instance.ts',
         'ember-data-types/q/record-data-store-wrapper.ts',

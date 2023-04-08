@@ -44,6 +44,21 @@ class RequestManagerService extends RequestManager {
 class TestStore extends Store {
   @service('request') declare requestManager: RequestManager;
 
+  constructor() {
+    super(...arguments);
+    this.registerSchemaDefinitionService({
+      attributesDefinitionFor() {
+        return {};
+      },
+      relationshipsDefinitionFor() {
+        return {};
+      },
+      doesTypeExist() {
+        return true;
+      },
+    });
+  }
+
   createCache(wrapper: CacheStoreWrapper) {
     return new Cache(wrapper);
   }
@@ -253,6 +268,21 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       class TestStore extends Store {
         @service('request') declare requestManager: RequestManager;
 
+        constructor() {
+          super(...arguments);
+          this.registerSchemaDefinitionService({
+            attributesDefinitionFor() {
+              return {};
+            },
+            relationshipsDefinitionFor() {
+              return {};
+            },
+            doesTypeExist() {
+              return true;
+            },
+          });
+        }
+
         createCache(wrapper: CacheStoreWrapper) {
           return new Cache(wrapper);
         }
@@ -330,6 +360,21 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       class TestStore extends Store {
         @service('request') declare requestManager: RequestManager;
+
+        constructor() {
+          super(...arguments);
+          this.registerSchemaDefinitionService({
+            attributesDefinitionFor() {
+              return {};
+            },
+            relationshipsDefinitionFor() {
+              return {};
+            },
+            doesTypeExist() {
+              return true;
+            },
+          });
+        }
 
         createCache(wrapper: CacheStoreWrapper) {
           return new Cache(wrapper);
@@ -409,6 +454,21 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       class TestStore extends Store {
         @service('request') declare requestManager: RequestManager;
+
+        constructor() {
+          super(...arguments);
+          this.registerSchemaDefinitionService({
+            attributesDefinitionFor() {
+              return {};
+            },
+            relationshipsDefinitionFor() {
+              return {};
+            },
+            doesTypeExist() {
+              return true;
+            },
+          });
+        }
 
         createCache(wrapper: CacheStoreWrapper) {
           return new Cache(wrapper);

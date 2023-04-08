@@ -8,28 +8,8 @@ import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('integration/adapter/find - Finding Records', function (hooks) {
+module('integration/adapter - Finding Records', function (hooks) {
   setupTest(hooks);
-
-  testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', async function (assert) {
-    class Person extends Model {
-      @attr('string') name;
-    }
-
-    this.owner.register('model:person', Person);
-    this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', class extends JSONAPISerializer {});
-
-    const store = this.owner.lookup('service:store');
-
-    await assert.expectAssertion(async () => {
-      await store.find('person', undefined);
-    }, `You cannot pass 'undefined' as id to the store's find method`);
-
-    await assert.expectAssertion(async () => {
-      await store.find('person', null);
-    }, `You cannot pass 'null' as id to the store's find method`);
-  });
 
   test("When a single record is requested, the adapter's find method should be called unless it's loaded.", async function (assert) {
     assert.expect(2);

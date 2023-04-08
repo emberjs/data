@@ -193,7 +193,6 @@ import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-p
 import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
-import type { Dict } from '@ember-data/types/q/utils';
 
 /**
   An adapter is an object that receives requests from a store and
@@ -485,7 +484,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Object} serialized snapshot
     @public
   */
-  serialize(snapshot, options): Dict<unknown> {
+  serialize(snapshot, options): Record<string, unknown> {
     return snapshot.serialize(options);
   }
 

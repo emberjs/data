@@ -6,7 +6,6 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { ConfidentDict as RelationshipDict } from '@ember-data/types/q/utils';
 
 export function getRelationshipStateForRecord(
   record: { store: Store },
@@ -30,7 +29,7 @@ export function hasRelationshipForRecord(
 export function implicitRelationshipsFor(
   storeWrapper: CacheStoreWrapper,
   identifier: StableRecordIdentifier
-): RelationshipDict<ImplicitRelationship> {
+): { [key: string]: ImplicitRelationship } {
   const rels = graphFor(storeWrapper).identifiers.get(identifier);
   if (!rels) {
     throw new Error(`Expected at least one relationship to be populated`);

@@ -1,18 +1,10 @@
-import ArrayMixin, { NativeArray } from '@ember/array';
-import type ArrayProxy from '@ember/array/proxy';
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import {
-  DEPRECATE_A_USAGE,
-  DEPRECATE_COMPUTED_CHAINS,
-  DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
-} from '@ember-data/deprecations';
+import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import { FindOptions } from '@ember-data/types/q/store';
 
 import type ManyArray from './many-array';
@@ -41,37 +33,15 @@ export interface HasManyProxyCreateArgs {
   @class PromiseManyArray
   @public
 */
-export default interface PromiseManyArray extends Omit<ArrayProxy<StableRecordIdentifier, RecordInstance>, 'destroy'> {
-  createRecord(): RecordInstance;
-  reload(options: FindOptions): PromiseManyArray;
-}
 export default class PromiseManyArray {
   declare promise: Promise<ManyArray> | null;
   declare isDestroyed: boolean;
-  // @deprecated (isDestroyed is not deprecated)
-  declare isDestroying: boolean;
 
   constructor(promise: Promise<ManyArray>, content?: ManyArray) {
     this._update(promise, content);
     this.isDestroyed = false;
-    this.isDestroying = false;
 
-    if (DEPRECATE_A_USAGE) {
-      const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
-        deprecate(`Do not use A() on an EmberData PromiseManyArray`, false, {
-          id: 'ember-data:no-a-with-array-like',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-          for: 'ember-data',
-        });
-        // @ts-expect-error ArrayMixin is more than a type
-        if (mixin === NativeArray || mixin === ArrayMixin) {
-          return true;
-        }
-        return false;
-      };
-    } else if (DEBUG) {
+    if (DEBUG) {
       const meta = Ember.meta(this);
       meta.hasMixin = (mixin: Object) => {
         assert(`Do not use A() on an EmberData PromiseManyArray`);
@@ -208,7 +178,6 @@ export default class PromiseManyArray {
   //---- Methods on EmberObject that we should keep
 
   destroy() {
-    this.isDestroying = true;
     this.isDestroyed = true;
     this.content = null;
     this.promise = null;
@@ -251,55 +220,6 @@ export default class PromiseManyArray {
   }
 }
 
-if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
-  PromiseManyArray.prototype.createRecord = function createRecord(...args) {
-    deprecate(
-      `The createRecord method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
-      false,
-      {
-        id: 'ember-data:deprecate-promise-many-array-behaviors',
-        until: '5.0',
-        since: { enabled: '4.7', available: '4.7' },
-        for: 'ember-data',
-      }
-    );
-    assert('You are trying to createRecord on an async manyArray before it has been created', this.content);
-    return this.content.createRecord(...args);
-  };
-
-  Object.defineProperty(PromiseManyArray.prototype, 'firstObject', {
-    get() {
-      deprecate(
-        `The firstObject property on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
-        false,
-        {
-          id: 'ember-data:deprecate-promise-many-array-behaviors',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-          for: 'ember-data',
-        }
-      );
-      return this.content ? this.content.firstObject : undefined;
-    },
-  });
-
-  Object.defineProperty(PromiseManyArray.prototype, 'lastObject', {
-    get() {
-      deprecate(
-        `The lastObject property on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
-        false,
-        {
-          id: 'ember-data:deprecate-promise-many-array-behaviors',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-          for: 'ember-data',
-        }
-      );
-      return this.content ? this.content.lastObject : undefined;
-    },
-  });
-}
-
 function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
   proxy.isPending = true;
   proxy.isSettled = false;
@@ -321,103 +241,4 @@ function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
       throw error;
     }
   );
-}
-
-if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
-  const EmberObjectMethods = [
-    'addObserver',
-    'cacheFor',
-    'decrementProperty',
-    'get',
-    'getProperties',
-    'incrementProperty',
-    'notifyPropertyChange',
-    'removeObserver',
-    'set',
-    'setProperties',
-    'toggleProperty',
-  ];
-  EmberObjectMethods.forEach((method) => {
-    PromiseManyArray.prototype[method] = function delegatedMethod(...args) {
-      deprecate(
-        `The ${method} method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
-        false,
-        {
-          id: 'ember-data:deprecate-promise-many-array-behaviors',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-          for: 'ember-data',
-        }
-      );
-      return Ember[method](this, ...args);
-    };
-  });
-
-  const InheritedProxyMethods = [
-    'addArrayObserver',
-    'addObject',
-    'addObjects',
-    'any',
-    'arrayContentDidChange',
-    'arrayContentWillChange',
-    'clear',
-    'compact',
-    'every',
-    'filter',
-    'filterBy',
-    'find',
-    'findBy',
-    'getEach',
-    'includes',
-    'indexOf',
-    'insertAt',
-    'invoke',
-    'isAny',
-    'isEvery',
-    'lastIndexOf',
-    'map',
-    'mapBy',
-    // TODO update RFC to note objectAt was deprecated (forEach was left for iteration)
-    'objectAt',
-    'objectsAt',
-    'popObject',
-    'pushObject',
-    'pushObjects',
-    'reduce',
-    'reject',
-    'rejectBy',
-    'removeArrayObserver',
-    'removeAt',
-    'removeObject',
-    'removeObjects',
-    'replace',
-    'reverseObjects',
-    'setEach',
-    'setObjects',
-    'shiftObject',
-    'slice',
-    'sortBy',
-    'toArray',
-    'uniq',
-    'uniqBy',
-    'unshiftObject',
-    'unshiftObjects',
-    'without',
-  ];
-  InheritedProxyMethods.forEach((method) => {
-    PromiseManyArray.prototype[method] = function proxiedMethod(...args) {
-      deprecate(
-        `The ${method} method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
-        false,
-        {
-          id: 'ember-data:deprecate-promise-many-array-behaviors',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-          for: 'ember-data',
-        }
-      );
-      assert(`Cannot call ${method} before content is assigned.`, this.content);
-      return this.content[method](...args);
-    };
-  });
 }

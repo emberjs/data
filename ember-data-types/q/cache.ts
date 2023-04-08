@@ -2,7 +2,6 @@ import { Cache } from '../cache/cache';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
 import type { JsonApiError, JsonApiResource } from './record-data-json-api';
-import { Dict } from './utils';
 /**
   @module @ember-data/store
 */
@@ -26,7 +25,7 @@ export interface CacheV1 {
   pushData(data: JsonApiResource, calculateChange?: false): void;
   pushData(data: JsonApiResource, calculateChange?: boolean): string[] | void;
   clientDidCreate(): void;
-  _initRecordCreateOptions(options?: Dict<unknown>): { [key: string]: unknown };
+  _initRecordCreateOptions(options?: Record<string, unknown>): Record<string, unknown>;
 
   willCommit(): void;
   didCommit(data: JsonApiResource | null): void;

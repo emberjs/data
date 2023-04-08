@@ -2,8 +2,6 @@
   @module @ember-data/store
 */
 
-import type { Dict } from './utils';
-
 export interface RelationshipSchema {
   kind: 'belongsTo' | 'hasMany';
   type: string; // related type
@@ -26,7 +24,7 @@ export interface RelationshipSchema {
   name: string; // property key for this relationship
 }
 
-export type RelationshipsSchema = Dict<RelationshipSchema>;
+export type RelationshipsSchema = Record<string, RelationshipSchema>;
 
 export interface AttributeSchema {
   /**
@@ -43,4 +41,4 @@ export interface AttributeSchema {
   type?: string; // TODO @runspired update RFC to make type optional
 }
 
-export type AttributesSchema = Dict<AttributeSchema>;
+export type AttributesSchema = Record<string, AttributeSchema>;

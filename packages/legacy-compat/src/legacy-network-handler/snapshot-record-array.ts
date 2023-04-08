@@ -1,17 +1,12 @@
 /**
   @module @ember-data/legacy-compat
 */
-
-import { deprecate } from '@ember/debug';
-
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';
 import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import type Snapshot from './snapshot';
 /**
@@ -28,7 +23,7 @@ export default class SnapshotRecordArray {
   declare modelName: string;
   declare __store: Store;
 
-  declare adapterOptions?: Dict<unknown>;
+  declare adapterOptions?: Record<string, unknown>;
   declare include?: string;
 
   /**
@@ -183,31 +178,4 @@ export default class SnapshotRecordArray {
 
     return this._snapshots;
   }
-}
-
-if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
-  /**
-    The type of the underlying records for the snapshots in the array, as a Model
-
-    @deprecated
-    @property type
-    @public
-    @type {Model}
-  */
-  Object.defineProperty(SnapshotRecordArray.prototype, 'type', {
-    get() {
-      deprecate(
-        `Using SnapshotRecordArray.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
-        false,
-        {
-          id: 'ember-data:deprecate-snapshot-model-class-access',
-          until: '5.0',
-          for: 'ember-data',
-          since: { available: '4.5.0', enabled: '4.5.0' },
-        }
-      );
-      // @ts-expect-error
-      return (this as SnapshotRecordArray)._recordArray.type as DSModelSchema;
-    },
-  });
 }

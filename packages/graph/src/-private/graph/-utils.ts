@@ -5,7 +5,6 @@ import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import { coerceId } from '../coerce-id';
 import type BelongsToRelationship from '../relationships/state/belongs-to';
@@ -18,12 +17,12 @@ export function getStore(wrapper: CacheStoreWrapper | { _store: Store }): Store 
   return wrapper._store;
 }
 
-export function expandingGet<T>(cache: Dict<Dict<T>>, key1: string, key2: string): T | undefined {
+export function expandingGet<T>(cache: Record<string, Record<string, T>>, key1: string, key2: string): T | undefined {
   let mainCache = (cache[key1] = cache[key1] || Object.create(null));
   return mainCache[key2];
 }
 
-export function expandingSet<T>(cache: Dict<Dict<T>>, key1: string, key2: string, value: T): void {
+export function expandingSet<T>(cache: Record<string, Record<string, T>>, key1: string, key2: string, value: T): void {
   let mainCache = (cache[key1] = cache[key1] || Object.create(null));
   mainCache[key2] = value;
 }
@@ -241,8 +240,15 @@ export function assertRelationshipData(store, identifier, data, meta) {
     )}'\n\nPlease check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
     data === null || !!coerceId(data.id)
   );
-  assert(
-    `Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on <${identifier.type}:${identifier.id}>, Expected an identifier with type '${meta.type}'. No model was found for '${data.type}'.`,
-    data === null || !data.type || store.getSchemaDefinitionService().doesTypeExist(data.type)
-  );
+  if (data?.type === meta.type) {
+    assert(
+      `Missing Schema: Encountered a relationship identifier { type: '${data.type}', id: '${data.id}' } for the '${identifier.type}.${meta.key}' ${meta.kind} relationship on <${identifier.type}:${identifier.id}>, but no schema exists for that type.`,
+      store.getSchemaDefinitionService().doesTypeExist(data.type)
+    );
+  } else {
+    assert(
+      `Missing Schema: Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on <${identifier.type}:${identifier.id}>, Expected an identifier with type '${meta.type}'. No schema was found for '${data.type}'.`,
+      data === null || !data.type || store.getSchemaDefinitionService().doesTypeExist(data.type)
+    );
+  }
 }

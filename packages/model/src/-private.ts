@@ -10,5 +10,4 @@ export { default as PromiseManyArray } from './-private/promise-many-array';
 export { default as _modelForMixin } from './-private/model-for-mixin';
 
 // // Used by tests
-export { default as diffArray } from './-private/diff-array';
 export { LEGACY_SUPPORT } from './-private/model';

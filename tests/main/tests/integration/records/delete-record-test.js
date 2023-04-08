@@ -10,7 +10,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -228,7 +227,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     record.deleteRecord();
 
@@ -271,7 +270,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     await record.destroyRecord();
 
@@ -325,17 +324,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     record.deleteRecord();
 
     assert.true(cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-    assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
-      undefined,
-      'The cache is destroyed'
-    );
 
     await record.save();
   });
@@ -359,18 +353,13 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     record.deleteRecord();
     await settled();
 
     assert.true(cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-    assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
-      undefined,
-      'The cache is destroyed'
-    );
 
     record.unloadRecord();
     await settled();

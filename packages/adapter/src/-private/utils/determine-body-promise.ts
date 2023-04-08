@@ -1,12 +1,11 @@
 import { warn } from '@ember/debug';
 
 import { DEBUG } from '@ember-data/env';
-import type { Dict } from '@ember-data/types/q/utils';
 
 import type { RequestData } from '../../rest';
 import continueOnReject from './continue-on-reject';
 
-type Payload = Error | Dict<unknown> | unknown[] | string | undefined;
+type Payload = Error | Record<string, unknown> | unknown[] | string | undefined;
 
 interface CustomSyntaxError extends SyntaxError {
   payload: Payload;

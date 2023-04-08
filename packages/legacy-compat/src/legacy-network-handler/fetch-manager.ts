@@ -1,8 +1,7 @@
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import { DEBUG, TESTING } from '@ember-data/env';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import { createDeferred } from '@ember-data/request';
@@ -24,7 +23,6 @@ import { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/min
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { FindOptions } from '@ember-data/types/q/store';
 
-import { _objectIsAlive, guardDestroyedStore } from './common';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { payloadIsNotBlank } from './legacy-data-utils';
 import { normalizeResponseHelper } from './serializer-response';
@@ -165,9 +163,7 @@ export default class FetchManager {
       },
       (error) => {
         assert(`Async Leak Detected: Expected the store to not be destroyed`, !store.isDestroyed);
-        const cache = DEPRECATE_V1_RECORD_DATA
-          ? store._instanceCache.peek({ identifier, bucket: 'resourceCache' })
-          : store.cache;
+        const cache = store.cache;
         if (!cache || cache.isEmpty(identifier) || isInitialLoad) {
           let isReleasable = true;
           if (HAS_GRAPH_PACKAGE) {
@@ -277,9 +273,7 @@ export default class FetchManager {
 }
 
 function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  const cache = DEPRECATE_V1_RECORD_DATA
-    ? instanceCache.__instances.resourceCache.get(identifier)
-    : instanceCache.cache;
+  const cache = instanceCache.cache;
   if (!cache) {
     return true;
   }
@@ -329,8 +323,6 @@ function _findMany(
     assert('adapter.findMany returned undefined, this was very likely a mistake', ret !== undefined);
     return ret;
   });
-
-  promise = guardDestroyedStore(promise, store) as Promise<AdapterPayload>;
 
   return promise.then((adapterPayload) => {
     assert(
@@ -455,7 +447,7 @@ function _fetchRecord(store: Store, adapter: MinimumAdapterInterface, fetchItem:
   });
 
   promise = promise.then((adapterPayload) => {
-    assert(`Async Leak Detected: Expected the store to not be destroyed`, _objectIsAlive(store));
+    assert(`Async Leak Detected: Expected the store to not be destroyed`, !(store.isDestroyed || store.isDestroying));
     assert(
       `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
       !!payloadIsNotBlank(adapterPayload)
@@ -545,7 +537,6 @@ function _flushPendingSave(store: Store, pending: PendingSaveItem) {
 
   let modelName = snapshot.modelName;
   let modelClass = store.modelFor(modelName);
-  const record = store._instanceCache.getRecord(identifier);
 
   assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
   assert(
@@ -562,25 +553,6 @@ function _flushPendingSave(store: Store, pending: PendingSaveItem) {
   );
 
   promise = promise.then((adapterPayload) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    if (!_objectIsAlive(record)) {
-      if (DEPRECATE_RSVP_PROMISE) {
-        deprecate(
-          `A Promise while saving ${modelName} did not resolve by the time your model was destroyed. This will error in a future release.`,
-          false,
-          {
-            id: 'ember-data:rsvp-unresolved-async',
-            until: '5.0',
-            for: '@ember-data/store',
-            since: {
-              available: '4.5',
-              enabled: '4.5',
-            },
-          }
-        );
-      }
-    }
-
     if (adapterPayload) {
       return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
     }

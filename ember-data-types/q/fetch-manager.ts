@@ -1,10 +1,8 @@
-import type { Dict } from '@ember-data/types/q/utils';
-
 import type { RecordIdentifier } from './identifier';
 
 export interface Operation {
   op: string;
-  options: Dict<unknown> | undefined;
+  options: Record<string, unknown> | undefined;
   recordIdentifier: RecordIdentifier;
 }
 
