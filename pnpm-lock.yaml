@@ -145,8 +145,8 @@ importers:
         specifier: ^8.8.0
         version: 8.8.0(eslint@8.37.0)
       eslint-plugin-ember:
-        specifier: ^11.4.9
-        version: 11.4.9(eslint@8.37.0)
+        specifier: ^11.5.0
+        version: 11.5.1(eslint@8.37.0)
       eslint-plugin-ember-data:
         specifier: link:./packages/unpublished-eslint-rules
         version: link:packages/unpublished-eslint-rules
@@ -9656,8 +9656,8 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-ember@11.4.9(eslint@8.37.0):
-    resolution: {integrity: sha512-1nAgMSwAJrntfvsiyIyHtYY+AvAPZ1wxcoa+gsui/VviQqULCtZLF8+1UAOTAGJ5bEjhe3f8TTcyRGHXRPHzeQ==}
+  /eslint-plugin-ember@11.5.1(eslint@8.37.0):
+    resolution: {integrity: sha512-dFNULVIoGSTwphswKG+XGZuEs2sNx8zlxsmrDp435VJW0B40teIy72w000zaSM2TCARprflNmrmU6lVkwvF1TQ==}
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
       eslint: '>= 7'
