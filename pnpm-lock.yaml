@@ -145,7 +145,7 @@ importers:
         specifier: ^8.8.0
         version: 8.8.0(eslint@8.37.0)
       eslint-plugin-ember:
-        specifier: ^11.5.0
+        specifier: ^11.5.1
         version: 11.5.1(eslint@8.37.0)
       eslint-plugin-ember-data:
         specifier: link:./packages/unpublished-eslint-rules
