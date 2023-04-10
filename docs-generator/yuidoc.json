@@ -12,7 +12,7 @@
     ],
     "paths": [
       "../ember-data-types",
-      "../packages/-ember-data/addon",
+      "../packages/-ember-data/src",
       "../packages/debug/addon",
       "../packages/private-build-infra/virtual-packages",
       "../packages/adapter/src",
