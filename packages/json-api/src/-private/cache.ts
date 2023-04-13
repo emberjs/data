@@ -707,10 +707,11 @@ export default class JSONAPICache implements Cache {
       }
     }
 
+    const wasNew = cached.isNew;
     cached.isNew = false;
     let newCanonicalAttributes: AttributesHash | undefined;
     if (data) {
-      if (data.id) {
+      if (data.id && wasNew) {
         // didCommit provided an ID, notify the store of it
         assert(
           `Expected resource id to be a string, got a value of type ${typeof data.id}`,
