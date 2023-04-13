@@ -14,6 +14,7 @@ module('integration/references/autotracking', function (hooks) {
 
   class User extends Model {
     @attr name;
+    @attr newId;
     @belongsTo('user', { inverse: null, async: false })
     bestFriend;
     @hasMany('user', { inverse: null, async: false })
@@ -33,7 +34,8 @@ module('integration/references/autotracking', function (hooks) {
           return { data: { id: '6', type: 'user' } };
         }
         updateRecord(_, type, snapshot) {
-          return { data: { id: snapshot.id, type: 'user', attributes: snapshot.attributes() } };
+          const attributes = snapshot.attributes();
+          return { data: { id: attributes.newId || snapshot.id, type: 'user', attributes } };
         }
         deleteRecord() {
           return { data: null };
@@ -264,6 +266,8 @@ module('integration/references/autotracking', function (hooks) {
     testContext.updates = 0;
     await dan.save();
     await settled();
+    assert.strictEqual(dan.currentState.identifier.id, '6', 'identifier.id 6 was assigned by server');
+    assert.strictEqual(dan.id, '6', 'id 6 was assigned by server');
     assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the record id updates');
     assert.strictEqual(testContext.updates, 1, 'id() was accessed by render');
     assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
@@ -272,9 +276,21 @@ module('integration/references/autotracking', function (hooks) {
     // Subsequent saves should *not* trigger re-render
     await dan.save();
     await settled();
-    assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the record id updates');
+    assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id remains when the record is saved');
     assert.strictEqual(testContext.updates, 0, 'id() was NOT accessed by render');
     assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
     assert.strictEqual(testContext.updates, 1, 'id() has been invoked once');
+    testContext.updates = 0;
+    // Update via server should trigger re-render
+    dan.newId = '7';
+    await dan.save();
+    await settled();
+    assert.strictEqual(dan.currentState.identifier.id, '7', 'identifier.id 7 was assigned by server');
+    assert.strictEqual(dan.id, '7', 'id was updated to 7 by server'); // FIXME this assertion is failing (due to lack of notification?)
+    assert.strictEqual(getRootElement().textContent, 'id: 7', 'the id updates when the record id updates');
+    assert.strictEqual(testContext.updates, 1, 'id() was accessed by render');
+    assert.strictEqual(testContext.id, '7', 'the id is correct when the record is saved');
+    assert.strictEqual(testContext.updates, 2, 'id() has been invoked twice');
+    testContext.updates = 0;
   });
 });
