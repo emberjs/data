@@ -181,8 +181,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       glob:
-        specifier: ^9.3.4
-        version: 9.3.4
+        specifier: ^9.3.5
+        version: 9.3.5
       json-typescript:
         specifier: ^1.1.2
         version: 1.1.2
@@ -795,8 +795,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       glob:
-        specifier: ^9.3.4
-        version: 9.3.4
+        specifier: ^9.3.5
+        version: 9.3.5
       npm-git-info:
         specifier: ^1.0.3
         version: 1.0.3
@@ -10840,8 +10840,8 @@ packages:
       minimatch: 5.1.6
       once: 1.4.0
 
-  /glob@9.3.4:
-    resolution: {integrity: sha512-qaSc49hojMOv1EPM4EuyITjDSgSKI0rthoHnvE81tcOi1SCVndHko7auqxdQ14eiQG2NDBJBE86+2xIrbIvrbA==}
+  /glob@9.3.5:
+    resolution: {integrity: sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q==}
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       fs.realpath: 1.0.0
@@ -13990,7 +13990,7 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
-      glob: 9.3.4
+      glob: 9.3.5
 
   /rollup-plugin-copy-assets@2.0.3(rollup@3.20.2):
     resolution: {integrity: sha512-ETShhQGb9SoiwcNrvb3BhUNSGR89Jao0+XxxfzzLW1YsUzx8+rMO4z9oqWWmo6OHUmfNQRvqRj0cAyPkS9lN9w==}
@@ -16419,7 +16419,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-version-checker: 5.1.2
       git-repo-info: 2.1.1
-      glob: 9.3.4
+      glob: 9.3.5
       npm-git-info: 1.0.3
       rimraf: 4.4.1
       rsvp: 4.8.5
