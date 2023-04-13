@@ -241,8 +241,10 @@ module('integration/references/autotracking', function (hooks) {
 
     class TestContext {
       user = reference;
+      updates = 0;
 
       get id() {
+        this.updates++;
         return this.user.id();
       }
     }
@@ -254,9 +256,17 @@ module('integration/references/autotracking', function (hooks) {
 
     assert.strictEqual(getRootElement().textContent, 'id: null', 'the id is null');
     assert.strictEqual(testContext.id, null, 'the id is correct initially');
+    assert.strictEqual(testContext.updates, 1, 'id() has been invoked once');
     await dan.save();
     await settled();
     assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the record id updates');
     assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
+    assert.strictEqual(testContext.updates, 2, 'id() has been invoked twice');
+    // Subsequent saves should do nothing
+    await dan.save();
+    await settled();
+    assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the record id updates');
+    assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
+    assert.strictEqual(testContext.updates, 2, 'id() has been invoked only twice');
   });
 });
