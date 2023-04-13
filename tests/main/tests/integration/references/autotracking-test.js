@@ -32,6 +32,9 @@ module('integration/references/autotracking', function (hooks) {
         createRecord() {
           return { data: { id: '6', type: 'user' } };
         }
+        updateRecord(_, type, snapshot) {
+          return { data: { id: snapshot.id, type: 'user', attributes: snapshot.attributes() } };
+        }
         deleteRecord() {
           return { data: null };
         }
@@ -255,18 +258,23 @@ module('integration/references/autotracking', function (hooks) {
     await render(hbs`id: {{if this.context.id this.context.id 'null'}}`);
 
     assert.strictEqual(getRootElement().textContent, 'id: null', 'the id is null');
+    assert.strictEqual(testContext.updates, 1, 'id() was accessed by render');
     assert.strictEqual(testContext.id, null, 'the id is correct initially');
-    assert.strictEqual(testContext.updates, 1, 'id() has been invoked once');
+    assert.strictEqual(testContext.updates, 2, 'id() has been invoked twice');
+    testContext.updates = 0;
     await dan.save();
     await settled();
     assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the record id updates');
+    assert.strictEqual(testContext.updates, 1, 'id() was accessed by render');
     assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
     assert.strictEqual(testContext.updates, 2, 'id() has been invoked twice');
-    // Subsequent saves should do nothing
+    testContext.updates = 0;
+    // Subsequent saves should *not* trigger re-render
     await dan.save();
     await settled();
     assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the record id updates');
+    assert.strictEqual(testContext.updates, 0, 'id() was NOT accessed by render');
     assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
-    assert.strictEqual(testContext.updates, 2, 'id() has been invoked only twice');
+    assert.strictEqual(testContext.updates, 1, 'id() has been invoked once');
   });
 });
