@@ -200,7 +200,7 @@ module('integration/record-array - RecordArray', function (hooks) {
     assert.strictEqual(recordArray.length, 0, 'initial length 0');
 
     // eslint-disable-next-line no-unused-vars
-    const [_one, _two, three] = store.push({
+    const [_one, two, three] = store.push({
       data: [
         { type: 'person', id: '1', attributes: { name: 'Chris' } },
         { type: 'person', id: '2', attributes: { name: 'Ross' } },
@@ -218,6 +218,16 @@ module('integration/record-array - RecordArray', function (hooks) {
     await settled();
 
     assert.strictEqual(recordArray.length, 2, 'updated length 2');
+
+    // Leaving a single record
+    two.deleteRecord();
+    assert.strictEqual(recordArray.length, 2, 'populated length 2');
+    await two.save();
+    assert.strictEqual(recordArray.length, 1, 'after save persisted length 1');
+    two.unloadRecord();
+    await settled();
+
+    assert.strictEqual(recordArray.length, 1, 'updated length 1');
   });
 
   test('destroyRecord on a newly create record that is staged for a live record array only removes itself', async function (assert) {
