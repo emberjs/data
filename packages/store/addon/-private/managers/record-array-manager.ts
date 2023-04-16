@@ -347,7 +347,9 @@ function sync(array: IdentifierArray, changes: Map<StableRecordIdentifier, 'add'
       }
       adds.push(key);
     } else {
-      removes.push(key);
+      if (state.includes(key)) {
+        removes.push(key);
+      }
     }
   });
   if (removes.length) {
