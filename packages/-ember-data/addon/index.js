@@ -74,6 +74,8 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 - [@ember-data/store](/ember-data/release/modules/@ember-data%2Fstore) is the core and handles coordination
 - [@ember-data/json-api](/ember-data/release/modules/@ember-data%2Fjson-api) provides a resource cache for JSON:API structured data. It integrates with the store via the hook `createCache`
 - [@ember-data/model](/ember-data/release/modules/@ember-data%2Fmodel) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
+- [@ember-data/request](/ember-data/release/modules/@ember-data%2Frequest) provides a pipeline for requesting data from an API. It integrates with the store via the `requestManager` property
+- [@ember-data/legacy-compat](/ember-data/release/modules/@ember-data%2Flegacy-compat) provides a compatibility layer for legacy APIs (Adapter, Serializer etc.)
 - [@ember-data/adapter](/ember-data/release/modules/@ember-data%2Fadapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions.
 - [@ember-data/serializer](/ember-data/release/modules/@ember-data%2Fserializer) pairs with `@ember-data/adapter` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/json-api`.
 - [@ember-data/debug](/ember-data/release/modules/@ember-data%2Fdebug) provides debugging support for the `ember-inspector`.
