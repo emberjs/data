@@ -262,7 +262,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     const ApplicationAdapter = Adapter.extend({
       query(store, type, query) {
         assert.strictEqual(type, store.modelFor('person'), 'The type was Person');
-        assert.strictEqual(query, passedQuery, 'The query was passed in');
+        assert.deepEqual(query, passedQuery, 'The query was passed in');
         return resolve({ data: [] });
       },
     });

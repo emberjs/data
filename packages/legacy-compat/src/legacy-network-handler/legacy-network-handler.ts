@@ -25,7 +25,7 @@ import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas
 import FetchManager, { SaveOp } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
-import { payloadIsNotBlank } from './legacy-data-utils';
+import { deepCopy, payloadIsNotBlank } from './legacy-data-utils';
 import { normalizeResponseHelper } from './serializer-response';
 import type Snapshot from './snapshot';
 import SnapshotRecordArray from './snapshot-record-array';
@@ -466,10 +466,7 @@ function _findAll<T>(
 
 function query<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
-  let { options } = data as {
-    options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
-  };
-  const { type, query } = data as {
+  let { type, query, options } = data as {
     type: string;
     query: Record<string, unknown>;
     options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
@@ -489,6 +486,9 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   if (DEBUG) {
     options = Object.assign({}, options);
     delete options._recordArray;
+
+    query = deepCopy(query);
+    options = deepCopy(options);
   } else {
     delete options._recordArray;
   }
@@ -527,7 +527,7 @@ function assertSingleResourceDocument(payload: JsonApiDocument): asserts payload
 
 function queryRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
-  const { type, query, options } = data as { type: string; query: Record<string, unknown>; options: object };
+  let { type, query, options } = data as { type: string; query: Record<string, unknown>; options: object };
   const adapter = store.adapterFor(type);
 
   assert(`You tried to make a query but you have no adapter (for ${type})`, adapter);
@@ -535,6 +535,11 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
     `You tried to make a query but your adapter does not implement 'queryRecord'`,
     typeof adapter.queryRecord === 'function'
   );
+
+  if (DEBUG) {
+    query = deepCopy(query);
+    options = deepCopy(options);
+  }
 
   const schema = store.modelFor(type);
   let promise = Promise.resolve().then(() => adapter.queryRecord(store, schema, query, options)) as Promise<T>;
