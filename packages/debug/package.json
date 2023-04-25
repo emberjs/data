@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/debug",
-  "version": "5.1.0-alpha.3",
+  "version": "5.1.0-alpha.4",
   "description": "Provides support for the ember-inspector for apps built with Ember and EmberData",
   "keywords": [
     "ember-addon"
@@ -23,7 +23,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.1.0-alpha.3",
+    "@ember-data/private-build-infra": "workspace:5.1.0-alpha.4",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.10.0",
     "ember-auto-import": "^2.6.1",
