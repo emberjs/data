@@ -106,13 +106,13 @@
     "node": "16.* || >= 18.*",
     "yarn": "use pnpm",
     "npm": "use pnpm",
-    "pnpm": "8.1.0"
+    "pnpm": "8.4.0"
   },
   "volta": {
     "node": "18.15.0",
-    "pnpm": "8.1.0"
+    "pnpm": "8.4.0"
   },
-  "packageManager": "pnpm@8.1.0",
+  "packageManager": "pnpm@8.4.0",
   "changelog": {
     "labels": {
       "changelog:breaking": ":boom: Breaking Change",
@@ -128,7 +128,7 @@
   },
   "pnpm": {
     "overrides": {
-      "ember-auto-import": "^2.6.1",
+      "ember-auto-import": "^2.6.3",
       "@embroider/macros": "1.10.0",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
