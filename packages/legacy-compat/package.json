@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/legacy-compat",
   "description": "Compatibility Shims for Older EmberData",
-  "version": "5.1.0-alpha.6",
+  "version": "5.1.0-alpha.7",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "ember-cli-babel": "^7.26.11",
-    "@ember-data/private-build-infra": "workspace:5.1.0-alpha.6",
+    "@ember-data/private-build-infra": "workspace:5.1.0-alpha.7",
     "@embroider/macros": "^1.10.0"
   },
   "files": [
@@ -50,8 +50,8 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/graph": "workspace:5.1.0-alpha.6",
-    "@ember-data/json-api": "workspace:5.1.0-alpha.6"
+    "@ember-data/graph": "workspace:5.1.0-alpha.7",
+    "@ember-data/json-api": "workspace:5.1.0-alpha.7"
   },
   "peerDependenciesMeta": {
     "@ember-data/graph": {
