@@ -42,6 +42,58 @@ module('integration/queries - Queries Tests', function (hooks) {
     this.owner.register('model:person', Person);
   });
 
+  test('options passed to adapters by LegacyHandler are mutable', async function (assert) {
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+
+    let expectedResult = {
+      id: '19',
+      type: 'person',
+      attributes: {
+        firstName: 'Chris',
+        lastName: 'Thoburn',
+      },
+    };
+
+    class TestAdapter extends EmberObject {
+      query(passedStore, type, query, recordArray, adapterOptions) {
+        assert.deepEqual(query, { initialOption: 'foo' }, 'original query is passed to adapter');
+
+        query.initialOption = 'bar';
+        adapterOptions ||= {};
+        adapterOptions.otherOption = 'baz';
+
+        assert.strictEqual(query.initialOption, 'bar', 'query is mutated');
+        assert.strictEqual(adapterOptions.otherOption, 'baz', 'adapterOptions is mutated');
+
+        return resolve({
+          data: [expectedResult],
+        });
+      }
+      queryRecord(passedStore, type, query, record, adapterOptions) {
+        assert.deepEqual(query, { initialOption: 'foo' }, 'original query is passed to adapter');
+
+        query.initialOption = 'bar';
+        adapterOptions ||= {};
+        adapterOptions.otherOption = 'baz';
+
+        assert.strictEqual(query.initialOption, 'bar', 'query is mutated');
+        assert.strictEqual(adapterOptions.otherOption, 'baz', 'adapterOptions is mutated');
+
+        return resolve({
+          data: expectedResult,
+        });
+      }
+    }
+
+    owner.register('adapter:application', TestAdapter);
+
+    for (let method of ['query', 'queryRecord']) {
+      let result = await store[method]('person', { initialOption: 'foo' });
+      assert.ok(result, `result is returned for ${method}`);
+    }
+  });
+
   test('store.findRecord calls adapter.findRecord w/correct args', async function (assert) {
     let findRecordCalled = 0;
     let expectedResult = {
