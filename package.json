@@ -73,7 +73,7 @@
     "ember-cli": "~4.12.1",
     "ember-source": "~4.12.0",
     "debug": "^4.3.4",
-    "eslint": "^8.39.0",
+    "eslint": "^8.40.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-ember": "^11.5.2",
     "eslint-plugin-ember-data": "link:./packages/unpublished-eslint-rules",
