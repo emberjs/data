@@ -1,4 +1,7 @@
 'use strict';
+const path = require('path');
+const fs = require('fs');
+
 const QUnit = require('qunit');
 
 const { test } = QUnit;
@@ -38,6 +41,7 @@ QUnit.module('Docs coverage', function (hooks) {
       const module = docs.modules[moduleName];
       if (isOwnModule(module)) {
         test(`${moduleName} is configured correctly`, function (assert) {
+          assert.ok(docs.files[module.file], `${moduleName} has a file in ${linkItem(module)}`);
           assert.strictEqual(module.tag, 'main', `${moduleName} is tagged as main in ${linkItem(module)}`);
           assert.true(isNonEmptyString(module.description), `${moduleName} has a description in ${linkItem(module)}`);
           assert.false(
@@ -56,6 +60,7 @@ QUnit.module('Docs coverage', function (hooks) {
         return;
       }
       test(`Class ${className} is documented correctly at ${linkItem(def)}`, function (assert) {
+        assert.ok(docs.files[def.file], `${className} has a file`);
         assert.true(
           def.access === 'public' || def.access === 'private',
           `${def.name} must declare either as either @internal @private or @public`
@@ -148,6 +153,16 @@ QUnit.module('Docs coverage', function (hooks) {
         extraneous,
         'If you have added new features, please update tests/docs/expected.js and confirm that any public properties are marked both @public and @static to be included in the Ember API Docs viewer.'
       );
+    });
+  });
+
+  QUnit.module('files', function (hooks) {
+    test(`All files have meaningful paths`, function (assert) {
+      const root = path.join(__dirname, '../../packages/-ember-data');
+      Object.keys(docs.files).forEach((fileName) => {
+        const filePath = path.join(root, fileName);
+        assert.true(fs.existsSync(filePath), `${fileName} is resolvable as ${filePath}`);
+      });
     });
   });
 });
