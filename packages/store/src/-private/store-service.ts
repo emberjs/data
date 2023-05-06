@@ -3,6 +3,7 @@
  */
 import { getOwner, setOwner } from '@ember/application';
 import { assert } from '@ember/debug';
+import EmberObject from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
 import { importSync } from '@embroider/macros';
@@ -93,11 +94,12 @@ export interface CreateRecordProperties {
   @public
 */
 
+// @ts-expect-error
 interface Store {
   createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache | CacheV1;
 }
 
-class Store {
+class Store extends EmberObject {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -214,14 +216,30 @@ class Store {
   // DEBUG-only properties
   declare DISABLE_WAITER?: boolean;
 
-  isDestroying: boolean = false;
-  isDestroyed: boolean = false;
+  declare _isDestroying: boolean;
+  declare _isDestroyed: boolean;
+
+  // @ts-expect-error
+  get isDestroying(): boolean {
+    return this._isDestroying;
+  }
+  set isDestroying(value: boolean) {
+    this._isDestroying = value;
+  }
+  // @ts-expect-error
+  get isDestroyed(): boolean {
+    return this._isDestroyed;
+  }
+  set isDestroyed(value: boolean) {
+    this._isDestroyed = value;
+  }
 
   /**
     @method init
     @private
   */
   constructor(createArgs?: Record<string, unknown>) {
+    super(createArgs);
     Object.assign(this, createArgs);
 
     this.identifierCache = new IdentifierCache();
@@ -238,6 +256,9 @@ class Store {
     this._serializerCache = Object.create(null);
     this._modelFactoryCache = Object.create(null);
     this._documentCache = new Map();
+
+    this.isDestroying = false;
+    this.isDestroyed = false;
   }
 
   _run(cb: () => void) {
@@ -2410,7 +2431,8 @@ class Store {
     return null;
   }
 
-  destroy() {
+  // @ts-expect-error
+  destroy(): void {
     if (this.isDestroyed) {
       // @ember/test-helpers will call destroy multiple times
       return;
