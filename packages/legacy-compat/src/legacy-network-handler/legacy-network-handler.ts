@@ -466,7 +466,10 @@ function _findAll<T>(
 
 function query<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
-  let { type, query, options } = data as {
+  let { options } = data as {
+    options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
+  };
+  const { type, query } = data as {
     type: string;
     query: Record<string, unknown>;
     options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
@@ -524,7 +527,7 @@ function assertSingleResourceDocument(payload: JsonApiDocument): asserts payload
 
 function queryRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
-  let { type, query, options } = data as { type: string; query: Record<string, unknown>; options: object };
+  const { type, query, options } = data as { type: string; query: Record<string, unknown>; options: object };
   const adapter = store.adapterFor(type);
 
   assert(`You tried to make a query but you have no adapter (for ${type})`, adapter);
@@ -532,11 +535,6 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
     `You tried to make a query but your adapter does not implement 'queryRecord'`,
     typeof adapter.queryRecord === 'function'
   );
-
-  if (DEBUG) {
-    query = deepCopy(query);
-    options = deepCopy(options);
-  }
 
   const schema = store.modelFor(type);
   let promise = Promise.resolve().then(() => adapter.queryRecord(store, schema, query, options)) as Promise<T>;
