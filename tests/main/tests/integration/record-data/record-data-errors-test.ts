@@ -9,6 +9,7 @@ import { setupTest } from 'ember-qunit';
 import { InvalidError } from '@ember-data/adapter/error';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr } from '@ember-data/model';
+import { StructuredDataDocument } from '@ember-data/request/-private/types';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
 import type { Change } from '@ember-data/types/cache/change';
@@ -31,7 +32,11 @@ import type {
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type {
+  RecordIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 
 class Person extends Model {
@@ -116,7 +121,12 @@ class TestRecordData implements Cache {
     return {};
   }
   willCommit(identifier: StableRecordIdentifier): void {}
-  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {}
+  didCommit(
+    identifier: StableRecordIdentifier,
+    response: StructuredDataDocument<SingleResourceDocument>
+  ): SingleResourceDataDocument {
+    return { data: identifier as StableExistingRecordIdentifier };
+  }
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
     this._errors = errors;
   }
