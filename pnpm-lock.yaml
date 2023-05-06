@@ -180,9 +180,6 @@ importers:
       git-repo-version:
         specifier: ^1.0.2
         version: 1.0.2
-      glob:
-        specifier: ^9.3.5
-        version: 9.3.5
       json-typescript:
         specifier: ^1.1.2
         version: 1.1.2
@@ -794,9 +791,6 @@ importers:
       git-repo-info:
         specifier: ^2.1.1
         version: 2.1.1
-      glob:
-        specifier: ^9.3.5
-        version: 9.3.5
       npm-git-info:
         specifier: ^1.0.3
         version: 1.0.3
