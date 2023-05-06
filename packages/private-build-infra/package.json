@@ -33,7 +33,7 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-version-checker": "^5.1.2",
     "git-repo-info": "^2.1.1",
-    "glob": "^9.3.5",
+    "glob": "^10.2.2",
     "npm-git-info": "^1.0.3",
     "semver": "^7.3.8",
     "silent-error": "^1.1.1"
