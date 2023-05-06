@@ -6,6 +6,7 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import { DEBUG } from '@ember-data/env';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 
@@ -297,5 +298,24 @@ module('integration/references/autotracking', function (hooks) {
     assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
     assert.strictEqual(testContext.updates, 1, 'id() has been invoked once');
     testContext.updates = 0;
+
+    if (DEBUG) {
+      // Update ID via server should error
+      dan.name = 'Dan';
+      store.adapterFor('user').updateRecord = (_, type, snapshot) => {
+        const attributes = snapshot.attributes();
+        return { data: { id: '7', type: 'user', attributes } };
+      };
+      try {
+        await dan.save();
+        assert.ok(false, 'expected the update to ID to throw an error');
+      } catch (e) {
+        assert.strictEqual(
+          e.message,
+          "Assertion Failed: Expected the ID received for the primary 'user' resource being saved to match the current id '6' but received '7'.",
+          'threw error'
+        );
+      }
+    }
   });
 });

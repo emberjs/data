@@ -1,6 +1,11 @@
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { StructuredDataDocument } from '@ember-data/request/-private/types';
 import type { Change } from '@ember-data/types/cache/change';
-import type { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import type {
+  ResourceDocument,
+  SingleResourceDataDocument,
+  StructuredDocument,
+} from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type {
@@ -9,6 +14,8 @@ import type {
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+
+import type { StoreRequestContext } from '../cache-handler';
 
 /**
  * The CacheManager wraps a Cache enforcing that only
@@ -296,8 +303,8 @@ export class CacheManager implements Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier): void {
-    this.#cache.willCommit(identifier);
+  willCommit(identifier: StableRecordIdentifier, context: StoreRequestContext): void {
+    this.#cache.willCommit(identifier, context);
   }
 
   /**
@@ -309,8 +316,8 @@ export class CacheManager implements Cache {
    * @param identifier
    * @param data
    */
-  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    this.#cache.didCommit(identifier, data);
+  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+    return this.#cache.didCommit(identifier, result);
   }
 
   /**
