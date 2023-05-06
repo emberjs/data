@@ -25,7 +25,7 @@ import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas
 import FetchManager, { SaveOp } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
-import { deepCopy, payloadIsNotBlank } from './legacy-data-utils';
+import { payloadIsNotBlank } from './legacy-data-utils';
 import { normalizeResponseHelper } from './serializer-response';
 import type Snapshot from './snapshot';
 import SnapshotRecordArray from './snapshot-record-array';
@@ -486,9 +486,6 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   if (DEBUG) {
     options = Object.assign({}, options);
     delete options._recordArray;
-
-    query = deepCopy(query);
-    options = deepCopy(options);
   } else {
     delete options._recordArray;
   }
