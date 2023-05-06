@@ -1550,8 +1550,8 @@ importers:
         specifier: ^3.3.1
         version: 3.3.1(ember-cli@4.12.1)
       ember-cli-fastboot:
-        specifier: ^4.1.0
-        version: 4.1.0
+        specifier: ^4.1.1
+        version: 4.1.1
       ember-cli-fastboot-testing:
         specifier: ^0.6.0
         version: 0.6.0(webpack@5.82.0)
@@ -1667,8 +1667,8 @@ importers:
         specifier: ^3.3.1
         version: 3.3.1(ember-cli@4.12.1)
       ember-cli-fastboot:
-        specifier: ^4.1.0
-        version: 4.1.0
+        specifier: ^4.1.1
+        version: 4.1.1
       ember-cli-fastboot-testing:
         specifier: ^0.6.0
         version: 0.6.0(webpack@5.82.0)
@@ -8701,8 +8701,8 @@ packages:
       - webpack
     dev: true
 
-  /ember-cli-fastboot@4.1.0:
-    resolution: {integrity: sha512-OQ1+eEVK8OBh0M0KY6Rrxu2JqdAByQlY4SWzR/06cTftcDSKpUL44DTrWPs7Te4bEgQfjbic2g8AUOVw+2YvUA==}
+  /ember-cli-fastboot@4.1.1:
+    resolution: {integrity: sha512-9B/qJUfDVqRmZlXxP23V2AZ3hiez99DKT2cPJ0MWkjwRom/kmVJHvv5X4fxvT7MCokjOVFvzas79D5toV4GLIA==}
     engines: {node: 14.* || 16.* || >=18}
     dependencies:
       broccoli-concat: 4.2.5
@@ -8715,8 +8715,8 @@ packages:
       ember-cli-lodash-subset: 2.0.1
       ember-cli-preprocess-registry: 3.3.0
       ember-cli-version-checker: 5.1.2
-      fastboot: 4.1.0
-      fastboot-express-middleware: 4.1.0
+      fastboot: 4.1.1
+      fastboot-express-middleware: 4.1.1
       fastboot-transform: 0.1.3
       fs-extra: 10.1.0
       json-stable-stringify: 1.0.2
@@ -10290,12 +10290,12 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /fastboot-express-middleware@4.1.0:
-    resolution: {integrity: sha512-RH/YnAn8S/CuzVsK0SLH5cVDP50R3MedqPFhf69T3z6h7LSFm12VAU2TKkqtW/N7qDs00CK1Clus2CwuzXVtWA==}
+  /fastboot-express-middleware@4.1.1:
+    resolution: {integrity: sha512-RzobJdJXtFLOp+QtQlRSEm4RjepprLDITyYxPzd7M8LTH9jo2COhG0NFz2LFcv9Jtqlp8IzKh/0w2+hOt7JZow==}
     engines: {node: 12.* || 14.* || >=16}
     dependencies:
       chalk: 4.1.2
-      fastboot: 4.1.0
+      fastboot: 4.1.1
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -10330,8 +10330,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /fastboot@4.1.0:
-    resolution: {integrity: sha512-NoUUiWhLS4JfrYiHmbRjqqWmzttO+6hVyt+CawsZCg79ljTGAIhPThy8cxg11yiDNiaM9EY3kocWZrCMUM7o4g==}
+  /fastboot@4.1.1:
+    resolution: {integrity: sha512-XG7YprsAuAGZrUDhmJ0NFuEP0gpWg9LZwGWSS1I5+f0ETHKPWqb4x59sN2rU1nvCEETBK70z68tLsWsl9daomg==}
     engines: {node: 12.* || 14.* || >=16}
     dependencies:
       chalk: 4.1.2
