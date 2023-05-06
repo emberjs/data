@@ -10,6 +10,7 @@ import type Store from '@ember-data/store';
 import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
+import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type {
   CollectionResourceDocument,
   JsonApiDocument,
@@ -189,6 +190,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
           console.log(`EmberData | Payload - ${operation!}`, payload);
         }
       }
+      let result: SingleResourceDataDocument;
       /*
       // TODO @runspired re-evaluate the below claim now that
       // the save request pipeline is more streamlined.
@@ -218,13 +220,13 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
 
         //We first make sure the primary data has been updated
         const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(actualIdentifier) : store.cache;
-        cache.didCommit(identifier, data);
+        result = cache.didCommit(identifier, { request: context.request, content: payload });
 
         if (payload && payload.included) {
           store._push({ data: null, included: payload.included }, true);
         }
       });
-      return store.peekRecord(identifier);
+      return store.peekRecord(result!.data!);
     })
     .catch((e: unknown) => {
       let err = e;

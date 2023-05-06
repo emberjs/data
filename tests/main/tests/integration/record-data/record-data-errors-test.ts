@@ -10,6 +10,7 @@ import { InvalidError } from '@ember-data/adapter/error';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr } from '@ember-data/model';
+import type { StructuredDataDocument } from '@ember-data/request/-private/types';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
@@ -33,9 +34,13 @@ import type {
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
-import type { NewRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type {
+  NewRecordIdentifier,
+  RecordIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import type { Dict } from '@ember-data/types/q/utils';
 
 if (!DEPRECATE_V1_RECORD_DATA) {
   class Person extends Model {
@@ -114,12 +119,20 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       this.wrapper.notifyChange(identifier, 'attributes');
       this.wrapper.notifyChange(identifier, 'relationships');
     }
-    clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+    clientDidCreate(
+      identifier: StableRecordIdentifier,
+      options?: Record<string, unknown> | undefined
+    ): Record<string, unknown> {
       this._isNew = true;
       return {};
     }
     willCommit(identifier: StableRecordIdentifier): void {}
-    didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {}
+    didCommit(
+      identifier: StableRecordIdentifier,
+      response: StructuredDataDocument<SingleResourceDocument>
+    ): SingleResourceDataDocument {
+      return { data: identifier as StableExistingRecordIdentifier };
+    }
     commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
       this._errors = errors;
     }

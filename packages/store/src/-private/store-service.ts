@@ -42,7 +42,13 @@ import type { SchemaService } from '@ember-data/types/q/schema-service';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { EnableHydration, type LifetimesService, SkipCache, type StoreRequestInfo } from './cache-handler';
+import {
+  EnableHydration,
+  type LifetimesService,
+  SkipCache,
+  StoreRequestContext,
+  type StoreRequestInfo,
+} from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -2366,7 +2372,6 @@ class Store extends EmberObject {
       return Promise.resolve(record);
     }
 
-    cache.willCommit(identifier);
     if (isDSModel(record)) {
       record.errors.clear();
     }
@@ -2382,14 +2387,19 @@ class Store extends EmberObject {
       operation = 'deleteRecord';
     }
 
-    return this.request<RecordInstance>({
+    const request = {
       op: operation,
       data: {
         options,
         record: identifier,
       },
       cacheOptions: { [SkipCache as symbol]: true },
-    }).then((document) => document.content);
+    };
+
+    // we lie here on the type because legacy doesn't have enough context
+    cache.willCommit(identifier, { request } as unknown as StoreRequestContext);
+
+    return this.request<RecordInstance>(request).then((document) => document.content);
   }
 
   /**
