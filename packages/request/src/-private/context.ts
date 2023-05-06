@@ -33,8 +33,10 @@ export class ContextOwner {
       request
     ) as ImmutableRequestInfo;
     if (DEBUG) {
-      request = deepFreeze(request) as ImmutableRequestInfo;
-      enhancedRequest = deepFreeze(enhancedRequest);
+      if (!request?.cacheOptions?.[Symbol.for('ember-data:skip-cache')]) {
+        request = deepFreeze(request) as ImmutableRequestInfo;
+        enhancedRequest = deepFreeze(enhancedRequest);
+      }
     } else {
       if (request.headers) {
         (request.headers as ImmutableHeaders).clone = () => {
