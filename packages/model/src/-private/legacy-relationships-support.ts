@@ -45,6 +45,7 @@ export class LegacySupport {
   declare _manyArrayCache: Record<string, RelatedCollection>;
   declare _relationshipPromisesCache: Record<string, Promise<RelatedCollection | RecordInstance>>;
   declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo>;
+  declare _pending: Record<string, Promise<StableRecordIdentifier | null> | undefined>;
 
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
@@ -61,6 +62,7 @@ export class LegacySupport {
       Promise<RelatedCollection | RecordInstance>
     >;
     this._relationshipProxyCache = Object.create(null) as Record<string, PromiseManyArray | PromiseBelongsTo>;
+    this._pending = Object.create(null) as Record<string, Promise<StableRecordIdentifier | null>>;
     this.references = Object.create(null) as Record<string, BelongsToReference>;
   }
 
@@ -489,7 +491,6 @@ export class LegacySupport {
     assert(`hasMany only works with the @ember-data/json-api package`);
   }
 
-  declare _pending: Promise<StableRecordIdentifier | null> | null;
   _findBelongsToByJsonApiResource(
     resource: SingleResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
@@ -499,12 +500,13 @@ export class LegacySupport {
     if (!resource) {
       return Promise.resolve(null);
     }
+    const key = relationship.definition.key;
 
     // interleaved promises mean that we MUST cache this here
     // in order to prevent infinite re-render if the request
     // fails.
-    if (this._pending) {
-      return this._pending;
+    if (this._pending[key]) {
+      return this._pending[key]!;
     }
 
     const identifier = resource.data ? resource.data : null;
@@ -538,12 +540,12 @@ export class LegacySupport {
         data: request,
         cacheOptions: { [Symbol.for('ember-data:skip-cache')]: true },
       });
-      this._pending = future
+      this._pending[key] = future
         .then((doc) => doc.content)
         .finally(() => {
-          this._pending = null;
+          this._pending[key] = undefined;
         });
-      return this._pending;
+      return this._pending[key]!;
     }
 
     const preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
@@ -568,7 +570,7 @@ export class LegacySupport {
       assert(`Cannot fetch belongs-to relationship with no information`, identifier);
       options.reload = options.reload || !attemptLocalCache || undefined;
 
-      this._pending = this.store
+      this._pending[key] = this.store
         .request<StableRecordIdentifier | null>({
           op: 'findBelongsTo',
           records: [identifier],
@@ -577,9 +579,9 @@ export class LegacySupport {
         })
         .then((doc) => doc.content)
         .finally(() => {
-          this._pending = null;
+          this._pending[key] = undefined;
         });
-      return this._pending;
+      return this._pending[key]!;
     }
 
     // we were explicitly told we have no data and no links.

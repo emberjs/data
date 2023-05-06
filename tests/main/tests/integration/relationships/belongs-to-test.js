@@ -1,3 +1,4 @@
+import EmberObject from '@ember/object';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -1916,5 +1917,57 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     });
 
     assert.strictEqual(count, 0);
+  });
+
+  test('accessing multiple async belongsTo relationships works as expected', async function (assert) {
+    const { owner } = this;
+    owner.register(
+      'model:user',
+      class extends Model {
+        @attr name;
+        @belongsTo('user', { async: true, inverse: null }) bestFriend;
+        @belongsTo('user', { async: true, inverse: null }) worstEnemy;
+      }
+    );
+    owner.register(
+      'adapter:user',
+      class extends EmberObject {
+        findRecord(_store, _schema, id) {
+          return {
+            data: {
+              type: 'user',
+              id,
+              attributes: {
+                name: id === '2' ? 'Peach' : 'Bowser',
+              },
+            },
+          };
+        }
+      }
+    );
+
+    const store = owner.lookup('service:store');
+    const user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Mario',
+        },
+        relationships: {
+          bestFriend: { data: { type: 'user', id: '2' } },
+          worstEnemy: { data: { type: 'user', id: '3' } },
+        },
+      },
+    });
+
+    const bestFriendPromise = user.bestFriend;
+    const worstEnemyPromise = user.worstEnemy;
+
+    const friend = await bestFriendPromise;
+    const enemy = await worstEnemyPromise;
+
+    // eslint-disable-next-line qunit/no-ok-equality
+    assert.true(friend !== enemy, 'we got separate records');
   });
 });
