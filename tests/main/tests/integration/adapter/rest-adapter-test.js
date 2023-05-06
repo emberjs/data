@@ -283,15 +283,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     post = store.createRecord('post', { name: 'The Parley Letter' });
     await post.save();
-    assert.strictEqual(passedUrl, '/posts');
-    assert.strictEqual(passedVerb, 'POST');
-    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
+    assert.strictEqual(passedUrl, '/posts', 'we pass the correct url');
+    assert.strictEqual(passedVerb, 'POST', 'we pass the correct http method');
+    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } }, 'we pass the correct post data');
 
     assert.strictEqual(post.id, '1', 'the post has the updated ID');
     assert.false(post.hasDirtyAttributes, "the post isn't dirty anymore");
     assert.strictEqual(post.name, 'Dat Parley Letter', 'the post was updated');
 
-    let comment = store.peekRecord('comment', 1);
+    let comment = store.peekRecord('comment', '1');
     assert.strictEqual(comment.name, 'FIRST', 'The comment was sideloaded');
   });
 

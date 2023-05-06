@@ -9,6 +9,7 @@ import type Store from '@ember-data/store';
 import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
+import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type {
   CollectionResourceDocument,
   JsonApiDocument,
@@ -187,7 +188,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
           console.log(`EmberData | Payload - ${operation!}`, payload);
         }
       }
-      let actualIdentifier: StableRecordIdentifier = identifier;
+      let result: SingleResourceDataDocument;
       /*
       // TODO @runspired re-evaluate the below claim now that
       // the save request pipeline is more streamlined.
@@ -201,28 +202,9 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
       call to `store._push`;
      */
       store._join(() => {
-        let data = payload && payload.data;
-        if (!data) {
-          assert(
-            `Your ${identifier.type} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
-            identifier.id
-          );
-        }
-
-        const identifierCache = store.identifierCache;
-        if (operation !== 'deleteRecord' && data) {
-          actualIdentifier = identifierCache.updateRecordIdentifier(identifier, data);
-        }
-
-        //We first make sure the primary data has been updated
-        const cache = store.cache;
-        cache.didCommit(actualIdentifier, data);
-
-        if (payload && payload.included) {
-          store._push({ data: null, included: payload.included }, true);
-        }
+        result = store.cache.didCommit(identifier, { request: context.request, content: payload });
       });
-      return store.peekRecord(actualIdentifier);
+      return store.peekRecord(result!.data!);
     })
     .catch((e: unknown) => {
       let err = e;

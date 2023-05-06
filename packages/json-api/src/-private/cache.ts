@@ -56,6 +56,7 @@ const EMPTY_ITERATOR = {
 };
 
 interface CachedResource {
+  id: string | null;
   remoteAttrs: Record<string, unknown> | null;
   localAttrs: Record<string, unknown> | null;
   inflightAttrs: Record<string, unknown> | null;
@@ -68,6 +69,7 @@ interface CachedResource {
 
 function makeCache(): CachedResource {
   return {
+    id: null,
     remoteAttrs: null,
     localAttrs: null,
     inflightAttrs: null,
@@ -451,6 +453,10 @@ export default class JSONAPICache implements Cache {
       this.__storeWrapper.notifyChange(identifier, 'added');
     }
 
+    if (data.id) {
+      cached.id = data.id;
+    }
+
     if (data.relationships) {
       setupRelationships(this.__storeWrapper, identifier, data);
     }
@@ -683,7 +689,28 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param data
    */
-  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
+  didCommit(
+    committedIdentifier: StableRecordIdentifier,
+    result: StructuredDataDocument<SingleResourceDocument>
+  ): SingleResourceDataDocument {
+    const payload = result.content;
+    const operation = result.request!.op;
+    const data = payload && payload.data;
+
+    if (!data) {
+      assert(
+        `Your ${committedIdentifier.type} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
+        committedIdentifier.id
+      );
+    }
+
+    const { identifierCache } = this.__storeWrapper;
+    const existingId = committedIdentifier.id;
+    const identifier: StableRecordIdentifier =
+      operation !== 'deleteRecord' && data
+        ? identifierCache.updateRecordIdentifier(committedIdentifier, data)
+        : committedIdentifier;
+
     const cached = this.__peek(identifier, false);
     if (cached.isDeleted) {
       graphFor(this.__storeWrapper).push({
@@ -710,14 +737,18 @@ export default class JSONAPICache implements Cache {
     cached.isNew = false;
     let newCanonicalAttributes: AttributesHash | undefined;
     if (data) {
-      if (data.id) {
-        // didCommit provided an ID, notify the store of it
-        assert(
-          `Expected resource id to be a string, got a value of type ${typeof data.id}`,
-          typeof data.id === 'string'
-        );
-        this.__storeWrapper.setRecordId(identifier, data.id);
+      if (data.id && !cached.id) {
+        cached.id = data.id;
       }
+      if (identifier === committedIdentifier && identifier.id !== existingId) {
+        this.__storeWrapper.notifyChange(identifier, 'identity');
+      }
+
+      assert(
+        `Expected the ID received for the primary '${identifier.type}' resource being saved to match the current id '${cached.id}' but received '${identifier.id}'.`,
+        identifier.id === cached.id
+      );
+
       if (data.relationships) {
         setupRelationships(this.__storeWrapper, identifier, data);
       }
@@ -740,6 +771,17 @@ export default class JSONAPICache implements Cache {
 
     notifyAttributes(this.__storeWrapper, identifier, changedKeys);
     this.__storeWrapper.notifyChange(identifier, 'state');
+
+    const included = payload && payload.included;
+    if (included) {
+      for (let i = 0, length = included.length; i < length; i++) {
+        putOne(this, identifierCache, included[i]);
+      }
+    }
+
+    return {
+      data: identifier as StableExistingRecordIdentifier,
+    };
   }
 
   /**
