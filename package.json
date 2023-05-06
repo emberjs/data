@@ -70,7 +70,7 @@
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
     "common-tags": "^1.8.2",
-    "ember-cli": "~4.11.0",
+    "ember-cli": "~4.12.1",
     "ember-source": "~4.12.0",
     "debug": "^4.3.4",
     "eslint": "^8.38.0",
@@ -128,7 +128,7 @@
   },
   "pnpm": {
     "overrides": {
-      "ember-auto-import": "^2.6.3",
+      "ember-auto-import": "2.6.1",
       "@embroider/macros": "1.10.0",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
