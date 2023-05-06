@@ -92,7 +92,7 @@
     "lerna-changelog": "^2.2.0",
     "loader.js": "^4.7.0",
     "prettier": "^2.8.8",
-    "rimraf": "^4.4.1",
+    "rimraf": "^5.0.0",
     "semver": "^7.3.8",
     "silent-error": "^1.1.1",
     "testem": "^3.10.1",
