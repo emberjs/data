@@ -3,6 +3,7 @@
  */
 import { getOwner, setOwner } from '@ember/application';
 import { assert } from '@ember/debug';
+import EmberObject from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
 import { importSync } from '@embroider/macros';
@@ -93,11 +94,12 @@ export interface CreateRecordProperties {
   @public
 */
 
+// @ts-expect-error
 interface Store {
   createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache | CacheV1;
 }
 
-class Store {
+class Store extends EmberObject {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -222,6 +224,7 @@ class Store {
     @private
   */
   constructor(createArgs?: Record<string, unknown>) {
+    super(createArgs);
     Object.assign(this, createArgs);
 
     this.identifierCache = new IdentifierCache();
@@ -2410,7 +2413,8 @@ class Store {
     return null;
   }
 
-  destroy() {
+  // @ts-expect-error
+  destroy(): void {
     if (this.isDestroyed) {
       // @ember/test-helpers will call destroy multiple times
       return;
