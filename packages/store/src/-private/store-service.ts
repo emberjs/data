@@ -216,8 +216,23 @@ class Store extends EmberObject {
   // DEBUG-only properties
   declare DISABLE_WAITER?: boolean;
 
-  isDestroying: boolean = false;
-  isDestroyed: boolean = false;
+  declare _isDestroying: boolean;
+  declare _isDestroyed: boolean;
+
+  // @ts-expect-error
+  get isDestroying(): boolean {
+    return this._isDestroying;
+  }
+  set isDestroying(value: boolean) {
+    this._isDestroying = value;
+  }
+  // @ts-expect-error
+  get isDestroyed(): boolean {
+    return this._isDestroyed;
+  }
+  set isDestroyed(value: boolean) {
+    this._isDestroyed = value;
+  }
 
   /**
     @method init
@@ -241,6 +256,9 @@ class Store extends EmberObject {
     this._serializerCache = Object.create(null);
     this._modelFactoryCache = Object.create(null);
     this._documentCache = new Map();
+
+    this.isDestroying = false;
+    this.isDestroyed = false;
   }
 
   _run(cb: () => void) {
