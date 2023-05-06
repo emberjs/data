@@ -380,7 +380,7 @@ importers:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.8)(@glimmer/component@1.1.2)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -481,7 +481,7 @@ importers:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.8)(@glimmer/component@1.1.2)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -557,7 +557,7 @@ importers:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.8)(@glimmer/component@1.1.2)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -626,7 +626,7 @@ importers:
         specifier: ^15.0.2
         version: 15.0.2(rollup@3.21.5)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -714,7 +714,7 @@ importers:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.8)(@glimmer/component@1.1.2)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -862,7 +862,7 @@ importers:
         specifier: ^15.0.2
         version: 15.0.2(rollup@3.21.5)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -938,7 +938,7 @@ importers:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.8)(@glimmer/component@1.1.2)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -1014,7 +1014,7 @@ importers:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.21.8)(@glimmer/component@1.1.2)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -1072,7 +1072,7 @@ importers:
         specifier: ^15.0.2
         version: 15.0.2(rollup@3.21.5)
       rollup:
-        specifier: ^3.21.3
+        specifier: ^3.21.5
         version: 3.21.5
       tslib:
         specifier: ^2.5.0
@@ -16580,7 +16580,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.21.8)(@ember-data/model@5.1.0-alpha.7)(@ember-data/tracking@5.1.0-alpha.7)(@ember/string@3.0.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.21.8)(@ember-data/graph@5.1.0-alpha.7)(@ember-data/json-api@5.1.0-alpha.7)(@ember-data/legacy-compat@5.1.0-alpha.7)(@ember-data/model@5.1.0-alpha.7)(@ember-data/tracking@5.1.0-alpha.7)(@ember/string@3.0.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember/string': 3.0.1
       '@embroider/macros': 1.10.0
       ember-cli-babel: 7.26.11
