@@ -87,7 +87,7 @@ Now that we have a `cache` let's setup something to handle fetching and saving d
 
 When *Ember***Data** needs to fetch or save data it will pass that request to your application's `RequestManager` for fulfillment. How this fulfillment occurs (in-memory, device storage, via single or multiple API requests, etc.) is then up to the registered request handlers.
 
-To start, let's install the `FetchManager` from `@ember-data/request` and the basic `Fetch` handler from ``@ember-data/request/fetch`.
+To start, let's install the `RequestManager` from `@ember-data/request` and the basic `Fetch` handler from ``@ember-data/request/fetch`.
 
 > **Note** If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/emberjs/data/tree/main/packages/request#handling-requests).
 
