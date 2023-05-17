@@ -88,7 +88,8 @@
     "@rollup/plugin-node-resolve": "^15.0.2",
     "tslib": "^2.5.0",
     "walk-sync": "^3.0.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "webpack": "^5.82.1"
   },
   "engines": {
     "node": "16.* || >= 18.*"
