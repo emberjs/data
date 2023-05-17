@@ -39,6 +39,9 @@
     },
     "@ember-data/unpublished-test-infra": {
       "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -46,6 +49,7 @@
     "@babel/runtime": "^7.21.5",
     "@ember-data/adapter": "workspace:5.1.0-alpha.10",
     "@ember-data/model": "workspace:5.1.0-alpha.10",
+    "@ember-data/legacy-compat": "workspace:5.1.0-alpha.10",
     "@ember-data/serializer": "workspace:5.1.0-alpha.10",
     "@ember-data/store": "workspace:5.1.0-alpha.10",
     "@ember-data/tracking": "workspace:5.1.0-alpha.10",
