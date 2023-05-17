@@ -33,7 +33,7 @@
     "qunit-dom": "^2.0.0",
     "semver": "^7.5.1",
     "testem": "^3.10.1",
-    "webpack": "^5.81.0"
+    "webpack": "^5.82.1"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
@@ -60,7 +60,8 @@
     "ember-qunit": "^6.2.0",
     "ember-resolver": "^10.1.0",
     "ember-source": "~4.12.0",
-    "loader.js": "^4.7.0"
+    "loader.js": "^4.7.0",
+    "webpack": "^5.82.1"
   },
   "engines": {
     "node": "16.* || >= 18.*"
