@@ -21,7 +21,8 @@
   "dependencies": {
     "ember-auto-import": "2.6.1",
     "ember-data": "workspace:5.1.0-alpha.10",
-    "@ember/string": "^3.0.1"
+    "@ember/string": "^3.0.1",
+    "webpack": "^5.82.1"
   },
   "dependenciesMeta": {
     "ember-data": {
@@ -47,7 +48,6 @@
     "ember-resolver": "^10.1.0",
     "ember-source": "~4.12.0",
     "loader.js": "^4.7.0",
-    "webpack": "^5.82.1",
     "zlib": "1.0.5"
   },
   "ember": {

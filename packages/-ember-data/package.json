@@ -36,6 +36,7 @@
     "@glimmer/env": "^0.1.7",
     "broccoli-merge-trees": "^4.2.0",
     "ember-auto-import": "2.6.1",
+    "webpack": "^5.82.1",
     "ember-cli-babel": "^7.26.11",
     "ember-inflector": "^4.0.2"
   },
@@ -78,8 +79,7 @@
     "@babel/core": "^7.21.8",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-source": "~4.12.0",
-    "webpack": "^5.82.1"
+    "ember-source": "~4.12.0"
   },
   "engines": {
     "node": "16.* || >= 18.*"
