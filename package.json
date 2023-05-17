@@ -127,7 +127,6 @@
   },
   "pnpm": {
     "overrides": {
-      "ember-auto-import": "2.6.1",
       "@embroider/macros": "1.10.0",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
