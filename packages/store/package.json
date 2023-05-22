@@ -40,7 +40,7 @@
     "@ember-data/json-api": "workspace:5.1.0-alpha.10",
     "@ember-data/graph": "workspace:5.1.0-alpha.10",
     "@ember-data/tracking": "workspace:5.1.0-alpha.10",
-    "@ember/string": "^3.0.1",
+    "@ember/string": "^3.1.1",
     "@glimmer/tracking": "^1.1.2"
   },
   "peerDependenciesMeta": {
