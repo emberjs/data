@@ -86,7 +86,7 @@
     "@babel/runtime": "^7.21.5",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.0.2",
-    "tslib": "^2.5.0",
+    "tslib": "^2.5.2",
     "walk-sync": "^3.0.0",
     "typescript": "^5.0.4",
     "webpack": "^5.82.1"
