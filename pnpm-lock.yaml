@@ -112,10 +112,10 @@ importers:
         specifier: ^4.0.4
         version: 4.0.4
       '@typescript-eslint/eslint-plugin':
-        specifier: ^5.59.6
+        specifier: ^5.59.7
         version: 5.59.7(@typescript-eslint/parser@5.59.7)(eslint@8.41.0)(typescript@5.0.4)
       '@typescript-eslint/parser':
-        specifier: ^5.59.6
+        specifier: ^5.59.7
         version: 5.59.7(eslint@8.41.0)(typescript@5.0.4)
       chalk:
         specifier: ^4.1.2
@@ -145,7 +145,7 @@ importers:
         specifier: ^8.8.0
         version: 8.8.0(eslint@8.41.0)
       eslint-plugin-ember:
-        specifier: ^11.7.0
+        specifier: ^11.7.1
         version: 11.7.1(eslint@8.41.0)
       eslint-plugin-ember-data:
         specifier: link:./packages/unpublished-eslint-rules
