@@ -1268,7 +1268,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
         {
           status: `${status}`, // Set to a string per the JSON API spec: https://jsonapi.org/format/#errors
           title: 'The backend responded with an error',
-          detail: `${payload}`,
+          // Detail is intended to be a string, but backends be non-compliant.
+          // stringifying gives the user a more friendly error in this situation, whereas
+          // they'd instead receive [object Object].
+          // JSON.stringify will convert *anything* to a string without erroring.
+          detail: typeof payload === 'string' ? payload : JSON.stringify(payload),
         },
       ];
     }
