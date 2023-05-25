@@ -1280,7 +1280,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
           // stringifying gives the user a more friendly error in this situation, whereas
           // they'd instead receive [object Object].
           // JSON.stringify will convert *anything* to a string without erroring.
-          detail: JSON.stringify(payload),
+          detail: typeof payload === 'string' ? payload : JSON.stringify(payload),
         },
       ];
     }
