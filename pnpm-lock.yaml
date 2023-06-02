@@ -375,8 +375,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.22.1)(@glimmer/component@1.1.2)(webpack@5.82.1)
@@ -478,8 +478,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.22.1)(@glimmer/component@1.1.2)(webpack@5.82.1)
@@ -557,8 +557,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.22.1)(@glimmer/component@1.1.2)(webpack@5.82.1)
@@ -632,8 +632,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       rollup:
         specifier: ^3.23.0
         version: 3.23.0
@@ -717,8 +717,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.22.1)(@glimmer/component@1.1.2)(webpack@5.82.1)
@@ -868,8 +868,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       rollup:
         specifier: ^3.23.0
         version: 3.23.0
@@ -941,8 +941,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.22.1)(@glimmer/component@1.1.2)(webpack@5.82.1)
@@ -1020,8 +1020,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       ember-source:
         specifier: ~4.12.0
         version: 4.12.0(@babel/core@7.22.1)(@glimmer/component@1.1.2)(webpack@5.82.1)
@@ -1084,8 +1084,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.1)(rollup@3.23.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
-        version: 15.0.2(rollup@3.23.0)
+        specifier: ^15.1.0
+        version: 15.1.0(rollup@3.23.0)
       rollup:
         specifier: ^3.23.0
         version: 3.23.0
@@ -5247,8 +5247,8 @@ packages:
       rollup: 3.23.0
     dev: true
 
-  /@rollup/plugin-node-resolve@15.0.2(rollup@3.23.0):
-    resolution: {integrity: sha512-Y35fRGUjC3FaurG722uhUuG8YHOJRJQbI6/CkbRkdPotSpDj9NtIN85z1zrcyDcCQIW4qp5mgG72U+gJ0TAFEg==}
+  /@rollup/plugin-node-resolve@15.1.0(rollup@3.23.0):
+    resolution: {integrity: sha512-xeZHCgsiZ9pzYVgAo9580eCGqwh/XCEUM9q6iQfGNocjgkufHAqC3exA+45URvhiYV8sBF9RlBai650eNs7AsA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.78.0||^3.0.0
