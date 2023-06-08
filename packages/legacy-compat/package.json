@@ -78,7 +78,7 @@
     "@rollup/plugin-node-resolve": "^15.0.2",
     "tslib": "^2.5.2",
     "walk-sync": "^3.0.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.1.3"
   },
   "ember": {
     "edition": "octane"
