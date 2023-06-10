@@ -1,5 +1,38 @@
 # Ember Data Changelog
 
+## 5.0.0 (2023-06-10)
+
+#### :bug: Bug Fix
+* `adapter`
+  * [#8621](https://github.com/emberjs/data/pull/8621) fix: normalizeErrorResponse should be resilient to non-string details ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* Other
+  * [#8598](https://github.com/emberjs/data/pull/8598) fix: docs generation should maintain a stable relative path ([@runspired](https://github.com/runspired))
+* `json-api`, `legacy-compat`, `store`
+  * [#8566](https://github.com/emberjs/data/pull/8566) Avoid unnecessary identity notification when record is saved ([@robbytx](https://github.com/robbytx))
+* `model`
+  * [#8597](https://github.com/emberjs/data/pull/8597) fix: dont share promise cache for all fields ([@runspired](https://github.com/runspired))
+* `store`
+  * [#8594](https://github.com/emberjs/data/pull/8594) fix: restore Store extends EmberObject :( ([@runspired](https://github.com/runspired))
+  * [#8570](https://github.com/emberjs/data/pull/8570) Fix: don't clear RecordArray if remaining record does not match the removed record ([@esbanarango](https://github.com/esbanarango))
+* `graph`, `model`, `private-build-infra`
+  * [#8555](https://github.com/emberjs/data/pull/8555) fix: fix polymorphic assertions when deprecated code is removed, improve polymorphic dx ([@runspired](https://github.com/runspired))
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `debug`, `graph`, `json-api`, `legacy-compat`, `model`, `private-build-infra`, `store`, `unpublished-test-infra`
+  * [#8550](https://github.com/emberjs/data/pull/8550) chore: remove 4.x deprecations ([@runspired](https://github.com/runspired))
+
+#### :memo: Documentation
+* `store`
+  * [#8601](https://github.com/emberjs/data/pull/8601) docs: fix forgotten references to FetchManager ([@runspired](https://github.com/runspired))
+* Other
+  * [#8598](https://github.com/emberjs/data/pull/8598) fix: docs generation should maintain a stable relative path ([@runspired](https://github.com/runspired))
+
+#### Committers: 4
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Esteban ([@esbanarango](https://github.com/esbanarango))
+- Robby Morgan ([@robbytx](https://github.com/robbytx))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## 4.12.0 (2023-04-06)
 
 #### :rocket: Enhancement
