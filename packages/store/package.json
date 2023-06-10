@@ -84,7 +84,7 @@
     "@babel/preset-env": "^7.22.4",
     "@babel/runtime": "^7.22.3",
     "@rollup/plugin-babel": "^6.0.3",
-    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-node-resolve": "^15.1.0",
     "tslib": "^2.5.2",
     "walk-sync": "^3.0.0",
     "typescript": "^5.0.4",
