@@ -132,9 +132,9 @@ export interface SchemaService {
    * Additionally the following options properties are optional. See [Polymorphic Relationships](https://rfcs.emberjs.com/id/0793-polymporphic-relations-without-inheritance)
    *
    * - `options.polymorphic` a boolean representing whether multiple resource types
-   *       can be used to satisfy this relationship.
+   *    can be used to satisfy this relationship.
    * - `options.as` a string representing the abstract type that the concrete side of
-   *       a relationship must specify when fulfilling a polymorphic inverse.
+   *    a relationship must specify when fulfilling a polymorphic inverse.
    *
    * For example, the following Model using @ember-data/model would generate this relationships
    * definition by default:

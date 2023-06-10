@@ -1890,6 +1890,11 @@ class Model extends EmberObject {
         meta.name = name;
         meta.parentModelName = modelName;
         relationships[name] = DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE ? relationshipFromMeta(meta) : meta;
+
+        assert(
+          `You should not specify both options.as and options.inverse as null on ${modelName}.${meta.name}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
+          !(meta.options.inverse === null && meta.options.as?.length > 0)
+        );
       }
     });
     return relationships;

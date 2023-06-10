@@ -593,7 +593,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
       assert.expectAssertion(() => {
         post.user = comment;
-      }, /The '<message>.user' relationship expects only 'user' records since it is not polymorphic. Received a Record of type 'comment'/);
+      }, "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. If this relationship should be polymorphic, mark message.user as `polymorphic: true` and comment.messages as implementing it via `as: 'user'`.");
     }
   );
 

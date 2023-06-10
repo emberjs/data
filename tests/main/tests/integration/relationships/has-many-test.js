@@ -2,7 +2,7 @@ import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
-import { all, hash, Promise as EmberPromise, reject, resolve } from 'rsvp';
+import { all, Promise as EmberPromise, reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -1767,6 +1767,45 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }
   );
 
+  test('Polymorphic relationships work with a hasMany whose inverse is null', async function (assert) {
+    assert.expect(1);
+    class User extends Model {
+      @attr name;
+      @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+      @hasMany('contact', { async: false, polymorphic: true, inverse: null }) contacts;
+    }
+    this.owner.register('model:user', User);
+
+    const store = this.owner.lookup('service:store');
+
+    const user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          contacts: {
+            data: [
+              { type: 'email', id: '1' },
+              { type: 'phone', id: '2' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'email',
+          id: '1',
+        },
+        {
+          type: 'phone',
+          id: '2',
+        },
+      ],
+    });
+    const contacts = await user.contacts;
+    assert.strictEqual(contacts.length, 2, 'The contacts relationship is correctly set up');
+  });
+
   test('Polymorphic relationships with a hasMany is set up correctly on both sides', function (assert) {
     assert.expect(2);
     class Contact extends Model {
@@ -1806,13 +1845,20 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     'Only records of the same type can be added to a monomorphic hasMany relationship',
     async function (assert) {
       assert.expect(1);
+      class Post extends Model {
+        @hasMany('comment', { async: false, inverse: 'message', as: 'post' }) comments;
+      }
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      class Comment extends Model {
+        @belongsTo('post', { polymorphic: true, async: true, inverse: 'comments' }) message;
+      }
 
-      adapter.shouldBackgroundReloadRecord = () => false;
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
 
-      store.push({
+      const store = this.owner.lookup('service:store');
+
+      const [post1, post2] = store.push({
         data: [
           {
             type: 'post',
@@ -1830,25 +1876,44 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         ],
       });
 
-      await all([store.findRecord('post', 1), store.findRecord('post', 2)]).then(function (records) {
-        assert.expectAssertion(function () {
-          records[0].comments.push(records[1]);
-        }, /The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'/);
-      });
+      try {
+        post1.comments.push(post2);
+        assert.ok(false, 'should have thrown');
+      } catch (e) {
+        assert.strictEqual(
+          e.message,
+          "Assertion Failed: The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
+          'should throw'
+        );
+      }
     }
   );
 
   testInDebug(
-    'Only records of the same base modelClass can be added to a polymorphic hasMany relationship',
+    'Only records that implement the abstract type can be added to a polymorphic hasMany relationship, error on missing "as"',
     async function (assert) {
       assert.expect(2);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      class User extends Model {
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+        // this is an invalid match (no as)
+        @belongsTo('user', { async: false, inverse: 'messages' }) user;
+      }
 
-      adapter.shouldBackgroundReloadRecord = () => false;
+      class Post extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
 
-      store.push({
+      class Comment extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      this.owner.register('model:user', User);
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
+
+      const store = this.owner.lookup('service:store');
+      const [user, anotherUser, post, comment] = store.push({
         data: [
           {
             type: 'user',
@@ -1868,8 +1933,6 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
               },
             },
           },
-        ],
-        included: [
           {
             type: 'post',
             id: '1',
@@ -1885,27 +1948,325 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           },
         ],
       });
-      let asyncRecords = hash({
-        user: store.findRecord('user', 1),
-        anotherUser: store.findRecord('user', 2),
-        post: store.findRecord('post', 1),
-        comment: store.findRecord('comment', 3),
+
+      user.messages.push(post);
+      user.messages.push(comment);
+      assert.strictEqual(user.messages.length, 2, 'The messages are correctly added');
+
+      assert.expectAssertion(
+        function () {
+          user.messages.push(anotherUser);
+        },
+        `Assertion Failed: The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
+
+\`\`\`
+{
+  user: {
+    name: 'user',
+    type: 'user',
+    kind: 'belongsTo',
+    options: {
+      as: 'undefined', <---- should be 'message'
+      async: false,
+      polymorphic: undefined,
+      inverse: 'messages'
+    }
+  }
+}
+\`\`\`
+
+`
+      );
+    }
+  );
+
+  testInDebug(
+    'Only records that implement the abstract type can be added to a polymorphic hasMany relationship, error on missing "inverse"',
+    async function (assert) {
+      assert.expect(1);
+
+      class User extends Model {
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+        // this is a potentially invalid match (inverse: null yet as)
+        // in theory we could warn, but we assert since the user probably is misconfigured
+        @belongsTo('user', { async: false, inverse: null, as: 'message' }) user;
+      }
+
+      class Post extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      class Comment extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      this.owner.register('model:user', User);
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
+
+      const store = this.owner.lookup('service:store');
+      assert.expectAssertion(function () {
+        store.push({
+          data: [
+            {
+              type: 'user',
+              id: '1',
+              relationships: {
+                messages: {
+                  data: [],
+                },
+              },
+            },
+          ],
+        });
+      }, /You should not specify both options.as and options.inverse as null on user.user, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null./);
+    }
+  );
+
+  testInDebug(
+    'Only records that implement the abstract type can be added to a polymorphic hasMany relationship, error on no relationship definition at all',
+    async function (assert) {
+      assert.expect(2);
+
+      class User extends Model {
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+      }
+
+      class Post extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      class Comment extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      this.owner.register('model:user', User);
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
+
+      const store = this.owner.lookup('service:store');
+      const [user, anotherUser, post, comment] = store.push({
+        data: [
+          {
+            type: 'user',
+            id: '1',
+            relationships: {
+              messages: {
+                data: [],
+              },
+            },
+          },
+          {
+            type: 'user',
+            id: '2',
+            relationships: {
+              messages: {
+                data: [],
+              },
+            },
+          },
+          {
+            type: 'post',
+            id: '1',
+            relationships: {
+              comments: {
+                data: [],
+              },
+            },
+          },
+          {
+            type: 'comment',
+            id: '3',
+          },
+        ],
       });
 
-      await asyncRecords
-        .then(function (records) {
-          records.messages = records.user.messages;
-          return hash(records);
-        })
-        .then(function (records) {
-          records.messages.push(records.post);
-          records.messages.push(records.comment);
-          assert.strictEqual(records.messages.length, 2, 'The messages are correctly added');
+      user.messages.push(post);
+      user.messages.push(comment);
+      assert.strictEqual(user.messages.length, 2, 'The messages are correctly added');
 
-          assert.expectAssertion(function () {
-            records.messages.push(records.anotherUser);
-          }, /The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
+      assert.expectAssertion(
+        function () {
+          user.messages.push(anotherUser);
+        },
+        `Assertion Failed: No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
+
+\`\`\`
+{
+  user: {
+    name: 'user',
+    type: 'user',
+    kind: 'belongsTo',
+    options: {
+      as: 'message',
+      async: false,
+      polymorphic: false,
+      inverse: 'messages'
+    }
+  }
+}
+\`\`\`
+
+`
+      );
+    }
+  );
+
+  testInDebug(
+    'Only records that implement the abstract type can be added to a polymorphic hasMany relationship, error on rhs polymorphic sub-class without correct definition',
+    async function (assert) {
+      assert.expect(1);
+
+      class User extends Model {
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+      }
+
+      class Goon extends User {}
+
+      class Post extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      class Comment extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      this.owner.register('model:goon', Goon);
+      this.owner.register('model:user', User);
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
+
+      const store = this.owner.lookup('service:store');
+
+      try {
+        store.push({
+          data: [
+            {
+              type: 'goon',
+              id: '1',
+              relationships: {
+                messages: {
+                  data: [],
+                },
+              },
+            },
+          ],
         });
+        assert.ok(false, 'we should error');
+      } catch (e) {
+        assert.strictEqual(
+          e.message,
+          `The schema for the relationship 'goon.messages' is not configured to satisfy 'user' and thus cannot utilize the 'user.messages' relationship to connect with 'message.user'
+
+If using this relationship in a polymorphic manner is desired, the relationships schema definition for 'goon' should include:
+
+\`\`\`
+{
+  messages: {
+    name: 'messages',
+    type: 'message',
+    kind: 'hasMany',
+    options: {
+      as: 'undefined', <---- should be 'user'
+      async: false,
+      polymorphic: true,
+      inverse: 'user'
+    }
+  }
+}
+\`\`\`
+
+ and the relationships schema definition for 'message' should include:
+
+\`\`\`
+{
+  user: {
+    name: 'user',
+    type: 'user',
+    kind: 'belongsTo',
+    options: {
+      as: 'message',
+      async: false,
+      polymorphic: false, <---- should be true
+      inverse: 'messages'
+    }
+  }
+}
+\`\`\`
+
+`,
+          'We got the correct error'
+        );
+      }
+    }
+  );
+
+  testInDebug(
+    'Only records that implement the abstract type can be added to a polymorphic hasMany relationship, error on lhs polymorphic sub-class without correct definition',
+    async function (assert) {
+      assert.expect(1);
+
+      class User extends Model {
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user', as: 'user' }) messages;
+      }
+
+      class Goon extends User {}
+
+      class Post extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      class Comment extends Model {
+        @belongsTo('user', { async: false, inverse: 'messages', as: 'message' }) user;
+      }
+
+      this.owner.register('model:goon', Goon);
+      this.owner.register('model:user', User);
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
+
+      const store = this.owner.lookup('service:store');
+
+      try {
+        store.push({
+          data: [
+            {
+              type: 'post',
+              id: '1',
+              relationships: {
+                user: {
+                  data: { type: 'goon', id: '1' },
+                },
+              },
+            },
+          ],
+        });
+        assert.ok(false, 'we should error');
+      } catch (e) {
+        assert.strictEqual(
+          e.message,
+          `Assertion Failed: The '<goon>.messages' relationship cannot be used polymorphically because '<message>.user is not a polymorphic relationship. To use this relationship in a polymorphic manner, fix the following schema issues on the relationships schema for 'message':
+
+\`\`\`
+{
+  user: {
+    name: 'user',
+    type: 'user',
+    kind: 'belongsTo',
+    options: {
+      as: 'message',
+      async: false,
+      polymorphic: undefined, <---- should be true
+      inverse: 'messages'
+    }
+  }
+}
+\`\`\`
+
+`,
+          'We got the correct error'
+        );
+      }
     }
   );
 
