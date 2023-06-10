@@ -1,13 +1,14 @@
 /**
  * @module @ember-data/experimental-preview-types
  */
+import { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { CollectionResourceRelationship, SingleResourceRelationship } from '../q/ember-data-json-api';
 import { JsonApiError } from '../q/record-data-json-api';
 import { ResourceBlob } from './aliases';
 import { Change } from './change';
-import { ResourceDocument, StructuredDocument } from './document';
+import { ResourceDocument, SingleResourceDataDocument, StructuredDataDocument, StructuredDocument } from './document';
 import { StableDocumentIdentifier } from './identifier';
 import { Mutation } from './mutations';
 import { Operation } from './operations';
@@ -262,7 +263,7 @@ export interface Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier): void;
+  willCommit(identifier: StableRecordIdentifier, context: StoreRequestContext): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -270,10 +271,11 @@ export interface Cache {
    *
    * @method didCommit
    * @public
-   * @param identifier
-   * @param data
+   * @param identifier - the primary identifier that was operated on
+   * @param data - a document in the cache format containing any updated data
+   * @return {SingleResourceDataDocument}
    */
-  didCommit(identifier: StableRecordIdentifier, data: ResourceBlob | null): void;
+  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource

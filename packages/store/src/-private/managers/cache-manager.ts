@@ -1,20 +1,26 @@
 import { assert, deprecate } from '@ember/debug';
 
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
-import { StructuredDataDocument } from '@ember-data/request/-private/types';
-import { Change } from '@ember-data/types/cache/change';
-import { ResourceDocument, StructuredDocument } from '@ember-data/types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StructuredDataDocument } from '@ember-data/request/-private/types';
+import type { Change } from '@ember-data/types/cache/change';
+import type {
+  ResourceDocument,
+  SingleResourceDataDocument,
+  StructuredDocument,
+} from '@ember-data/types/cache/document';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type {
   CollectionResourceRelationship,
   JsonApiDocument,
+  SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
 
+import type { StoreRequestContext } from '../cache-handler';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 
@@ -552,8 +558,20 @@ export class NonSingletonCacheManager implements Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier): void {
-    this.#cache.willCommit(identifier || this.#identifier);
+  willCommit(identifier: StableRecordIdentifier, context: StoreRequestContext): void {
+    // called by something V1
+    if (!isStableIdentifier(identifier)) {
+      identifier = this.#identifier;
+    }
+    const cache = this.#cache;
+
+    // TODO deprecate return value
+    if (this.#isDeprecated(cache)) {
+      cache.willCommit();
+    } else {
+      assert(`Cannot call a v2 cache willCommit from a v1 cache`, !!context);
+      cache.willCommit(identifier, context);
+    }
   }
 
   /**
@@ -565,14 +583,24 @@ export class NonSingletonCacheManager implements Cache {
    * @param identifier
    * @param data
    */
-  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    // called by something V1
-    if (!isStableIdentifier(identifier)) {
-      data = identifier;
-      identifier = this.#identifier;
-    }
+  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     const cache = this.#cache;
-    this.#isDeprecated(cache) ? cache.didCommit(data) : cache.didCommit(identifier, data);
+    if (this.#isDeprecated(cache)) {
+      // called by something V1
+      if (!isStableIdentifier(identifier)) {
+        cache.didCommit(identifier);
+        return { data: this.#identifier as StableExistingRecordIdentifier };
+      }
+      cache.didCommit((result.content as SingleResourceDocument)?.data);
+      return { data: this.#identifier as StableExistingRecordIdentifier };
+    } else {
+      // called by something V1
+      if (!isStableIdentifier(identifier)) {
+        cache.didCommit(this.#identifier, { content: { data: identifier } });
+        return { data: this.#identifier as StableExistingRecordIdentifier };
+      }
+      return cache.didCommit(identifier, result);
+    }
   }
 
   /**
@@ -1075,12 +1103,12 @@ export class SingletonCacheManager implements Cache {
     return this.#cache.clientDidCreate(identifier, options);
   }
 
-  willCommit(identifier: StableRecordIdentifier): void {
-    this.#cache.willCommit(identifier);
+  willCommit(identifier: StableRecordIdentifier, context: StoreRequestContext): void {
+    this.#cache.willCommit(identifier, context);
   }
 
-  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {
-    this.#cache.didCommit(identifier, data);
+  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+    return this.#cache.didCommit(identifier, result);
   }
 
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {

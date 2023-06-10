@@ -6,6 +6,7 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import { DEBUG } from '@ember-data/env';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 
@@ -31,6 +32,10 @@ module('integration/references/autotracking', function (hooks) {
       class extends EmberObject {
         createRecord() {
           return { data: { id: '6', type: 'user' } };
+        }
+        updateRecord(_, type, snapshot) {
+          const attributes = snapshot.attributes();
+          return { data: { id: snapshot.id, type: 'user', attributes } };
         }
         deleteRecord() {
           return { data: null };
@@ -241,8 +246,14 @@ module('integration/references/autotracking', function (hooks) {
 
     class TestContext {
       user = reference;
+      updates = 0;
+
+      get name() {
+        return dan.name;
+      }
 
       get id() {
+        this.updates++;
         return this.user.id();
       }
     }
@@ -250,13 +261,61 @@ module('integration/references/autotracking', function (hooks) {
     const testContext = new TestContext();
     this.set('context', testContext);
 
-    await render(hbs`id: {{if this.context.id this.context.id 'null'}}`);
+    await render(hbs`id: {{if this.context.id this.context.id 'null'}}, name: {{this.context.name}}`);
 
-    assert.strictEqual(getRootElement().textContent, 'id: null', 'the id is null');
+    assert.strictEqual(getRootElement().textContent, 'id: null, name: Dan', 'the id is null');
+    assert.strictEqual(testContext.updates, 1, 'id() was accessed by render');
     assert.strictEqual(testContext.id, null, 'the id is correct initially');
+    assert.strictEqual(testContext.updates, 2, 'id() has been invoked twice');
+    testContext.updates = 0;
     await dan.save();
     await settled();
-    assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the record id updates');
+    assert.strictEqual(dan.currentState.identifier.id, '6', 'identifier.id 6 was assigned by server');
+    assert.strictEqual(dan.id, '6', 'id 6 was assigned by server');
+    assert.strictEqual(getRootElement().textContent, 'id: 6, name: Dan', 'the id updates when the record id updates');
+    assert.strictEqual(testContext.updates, 1, 'id() was accessed by render');
     assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
+    assert.strictEqual(testContext.updates, 2, 'id() has been invoked twice');
+    testContext.updates = 0;
+    // Subsequent saves should *not* trigger re-render
+    await dan.save();
+    await settled();
+    assert.strictEqual(getRootElement().textContent, 'id: 6, name: Dan', 'the id remains when the record is saved');
+    assert.strictEqual(testContext.updates, 0, 'id() was NOT accessed by render');
+    assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
+    assert.strictEqual(testContext.updates, 1, 'id() has been invoked once');
+    testContext.updates = 0;
+    // Update via server should not trigger re-render
+    dan.name = 'Daniel';
+    await dan.save();
+    await settled();
+    assert.strictEqual(
+      getRootElement().textContent,
+      'id: 6, name: Daniel',
+      'the id updates when the record id updates'
+    );
+    assert.strictEqual(testContext.updates, 0, 'id() was NOT accessed by render');
+    assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
+    assert.strictEqual(testContext.updates, 1, 'id() has been invoked once');
+    testContext.updates = 0;
+
+    if (DEBUG) {
+      // Update ID via server should error
+      dan.name = 'Dan';
+      store.adapterFor('user').updateRecord = (_, type, snapshot) => {
+        const attributes = snapshot.attributes();
+        return { data: { id: '7', type: 'user', attributes } };
+      };
+      try {
+        await dan.save();
+        assert.ok(false, 'expected the update to ID to throw an error');
+      } catch (e) {
+        assert.strictEqual(
+          e.message,
+          "Assertion Failed: Expected the ID received for the primary 'user' resource being saved to match the current id '6' but received '7'.",
+          'threw error'
+        );
+      }
+    }
   });
 });

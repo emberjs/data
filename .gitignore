@@ -57,3 +57,5 @@ benchmarks/results/*.json
 /tests/*/DEBUG
 
 .vscode/
+.idea/
+*.iml

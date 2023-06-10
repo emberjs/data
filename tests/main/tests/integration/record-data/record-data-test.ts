@@ -10,6 +10,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { StructuredDataDocument } from '@ember-data/request/-private/types';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { ResourceBlob } from '@ember-data/types/cache/aliases';
 import { Change } from '@ember-data/types/cache/change';
@@ -32,7 +33,11 @@ import type {
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type {
+  RecordIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
 
@@ -209,7 +214,9 @@ class V2TestRecordData implements Cache {
     return {};
   }
   willCommit(identifier: StableRecordIdentifier): void {}
-  didCommit(identifier: StableRecordIdentifier, data: JsonApiResource | null): void {}
+  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+    return { data: identifier as StableExistingRecordIdentifier };
+  }
   commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
     this._errors = errors;
   }
@@ -393,9 +400,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledRollbackAttributes++;
       }
 
-      didCommit(data) {
+      didCommit(identifier, result) {
         calledDidCommit++;
         isNew = false;
+        return { data: identifier };
       }
 
       isNew() {
