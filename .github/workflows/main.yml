@@ -43,7 +43,7 @@ jobs:
           install: true
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'main' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta' || github.base_ref == 'lts-4-12'
           )
         name: Enable All In progress features
         env:
@@ -51,7 +51,7 @@ jobs:
         run: pnpm test
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'main' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta' || github.base_ref == 'lts-4-12'
           )
         name: Disabled All In progress features
         env:
@@ -61,7 +61,7 @@ jobs:
         run: pnpm test:production
       - if: |
           github.event_name == 'pull_request' && (
-            github.base_ref == 'main' || github.base_ref == 'beta'
+            github.base_ref == 'main' || github.base_ref == 'beta' || github.base_ref == 'lts-4-12'
           )
         name: Remove All Deprecations
         env:
@@ -118,7 +118,7 @@ jobs:
     needs: [browser-tests]
     if: |
       github.event_name == 'pull_request' && (
-        github.base_ref == 'main' || github.base_ref == 'beta'
+        github.base_ref == 'main' || github.base_ref == 'beta' || github.base_ref == 'lts-4-12'
       ) || github.event_name == 'push' && (
         endsWith(github.ref, '/main') || endsWith(github.ref, '/beta')
       )
