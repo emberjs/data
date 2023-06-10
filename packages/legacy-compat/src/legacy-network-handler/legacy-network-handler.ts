@@ -204,22 +204,8 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
       call to `store._push`;
      */
       store._join(() => {
-        let data = payload && payload.data;
-        if (!data) {
-          assert(
-            `Your ${identifier.type} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
-            identifier.id
-          );
-        }
-
-        const identifierCache = store.identifierCache;
-        let actualIdentifier = identifier;
-        if (operation !== 'deleteRecord' && data) {
-          actualIdentifier = identifierCache.updateRecordIdentifier(identifier, data);
-        }
-
         //We first make sure the primary data has been updated
-        const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(actualIdentifier) : store.cache;
+        const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
         result = cache.didCommit(identifier, { request: context.request, content: payload });
 
         if (payload && payload.included) {
