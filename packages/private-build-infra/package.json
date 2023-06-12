@@ -12,9 +12,9 @@
   "directories": {},
   "scripts": {},
   "dependencies": {
-    "@babel/core": "^7.22.1",
-    "@babel/plugin-transform-block-scoping": "^7.21.0",
-    "@babel/runtime": "^7.22.3",
+    "@babel/core": "^7.22.5",
+    "@babel/plugin-transform-block-scoping": "^7.22.5",
+    "@babel/runtime": "^7.22.5",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.11.0",
     "babel-import-util": "^1.3.0",

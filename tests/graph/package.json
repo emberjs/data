@@ -49,8 +49,8 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.22.1",
-    "@babel/runtime": "^7.22.3",
+    "@babel/core": "^7.22.5",
+    "@babel/runtime": "^7.22.5",
     "@ember-data/model": "workspace:5.2.0-alpha.0",
     "@ember-data/private-build-infra": "workspace:5.2.0-alpha.0",
     "@ember-data/legacy-compat": "workspace:5.2.0-alpha.0",
