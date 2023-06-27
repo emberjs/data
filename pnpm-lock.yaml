@@ -227,37 +227,37 @@ importers:
   packages/-ember-data:
     dependencies:
       '@ember-data/adapter':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.4)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.5)(ember-inflector@4.0.2)
       '@ember-data/debug':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/debug
       '@ember-data/graph':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/graph(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/graph(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/json-api':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
       '@ember-data/model':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(ember-inflector@4.0.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember-data/request':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/request
       '@ember-data/serializer':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.4)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.5)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/tracking
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -323,7 +323,7 @@ importers:
   packages/adapter:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@embroider/macros':
         specifier: 1.10.0
@@ -402,7 +402,7 @@ importers:
   packages/debug:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -426,7 +426,7 @@ importers:
   packages/graph:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -505,7 +505,7 @@ importers:
   packages/json-api:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -586,7 +586,7 @@ importers:
   packages/legacy-compat:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@embroider/macros':
         specifier: 1.10.0
@@ -653,7 +653,7 @@ importers:
   packages/model:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -819,7 +819,7 @@ importers:
   packages/request:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember/test-waiters':
         specifier: ^3.0.2
@@ -889,7 +889,7 @@ importers:
   packages/serializer:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@embroider/macros':
         specifier: 1.10.0
@@ -968,7 +968,7 @@ importers:
   packages/store:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@embroider/macros':
         specifier: 1.10.0
@@ -1104,7 +1104,7 @@ importers:
   packages/unpublished-test-infra:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -1216,34 +1216,34 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/debug':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/debug(@ember/string@3.1.1)
       '@ember-data/graph':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/graph(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/graph(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/json-api':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
       '@ember-data/model':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/request':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/request
       '@ember-data/serializer':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/tracking
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -1342,19 +1342,19 @@ importers:
   tests/blueprints:
     devDependencies:
       '@ember-data/adapter':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/adapter
       '@ember-data/model':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/model
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember-data/serializer':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/serializer
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       ember-cli:
         specifier: ~4.12.1
@@ -1389,22 +1389,22 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/adapter':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/model(@babel/core@7.22.5)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/model(@babel/core@7.22.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/serializer':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/store(@babel/core@7.22.5)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/store(@babel/core@7.22.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/tracking
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -1507,7 +1507,7 @@ importers:
         specifier: 2.6.1
         version: 2.6.1(webpack@5.82.1)
       ember-data:
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/-ember-data(@babel/core@7.22.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       ember-inflector:
         specifier: ^4.0.2
@@ -1523,7 +1523,7 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -1627,7 +1627,7 @@ importers:
   tests/fastboot:
     dependencies:
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/string':
         specifier: ^3.1.1
@@ -1636,7 +1636,7 @@ importers:
         specifier: 2.6.1
         version: 2.6.1(webpack@5.82.1)
       ember-data:
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/-ember-data(@babel/core@7.22.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       ember-inflector:
         specifier: ^4.0.2
@@ -1750,7 +1750,7 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -1789,7 +1789,7 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       ember-data:
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/-ember-data(@babel/core@7.22.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       ember-export-application-global:
         specifier: ^2.0.1
@@ -1830,31 +1830,31 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/graph':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/graph(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/graph(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/json-api':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
       '@ember-data/model':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/model(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/model(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember-data/request':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/request
       '@ember-data/store':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/tracking
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -1984,22 +1984,22 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/graph':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/graph(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/graph(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/json-api':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember-data/store':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/tracking
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -2123,31 +2123,31 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/adapter':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/debug':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/debug(@ember/string@3.1.1)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/legacy-compat
       '@ember-data/model':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/request':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/request
       '@ember-data/serializer':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/store(@babel/core@7.22.5)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/store(@babel/core@7.22.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/tracking
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -2253,10 +2253,10 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -2355,7 +2355,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-data:
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/-ember-data(@babel/core@7.22.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       ember-decorators-polyfill:
         specifier: ^1.1.5
@@ -2443,22 +2443,22 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/adapter':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember-data/serializer':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/serializer(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/store(@babel/core@7.22.5)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/store(@babel/core@7.22.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/tracking
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -2555,7 +2555,7 @@ importers:
         specifier: 2.6.1
         version: 2.6.1(webpack@5.82.1)
       ember-data:
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/-ember-data(@babel/core@7.22.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       webpack:
         specifier: ^5.82.1
@@ -2631,13 +2631,13 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/private-build-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/private-build-infra
       '@ember-data/request':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/request
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -2755,31 +2755,31 @@ importers:
         specifier: ^7.22.5
         version: 7.22.5
       '@ember-data/adapter':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/adapter(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/graph':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/graph(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/graph(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/json-api':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
       '@ember-data/model':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/model(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/model(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/request':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/request
       '@ember-data/store':
-        specifier: workspace:5.2.0-alpha.4
-        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+        specifier: workspace:5.2.0-alpha.5
+        version: file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/tracking
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.2.0-alpha.4
+        specifier: workspace:5.2.0-alpha.5
         version: file:packages/unpublished-test-infra
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -16581,21 +16581,21 @@ packages:
     resolution: {directory: packages/-ember-data, type: directory}
     id: file:packages/-ember-data
     name: ember-data
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.1.1
     dependencies:
-      '@ember-data/adapter': file:packages/adapter(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+      '@ember-data/adapter': file:packages/adapter(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/debug': file:packages/debug(@ember/string@3.1.1)
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
-      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
+      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/request': file:packages/request
-      '@ember-data/serializer': file:packages/serializer(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/serializer': file:packages/serializer(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
@@ -16619,10 +16619,10 @@ packages:
   file:packages/adapter:
     resolution: {directory: packages/adapter, type: directory}
     name: '@ember-data/adapter'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:5.2.0-alpha.4
+      '@ember-data/store': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     dependencies:
@@ -16634,19 +16634,19 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/adapter(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2):
+  file:packages/adapter(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2):
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:5.2.0-alpha.4
+      '@ember-data/store': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember/string': 3.1.1
       '@embroider/macros': 1.10.0
       ember-cli-babel: 7.26.11
@@ -16655,19 +16655,19 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  file:packages/adapter(@ember-data/store@5.2.0-alpha.4)(ember-inflector@4.0.2):
+  file:packages/adapter(@ember-data/store@5.2.0-alpha.5)(ember-inflector@4.0.2):
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:5.2.0-alpha.4
+      '@ember-data/store': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@embroider/macros': 1.10.0
       ember-cli-babel: 7.26.11
       ember-cli-test-info: 1.0.0
@@ -16679,7 +16679,7 @@ packages:
   file:packages/debug:
     resolution: {directory: packages/debug, type: directory}
     name: '@ember-data/debug'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.1.1
@@ -16701,7 +16701,7 @@ packages:
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.1.1
@@ -16720,36 +16720,36 @@ packages:
       - uglify-js
       - webpack-cli
 
-  file:packages/graph(@ember-data/store@5.2.0-alpha.4):
+  file:packages/graph(@ember-data/store@5.2.0-alpha.5):
     resolution: {directory: packages/graph, type: directory}
     id: file:packages/graph
     name: '@ember-data/graph'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:5.2.0-alpha.4
+      '@ember-data/store': workspace:5.2.0-alpha.5
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - supports-color
 
-  file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4):
+  file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5):
     resolution: {directory: packages/json-api, type: directory}
     id: file:packages/json-api
     name: '@ember-data/json-api'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/store': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/store': workspace:5.2.0-alpha.5
     dependencies:
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0
       ember-cli-babel: 7.26.11
@@ -16759,11 +16759,11 @@ packages:
   file:packages/legacy-compat:
     resolution: {directory: packages/legacy-compat, type: directory}
     name: '@ember-data/legacy-compat'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
     peerDependenciesMeta:
       '@ember-data/graph':
         optional: true
@@ -16777,23 +16777,23 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4):
+  file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5):
     resolution: {directory: packages/legacy-compat, type: directory}
     id: file:packages/legacy-compat
     name: '@ember-data/legacy-compat'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
     peerDependenciesMeta:
       '@ember-data/graph':
         optional: true
       '@ember-data/json-api':
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@embroider/macros': 1.10.0
       ember-cli-babel: 7.26.11
@@ -16803,15 +16803,15 @@ packages:
   file:packages/model:
     resolution: {directory: packages/model, type: directory}
     name: '@ember-data/model'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/debug': workspace:5.2.0-alpha.4
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/store': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/debug': workspace:5.2.0-alpha.5
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/store': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -16836,19 +16836,19 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0):
+  file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0):
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/debug': workspace:5.2.0-alpha.4
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/store': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/debug': workspace:5.2.0-alpha.5
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/store': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -16860,11 +16860,11 @@ packages:
         optional: true
     dependencies:
       '@ember-data/debug': file:packages/debug(@ember/string@3.1.1)
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
@@ -16880,19 +16880,19 @@ packages:
       - ember-source
       - supports-color
 
-  file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(ember-inflector@4.0.2)(ember-source@4.12.0):
+  file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(ember-inflector@4.0.2)(ember-source@4.12.0):
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/debug': workspace:5.2.0-alpha.4
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/store': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/debug': workspace:5.2.0-alpha.5
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/store': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -16904,11 +16904,11 @@ packages:
         optional: true
     dependencies:
       '@ember-data/debug': file:packages/debug
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0
@@ -16923,19 +16923,19 @@ packages:
       - ember-source
       - supports-color
 
-  file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0):
+  file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0):
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/debug': workspace:5.2.0-alpha.4
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/store': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/debug': workspace:5.2.0-alpha.5
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/store': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -16949,7 +16949,7 @@ packages:
       '@ember-data/debug': file:packages/debug(@ember/string@3.1.1)
       '@ember-data/legacy-compat': file:packages/legacy-compat
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
@@ -16966,19 +16966,19 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/model(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0):
+  file:packages/model(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0):
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/debug': workspace:5.2.0-alpha.4
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/store': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/debug': workspace:5.2.0-alpha.5
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/store': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -16989,11 +16989,11 @@ packages:
       '@ember-data/json-api':
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
@@ -17010,19 +17010,19 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/model(@babel/core@7.22.5)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0):
+  file:packages/model(@babel/core@7.22.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0):
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/debug': workspace:5.2.0-alpha.4
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/store': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/debug': workspace:5.2.0-alpha.5
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/store': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -17034,7 +17034,7 @@ packages:
         optional: true
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember-data/tracking': file:packages/tracking
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
@@ -17053,7 +17053,7 @@ packages:
   file:packages/private-build-infra:
     resolution: {directory: packages/private-build-infra, type: directory}
     name: '@ember-data/private-build-infra'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     dependencies:
       '@babel/core': 7.22.5
@@ -17089,7 +17089,7 @@ packages:
   file:packages/request:
     resolution: {directory: packages/request, type: directory}
     name: '@ember-data/request'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -17102,10 +17102,10 @@ packages:
   file:packages/serializer:
     resolution: {directory: packages/serializer, type: directory}
     name: '@ember-data/serializer'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:5.2.0-alpha.4
+      '@ember-data/store': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     dependencies:
@@ -17117,19 +17117,19 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/serializer(@ember-data/store@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2):
+  file:packages/serializer(@ember-data/store@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2):
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:5.2.0-alpha.4
+      '@ember-data/store': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@ember/string': 3.1.1
       '@embroider/macros': 1.10.0
       ember-cli-babel: 7.26.11
@@ -17138,19 +17138,19 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  file:packages/serializer(@ember-data/store@5.2.0-alpha.4)(ember-inflector@4.0.2):
+  file:packages/serializer(@ember-data/store@5.2.0-alpha.5)(ember-inflector@4.0.2):
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/store': workspace:5.2.0-alpha.4
+      '@ember-data/store': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
+      '@ember-data/store': file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@glimmer/tracking@1.1.2)(ember-source@4.12.0)
       '@embroider/macros': 1.10.0
       ember-cli-babel: 7.26.11
       ember-cli-test-info: 1.0.0
@@ -17159,18 +17159,18 @@ packages:
       - supports-color
     dev: false
 
-  file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
+  file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/model': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/model': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -17183,10 +17183,10 @@ packages:
       '@ember-data/model':
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
-      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
+      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.1.1
@@ -17199,18 +17199,18 @@ packages:
       - ember-source
       - supports-color
 
-  file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
+  file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/model': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/model': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -17223,10 +17223,10 @@ packages:
       '@ember-data/model':
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)
-      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(ember-inflector@4.0.2)(ember-source@4.12.0)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)
+      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
       '@embroider/macros': 1.10.0
@@ -17238,18 +17238,18 @@ packages:
       - ember-source
       - supports-color
 
-  file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.4)(@ember-data/json-api@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
+  file:packages/store(@babel/core@7.22.5)(@ember-data/graph@5.2.0-alpha.5)(@ember-data/json-api@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/model': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/model': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -17262,8 +17262,8 @@ packages:
       '@ember-data/model':
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.4)
-      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)
+      '@ember-data/graph': file:packages/graph(@ember-data/store@5.2.0-alpha.5)
+      '@ember-data/json-api': file:packages/json-api(@ember-data/graph@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.1.1
@@ -17277,18 +17277,18 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/store(@babel/core@7.22.5)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
+  file:packages/store(@babel/core@7.22.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/model': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/model': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -17302,7 +17302,7 @@ packages:
         optional: true
     dependencies:
       '@ember-data/legacy-compat': file:packages/legacy-compat
-      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.4)(@ember-data/legacy-compat@5.2.0-alpha.4)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/debug@5.2.0-alpha.5)(@ember-data/legacy-compat@5.2.0-alpha.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.1.1
@@ -17316,18 +17316,18 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/store(@babel/core@7.22.5)(@ember-data/model@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
+  file:packages/store(@babel/core@7.22.5)(@ember-data/model@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/model': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/model': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -17340,7 +17340,7 @@ packages:
       '@ember-data/model':
         optional: true
     dependencies:
-      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/store@5.2.0-alpha.4)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
+      '@ember-data/model': file:packages/model(@babel/core@7.22.5)(@ember-data/store@5.2.0-alpha.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@4.12.0)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/tracking': file:packages/tracking
       '@ember/string': 3.1.1
@@ -17353,18 +17353,18 @@ packages:
       - ember-source
       - supports-color
 
-  file:packages/store(@babel/core@7.22.5)(@ember-data/tracking@5.2.0-alpha.4)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
+  file:packages/store(@babel/core@7.22.5)(@ember-data/tracking@5.2.0-alpha.5)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@4.12.0):
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
-      '@ember-data/graph': workspace:5.2.0-alpha.4
-      '@ember-data/json-api': workspace:5.2.0-alpha.4
-      '@ember-data/legacy-compat': workspace:5.2.0-alpha.4
-      '@ember-data/model': workspace:5.2.0-alpha.4
-      '@ember-data/tracking': workspace:5.2.0-alpha.4
+      '@ember-data/graph': workspace:5.2.0-alpha.5
+      '@ember-data/json-api': workspace:5.2.0-alpha.5
+      '@ember-data/legacy-compat': workspace:5.2.0-alpha.5
+      '@ember-data/model': workspace:5.2.0-alpha.5
+      '@ember-data/tracking': workspace:5.2.0-alpha.5
       '@ember/string': ^3.1.1
       '@glimmer/tracking': ^1.1.2
     peerDependenciesMeta:
@@ -17393,7 +17393,7 @@ packages:
   file:packages/tracking:
     resolution: {directory: packages/tracking, type: directory}
     name: '@ember-data/tracking'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18}
     dependencies:
       ember-cli-babel: 7.26.11
@@ -17403,7 +17403,7 @@ packages:
   file:packages/unpublished-test-infra:
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     name: '@ember-data/unpublished-test-infra'
-    version: 5.2.0-alpha.4
+    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
