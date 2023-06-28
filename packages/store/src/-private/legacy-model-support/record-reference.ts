@@ -9,7 +9,6 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 import type { NotificationType } from '../managers/notification-manager';
-import { unsubscribe } from '../managers/notification-manager';
 import type Store from '../store-service';
 
 /**
@@ -46,7 +45,7 @@ export default class RecordReference {
   }
 
   destroy() {
-    unsubscribe(this.___token);
+    this.store.notifications.unsubscribe(this.___token);
   }
 
   get type(): string {
