@@ -17,9 +17,7 @@ import IdentifierArray, {
 import type Store from '../store-service';
 import { CacheOperation, UnsubscribeToken } from './notification-manager';
 
-const RecordArraysCache = new Map<StableRecordIdentifier, Set<Collection>>();
 const FAKE_ARR = {};
-
 const SLICE_BATCH_SIZE = 1200;
 /**
  * This is a clever optimization.
@@ -98,7 +96,7 @@ class RecordArrayManager {
     this._pending = new Map();
     this._staged = new Map();
     this._keyedArrays = new Map();
-    this._identifiers = RecordArraysCache;
+    this._identifiers = new Map();
 
     this._subscription = this.store.notifications.subscribe(
       'resource',
@@ -181,7 +179,7 @@ class RecordArrayManager {
     let array = new Collection(options);
     this._managed.add(array);
     if (config.identifiers) {
-      associate(array, config.identifiers);
+      associate(this._identifiers, array, config.identifiers);
     }
 
     return array;
@@ -214,7 +212,7 @@ class RecordArrayManager {
     let pending: Map<IdentifierArray, ChangeSet> = new Map();
 
     if (includeManaged) {
-      let managed = RecordArraysCache.get(identifier);
+      let managed = this._identifiers.get(identifier);
       if (managed) {
         managed.forEach((arr) => {
           let changes = allPending.get(arr);
@@ -269,8 +267,8 @@ class RecordArrayManager {
     array.links = payload.links || null;
     array.isLoaded = true;
 
-    disassociate(array, old);
-    associate(array, identifiers);
+    disassociate(this._identifiers, array, old);
+    associate(this._identifiers, array, identifiers);
   }
 
   identifierAdded(identifier: StableRecordIdentifier): void {
@@ -319,7 +317,7 @@ class RecordArrayManager {
     this._live.forEach((array) => array.destroy());
     this._managed.forEach((array) => array.destroy());
     this._managed.clear();
-    RecordArraysCache.clear();
+    this._identifiers.clear();
   }
 
   destroy() {
@@ -332,26 +330,38 @@ class RecordArrayManager {
   }
 }
 
-function associate(array: Collection, identifiers: StableRecordIdentifier[]) {
+function associate(
+  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
+  array: Collection,
+  identifiers: StableRecordIdentifier[]
+) {
   for (let i = 0; i < identifiers.length; i++) {
     let identifier = identifiers[i];
-    let cache = RecordArraysCache.get(identifier);
+    let cache = ArraysCache.get(identifier);
     if (!cache) {
       cache = new Set();
-      RecordArraysCache.set(identifier, cache);
+      ArraysCache.set(identifier, cache);
     }
     cache.add(array);
   }
 }
 
-function disassociate(array: Collection, identifiers: StableRecordIdentifier[]) {
+function disassociate(
+  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
+  array: Collection,
+  identifiers: StableRecordIdentifier[]
+) {
   for (let i = 0; i < identifiers.length; i++) {
-    disassociateIdentifier(array, identifiers[i]);
+    disassociateIdentifier(ArraysCache, array, identifiers[i]);
   }
 }
 
-export function disassociateIdentifier(array: Collection, identifier: StableRecordIdentifier) {
-  let cache = RecordArraysCache.get(identifier);
+export function disassociateIdentifier(
+  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
+  array: Collection,
+  identifier: StableRecordIdentifier
+) {
+  let cache = ArraysCache.get(identifier);
   if (cache) {
     cache.delete(array);
   }

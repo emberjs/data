@@ -27,12 +27,6 @@ function runLoopIsFlushing(): boolean {
   return !!_backburner.currentInstance && _backburner._autorun !== true;
 }
 
-const Cache = new Map<
-  StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
-  Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
->();
-const Tokens = new Map<UnsubscribeToken, StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'>();
-
 export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state';
 
 export interface NotificationCallback {
@@ -51,9 +45,15 @@ export interface DocumentOperationCallback {
   (identifier: StableDocumentIdentifier, notificationType: CacheOperation): void;
 }
 
-// TODO this isn't importable anyway, remove and use a map on the manager?
-export function unsubscribe(token: UnsubscribeToken) {
-  let identifier = Tokens.get(token);
+function _unsubscribe(
+  tokens: Map<UnsubscribeToken, StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'>,
+  token: UnsubscribeToken,
+  cache: Map<
+    'resource' | 'document' | StableDocumentIdentifier | StableRecordIdentifier,
+    Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
+  >
+) {
+  let identifier = tokens.get(token);
   if (LOG_NOTIFICATIONS) {
     if (!identifier) {
       // eslint-disable-next-line no-console
@@ -61,8 +61,8 @@ export function unsubscribe(token: UnsubscribeToken) {
     }
   }
   if (identifier) {
-    Tokens.delete(token);
-    const map = Cache.get(identifier);
+    tokens.delete(token);
+    const map = cache.get(identifier);
     map?.delete(token);
   }
 }
@@ -81,6 +81,11 @@ export default class NotificationManager {
   declare store: Store;
   declare isDestroyed: boolean;
   declare _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | undefined][]>;
+  declare _cache: Map<
+    StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
+    Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
+  >;
+  declare _tokens: Map<UnsubscribeToken, StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'>;
   declare _hasFlush: boolean;
   declare _onFlushCB?: () => void;
 
@@ -89,6 +94,8 @@ export default class NotificationManager {
     this.isDestroyed = false;
     this._buffered = new Map();
     this._hasFlush = false;
+    this._cache = new Map();
+    this._tokens = new Map();
   }
 
   /**
@@ -133,16 +140,16 @@ export default class NotificationManager {
         isStableIdentifier(identifier) ||
         isDocumentIdentifier(identifier)
     );
-    let map = Cache.get(identifier);
+    let map = this._cache.get(identifier);
 
     if (!map) {
       map = new Map();
-      Cache.set(identifier, map);
+      this._cache.set(identifier, map);
     }
 
     let unsubToken = DEBUG ? { _tokenRef: tokenId++ } : {};
     map.set(unsubToken, callback);
-    Tokens.set(unsubToken, identifier);
+    this._tokens.set(unsubToken, identifier);
     return unsubToken;
   }
 
@@ -155,7 +162,7 @@ export default class NotificationManager {
    */
   unsubscribe(token: UnsubscribeToken) {
     if (!this.isDestroyed) {
-      unsubscribe(token);
+      _unsubscribe(this._tokens, token, this._cache);
     }
   }
 
@@ -199,7 +206,7 @@ export default class NotificationManager {
       console.log(`Buffering Notify: ${String(identifier.lid)}\t${value}\t${key || ''}`);
     }
 
-    const hasSubscribers = Boolean(Cache.get(identifier)?.size);
+    const hasSubscribers = Boolean(this._cache.get(identifier)?.size);
 
     if (isCacheOperationValue(value) || hasSubscribers) {
       let buffer = this._buffered.get(identifier);
@@ -267,7 +274,7 @@ export default class NotificationManager {
 
     // TODO for documents this will need to switch based on Identifier kind
     if (isCacheOperationValue(value)) {
-      let callbackMap = Cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Map<
+      let callbackMap = this._cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Map<
         UnsubscribeToken,
         ResourceOperationCallback | DocumentOperationCallback
       >;
@@ -279,7 +286,7 @@ export default class NotificationManager {
       }
     }
 
-    let callbackMap = Cache.get(identifier);
+    let callbackMap = this._cache.get(identifier);
     if (!callbackMap || !callbackMap.size) {
       return false;
     }
@@ -292,7 +299,7 @@ export default class NotificationManager {
 
   destroy() {
     this.isDestroyed = true;
-    Tokens.clear();
-    Cache.clear();
+    this._tokens.clear();
+    this._cache.clear();
   }
 }
