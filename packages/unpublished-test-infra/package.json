@@ -31,7 +31,7 @@
     "ember-get-config": "^2.1.1",
     "qunit": "^2.19.4",
     "qunit-dom": "^2.0.0",
-    "semver": "^7.5.1",
+    "semver": "^7.5.3",
     "testem": "^3.10.1",
     "webpack": "^5.82.1"
   },

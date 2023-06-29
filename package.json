@@ -92,7 +92,7 @@
     "loader.js": "^4.7.0",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
-    "semver": "^7.5.1",
+    "semver": "^7.5.3",
     "silent-error": "^1.1.1",
     "testem": "^3.10.1",
     "typescript": "~5.1.3",
