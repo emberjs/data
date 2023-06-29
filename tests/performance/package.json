@@ -45,8 +45,8 @@
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-resolver": "^10.1.0",
-    "ember-source": "~4.12.0",
+    "ember-resolver": "^10.1.1",
+    "ember-source": "~4.12.1",
     "loader.js": "^4.7.0",
     "zlib": "1.0.5"
   },
