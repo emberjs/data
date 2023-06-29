@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/unpublished-test-infra",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
@@ -21,7 +21,7 @@
     "test": "ember test"
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.0.0",
+    "@ember-data/private-build-infra": "workspace:5.0.1",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.11.0",
     "broccoli-merge-trees": "^4.2.0",
