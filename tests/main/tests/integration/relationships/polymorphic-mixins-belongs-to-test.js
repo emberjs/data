@@ -5,6 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -136,9 +137,32 @@ module(
           ],
         });
 
-        assert.expectAssertion(function () {
-          user.bestMessage = video;
-        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message'/);
+        assert.expectAssertion(
+          function () {
+            user.bestMessage = video;
+          },
+          DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+            ? "Assertion Failed: The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
+            : `No 'user' field exists on 'not-message'. To use this type in the polymorphic relationship 'user.bestMessage' the relationships schema definition for not-message should include:
+
+\`\`\`
+{
+  user: {
+    name: 'user',
+    type: 'user',
+    kind: 'belongsTo',
+    options: {
+      as: 'message',
+      async: true,
+      polymorphic: false,
+      inverse: 'bestMessage'
+    }
+  }
+}
+\`\`\`
+
+`
+        );
       }
     );
   }

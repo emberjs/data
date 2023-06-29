@@ -6,6 +6,7 @@ import { defer, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
@@ -216,6 +217,18 @@ module('integration/references/belongs-to', function (hooks) {
   );
 
   testInDebug('push(object) asserts for invalid modelClass', async function (assert) {
+    class Family extends Model {
+      @hasMany('person', { async: true, inverse: 'family' }) persons;
+      @attr name;
+    }
+
+    class Person extends Model {
+      @belongsTo('family', { async: true, inverse: 'persons' }) family;
+    }
+
+    this.owner.register('model:family', Family);
+    this.owner.register('model:person', Person);
+
     let store = this.owner.lookup('service:store');
 
     let person = store.push({
@@ -238,24 +251,32 @@ module('integration/references/belongs-to', function (hooks) {
 
     let familyReference = person.belongsTo('family');
 
-    await assert.expectAssertion(async function () {
-      await familyReference.push(anotherPerson);
-    }, "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name.");
+    await assert.expectAssertion(
+      async function () {
+        await familyReference.push(anotherPerson);
+      },
+      DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+        ? "Assertion Failed: The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name."
+        : "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. If this relationship should be polymorphic, mark person.family as `polymorphic: true` and person.persons as implementing it via `as: 'family'`."
+    );
   });
 
   testInDebug('push(object) works with polymorphic types', async function (assert) {
-    const Family = Model.extend({
-      persons: hasMany('person', { async: true, inverse: 'family', as: 'family' }),
-      name: attr(),
-    });
+    class Family extends Model {
+      @hasMany('person', { async: true, inverse: 'family', as: 'family' }) persons;
+      @attr name;
+    }
 
-    const Person = Model.extend({
-      family: belongsTo('family', { async: true, inverse: 'persons', polymorphic: true }),
-    });
+    class Person extends Model {
+      @belongsTo('family', { async: true, inverse: 'persons', polymorphic: true }) family;
+    }
+    class MafiaFamily extends Model {
+      @hasMany('person', { async: true, inverse: 'family', as: 'family' }) persons;
+    }
 
     this.owner.register('model:family', Family);
     this.owner.register('model:person', Person);
-    this.owner.register('model:mafia-family', Family.extend());
+    this.owner.register('model:mafia-family', MafiaFamily);
     let store = this.owner.lookup('service:store');
 
     let person = store.push({

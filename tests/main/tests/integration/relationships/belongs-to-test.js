@@ -7,6 +7,7 @@ import { hash, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
@@ -591,9 +592,14 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       });
 
-      assert.expectAssertion(() => {
-        post.user = comment;
-      }, /The '<message>.user' relationship expects only 'user' records since it is not polymorphic. Received a Record of type 'comment'/);
+      assert.expectAssertion(
+        () => {
+          post.user = comment;
+        },
+        DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+          ? "Assertion Failed: The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. Make it a descendant of 'user' or use a mixin of the same name."
+          : "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. If this relationship should be polymorphic, mark message.user as `polymorphic: true` and comment.messages as implementing it via `as: 'user'`."
+      );
     }
   );
 

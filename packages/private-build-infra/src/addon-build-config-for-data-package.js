@@ -257,6 +257,7 @@ function addonBuildConfigForDataPackage(pkg) {
       let options = (app.options = app.options || {});
       options.emberData = options.emberData || {};
       options.emberData.debug = options.emberData.debug || {};
+      const hostOptions = options.emberData;
       const debugOptions = Object.assign(
         {
           LOG_PAYLOADS: false,
@@ -297,7 +298,11 @@ function addonBuildConfigForDataPackage(pkg) {
       const ownConfig = this.options['@embroider/macros'].setOwnConfig;
       ownConfig.compatWith = options.emberData.compatWith || null;
       ownConfig.debug = debugOptions;
-      ownConfig.deprecations = Object.assign(DEPRECATIONS, ownConfig.deprecations || {});
+      ownConfig.deprecations = Object.assign(
+        DEPRECATIONS,
+        ownConfig.deprecations || {},
+        hostOptions.deprecations || {}
+      );
       ownConfig.features = Object.assign({}, FEATURES);
       ownConfig.includeDataAdapter = includeDataAdapter;
 

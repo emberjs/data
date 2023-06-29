@@ -7,6 +7,7 @@ import { defer, resolve } from 'rsvp';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
@@ -268,10 +269,23 @@ module('integration/references/has-many', function (hooks) {
   });
 
   testInDebug('push(array) works with polymorphic type', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let Person = store.modelFor('person');
+    class Family extends Model {
+      @hasMany('person', { async: true, inverse: 'family', polymorphic: true }) persons;
+    }
+    class Person extends Model {
+      @attr name;
+      @belongsTo('family', { async: true, inverse: 'persons', as: 'person' }) family;
+    }
+    class Mafioso extends Model {
+      @attr name;
+      @belongsTo('family', { async: true, inverse: 'persons', as: 'person' }) family;
+    }
 
-    this.owner.register('model:mafia-boss', Person.extend());
+    let store = this.owner.lookup('service:store');
+
+    this.owner.register('model:family', Family);
+    this.owner.register('model:person', Person);
+    this.owner.register('model:mafia-boss', Mafioso);
 
     const family = store.push({
       data: {
@@ -290,18 +304,33 @@ module('integration/references/has-many', function (hooks) {
   });
 
   testInDebug('push(array) asserts polymorphic type', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let family = store.push({
+    class Person extends Model {
+      @hasMany('animal', { async: true, inverse: 'owner' }) pets;
+    }
+    class Animal extends Model {
+      @belongsTo('person', { async: true, inverse: 'pets' }) owner;
+    }
+
+    this.owner.register('model:animal', Animal);
+    this.owner.register('model:person', Person);
+
+    const store = this.owner.lookup('service:store');
+    const person = store.push({
       data: {
-        type: 'family',
+        type: 'person',
         id: '1',
       },
     });
-    let personsReference = family.hasMany('persons');
+    const petsReference = person.hasMany('pets');
 
-    await assert.expectAssertion(async () => {
-      await personsReference.push([{ data: { type: 'family', id: '1' } }]);
-    }, "The 'family' type does not implement 'person' and thus cannot be assigned to the 'persons' relationship in 'family'. Make it a descendant of 'person' or use a mixin of the same name.");
+    await assert.expectAssertion(
+      async () => {
+        await petsReference.push([{ data: { type: 'person', id: '1' } }]);
+      },
+      DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+        ? "Assertion Failed: The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. Make it a descendant of 'animal' or use a mixin of the same name."
+        : "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. If this relationship should be polymorphic, mark person.pets as `polymorphic: true` and person.owner as implementing it via `as: 'animal'`."
+    );
   });
 
   testInDebug('push(object) supports legacy, non-JSON-API-conform payload', function (assert) {

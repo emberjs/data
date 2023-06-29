@@ -312,7 +312,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
       @belongsTo('user', { async: false })
       twoUser;
 
-      @belongsTo('user', { async: false, as: 'message' })
+      @belongsTo('user', { async: false })
       redUser;
 
       @belongsTo('user', { async: false })
@@ -346,6 +346,8 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.strictEqual(post.twoUser, null, 'twoUser has not been set on the user');
     assert.strictEqual(post.redUser, null, 'redUser has bot been set on the user');
     assert.strictEqual(post.blueUser, null, 'blueUser has not been set on the user');
+
+    assert.expectDeprecation({ id: 'ember-data:non-explicit-relationships', count: 1 });
   });
 
   test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", async function (assert) {

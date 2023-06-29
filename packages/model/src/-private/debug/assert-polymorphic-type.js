@@ -40,7 +40,12 @@ if (DEBUG) {
       let meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
         parentDefinition.inverseKey
       ];
-      if (meta?.options?.as) {
+      if (!DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+        assert(
+          `The schema for the relationship '${parentDefinition.inverseKey}' on '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. The definition should specify 'as: "${parentDefinition.type}"' in options.`,
+          meta.options.as === parentDefinition.type
+        );
+      } else if (meta?.options?.as?.length > 0) {
         asserted = true;
         assert(
           `The schema for the relationship '${parentDefinition.inverseKey}' on '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. The definition should specify 'as: "${parentDefinition.type}"' in options.`,
