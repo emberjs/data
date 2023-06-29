@@ -1,5 +1,18 @@
 # Ember Data Changelog
 
+##4.12.1 (2023-06-29)
+
+#### :bug: Bug Fix
+  * [#8656](https://github.com/emberjs/data/pull/8656) fix: NotificationManager should only invoke resource/document callbacks owned by the originating store (#8649) ([@runspired](https://github.com/runspired))
+  * [#8571](https://github.com/emberjs/data/pull/8571) [backport / release] Fix: don't clear RecordArray if remaining record does not match the removed record ([@esbanarango](https://github.com/esbanarango))
+  * [#8636](https://github.com/emberjs/data/pull/8636) fix: backports polymorphism and app-config propagation fixes ([@runspired](https://github.com/runspired))
+  * [#8618](https://github.com/emberjs/data/pull/8618) Various Backported Fixes for 4.12 LTS ([@runspired](https://github.com/runspired))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Esteban ([@esbanarango](https://github.com/esbanarango))
+
+
 ## 4.12.0 (2023-04-06)
 
 #### :rocket: Enhancement
