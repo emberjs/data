@@ -1,6 +1,6 @@
 {
   "name": "performance-test-app",
-  "version": "5.1.0-beta.1",
+  "version": "5.1.0",
   "private": true,
   "description": "Small description for performance-test-app goes here",
   "repository": {
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "ember-auto-import": "2.6.1",
-    "ember-data": "workspace:5.1.0-beta.1",
+    "ember-data": "workspace:5.1.0",
     "@ember/string": "^3.1.1",
     "webpack": "^5.82.1"
   },
