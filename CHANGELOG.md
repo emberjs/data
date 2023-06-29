@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## 5.1.0 (2023-06-29)
+
+#### :bug: Bug Fix
+  * [#8657](https://github.com/emberjs/data/pull/8657) fix: ensure deprecation configs are threaded to each package ([@runspired](https://github.com/runspired))
+  * [#8649](https://github.com/emberjs/data/pull/8649) fix: NotificationManager should only invoke resource/document callbacks owned by the originating store ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## 5.0.1 (2023-06-29)
 
 #### :bug: Bug Fix
