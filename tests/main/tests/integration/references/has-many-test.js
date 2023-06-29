@@ -7,6 +7,7 @@ import { defer, resolve } from 'rsvp';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
@@ -322,9 +323,14 @@ module('integration/references/has-many', function (hooks) {
     });
     const petsReference = person.hasMany('pets');
 
-    await assert.expectAssertion(async () => {
-      await petsReference.push([{ data: { type: 'person', id: '1' } }]);
-    }, "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. If this relationship should be polymorphic, mark person.pets as `polymorphic: true` and person.owner as implementing it via `as: 'animal'`.");
+    await assert.expectAssertion(
+      async () => {
+        await petsReference.push([{ data: { type: 'person', id: '1' } }]);
+      },
+      DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+        ? "Assertion Failed: The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. Make it a descendant of 'animal' or use a mixin of the same name."
+        : "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. If this relationship should be polymorphic, mark person.pets as `polymorphic: true` and person.owner as implementing it via `as: 'animal'`."
+    );
   });
 
   testInDebug('push(object) supports legacy, non-JSON-API-conform payload', function (assert) {

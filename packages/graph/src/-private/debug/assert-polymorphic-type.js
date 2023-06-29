@@ -136,7 +136,6 @@ if (DEBUG) {
   function definitionWithPolymorphic(definition) {
     return Object.assign({}, definition, { inverseIsPolymorphic: true });
   }
-  let asserted = false;
 
   assertInheritedSchema = function assertInheritedSchema(definition, type) {
     let meta1 = metaFrom(definition);

@@ -9,7 +9,7 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
-import { DEPRECATE_ARRAY_LIKE } from '@ember-data/deprecations';
+import { DEPRECATE_ARRAY_LIKE, DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
@@ -1882,7 +1882,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       } catch (e) {
         assert.strictEqual(
           e.message,
-          "Assertion Failed: The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
+          DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+            ? "Assertion Failed: The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. Make it a descendant of 'comment' or use a mixin of the same name."
+            : "Assertion Failed: The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
           'should throw'
         );
       }
@@ -1957,7 +1959,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         function () {
           user.messages.push(anotherUser);
         },
-        `Assertion Failed: The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
+        DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+          ? "Assertion Failed: The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
+          : `Assertion Failed: The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
 
 \`\`\`
 {
@@ -2089,7 +2093,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         function () {
           user.messages.push(anotherUser);
         },
-        `Assertion Failed: No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
+        DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+          ? "Assertion Failed: The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
+          : `Assertion Failed: No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
 
 \`\`\`
 {
