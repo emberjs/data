@@ -381,7 +381,7 @@ importers:
         specifier: ~4.12.1
         version: 4.12.1(@babel/core@7.22.5)(@glimmer/component@1.1.2)(webpack@5.82.1)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
@@ -484,7 +484,7 @@ importers:
         specifier: ~4.12.1
         version: 4.12.1(@babel/core@7.22.5)(@glimmer/component@1.1.2)(webpack@5.82.1)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
@@ -563,7 +563,7 @@ importers:
         specifier: ~4.12.1
         version: 4.12.1(@babel/core@7.22.5)(@glimmer/component@1.1.2)(webpack@5.82.1)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
@@ -635,7 +635,7 @@ importers:
         specifier: ^15.1.0
         version: 15.1.0(rollup@3.25.3)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
@@ -723,7 +723,7 @@ importers:
         specifier: ~4.12.1
         version: 4.12.1(@babel/core@7.22.5)(@glimmer/component@1.1.2)(webpack@5.82.1)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
@@ -871,7 +871,7 @@ importers:
         specifier: ^15.1.0
         version: 15.1.0(rollup@3.25.3)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
@@ -947,7 +947,7 @@ importers:
         specifier: ~4.12.1
         version: 4.12.1(@babel/core@7.22.5)(@glimmer/component@1.1.2)(webpack@5.82.1)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
@@ -1026,7 +1026,7 @@ importers:
         specifier: ~4.12.1
         version: 4.12.1(@babel/core@7.22.5)(@glimmer/component@1.1.2)(webpack@5.82.1)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
@@ -1087,7 +1087,7 @@ importers:
         specifier: ^15.1.0
         version: 15.1.0(rollup@3.25.3)
       rollup:
-        specifier: ^3.25.2
+        specifier: ^3.25.3
         version: 3.25.3
       tslib:
         specifier: ^2.5.3
