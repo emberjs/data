@@ -38,8 +38,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -101,8 +101,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       '@types/ember__test':
-        specifier: ^4.0.1
-        version: 4.0.1(@babel/core@7.22.5)
+        specifier: ^4.0.2
+        version: 4.0.2(@babel/core@7.22.5)
       '@types/ember__utils':
         specifier: ^4.0.3
         version: 4.0.3(@babel/core@7.22.5)
@@ -1153,8 +1153,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -1193,7 +1193,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(ember-source@4.12.1)
@@ -1252,8 +1252,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -1298,7 +1298,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -1413,8 +1413,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -1459,7 +1459,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -1529,8 +1529,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@embroider/compat':
         specifier: ^3.0.0
         version: 3.0.0(@embroider/core@3.0.0)
@@ -1577,8 +1577,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
       ember-cli-fastboot-testing:
-        specifier: ^0.6.0
-        version: 0.6.0(webpack@5.82.1)
+        specifier: ^0.6.1
+        version: 0.6.1(ember-source@4.12.1)(webpack@5.82.1)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1596,7 +1596,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -1655,8 +1655,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -1694,8 +1694,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
       ember-cli-fastboot-testing:
-        specifier: ^0.6.0
-        version: 0.6.0(webpack@5.82.1)
+        specifier: ^0.6.1
+        version: 0.6.1(ember-source@4.12.1)(webpack@5.82.1)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1713,7 +1713,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -1866,8 +1866,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -1924,7 +1924,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -2011,8 +2011,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -2069,7 +2069,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -2156,8 +2156,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -2202,7 +2202,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -2268,8 +2268,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@embroider/macros':
         specifier: 1.10.0
         version: 1.10.0
@@ -2374,7 +2374,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -2467,8 +2467,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -2513,7 +2513,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -2571,8 +2571,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -2649,8 +2649,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -2707,7 +2707,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -2788,8 +2788,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       '@ember/test-helpers':
-        specifier: ^2.9.3
-        version: 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+        specifier: ^2.9.4
+        version: 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.5)
@@ -2834,7 +2834,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^6.2.0
-        version: 6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
+        version: 6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@4.12.1)
@@ -4735,8 +4735,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@ember/test-helpers@2.9.3(@babel/core@7.22.5)(ember-source@4.12.1):
-    resolution: {integrity: sha512-ejVg4Dj+G/6zyLvQsYOvmGiOLU6AS94tY4ClaO1E2oVvjjtVJIRmVLFN61I+DuyBg9hS3cFoPjQRTZB9MRIbxQ==}
+  /@ember/test-helpers@2.9.4(@babel/core@7.22.5)(ember-source@4.12.1):
+    resolution: {integrity: sha512-z+Qs1NYWyIVDmrY6WdmOS5mdG1lJ5CFfzh6dRhLfs9lq45deDaDrVNcaCYhnNeJZTvUBK2XR2SvPcZm0RloXdA==}
     engines: {node: 10.* || 12.* || 14.* || 15.* || >= 16.*}
     peerDependencies:
       ember-source: '>=3.8.0'
@@ -5631,7 +5631,7 @@ packages:
     resolution: {integrity: sha512-KZ6jYr0ZiQHlklLcfyuy1j+FkvygEayf5mZ9FcaSOahw9ghK3K5TYSRDCuIBELRw//OB/WP9J7v9NduFRNfRgg==}
     deprecated: This is a stub types definition. @ember/test-helpers provides its own type definitions, so you do not need this installed.
     dependencies:
-      '@ember/test-helpers': 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+      '@ember/test-helpers': 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -5641,6 +5641,15 @@ packages:
 
   /@types/ember__test@4.0.1(@babel/core@7.22.5):
     resolution: {integrity: sha512-EXFbZcROB9mUNHiDRyhyoJGXRIzxgo++smS3/kmmDlhM8/pIdULLKJSelTcFOy3e/VuZhf8y8ZCJLXKP74oCBQ==}
+    dependencies:
+      '@types/ember__application': 4.0.6(@babel/core@7.22.5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+    dev: true
+
+  /@types/ember__test@4.0.2(@babel/core@7.22.5):
+    resolution: {integrity: sha512-hoep5m7XmafmjIOHj+PN3T6RyCuVk6Wmjo7IVSM1aCxyIiSbJN8h1vs/Ma8I6kFoMmZYmdLsMxNoxMf7jEon4w==}
     dependencies:
       '@types/ember__application': 4.0.6(@babel/core@7.22.5)
     transitivePeerDependencies:
@@ -9122,14 +9131,17 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli-fastboot-testing@0.6.0(webpack@5.82.1):
-    resolution: {integrity: sha512-ppZyrb4qKjaF+JqsHgDtSic04V5Ut4i1z3FkT2n0IizzL1duQN3rqQgE0sKa8wR7B4tBd7Fc+JQL3VIkVwzBow==}
-    engines: {node: 12.* || 14.* || >= 16}
+  /ember-cli-fastboot-testing@0.6.1(ember-source@4.12.1)(webpack@5.82.1):
+    resolution: {integrity: sha512-nevPv77Wjk0Mslb0AF0wgHfbjki6Fi3/dapTrFz17WLX6n5maLr/MTL1hZcZdbT+69DHdgckCza8Z1WyxiUbBA==}
+    engines: {node: 12.* || 14.* || 16.* || >= 18}
+    peerDependencies:
+      ember-source: ^3.28.0 || ^4.0.0 || ^5.0.0
     dependencies:
       body-parser: 1.20.2
       ember-auto-import: 2.6.1(webpack@5.82.1)
       ember-cli-babel: 7.26.11
-      fastboot: 3.3.2
+      ember-source: 4.12.1(@babel/core@7.22.5)(@glimmer/component@1.1.2)(webpack@5.82.1)
+      fastboot: 4.1.1
       json-fn: 1.1.1
       minimist: 1.2.8
       nock: 13.3.0
@@ -9766,7 +9778,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-qunit@6.2.0(@ember/test-helpers@2.9.3)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1):
+  /ember-qunit@6.2.0(@ember/test-helpers@2.9.4)(ember-source@4.12.1)(qunit@2.19.4)(webpack@5.82.1):
     resolution: {integrity: sha512-mC+0bp8DwWzJLn8SW3GS8KDZIkl4yLsNYwMi5Dw6+aFllq7FM2crd/dfY4MuOIHK7GKdjtmWJTMGnjSpeSayaw==}
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
@@ -9774,7 +9786,7 @@ packages:
       ember-source: '>=3.28'
       qunit: ^2.13.0
     dependencies:
-      '@ember/test-helpers': 2.9.3(@babel/core@7.22.5)(ember-source@4.12.1)
+      '@ember/test-helpers': 2.9.4(@babel/core@7.22.5)(ember-source@4.12.1)
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 4.2.0
       common-tags: 1.8.2
@@ -10713,24 +10725,6 @@ packages:
       convert-source-map: 1.9.0
     transitivePeerDependencies:
       - supports-color
-    dev: true
-
-  /fastboot@3.3.2:
-    resolution: {integrity: sha512-2NKTW32GvEsDyBrdw1trW1JsbS+9/7sAQuKwkht12mNitimRrSKVLP2AxsM/HSXQE+aiET4XCfKdyeIy0kQbKQ==}
-    engines: {node: 12.* || 14.* || >=16}
-    dependencies:
-      chalk: 4.1.2
-      cookie: 0.4.2
-      debug: 4.3.4
-      jsdom: 19.0.0
-      resolve: 1.22.1
-      simple-dom: 1.4.0
-      source-map-support: 0.5.21
-    transitivePeerDependencies:
-      - bufferutil
-      - canvas
-      - supports-color
-      - utf-8-validate
     dev: true
 
   /fastboot@4.1.1:
@@ -16556,7 +16550,6 @@ packages:
     resolution: {directory: packages/-ember-data, type: directory}
     id: file:packages/-ember-data
     name: ember-data
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.1.1
@@ -16594,7 +16587,6 @@ packages:
   file:packages/adapter:
     resolution: {directory: packages/adapter, type: directory}
     name: '@ember-data/adapter'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/store': workspace:5.2.0-alpha.5
@@ -16613,7 +16605,6 @@ packages:
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/store': workspace:5.2.0-alpha.5
@@ -16634,7 +16625,6 @@ packages:
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/store': workspace:5.2.0-alpha.5
@@ -16654,7 +16644,6 @@ packages:
   file:packages/debug:
     resolution: {directory: packages/debug, type: directory}
     name: '@ember-data/debug'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.1.1
@@ -16676,7 +16665,6 @@ packages:
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember/string': ^3.1.1
@@ -16699,7 +16687,6 @@ packages:
     resolution: {directory: packages/graph, type: directory}
     id: file:packages/graph
     name: '@ember-data/graph'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/store': workspace:5.2.0-alpha.5
@@ -16716,7 +16703,6 @@ packages:
     resolution: {directory: packages/json-api, type: directory}
     id: file:packages/json-api
     name: '@ember-data/json-api'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -16734,7 +16720,6 @@ packages:
   file:packages/legacy-compat:
     resolution: {directory: packages/legacy-compat, type: directory}
     name: '@ember-data/legacy-compat'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -16756,7 +16741,6 @@ packages:
     resolution: {directory: packages/legacy-compat, type: directory}
     id: file:packages/legacy-compat
     name: '@ember-data/legacy-compat'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -16778,7 +16762,6 @@ packages:
   file:packages/model:
     resolution: {directory: packages/model, type: directory}
     name: '@ember-data/model'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/debug': workspace:5.2.0-alpha.5
@@ -16815,7 +16798,6 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/debug': workspace:5.2.0-alpha.5
@@ -16859,7 +16841,6 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/debug': workspace:5.2.0-alpha.5
@@ -16902,7 +16883,6 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/debug': workspace:5.2.0-alpha.5
@@ -16945,7 +16925,6 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/debug': workspace:5.2.0-alpha.5
@@ -16989,7 +16968,6 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/debug': workspace:5.2.0-alpha.5
@@ -17028,7 +17006,6 @@ packages:
   file:packages/private-build-infra:
     resolution: {directory: packages/private-build-infra, type: directory}
     name: '@ember-data/private-build-infra'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     dependencies:
       '@babel/core': 7.22.5
@@ -17064,7 +17041,6 @@ packages:
   file:packages/request:
     resolution: {directory: packages/request, type: directory}
     name: '@ember-data/request'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -17077,7 +17053,6 @@ packages:
   file:packages/serializer:
     resolution: {directory: packages/serializer, type: directory}
     name: '@ember-data/serializer'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/store': workspace:5.2.0-alpha.5
@@ -17096,7 +17071,6 @@ packages:
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/store': workspace:5.2.0-alpha.5
@@ -17117,7 +17091,6 @@ packages:
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/store': workspace:5.2.0-alpha.5
@@ -17138,7 +17111,6 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -17178,7 +17150,6 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -17217,7 +17188,6 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -17256,7 +17226,6 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -17295,7 +17264,6 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -17332,7 +17300,6 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     peerDependencies:
       '@ember-data/graph': workspace:5.2.0-alpha.5
@@ -17368,7 +17335,6 @@ packages:
   file:packages/tracking:
     resolution: {directory: packages/tracking, type: directory}
     name: '@ember-data/tracking'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18}
     dependencies:
       ember-cli-babel: 7.26.11
@@ -17378,7 +17344,6 @@ packages:
   file:packages/unpublished-test-infra:
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     name: '@ember-data/unpublished-test-infra'
-    version: 5.2.0-alpha.5
     engines: {node: 16.* || >= 18.*}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
