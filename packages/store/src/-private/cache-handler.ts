@@ -79,6 +79,7 @@ function maybeUpdateUiObjects<T>(
         return document as T;
       }
       const data = recordArrayManager.createArray({
+        type: request.url,
         identifiers: document.data,
         doc: document as CollectionResourceDataDocument,
         query: request,
@@ -95,6 +96,7 @@ function maybeUpdateUiObjects<T>(
 
     if (!managed) {
       managed = recordArrayManager.createArray({
+        type: identifier.lid,
         identifiers: document.data,
         doc: document as CollectionResourceDataDocument,
       });

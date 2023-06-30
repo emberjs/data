@@ -1,3 +1,5 @@
+import { DEBUG } from '@ember-data/env';
+
 /**
  * This package provides primitives that allow powerful low-level
  * adjustments to change tracking notification behaviors.
@@ -43,6 +45,62 @@ export function subscribe(obj: Tag): void {
   }
 }
 
+function updateRef(obj: Tag): void {
+  if (DEBUG) {
+    try {
+      obj.ref = null;
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        if (e.message.includes('You attempted to update `ref` on `Tag`')) {
+          e.message = e.message.replace(
+            'You attempted to update `ref` on `Tag`',
+            // @ts-expect-error
+            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
+          );
+          e.stack = e.stack?.replace(
+            'You attempted to update `ref` on `Tag`',
+            // @ts-expect-error
+            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
+          );
+
+          const lines = e.stack?.split(`\n`);
+          const finalLines: string[] = [];
+          let lastFile: string | null = null;
+
+          lines?.forEach((line) => {
+            if (line.trim().startsWith('at ')) {
+              // get the last string in the line which contains the code source location
+              const location = line.split(' ').at(-1)!;
+              // remove the line and char offset info
+
+              if (location.includes(':')) {
+                const parts = location.split(':');
+                parts.pop();
+                parts.pop();
+                const file = parts.join(':');
+                if (file !== lastFile) {
+                  lastFile = file;
+                  finalLines.push('');
+                }
+              }
+              finalLines.push(line);
+            }
+          });
+
+          const splitstr = '`ref` was first used:';
+          const parts = e.message.split(splitstr);
+          parts.splice(1, 0, `Original Stack\n=============\n${finalLines.join(`\n`)}\n\n${splitstr}`);
+
+          e.message = parts.join('');
+        }
+      }
+      throw e;
+    }
+  } else {
+    obj.ref = null;
+  }
+}
+
 function flushTransaction() {
   let transaction = TRANSACTION!;
   TRANSACTION = transaction.parent;
@@ -52,7 +110,7 @@ function flushTransaction() {
   transaction.props.forEach((obj: Tag) => {
     // mark this mutation as part of a transaction
     obj.t = true;
-    obj.ref = null;
+    updateRef(obj);
   });
   transaction.sub.forEach((obj: Tag) => {
     obj.ref;
@@ -70,7 +128,7 @@ async function untrack() {
   transaction.props.forEach((obj: Tag) => {
     // mark this mutation as part of a transaction
     obj.t = true;
-    obj.ref = null;
+    updateRef(obj);
   });
 }
 
@@ -78,7 +136,7 @@ export function addToTransaction(obj: Tag): void {
   if (TRANSACTION) {
     TRANSACTION.props.add(obj);
   } else {
-    obj.ref = null;
+    updateRef(obj);
   }
 }
 export function addTransactionCB(method: OpaqueFn): void {
