@@ -6,7 +6,7 @@ import { module, test } from 'qunit';
 import Store from 'ember-data/store';
 import { setupRenderingTest } from 'ember-qunit';
 
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import Model, { attr } from '@ember-data/model';
 
 module('DX | Meaningful Backtracking Errors', function (hooks) {
   setupRenderingTest(hooks);
@@ -35,17 +35,22 @@ module('DX | Meaningful Backtracking Errors', function (hooks) {
     this.set('badCode', new PoorlyWrittenCode());
 
     function handler(error) {
-      assert.strictEqual(error.message, '', 'we have a meaningful error');
+      assert.true(
+        error.message.includes(
+          'You attempted to update <IdentifierArray:user>.length, but it had already been used previously in the same computation'
+        ),
+        'we have a meaningful error'
+      );
       return false;
     }
 
-    // setupOnerror(handler);
+    setupOnerror(handler);
 
     await render(hbs`
       Count: {{this.records.length}}
       Value: {{this.badCode.value}}
     `);
 
-    // setupOnerror();
+    setupOnerror();
   });
 });
