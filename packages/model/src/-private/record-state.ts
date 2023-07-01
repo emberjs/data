@@ -38,8 +38,15 @@ class Tag {
   declare isDirty: boolean;
   declare value: any;
   declare t: boolean;
+  declare _debug_base: string;
+  declare _debug_prop: string;
 
   constructor() {
+    if (DEBUG) {
+      const [base, prop] = arguments as unknown as [string, string];
+      this._debug_base = base;
+      this._debug_prop = prop;
+    }
     this.rev = 1;
     this.isDirty = true;
     this.value = undefined;
@@ -68,7 +75,8 @@ function getTag(record, key) {
     tags = Object.create(null);
     Tags.set(record, tags);
   }
-  return (tags[key] = tags[key] || new Tag());
+  // @ts-expect-error
+  return (tags[key] = tags[key] || (DEBUG ? new Tag(record.constructor.modelName, key) : new Tag()));
 }
 
 export function peekTag(record, key) {

@@ -74,7 +74,7 @@ export const NOTIFY = Symbol('#notify');
 const IS_COLLECTION = Symbol.for('Collection');
 
 export function notifyArray(arr: IdentifierArray) {
-  arr[IDENTIFIER_ARRAY_TAG].ref = null;
+  addToTransaction(arr[IDENTIFIER_ARRAY_TAG]);
 
   if (DEPRECATE_COMPUTED_CHAINS) {
     // eslint-disable-next-line
@@ -101,8 +101,16 @@ class Tag {
    * whether this was part of a transaction when last mutated
    */
   declare t: boolean;
+  declare _debug_base: string;
+  declare _debug_prop: string;
 
   constructor() {
+    if (DEBUG) {
+      const [arr, prop] = arguments as unknown as [IdentifierArray, string];
+
+      this._debug_base = arr.constructor.name + ':' + String(arr.modelName);
+      this._debug_prop = prop;
+    }
     this.shouldReset = false;
     this.t = false;
   }
@@ -207,7 +215,7 @@ class IdentifierArray {
   _updatingPromise: PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> | null = null;
 
   [IS_COLLECTION] = true;
-  [IDENTIFIER_ARRAY_TAG] = new Tag();
+  declare [IDENTIFIER_ARRAY_TAG]: Tag;
   [SOURCE]: StableRecordIdentifier[];
   [NOTIFY]() {
     notifyArray(this);
@@ -268,6 +276,8 @@ class IdentifierArray {
     this.store = options.store;
     this._manager = options.manager;
     this[SOURCE] = options.identifiers;
+    // @ts-expect-error
+    this[IDENTIFIER_ARRAY_TAG] = DEBUG ? new Tag(this, 'length') : new Tag();
     const store = options.store;
     const boundFns = new Map<KeyType, ProxiedMethod>();
     const _TAG = this[IDENTIFIER_ARRAY_TAG];
