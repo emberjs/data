@@ -1,12 +1,13 @@
 import { render, setupOnerror } from '@ember/test-helpers';
 
 import hbs from 'htmlbars-inline-precompile';
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import Store from 'ember-data/store';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('DX | Meaningful Backtracking Errors', function (hooks) {
   setupRenderingTest(hooks);
