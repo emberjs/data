@@ -120,7 +120,9 @@ let app = new EmberApp(defaults, {
 
 *Ember***Data** uses `UUID V4` by default to generate identifiers for new data created on the client. Identifier generation is configurable, but we also for convenience will polyfill
 the necessary feature if your browser support or deployment environment demands it. To
-activate this polyfill:
+activate this polyfill;
+* install `@embroider/macros` if not already installed
+* add this to your ember-cli-build.js file:
 
 ```ts
 let app = new EmberApp(defaults, {
