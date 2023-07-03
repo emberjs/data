@@ -122,6 +122,7 @@ let app = new EmberApp(defaults, {
 the necessary feature if your browser support or deployment environment demands it. To
 activate this polyfill;
 * install `@embroider/macros` if not already installed
+* install `@ember-data/store` if not already installed
 * add this to your ember-cli-build.js file:
 
 ```ts
