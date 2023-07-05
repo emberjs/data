@@ -20,10 +20,10 @@ section.
 > what we need in a broader scope long before we dive into the 
 > specifics.
 
-- [Editions](#editions)
-  - [Polaris](#polaris)
-- [Releases](#releases)
-  - [5.x Series](#5x-series)
+- [Editions](#-editions)
+  - [Polaris](#-polaris)
+- [Releases](#-releases)
+  - [5.x Series](#-5x-series)
 
 --------------
 
