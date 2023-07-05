@@ -38,19 +38,19 @@ Our primary goal for Polaris is to evolve EmberData to being flexible and powerf
 
 We loosely define this to mean three things.
 
-1) Than any request an application makes might be best implemented via EmberData.
+1) That any request an application makes might be best implemented via EmberData.
 2) That the shared interfaces for requesting, mutating and interacting with data that EmberData provides
     enable applications to easily maintain, iterate on, and migrate between data best practices within
     their organization.
 3) That any API format specification could be utilized directly by a matching cache implementation,
     consumable by SchemaModel, and elegantly supported via a Handler and Request Builders.
 
-Our stretch goal (and ultimate north star) is to achieve this for all frontend Javascript applications, not just Ember applications.
+Our stretch goal (and ultimate north star) is to achieve this for all frontend JavaScript applications, not just Ember applications.
 
 To help achieve this we're targetting the following goals:
 
 - **EmberData independent of ember-source**
-  - Removal of remaining support for Ember classic 
+  - Removal of remaining support for Ember Classic 
     > some bare minimum support may remain until Ember similarly deprecates support
   - Decoupling of EmberData from Ember the framework
   - Removal of all promise proxies
@@ -68,7 +68,7 @@ To help achieve this we're targetting the following goals:
 
 Our stretch goals for Polaris are:
 
-- Robust Typescript Support
+- Robust TypeScript Support
 - EmberData independent of ember-cli/embroider
 - Something to support REST/ActiveRecord out-of-the box a bit better (either a Cache implementation or normalization utils)
 
@@ -93,14 +93,14 @@ Deprecations:
 
 Stretch Goals:
 
-- Experimental Typescript Support
+- Experimental TypeScript Support
 - DataWorker: Background WebWorker+IndexedDB solution for syncing Cache and Requests cross-tabs 
 
 ### 5.2 (Upcoming)
 
 - **Request Builders**
 
-Request builders bstract url-building to ensure friendly, familiar, refactorable, maintainable ergonomics
+Request builders abstract url-building to ensure friendly, familiar, refactorable, maintainable ergonomics
 for issuing requests from anywhere in the codebase using modern request-manager/fetch paradigms.
 
 ```ts
