@@ -1,15 +1,22 @@
 # Release
 
-Although not very tricky, the Ember Data release process does have a
-few manual steps. The following steps navigate us through
-some of the release gotchas and will hopefully result in a successful
-release.
+The EmberData release process has a few manual steps.
+
+The following steps navigate us through some of the release gotchas and will
+hopefully result in a successful release.
 
 There are four release channels, `lts`, `release`, `beta` and `canary`.
 Each has it's own section below.
 
 In this guide, we are assuming that the remote `origin` is `git@github.com:emberjs/data.git`,
 this remote needs to exist and `origin/main` `origin/beta` `origin/release` etc. need to be the upstreams of the local `main` `beta` `release` branches etc.
+
+## Before We Start
+
+Before we begin the release train, make sure that the [roadmap](./ROADMAP.md) is properly
+updated on `main` and `beta` so that it will be accurate when the new release branch is
+created. To do this you likely need to reach out to EmberData core team members to ensure
+all recent planning discussions and work is properly accounted for.
 
 ## Getting Setup To Do A Release
 
