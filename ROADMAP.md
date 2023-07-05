@@ -27,7 +27,8 @@ section.
 
 ## Editions
 
-This section 
+Each Edition encompasses a set of main themes that together we feel presents a distinct holistic
+picture for how to think about and utilize EmberData.
 
 ### Polaris
 
@@ -35,10 +36,18 @@ Polaris is an upcomming edition of Ember and related projects (embroider, EmberD
 
 Our primary goal for Polaris is to evolve EmberData to being flexible and powerful enough to be the best-in-class data management solution for every Ember application.
 
+We loosely define this to mean three things.
+
+1) Than any request an application makes might be best implemented via EmberData.
+2) That the shared interfaces for requesting, mutating and interacting with data that EmberData provides
+    enable applications to easily maintain, iterate on, and migrate between data best practices within
+    their organization.
+3) That any API format specification could be utilized directly by a matching cache implementation,
+    consumable by SchemaModel, and elegantly supported via a Handler and Request Builders.
+
 Our stretch goal (and ultimate north star) is to achieve this for all frontend Javascript applications, not just Ember applications.
 
-
-To achieve this we're targetting the following goals:
+To help achieve this we're targetting the following goals:
 
 - **EmberData independent of ember-source**
   - Removal of remaining support for Ember classic 
