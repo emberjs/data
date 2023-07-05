@@ -1476,19 +1476,25 @@ const JSONSerializer = Serializer.extend({
       const extracted = {};
 
       payload.errors.forEach((error) => {
-        if (error.source && error.source.pointer) {
-          let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
-
-          if (key) {
-            key = key[2];
-          } else if (error.source.pointer.search(SOURCE_POINTER_PRIMARY_REGEXP) !== -1) {
-            key = PRIMARY_ATTRIBUTE_KEY;
-          }
-
-          if (key) {
-            extracted[key] = extracted[key] || [];
-            extracted[key].push(error.detail || error.title);
-          }
+        const errorPointer = error.source?.pointer ?? '/data'
+        let key = errorPointer.match(SOURCE_POINTER_REGEXP);
+        if (key) {
+          key = key[2];
+        } else if (errorPointer.search(SOURCE_POINTER_PRIMARY_REGEXP) !== -1) {
+          key = PRIMARY_ATTRIBUTE_KEY;
+        }
+        if (key) {
+          extracted[key] = extracted[key] || [];
+          // Keep only what are valid attr's for a jsonapi error
+          extracted[key].push({
+            id: error.id,
+            links: error.links ? { about: error.links.about, type: error.links.type } : undefined,
+            status: error.status,
+            code: error.code,
+            detail: error.detail,
+            title: error.title,
+            meta: error.meta
+          });
         }
       });
 

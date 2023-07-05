@@ -231,7 +231,7 @@ function adapterDidInvalidate(
     if (serializer && typeof serializer.extractErrors === 'function') {
       let errorsHash = serializer.extractErrors(store, store.modelFor(identifier.type), error, identifier.id) as Record<
         string,
-        string | string[]
+        string | string[] | JsonApiError[]
       >;
       error.errors = errorsHashToArray(errorsHash);
     }
@@ -256,31 +256,40 @@ function adapterDidInvalidate(
   }
 }
 
-function makeArray<T>(value: T | T[]): T[] {
-  return Array.isArray(value) ? value : [value];
-}
-
 const PRIMARY_ATTRIBUTE_KEY = 'base';
-function errorsHashToArray(errors: Record<string, string | string[]>): JsonApiError[] {
+function errorsHashToArray(errorsHash: Record<string, string | string[] | JsonApiError[]>): JsonApiError[] {
   const out: JsonApiError[] = [];
 
-  if (errors) {
-    Object.keys(errors).forEach((key) => {
-      let messages = makeArray(errors[key]);
-      for (let i = 0; i < messages.length; i++) {
+  if (errorsHash) {
+    Object.keys(errorsHash).forEach((key) => {
+      let errorsItem = errorsHash[key]
+      let errors = typeof errorsItem === 'string' ? [errorsItem] : errorsItem;
+      for (let i = 0; i < errors.length; i++) {
         let title = 'Invalid Attribute';
         let pointer = `/data/attributes/${key}`;
         if (key === PRIMARY_ATTRIBUTE_KEY) {
           title = 'Invalid Document';
           pointer = `/data`;
         }
-        out.push({
-          title: title,
-          detail: messages[i],
-          source: {
-            pointer: pointer,
-          },
-        });
+        let error = errors[i]
+        if (typeof error === 'string') {
+          out.push({
+            title: title,
+            detail: error,
+            source: {
+              pointer: pointer,
+            },
+          });
+        } else {
+          out.push({
+            ...error,
+            title: title,
+            detail: error.detail || error.title,
+            source: {
+              pointer: pointer,
+            },
+          });
+        }
       }
     });
   }
