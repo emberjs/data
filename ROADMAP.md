@@ -1,9 +1,9 @@
 # EmberData Roadmap
 
 This is a living document that should be regularly updated with each 
-release and as plans evolve.
-It represents the general direction and an optimistic timeline for 
-when various work and efforts will be completed.
+release and as plans evolve. The specific releases are "soft targets".
+It represents the general direction, order of operations and an optimistic
+timeline for when various work and efforts will be completed.
 
 Main themes are covered in "Editions" while more tactical themes are 
 covered within releases.
@@ -13,7 +13,7 @@ with more recent/upcoming work closer to the top of their respective
 section.
 
 > **Note** <br>
-> Most work within this timeline requires going through the RFC process.
+> Most work within this roadmap requires going through the RFC process.
 > Just because the work is mentioned here does not mean it has been 
 > RFC'd and had a proposal accepted. As such, any API sketches shown 
 > are also preliminary. This is because often we know the parts of
@@ -84,10 +84,10 @@ Features:
 
 - SchemaModel
 - Schema DSL
-- Request Builders
-- JSON:API Serialization Utils
-- Cache Forking
-- JSON:API Operations Support
+- JSON:API, REST | Request Builders
+- JSON:API | Serialization Utils
+- JSON:API | Cache Forking
+- JSON:API | Operations Support
 
 Deprecations:
 
@@ -100,7 +100,14 @@ Stretch Goals:
 - Experimental TypeScript Support
 - DataWorker: Background WebWorker+IndexedDB solution for syncing Cache and Requests cross-tabs 
 
-### 🔸 5.2 (Upcoming)
+### 🔸 5.3 (Upcoming ~ Oct 1, 2023)
+
+- Schema DSL
+- SchemaModel
+- Forking support for JSON:API Cache
+- Refactor @ember-data/model setup/teardown hooks logic to be importable
+
+### 🔸 5.2 (Upcoming ~ Aug 14, 2023)
 
 - **Request Builders**
 
