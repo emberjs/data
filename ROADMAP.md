@@ -1,9 +1,9 @@
 # EmberData Roadmap
 
 This is a living document that should be regularly updated with each 
-release and as plans evolve.
-It represents the general direction and an optimistic timeline for 
-when various work and efforts will be completed.
+release and as plans evolve. The specific releases are "soft targets".
+It represents the general direction, order of operations and an optimistic
+timeline for when various work and efforts will be completed.
 
 Main themes are covered in "Editions" while more tactical themes are 
 covered within releases.
@@ -13,7 +13,7 @@ with more recent/upcoming work closer to the top of their respective
 section.
 
 > **Note** <br>
-> Most work within this timeline requires going through the RFC process.
+> Most work within this roadmap requires going through the RFC process.
 > Just because the work is mentioned here does not mean it has been 
 > RFC'd and had a proposal accepted. As such, any API sketches shown 
 > are also preliminary. This is because often we know the parts of
