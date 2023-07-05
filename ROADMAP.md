@@ -25,12 +25,14 @@ section.
 - [Releases](#releases)
   - [5.x Series](#5x-series)
 
-## Editions
+--------------
+
+## 💜 Editions
 
 Each Edition encompasses a set of main themes that together we feel presents a distinct holistic
 picture for how to think about and utilize EmberData.
 
-### Polaris
+### 🔸 Polaris
 
 Polaris is an upcomming edition of Ember and related projects (embroider, EmberData, EmberCLI).
 
@@ -72,9 +74,11 @@ Our stretch goals for Polaris are:
 - EmberData independent of ember-cli/embroider
 - Something to support REST/ActiveRecord out-of-the box a bit better (either a Cache implementation or normalization utils)
 
-## Releases
+--------------
 
-### 5.x Series
+## 💜 Releases
+
+### 🔸 5.x Series
 
 Features:
 
@@ -96,7 +100,7 @@ Stretch Goals:
 - Experimental TypeScript Support
 - DataWorker: Background WebWorker+IndexedDB solution for syncing Cache and Requests cross-tabs 
 
-### 5.2 (Upcoming)
+### 🔸 5.2 (Upcoming)
 
 - **Request Builders**
 
