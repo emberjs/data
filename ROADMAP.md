@@ -84,10 +84,10 @@ Features:
 
 - SchemaModel
 - Schema DSL
-- Request Builders
-- JSON:API Serialization Utils
-- Cache Forking
-- JSON:API Operations Support
+- JSON:API, REST | Request Builders
+- JSON:API | Serialization Utils
+- JSON:API | Cache Forking
+- JSON:API | Operations Support
 
 Deprecations:
 
@@ -100,7 +100,14 @@ Stretch Goals:
 - Experimental TypeScript Support
 - DataWorker: Background WebWorker+IndexedDB solution for syncing Cache and Requests cross-tabs 
 
-### 🔸 5.2 (Upcoming)
+### 🔸 5.3 (Upcoming ~ Oct 1, 2023)
+
+- Schema DSL
+- SchemaModel
+- Forking support for JSON:API Cache
+- Refactor @ember-data/model setup/teardown hooks logic to be importable
+
+### 🔸 5.2 (Upcoming ~ Aug 14, 2023)
 
 - **Request Builders**
 
