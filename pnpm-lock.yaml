@@ -136,8 +136,8 @@ importers:
         specifier: ^4.3.4
         version: 4.3.4
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0(debug@4.3.4)
+        specifier: ~5.1.0
+        version: 5.1.0(debug@4.3.4)
       ember-source:
         specifier: ~5.1.2
         version: 5.1.2(@babel/core@7.22.5)(@glimmer/component@1.1.2)(webpack@5.88.1)
@@ -1179,11 +1179,11 @@ importers:
         specifier: ^7.5.0
         version: 7.5.0
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1281,14 +1281,14 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1365,8 +1365,8 @@ importers:
         specifier: workspace:5.3.0-alpha.2
         version: file:packages/unpublished-test-infra
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-blueprint-test-helpers:
         specifier: ^0.19.2
         version: 0.19.2
@@ -1439,14 +1439,14 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1564,14 +1564,14 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-fastboot:
         specifier: ^4.1.1
         version: 4.1.1
@@ -1672,14 +1672,14 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-fastboot:
         specifier: ^4.1.1
         version: 4.1.1
@@ -1761,14 +1761,14 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1868,8 +1868,8 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
@@ -1878,7 +1878,7 @@ importers:
         version: 0.19.2
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2013,8 +2013,8 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
@@ -2023,7 +2023,7 @@ importers:
         version: 0.19.2
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2158,14 +2158,14 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2309,14 +2309,14 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1(@babel/core@7.22.5)(ember-source@5.1.2)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2460,14 +2460,14 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2558,14 +2558,14 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2636,8 +2636,8 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
@@ -2646,7 +2646,7 @@ importers:
         version: 0.19.2
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2775,14 +2775,14 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.1)
       ember-cli:
-        specifier: ~5.0.0
-        version: 5.0.0
+        specifier: ~5.1.0
+        version: 5.1.0
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
         specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.0.0)
+        version: 3.3.2(ember-cli@5.1.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -5501,6 +5501,23 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@pnpm/constants@7.1.1:
+    resolution: {integrity: sha512-31pZqMtjwV+Vaq7MaPrT1EoDFSYwye3dp6BiHIGRJmVThCQwySRKM7hCvqqI94epNkqFAAYoWrNynWoRYosGdw==}
+    engines: {node: '>=16.14'}
+
+  /@pnpm/error@5.0.2:
+    resolution: {integrity: sha512-0TEm+tWNYm+9uh6DSKyRbv8pv/6b4NL0PastLvMxIoqZbBZ5Zj1cYi332R9xsSUi31ZOsu2wpgn/bC7DA9hrjg==}
+    engines: {node: '>=16.14'}
+    dependencies:
+      '@pnpm/constants': 7.1.1
+
+  /@pnpm/find-workspace-dir@6.0.2:
+    resolution: {integrity: sha512-JSrpQUFCs4vY1D5tOmj7qBb+oE2j/lO6341giEdUpvYf3FijY8CY13l8rPjfHV2y3m//utzl0An+q+qx14S6Nw==}
+    engines: {node: '>=16.14'}
+    dependencies:
+      '@pnpm/error': 5.0.2
+      find-up: 5.0.0
 
   /@rollup/plugin-babel@6.0.3(@babel/core@7.22.5)(rollup@3.26.0):
     resolution: {integrity: sha512-fKImZKppa1A/gX73eg4JGo+8kQr/q1HBQaCGKECZ0v4YBBv3lFqi14+7xyApECzvkLTHCifx+7ntcrvtBIRcpg==}
@@ -9317,14 +9334,14 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli-dependency-checker@3.3.2(ember-cli@5.0.0):
+  /ember-cli-dependency-checker@3.3.2(ember-cli@5.1.0):
     resolution: {integrity: sha512-PwkrW5oYsdPWwt+0Tojufmv/hxVETTjkrEdK7ANQB2VSnqpA5UcYubwpQM9ONuR2J8wyNDMwEHlqIrk/FYtBsQ==}
     engines: {node: '>= 6'}
     peerDependencies:
       ember-cli: ^3.2.0 || >=4.0.0
     dependencies:
       chalk: 2.4.2
-      ember-cli: 5.0.0
+      ember-cli: 5.1.0
       find-yarn-workspace-root: 1.2.1
       is-git-url: 1.0.0
       resolve: 1.22.1
@@ -9580,12 +9597,13 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli@5.0.0:
-    resolution: {integrity: sha512-poklpwf+GrDhkFRTYvYmpkSA5R0pNy4Vahxjvji5jUl82tot+J95ZY1QH1yx//QzQ7zb1XlcOnceieyd2j1Rbw==}
+  /ember-cli@5.1.0:
+    resolution: {integrity: sha512-TlnfO+V5lZqRQ7eGXt+P8q24Cu90GSXXAS/2NasaCtC1WY7eVzhfMsoNZiOw3Pe1CaB7i5fPDR8jAMsTwx8Tpg==}
     engines: {node: '>= 16'}
     hasBin: true
     dependencies:
       '@babel/core': 7.22.5
+      '@pnpm/find-workspace-dir': 6.0.2
       broccoli: 3.5.2
       broccoli-builder: 0.18.14
       broccoli-concat: 4.2.5
@@ -9729,12 +9747,13 @@ packages:
       - walrus
       - whiskers
 
-  /ember-cli@5.0.0(debug@4.3.4):
-    resolution: {integrity: sha512-poklpwf+GrDhkFRTYvYmpkSA5R0pNy4Vahxjvji5jUl82tot+J95ZY1QH1yx//QzQ7zb1XlcOnceieyd2j1Rbw==}
+  /ember-cli@5.1.0(debug@4.3.4):
+    resolution: {integrity: sha512-TlnfO+V5lZqRQ7eGXt+P8q24Cu90GSXXAS/2NasaCtC1WY7eVzhfMsoNZiOw3Pe1CaB7i5fPDR8jAMsTwx8Tpg==}
     engines: {node: '>= 16'}
     hasBin: true
     dependencies:
       '@babel/core': 7.22.5
+      '@pnpm/find-workspace-dir': 6.0.2
       broccoli: 3.5.2
       broccoli-builder: 0.18.14
       broccoli-concat: 4.2.5

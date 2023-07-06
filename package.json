@@ -70,7 +70,7 @@
     "command-line-args": "^5.2.1",
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
-    "ember-cli": "~5.0.0",
+    "ember-cli": "~5.1.0",
     "ember-source": "~5.1.2",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
