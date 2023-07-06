@@ -21,7 +21,6 @@
       "matchPackageNames": [
         "webpack",
         "npm-run-all",
-        "ember-export-application-global",
         "ember-cli",
         "ember-cli-dotenv",
         "ember-auto-import",
