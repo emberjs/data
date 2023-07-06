@@ -1863,12 +1863,11 @@ class Store extends EmberObject {
         if (HAS_GRAPH_PACKAGE) {
           const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
             .peekGraph;
-          let graph = peekGraph(this);
+          const graph = peekGraph(this);
           if (graph) {
             graph.identifiers.clear();
           }
         }
-        this.notifications.destroy();
 
         this.recordArrayManager.clear();
         this._instanceCache.clear();
@@ -2472,6 +2471,7 @@ class Store extends EmberObject {
       }
     }
 
+    this.notifications.destroy();
     this.recordArrayManager.destroy();
     this.identifierCache.destroy();
 
