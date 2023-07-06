@@ -76,7 +76,7 @@
     "@babel/runtime": "^7.22.5",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.1.0",
-    "tslib": "^2.5.3",
+    "tslib": "^2.6.0",
     "walk-sync": "^3.0.0",
     "typescript": "^5.1.3"
   },
