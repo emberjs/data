@@ -17,7 +17,7 @@
 
 <p align="center">The lightweight reactive data library for JavaScript applications</p>
 
-[![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
+[![Build Status](https://github.com/emberjs/data/workflows/Main/badge.svg)](https://github.com/emberjs/data/actions?workflow=Main)
 [![Discord Community Server](https://img.shields.io/discord/480462759797063690.svg?logo=discord)](https://discord.gg/zT3asNS)
 
 ---
