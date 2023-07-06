@@ -72,7 +72,6 @@
     "@glimmer/env": "^0.1.7",
     "@glimmer/tracking": "^1.1.2",
     "@types/ember": "^4.0.4",
-    "@types/ember-qunit": "^5.0.2",
     "@types/ember-testing-helpers": "^0.0.4",
     "@types/ember__debug": "^4.0.4",
     "@types/ember__object": "^4.0.6",

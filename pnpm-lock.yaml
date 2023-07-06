@@ -49,9 +49,6 @@ importers:
       '@types/ember':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.5)
-      '@types/ember-qunit':
-        specifier: ^5.0.2
-        version: 5.0.2(@babel/core@7.22.5)(ember-source@4.12.3)(webpack@5.82.1)
       '@types/ember-resolver':
         specifier: ^5.0.13
         version: 5.0.13(@babel/core@7.22.5)
@@ -1549,9 +1546,6 @@ importers:
       '@types/ember':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.5)
-      '@types/ember-qunit':
-        specifier: ^5.0.2
-        version: 5.0.2(@babel/core@7.22.5)(ember-source@4.12.3)(webpack@5.82.1)
       '@types/ember-testing-helpers':
         specifier: ^0.0.4
         version: 0.0.4
@@ -1666,9 +1660,6 @@ importers:
       '@types/ember':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.5)
-      '@types/ember-qunit':
-        specifier: ^5.0.2
-        version: 5.0.2(@babel/core@7.22.5)(ember-source@4.12.3)(webpack@5.82.1)
       '@types/ember-testing-helpers':
         specifier: ^0.0.4
         version: 0.0.4
@@ -2285,9 +2276,6 @@ importers:
       '@types/ember':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.5)
-      '@types/ember-qunit':
-        specifier: ^5.0.2
-        version: 5.0.2(@babel/core@7.22.5)(ember-source@4.12.3)(webpack@5.82.1)
       '@types/ember-testing-helpers':
         specifier: ^0.0.4
         version: 0.0.4
@@ -5437,20 +5425,6 @@ packages:
     dependencies:
       '@types/node': 18.15.10
 
-  /@types/ember-qunit@5.0.2(@babel/core@7.22.5)(ember-source@4.12.3)(webpack@5.82.1):
-    resolution: {integrity: sha512-LXp0Ew4wPhaCMuw49cNDHWs/bROn+Msb4ypMG1t60EMBx0UaEoX0tZlkf5bQJfdD249WZTu5cCtKvl47xbQzxA==}
-    dependencies:
-      '@types/ember-resolver': 5.0.13(@babel/core@7.22.5)
-      '@types/ember__test': 4.0.1(@babel/core@7.22.5)
-      '@types/ember__test-helpers': 2.9.1(ember-source@4.12.3)(webpack@5.82.1)
-      '@types/qunit': 2.19.4
-    transitivePeerDependencies:
-      - '@babel/core'
-      - ember-source
-      - supports-color
-      - webpack
-    dev: true
-
   /@types/ember-resolver@5.0.13(@babel/core@7.22.5):
     resolution: {integrity: sha512-pO964cAPhAaFJoS28M8+b5MzAhQ/tVuNM4GDUIAexheQat36axG2WTG8LQ5ea07MSFPesrRFk2T3z88pfvdYKA==}
     dependencies:
@@ -5636,17 +5610,6 @@ packages:
     resolution: {integrity: sha512-kQWkak5Sy8m4xcXiXNO2A5+N12qoYK9EK2WtGQYG5pN0wSl6iYFGuz8iq7wEcOyiQ0BH9xSv3uCURukv3U+Txw==}
     dev: true
 
-  /@types/ember__test-helpers@2.9.1(ember-source@4.12.3)(webpack@5.82.1):
-    resolution: {integrity: sha512-KZ6jYr0ZiQHlklLcfyuy1j+FkvygEayf5mZ9FcaSOahw9ghK3K5TYSRDCuIBELRw//OB/WP9J7v9NduFRNfRgg==}
-    deprecated: This is a stub types definition. @ember/test-helpers provides its own type definitions, so you do not need this installed.
-    dependencies:
-      '@ember/test-helpers': 3.2.0(ember-source@4.12.3)(webpack@5.82.1)
-    transitivePeerDependencies:
-      - ember-source
-      - supports-color
-      - webpack
-    dev: true
-
   /@types/ember__test@4.0.1(@babel/core@7.22.5):
     resolution: {integrity: sha512-EXFbZcROB9mUNHiDRyhyoJGXRIzxgo++smS3/kmmDlhM8/pIdULLKJSelTcFOy3e/VuZhf8y8ZCJLXKP74oCBQ==}
     dependencies:
@@ -5763,10 +5726,6 @@ packages:
 
   /@types/qs@6.9.7:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
-
-  /@types/qunit@2.19.4:
-    resolution: {integrity: sha512-EocRiD2JRWrOaA0dnyyLX083DIo1p3OSBBiGODcHaMzOFhteXtvRRp0kKsiYYqynnBSMqnqRI92iE32axdoXZw==}
-    dev: true
 
   /@types/qunit@2.19.6:
     resolution: {integrity: sha512-bz9STa6EHurtpSfn5cNiScBladlw43bM+7luQA985Kd9YlF4dZaLmKt3c5/oSyN1AWAl50YBpqTq0BxCP64nGg==}
