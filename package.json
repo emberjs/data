@@ -133,8 +133,12 @@
       "ember-cli-babel": "^7.26.11",
       "ember-cli-htmlbars": "^6.2.0"
     },
-    "patchedDependencies": {
-      "babel-plugin-ember-template-compilation@2.0.3": "patches/babel-plugin-ember-template-compilation@2.0.3.patch"
+    "packageExtensions": {
+      "babel-plugin-ember-template-compilation": {
+        "dependencies": {
+          "@babel/traverse": "^7.14.5"
+        }
+      }
     }
   }
 }
