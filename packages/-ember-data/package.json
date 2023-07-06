@@ -79,7 +79,7 @@
     "@babel/core": "^7.22.5",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-source": "~4.12.3"
+    "ember-source": "~5.1.2"
   },
   "engines": {
     "node": "16.* || >= 18.*"
