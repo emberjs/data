@@ -334,8 +334,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    assert.strictEqual(records1.map(r => r.id).join(','), '1,2', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records1.map((r) => r.id).join(','), '1,2', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
 
     store.unloadAll('person');
@@ -366,8 +366,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
-    assert.strictEqual(records2.map(r => r.id).join(','), '1,3', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records2.map((r) => r.id).join(','), '1,3', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
   });
 
   test('unloadAll(<type>) clears the LiveArray, subsequent push repopulates (no intermediate peek, async)', async function (assert) {
@@ -392,8 +392,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    assert.strictEqual(records1.map(r => r.id).join(','), '1,2', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records1.map((r) => r.id).join(','), '1,2', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
 
     store.unloadAll('person');
@@ -420,8 +420,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
-    assert.strictEqual(records2.map(r => r.id).join(','), '1,3', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records2.map((r) => r.id).join(','), '1,3', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
   });
 
   test('unloadAll(<type>) clears the LiveArray, subsequent push repopulates (no intermediate peek, sync)', async function (assert) {
@@ -446,8 +446,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    assert.strictEqual(records1.map(r => r.id).join(','), '1,2', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records1.map((r) => r.id).join(','), '1,2', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
 
     store.unloadAll('person');
@@ -472,8 +472,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
-    assert.strictEqual(records2.map(r => r.id).join(','), '1,3', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records2.map((r) => r.id).join(','), '1,3', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
   });
 
   test('unloadAll(void) clears the LiveArray, subsequent push repopulates', async function (assert) {
@@ -498,8 +498,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    assert.strictEqual(records1.map(r => r.id).join(','), '1,2', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records1.map((r) => r.id).join(','), '1,2', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
 
     store.unloadAll();
@@ -530,8 +530,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
-    assert.strictEqual(records2.map(r => r.id).join(','), '1,3', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records2.map((r) => r.id).join(','), '1,3', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
   });
 
   test('unloadAll(void) clears the LiveArray, subsequent push repopulates (no intermediate peek, async)', async function (assert) {
@@ -556,8 +556,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    assert.strictEqual(records1.map(r => r.id).join(','), '1,2', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records1.map((r) => r.id).join(','), '1,2', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
 
     store.unloadAll();
@@ -584,8 +584,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
-    assert.strictEqual(records2.map(r => r.id).join(','), '1,3', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records2.map((r) => r.id).join(','), '1,3', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
   });
 
   test('unloadAll(void) clears the LiveArray, subsequent push repopulates (no intermediate peek, sync)', async function (assert) {
@@ -610,8 +610,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    assert.strictEqual(records1.map(r => r.id).join(','), '1,2', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records1.map((r) => r.id).join(','), '1,2', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
 
     store.unloadAll();
@@ -636,8 +636,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded in LiveArray');
-    assert.strictEqual(records2.map(r => r.id).join(','), '1,3', 'two person records loaded');
-    assert.strictEqual(records1.map(r => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
+    assert.strictEqual(records2.map((r) => r.id).join(','), '1,3', 'two person records loaded');
+    assert.strictEqual(records1.map((r) => r.name).join(','), 'Adam Sunderland,Bob Bobson', 'attributes are present');
   });
 
   test('unloading all records also updates record array from peekAll()', function (assert) {
