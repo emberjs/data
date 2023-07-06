@@ -74,7 +74,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   });
 
   test('simple single resource documents are correctly managed', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
@@ -88,7 +88,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   });
 
   test('single resource documents are correctly cached', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
@@ -125,7 +125,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   });
 
   test('data documents respect cacheOptions.key', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
@@ -168,7 +168,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test("notifications are generated for create and update of the document's cache key", function (assert) {
     assert.expect(10);
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
     const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
       url: '/api/v1/query?type=user&name=Chris&limit=1',
@@ -225,7 +225,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   });
 
   test('resources are accessible via `peek`', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
@@ -293,7 +293,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   });
 
   test('single resource relationships are accessible via `peek`', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
 
     store.registerSchemaDefinitionService(
       new TestSchema<'user'>({

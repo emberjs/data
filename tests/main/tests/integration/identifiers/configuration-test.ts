@@ -80,7 +80,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
   });
 
   test(`The configured generation method is used for pushed records`, async function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const record = store.push({
       data: {
         type: 'user',
@@ -122,7 +122,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierGenerationMethod(generationMethod);
 
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const newRecord = store.createRecord('user', {
       firstName: 'James',
       username: '@cthoburn',
@@ -179,7 +179,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 }) as DSModel;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
@@ -243,7 +243,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const record = store.createRecord('user', {
       id: '1',
       firstName: 'Chris',
@@ -312,7 +312,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const record = store.push({
       data: {
         id: '1',
@@ -406,7 +406,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       testMethod(identifier);
     });
 
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const userByUsernamePromise = store.findRecord('user', '@runspired');
     const userByIdPromise = store.findRecord('user', '1');
 
@@ -463,7 +463,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       forgetMethodCalls++;
       assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
     });
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = () => {
@@ -540,7 +540,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     });
 
     // no retainers
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const freeWillie = store.push({
       data: {
         type: 'user',

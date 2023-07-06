@@ -132,6 +132,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     owner.register('model:person', Person);
     owner.register('model:house', House);
     owner.register('model:car', Car);
+    // @ts-expect-error missing type
     owner.unregister('service:store');
     owner.register('service:store', CustomStore);
   });
@@ -148,7 +149,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     }
 
     owner.register('service:store', TestStore);
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
     store.cache;
 
     let houseAttrs = {
@@ -224,7 +225,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     }
 
     owner.register('service:store', TestStore);
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
 
     let house = store.createRecord('house', {}) as DSModel;
     storeWrapper.setRecordId(recordIdentifierFor(house), '17');
@@ -248,7 +249,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     }
 
     owner.register('service:store', TestStore);
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
 
     store.push({
       data: [houseHash, houseHash2],
@@ -278,7 +279,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     }
 
     owner.register('service:store', TestStore);
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
 
     const identifier = store._push({
       data: {

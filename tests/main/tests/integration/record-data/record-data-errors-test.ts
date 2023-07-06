@@ -228,7 +228,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     owner.register('service:store', TestStore);
     owner.register('adapter:application', TestAdapter);
 
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
 
     const person = store.push({
       data: {
@@ -278,7 +278,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     owner.register('service:store', TestStore);
     owner.register('adapter:application', TestAdapter);
 
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
 
     const person = store.push({
       data: {
@@ -319,7 +319,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     owner.register('model:person', Person);
     owner.register('service:store', TestStore);
 
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
 
     const person: DSModel = store.push({
       data: {
