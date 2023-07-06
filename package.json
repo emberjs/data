@@ -43,8 +43,6 @@
     "@glimmer/env": "^0.1.7",
     "@types/ember": "^4.0.4",
     "@types/ember-resolver": "^5.0.13",
-    "@types/ember__owner": "^4.0.4",
-    "@types/jquery": "^3.5.16",
     "@types/ember__application": "^4.0.6",
     "@types/ember__array": "^4.0.4",
     "@types/ember__component": "^4.0.14",
@@ -53,6 +51,7 @@
     "@types/ember__engine": "^4.0.5",
     "@types/ember__error": "^4.0.3",
     "@types/ember__object": "^4.0.6",
+    "@types/ember__owner": "^4.0.4",
     "@types/ember__polyfills": "^4.0.2",
     "@types/ember__routing": "^4.0.13",
     "@types/ember__runloop": "^4.0.3",
@@ -61,6 +60,7 @@
     "@types/ember__template": "^4.0.2",
     "@types/ember__test": "^4.0.2",
     "@types/ember__utils": "^4.0.3",
+    "@types/jquery": "^3.5.16",
     "@types/qunit": "^2.19.6",
     "@types/rsvp": "^4.0.4",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
@@ -69,9 +69,9 @@
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
     "common-tags": "^1.8.2",
+    "debug": "^4.3.4",
     "ember-cli": "~5.0.0",
     "ember-source": "~5.1.2",
-    "debug": "^4.3.4",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-ember": "^11.9.0",
@@ -126,12 +126,19 @@
   },
   "pnpm": {
     "overrides": {
-      "ember-auto-import": "2.6.1",
+      "ember-auto-import": "^2.6.3",
       "@embroider/macros": "^1.12.2",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
       "ember-cli-babel": "^7.26.11",
       "ember-cli-htmlbars": "^6.2.0"
+    },
+    "packageExtensions": {
+      "babel-plugin-ember-template-compilation": {
+        "dependencies": {
+          "@babel/traverse": "^7.14.5"
+        }
+      }
     }
   }
 }
