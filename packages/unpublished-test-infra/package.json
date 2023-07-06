@@ -50,7 +50,7 @@
     "@types/semver": "^7.5.0",
     "@types/ember__owner": "^4.0.4",
     "ember-cli": "~5.0.0",
-    "ember-cli-dependency-checker": "^3.3.1",
+    "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.2.0",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-test-loader": "^3.0.0",

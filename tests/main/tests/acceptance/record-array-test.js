@@ -1,9 +1,9 @@
 import { computed } from '@ember/object';
 import { findAll, render, rerender } from '@ember/test-helpers';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';

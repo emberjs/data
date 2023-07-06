@@ -28,7 +28,6 @@
         "broccoli-debug",
         "broccoli-funnel",
         "broccoli-merge-trees",
-        "ember-cli-app-version",
         "ember-cli-build-notifications",
         "ember-cli-content-security-policy",
         "ember-cli-dependency-checker",

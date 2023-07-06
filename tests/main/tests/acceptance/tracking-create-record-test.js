@@ -3,9 +3,9 @@ import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import { cached, tracked } from '@glimmer/tracking';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
