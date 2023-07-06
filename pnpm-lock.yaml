@@ -103,9 +103,6 @@ importers:
       '@types/ember__utils':
         specifier: ^4.0.3
         version: 4.0.3(@babel/core@7.22.5)
-      '@types/htmlbars-inline-precompile':
-        specifier: ^3.0.0
-        version: 3.0.0
       '@types/jquery':
         specifier: ^3.5.16
         version: 3.5.16
@@ -1171,8 +1168,8 @@ importers:
         specifier: ~5.0.0
         version: 5.0.0
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1279,8 +1276,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1440,8 +1437,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1568,8 +1565,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-fastboot:
         specifier: ^4.1.1
         version: 4.1.1
@@ -1679,8 +1676,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-fastboot:
         specifier: ^4.1.1
         version: 4.1.1
@@ -1771,8 +1768,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1881,8 +1878,8 @@ importers:
         specifier: ^0.19.2
         version: 0.19.2
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2026,8 +2023,8 @@ importers:
         specifier: ^0.19.2
         version: 0.19.2
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2171,8 +2168,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2325,8 +2322,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2479,8 +2476,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2580,8 +2577,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2661,8 +2658,8 @@ importers:
         specifier: ^0.19.2
         version: 0.19.2
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -2800,8 +2797,8 @@ importers:
         specifier: ^7.26.11
         version: 7.26.11
       ember-cli-dependency-checker:
-        specifier: ^3.3.1
-        version: 3.3.1(ember-cli@5.0.0)
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.0.0)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -9212,11 +9209,11 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli-dependency-checker@3.3.1(ember-cli@5.0.0):
-    resolution: {integrity: sha512-Tg6OeijjXNKWkDm6057Tr0N9j9Vlz/ITewXWpn1A/+Wbt3EowBx5ZKfvoupqz05EznKgL1B/ecG0t+JN7Qm6MA==}
+  /ember-cli-dependency-checker@3.3.2(ember-cli@5.0.0):
+    resolution: {integrity: sha512-PwkrW5oYsdPWwt+0Tojufmv/hxVETTjkrEdK7ANQB2VSnqpA5UcYubwpQM9ONuR2J8wyNDMwEHlqIrk/FYtBsQ==}
     engines: {node: '>= 6'}
     peerDependencies:
-      ember-cli: ^3.2.0 || ^4.0.0
+      ember-cli: ^3.2.0 || >=4.0.0
     dependencies:
       chalk: 2.4.2
       ember-cli: 5.0.0

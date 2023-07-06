@@ -61,7 +61,6 @@
     "@types/ember__template": "^4.0.2",
     "@types/ember__test": "^4.0.2",
     "@types/ember__utils": "^4.0.3",
-    "@types/htmlbars-inline-precompile": "^3.0.0",
     "@types/qunit": "^2.19.6",
     "@types/rsvp": "^4.0.4",
     "@typescript-eslint/eslint-plugin": "^5.60.1",

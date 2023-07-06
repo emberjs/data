@@ -3,7 +3,7 @@ import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import { cached, tracked } from '@glimmer/tracking';
 
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';

@@ -5,7 +5,7 @@ import { inject as service } from '@ember/service';
 import { click, find, findAll, render, rerender } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
 

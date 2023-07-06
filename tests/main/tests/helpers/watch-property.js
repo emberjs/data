@@ -2,7 +2,7 @@ import { helper } from '@ember/component/helper';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { render } from '@ember/test-helpers';
 
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import QUnit from 'qunit';
 
 function freeze(obj) {
