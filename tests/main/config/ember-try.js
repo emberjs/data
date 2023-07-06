@@ -36,6 +36,8 @@ module.exports = function () {
           name: 'ember-lts-3.28',
           npm: {
             devDependencies: {
+              'ember-qunit': '^6.2.0',
+              '@ember/test-helpers': '^2.9.4',
               'ember-source': '~3.28.0',
               'ember-cli': '~4.12.0',
             },
