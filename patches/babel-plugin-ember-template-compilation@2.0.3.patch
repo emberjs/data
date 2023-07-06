@@ -1,0 +1,14 @@
+diff --git a/package.json b/package.json
+index f8144aa9f147eece8e522504c19fa155f431e797..a0c0a620c9b157faf8310b59256b40b73ceddb7b 100644
+--- a/package.json
++++ b/package.json
+@@ -34,7 +34,8 @@
+     "src/**/*.js.map"
+   ],
+   "dependencies": {
+-    "babel-import-util": "^1.3.0"
++    "babel-import-util": "^1.3.0",
++    "@babel/traverse": "^7.14.5"
+   },
+   "devDependencies": {
+     "@babel/core": "^7.14.8",
