@@ -73,7 +73,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
   });
 
   test('simple collection resource documents are correctly managed', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
@@ -91,7 +91,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
   });
 
   test('collection resource documents are correctly cached', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
@@ -132,7 +132,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
   });
 
   test('resources are accessible via `peek`', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
@@ -200,7 +200,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
   });
 
   test('resource relationships are accessible via `peek`', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
 
     store.registerSchemaDefinitionService(
       new TestSchema<'user'>({

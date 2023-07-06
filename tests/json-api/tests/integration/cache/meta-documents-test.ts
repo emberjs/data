@@ -49,7 +49,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
   });
 
   test('meta documents are correctly cached', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users' },
@@ -87,7 +87,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
   });
 
   test('meta documents respect cacheOptions.key', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users', cacheOptions: { key: 'users' } },
@@ -129,7 +129,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
   });
 
   test('meta documents are correctly updated', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users' },
@@ -205,7 +205,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
   });
 
   test('updating cache with a meta document disregards prior data', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     store.registerSchemaDefinitionService(new TestSchema());
 
     const responseDocument = store.cache.put({
@@ -287,7 +287,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
   test("notifications are generated for create and update of the document's cache key", function (assert) {
     assert.expect(10);
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
       url: '/api/v1/query?type=user&name=Chris&limit=1',
     })!;

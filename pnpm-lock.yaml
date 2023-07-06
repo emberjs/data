@@ -52,9 +52,6 @@ importers:
       '@types/ember-resolver':
         specifier: ^5.0.13
         version: 5.0.13(@babel/core@7.22.5)
-      '@types/ember-testing-helpers':
-        specifier: ^0.0.4
-        version: 0.0.4
       '@types/ember__application':
         specifier: ^4.0.6
         version: 4.0.6(@babel/core@7.22.5)
@@ -79,6 +76,9 @@ importers:
       '@types/ember__object':
         specifier: ^4.0.6
         version: 4.0.6(@babel/core@7.22.5)
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/ember__polyfills':
         specifier: ^4.0.2
         version: 4.0.2
@@ -106,6 +106,9 @@ importers:
       '@types/htmlbars-inline-precompile':
         specifier: ^3.0.0
         version: 3.0.0
+      '@types/jquery':
+        specifier: ^3.5.10
+        version: 3.5.16
       '@types/qunit':
         specifier: ^2.19.6
         version: 2.19.6
@@ -1158,6 +1161,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/semver':
         specifier: ^7.5.0
         version: 7.5.0
@@ -1257,6 +1263,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1418,6 +1427,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1546,9 +1558,9 @@ importers:
       '@types/ember':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.5)
-      '@types/ember-testing-helpers':
-        specifier: ^0.0.4
-        version: 0.0.4
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/rsvp':
         specifier: ^4.0.4
         version: 4.0.4
@@ -1660,9 +1672,9 @@ importers:
       '@types/ember':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.5)
-      '@types/ember-testing-helpers':
-        specifier: ^0.0.4
-        version: 0.0.4
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/rsvp':
         specifier: ^4.0.4
         version: 4.0.4
@@ -1865,6 +1877,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2010,6 +2025,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2155,6 +2173,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2276,15 +2297,15 @@ importers:
       '@types/ember':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.5)
-      '@types/ember-testing-helpers':
-        specifier: ^0.0.4
-        version: 0.0.4
       '@types/ember__debug':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.5)
       '@types/ember__object':
         specifier: ^4.0.6
         version: 4.0.6(@babel/core@7.22.5)
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/ember__utils':
         specifier: ^4.0.3
         version: 4.0.3(@babel/core@7.22.5)
@@ -2463,6 +2484,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2567,6 +2591,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2645,6 +2672,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2784,6 +2814,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.4
+        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -5429,17 +5462,10 @@ packages:
     resolution: {integrity: sha512-pO964cAPhAaFJoS28M8+b5MzAhQ/tVuNM4GDUIAexheQat36axG2WTG8LQ5ea07MSFPesrRFk2T3z88pfvdYKA==}
     dependencies:
       '@types/ember__object': 4.0.6(@babel/core@7.22.5)
-      '@types/ember__owner': 4.0.3
+      '@types/ember__owner': 4.0.4
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
-    dev: true
-
-  /@types/ember-testing-helpers@0.0.4:
-    resolution: {integrity: sha512-6EEY+kk4+HsKMzLkzZp0UU7TzUG1EB2mPyORrQXcudjJ0M7k67Z9cCBDn7kupDcu4NVgtG7HNRZTZgBljOjxoA==}
-    dependencies:
-      '@types/jquery': 3.5.16
-      '@types/rsvp': 4.0.4
     dev: true
 
   /@types/ember@4.0.4(@babel/core@7.22.5):
@@ -5475,7 +5501,7 @@ packages:
       '@types/ember': 4.0.4(@babel/core@7.22.5)
       '@types/ember__engine': 4.0.5(@babel/core@7.22.5)
       '@types/ember__object': 4.0.6(@babel/core@7.22.5)
-      '@types/ember__owner': 4.0.3
+      '@types/ember__owner': 4.0.4
       '@types/ember__routing': 4.0.13(@babel/core@7.22.5)
     transitivePeerDependencies:
       - '@babel/core'
@@ -5521,7 +5547,7 @@ packages:
     resolution: {integrity: sha512-VlK75Br460+7c7Lvcjr4NyYD6KWLi2FMHWID52svEdbv1dj2+BrXE43PW1xjbycErWoalj/vGsBKGjxt+W1+ZA==}
     dependencies:
       '@types/ember__object': 4.0.6(@babel/core@7.22.5)
-      '@types/ember__owner': 4.0.3
+      '@types/ember__owner': 4.0.4
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -5531,7 +5557,7 @@ packages:
     resolution: {integrity: sha512-yx4d2xhCzu5ZwDib++0plLIMv8G6/l9TUAWWmQMsz0L/ETK9jIH0H7uEzyWZSTR2ETcP230oAkPzTk2J3IQAmg==}
     dependencies:
       '@types/ember__object': 4.0.6(@babel/core@7.22.5)
-      '@types/ember__owner': 4.0.3
+      '@types/ember__owner': 4.0.4
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -5558,9 +5584,8 @@ packages:
       - supports-color
     dev: true
 
-  /@types/ember__owner@4.0.3:
-    resolution: {integrity: sha512-vwVKdLNYKXMOxJXwMnFQh7TkWfkp6berH6Kc/VK8is1bPgaBB7X/c50rjNmM2o7zI5LJSPm1khxcDidfyXnimg==}
-    dev: true
+  /@types/ember__owner@4.0.4:
+    resolution: {integrity: sha512-FD0XuAlIfeVEwpKcAeGczQxa6D0huKxvPHuPE+FIm+zWZmqnI6yhxDhZgeGjnhmCCLAHRp8+1HRoKOFwnmaW3Q==}
 
   /@types/ember__polyfills@4.0.2:
     resolution: {integrity: sha512-DMtjEhCHgrMion+qDWQVC9gW5SIY5wElueFbAmBLghTcUOgLWLTFzah3PxKln9cQNRO36699Irg2UdYOJsY6Jg==}

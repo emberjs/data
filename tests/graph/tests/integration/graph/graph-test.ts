@@ -37,8 +37,8 @@ module('Integration | Graph | Configuration', function (hooks) {
     owner.register('service:store2', MyStore);
     owner.register('service:store3', MyStore);
 
-    const store2 = owner.lookup('service:store2') as Store;
-    const store3 = owner.lookup('service:store3') as Store;
+    const store2 = owner.lookup('service:store2') as unknown as Store;
+    const store3 = owner.lookup('service:store3') as unknown as Store;
     const wrapper2 = store2._instanceCache._storeWrapper;
     const wrapper3 = store3._instanceCache._storeWrapper;
 
@@ -65,8 +65,8 @@ module('Integration | Graph | Configuration', function (hooks) {
     owner.register('service:store2', MyStore);
     owner.register('service:store3', MyStore);
 
-    const store2 = owner.lookup('service:store2') as Store;
-    const store3 = owner.lookup('service:store3') as Store;
+    const store2 = owner.lookup('service:store2') as unknown as Store;
+    const store3 = owner.lookup('service:store3') as unknown as Store;
 
     const graph1 = graphFor(store);
     const graph2 = graphFor(store2);
@@ -85,7 +85,7 @@ module('Integration | Graph | Configuration', function (hooks) {
     const graph2 = graphFor(store);
 
     owner.register('service:store2', MyStore);
-    const store2 = owner.lookup('service:store2') as Store;
+    const store2 = owner.lookup('service:store2') as unknown as Store;
     const wrapper2 = store2._instanceCache._storeWrapper;
     // lookup the store first
     const graph3 = graphFor(store2);

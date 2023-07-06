@@ -66,6 +66,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     owner.register('serializer:application', JSONAPISerializer);
+    // @ts-expect-error missing type
     owner.unregister('service:store');
   });
 
@@ -91,7 +92,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const storeWrapper = store._instanceCache._storeWrapper;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
     // emulate this happening within a single push
@@ -120,7 +121,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store') as Store;
+    store = this.owner.lookup('service:store') as unknown as Store;
     let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
     assert.strictEqual(returnValue, person, 'createRecord returns the instantiated record');
     assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
@@ -190,7 +191,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       teardownRecord(record) {}
     }
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as Store;
+    store = this.owner.lookup('service:store') as unknown as Store;
     let schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         if (typeof identifier === 'string') {
@@ -261,7 +262,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       })
     );
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as Store;
+    store = this.owner.lookup('service:store') as unknown as Store;
     let person = store.createRecord('person', { name: 'chris' });
     let promisePerson = await store.saveRecord(person);
     assert.strictEqual(person, promisePerson, 'save promise resolves with the same record');
@@ -296,7 +297,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    const store = this.owner.lookup('service:store') as Store;
+    const store = this.owner.lookup('service:store') as unknown as Store;
     const rd: Cache = store.cache;
     let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
@@ -326,7 +327,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       teardownRecord(record) {}
     }
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as Store;
+    store = this.owner.lookup('service:store') as unknown as Store;
     let schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;
@@ -413,7 +414,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   tes('relationshipReferenceFor belongsTo', async function (assert) {
     assert.expect(3);
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as Store;
+    store = this.owner.lookup('service:store') as unknown as Store;
     let schema: SchemaDefinitionService = {
       attributesDefinitionFor({ type: modelName }: { type: string }): AttributesSchema {
         if (modelName === 'person') {
@@ -485,7 +486,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   tes('relationshipReferenceFor hasMany', async function (assert) {
     assert.expect(3);
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as Store;
+    store = this.owner.lookup('service:store') as unknown as Store;
     let schema: SchemaDefinitionService = {
       attributesDefinitionFor({ type: modelName }: { type: string }): AttributesSchema {
         if (modelName === 'person') {

@@ -117,7 +117,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('fetching a resource document loads the cache and hydrates the record', async function (assert) {
       const { owner } = this;
 
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const userDocument = await store.request<Document<RecordInstance>>({
         url: '/assets/users/1.json',
       });
@@ -149,7 +149,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('re-fetching a resource document returns from cache as expected', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -240,7 +240,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('fetching a resource document that errors', async function (assert) {
       const { owner } = this;
 
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       try {
         await store.request<SingleResourceDataDocument>({
           url: '/assets/users/2.json',
@@ -316,7 +316,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);
 
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const userDocument = await store.request<Document<RecordInstance>>({
         op: 'random-op',
         url: '/assets/users/1.json',
@@ -409,7 +409,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);
 
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const userDocument = await store.requestManager.request<SingleResourceDataDocument>({
         store,
         url: '/assets/users/1.json',
@@ -503,7 +503,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);
 
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const userDocument = await store.requestManager.request<SingleResourceDataDocument<JsonApiResource>>({
         url: '/assets/users/1.json',
       });
@@ -542,7 +542,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('background re-fetching a resource returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -683,7 +683,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('fetching with hydration, then background re-fetching a resource without hydration returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -829,7 +829,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('background re-fetching a resource without hydration returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -969,7 +969,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
   module('Collection', function () {
     test('re-fetching a resource collection returns from cache as expected', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -1068,7 +1068,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('background re-fetching a resource collection returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -1216,7 +1216,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('fetching with hydration, then background re-fetching a resource collection without hydration returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -1377,7 +1377,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('background re-fetching a resource collection without hydration returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -1526,7 +1526,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
   module('Errors', function () {
     test('fetching a resource document that errors, request can be replayed', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -1581,7 +1581,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('fetching a resource document that errors with detail, errors available as content', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       function getErrorPayload(lid?: string | StableDocumentIdentifier) {
         if (lid) {
@@ -1689,7 +1689,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('fetching a resource document that succeeds, then later errors with detail, errors available as content', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       function getErrorPayload(lid?: string | StableDocumentIdentifier) {
         if (lid) {
@@ -1855,7 +1855,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
   module('AbortController', function () {
     test('aborting a request pre-cache-insert does not affect the cache', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
         url: '/assets/users/list.json',
@@ -1911,7 +1911,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('aborting a request post-cache-insert maintains cache-update but returns abort rejection', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
         url: '/assets/users/list.json',
@@ -1973,7 +1973,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('aborting a request post-request does nothing', async function (assert) {
       const { owner } = this;
 
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const request = store.request<Document<RecordInstance>>({
         url: '/assets/users/1.json',
       });
@@ -2008,7 +2008,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('aborting a background-request does not result in an uncaught error', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       let resolve!: (v?: unknown) => void;

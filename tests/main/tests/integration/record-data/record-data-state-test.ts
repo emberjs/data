@@ -210,6 +210,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     let { owner } = this;
 
     owner.register('model:person', Person);
+    // @ts-expect-error missing type
     owner.unregister('service:store');
     owner.register('service:store', Store);
     owner.register('serializer:application', JSONAPISerializer);

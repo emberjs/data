@@ -205,6 +205,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     owner.register('model:person', Person);
     owner.register('model:house', House);
+    // @ts-expect-error missing type
     owner.unregister('service:store');
     owner.register('service:store', Store);
     owner.register('adapter:application', JSONAPIAdapter.extend());
@@ -213,7 +214,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
   test('A RecordData implementation that has the required spec methods should not error out', async function (assert) {
     const { owner } = this;
-    const store: Store = owner.lookup('service:store') as Store;
+    const store: Store = owner.lookup('service:store') as unknown as Store;
 
     store.push({
       data: [
@@ -345,7 +346,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('service:store', TestStore);
     owner.register('adapter:application', TestAdapter, { singleton: false });
 
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
 
     store.push({
       data: [personHash],
@@ -465,7 +466,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     owner.register('service:store', TestStore);
 
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
 
     store.push({
       data: [personHash],

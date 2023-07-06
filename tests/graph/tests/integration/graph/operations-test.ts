@@ -25,7 +25,7 @@ module('Integration | Graph | Operations', function (hooks: NestedHooks) {
 
     owner.register('model:app', App);
     owner.register('model:config', Config);
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
     const graph = graphFor(store);
     const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
@@ -77,7 +77,7 @@ module('Integration | Graph | Operations', function (hooks: NestedHooks) {
 
     owner.register('model:app', App);
     owner.register('model:config', Config);
-    const store = owner.lookup('service:store') as Store;
+    const store = owner.lookup('service:store') as unknown as Store;
     const graph = graphFor(store);
     const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
     const configIdentifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });

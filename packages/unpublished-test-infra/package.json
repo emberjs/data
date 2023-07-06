@@ -48,6 +48,7 @@
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@types/semver": "^7.5.0",
+    "@types/ember__owner": "^4.0.4",
     "ember-cli": "~5.0.0",
     "ember-cli-dependency-checker": "^3.3.1",
     "ember-cli-htmlbars": "^6.2.0",
