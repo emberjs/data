@@ -58,7 +58,7 @@
     "@rollup/plugin-node-resolve": "^15.1.0",
     "rollup": "^3.26.0",
     "tslib": "^2.6.0",
-    "typescript": "^5.1.3",
+    "typescript": "^5.1.6",
     "walk-sync": "^3.0.0"
   },
   "ember": {
