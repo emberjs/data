@@ -33,7 +33,7 @@
     "@babel/core": "^7.22.5",
     "@babel/runtime": "^7.22.5",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "^2.9.4",
+    "@ember/test-helpers": "^3.2.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "broccoli-asset-rev": "^3.0.0",
