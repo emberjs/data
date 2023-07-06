@@ -1,9 +1,9 @@
 import EmberObject from '@ember/object';
 import { getRootElement, render, settled } from '@ember/test-helpers';
 
-import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import { DEBUG } from '@ember-data/env';

@@ -5,10 +5,10 @@ import { inject as service } from '@ember/service';
 import { click, find, findAll, render, rerender } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
-import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { render as legacyRender } from 'ember-data/test-support';
 import { setupRenderingTest } from 'ember-qunit';
 

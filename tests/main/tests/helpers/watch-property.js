@@ -2,8 +2,9 @@ import { helper } from '@ember/component/helper';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { render } from '@ember/test-helpers';
 
-import { hbs } from 'ember-cli-htmlbars';
 import QUnit from 'qunit';
+
+import { hbs } from 'ember-cli-htmlbars';
 
 function freeze(obj) {
   if (typeof Object.freeze === 'function') {
