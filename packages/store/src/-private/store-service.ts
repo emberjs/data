@@ -39,7 +39,7 @@ import {
   type LifetimesService,
   SkipCache,
   StoreRequestContext,
-  type StoreRequestInfo,
+  type StoreRequestInput,
 } from './cache-handler';
 import { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
@@ -349,18 +349,28 @@ class Store extends EmberObject {
    * MUST be supplied for the document to be cached.
    *
    * @method request
-   * @param {StoreRequestInfo} requestConfig
+   * @param {StoreRequestInput} requestConfig
    * @returns {Future}
    * @public
    */
-  request<T>(requestConfig: StoreRequestInfo): Future<T> {
+  request<T>(requestConfig: StoreRequestInput): Future<T> {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
-    let opts: { store: Store; disableTestWaiter?: boolean; [EnableHydration]: true } = {
+    let opts: {
+      store: Store;
+      disableTestWaiter?: boolean;
+      [EnableHydration]: true;
+      records?: StableRecordIdentifier[];
+    } = {
       store: this,
       [EnableHydration]: true,
     };
+
+    if (requestConfig.records) {
+      const identifierCache = this.identifierCache;
+      opts.records = requestConfig.records.map((r) => identifierCache.getOrCreateRecordIdentifier(r));
+    }
 
     if (TESTING) {
       if (this.DISABLE_WAITER) {
