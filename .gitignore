@@ -16,6 +16,7 @@ packages/json-api/addon
 packages/graph/addon
 packages/legacy-compat/addon
 packages/request-utils/addon
+packages/rest/addon
 
 # dependencies
 bower_components

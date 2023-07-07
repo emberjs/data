@@ -1,6 +1,6 @@
 {
-  "name": "@ember-data/request-utils",
-  "description": "Request Building Utilities for use with EmberData",
+  "name": "@ember-data/rest",
+  "description": "REST Format Support for EmberData",
   "version": "5.3.0-alpha.3",
   "private": false,
   "license": "MIT",
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "packages/request-utils"
+    "directory": "packages/rest"
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
@@ -23,6 +23,9 @@
   },
   "dependencies": {
     "ember-cli-babel": "^7.26.11"
+  },
+  "peerDependencies": {
+    "ember-inflector": "^4.0.2"
   },
   "files": [
     "addon-main.js",
