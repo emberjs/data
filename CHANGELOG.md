@@ -1,6 +1,17 @@
 # Ember Data Changelog
 
-##4.12.1 (2023-06-29)
+## 4.12.2 (2023-07-07)
+
+#### :rocket: Enhancement
+  * [#8660](https://github.com/emberjs/data/pull/8660) DX: Nicer backtracking errors ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+  * [#8686](https://github.com/emberjs/data/pull/8686) fix: unloadAll(void) should not destroy the notification manager (backports #8684) ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
+## 4.12.1 (2023-06-29)
 
 #### :bug: Bug Fix
   * [#8656](https://github.com/emberjs/data/pull/8656) fix: NotificationManager should only invoke resource/document callbacks owned by the originating store (#8649) ([@runspired](https://github.com/runspired))
