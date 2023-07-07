@@ -50,6 +50,17 @@
 - Robby Morgan ([@robbytx](https://github.com/robbytx))
 - [@NullVoxPopuli](https://github.com/NullVoxPopuli)
 
+## LTS 4.12.2 (2023-07-07)
+
+#### :rocket: Enhancement
+  * [#8660](https://github.com/emberjs/data/pull/8660) DX: Nicer backtracking errors ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+  * [#8686](https://github.com/emberjs/data/pull/8686) fix: unloadAll(void) should not destroy the notification manager (backports #8684) ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## LTS 4.12.1 (2023-06-29)
 
 #### :bug: Bug Fix
