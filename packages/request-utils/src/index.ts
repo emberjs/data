@@ -164,7 +164,7 @@ const DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS: QueryParamsSerializationOption
   arrayFormat: 'comma',
 };
 
-export function serializeQueryParams(
+export function buildQueryParams(
   params: URLSearchParams | Record<string, Serializable>,
   options?: QueryParamsSerializationOptions
 ): string {

@@ -6,7 +6,7 @@ import {
   buildURL,
   FindRecordUrlOptions,
   QueryParamsSerializationOptions,
-  serializeQueryParams,
+  buildQueryParams,
 } from '@ember-data/request-utils';
 import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
@@ -92,7 +92,7 @@ export function findRecord(
 
 function addInclude(url: string, include: string | string[], options: ConstrainedFindOptions): string {
   include = typeof include === 'string' ? include.split(',') : include;
-  const query = serializeQueryParams({ include }, options.urlParamsSettings);
+  const query = buildQueryParams({ include }, options.urlParamsSettings);
 
   return `${url}?${query}`;
 }
