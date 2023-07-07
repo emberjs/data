@@ -1,6 +1,6 @@
 {
   "name": "blueprint-tests",
-  "version": "4.12.1",
+  "version": "4.12.2",
   "private": true,
   "description": "Provides tests for blueprints",
   "repository": {
@@ -31,11 +31,11 @@
     }
   },
   "devDependencies": {
-    "@ember-data/adapter": "workspace:4.12.1",
-    "@ember-data/model": "workspace:4.12.1",
-    "@ember-data/private-build-infra": "workspace:4.12.1",
-    "@ember-data/serializer": "workspace:4.12.1",
-    "@ember-data/unpublished-test-infra": "workspace:4.12.1",
+    "@ember-data/adapter": "workspace:4.12.2",
+    "@ember-data/model": "workspace:4.12.2",
+    "@ember-data/private-build-infra": "workspace:4.12.2",
+    "@ember-data/serializer": "workspace:4.12.2",
+    "@ember-data/unpublished-test-infra": "workspace:4.12.2",
     "ember-cli": "~4.11.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "mocha": "^10.2.0",
