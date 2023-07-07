@@ -153,3 +153,72 @@ export function buildURL(urlOptions: UrlOptions): string {
 
   return [host, namespace, resourcePath, idPath].filter(Boolean).join('/');
 }
+
+type SerializablePrimitive = string | number | boolean | null;
+type Serializable = SerializablePrimitive | SerializablePrimitive[];
+export type QueryParamsSerializationOptions = {
+  arrayFormat?: 'bracket' | 'indices' | 'repeat' | 'comma';
+};
+
+const DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS: QueryParamsSerializationOptions = {
+  arrayFormat: 'comma',
+};
+
+export function serializeQueryParams(
+  params: URLSearchParams | Record<string, Serializable>,
+  options?: QueryParamsSerializationOptions
+): string {
+  options = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
+  const paramsIsObject = !(params instanceof URLSearchParams);
+  const urlParams = new URLSearchParams();
+  const dictionaryParams: Record<string, Serializable> = paramsIsObject ? params : {};
+
+  if (!paramsIsObject) {
+    params.forEach((value, key) => {
+      const hasExisting = key in dictionaryParams;
+      if (!hasExisting) {
+        dictionaryParams[key] = value;
+      } else {
+        const existingValue = dictionaryParams[key];
+        if (Array.isArray(existingValue)) {
+          existingValue.push(value);
+        } else {
+          dictionaryParams[key] = [existingValue, value];
+        }
+      }
+    });
+  }
+
+  const sortedKeys = Object.keys(dictionaryParams).sort();
+  sortedKeys.forEach((key) => {
+    const value = dictionaryParams[key];
+    if (Array.isArray(value)) {
+      value.sort();
+      switch (options.arrayFormat) {
+        case 'indices':
+          value.forEach((v, i) => {
+            urlParams.append(`${key}[${i}]`, String(v));
+          });
+          return;
+        case 'bracket':
+          value.forEach((v) => {
+            urlParams.append(`${key}[]`, String(v));
+          });
+          return;
+        case 'repeat':
+          value.forEach((v) => {
+            urlParams.append(key, String(v));
+          });
+          return;
+        case 'comma':
+        default:
+          urlParams.append(key, value.join(','));
+          return;
+      }
+    } else {
+      urlParams.append(key, String(value));
+    }
+  });
+
+  return urlParams.toString();
+}

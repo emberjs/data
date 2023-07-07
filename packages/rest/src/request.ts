@@ -2,7 +2,12 @@ import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
-import { buildURL, FindRecordUrlOptions } from '@ember-data/request-utils';
+import {
+  buildURL,
+  FindRecordUrlOptions,
+  QueryParamsSerializationOptions,
+  serializeQueryParams,
+} from '@ember-data/request-utils';
 import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
 type CacheOptions = {
@@ -22,10 +27,11 @@ type FindRecordRequestOptions = {
 type ConstrainedFindOptions = {
   reload?: boolean;
   backgroundReload?: boolean;
-  include?: string;
+  include?: string | string[];
   host?: string;
   namespace?: string;
   resourcePath?: string;
+  urlParamsSettings?: QueryParamsSerializationOptions;
 };
 type RemotelyAccessibleIdentifier = {
   id: string;
@@ -75,7 +81,7 @@ export function findRecord(
   headers.append('Content-Type', 'application/json; charset=utf-8');
 
   return {
-    url: options.include?.length ? addInclude(url, options.include) : url,
+    url: options.include?.length ? addInclude(url, options.include, options) : url,
     method: 'GET',
     headers,
     cacheOptions,
@@ -84,11 +90,9 @@ export function findRecord(
   };
 }
 
-// Adds the include query param to the url
-// and sorts the include parts to ensure
-// that the cache key is consistent
-function addInclude(url: string, include: string): string {
-  const parts = include.split(',');
-  parts.sort();
-  return `${url}?include=${parts.join(',')}`;
+function addInclude(url: string, include: string | string[], options: ConstrainedFindOptions): string {
+  include = typeof include === 'string' ? include.split(',') : include;
+  const query = serializeQueryParams({ include }, options.urlParamsSettings);
+
+  return `${url}?${query}`;
 }
