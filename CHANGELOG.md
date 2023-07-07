@@ -1,5 +1,13 @@
 # Ember Data Changelog
 
+## 5.1.1 (2023-07-07)
+
+#### :bug: Bug Fix
+  * [#8685](https://github.com/emberjs/data/pull/8685) fix: unloadAll(void) should not destroy the notification manager (backports #8684) ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## 5.1.0 (2023-06-29)
 
 #### :bug: Bug Fix
