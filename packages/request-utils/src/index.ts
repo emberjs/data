@@ -27,7 +27,7 @@ export interface FindRecordUrlOptions {
   namespace?: string;
 }
 
-interface QueryUrlOptions {
+export interface QueryUrlOptions {
   requestType: 'query';
   identifier: { type: string };
   resourcePath?: string;
@@ -35,7 +35,7 @@ interface QueryUrlOptions {
   namespace?: string;
 }
 
-interface QueryRecordUrlOptions {
+export interface QueryRecordUrlOptions {
   requestType: 'queryRecord';
   identifier: { type: string };
   resourcePath?: string;
@@ -43,14 +43,14 @@ interface QueryRecordUrlOptions {
   namespace?: string;
 }
 
-interface FindManyUrlOptions {
+export interface FindManyUrlOptions {
   requestType: 'findMany';
   identifiers: { type: string; id: string }[];
   resourcePath?: string;
   host?: string;
   namespace?: string;
 }
-interface FindRelatedCollectionUrlOptions {
+export interface FindRelatedCollectionUrlOptions {
   requestType: 'findRelatedCollection';
   identifier: { type: string; id: string };
   resourcePath?: string;
@@ -58,7 +58,7 @@ interface FindRelatedCollectionUrlOptions {
   namespace?: string;
 }
 
-interface FindRelatedResourceUrlOptions {
+export interface FindRelatedResourceUrlOptions {
   requestType: 'findRelatedResource';
   identifier: { type: string; id: string };
   resourcePath?: string;
@@ -66,7 +66,7 @@ interface FindRelatedResourceUrlOptions {
   namespace?: string;
 }
 
-interface CreateRecordUrlOptions {
+export interface CreateRecordUrlOptions {
   requestType: 'createRecord';
   identifier: { type: string };
   resourcePath?: string;
@@ -74,7 +74,7 @@ interface CreateRecordUrlOptions {
   namespace?: string;
 }
 
-interface UpdateRecordUrlOptions {
+export interface UpdateRecordUrlOptions {
   requestType: 'updateRecord';
   identifier: { type: string; id: string };
   resourcePath?: string;
@@ -82,7 +82,7 @@ interface UpdateRecordUrlOptions {
   namespace?: string;
 }
 
-interface DeleteRecordUrlOptions {
+export interface DeleteRecordUrlOptions {
   requestType: 'deleteRecord';
   identifier: { type: string; id: string };
   resourcePath?: string;
@@ -194,7 +194,7 @@ export function buildQueryParams(
     const value = dictionaryParams[key];
     if (Array.isArray(value)) {
       value.sort();
-      switch (options.arrayFormat) {
+      switch (options!.arrayFormat) {
         case 'indices':
           value.forEach((v, i) => {
             urlParams.append(`${key}[${i}]`, String(v));
