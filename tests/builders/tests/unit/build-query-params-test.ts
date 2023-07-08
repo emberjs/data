@@ -1,7 +1,6 @@
 import { module, test } from 'qunit';
 
 import { buildQueryParams } from '@ember-data/request-utils';
-// import { test as debug } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('buildQueryParams', function (hooks) {
   test('It serializes objects with stable key order', function (assert) {
