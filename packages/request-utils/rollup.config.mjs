@@ -12,30 +12,16 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: [
-    '@embroider/macros',
-    '@ember-data/store/-private',
-    '@ember-data/graph/-private',
-    '@ember/service',
-    'ember-inflector',
-    '@ember/debug',
-    '@ember/string',
-    '@ember/object',
-    '@ember/object/mixin',
-    '@ember/application',
-    '@glimmer/env',
-    '@ember/runloop',
-    '@ember/polyfills',
-  ],
+  external: [],
 
   plugins: [
     // These are the modules that users should be able to import from your
     // addon. Anything not listed here may get optimized away.
-    addon.publicEntrypoints(['index.js', 'request.js']),
+    addon.publicEntrypoints(['index.js', '-private.js']),
 
-    nodeResolve({ extensions: ['.ts', '.js'] }),
+    nodeResolve({ extensions: ['.ts'] }),
     babel({
-      extensions: ['.ts', '.js'],
+      extensions: ['.ts'],
       babelHelpers: 'runtime', // we should consider "external",
     }),
 

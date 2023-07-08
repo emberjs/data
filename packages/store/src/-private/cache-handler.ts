@@ -13,6 +13,7 @@ import {
   ResourceErrorDocument,
 } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import { RecordInstance } from '@ember-data/types/q/record-instance';
 
 import { Document } from './document';
@@ -25,6 +26,9 @@ export interface LifetimesService {
 }
 
 export type StoreRequestInfo = ImmutableRequestInfo;
+export type LooseStoreRequestInfo = Omit<StoreRequestInfo, 'records'> & { records: ResourceIdentifierObject[] };
+
+export type StoreRequestInput = StoreRequestInfo | LooseStoreRequestInfo;
 
 export interface StoreRequestContext extends RequestContext {
   request: StoreRequestInfo & { store: Store };
