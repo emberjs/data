@@ -13,14 +13,17 @@ interface BuildURLConfig {
   namespace: string | null;
 }
 
-let CONFIG: BuildURLConfig;
+let CONFIG: BuildURLConfig = {
+  host: '',
+  namespace: '',
+};
 
 export function setBuildURLConfig(values: BuildURLConfig) {
   CONFIG = values;
 }
 
 export interface FindRecordUrlOptions {
-  requestType: 'findRecord';
+  op: 'findRecord';
   identifier: { type: string; id: string };
   resourcePath?: string;
   host?: string;
@@ -28,7 +31,7 @@ export interface FindRecordUrlOptions {
 }
 
 export interface QueryUrlOptions {
-  requestType: 'query';
+  op: 'query';
   identifier: { type: string };
   resourcePath?: string;
   host?: string;
@@ -36,30 +39,32 @@ export interface QueryUrlOptions {
 }
 
 export interface FindManyUrlOptions {
-  requestType: 'findMany';
+  op: 'findMany';
   identifiers: { type: string; id: string }[];
   resourcePath?: string;
   host?: string;
   namespace?: string;
 }
 export interface FindRelatedCollectionUrlOptions {
-  requestType: 'findRelatedCollection';
+  op: 'findRelatedCollection';
   identifier: { type: string; id: string };
+  fieldPath: string;
   resourcePath?: string;
   host?: string;
   namespace?: string;
 }
 
 export interface FindRelatedResourceUrlOptions {
-  requestType: 'findRelatedResource';
+  op: 'findRelatedResource';
   identifier: { type: string; id: string };
+  fieldPath: string;
   resourcePath?: string;
   host?: string;
   namespace?: string;
 }
 
 export interface CreateRecordUrlOptions {
-  requestType: 'createRecord';
+  op: 'createRecord';
   identifier: { type: string };
   resourcePath?: string;
   host?: string;
@@ -67,7 +72,7 @@ export interface CreateRecordUrlOptions {
 }
 
 export interface UpdateRecordUrlOptions {
-  requestType: 'updateRecord';
+  op: 'updateRecord';
   identifier: { type: string; id: string };
   resourcePath?: string;
   host?: string;
@@ -75,7 +80,7 @@ export interface UpdateRecordUrlOptions {
 }
 
 export interface DeleteRecordUrlOptions {
-  requestType: 'deleteRecord';
+  op: 'deleteRecord';
   identifier: { type: string; id: string };
   resourcePath?: string;
   host?: string;
@@ -100,11 +105,22 @@ const OPERATIONS_WITH_PRIMARY_RECORDS = new Set([
   'deleteRecord',
 ]);
 
-function resourcePathForType(options: UrlOptions): string {
-  return options.requestType === 'findMany' ? options.identifiers[0].type : options.identifier.type;
+function isOperationWithPrimaryRecord(
+  options: UrlOptions
+): options is
+  | FindRecordUrlOptions
+  | FindRelatedCollectionUrlOptions
+  | FindRelatedResourceUrlOptions
+  | UpdateRecordUrlOptions
+  | DeleteRecordUrlOptions {
+  return OPERATIONS_WITH_PRIMARY_RECORDS.has(options.op);
 }
 
-export function buildURL(urlOptions: UrlOptions): string {
+function resourcePathForType(options: UrlOptions): string {
+  return options.op === 'findMany' ? options.identifiers[0].type : options.identifier.type;
+}
+
+export function buildBaseURL(urlOptions: UrlOptions): string {
   const options = Object.assign(
     {
       host: CONFIG.host,
@@ -112,16 +128,19 @@ export function buildURL(urlOptions: UrlOptions): string {
     },
     urlOptions
   );
+  assert(`You must pass an \`op\` to buildURL.`, options.op);
+
   // prettier-ignore
   const idPath: string | null =
-      options.requestType === 'findMany' ? options.identifiers.map((i) => encodeURIComponent(i.id)).join(',')
-      : OPERATIONS_WITH_PRIMARY_RECORDS.has(options.requestType) ? encodeURIComponent((options.identifier as { id: string }).id)
+      isOperationWithPrimaryRecord(options) ? encodeURIComponent(options.identifier.id)
       : null;
   const resourcePath = options.resourcePath || resourcePathForType(options);
+  const { host, namespace } = options;
+  const fieldPath = 'fieldPath' in options ? options.fieldPath : '';
 
   assert(
     `You tried to make a ${String(
-      (options as { requestType: string }).requestType
+      (options as { op: string }).op
     )} request to ${resourcePath} but you have no handler for it.`,
     [
       'findRecord',
@@ -132,16 +151,11 @@ export function buildURL(urlOptions: UrlOptions): string {
       'createRecord',
       'updateRecord',
       'deleteRecord',
-    ].includes(options.requestType)
+    ].includes(options.op)
   );
 
-  let { host, namespace } = options;
-
-  if (!host || host === '/') {
-    host = '/';
-  }
-
-  return [host, namespace, resourcePath, idPath].filter(Boolean).join('/');
+  const url = [host === '/' ? '' : host, namespace, resourcePath, idPath, fieldPath].filter(Boolean).join('/');
+  return host ? url : `/${url}`;
 }
 
 type SerializablePrimitive = string | number | boolean | null;
@@ -156,14 +170,14 @@ const DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS: QueryParamsSerializationOption
 };
 
 function handleInclude(include: string | string[]): string[] {
-  assert(`Expected include to be a string or array, got ${typeof include}`, typeof include === 'string' || Array.isArray(include));
+  assert(
+    `Expected include to be a string or array, got ${typeof include}`,
+    typeof include === 'string' || Array.isArray(include)
+  );
   return typeof include === 'string' ? include.split(',') : include;
 }
 
-export function buildQueryParams(
-  params: QueryParamsSource,
-  options?: QueryParamsSerializationOptions
-): string {
+export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
   options = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
   const paramsIsObject = !(params instanceof URLSearchParams);
   const urlParams = new URLSearchParams();
@@ -185,7 +199,7 @@ export function buildQueryParams(
     });
   }
 
-  if ("include" in dictionaryParams) {
+  if ('include' in dictionaryParams) {
     dictionaryParams.include = handleInclude(dictionaryParams.include as string | string[]);
   }
 

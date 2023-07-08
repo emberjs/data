@@ -1,5 +1,6 @@
-import { type UrlOptions } from "@ember-data/request-utils";
-import type { CacheOptions, ConstrainedRequestOptions } from "./-types";
+import { type UrlOptions } from '@ember-data/request-utils';
+
+import type { CacheOptions, ConstrainedRequestOptions } from './-types';
 
 export function copyForwardUrlOptions(urlOptions: UrlOptions, options: ConstrainedRequestOptions): void {
   if ('host' in options) {
@@ -15,10 +16,10 @@ export function copyForwardUrlOptions(urlOptions: UrlOptions, options: Constrain
 
 export function extractCacheOptions(options: ConstrainedRequestOptions) {
   const cacheOptions: CacheOptions = {};
-  if ("reload" in options) {
+  if ('reload' in options) {
     cacheOptions.reload = options.reload;
   }
-  if ("backgroundReload" in options) {
+  if ('backgroundReload' in options) {
     cacheOptions.backgroundReload = options.backgroundReload;
   }
   return cacheOptions;

@@ -1,5 +1,5 @@
-import { QueryParamsSerializationOptions } from "@ember-data/request-utils";
-import type { ResourceIdentifierObject } from "@ember-data/types/q/ember-data-json-api";
+import { QueryParamsSerializationOptions } from '@ember-data/request-utils';
+import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
 export type CacheOptions = {
   key?: string;
@@ -21,7 +21,7 @@ export type QueryRequestOptions = {
   headers: Headers;
   cacheOptions: CacheOptions;
   op: 'query';
-}
+};
 
 export type RemotelyAccessibleIdentifier = {
   id: string;

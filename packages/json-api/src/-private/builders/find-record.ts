@@ -1,18 +1,18 @@
 import { pluralize } from 'ember-inflector';
 
-import {
-  buildQueryParams,
-  buildURL,
-  type FindRecordUrlOptions
-} from '@ember-data/request-utils';
+import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
+
 import type { ConstrainedRequestOptions, FindRecordRequestOptions, RemotelyAccessibleIdentifier } from './-types';
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
 type FindRecordOptions = ConstrainedRequestOptions & {
   include?: string | string[];
-}
+};
 
-export function findRecord(identifier: RemotelyAccessibleIdentifier, options?: FindRecordOptions): FindRecordRequestOptions;
+export function findRecord(
+  identifier: RemotelyAccessibleIdentifier,
+  options?: FindRecordOptions
+): FindRecordRequestOptions;
 export function findRecord(type: string, id: string, options?: FindRecordOptions): FindRecordRequestOptions;
 export function findRecord(
   arg1: string | RemotelyAccessibleIdentifier,
@@ -24,19 +24,21 @@ export function findRecord(
   const cacheOptions = extractCacheOptions(options);
   const urlOptions: FindRecordUrlOptions = {
     identifier,
-    requestType: 'findRecord',
+    op: 'findRecord',
     resourcePath: pluralize(identifier.type),
   };
 
   copyForwardUrlOptions(urlOptions, options);
 
-  const url = buildURL(urlOptions);
+  const url = buildBaseURL(urlOptions);
   const headers = new Headers();
   headers.append('Accept', 'application/vnd.api+json');
   headers.append('Content-Type', 'application/vnd.api+json');
 
   return {
-    url: options.include?.length ? `${url}?${buildQueryParams({ include: options.include }, options.urlParamsSettings)}` : url,
+    url: options.include?.length
+      ? `${url}?${buildQueryParams({ include: options.include }, options.urlParamsSettings)}`
+      : url,
     method: 'GET',
     headers,
     cacheOptions,

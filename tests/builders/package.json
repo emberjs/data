@@ -1,0 +1,85 @@
+{
+  "name": "builders-test-app",
+  "version": "5.3.0-alpha.3",
+  "description": "Provides tests for URL and Request Building Capabilities",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/request"
+  },
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "ember build",
+    "start": "ember test --port=0 --serve --no-launch",
+    "test": "ember test --test-port=0"
+  },
+  "dependenciesMeta": {
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/rest": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    },
+    "@ember-data/private-build-infra": {
+      "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.6",
+    "@babel/runtime": "^7.22.6",
+    "@ember-data/request-utils": "workspace:5.3.0-alpha.3",
+    "@ember-data/rest": "workspace:5.3.0-alpha.3",
+    "@ember-data/json-api": "workspace:5.3.0-alpha.3",
+    "@ember-data/private-build-infra": "workspace:5.3.0-alpha.3",
+    "@ember-data/unpublished-test-infra": "workspace:5.3.0-alpha.3",
+    "@ember/edition-utils": "^1.2.0",
+    "@ember/optional-features": "^2.0.0",
+    "@ember/string": "^3.1.1",
+    "@ember/test-helpers": "^3.2.0",
+    "@glimmer/component": "^1.1.2",
+    "@glimmer/tracking": "^1.1.2",
+    "@types/ember__owner": "^4.0.4",
+    "ember-auto-import": "^2.6.3",
+    "ember-cli": "~5.1.0",
+    "ember-cli-babel": "^7.26.11",
+    "ember-cli-dependency-checker": "^3.3.2",
+    "ember-cli-htmlbars": "^6.2.0",
+    "ember-cli-inject-live-reload": "^2.1.0",
+    "ember-cli-test-loader": "^3.0.0",
+    "ember-disable-prototype-extensions": "^1.1.3",
+    "ember-inflector": "^4.0.2",
+    "ember-load-initializers": "^2.1.2",
+    "ember-maybe-import-regenerator": "^1.0.0",
+    "ember-qunit": "^7.0.0",
+    "ember-resolver": "^10.1.1",
+    "ember-source": "~5.1.2",
+    "ember-source-channel-url": "^3.0.0",
+    "loader.js": "^4.7.0",
+    "qunit": "^2.19.4",
+    "qunit-console-grouper": "^0.3.0",
+    "qunit-dom": "^2.0.0",
+    "silent-error": "^1.1.1",
+    "webpack": "^5.88.1"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "engines": {
+    "node": "^14.8.0 || 16.* || >= 18.*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.6.6"
+}
