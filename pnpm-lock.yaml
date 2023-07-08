@@ -365,7 +365,7 @@ importers:
         specifier: ^3.26.1
         version: 3.26.2
       tslib:
-        specifier: ^2.5.0
+        specifier: ^2.6.0
         version: 2.6.0
       typescript:
         specifier: ^5.0.4
@@ -986,7 +986,7 @@ importers:
         specifier: ^3.26.1
         version: 3.26.2
       tslib:
-        specifier: ^2.5.0
+        specifier: ^2.6.0
         version: 2.6.0
       typescript:
         specifier: ^5.0.4
@@ -1041,7 +1041,7 @@ importers:
         specifier: ^3.26.1
         version: 3.26.2
       tslib:
-        specifier: ^2.5.0
+        specifier: ^2.6.0
         version: 2.6.0
       typescript:
         specifier: ^5.0.4

@@ -57,7 +57,7 @@
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "rollup": "^3.26.1",
-    "tslib": "^2.5.0",
+    "tslib": "^2.6.0",
     "typescript": "^5.0.4",
     "walk-sync": "^3.0.0"
   },
