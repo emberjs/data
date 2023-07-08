@@ -353,7 +353,7 @@ importers:
         specifier: ^7.22.6
         version: 7.22.6
       '@embroider/addon-dev':
-        specifier: ^3.0.0
+        specifier: ^3.1.1
         version: 3.1.1(rollup@3.26.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.3
@@ -974,7 +974,7 @@ importers:
         specifier: ^7.22.6
         version: 7.22.6
       '@embroider/addon-dev':
-        specifier: ^3.0.0
+        specifier: ^3.1.1
         version: 3.1.1(rollup@3.26.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.3
@@ -1029,7 +1029,7 @@ importers:
         specifier: ^7.22.6
         version: 7.22.6
       '@embroider/addon-dev':
-        specifier: ^3.0.0
+        specifier: ^3.1.1
         version: 3.1.1(rollup@3.26.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.3
