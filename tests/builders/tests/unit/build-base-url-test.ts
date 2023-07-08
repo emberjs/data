@@ -1,6 +1,7 @@
 import { module, test } from 'qunit';
 
 import { buildBaseURL, setBuildURLConfig } from '@ember-data/request-utils';
+import { test as debug } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('Unit | buildBaseURL', function (hooks) {
   hooks.afterEach(function () {
@@ -236,5 +237,54 @@ module('Unit | buildBaseURL', function (hooks) {
       'https://api3.example.com/people/1/bestFriend',
       `buildBaseURL works as expected`
     );
+  });
+
+  test('host may start with a /', function (assert) {
+    assert.strictEqual(
+      buildBaseURL({
+        op: 'findRelatedResource',
+        identifier: { type: 'user', id: '1' },
+        resourcePath: 'people',
+        host: '/api',
+        fieldPath: 'bestFriend',
+      }),
+      '/api/people/1/bestFriend',
+      `buildBaseURL works as expected`
+    );
+  });
+
+  debug('throws when no op is provided', async function (assert) {
+    await assert.expectAssertion(() => {
+      // @ts-expect-error testing invalid input
+      buildBaseURL({});
+    }, /buildBaseURL: You must pass `op` as part of options/);
+  });
+
+  debug('throws when an invalid op is provided', async function (assert) {
+    await assert.expectAssertion(() => {
+      // @ts-expect-error testing invalid input
+      buildBaseURL({ op: 'not-an-op', identifier: { type: 'user', id: '1' } });
+    }, /buildBaseURL: You tried to build a not-an-op request to user but op must be one of/);
+  });
+
+  debug('throws when no identifier is provided', async function (assert) {
+    await assert.expectAssertion(() => {
+      // @ts-expect-error testing invalid input
+      buildBaseURL({ op: 'findRecord' });
+    }, /buildBaseURL: You must pass `identifier` as part of options/);
+  });
+
+  debug('throws when identifier is missing type', async function (assert) {
+    await assert.expectAssertion(() => {
+      // @ts-expect-error testing invalid input
+      buildBaseURL({ op: 'findRecord', identifier: { id: '1' } });
+    }, /You must pass valid `identifier` as part of options, expected 'type'/);
+  });
+
+  debug('throws when identifier is missing id', async function (assert) {
+    await assert.expectAssertion(() => {
+      // @ts-expect-error testing invalid input
+      buildBaseURL({ op: 'findRecord', identifier: { type: 'user' } });
+    }, /You must pass valid `identifier` as part of options, expected 'id'/);
   });
 });

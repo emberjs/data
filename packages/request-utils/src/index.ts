@@ -128,20 +128,62 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
     },
     urlOptions
   );
-  assert(`You must pass an \`op\` to buildURL.`, options.op);
+  assert(
+    `buildBaseURL: You must pass \`op\` as part of options`,
+    typeof options.op === 'string' && options.op.length > 0
+  );
+  assert(
+    `buildBaseURL: You must pass \`identifier\` as part of options`,
+    options.op === 'findMany' || (options.identifier && typeof options.identifier === 'object')
+  );
+  assert(
+    `buildBaseURL: You must pass \`identifiers\` as part of options`,
+    options.op !== 'findMany' ||
+      (options.identifiers &&
+        Array.isArray(options.identifiers) &&
+        options.identifiers.length > 0 &&
+        options.identifiers.every((i) => i && typeof i === 'object'))
+  );
+  assert(
+    `buildBaseURL: You must pass valid \`identifier\` as part of options, expected 'id'`,
+    !isOperationWithPrimaryRecord(options) ||
+      (typeof options.identifier.id === 'string' && options.identifier.id.length > 0)
+  );
+  assert(
+    `buildBaseURL: You must pass \`identifiers\` as part of options`,
+    options.op !== 'findMany' || options.identifiers.every((i) => typeof i.id === 'string' && i.id.length > 0)
+  );
+  assert(
+    `buildBaseURL: You must pass valid \`identifier\` as part of options, expected 'type'`,
+    options.op === 'findMany' || (typeof options.identifier.type === 'string' && options.identifier.type.length > 0)
+  );
+  assert(
+    `buildBaseURL: You must pass valid \`identifiers\` as part of options, expected 'type'`,
+    options.op !== 'findMany' ||
+      (typeof options.identifiers[0].type === 'string' && options.identifiers[0].type.length > 0)
+  );
 
   // prettier-ignore
-  const idPath: string | null =
+  const idPath: string =
       isOperationWithPrimaryRecord(options) ? encodeURIComponent(options.identifier.id)
-      : null;
+      : '';
   const resourcePath = options.resourcePath || resourcePathForType(options);
   const { host, namespace } = options;
   const fieldPath = 'fieldPath' in options ? options.fieldPath : '';
 
   assert(
-    `You tried to make a ${String(
+    `buildBaseURL: You tried to build a ${String(
       (options as { op: string }).op
-    )} request to ${resourcePath} but you have no handler for it.`,
+    )} request to ${resourcePath} but op must be one of "${[
+      'findRecord',
+      'findRelatedResource',
+      'findRelatedCollection',
+      'updateRecord',
+      'deleteRecord',
+      'createRecord',
+      'query',
+      'findMany',
+    ].join('","')}".`,
     [
       'findRecord',
       'query',
@@ -153,6 +195,19 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
       'deleteRecord',
     ].includes(options.op)
   );
+
+  assert(`buildBaseURL: host must NOT end with '/', received '${host}'`, host === '/' || !host.endsWith('/'));
+  assert(`buildBaseURL: namespace must NOT start with '/', received '${namespace}'`, !namespace.startsWith('/'));
+  assert(`buildBaseURL: namespace must NOT end with '/', received '${namespace}'`, !namespace.endsWith('/'));
+  assert(
+    `buildBaseURL: resourcePath must NOT start with '/', received '${resourcePath}'`,
+    !resourcePath.startsWith('/')
+  );
+  assert(`buildBaseURL: resourcePath must NOT end with '/', received '${resourcePath}'`, !resourcePath.endsWith('/'));
+  assert(`buildBaseURL: fieldPath must NOT start with '/', received '${fieldPath}'`, !fieldPath.startsWith('/'));
+  assert(`buildBaseURL: fieldPath must NOT end with '/', received '${fieldPath}'`, !fieldPath.endsWith('/'));
+  assert(`buildBaseURL: idPath must NOT start with '/', received '${idPath}'`, !idPath.startsWith('/'));
+  assert(`buildBaseURL: idPath must NOT end with '/', received '${idPath}'`, !idPath.endsWith('/'));
 
   const url = [host === '/' ? '' : host, namespace, resourcePath, idPath, fieldPath].filter(Boolean).join('/');
   return host ? url : `/${url}`;
