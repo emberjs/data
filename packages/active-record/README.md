@@ -1,7 +1,7 @@
-@ember-data/rest
+@ember-data/active-record
 ============================================================================
 
-REST Format support for EmberData
+ActiveRecord Format Support for EmberData
 
 > Note: This is a V2 Addon, but we have intentionally configured it to act and report as a V1 Addon due
 to bugs with ember-auto-import.

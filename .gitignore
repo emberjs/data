@@ -17,6 +17,7 @@ packages/graph/addon
 packages/legacy-compat/addon
 packages/request-utils/addon
 packages/rest/addon
+packages/active-record/addon
 
 # dependencies
 bower_components
