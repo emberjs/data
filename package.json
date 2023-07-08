@@ -11,7 +11,7 @@
     "lint:js": "eslint --quiet --cache --cache-strategy=content --ext=js,ts .",
     "preinstall": "npx only-allow pnpm",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
-    "test": "pnpm --filter main-test-app --filter graph-test-app --filter json-api-test-app --filter request-test-app run test",
+    "test": "pnpm --filter main-test-app --filter graph-test-app --filter json-api-test-app --filter request-test-app --filter builders-test-app run test",
     "test:production": "pnpm --filter main-test-app --filter graph-test-app --filter json-api-test-app run test -e production",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
     "test:docs": "pnpm build:docs && pnpm --filter docs-tests test",
