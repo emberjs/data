@@ -759,9 +759,12 @@ module('integration/store - findRecord', function (hooks) {
     assert.expect(badValues.length);
 
     badValues.map((item) => {
-      assert.expectAssertion(() => {
-        store.findRecord('car', item);
-      }, `Expected id to be a string or number, received ${String(item)}`);
+      assert.expectAssertion(
+        () => {
+          store.findRecord('car', item);
+        },
+        `Expected id to be a string or number, received ${String(item)}`
+      );
     });
   });
 });
