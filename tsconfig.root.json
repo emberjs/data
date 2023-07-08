@@ -54,7 +54,7 @@
       "@ember-data/rest": ["packages/rest/src"],
       "@ember-data/rest/*": ["packages/rest/src/*"],
       "@ember-data/active-record": ["packages/active-record/src"],
-      "@ember-data/active-record/*": ["packages/rest/active-record/*"],
+      "@ember-data/active-record/*": ["packages/active-record/src/*"],
       "@ember-data/experimental-preview-types": ["packages/experimental-preview-types/src"],
       "@ember-data/experimental-preview-types/*": ["packages/experimental-preview-types/src/*"],
       "@ember-data/debug": ["packages/debug/addon"],
