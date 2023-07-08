@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { buildBaseURL, setBuildURLConfig } from '@ember-data/request-utils';
 import { test as debug } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('Unit | buildBaseURL', function (hooks) {
+module('buildBaseURL', function (hooks) {
   hooks.afterEach(function () {
     setBuildURLConfig({ host: '', namespace: '' });
   });
