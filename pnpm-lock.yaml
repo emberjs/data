@@ -331,12 +331,12 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -395,15 +395,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -498,15 +498,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -577,15 +577,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -655,15 +655,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -737,15 +737,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -891,15 +891,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -952,12 +952,12 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -1007,12 +1007,12 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -1071,15 +1071,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -1150,15 +1150,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -1226,15 +1226,15 @@ importers:
       '@babel/core':
         specifier: ^7.22.8
         version: 7.22.8
-      '@babel/plugin-proposal-class-properties':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-proposal-private-methods':
-        specifier: ^7.18.6
-        version: 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime':
         specifier: ^7.22.7
         version: 7.22.7(@babel/core@7.22.8)
@@ -3807,6 +3807,18 @@ packages:
       '@babel/core': 7.22.8
       '@babel/helper-plugin-utils': 7.22.5
 
+  /@babel/plugin-transform-class-properties@7.18.6(@babel/core@7.22.8):
+    resolution: {integrity: sha512-cumfXOF0+nzZrrN8Rf0t7M+tF6sZc7vhQwYQck9q1/5w2OExlD+b4v4RpMJFaV1Z7WcDRgO6FqvxqxGlwo+RHQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.22.8
+      '@babel/helper-create-class-features-plugin': 7.22.6(@babel/core@7.22.8)
+      '@babel/helper-plugin-utils': 7.22.5
+    transitivePeerDependencies:
+      - supports-color
+
   /@babel/plugin-transform-class-properties@7.22.5(@babel/core@7.22.8):
     resolution: {integrity: sha512-nDkQ0NfkOhPTq8YCLiWNxp1+f9fCobEjCb0n8WdbNUBc4IB5V7P1QnX9IjpSoquKrXF5SKojHleVNs2vGeHCHQ==}
     engines: {node: '>=6.9.0'}
@@ -4121,6 +4133,18 @@ packages:
     dependencies:
       '@babel/core': 7.22.8
       '@babel/helper-plugin-utils': 7.22.5
+
+  /@babel/plugin-transform-private-methods@7.18.6(@babel/core@7.22.8):
+    resolution: {integrity: sha512-nutsvktDItsNn4rpGItSNV2sz1XwS+nfU0Rg8aCx3W3NOKVzdMjJRu0O5OkgDp3ZGICSTbgRpxZoWsxoKRvbeA==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.22.8
+      '@babel/helper-create-class-features-plugin': 7.22.6(@babel/core@7.22.8)
+      '@babel/helper-plugin-utils': 7.22.5
+    transitivePeerDependencies:
+      - supports-color
 
   /@babel/plugin-transform-private-methods@7.22.5(@babel/core@7.22.8):
     resolution: {integrity: sha512-PPjh4gyrQnGe97JTalgRGMuU4icsZFnWkzicB/fUtzlKUqvsWBKEpPPfr5a2JiyirZkHxnAqkQMO5Z5B2kK3fA==}
@@ -8812,6 +8836,7 @@ packages:
       '@babel/core': 7.22.8
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators': 7.22.7(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties': 7.18.6(@babel/core@7.22.8)
       '@babel/preset-env': 7.22.7(@babel/core@7.22.8)
       '@embroider/macros': 1.12.2
       '@embroider/shared-internals': 2.2.2
@@ -8920,7 +8945,9 @@ packages:
       '@babel/plugin-proposal-decorators': 7.22.7(@babel/core@7.22.8)
       '@babel/plugin-proposal-private-methods': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-private-property-in-object': 7.21.11(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-transform-modules-amd': 7.22.5(@babel/core@7.22.8)
+      '@babel/plugin-transform-private-methods': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime': 7.22.7(@babel/core@7.22.8)
       '@babel/plugin-transform-typescript': 7.22.5(@babel/core@7.22.8)
       '@babel/polyfill': 7.12.1
@@ -9164,6 +9191,7 @@ packages:
     engines: {node: 6.* || 8.* || >= 10.*}
     dependencies:
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.22.8)
+      '@babel/plugin-transform-class-properties': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-transform-typescript': 7.4.5(@babel/core@7.22.8)
       ansi-to-html: 0.6.15
       debug: 4.3.4
@@ -15604,6 +15632,7 @@ packages:
   /tough-cookie@4.1.3:
     resolution: {integrity: sha512-aX/y5pVRkfRnfmuX+OdbSdXvPe6ieKX/G2s7e98f4poJHnqH3281gDPm/metm6E/WRamfx7WC4HUqkWHfQHprw==}
     engines: {node: '>=6'}
+    requiresBuild: true
     dependencies:
       psl: 1.9.0
       punycode: 2.3.0
