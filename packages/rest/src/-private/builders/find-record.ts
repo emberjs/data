@@ -7,6 +7,7 @@ import {
 } from '@ember-data/request-utils';
 import type { ConstrainedRequestOptions, FindRecordRequestOptions, RemotelyAccessibleIdentifier } from './-types';
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
+import { camelize } from '@ember/string';
 
 type FindRecordOptions = ConstrainedRequestOptions & {
   include?: string | string[];
@@ -25,15 +26,14 @@ export function findRecord(
   const urlOptions: FindRecordUrlOptions = {
     identifier,
     requestType: 'findRecord',
-    resourcePath: pluralize(identifier.type),
+    resourcePath: pluralize(camelize(identifier.type)),
   };
 
   copyForwardUrlOptions(urlOptions, options);
 
   const url = buildURL(urlOptions);
   const headers = new Headers();
-  headers.append('Accept', 'application/vnd.api+json');
-  headers.append('Content-Type', 'application/vnd.api+json');
+  headers.append('Content-Type', 'application/json; charset=utf-8');
 
   return {
     url: options.include?.length ? `${url}?${buildQueryParams({ include: options.include }, options.urlParamsSettings)}` : url,

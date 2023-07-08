@@ -35,14 +35,6 @@ export interface QueryUrlOptions {
   namespace?: string;
 }
 
-export interface QueryRecordUrlOptions {
-  requestType: 'queryRecord';
-  identifier: { type: string };
-  resourcePath?: string;
-  host?: string;
-  namespace?: string;
-}
-
 export interface FindManyUrlOptions {
   requestType: 'findMany';
   identifiers: { type: string; id: string }[];
@@ -93,7 +85,6 @@ export interface DeleteRecordUrlOptions {
 export type UrlOptions =
   | FindRecordUrlOptions
   | QueryUrlOptions
-  | QueryRecordUrlOptions
   | FindManyUrlOptions
   | FindRelatedCollectionUrlOptions
   | FindRelatedResourceUrlOptions
@@ -135,7 +126,6 @@ export function buildURL(urlOptions: UrlOptions): string {
     [
       'findRecord',
       'query',
-      'queryRecord',
       'findMany',
       'findRelatedCollection',
       'findRelatedResource',
@@ -159,13 +149,19 @@ type Serializable = SerializablePrimitive | SerializablePrimitive[];
 export type QueryParamsSerializationOptions = {
   arrayFormat?: 'bracket' | 'indices' | 'repeat' | 'comma';
 };
+export type QueryParamsSource = Record<string, Serializable> | URLSearchParams;
 
 const DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS: QueryParamsSerializationOptions = {
   arrayFormat: 'comma',
 };
 
+function handleInclude(include: string | string[]): string[] {
+  assert(`Expected include to be a string or array, got ${typeof include}`, typeof include === 'string' || Array.isArray(include));
+  return typeof include === 'string' ? include.split(',') : include;
+}
+
 export function buildQueryParams(
-  params: URLSearchParams | Record<string, Serializable>,
+  params: QueryParamsSource,
   options?: QueryParamsSerializationOptions
 ): string {
   options = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
@@ -187,6 +183,10 @@ export function buildQueryParams(
         }
       }
     });
+  }
+
+  if ("include" in dictionaryParams) {
+    dictionaryParams.include = handleInclude(dictionaryParams.include as string | string[]);
   }
 
   const sortedKeys = Object.keys(dictionaryParams).sort();
