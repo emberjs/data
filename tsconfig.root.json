@@ -105,6 +105,7 @@
     "packages/store/src/**/*",
     "packages/adapter/src/**/*",
     "packages/graph/src/**/*",
+    "packages/active-record/src/**/*",
     "packages/rest/src/**/*",
     "packages/model/src/**/*",
     "packages/legacy-compat/src/**/*",
