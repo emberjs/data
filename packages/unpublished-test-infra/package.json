@@ -31,7 +31,7 @@
     "ember-get-config": "^2.1.1",
     "qunit": "^2.19.4",
     "qunit-dom": "^2.0.0",
-    "semver": "^7.5.3",
+    "semver": "^7.5.4",
     "testem": "^3.10.1",
     "webpack": "^5.88.1"
   },
@@ -41,14 +41,14 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.22.6",
+    "@babel/core": "^7.22.8",
     "@babel/runtime": "^7.22.6",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^3.2.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@types/semver": "^7.5.0",
     "@types/ember__owner": "^4.0.4",
+    "@types/semver": "^7.5.0",
     "ember-cli": "~5.1.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.2.0",

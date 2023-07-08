@@ -22,23 +22,23 @@
   "dependencies": {
     "@ember-data/adapter": "workspace:5.3.0-alpha.3",
     "@ember-data/debug": "workspace:5.3.0-alpha.3",
-    "@ember-data/model": "workspace:5.3.0-alpha.3",
-    "@ember-data/private-build-infra": "workspace:5.3.0-alpha.3",
+    "@ember-data/graph": "workspace:5.3.0-alpha.3",
     "@ember-data/json-api": "workspace:5.3.0-alpha.3",
     "@ember-data/legacy-compat": "workspace:5.3.0-alpha.3",
+    "@ember-data/model": "workspace:5.3.0-alpha.3",
+    "@ember-data/private-build-infra": "workspace:5.3.0-alpha.3",
     "@ember-data/request": "workspace:5.3.0-alpha.3",
     "@ember-data/serializer": "workspace:5.3.0-alpha.3",
     "@ember-data/store": "workspace:5.3.0-alpha.3",
     "@ember-data/tracking": "workspace:5.3.0-alpha.3",
-    "@ember-data/graph": "workspace:5.3.0-alpha.3",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.12.2",
     "@glimmer/env": "^0.1.7",
     "broccoli-merge-trees": "^4.2.0",
     "ember-auto-import": "^2.6.3",
-    "webpack": "^5.88.1",
     "ember-cli-babel": "^7.26.11",
-    "ember-inflector": "^4.0.2"
+    "ember-inflector": "^4.0.2",
+    "webpack": "^5.88.1"
   },
   "dependenciesMeta": {
     "@ember-data/adapter": {
@@ -76,7 +76,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.22.6",
+    "@babel/core": "^7.22.8",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "ember-source": "~5.1.2"
