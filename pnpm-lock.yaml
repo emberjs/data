@@ -359,7 +359,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.8)(rollup@3.26.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
+        specifier: ^15.1.0
         version: 15.1.0(rollup@3.26.2)
       rollup:
         specifier: ^3.26.1
@@ -980,7 +980,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.8)(rollup@3.26.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
+        specifier: ^15.1.0
         version: 15.1.0(rollup@3.26.2)
       rollup:
         specifier: ^3.26.1
@@ -1035,7 +1035,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@babel/core@7.22.8)(rollup@3.26.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.2
+        specifier: ^15.1.0
         version: 15.1.0(rollup@3.26.2)
       rollup:
         specifier: ^3.26.1
