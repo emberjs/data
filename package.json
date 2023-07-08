@@ -79,7 +79,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-mocha": "^10.1.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^5.0.0-alpha.1",
+    "eslint-plugin-prettier": "5.0.0-alpha.2",
     "eslint-plugin-qunit": "^8.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "execa": "^5.1.1",
@@ -132,13 +132,6 @@
       "broccoli-merge-trees": "^4.2.0",
       "ember-cli-babel": "^7.26.11",
       "ember-cli-htmlbars": "^6.2.0"
-    },
-    "packageExtensions": {
-      "babel-plugin-ember-template-compilation": {
-        "dependencies": {
-          "@babel/traverse": "^7.14.5"
-        }
-      }
     }
   }
 }

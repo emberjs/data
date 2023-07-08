@@ -12,8 +12,6 @@ overrides:
   ember-cli-babel: ^7.26.11
   ember-cli-htmlbars: ^6.2.0
 
-packageExtensionsChecksum: 36442d995d5673e00ce531e6fba8be25
-
 importers:
 
   .:
@@ -163,7 +161,7 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0(eslint@8.44.0)
       eslint-plugin-prettier:
-        specifier: ^5.0.0-alpha.1
+        specifier: 5.0.0-alpha.2
         version: 5.0.0-alpha.2(eslint-config-prettier@8.8.0)(eslint@8.44.0)(prettier@3.0.0)
       eslint-plugin-qunit:
         specifier: ^8.0.0
@@ -3807,18 +3805,6 @@ packages:
       '@babel/core': 7.22.8
       '@babel/helper-plugin-utils': 7.22.5
 
-  /@babel/plugin-transform-class-properties@7.18.6(@babel/core@7.22.8):
-    resolution: {integrity: sha512-cumfXOF0+nzZrrN8Rf0t7M+tF6sZc7vhQwYQck9q1/5w2OExlD+b4v4RpMJFaV1Z7WcDRgO6FqvxqxGlwo+RHQ==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.22.8
-      '@babel/helper-create-class-features-plugin': 7.22.6(@babel/core@7.22.8)
-      '@babel/helper-plugin-utils': 7.22.5
-    transitivePeerDependencies:
-      - supports-color
-
   /@babel/plugin-transform-class-properties@7.22.5(@babel/core@7.22.8):
     resolution: {integrity: sha512-nDkQ0NfkOhPTq8YCLiWNxp1+f9fCobEjCb0n8WdbNUBc4IB5V7P1QnX9IjpSoquKrXF5SKojHleVNs2vGeHCHQ==}
     engines: {node: '>=6.9.0'}
@@ -4133,18 +4119,6 @@ packages:
     dependencies:
       '@babel/core': 7.22.8
       '@babel/helper-plugin-utils': 7.22.5
-
-  /@babel/plugin-transform-private-methods@7.18.6(@babel/core@7.22.8):
-    resolution: {integrity: sha512-nutsvktDItsNn4rpGItSNV2sz1XwS+nfU0Rg8aCx3W3NOKVzdMjJRu0O5OkgDp3ZGICSTbgRpxZoWsxoKRvbeA==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.22.8
-      '@babel/helper-create-class-features-plugin': 7.22.6(@babel/core@7.22.8)
-      '@babel/helper-plugin-utils': 7.22.5
-    transitivePeerDependencies:
-      - supports-color
 
   /@babel/plugin-transform-private-methods@7.22.5(@babel/core@7.22.8):
     resolution: {integrity: sha512-PPjh4gyrQnGe97JTalgRGMuU4icsZFnWkzicB/fUtzlKUqvsWBKEpPPfr5a2JiyirZkHxnAqkQMO5Z5B2kK3fA==}
@@ -4922,7 +4896,6 @@ packages:
     resolution: {integrity: sha512-dk32ykoNojt0mvEaIW6Vli5MGTbQo58uy3Epj7ahCgTHmWOKuw/0G83f2UmFprRwFx689YTXG38I/vbpltEjzg==}
     dependencies:
       '@simple-dom/interface': 1.4.0
-    dev: true
 
   /@glimmer/low-level@0.78.2:
     resolution: {integrity: sha512-0S6TWOOd0fzLLysw1pWZN0TgasaHmYs1Sjz9Til1mTByIXU1S+1rhdyr2veSQPO/aRjPuEQyKXZQHvx23Zax6w==}
@@ -5024,7 +4997,6 @@ packages:
       '@glimmer/util': 0.84.3
       '@handlebars/parser': 2.0.0
       simple-html-tokenizer: 0.5.11
-    dev: true
 
   /@glimmer/tracking@1.1.2:
     resolution: {integrity: sha512-cyV32zsHh+CnftuRX84ALZpd2rpbDrhLhJnTXn9W//QpqdRZ5rdMsxSY9fOsj0CKEc706tmEU299oNnDc0d7tA==}
@@ -5048,7 +5020,6 @@ packages:
       '@glimmer/env': 0.1.7
       '@glimmer/interfaces': 0.84.3
       '@simple-dom/interface': 1.4.0
-    dev: true
 
   /@glimmer/validator@0.44.0:
     resolution: {integrity: sha512-i01plR0EgFVz69GDrEuFgq1NheIjZcyTy3c7q+w7d096ddPVeVcRzU3LKaqCfovvLJ+6lJx40j45ecycASUUyw==}
@@ -6600,8 +6571,15 @@ packages:
     dependencies:
       '@babel/traverse': 7.22.8
       babel-import-util: 1.3.0
-    transitivePeerDependencies:
-      - supports-color
+    dev: true
+
+  /babel-plugin-ember-template-compilation@2.1.0:
+    resolution: {integrity: sha512-hAAH5WS36Go/z7wQf9V8FITElTmSC5ybGFSqefpQxqkKuLeDO1XYtmVlG43ww3QJEE1tsH3pb7uLXQTzhV9nXg==}
+    engines: {node: '>= 12.*'}
+    dependencies:
+      '@babel/traverse': 7.22.8
+      '@glimmer/syntax': 0.84.3
+      babel-import-util: 1.3.0
 
   /babel-plugin-filter-imports@4.0.0:
     resolution: {integrity: sha512-jDLlxI8QnfKd7PtieH6pl4tZJzymzfCDCPGdTq/grgbiYAikwDPp/oL0IlFJn0HQjLpcLkyYhPKkUVneRESw5w==}
@@ -8891,13 +8869,12 @@ packages:
       '@babel/core': 7.22.8
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-decorators': 7.22.7(@babel/core@7.22.8)
-      '@babel/plugin-transform-class-properties': 7.18.6(@babel/core@7.22.8)
       '@babel/preset-env': 7.22.7(@babel/core@7.22.8)
       '@embroider/macros': 1.12.2
       '@embroider/shared-internals': 2.2.2
       babel-loader: 8.3.0(@babel/core@7.22.8)(webpack@5.88.1)
       babel-plugin-ember-modules-api-polyfill: 3.5.0
-      babel-plugin-ember-template-compilation: 2.0.3
+      babel-plugin-ember-template-compilation: 2.1.0
       babel-plugin-htmlbars-inline-precompile: 5.3.1
       babel-plugin-syntax-dynamic-import: 6.18.0
       broccoli-debug: 0.6.5
@@ -9000,9 +8977,7 @@ packages:
       '@babel/plugin-proposal-decorators': 7.22.7(@babel/core@7.22.8)
       '@babel/plugin-proposal-private-methods': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-proposal-private-property-in-object': 7.21.11(@babel/core@7.22.8)
-      '@babel/plugin-transform-class-properties': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-transform-modules-amd': 7.22.5(@babel/core@7.22.8)
-      '@babel/plugin-transform-private-methods': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-transform-runtime': 7.22.7(@babel/core@7.22.8)
       '@babel/plugin-transform-typescript': 7.22.5(@babel/core@7.22.8)
       '@babel/polyfill': 7.12.1
@@ -9121,7 +9096,7 @@ packages:
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
       '@ember/edition-utils': 1.2.0
-      babel-plugin-ember-template-compilation: 2.0.3
+      babel-plugin-ember-template-compilation: 2.1.0
       babel-plugin-htmlbars-inline-precompile: 5.3.1
       broccoli-debug: 0.6.5
       broccoli-persistent-filter: 3.1.3
@@ -9246,7 +9221,6 @@ packages:
     engines: {node: 6.* || 8.* || >= 10.*}
     dependencies:
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.22.8)
-      '@babel/plugin-transform-class-properties': 7.18.6(@babel/core@7.22.8)
       '@babel/plugin-transform-typescript': 7.4.5(@babel/core@7.22.8)
       ansi-to-html: 0.6.15
       debug: 4.3.4
@@ -16534,6 +16508,11 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /yargs-parser@20.2.9:
+    resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
+    engines: {node: '>=10'}
+    dev: true
+
   /yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
@@ -16559,7 +16538,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.4
+      yargs-parser: 20.2.9
     dev: true
 
   /yargs@17.7.2:
