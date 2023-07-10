@@ -16,7 +16,10 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 class AbstractMap {
-  constructor(private store: Store, private isImplicit: boolean) {}
+  constructor(
+    private store: Store,
+    private isImplicit: boolean
+  ) {}
 
   has(identifier: StableRecordIdentifier) {
     let graph = graphFor(this.store);
