@@ -49,9 +49,6 @@ importers:
       '@types/ember':
         specifier: ^4.0.4
         version: 4.0.4(@babel/core@7.22.8)
-      '@types/ember-resolver':
-        specifier: ^9.0.0
-        version: 9.0.0(ember-source@5.1.2)
       '@types/ember__application':
         specifier: ^4.0.6
         version: 4.0.6(@babel/core@7.22.8)
@@ -5358,17 +5355,6 @@ packages:
     resolution: {integrity: sha512-RG8AStHlUiV5ysZQKq97copd2UmVYw3/pRMLefISZ3S1hK104Cwm7iLQ3fTKx+lsUH2CE8FlLaYeEA2LSeqYUA==}
     dependencies:
       '@types/node': 20.4.1
-
-  /@types/ember-resolver@9.0.0(ember-source@5.1.2):
-    resolution: {integrity: sha512-lEuC2QD8K6rRAbELMejrALFBgelRPt6OQtapny4Oke07ZtK/Lbf9zn5KIDl7PNkirxMD0AStsQTdUqFu6eVbVw==}
-    deprecated: This is a stub types definition. ember-resolver provides its own type definitions, so you do not need this installed.
-    dependencies:
-      ember-resolver: 10.1.1(ember-source@5.1.2)
-    transitivePeerDependencies:
-      - '@ember/string'
-      - ember-source
-      - supports-color
-    dev: true
 
   /@types/ember@4.0.4(@babel/core@7.22.8):
     resolution: {integrity: sha512-MeByM2it6topE4s53+OGS0qHL3mvZIP2+U+eUlhN2w4d9oA6XzP9iaXROA2Eqxjmt4UAJiHHcR2uZ5TVcbEzfw==}
