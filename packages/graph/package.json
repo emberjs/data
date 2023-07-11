@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/graph",
-  "version": "5.3.0-alpha.3",
+  "version": "5.3.0-alpha.4",
   "description": "Provides a normalized graph for managing relationships between resources",
   "keywords": [
     "ember-addon"
@@ -32,7 +32,7 @@
     "ember-data-logo-light.svg"
   ],
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.3.0-alpha.3"
+    "@ember-data/store": "workspace:5.3.0-alpha.4"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
@@ -40,7 +40,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.3.0-alpha.3",
+    "@ember-data/private-build-infra": "workspace:5.3.0-alpha.4",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.12.2",
     "ember-cli-babel": "^7.26.11"

@@ -1,6 +1,6 @@
 {
   "name": "builders-test-app",
-  "version": "5.3.0-alpha.3",
+  "version": "5.3.0-alpha.4",
   "description": "Provides tests for URL and Request Building Capabilities",
   "keywords": [],
   "repository": {
@@ -41,12 +41,12 @@
   "devDependencies": {
     "@babel/core": "^7.22.8",
     "@babel/runtime": "^7.22.6",
-    "@ember-data/active-record": "workspace:5.3.0-alpha.3",
-    "@ember-data/json-api": "workspace:5.3.0-alpha.3",
-    "@ember-data/private-build-infra": "workspace:5.3.0-alpha.3",
-    "@ember-data/request-utils": "workspace:5.3.0-alpha.3",
-    "@ember-data/rest": "workspace:5.3.0-alpha.3",
-    "@ember-data/unpublished-test-infra": "workspace:5.3.0-alpha.3",
+    "@ember-data/active-record": "workspace:5.3.0-alpha.4",
+    "@ember-data/json-api": "workspace:5.3.0-alpha.4",
+    "@ember-data/private-build-infra": "workspace:5.3.0-alpha.4",
+    "@ember-data/request-utils": "workspace:5.3.0-alpha.4",
+    "@ember-data/rest": "workspace:5.3.0-alpha.4",
+    "@ember-data/unpublished-test-infra": "workspace:5.3.0-alpha.4",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.1.1",
