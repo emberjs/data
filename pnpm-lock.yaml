@@ -37,6 +37,9 @@ importers:
       '@ember/optional-features':
         specifier: ^2.0.0
         version: 2.0.0
+      '@ember/string':
+        specifier: ^3.1.1
+        version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
@@ -46,60 +49,6 @@ importers:
       '@glimmer/env':
         specifier: ^0.1.7
         version: 0.1.7
-      '@types/ember':
-        specifier: ^4.0.4
-        version: 4.0.4(@babel/core@7.22.9)
-      '@types/ember__application':
-        specifier: ^4.0.6
-        version: 4.0.6(@babel/core@7.22.9)
-      '@types/ember__array':
-        specifier: ^4.0.4
-        version: 4.0.4(@babel/core@7.22.9)
-      '@types/ember__component':
-        specifier: ^4.0.14
-        version: 4.0.14(@babel/core@7.22.9)
-      '@types/ember__controller':
-        specifier: ^4.0.5
-        version: 4.0.5(@babel/core@7.22.9)
-      '@types/ember__debug':
-        specifier: ^4.0.4
-        version: 4.0.4(@babel/core@7.22.9)
-      '@types/ember__engine':
-        specifier: ^4.0.5
-        version: 4.0.5(@babel/core@7.22.9)
-      '@types/ember__error':
-        specifier: ^4.0.3
-        version: 4.0.3
-      '@types/ember__object':
-        specifier: ^4.0.6
-        version: 4.0.6(@babel/core@7.22.9)
-      '@types/ember__owner':
-        specifier: ^4.0.4
-        version: 4.0.4
-      '@types/ember__polyfills':
-        specifier: ^4.0.2
-        version: 4.0.2
-      '@types/ember__routing':
-        specifier: ^4.0.13
-        version: 4.0.13(@babel/core@7.22.9)
-      '@types/ember__runloop':
-        specifier: ^4.0.3
-        version: 4.0.3(@babel/core@7.22.9)
-      '@types/ember__service':
-        specifier: ^4.0.3
-        version: 4.0.3(@babel/core@7.22.9)
-      '@types/ember__string':
-        specifier: ^3.0.11
-        version: 3.0.11
-      '@types/ember__template':
-        specifier: ^4.0.2
-        version: 4.0.2
-      '@types/ember__test':
-        specifier: ^4.0.2
-        version: 4.0.2(@babel/core@7.22.9)
-      '@types/ember__utils':
-        specifier: ^4.0.3
-        version: 4.0.3(@babel/core@7.22.9)
       '@types/jquery':
         specifier: ^3.5.16
         version: 3.5.16
@@ -5576,7 +5525,7 @@ packages:
     resolution: {integrity: sha512-nMg0+2ooumlfHJjwmI1tnVTBg8TfORhXT4OdzJzCjweFjBCA25L7K0W9J/NKzTUTryJsaDil6VMbY3dCXpyBvA==}
     dependencies:
       '@types/ember': 4.0.4(@babel/core@7.22.9)
-      '@types/ember__object': 4.0.6(@babel/core@7.22.9)
+      '@types/ember__object': 4.0.6
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -5586,7 +5535,7 @@ packages:
     resolution: {integrity: sha512-qqEJOCxxPJrfYpgs8+8Zjrc8uRzpbhALtsG6nf/LoB4DkXisSd+C6a3n04ACvGfDa+1uVA3SZ8sTqKPgx6nM9g==}
     dependencies:
       '@types/ember': 4.0.4(@babel/core@7.22.9)
-      '@types/ember__object': 4.0.6(@babel/core@7.22.9)
+      '@types/ember__object': 4.0.6
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -5595,7 +5544,7 @@ packages:
   /@types/ember__controller@4.0.5:
     resolution: {integrity: sha512-sjTYCkVO/JO0JTHU+Xz8TtDotpTCoJZ+esoSSSgHAjHOV4rYioeBzHSSaZk5s9NoNt9X0jqJhdY+oUJfJ1/rkw==}
     dependencies:
-      '@types/ember__object': 4.0.6(@babel/core@7.22.9)
+      '@types/ember__object': 4.0.6
     dev: true
 
   /@types/ember__controller@4.0.5(@babel/core@7.22.9):
@@ -13935,7 +13884,7 @@ packages:
       got: 9.6.0
       registry-auth-token: 4.2.2
       registry-url: 5.1.0
-      semver: 6.3.0
+      semver: 6.3.1
     dev: true
 
   /parent-module@1.0.1:
