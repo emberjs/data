@@ -122,6 +122,7 @@ export class LegacySupport {
     relationship.state.shouldForceReload = true;
     let promise = this._findBelongsTo(key, resource, relationship, options);
     if (this._relationshipProxyCache[key]) {
+      // @ts-expect-error
       return this._updatePromiseProxyFor('belongsTo', key, { promise });
     }
     return promise;

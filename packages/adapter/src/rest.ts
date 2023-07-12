@@ -13,6 +13,7 @@ import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
+import { MixtBuildURLMixin } from './-private/build-url-mixin';
 import type { FastBoot } from './-private/fastboot-interface';
 import AdapterError, {
   AbortError,
@@ -1342,6 +1343,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     return query;
   }
 }
+
+interface RESTAdapter extends MixtBuildURLMixin {}
 
 function ajaxSuccess(
   adapter: RESTAdapter,

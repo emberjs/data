@@ -218,14 +218,12 @@ class Store extends EmberObject {
   declare _isDestroying: boolean;
   declare _isDestroyed: boolean;
 
-  // @ts-expect-error
   get isDestroying(): boolean {
     return this._isDestroying;
   }
   set isDestroying(value: boolean) {
     this._isDestroying = value;
   }
-  // @ts-expect-error
   get isDestroyed(): boolean {
     return this._isDestroyed;
   }
@@ -238,7 +236,7 @@ class Store extends EmberObject {
     @private
   */
   constructor(createArgs?: Record<string, unknown>) {
-    super(createArgs);
+    super();
     Object.assign(this, createArgs);
 
     this.identifierCache = new IdentifierCache();

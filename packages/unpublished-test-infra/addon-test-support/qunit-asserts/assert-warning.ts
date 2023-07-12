@@ -113,7 +113,7 @@ export function configureWarningHandler() {
   });
 
   registerWarnHandler(function (message, options /*, next*/) {
-    if (WARNINGS_FOR_TEST) {
+    if (WARNINGS_FOR_TEST && options) {
       WARNINGS_FOR_TEST.push({ message, options });
     }
     // we do not call next to avoid spamming the console

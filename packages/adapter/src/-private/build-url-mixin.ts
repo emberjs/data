@@ -111,7 +111,7 @@ interface BuildURLMixin {
 // prevents the final constructed object from needing to add
 // host and namespace which are provided by the final consuming
 // class to the prototype which can result in overwrite errors
-interface MixtBuildURLMixin extends BuildURLMixin {
+export interface MixtBuildURLMixin extends BuildURLMixin {
   host: string | null;
   namespace: string | null;
 }

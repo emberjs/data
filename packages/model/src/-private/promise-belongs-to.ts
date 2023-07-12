@@ -64,7 +64,7 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
     if (1) {
       assert(
         'You attempted to access meta on the promise for the async belongsTo relationship ' +
-          `${this.get('_belongsToState').modelName}:${this.get('_belongsToState').key}'.` +
+          `${this._belongsToState.modelName}:${this._belongsToState.key}'.` +
           '\nUse `record.belongsTo(relationshipName).meta()` instead.',
         false
       );
