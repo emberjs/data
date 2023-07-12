@@ -204,6 +204,11 @@ export class Graph {
     const keys = Object.keys(relationships);
     for (let i = 0; i < keys.length; i++) {
       const relationship: RelationshipEdge = relationships[keys[i]];
+      // account for previously unloaded relationships
+      // typically from a prior deletion of a record that pointed to this one implicitly
+      if (relationship === undefined) {
+        continue;
+      }
       assert(`Expected a relationship`, relationship);
       if (relationship.definition.inverseIsAsync) {
         return false;
