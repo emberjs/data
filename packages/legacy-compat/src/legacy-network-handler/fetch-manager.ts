@@ -513,10 +513,19 @@ function _flushPendingFetchForType(store: Store, pendingFetchItems: PendingFetch
   let totalItems = pendingFetchItems.length;
 
   if (shouldCoalesce) {
+    let nonGroupableItems: PendingFetchItem[] = [];
     let snapshots = new Array<Snapshot>(totalItems);
     let fetchMap = new Map<Snapshot, PendingFetchItem>();
     for (let i = 0; i < totalItems; i++) {
       let fetchItem = pendingFetchItems[i];
+      if (fetchItem.options?.include?.length) {
+        nonGroupableItems.push(fetchItem);
+        continue;
+      }
+      if (fetchItem.options?.adapterOptions && Object.keys(fetchItem.options.adapterOptions).length > 0) {
+        nonGroupableItems.push(fetchItem);
+        continue;
+      }
       snapshots[i] = store._fetchManager.createSnapshot(fetchItem.identifier, fetchItem.options);
       fetchMap.set(snapshots[i], fetchItem);
     }
@@ -531,10 +540,12 @@ function _flushPendingFetchForType(store: Store, pendingFetchItems: PendingFetch
     for (let i = 0, l = groups.length; i < l; i++) {
       _processCoalescedGroup(store, fetchMap, groups[i], adapter, modelName);
     }
-  } else {
-    for (let i = 0; i < totalItems; i++) {
-      void _fetchRecord(store, adapter, pendingFetchItems[i]);
-    }
+    totalItems = nonGroupableItems.length;
+    pendingFetchItems = nonGroupableItems;
+  }
+
+  for (let i = 0; i < totalItems; i++) {
+    void _fetchRecord(store, adapter, pendingFetchItems[i]);
   }
 }
 
