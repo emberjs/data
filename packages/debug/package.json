@@ -15,7 +15,8 @@
   "directories": {},
   "scripts": {},
   "peerDependencies": {
-    "@ember/string": "^3.1.1"
+    "@ember/string": "^3.1.1",
+    "@ember-data/store": "workspace:4.12.2"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
