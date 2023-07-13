@@ -244,6 +244,30 @@ module('integration/records/save - Save Record', function (hooks) {
     }
   });
 
+  test('Will not unload record if it fails to save on create', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
+    const posts = store.peekAll('post');
+
+    assert.strictEqual(posts.length, 1, 'precond - store has one post');
+
+    adapter.createRecord = async function () {
+      const error = new InvalidError([{ title: 'not valid' }]);
+      return Promise.reject(error);
+    };
+
+    try {
+      await post.save();
+      assert.ok(false, 'we should error');
+    } catch {
+      assert.ok(true, 'save operation was rejected');
+    }
+
+    assert.false(post.isDestroyed, 'post is not destroyed');
+    assert.strictEqual(posts.length, 1, 'store still has the post');
+  });
+
   test('Will error when saving after unloading record via the store', async function (assert) {
     assert.expect(1);
 

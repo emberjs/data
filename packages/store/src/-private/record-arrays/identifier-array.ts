@@ -243,13 +243,13 @@ class IdentifierArray {
   declare store: Store;
   declare _manager: RecordArrayManager;
 
-  destroy() {
-    this.isDestroying = true;
+  destroy(clear: boolean) {
+    this.isDestroying = !clear;
     // changing the reference breaks the Proxy
     // this[SOURCE] = [];
     this[SOURCE].length = 0;
     this[NOTIFY]();
-    this.isDestroyed = true;
+    this.isDestroyed = !clear;
   }
 
   // length must be on self for proxied methods to work properly
@@ -629,8 +629,8 @@ export class Collection extends IdentifierArray {
     return promise;
   }
 
-  destroy() {
-    super.destroy();
+  destroy(clear: boolean) {
+    super.destroy(clear);
     this._manager._managed.delete(this);
     this._manager._pending.delete(this);
   }
