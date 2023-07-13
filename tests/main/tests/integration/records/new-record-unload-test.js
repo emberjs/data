@@ -5,6 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, hasMany } from '@ember-data/model';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Person extends Model {
   @attr name;
@@ -100,7 +101,7 @@ module('Integration | Records | New Record Unload', function (hooks) {
     assert.strictEqual(people.length, 1, 'precond - one person left in the store');
   });
 
-  test('Unload after a save that failed for missing data is safe', async function (assert) {
+  testInDebug('Unload after a save that failed for missing data is safe', async function (assert) {
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     adapter.createRecord = () => Promise.resolve({ data: null });
@@ -150,7 +151,7 @@ module('Integration | Records | New Record Unload', function (hooks) {
     assert.strictEqual(people.length, 1, 'final: one person left in the store');
   });
 
-  test('Unload after a save that failed for missing id is safe', async function (assert) {
+  testInDebug('Unload after a save that failed for missing id is safe', async function (assert) {
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     adapter.createRecord = () => Promise.resolve({ data: { type: 'person' } });
