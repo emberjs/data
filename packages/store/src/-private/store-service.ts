@@ -270,17 +270,34 @@ class Store extends EmberObject {
   _run(cb: () => void) {
     assert(`EmberData should never encounter a nested run`, !this._cbs);
     const _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } = (this._cbs = {});
-    cb();
-    if (_cbs.coalesce) {
-      _cbs.coalesce();
+    if (DEBUG) {
+      try {
+        cb();
+        if (_cbs.coalesce) {
+          _cbs.coalesce();
+        }
+        if (_cbs.sync) {
+          _cbs.sync();
+        }
+        if (_cbs.notify) {
+          _cbs.notify();
+        }
+      } finally {
+        this._cbs = null;
+      }
+    } else {
+      cb();
+      if (_cbs.coalesce) {
+        _cbs.coalesce();
+      }
+      if (_cbs.sync) {
+        _cbs.sync();
+      }
+      if (_cbs.notify) {
+        _cbs.notify();
+      }
+      this._cbs = null;
     }
-    if (_cbs.sync) {
-      _cbs.sync();
-    }
-    if (_cbs.notify) {
-      _cbs.notify();
-    }
-    this._cbs = null;
   }
   _join(cb: () => void): void {
     if (this._cbs) {

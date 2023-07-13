@@ -79,6 +79,7 @@ class RecordArrayManager {
   declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
+  declare _set: Map<IdentifierArray, Set<StableRecordIdentifier>>;
   declare _live: Map<string, IdentifierArray>;
   declare _managed: Set<IdentifierArray>;
   declare _pending: Map<IdentifierArray, ChangeSet>;
@@ -86,6 +87,7 @@ class RecordArrayManager {
   declare _staged: Map<string, ChangeSet>;
   declare _subscription: UnsubscribeToken;
   declare _keyedArrays: Map<string, Collection>;
+  declare _visibilitySet: Map<StableRecordIdentifier, boolean>;
 
   constructor(options: { store: Store }) {
     this.store = options.store;
@@ -97,13 +99,17 @@ class RecordArrayManager {
     this._staged = new Map();
     this._keyedArrays = new Map();
     this._identifiers = new Map();
+    this._set = new Map();
+    this._visibilitySet = new Map();
 
     this._subscription = this.store.notifications.subscribe(
       'resource',
       (identifier: StableRecordIdentifier, type: CacheOperation) => {
         if (type === 'added') {
+          this._visibilitySet.set(identifier, true);
           this.identifierAdded(identifier);
         } else if (type === 'removed') {
+          this._visibilitySet.set(identifier, false);
           this.identifierRemoved(identifier);
         } else if (type === 'state') {
           this.identifierChanged(identifier);
@@ -119,7 +125,7 @@ class RecordArrayManager {
       return;
     }
 
-    sync(array, pending);
+    sync(array, pending, this._set.get(array)!);
     this._pending.delete(array);
   }
 
@@ -154,6 +160,7 @@ class RecordArrayManager {
         manager: this,
       });
       this._live.set(type, array);
+      this._set.set(array, new Set(identifiers));
     }
 
     return array;
@@ -178,6 +185,7 @@ class RecordArrayManager {
     };
     let array = new Collection(options);
     this._managed.add(array);
+    this._set.set(array, new Set(options.identifiers || []));
     if (config.identifiers) {
       associate(this._identifiers, array, config.identifiers);
     }
@@ -261,6 +269,7 @@ class RecordArrayManager {
     const old = source.slice();
     source.length = 0;
     fastPush(source, identifiers);
+    this._set.set(array, new Set(identifiers));
 
     notifyArray(array);
     array.meta = payload.meta || null;
@@ -306,6 +315,12 @@ class RecordArrayManager {
   identifierChanged(identifier: StableRecordIdentifier): void {
     let newState = this.store._instanceCache.recordIsLoaded(identifier, true);
 
+    // if the change matches the most recent direct added/removed
+    // state, then we can ignore it
+    if (this._visibilitySet.get(identifier) === newState) {
+      return;
+    }
+
     if (newState) {
       this.identifierAdded(identifier);
     } else {
@@ -313,16 +328,19 @@ class RecordArrayManager {
     }
   }
 
-  clear() {
-    this._live.forEach((array) => array.destroy());
-    this._managed.forEach((array) => array.destroy());
+  clear(isClear = true) {
+    this._live.forEach((array) => array.destroy(isClear));
+    this._managed.forEach((array) => array.destroy(isClear));
     this._managed.clear();
     this._identifiers.clear();
+    this._pending.clear();
+    this._set.forEach((set) => set.clear());
+    this._visibilitySet.clear();
   }
 
   destroy() {
     this.isDestroying = true;
-    this.clear();
+    this.clear(false);
     this._live.clear();
     this.isDestroyed = true;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -367,19 +385,24 @@ export function disassociateIdentifier(
   }
 }
 
-function sync(array: IdentifierArray, changes: Map<StableRecordIdentifier, 'add' | 'del'>) {
+function sync(
+  array: IdentifierArray,
+  changes: Map<StableRecordIdentifier, 'add' | 'del'>,
+  arraySet: Set<StableRecordIdentifier>
+) {
   let state = array[SOURCE];
   const adds: StableRecordIdentifier[] = [];
   const removes: StableRecordIdentifier[] = [];
   changes.forEach((value, key) => {
     if (value === 'add') {
       // likely we want to keep a Set along-side
-      if (state.includes(key)) {
+      if (arraySet.has(key)) {
         return;
       }
       adds.push(key);
+      arraySet.add(key);
     } else {
-      if (state.includes(key)) {
+      if (arraySet.has(key)) {
         removes.push(key);
       }
     }
@@ -387,6 +410,7 @@ function sync(array: IdentifierArray, changes: Map<StableRecordIdentifier, 'add'
   if (removes.length) {
     if (removes.length === state.length) {
       state.length = 0;
+      arraySet.clear();
       // changing the reference breaks the Proxy
       // state = array[SOURCE] = [];
     } else {
@@ -394,6 +418,7 @@ function sync(array: IdentifierArray, changes: Map<StableRecordIdentifier, 'add'
         const index = state.indexOf(i);
         if (index !== -1) {
           state.splice(index, 1);
+          arraySet.delete(i);
         }
       });
     }
