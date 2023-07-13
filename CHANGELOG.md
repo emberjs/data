@@ -1,5 +1,18 @@
 # Ember Data Changelog
 
+## v4.12.3 (2023-07-13)
+
+#### :bug: Bug Fix
+  * [#8708](https://github.com/emberjs/data/pull/8708) fix: catch errors during didCommit in DEBUG ([@runspired](https://github.com/runspired))
+    * also fix: unloadAll(void) sets RecordArray to isDestroyed #8707
+    * also fix: peekAll state can be incorrect if unloadRecord occurs immediately after successful save #8709
+  * [#8704](https://github.com/emberjs/data/pull/8704) fix: de-dupe coalescing when includes or adapterOptions is present but still use findRecord ([@runspired](https://github.com/runspired))
+  * [#8705](https://github.com/emberjs/data/pull/8705) fix: make implicit relationship teardown following delete of related record safe ([@runspired](https://github.com/runspired))
+  * [#8703](https://github.com/emberjs/data/pull/8703) fix: @ember-data/debug should declare its peer-dependency on @ember-data/store ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## 4.12.2 (2023-07-07)
 
 #### :rocket: Enhancement
