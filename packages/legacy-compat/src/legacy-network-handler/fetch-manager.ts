@@ -46,7 +46,7 @@ interface PendingFetchItem {
   resolver: Deferred<any>;
   options: FindOptions;
   trace?: unknown;
-  promise: Promise<StableRecordIdentifier>;
+  promise: Promise<StableExistingRecordIdentifier>;
 }
 
 interface PendingSaveItem {
@@ -62,7 +62,7 @@ export default class FetchManager {
   declare isDestroyed: boolean;
   declare requestCache: RequestStateService;
   // fetches pending in the runloop, waiting to be coalesced
-  declare _pendingFetch: Map<string, PendingFetchItem[]>;
+  declare _pendingFetch: Map<string, Map<StableExistingRecordIdentifier, PendingFetchItem[]>>;
   declare _store: Store;
 
   constructor(store: Store) {
@@ -116,7 +116,7 @@ export default class FetchManager {
     identifier: StableExistingRecordIdentifier,
     options: FindOptions,
     request: StoreRequestInfo
-  ): Promise<StableRecordIdentifier> {
+  ): Promise<StableExistingRecordIdentifier> {
     let query: FindRecordQuery = {
       op: 'findRecord',
       recordIdentifier: identifier,
@@ -197,13 +197,21 @@ export default class FetchManager {
       });
     }
 
-    let fetches = this._pendingFetch;
+    let fetchesByType = this._pendingFetch;
+    let fetchesById = fetchesByType.get(modelName);
 
-    if (!fetches.has(modelName)) {
-      fetches.set(modelName, []);
+    if (!fetchesById) {
+      fetchesById = new Map();
+      fetchesByType.set(modelName, fetchesById);
     }
 
-    (fetches.get(modelName) as PendingFetchItem[]).push(pendingFetchItem);
+    let requestsForIdentifier = fetchesById.get(identifier);
+    if (!requestsForIdentifier) {
+      requestsForIdentifier = [];
+      fetchesById.set(identifier, requestsForIdentifier);
+    }
+
+    requestsForIdentifier.push(pendingFetchItem);
 
     if (TESTING) {
       if (!request.disableTestWaiter) {
@@ -218,14 +226,12 @@ export default class FetchManager {
     return promise;
   }
 
-  getPendingFetch(identifier: StableRecordIdentifier, options: FindOptions) {
-    let pendingFetches = this._pendingFetch.get(identifier.type);
+  getPendingFetch(identifier: StableExistingRecordIdentifier, options: FindOptions) {
+    let pendingFetches = this._pendingFetch.get(identifier.type)?.get(identifier);
 
     // We already have a pending fetch for this
     if (pendingFetches) {
-      let matchingPendingFetch = pendingFetches.find(
-        (fetch) => fetch.identifier === identifier && isSameRequest(options, fetch.options)
-      );
+      let matchingPendingFetch = pendingFetches.find((fetch) => isSameRequest(options, fetch.options));
       if (matchingPendingFetch) {
         return matchingPendingFetch.promise;
       }
@@ -243,15 +249,15 @@ export default class FetchManager {
   }
 
   fetchDataIfNeededForIdentifier(
-    identifier: StableRecordIdentifier,
+    identifier: StableExistingRecordIdentifier,
     options: FindOptions = {},
     request: StoreRequestInfo
-  ): Promise<StableRecordIdentifier> {
+  ): Promise<StableExistingRecordIdentifier> {
     // pre-loading will change the isEmpty value
     const isEmpty = _isEmpty(this._store._instanceCache, identifier);
     const isLoading = _isLoading(this._store._instanceCache, identifier);
 
-    let promise: Promise<StableRecordIdentifier>;
+    let promise: Promise<StableExistingRecordIdentifier>;
     if (isEmpty) {
       assertIdentifierHasId(identifier);
 
@@ -302,12 +308,47 @@ function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): b
   );
 }
 
+function includesSatisfies(current: undefined | string | string[], existing: undefined | string | string[]): boolean {
+  // if we have no includes we are good
+  if (!current?.length) {
+    return true;
+  }
+
+  // if we are here we have includes,
+  // and if existing has no includes then we will need a new request
+  if (!existing?.length) {
+    return false;
+  }
+
+  const arrCurrent = (Array.isArray(current) ? current : current.split(',')).sort();
+  const arrExisting = (Array.isArray(existing) ? existing : existing.split(',')).sort();
+
+  // includes are identical
+  if (arrCurrent.join(',') === arrExisting.join(',')) {
+    return true;
+  }
+
+  // if all of current includes are in existing includes then we are good
+  // so if we find one that is not in existing then we need a new request
+  for (let i = 0; i < arrCurrent.length; i++) {
+    if (!arrExisting.includes(arrCurrent[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function optionsSatisfies(current: object | undefined, existing: object | undefined): boolean {
+  return !current || current === existing || Object.keys(current).length === 0;
+}
+
 // this function helps resolve whether we have a pending request that we should use instead
 function isSameRequest(options: FindOptions = {}, existingOptions: FindOptions = {}) {
-  let includedMatches = !options.include || options.include === existingOptions.include;
-  let adapterOptionsMatches = options.adapterOptions === existingOptions.adapterOptions;
-
-  return includedMatches && adapterOptionsMatches;
+  return (
+    optionsSatisfies(options.adapterOptions, existingOptions.adapterOptions) &&
+    includesSatisfies(options.include, existingOptions.include)
+  );
 }
 
 function _findMany(
@@ -507,46 +548,57 @@ function _processCoalescedGroup(
   }
 }
 
-function _flushPendingFetchForType(store: Store, pendingFetchItems: PendingFetchItem[], modelName: string) {
+function _flushPendingFetchForType(
+  store: Store,
+  pendingFetchMap: Map<StableExistingRecordIdentifier, PendingFetchItem[]>,
+  modelName: string
+) {
   let adapter = store.adapterFor(modelName);
   let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-  let totalItems = pendingFetchItems.length;
 
   if (shouldCoalesce) {
-    let nonGroupableItems: PendingFetchItem[] = [];
-    let snapshots = new Array<Snapshot>(totalItems);
-    let fetchMap = new Map<Snapshot, PendingFetchItem>();
-    for (let i = 0; i < totalItems; i++) {
-      let fetchItem = pendingFetchItems[i];
-      if (fetchItem.options?.include?.length) {
-        nonGroupableItems.push(fetchItem);
-        continue;
+    const pendingFetchItems: PendingFetchItem[] = [];
+    pendingFetchMap.forEach((requestsForIdentifier, identifier) => {
+      if (requestsForIdentifier.length > 1) {
+        return;
       }
-      if (fetchItem.options?.adapterOptions && Object.keys(fetchItem.options.adapterOptions).length > 0) {
-        nonGroupableItems.push(fetchItem);
-        continue;
+
+      // remove this entry from the map so it's not processed again
+      pendingFetchMap.delete(identifier);
+      pendingFetchItems.push(requestsForIdentifier[0]);
+    });
+
+    let totalItems = pendingFetchItems.length;
+
+    if (totalItems > 1) {
+      let snapshots = new Array<Snapshot>(totalItems);
+      let fetchMap = new Map<Snapshot, PendingFetchItem>();
+      for (let i = 0; i < totalItems; i++) {
+        let fetchItem = pendingFetchItems[i];
+        snapshots[i] = store._fetchManager.createSnapshot(fetchItem.identifier, fetchItem.options);
+        fetchMap.set(snapshots[i], fetchItem);
       }
-      snapshots[i] = store._fetchManager.createSnapshot(fetchItem.identifier, fetchItem.options);
-      fetchMap.set(snapshots[i], fetchItem);
-    }
 
-    let groups: Snapshot[][];
-    if (adapter.groupRecordsForFindMany) {
-      groups = adapter.groupRecordsForFindMany(store, snapshots);
-    } else {
-      groups = [snapshots];
-    }
+      let groups: Snapshot[][];
+      if (adapter.groupRecordsForFindMany) {
+        groups = adapter.groupRecordsForFindMany(store, snapshots);
+      } else {
+        groups = [snapshots];
+      }
 
-    for (let i = 0, l = groups.length; i < l; i++) {
-      _processCoalescedGroup(store, fetchMap, groups[i], adapter, modelName);
+      for (let i = 0, l = groups.length; i < l; i++) {
+        _processCoalescedGroup(store, fetchMap, groups[i], adapter, modelName);
+      }
+    } else if (totalItems === 1) {
+      void _fetchRecord(store, adapter, pendingFetchItems[0]);
     }
-    totalItems = nonGroupableItems.length;
-    pendingFetchItems = nonGroupableItems;
   }
 
-  for (let i = 0; i < totalItems; i++) {
-    void _fetchRecord(store, adapter, pendingFetchItems[i]);
-  }
+  pendingFetchMap.forEach((pendingFetchItems) => {
+    pendingFetchItems.forEach((pendingFetchItem) => {
+      void _fetchRecord(store, adapter, pendingFetchItem);
+    });
+  });
 }
 
 function _flushPendingSave(store: Store, pending: PendingSaveItem) {
