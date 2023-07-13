@@ -343,6 +343,10 @@ export default class RelatedCollection extends RecordArray {
 
     return record;
   }
+
+  destroy() {
+    super.destroy(false);
+  }
 }
 RelatedCollection.prototype.isAsync = false;
 RelatedCollection.prototype.isPolymorphic = false;

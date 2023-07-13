@@ -79,26 +79,26 @@ module('integration/record_array_manager', function (hooks) {
     let adapterPopulated = manager.createArray({ type: 'person', query });
     let identifier = recordIdentifierFor(person);
 
-    assert.false(all.isDestroyed, 'initial: no calls to all.willDestroy');
-    assert.false(adapterPopulated.isDestroyed, 'initial: no calls to adapterPopulated.willDestroy');
+    assert.false(all.isDestroyed, 'initial: LiveArray is not destroyed');
+    assert.false(adapterPopulated.isDestroyed, 'initial: Collection is not destroyed');
     assert.strictEqual(
       manager._identifiers.get(identifier)?.size,
       undefined,
-      'initial: expected the person to be a member of 0 AdapterPopulatedRecordArrays'
+      'initial: expected the person to be a member of 0 Collections'
     );
     assert.true(manager._live.has('person'), 'initial: we have a live array for person');
 
     manager.destroy();
     await settled();
 
-    assert.true(all.isDestroyed, 'all.willDestroy called once');
+    assert.true(all.isDestroyed, 'LiveArray is destroyed');
     assert.false(manager._live.has('person'), 'no longer have a live array for person');
     assert.strictEqual(
       manager._identifiers.get(identifier)?.size,
       undefined,
       'expected the person to be a member of no recordArrays'
     );
-    assert.true(adapterPopulated.isDestroyed, 'adapterPopulated.willDestroy called once');
+    assert.true(adapterPopulated.isDestroyed, 'Collection is destroyed');
   });
 
   test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', async function (assert) {

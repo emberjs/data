@@ -201,6 +201,10 @@ export class Graph {
   isReleasable(identifier: StableRecordIdentifier): boolean {
     const relationships = this.identifiers.get(identifier);
     if (!relationships) {
+      if (LOG_GRAPH) {
+        // eslint-disable-next-line no-console
+        console.log(`graph: RELEASABLE ${String(identifier)}`);
+      }
       return true;
     }
     const keys = Object.keys(relationships);
@@ -213,8 +217,16 @@ export class Graph {
       }
       assert(`Expected a relationship`, relationship);
       if (relationship.definition.inverseIsAsync) {
+        if (LOG_GRAPH) {
+          // eslint-disable-next-line no-console
+          console.log(`graph: <<NOT>> RELEASABLE ${String(identifier)}`);
+        }
         return false;
       }
+    }
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`graph: RELEASABLE ${String(identifier)}`);
     }
     return true;
   }
