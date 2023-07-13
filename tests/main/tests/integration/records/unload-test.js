@@ -689,6 +689,36 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
   }
 
+  test('unloadAll(<void>) does not destroy the record array', function (assert) {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Could be Anybody',
+        },
+      },
+    });
+    const all = store.peekAll('person');
+    assert.strictEqual(all.length, 1, 'precond - record array has one item');
+    store.unloadAll();
+    assert.strictEqual(all.length, 0, 'after unloadAll: record array has no items');
+    assert.false(all.isDestroyed, 'after unloadAll: record array is not destroyed');
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Could be Anybody',
+        },
+      },
+    });
+    const all2 = store.peekAll('person');
+    assert.strictEqual(all2.length, 1, 'after next push: record array has one item');
+    // eslint-disable-next-line qunit/no-ok-equality
+    assert.true(all === all2, 'after next push: record array is the same');
+  });
+
   test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', async function (assert) {
     assert.expect(13);
 

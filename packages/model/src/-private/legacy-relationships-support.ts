@@ -663,6 +663,7 @@ function handleCompletedRelationshipRequest(
   if (isHasMany) {
     // we don't notify the record property here to avoid refetch
     // only the many array
+    console.log('notify from handleCompletedRelationshipRequest');
     (value as RelatedCollection).notify();
   }
 
