@@ -16,7 +16,6 @@ export default {
     '@embroider/macros',
     '@glimmer/tracking',
 
-    '@ember-data/legacy-compat/-private',
     '@ember-data/tracking/-private',
     '@ember-data/private-build-infra/current-deprecations',
     '@ember/-internals/glimmer',

@@ -5,10 +5,11 @@ import ObjectProxy from '@ember/object/proxy';
 
 import JSONAPICache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
+import { FetchManager } from '@ember-data/legacy-compat/-private';
 import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model/hooks';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
-import BaseStore, { CacheHandler } from '@ember-data/store';
+import BaseStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import { Cache } from '@ember-data/types/cache/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel, ModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
@@ -16,6 +17,8 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 export class Store extends BaseStore {
+  declare _fetchManager: FetchManager;
+
   constructor(args: Record<string, unknown>) {
     super(args);
     this.requestManager = new RequestManager();
@@ -42,6 +45,16 @@ export class Store extends BaseStore {
 
   modelFor(type: string): ModelSchema {
     return modelFor.call(this, type) || super.modelFor(type);
+  }
+
+  // TODO @runspired @deprecate records should implement their own serialization if desired
+  serializeRecord(record: RecordInstance, options?: Record<string, unknown>): unknown {
+    // TODO we used to check if the record was destroyed here
+    if (!this._fetchManager) {
+      this._fetchManager = new FetchManager(this);
+    }
+
+    return this._fetchManager.createSnapshot(recordIdentifierFor(record)).serialize(options);
   }
 }
 

@@ -10,8 +10,7 @@ import { importSync } from '@embroider/macros';
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
-import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
-import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE } from '@ember-data/packages';
+import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
@@ -204,7 +203,6 @@ class Store extends EmberObject {
   // Private
   declare _adapterCache: Record<string, MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Record<string, MinimumSerializerInterface & { store: Store }>;
-  declare _fetchManager: FetchManager;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
   declare _documentCache: Map<StableDocumentIdentifier, Document<RecordInstance | RecordInstance[] | null | undefined>>;
@@ -2110,23 +2108,6 @@ class Store extends EmberObject {
       serializer.pushPayload
     );
     serializer.pushPayload(this, payload);
-  }
-
-  // TODO @runspired @deprecate records should implement their own serialization if desired
-  serializeRecord(record: RecordInstance, options?: Record<string, unknown>): unknown {
-    // TODO we used to check if the record was destroyed here
-    if (HAS_COMPAT_PACKAGE) {
-      if (!this._fetchManager) {
-        const FetchManager = (
-          importSync('@ember-data/legacy-compat/-private') as typeof import('@ember-data/legacy-compat/-private')
-        ).FetchManager;
-        this._fetchManager = new FetchManager(this);
-      }
-
-      return this._fetchManager.createSnapshot(recordIdentifierFor(record)).serialize(options);
-    }
-
-    assert(`Store.serializeRecord is only available when utilizing @ember-data/legacy-compat for legacy compatibility`);
   }
 
   /**
