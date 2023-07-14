@@ -11,7 +11,7 @@ import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import { Cache } from '@ember-data/types/cache/cache';
+import type { Cache } from '@ember-data/types/cache/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel, ModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
