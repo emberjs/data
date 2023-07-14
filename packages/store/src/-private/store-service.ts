@@ -9,6 +9,7 @@ import { _backburner as emberBackburner } from '@ember/runloop';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
+import type { FetchManager } from '@ember-data/legacy-compat/-private';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
@@ -126,7 +127,6 @@ class Store extends EmberObject {
     return this.getSchemaDefinitionService();
   }
   declare _schema: SchemaService;
-  declare _graph?: Graph;
 
   /**
    * Provides access to the IdentifierCache instance
@@ -200,6 +200,8 @@ class Store extends EmberObject {
   declare lifetimes?: LifetimesService;
 
   // Private
+  declare _graph?: Graph;
+  declare _fetchManager: FetchManager;
   declare _adapterCache: Record<string, MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Record<string, MinimumSerializerInterface & { store: Store }>;
   declare _requestCache: RequestStateService;

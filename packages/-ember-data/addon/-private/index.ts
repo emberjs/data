@@ -18,8 +18,6 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 export class Store extends BaseStore {
-  declare _fetchManager: FetchManager;
-
   constructor(args: Record<string, unknown>) {
     super(args);
     this.requestManager = new RequestManager();
