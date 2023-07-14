@@ -13,7 +13,7 @@ import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaService } from '@ember-data/types/q/schema-service';
 
-module('unit/model - Custom Class Model', function (hooks) {
+module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   let store: Store;
   class Person {
     constructor(public store: Store) {
@@ -29,7 +29,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   class CustomStore extends Store {
     constructor(args: Record<string, unknown>) {
       super(args);
-      this.registerSchemaDefinitionService({
+      this.registerSchema({
         attributesDefinitionFor() {
           let schema: AttributesSchema = {};
           schema.name = {
@@ -56,7 +56,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',

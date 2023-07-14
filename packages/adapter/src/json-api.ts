@@ -8,7 +8,7 @@ import { pluralize } from 'ember-inflector';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 
 import { serializeIntoHash } from './-private';
@@ -251,7 +251,7 @@ class JSONAPIAdapter extends RESTAdapter {
     this._coalesceFindRequests = value;
   }
 
-  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
+  findMany(store: Store, type: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
@@ -261,7 +261,7 @@ class JSONAPIAdapter extends RESTAdapter {
     return pluralize(dasherized);
   }
 
-  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     const data = serializeIntoHash(store, schema, snapshot);
     const type = snapshot.modelName;
     const id = snapshot.id;

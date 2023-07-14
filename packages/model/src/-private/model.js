@@ -917,6 +917,7 @@ class Model extends EmberObject {
     if (this.currentState.isNew && this.currentState.isDeleted) {
       promise = Promise.resolve(this);
     } else {
+      this.errors.clear();
       promise = storeFor(this).saveRecord(this, options);
     }
 

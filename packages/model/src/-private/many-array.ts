@@ -12,10 +12,10 @@ import {
   recordIdentifierFor,
   SOURCE,
 } from '@ember-data/store/-private';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import type { Cache } from '@ember-data/types/q/cache';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -152,7 +152,7 @@ export default class RelatedCollection extends RecordArray {
   declare _manager: LegacySupport;
   declare store: Store;
   declare key: string;
-  declare type: ShimModelClass;
+  declare type: ModelSchema;
 
   constructor(options: ManyArrayCreateArgs) {
     super(options as unknown as IdentifierArrayCreateOptions);

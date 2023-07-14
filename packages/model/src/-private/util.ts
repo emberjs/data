@@ -1,3 +1,5 @@
+import { dasherize } from '@ember/string';
+
 export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: any }) | undefined;
 
 export function isElementDescriptor(args: any[]): args is [object, string, DecoratorPropertyDescriptor] {
@@ -22,4 +24,8 @@ export function isElementDescriptor(args: any[]): args is [object, string, Decor
 
 export function computedMacroWithOptionalParams(fn) {
   return (...maybeDesc: any[]) => (isElementDescriptor(maybeDesc) ? fn()(...maybeDesc) : fn(...maybeDesc));
+}
+
+export function normalizeModelName(modelName: string): string {
+  return dasherize(modelName);
 }

@@ -1,14 +1,8 @@
 import { assert, warn } from '@ember/debug';
 
-import { importSync } from '@embroider/macros';
-
 import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import type { Graph } from '@ember-data/graph/-private/graph/graph';
-import type { peekGraph } from '@ember-data/graph/-private/graph/index';
-import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import type { Cache } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   ExistingResourceIdentifierObject,
   NewResourceIdentifierObject,
@@ -24,16 +18,6 @@ import { CacheStoreWrapper } from '../managers/cache-store-wrapper';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
-
-let _peekGraph: peekGraph;
-if (HAS_GRAPH_PACKAGE) {
-  let __peekGraph: peekGraph;
-  _peekGraph = (wrapper: Store | StoreWrapper): Graph | undefined => {
-    let a = (importSync('@ember-data/graph/-private') as { peekGraph: peekGraph }).peekGraph;
-    __peekGraph = __peekGraph || a;
-    return __peekGraph(wrapper);
-  };
-}
 
 /**
   @module @ember-data/store
@@ -170,11 +154,8 @@ export class InstanceCache {
 
         /*
       TODO @runspired consider adding this to make polymorphism even nicer
-      if (HAS_GRAPH_PACKAGE) {
-        if (identifier.type !== matchedIdentifier.type) {
-          const graphFor = importSync('@ember-data/graph/-private').graphFor;
-          graphFor(this).registerPolymorphicType(identifier.type, matchedIdentifier.type);
-        }
+      if (identifier.type !== matchedIdentifier.type) {
+        this.store._graph?.registerPolymorphicType(identifier.type, matchedIdentifier.type);
       }
       */
 
@@ -254,12 +235,7 @@ export class InstanceCache {
       !record || record.isDestroyed || record.isDestroying
     );
 
-    if (HAS_GRAPH_PACKAGE) {
-      let graph = _peekGraph(this.store);
-      if (graph) {
-        graph.remove(identifier);
-      }
-    }
+    this.store._graph?.remove(identifier);
 
     this.store.identifierCache.forgetRecordIdentifier(identifier);
     removeRecordDataFor(identifier);

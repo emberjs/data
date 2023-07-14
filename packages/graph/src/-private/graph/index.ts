@@ -34,13 +34,12 @@ export function graphFor(store: CacheStoreWrapper | Store): Graph {
   if (!graph) {
     graph = new Graph(wrapper);
     Graphs.set(wrapper, graph);
+    getStore(wrapper)._graph = graph;
 
-    // in DEBUG we attach the graph to the main store for improved debuggability
     if (DEBUG) {
       if (getStore(wrapper).isDestroying) {
         throw new Error(`Memory Leak Detected During Teardown`);
       }
-      Graphs.set(getStore(wrapper) as unknown as CacheStoreWrapper, graph);
     }
   }
   return graph;
