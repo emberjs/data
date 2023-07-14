@@ -3,12 +3,13 @@ import ArrayProxy from '@ember/array/proxy';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ObjectProxy from '@ember/object/proxy';
 
-import Cache from '@ember-data/json-api';
+import JSONAPICache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model/hooks';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
+import { Cache } from '@ember-data/types/cache/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel, ModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -23,8 +24,8 @@ export class Store extends BaseStore {
     this.registerSchema(buildSchema(this));
   }
 
-  createCache(storeWrapper: CacheStoreWrapper) {
-    return new Cache(storeWrapper);
+  createCache(storeWrapper: CacheStoreWrapper): Cache {
+    return new JSONAPICache(storeWrapper);
   }
 
   instantiateRecord(
