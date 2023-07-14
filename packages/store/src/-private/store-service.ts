@@ -2360,6 +2360,7 @@ class Store extends EmberObject {
     }
 
     this._graph?.destroy();
+    this._graph = undefined;
 
     this.notifications.destroy();
     this.recordArrayManager.destroy();
