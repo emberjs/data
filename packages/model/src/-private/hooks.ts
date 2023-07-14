@@ -6,7 +6,7 @@ import type { Cache } from '@ember-data/types/cache/cache';
 import type { DSModel, DSModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import { getModelFactory } from './schema-definition-service';
+import { getModelFactory } from './schema-provider';
 import { normalizeModelName } from './util';
 
 export function instantiateRecord(

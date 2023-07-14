@@ -7,7 +7,7 @@ import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/
 import _modelForMixin from './model-for-mixin';
 import { normalizeModelName } from './util';
 
-export class ModelSchemaDefinitionService {
+export class ModelSchemaProvider {
   declare store: ModelStore;
   declare _relationshipsDefCache: Record<string, RelationshipsSchema>;
   declare _attributesDefCache: Record<string, AttributesSchema>;
@@ -59,6 +59,10 @@ export class ModelSchemaDefinitionService {
 
     return factory !== null;
   }
+}
+
+export function buildSchema(store: ModelStore) {
+  return new ModelSchemaProvider(store);
 }
 
 export function getModelFactory(store: ModelStore, cache: FactoryCache, type: string): ModelFactory | null {
