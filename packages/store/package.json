@@ -35,15 +35,9 @@
     "ember-data-logo-light.svg"
   ],
   "peerDependencies": {
-    "@ember-data/graph": "workspace:5.3.0-alpha.4",
     "@ember-data/tracking": "workspace:5.3.0-alpha.4",
     "@ember/string": "^3.1.1",
     "@glimmer/tracking": "^1.1.2"
-  },
-  "peerDependenciesMeta": {
-    "@ember-data/graph": {
-      "optional": true
-    }
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {

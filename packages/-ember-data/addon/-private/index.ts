@@ -3,6 +3,7 @@ import ArrayProxy from '@ember/array/proxy';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ObjectProxy from '@ember/object/proxy';
 
+import { graphFor } from '@ember-data/graph/-private';
 import JSONAPICache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import { FetchManager } from '@ember-data/legacy-compat/-private';
@@ -25,6 +26,7 @@ export class Store extends BaseStore {
     this.requestManager.use([LegacyNetworkHandler, Fetch]);
     this.requestManager.useCache(CacheHandler);
     this.registerSchema(buildSchema(this));
+    this._graph = graphFor(this);
   }
 
   createCache(storeWrapper: CacheStoreWrapper): Cache {

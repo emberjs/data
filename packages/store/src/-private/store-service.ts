@@ -6,11 +6,9 @@ import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
-import { importSync } from '@embroider/macros';
-
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
-import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
+import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
@@ -128,6 +126,7 @@ class Store extends EmberObject {
     return this.getSchemaDefinitionService();
   }
   declare _schema: SchemaService;
+  declare _graph?: Graph;
 
   /**
    * Provides access to the IdentifierCache instance
@@ -1795,14 +1794,7 @@ class Store extends EmberObject {
         // destroy the graph before unloadAll
         // since then we avoid churning relationships
         // during unload
-        if (HAS_GRAPH_PACKAGE) {
-          const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-            .peekGraph;
-          const graph = peekGraph(this);
-          if (graph) {
-            graph.identifiers.clear();
-          }
-        }
+        this._graph?.identifiers.clear();
 
         this.recordArrayManager.clear();
         this._instanceCache.clear();
@@ -2365,14 +2357,7 @@ class Store extends EmberObject {
       }
     }
 
-    if (HAS_GRAPH_PACKAGE) {
-      const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-        .peekGraph;
-      let graph = peekGraph(this);
-      if (graph) {
-        graph.destroy();
-      }
-    }
+    this._graph?.destroy();
 
     this.notifications.destroy();
     this.recordArrayManager.destroy();
