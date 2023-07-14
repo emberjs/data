@@ -11,13 +11,13 @@ import { importSync } from '@embroider/macros';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
-import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
+import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type { DSModel, DSModelSchema } from '@ember-data/types/q/ds-model';
+import { ModelSchema } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
@@ -50,7 +50,6 @@ import {
 } from './caches/instance-cache';
 import { Document } from './document';
 import type RecordReference from './legacy-model-support/record-reference';
-import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import { CacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
@@ -586,11 +585,11 @@ class Store extends EmberObject {
     @method modelFor
     @public
     @param {String} type
-    @return {subclass of Model | ShimModelClass}
+    @return {ModelSchema}
     */
   // TODO @deprecate in favor of schema APIs, requires adapter/serializer overhaul or replacement
 
-  modelFor(type: string): ShimModelClass | DSModelSchema {
+  modelFor(type: string): ModelSchema {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
@@ -2161,10 +2160,6 @@ class Store extends EmberObject {
       return Promise.resolve(record);
     }
 
-    if (isDSModel(record)) {
-      record.errors.clear();
-    }
-
     if (!options) {
       options = {};
     }
@@ -2440,13 +2435,6 @@ function isMaybeIdentifier(
       (('id' in maybeIdentifier && 'type' in maybeIdentifier && maybeIdentifier.id && maybeIdentifier.type) ||
         maybeIdentifier.lid)
   );
-}
-
-function isDSModel(record: RecordInstance | null): record is DSModel {
-  if (!HAS_MODEL_PACKAGE) {
-    return false;
-  }
-  return !!record && 'constructor' in record && 'isModel' in record.constructor && record.constructor.isModel === true;
 }
 
 function normalizeProperties(

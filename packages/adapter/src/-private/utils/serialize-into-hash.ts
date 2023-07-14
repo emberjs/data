@@ -3,17 +3,16 @@ import { assert } from '@ember/debug';
 import type { Snapshot } from 'ember-data/-private';
 
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type { DSModelSchema } from '@ember-data/types/q/ds-model';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 
 type SerializerWithSerializeIntoHash = MinimumSerializerInterface & {
-  serializeIntoHash?(hash: {}, modelClass: ShimModelClass, snapshot: Snapshot, options?: { includeId?: boolean }): void;
+  serializeIntoHash?(hash: {}, modelClass: ModelSchema, snapshot: Snapshot, options?: { includeId?: boolean }): void;
 };
 
 export default function serializeIntoHash(
   store: Store,
-  modelClass: ShimModelClass | DSModelSchema,
+  modelClass: ModelSchema,
   snapshot: Snapshot,
   options: { includeId?: boolean } = { includeId: true }
 ) {

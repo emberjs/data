@@ -10,8 +10,8 @@ import type Store from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
 import type {
@@ -30,7 +30,7 @@ import Snapshot from './snapshot';
 
 type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
-  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): unknown;
+  extractErrors?(store: Store, modelClass: ModelSchema, error: AdapterErrors, recordId: string | null): unknown;
 };
 
 export const SaveOp: unique symbol = Symbol('SaveOp');

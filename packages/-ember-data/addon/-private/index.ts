@@ -9,9 +9,8 @@ import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type { DSModel, DSModelSchema, ModelFactory, ModelStore } from '@ember-data/types/q/ds-model';
+import type { DSModel, ModelFactory, ModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
@@ -42,7 +41,7 @@ export class Store extends BaseStore {
     teardownRecord.call(this, record as DSModel);
   }
 
-  modelFor(type: string): ShimModelClass | DSModelSchema {
+  modelFor(type: string): ModelSchema {
     return modelFor.call(this, type) || super.modelFor(type);
   }
 }
