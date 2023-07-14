@@ -37,4 +37,4 @@
   @module @ember-data/model
   @main @ember-data/model
  */
-export { Model as default, attr, belongsTo, hasMany } from './-private';
+export { Model as default, attr, belongsTo, hasMany, instantiateRecord, teardownRecord } from './-private';

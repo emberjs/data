@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
  */
-import { getOwner, setOwner } from '@ember/application';
+import { getOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
@@ -10,16 +10,14 @@ import { importSync } from '@embroider/macros';
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
-import type CacheClass from '@ember-data/json-api';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
-import type DSModelClass from '@ember-data/model';
-import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
+import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type { DSModel } from '@ember-data/types/q/ds-model';
+import type { DSModel, DSModelSchema } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
@@ -41,7 +39,6 @@ import {
   StoreRequestContext,
   type StoreRequestInput,
 } from './cache-handler';
-import { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -49,13 +46,10 @@ import {
   preloadData,
   recordIdentifierFor,
   resourceIsFullyDeleted,
-  setRecordIdentifier,
   storeFor,
-  StoreMap,
 } from './caches/instance-cache';
 import { Document } from './document';
-import RecordReference from './legacy-model-support/record-reference';
-import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
+import type RecordReference from './legacy-model-support/record-reference';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import { CacheManager } from './managers/cache-manager';
@@ -68,10 +62,6 @@ import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
 
 export { storeFor };
-
-// hello world
-type CacheConstruct = typeof CacheClass;
-let _Cache: CacheConstruct | undefined;
 
 export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -103,6 +93,12 @@ export interface CreateRecordProperties {
 // @ts-expect-error
 interface Store {
   createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache | CacheV1;
+
+  createCache(storeWrapper: CacheStoreWrapper): Cache;
+
+  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): RecordInstance;
+
+  teardownRecord(record: RecordInstance): void;
 }
 
 class Store extends EmberObject {
@@ -209,7 +205,6 @@ class Store extends EmberObject {
   // Private
   declare _adapterCache: Record<string, MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Record<string, MinimumSerializerInterface & { store: Store }>;
-  declare _modelFactoryCache: Record<string, unknown>;
   declare _fetchManager: FetchManager;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
@@ -260,7 +255,6 @@ class Store extends EmberObject {
     this._instanceCache = new InstanceCache(this);
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
-    this._modelFactoryCache = Object.create(null);
     this._documentCache = new Map();
 
     this.isDestroying = false;
@@ -433,32 +427,6 @@ class Store extends EmberObject {
    * @returns A record instance
    * @public
    */
-  instantiateRecord(
-    identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown }
-  ): DSModel | RecordInstance {
-    if (HAS_MODEL_PACKAGE) {
-      let modelName = identifier.type;
-
-      const cache = this.cache;
-      // TODO deprecate allowing unknown args setting
-      let createOptions: any = {
-        _createProps: createRecordArgs,
-        // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
-        _secretInit: {
-          identifier,
-          cache,
-          store: this,
-          cb: secretInit,
-        },
-      };
-
-      // ensure that `getOwner(this)` works inside a model instance
-      setOwner(createOptions, getOwner(this)!);
-      return getModelFactory(this, this._modelFactoryCache, modelName).class.create(createOptions);
-    }
-    assert(`You must implement the store's instantiateRecord hook for your custom model class.`);
-  }
 
   /**
    * A hook which an app or addon may implement. Called when
@@ -470,17 +438,6 @@ class Store extends EmberObject {
    * @public
    * @param record
    */
-  teardownRecord(record: DSModel | RecordInstance): void {
-    if (HAS_MODEL_PACKAGE) {
-      assert(
-        `expected to receive an instance of DSModel. If using a custom model make sure you implement teardownRecord`,
-        'destroy' in record
-      );
-      (record as DSModel).destroy();
-    } else {
-      assert(`You must implement the store's teardownRecord hook for your custom models`);
-    }
-  }
 
   /**
    * Provides access to the SchemaDefinitionService instance
@@ -493,13 +450,6 @@ class Store extends EmberObject {
    * @public
    */
   getSchemaDefinitionService(): SchemaService {
-    if (HAS_MODEL_PACKAGE) {
-      if (!this._schema) {
-        // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
-        // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
-        this._schema = new DSModelSchemaDefinitionService(this);
-      }
-    }
     assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
     return this._schema;
   }
@@ -635,44 +585,22 @@ class Store extends EmberObject {
 
     @method modelFor
     @public
-    @param {String} modelName
+    @param {String} type
     @return {subclass of Model | ShimModelClass}
     */
   // TODO @deprecate in favor of schema APIs, requires adapter/serializer overhaul or replacement
 
-  modelFor(modelName: string): ShimModelClass | DSModelClass {
+  modelFor(type: string): ShimModelClass | DSModelSchema {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
-    assert(`You need to pass a model name to the store's modelFor method`, modelName);
+    assert(`You need to pass <type> to the store's modelFor method`, typeof type === 'string' && type.length);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `No model was found for '${type}' and no schema handles the type`,
+      this.getSchemaDefinitionService().doesTypeExist(type)
     );
-    if (HAS_MODEL_PACKAGE) {
-      let normalizedModelName = normalizeModelName(modelName);
-      let maybeFactory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
-      // for factorFor factory/class split
-      let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
-      if (!klass || !klass.isModel || this._forceShim) {
-        assert(
-          `No model was found for '${modelName}' and no schema handles the type`,
-          this.getSchemaDefinitionService().doesTypeExist(modelName)
-        );
-
-        return getShimClass(this, modelName);
-      } else {
-        // TODO @deprecate ever returning the klass, always return the shim
-        return klass;
-      }
-    }
-
-    assert(
-      `No model was found for '${modelName}' and no schema handles the type`,
-      this.getSchemaDefinitionService().doesTypeExist(modelName)
-    );
-    return getShimClass(this, modelName);
+    return getShimClass(this, type);
   }
 
   /**
@@ -2275,17 +2203,6 @@ class Store extends EmberObject {
    * @param storeWrapper
    * @returns {Cache}
    */
-  createCache(storeWrapper: CacheStoreWrapper): Cache {
-    if (HAS_JSON_API_PACKAGE) {
-      if (_Cache === undefined) {
-        _Cache = (importSync('@ember-data/json-api') as typeof import('@ember-data/json-api')).default;
-      }
-
-      return new _Cache(storeWrapper);
-    }
-
-    assert(`Expected store.createCache to be implemented but it wasn't`);
-  }
 
   /**
    * Returns the cache instance associated to this Store, instantiates the Cache
@@ -2610,10 +2527,4 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   const extract = recordIdentifierFor;
 
   return extract(recordOrPromiseRecord);
-}
-
-function secretInit(record: RecordInstance, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {
-  setRecordIdentifier(record, identifier);
-  StoreMap.set(record, store);
-  setCacheFor(record, cache);
 }

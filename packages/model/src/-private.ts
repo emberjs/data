@@ -8,6 +8,8 @@ export { default as ManyArray } from './-private/many-array';
 export { default as PromiseBelongsTo } from './-private/promise-belongs-to';
 export { default as PromiseManyArray } from './-private/promise-many-array';
 export { default as _modelForMixin } from './-private/model-for-mixin';
+export { instantiateRecord, teardownRecord, modelFor } from './-private/hooks';
+export { ModelSchemaDefinitionService } from './-private/schema-definition-service';
 
 // // Used by tests
 export { LEGACY_SUPPORT } from './-private/model';

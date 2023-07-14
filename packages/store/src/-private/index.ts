@@ -34,3 +34,7 @@ export { default as RecordArrayManager, fastPush } from './managers/record-array
 // leaked for private use / test use, should investigate removing
 export { _clearCaches } from './caches/instance-cache';
 export { default as peekCache, removeRecordDataFor } from './caches/cache-utils';
+
+// @ember-data/model needs these temporarily
+export { setRecordIdentifier, StoreMap } from './caches/instance-cache';
+export { setCacheFor } from './caches/cache-utils';
