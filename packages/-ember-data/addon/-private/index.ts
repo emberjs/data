@@ -24,7 +24,7 @@ export class Store extends BaseStore {
     this.requestManager.use([LegacyNetworkHandler, Fetch]);
     this.requestManager.useCache(CacheHandler);
     this.registerSchema(buildSchema(this));
-    this._graph = graphFor(this);
+    graphFor(this);
   }
 
   createCache(storeWrapper: CacheStoreWrapper): Cache {
