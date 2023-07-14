@@ -1,5 +1,6 @@
 import { getOwner } from '@ember/application';
 
+import type Store from '@ember-data/store';
 import type { DSModelSchema, FactoryCache, ModelFactory, ModelStore } from '@ember-data/types/q/ds-model';
 import type { RecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
@@ -55,17 +56,21 @@ export class ModelSchemaProvider {
 
   doesTypeExist(modelName: string): boolean {
     const type = normalizeModelName(modelName);
-    const factory = getModelFactory(this.store, this.store._modelFactoryCache, type);
+    const factory = getModelFactory(this.store, type);
 
     return factory !== null;
   }
 }
 
-export function buildSchema(store: ModelStore) {
-  return new ModelSchemaProvider(store);
+export function buildSchema(store: Store) {
+  return new ModelSchemaProvider(store as ModelStore);
 }
 
-export function getModelFactory(store: ModelStore, cache: FactoryCache, type: string): ModelFactory | null {
+export function getModelFactory(store: ModelStore, type: string): ModelFactory | null {
+  if (!store._modelFactoryCache) {
+    store._modelFactoryCache = Object.create(null) as FactoryCache;
+  }
+  const cache = store._modelFactoryCache;
   let factory: ModelFactory | undefined = cache[type];
 
   if (!factory) {

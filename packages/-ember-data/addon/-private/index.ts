@@ -10,18 +10,16 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type { DSModel, ModelFactory, ModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
+import type { DSModel, ModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 export class Store extends BaseStore {
-  declare _modelFactoryCache: Record<string, ModelFactory>;
   constructor(args: Record<string, unknown>) {
     super(args);
     this.requestManager = new RequestManager();
     this.requestManager.use([LegacyNetworkHandler, Fetch]);
     this.requestManager.useCache(CacheHandler);
-    this._modelFactoryCache = Object.create(null) as Record<string, ModelFactory>;
     this.registerSchema(buildSchema(this));
   }
 

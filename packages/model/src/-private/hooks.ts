@@ -31,7 +31,7 @@ export function instantiateRecord(
 
   // ensure that `getOwner(this)` works inside a model instance
   setOwner(createOptions, getOwner(this)!);
-  const factory = getModelFactory(this, this._modelFactoryCache, type);
+  const factory = getModelFactory(this, type);
 
   assert(`No model was found for '${type}'`, factory);
   return factory.class.create(createOptions);
@@ -45,14 +45,14 @@ export function teardownRecord(record: DSModel): void {
   record.destroy();
 }
 
-export function modelFor(this: ModelStore, modelName: string): DSModelSchema | void {
+export function modelFor(this: Store, modelName: string): DSModelSchema | void {
   assert(`You need to pass a model name to the store's modelFor method`, modelName);
   assert(
     `Please pass a proper model name to the store's modelFor method`,
     typeof modelName === 'string' && modelName.length
   );
   const type = normalizeModelName(modelName);
-  const maybeFactory = getModelFactory(this, this._modelFactoryCache, type);
+  const maybeFactory = getModelFactory(this as ModelStore, type);
   const klass = maybeFactory && maybeFactory.class ? maybeFactory.class : null;
 
   const ignoreType = !klass || !klass.isModel || this._forceShim;
