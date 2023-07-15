@@ -172,6 +172,7 @@ export default EmberObject.extend(MutableArray, {
     } else {
       this._hasNotified = true;
       this.notifyPropertyChange('[]');
+      this.notifyPropertyChange('length');
       this.notifyPropertyChange('firstObject');
       this.notifyPropertyChange('lastObject');
     }
