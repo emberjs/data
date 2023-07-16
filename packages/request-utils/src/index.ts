@@ -232,6 +232,19 @@ function handleInclude(include: string | string[]): string[] {
   return typeof include === 'string' ? include.split(',') : include;
 }
 
+export function filterEmpty(obj: Record<string, Serializable>): Record<string, Serializable> {
+  const result: Record<string, Serializable> = {};
+  for (const key in obj) {
+    const value = obj[key];
+    if (value) {
+      if (!Array.isArray(value) || value.length > 0) {
+        result[key] = obj[key];
+      }
+    }
+  }
+  return result;
+}
+
 export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
   options = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
   const paramsIsObject = !(params instanceof URLSearchParams);
