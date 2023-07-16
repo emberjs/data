@@ -39,7 +39,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.22.8",
+    "@babel/core": "^7.22.9",
     "@babel/runtime": "^7.22.6",
     "@ember-data/active-record": "workspace:5.3.0-alpha.6",
     "@ember-data/json-api": "workspace:5.3.0-alpha.6",
