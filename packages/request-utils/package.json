@@ -44,13 +44,13 @@
     "version": 1
   },
   "devDependencies": {
-    "@babel/cli": "^7.22.6",
-    "@babel/core": "^7.22.8",
+    "@babel/cli": "^7.22.9",
+    "@babel/core": "^7.22.9",
     "@babel/plugin-proposal-decorators": "^7.22.7",
     "@babel/plugin-transform-class-properties": "^7.22.5",
-    "@babel/plugin-transform-runtime": "^7.22.7",
-    "@babel/plugin-transform-typescript": "^7.22.5",
-    "@babel/preset-env": "^7.22.7",
+    "@babel/plugin-transform-runtime": "^7.22.9",
+    "@babel/plugin-transform-typescript": "^7.22.9",
+    "@babel/preset-env": "^7.22.9",
     "@babel/preset-typescript": "^7.22.5",
     "@babel/runtime": "^7.22.6",
     "@embroider/addon-dev": "^3.1.1",
