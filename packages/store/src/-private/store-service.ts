@@ -236,7 +236,8 @@ class Store extends EmberObject {
     @private
   */
   constructor(createArgs?: Record<string, unknown>) {
-    super();
+    // @ts-expect-error ember-source types improperly expect createArgs to be `Owner`
+    super(createArgs);
     Object.assign(this, createArgs);
 
     this.identifierCache = new IdentifierCache();
