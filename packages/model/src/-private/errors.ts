@@ -1,4 +1,4 @@
-import { A, NativeArray } from '@ember/array';
+import { A, type NativeArray } from '@ember/array';
 import ArrayProxy from '@ember/array/proxy';
 import { computed, get } from '@ember/object';
 import { mapBy, not } from '@ember/object/computed';
