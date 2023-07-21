@@ -89,7 +89,7 @@
     "tslib": "^2.6.0",
     "typescript": "^5.1.6",
     "walk-sync": "^3.0.0",
-    "webpack": "^5.88.1"
+    "webpack": "^5.88.2"
   },
   "engines": {
     "node": "16.* || >= 18.*"
