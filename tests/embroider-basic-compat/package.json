@@ -1,6 +1,6 @@
 {
   "name": "embroider-basic-compat",
-  "version": "5.3.0-alpha.7",
+  "version": "5.3.0-alpha.8",
   "private": true,
   "description": "Small description for embroider-basic-compat goes here",
   "repository": {
@@ -24,7 +24,7 @@
   "dependencies": {
     "@ember/string": "^3.1.1",
     "ember-auto-import": "^2.6.3",
-    "ember-data": "workspace:5.3.0-alpha.7",
+    "ember-data": "workspace:5.3.0-alpha.8",
     "ember-inflector": "^4.0.2",
     "webpack": "^5.88.1"
   },
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@babel/core": "^7.22.9",
     "@babel/runtime": "^7.22.6",
-    "@ember-data/unpublished-test-infra": "workspace:5.3.0-alpha.7",
+    "@ember-data/unpublished-test-infra": "workspace:5.3.0-alpha.8",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^3.2.0",
     "@embroider/compat": "^3.1.5",
