@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheStoreWrapper as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { SchemaService } from '@ember-data/types/q/schema-service';
 
@@ -13,7 +13,7 @@ import { NotificationType } from './notification-manager';
   @module @ember-data/store
 */
 
-export class CacheStoreWrapper implements StoreWrapper {
+export class CacheCapabilitiesManager implements StoreWrapper {
   declare _willNotify: boolean;
   declare _pendingNotifies: Map<StableRecordIdentifier, Set<string>>;
   declare _store: Store;

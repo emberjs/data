@@ -10,7 +10,7 @@ import { SchemaService } from './schema-service';
 */
 
 /**
- * CacheStoreWrapper provides encapsulated API access to the minimal
+ * CacheCapabilitiesManager provides encapsulated API access to the minimal
  * subset of the Store's functionality that Cache implementations
  * should interact with. It is provided to the Store's `createRecordDataFor`
  * and `createCache` hooks.
@@ -19,10 +19,10 @@ import { SchemaService } from './schema-service';
  *
  * This class cannot be directly instantiated.
  *
- * @class CacheStoreWrapper
+ * @class CacheCapabilitiesManager
  * @public
  */
-export interface CacheStoreWrapper {
+export interface CacheCapabilitiesManager {
   /**
    * Provides access to the IdentifierCache instance
    * for this Store instance.

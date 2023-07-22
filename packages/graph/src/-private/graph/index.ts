@@ -1,6 +1,6 @@
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { UpgradedMeta } from './-edge-definition';
@@ -18,16 +18,16 @@ function isStore(maybeStore: unknown): maybeStore is Store {
   return (maybeStore as Store)._instanceCache !== undefined;
 }
 
-function getWrapper(store: CacheStoreWrapper | Store): CacheStoreWrapper {
+function getWrapper(store: CacheCapabilitiesManager | Store): CacheCapabilitiesManager {
   return isStore(store) ? store._instanceCache._storeWrapper : store;
 }
 
-export function peekGraph(store: CacheStoreWrapper | Store): Graph | undefined {
+export function peekGraph(store: CacheCapabilitiesManager | Store): Graph | undefined {
   return Graphs.get(getWrapper(store));
 }
 export type peekGraph = typeof peekGraph;
 
-export function graphFor(store: CacheStoreWrapper | Store): Graph {
+export function graphFor(store: CacheCapabilitiesManager | Store): Graph {
   const wrapper = getWrapper(store);
   let graph = Graphs.get(wrapper);
 

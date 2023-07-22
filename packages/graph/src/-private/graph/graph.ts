@@ -3,7 +3,7 @@ import { assert } from '@ember/debug';
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import { MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
@@ -43,7 +43,7 @@ export interface ImplicitRelationship {
 
 export type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
-export const Graphs = new Map<CacheStoreWrapper, Graph>();
+export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
 
 /*
  * Graph acts as the cache for relationship data. It allows for
@@ -68,7 +68,7 @@ export class Graph {
   declare _definitionCache: EdgeCache;
   declare _potentialPolymorphicTypes: Record<string, Record<string, boolean>>;
   declare identifiers: Map<StableRecordIdentifier, Record<string, RelationshipEdge>>;
-  declare store: CacheStoreWrapper;
+  declare store: CacheCapabilitiesManager;
   declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
@@ -81,7 +81,7 @@ export class Graph {
   declare _transaction: Set<ManyRelationship | BelongsToRelationship> | null;
   declare _removing: StableRecordIdentifier | null;
 
-  constructor(store: CacheStoreWrapper) {
+  constructor(store: CacheCapabilitiesManager) {
     this._definitionCache = Object.create(null) as EdgeCache;
     this._potentialPolymorphicTypes = Object.create(null) as Record<string, Record<string, boolean>>;
     this.identifiers = new Map();
@@ -417,7 +417,7 @@ export class Graph {
     Graphs.delete(this.store);
 
     if (DEBUG) {
-      Graphs.delete(getStore(this.store) as unknown as CacheStoreWrapper);
+      Graphs.delete(getStore(this.store) as unknown as CacheCapabilitiesManager);
       if (Graphs.size) {
         Graphs.forEach((_, key) => {
           assert(
@@ -430,7 +430,7 @@ export class Graph {
     }
 
     this.identifiers.clear();
-    this.store = null as unknown as CacheStoreWrapper;
+    this.store = null as unknown as CacheCapabilitiesManager;
     this.isDestroyed = true;
   }
 }

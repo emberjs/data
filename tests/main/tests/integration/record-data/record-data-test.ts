@@ -23,7 +23,7 @@ import {
 } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -62,10 +62,10 @@ class TestRecordData implements Cache {
 
   _errors?: JsonApiError[];
   _isNew: boolean = false;
-  _storeWrapper: CacheStoreWrapper;
+  _storeWrapper: CacheCapabilitiesManager;
   _identifier: StableRecordIdentifier;
 
-  constructor(wrapper: CacheStoreWrapper, identifier: StableRecordIdentifier) {
+  constructor(wrapper: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
@@ -322,7 +322,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     }
 
     class TestStore extends Store {
-      createCache(storeWrapper: CacheStoreWrapper) {
+      createCache(storeWrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
         return new LifecycleRecordData(storeWrapper) as Cache;
       }
@@ -458,7 +458,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     }
 
     class TestStore extends Store {
-      createCache(storeWrapper: CacheStoreWrapper) {
+      createCache(storeWrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
         return new AttributeRecordData(storeWrapper) as Cache;
       }

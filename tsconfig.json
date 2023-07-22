@@ -34,7 +34,7 @@
       "ember-data-types/q/fetch-manager.ts",
       "ember-data-types/q/ember-data-json-api.ts",
       "ember-data-types/q/ds-model.ts",
-      "packages/store/src/-private/managers/cache-store-wrapper.ts",
+      "packages/store/src/-private/managers/cache-capabilities-manager.ts",
       "packages/store/src/-private/network/request-cache.ts",
       "packages/store/src/-private/managers/notification-manager.ts",
       "packages/store/src/-private/caches/cache-utils.ts",

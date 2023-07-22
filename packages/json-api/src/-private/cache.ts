@@ -27,7 +27,7 @@ import type {
 } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -114,12 +114,12 @@ export default class JSONAPICache implements Cache {
    * @property version
    */
   declare version: '2';
-  declare __storeWrapper: CacheStoreWrapper;
+  declare __storeWrapper: CacheCapabilitiesManager;
   declare __cache: Map<StableRecordIdentifier, CachedResource>;
   declare __destroyedCache: Map<StableRecordIdentifier, CachedResource>;
   declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
 
-  constructor(storeWrapper: CacheStoreWrapper) {
+  constructor(storeWrapper: CacheCapabilitiesManager) {
     this.version = '2';
     this.__storeWrapper = storeWrapper;
     this.__cache = new Map();
@@ -1184,7 +1184,7 @@ export default class JSONAPICache implements Cache {
   }
 }
 
-function areAllModelsUnloaded(wrapper: CacheStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
+function areAllModelsUnloaded(wrapper: CacheCapabilitiesManager, identifiers: StableRecordIdentifier[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
     let identifier = identifiers[i];
     if (wrapper.hasRecord(identifier)) {
@@ -1226,7 +1226,7 @@ function getDefaultValue(options: { defaultValue?: unknown } | undefined) {
   }
 }
 
-function notifyAttributes(storeWrapper: CacheStoreWrapper, identifier: StableRecordIdentifier, keys?: string[]) {
+function notifyAttributes(storeWrapper: CacheCapabilitiesManager, identifier: StableRecordIdentifier, keys?: string[]) {
   if (!keys) {
     storeWrapper.notifyChange(identifier, 'attributes');
     return;
@@ -1311,7 +1311,7 @@ function recordIsLoaded(cached: CachedResource | undefined, filterDeleted: boole
 
 function _isLoading(
   peeked: CachedResource | undefined,
-  storeWrapper: CacheStoreWrapper,
+  storeWrapper: CacheCapabilitiesManager,
   identifier: StableRecordIdentifier
 ): boolean {
   // TODO refactor things such that the cache is not required to know
@@ -1329,7 +1329,7 @@ function _isLoading(
 }
 
 function setupRelationships(
-  storeWrapper: CacheStoreWrapper,
+  storeWrapper: CacheCapabilitiesManager,
   identifier: StableRecordIdentifier,
   data: JsonApiResource
 ) {
@@ -1412,7 +1412,10 @@ function putOne(
     Iterates over the set of internal models reachable from `this` across exactly one
     relationship.
   */
-function _directlyRelatedIdentifiersIterable(storeWrapper: CacheStoreWrapper, originating: StableRecordIdentifier) {
+function _directlyRelatedIdentifiersIterable(
+  storeWrapper: CacheCapabilitiesManager,
+  originating: StableRecordIdentifier
+) {
   const graph = peekGraph(storeWrapper);
   const initializedRelationships = graph?.identifiers.get(originating);
 
@@ -1475,7 +1478,7 @@ function _directlyRelatedIdentifiersIterable(storeWrapper: CacheStoreWrapper, or
       from `this.identifier`.
     */
 function _allRelatedIdentifiers(
-  storeWrapper: CacheStoreWrapper,
+  storeWrapper: CacheCapabilitiesManager,
   originating: StableRecordIdentifier
 ): StableRecordIdentifier[] {
   let array: StableRecordIdentifier[] = [];

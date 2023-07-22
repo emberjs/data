@@ -24,7 +24,7 @@ import type {
 } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -49,10 +49,10 @@ class Person extends Model {
 }
 
 class TestRecordData implements Cache {
-  _storeWrapper: CacheStoreWrapper;
+  _storeWrapper: CacheCapabilitiesManager;
   _identifier: StableRecordIdentifier;
 
-  constructor(wrapper: CacheStoreWrapper, identifier: StableRecordIdentifier) {
+  constructor(wrapper: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
@@ -252,7 +252,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     }
 
     class TestStore extends Store {
-      createCache(wrapper: CacheStoreWrapper) {
+      createCache(wrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
         return new LifecycleRecordData(wrapper) as Cache;
       }
@@ -317,7 +317,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     let { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
-      constructor(sw: CacheStoreWrapper, identifier: StableRecordIdentifier) {
+      constructor(sw: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
         super(sw, identifier);
         storeWrapper = sw;
       }
@@ -345,7 +345,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     }
 
     class TestStore extends Store {
-      createCache(wrapper: CacheStoreWrapper) {
+      createCache(wrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
         return new LifecycleRecordData(wrapper) as Cache;
       }

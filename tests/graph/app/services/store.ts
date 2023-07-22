@@ -6,7 +6,7 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
 import type { Cache } from '@ember-data/types/cache/cache';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel, ModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -21,7 +21,7 @@ export default class Store extends BaseStore {
     this._graph = graphFor(this);
   }
 
-  createCache(storeWrapper: CacheStoreWrapper): Cache {
+  createCache(storeWrapper: CacheCapabilitiesManager): Cache {
     return new JSONAPICache(storeWrapper);
   }
 

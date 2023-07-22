@@ -14,7 +14,7 @@ import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import { ModelSchema } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -89,9 +89,9 @@ export interface CreateRecordProperties {
 
 // @ts-expect-error
 interface Store {
-  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache | CacheV1;
+  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheCapabilitiesManager): Cache | CacheV1;
 
-  createCache(storeWrapper: CacheStoreWrapper): Cache;
+  createCache(storeWrapper: CacheCapabilitiesManager): Cache;
 
   instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): RecordInstance;
 

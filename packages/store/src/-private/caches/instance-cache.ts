@@ -14,7 +14,7 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 import RecordReference from '../legacy-model-support/record-reference';
 import { CacheManager } from '../managers/cache-manager';
-import { CacheStoreWrapper } from '../managers/cache-store-wrapper';
+import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
@@ -91,7 +91,7 @@ type Caches = {
 export class InstanceCache {
   declare store: Store;
   declare cache: Cache;
-  declare _storeWrapper: CacheStoreWrapper;
+  declare _storeWrapper: CacheCapabilitiesManager;
   declare __cacheFor: (resource: RecordIdentifier) => Cache;
 
   declare __cacheManager: CacheManager;
@@ -103,7 +103,7 @@ export class InstanceCache {
   constructor(store: Store) {
     this.store = store;
 
-    this._storeWrapper = new CacheStoreWrapper(this.store);
+    this._storeWrapper = new CacheCapabilitiesManager(this.store);
 
     store.identifierCache.__configureMerge(
       (identifier: StableRecordIdentifier, matchedIdentifier: StableRecordIdentifier, resourceData) => {
