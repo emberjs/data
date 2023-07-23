@@ -42,7 +42,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -84,7 +84,7 @@ importers:
         version: 5.1.0(debug@4.3.4)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       eslint:
         specifier: ^8.45.0
         version: 8.45.0
@@ -158,8 +158,8 @@ importers:
         specifier: ^0.11.1
         version: 0.11.1
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
       yuidocjs:
         specifier: ^0.10.2
         version: 0.10.2
@@ -216,7 +216,7 @@ importers:
         version: 4.2.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
@@ -224,8 +224,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     devDependencies:
       '@babel/core':
         specifier: ^7.22.9
@@ -238,7 +238,7 @@ importers:
         version: 1.1.2
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -377,7 +377,7 @@ importers:
         version: 15.1.0(rollup@3.26.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       rollup:
         specifier: ^3.26.2
         version: 3.26.2
@@ -391,8 +391,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -410,13 +410,13 @@ importers:
         version: 1.12.2
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -480,7 +480,7 @@ importers:
         version: 15.1.0(rollup@3.26.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       rollup:
         specifier: ^3.26.2
         version: 3.26.2
@@ -494,8 +494,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -559,7 +559,7 @@ importers:
         version: 15.1.0(rollup@3.26.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       rollup:
         specifier: ^3.26.2
         version: 3.26.2
@@ -573,8 +573,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -719,7 +719,7 @@ importers:
         version: 15.1.0(rollup@3.26.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       rollup:
         specifier: ^3.26.2
         version: 3.26.2
@@ -733,8 +733,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -1053,7 +1053,7 @@ importers:
         version: 15.1.0(rollup@3.26.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       rollup:
         specifier: ^3.26.2
         version: 3.26.2
@@ -1067,8 +1067,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -1132,7 +1132,7 @@ importers:
         version: 15.1.0(rollup@3.26.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       rollup:
         specifier: ^3.26.2
         version: 3.26.2
@@ -1146,8 +1146,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -1237,7 +1237,7 @@ importers:
         version: 4.2.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
@@ -1260,8 +1260,8 @@ importers:
         specifier: ^3.10.1
         version: 3.10.1
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     devDependencies:
       '@babel/core':
         specifier: ^7.22.9
@@ -1274,7 +1274,7 @@ importers:
         version: 2.0.0
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -1313,13 +1313,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -1373,7 +1373,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -1388,7 +1388,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -1415,13 +1415,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -1432,8 +1432,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/debug':
         injected: true
@@ -1534,7 +1534,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -1546,7 +1546,7 @@ importers:
         version: 4.0.4
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -1579,13 +1579,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       ember-source-channel-url:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1605,8 +1605,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/active-record':
         injected: true
@@ -1655,7 +1655,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -1670,7 +1670,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -1697,13 +1697,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -1714,8 +1714,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -1743,7 +1743,7 @@ importers:
         version: 3.1.1
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-data:
         specifier: workspace:5.3.0-alpha.8
         version: file:packages/-ember-data(@babel/core@7.22.9)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@5.1.2)
@@ -1751,8 +1751,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     devDependencies:
       '@babel/core':
         specifier: ^7.22.9
@@ -1768,7 +1768,7 @@ importers:
         version: 2.0.0
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@embroider/compat':
         specifier: ^3.1.5
         version: 3.1.5(@embroider/core@3.1.3)
@@ -1777,7 +1777,7 @@ importers:
         version: 3.1.3
       '@embroider/webpack':
         specifier: ^3.1.3
-        version: 3.1.3(@embroider/core@3.1.3)(webpack@5.88.1)
+        version: 3.1.3(@embroider/core@3.1.3)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -1810,7 +1810,7 @@ importers:
         version: 4.1.1
       ember-cli-fastboot-testing:
         specifier: ^0.6.1
-        version: 0.6.1(ember-source@5.1.2)(webpack@5.88.1)
+        version: 0.6.1(ember-source@5.1.2)(webpack@5.88.2)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1825,7 +1825,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
@@ -1834,7 +1834,7 @@ importers:
         version: 0.8.3(@babel/core@7.22.9)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -1863,7 +1863,7 @@ importers:
         version: 3.1.1
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-data:
         specifier: workspace:5.3.0-alpha.8
         version: file:packages/-ember-data(@babel/core@7.22.9)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@5.1.2)
@@ -1871,8 +1871,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     devDependencies:
       '@babel/core':
         specifier: ^7.22.9
@@ -1885,7 +1885,7 @@ importers:
         version: 2.0.0
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -1918,7 +1918,7 @@ importers:
         version: 4.1.1
       ember-cli-fastboot-testing:
         specifier: ^0.6.1
-        version: 0.6.1(ember-source@5.1.2)(webpack@5.88.1)
+        version: 0.6.1(ember-source@5.1.2)(webpack@5.88.2)
       ember-cli-htmlbars:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1936,7 +1936,7 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
@@ -1945,7 +1945,7 @@ importers:
         version: 0.8.3(@babel/core@7.22.9)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -1992,7 +1992,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -2022,13 +2022,13 @@ importers:
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
       zlib:
         specifier: 1.0.5
         version: 1.0.5
@@ -2084,7 +2084,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -2099,7 +2099,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -2141,13 +2141,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       ember-source-channel-url:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2170,8 +2170,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -2229,7 +2229,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -2244,7 +2244,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -2286,13 +2286,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       ember-source-channel-url:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2315,8 +2315,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -2374,7 +2374,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -2389,7 +2389,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -2416,13 +2416,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -2433,8 +2433,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -2483,7 +2483,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@embroider/macros':
         specifier: ^1.12.2
         version: 1.12.2
@@ -2537,7 +2537,7 @@ importers:
         version: 4.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cached-decorator-polyfill:
         specifier: ^1.0.1
         version: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
@@ -2582,13 +2582,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       ember-source-channel-url:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2614,8 +2614,8 @@ importers:
         specifier: ~5.1.6
         version: 5.1.6
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -2676,7 +2676,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -2691,7 +2691,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -2718,13 +2718,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -2735,8 +2735,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -2758,13 +2758,13 @@ importers:
         version: 3.1.1
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-data:
         specifier: workspace:5.3.0-alpha.8
         version: file:packages/-ember-data(@babel/core@7.22.9)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@5.1.2)
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     devDependencies:
       '@babel/core':
         specifier: ^7.22.9
@@ -2777,7 +2777,7 @@ importers:
         version: 2.0.0
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -2813,7 +2813,7 @@ importers:
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -2852,7 +2852,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -2867,7 +2867,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -2909,13 +2909,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       ember-source-channel-url:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2938,8 +2938,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/private-build-infra':
         injected: true
@@ -2991,7 +2991,7 @@ importers:
         version: 3.1.1
       '@ember/test-helpers':
         specifier: ^3.2.0
-        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+        version: 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.9)
@@ -3006,7 +3006,7 @@ importers:
         version: 3.0.0
       ember-auto-import:
         specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.1)
+        version: 2.6.3(webpack@5.88.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -3033,13 +3033,13 @@ importers:
         version: 1.0.0
       ember-qunit:
         specifier: ^7.0.0
-        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1)
+        version: 7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
         specifier: ^10.1.1
         version: 10.1.1(@ember/string@3.1.1)(ember-source@5.1.2)
       ember-source:
         specifier: ~5.1.2
-        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+        version: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -3050,8 +3050,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       webpack:
-        specifier: ^5.88.1
-        version: 5.88.1
+        specifier: ^5.88.2
+        version: 5.88.2
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -4650,7 +4650,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@ember/test-helpers@3.2.0(ember-source@5.1.2)(webpack@5.88.1):
+  /@ember/test-helpers@3.2.0(ember-source@5.1.2)(webpack@5.88.2):
     resolution: {integrity: sha512-3yWpPsK5O77tUdCwW3HayrAcdlRitIRYMvLIG69Pkal1JMIGdNYVTvJ2R1lenhQh2syd/WFmGM07vQuDAtotQw==}
     engines: {node: 16.* || >= 18}
     peerDependencies:
@@ -4661,10 +4661,10 @@ packages:
       '@simple-dom/interface': 1.4.0
       broccoli-debug: 0.6.5
       broccoli-funnel: 3.0.8
-      ember-auto-import: 2.6.3(webpack@5.88.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 7.26.11
       ember-cli-htmlbars: 6.2.0
-      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
     transitivePeerDependencies:
       - '@glint/template'
       - supports-color
@@ -4704,7 +4704,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@embroider/babel-loader-8@3.0.0(@embroider/core@3.1.3)(supports-color@8.1.1)(webpack@5.88.1):
+  /@embroider/babel-loader-8@3.0.0(@embroider/core@3.1.3)(supports-color@8.1.1)(webpack@5.88.2):
     resolution: {integrity: sha512-NIaHmX/FmxKdyB82J0jHTZWk9OyBEfFm0981pTWgnKCnREhaLSvlEtIlf5iEEU4RPCBIunZZqiy2W/QI3fLaxg==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
@@ -4712,7 +4712,7 @@ packages:
     dependencies:
       '@babel/core': 7.22.9(supports-color@8.1.1)
       '@embroider/core': 3.1.3
-      babel-loader: 8.3.0(@babel/core@7.22.9)(webpack@5.88.1)
+      babel-loader: 8.3.0(@babel/core@7.22.9)(webpack@5.88.2)
     transitivePeerDependencies:
       - supports-color
       - webpack
@@ -4811,7 +4811,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@embroider/hbs-loader@3.0.1(@embroider/core@3.1.3)(webpack@5.88.1):
+  /@embroider/hbs-loader@3.0.1(@embroider/core@3.1.3)(webpack@5.88.2):
     resolution: {integrity: sha512-suX65PCsEbt1GW6gEbd31wuw0X8vHWvBiAGNm4bjLCwNSZCR8SIqvAs32+F8k738ArgRsRU4zgaOFuHug8XrRw==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
@@ -4819,7 +4819,7 @@ packages:
       webpack: ^5
     dependencies:
       '@embroider/core': 3.1.3
-      webpack: 5.88.1
+      webpack: 5.88.2
     dev: true
 
   /@embroider/macros@1.12.2:
@@ -4869,7 +4869,7 @@ packages:
       typescript-memoize: 1.1.1
     dev: true
 
-  /@embroider/webpack@3.1.3(@embroider/core@3.1.3)(webpack@5.88.1):
+  /@embroider/webpack@3.1.3(@embroider/core@3.1.3)(webpack@5.88.2):
     resolution: {integrity: sha512-6WWznSExOVJZb8Ks8E9mFJm5ZlqREEvJxRKWebwiMkXJvbNPpHDKARkbDuqME+fwdIAQFGlxqllqJ5mwZ3J1eg==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
@@ -4877,29 +4877,29 @@ packages:
       webpack: ^5.0.0
     dependencies:
       '@babel/core': 7.22.9(supports-color@8.1.1)
-      '@embroider/babel-loader-8': 3.0.0(@embroider/core@3.1.3)(supports-color@8.1.1)(webpack@5.88.1)
+      '@embroider/babel-loader-8': 3.0.0(@embroider/core@3.1.3)(supports-color@8.1.1)(webpack@5.88.2)
       '@embroider/core': 3.1.3
-      '@embroider/hbs-loader': 3.0.1(@embroider/core@3.1.3)(webpack@5.88.1)
+      '@embroider/hbs-loader': 3.0.1(@embroider/core@3.1.3)(webpack@5.88.2)
       '@embroider/shared-internals': 2.2.3
       '@types/supports-color': 8.1.1
       assert-never: 1.2.1
-      babel-loader: 8.3.0(@babel/core@7.22.9)(webpack@5.88.1)
+      babel-loader: 8.3.0(@babel/core@7.22.9)(webpack@5.88.2)
       babel-preset-env: 1.7.0(supports-color@8.1.1)
-      css-loader: 5.2.7(webpack@5.88.1)
+      css-loader: 5.2.7(webpack@5.88.2)
       csso: 4.2.0
       debug: 4.3.4(supports-color@8.1.1)
       escape-string-regexp: 4.0.0
       fs-extra: 9.1.0
       jsdom: 16.7.0(supports-color@8.1.1)
       lodash: 4.17.21
-      mini-css-extract-plugin: 2.7.6(webpack@5.88.1)
+      mini-css-extract-plugin: 2.7.6(webpack@5.88.2)
       semver: 7.5.4
       source-map-url: 0.4.1
-      style-loader: 2.0.0(webpack@5.88.1)
+      style-loader: 2.0.0(webpack@5.88.2)
       supports-color: 8.1.1
       terser: 5.18.2
-      thread-loader: 3.0.4(webpack@5.88.1)
-      webpack: 5.88.1
+      thread-loader: 3.0.4(webpack@5.88.2)
+      webpack: 5.88.2
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -6611,7 +6611,7 @@ packages:
     resolution: {integrity: sha512-PPzUT17eAI18zn6ek1R3sB4Krc/MbnmT1MkZQFmyhjoaEGBVwNABhfVU9+EKcDSKrrOm9OIpGhjxukx1GCiy1g==}
     engines: {node: '>= 12.*'}
 
-  /babel-loader@8.3.0(@babel/core@7.22.9)(webpack@5.88.1):
+  /babel-loader@8.3.0(@babel/core@7.22.9)(webpack@5.88.2):
     resolution: {integrity: sha512-H8SvsMF+m9t15HNLMipppzkC+Y2Yq+v3SonZyU70RBL/h1gxPkH08Ot8pEE9Z4Kd+czyWJClmFS8qzIP9OZ04Q==}
     engines: {node: '>= 8.9'}
     peerDependencies:
@@ -6623,7 +6623,7 @@ packages:
       loader-utils: 2.0.4
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.88.1
+      webpack: 5.88.2
 
   /babel-messages@6.23.0:
     resolution: {integrity: sha512-Bl3ZiA+LjqaMtNYopA9TYE9HP1tQ+E5dLxE0XrAzcIJeK2UqF0/EaqXwBn9esd4UmTfEab+P+UYQ1GnioFIb/w==}
@@ -8581,7 +8581,7 @@ packages:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}
     engines: {node: '>=8'}
 
-  /css-loader@5.2.7(webpack@5.88.1):
+  /css-loader@5.2.7(webpack@5.88.2):
     resolution: {integrity: sha512-Q7mOvpBNBG7YrVGMxRxcBJZFL75o+cH2abNASdibkj/fffYD8qWbInZrD0S9ccI6vZclF3DsHE7njGlLtaHbhg==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -8597,7 +8597,7 @@ packages:
       postcss-value-parser: 4.2.0
       schema-utils: 3.3.0
       semver: 7.5.4
-      webpack: 5.88.1
+      webpack: 5.88.2
 
   /css-tree@1.1.3:
     resolution: {integrity: sha512-tRpdppF7TRazZrjJ6v3stzv93qxRcSsFmW6cX0Zm2NVKpxE1WV1HblnghVv9TreireHkqI/VDEsfolRF1p6y7Q==}
@@ -8965,7 +8965,7 @@ packages:
   /electron-to-chromium@1.4.454:
     resolution: {integrity: sha512-pmf1rbAStw8UEQ0sr2cdJtWl48ZMuPD9Sto8HVQOq9vx9j2WgDEN6lYoaqFvqEHYOmGA9oRGn7LqWI9ta0YugQ==}
 
-  /ember-auto-import@2.6.3(webpack@5.88.1):
+  /ember-auto-import@2.6.3(webpack@5.88.2):
     resolution: {integrity: sha512-uLhrRDJYWCRvQ4JQ1e64XlSrqAKSd6PXaJ9ZsZI6Tlms9T4DtQFxNXasqji2ZRJBVrxEoLCRYX3RTldsQ0vNGQ==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
@@ -8975,7 +8975,7 @@ packages:
       '@babel/preset-env': 7.22.7(@babel/core@7.22.9)
       '@embroider/macros': 1.12.2
       '@embroider/shared-internals': 2.2.2
-      babel-loader: 8.3.0(@babel/core@7.22.9)(webpack@5.88.1)
+      babel-loader: 8.3.0(@babel/core@7.22.9)(webpack@5.88.2)
       babel-plugin-ember-modules-api-polyfill: 3.5.0
       babel-plugin-ember-template-compilation: 2.1.0
       babel-plugin-htmlbars-inline-precompile: 5.3.1
@@ -8985,19 +8985,19 @@ packages:
       broccoli-merge-trees: 4.2.0
       broccoli-plugin: 4.0.7
       broccoli-source: 3.0.1
-      css-loader: 5.2.7(webpack@5.88.1)
+      css-loader: 5.2.7(webpack@5.88.2)
       debug: 4.3.4
       fs-extra: 10.1.0
       fs-tree-diff: 2.0.1
       handlebars: 4.7.7
       js-string-escape: 1.0.1
       lodash: 4.17.21
-      mini-css-extract-plugin: 2.7.6(webpack@5.88.1)
+      mini-css-extract-plugin: 2.7.6(webpack@5.88.2)
       parse5: 6.0.1
       resolve: 1.22.2
       resolve-package-path: 4.0.3
       semver: 7.5.4
-      style-loader: 2.0.0(webpack@5.88.1)
+      style-loader: 2.0.0(webpack@5.88.2)
       typescript-memoize: 1.1.1
       walk-sync: 3.0.0
     transitivePeerDependencies:
@@ -9060,7 +9060,7 @@ packages:
       ember-cache-primitive-polyfill: 1.0.1(@babel/core@7.22.9)
       ember-cli-babel: 7.26.11
       ember-cli-babel-plugin-helpers: 1.1.1
-      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -9137,16 +9137,16 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli-fastboot-testing@0.6.1(ember-source@5.1.2)(webpack@5.88.1):
+  /ember-cli-fastboot-testing@0.6.1(ember-source@5.1.2)(webpack@5.88.2):
     resolution: {integrity: sha512-nevPv77Wjk0Mslb0AF0wgHfbjki6Fi3/dapTrFz17WLX6n5maLr/MTL1hZcZdbT+69DHdgckCza8Z1WyxiUbBA==}
     engines: {node: 12.* || 14.* || 16.* || >= 18}
     peerDependencies:
       ember-source: ^3.28.0 || ^4.0.0 || ^5.0.0
     dependencies:
       body-parser: 1.20.2
-      ember-auto-import: 2.6.3(webpack@5.88.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 7.26.11
-      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       fastboot: 4.1.1
       json-fn: 1.1.1
       minimist: 1.2.8
@@ -9769,7 +9769,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-qunit@7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.1):
+  /ember-qunit@7.0.0(@ember/test-helpers@3.2.0)(ember-source@5.1.2)(qunit@2.19.4)(webpack@5.88.2):
     resolution: {integrity: sha512-KhrndHYEXsHnXvmsGyJLJQ6VCudXaRs5dzPZBsdttZJIhsB6PmYAvq2Q+mh3GRDT/59T/sRDrB3FD3/lATS8aA==}
     engines: {node: 16.* || >= 18}
     peerDependencies:
@@ -9777,14 +9777,14 @@ packages:
       ember-source: '>=4.0.0'
       qunit: ^2.13.0
     dependencies:
-      '@ember/test-helpers': 3.2.0(ember-source@5.1.2)(webpack@5.88.1)
+      '@ember/test-helpers': 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 4.2.0
       common-tags: 1.8.2
-      ember-auto-import: 2.6.3(webpack@5.88.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 7.26.11
       ember-cli-test-loader: 3.0.0
-      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
       qunit: 2.19.4
       resolve-package-path: 4.0.3
       silent-error: 1.1.1
@@ -9806,7 +9806,7 @@ packages:
     dependencies:
       '@ember/string': 3.1.1
       ember-cli-babel: 7.26.11
-      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -9821,7 +9821,7 @@ packages:
         optional: true
     dependencies:
       ember-cli-babel: 7.26.11
-      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1)
+      ember-source: 5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -9861,7 +9861,7 @@ packages:
       - encoding
     dev: true
 
-  /ember-source@5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.1):
+  /ember-source@5.1.2(@babel/core@7.22.9)(@glimmer/component@1.1.2)(webpack@5.88.2):
     resolution: {integrity: sha512-HTh8CANROxGuBIy/x3c42v4u4255IA55E40KXI3YABww/tV9N1vBRiXolkPcR8aSRDdl32UxL3wBV6/v8npxDQ==}
     engines: {node: '>= 16.*'}
     peerDependencies:
@@ -9896,7 +9896,7 @@ packages:
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 4.2.0
       chalk: 4.1.2
-      ember-auto-import: 2.6.3(webpack@5.88.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 7.26.11
       ember-cli-get-component-path-option: 1.0.0
       ember-cli-is-package-missing: 1.0.0
@@ -13223,14 +13223,14 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /mini-css-extract-plugin@2.7.6(webpack@5.88.1):
+  /mini-css-extract-plugin@2.7.6(webpack@5.88.2):
     resolution: {integrity: sha512-Qk7HcgaPkGG6eD77mLvZS1nmxlao3j+9PkrT9Uc7HAE1id3F41+DdBRYRYkbyfNRGzm8/YWtzhw7nVPmwhqTQw==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
     dependencies:
       schema-utils: 4.2.0
-      webpack: 5.88.1
+      webpack: 5.88.2
 
   /minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
@@ -15375,7 +15375,7 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /style-loader@2.0.0(webpack@5.88.1):
+  /style-loader@2.0.0(webpack@5.88.2):
     resolution: {integrity: sha512-Z0gYUJmzZ6ZdRUqpg1r8GsaFKypE+3xAzuFeMuoHgjc9KZv3wMyCRjQIWEbhoFSq7+7yoHXySDJyyWQaPajeiQ==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -15383,7 +15383,7 @@ packages:
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.88.1
+      webpack: 5.88.2
 
   /styled_string@0.0.1:
     resolution: {integrity: sha512-DU2KZiB6VbPkO2tGSqQ9n96ZstUPjW7X4sGO6V2m1myIQluX0p1Ol8BrA/l6/EesqhMqXOIXs3cJNOy1UuU2BA==}
@@ -15489,7 +15489,7 @@ packages:
       mkdirp: 0.5.6
       rimraf: 2.6.3
 
-  /terser-webpack-plugin@5.3.9(webpack@5.88.1):
+  /terser-webpack-plugin@5.3.9(webpack@5.88.2):
     resolution: {integrity: sha512-ZuXsqE07EcggTWQjXUj+Aot/OMcD0bMKGgF63f7UxYcu5/AJF53aIpK1YoP5xR9l6s/Hy2b+t1AM0bLNPRuhwA==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -15510,7 +15510,7 @@ packages:
       schema-utils: 3.3.0
       serialize-javascript: 6.0.1
       terser: 5.18.2
-      webpack: 5.88.1
+      webpack: 5.88.2
 
   /terser@5.18.2:
     resolution: {integrity: sha512-Ah19JS86ypbJzTzvUCX7KOsEIhDaRONungA4aYBjEP3JZRf4ocuDzTg4QWZnPn9DEMiMYGJPiSOy7aykoCc70w==}
@@ -15740,7 +15740,7 @@ packages:
   /theredoc@1.0.0:
     resolution: {integrity: sha512-KU3SA3TjRRM932jpNfD3u4Ec3bSvedyo5ITPI7zgWYnKep7BwQQaxlhI9qbO+lKJoRnoAbEVfMcAHRuKVYikDA==}
 
-  /thread-loader@3.0.4(webpack@5.88.1):
+  /thread-loader@3.0.4(webpack@5.88.2):
     resolution: {integrity: sha512-ByaL2TPb+m6yArpqQUZvP+5S1mZtXsEP7nWKKlAUTm7fCml8kB5s1uI3+eHRP2bk5mVYfRSBI7FFf+tWEyLZwA==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -15751,7 +15751,7 @@ packages:
       loader-utils: 2.0.4
       neo-async: 2.6.2
       schema-utils: 3.3.0
-      webpack: 5.88.1
+      webpack: 5.88.2
     dev: true
 
   /through2@3.0.2:
@@ -16323,8 +16323,8 @@ packages:
     resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
     engines: {node: '>=10.13.0'}
 
-  /webpack@5.88.1:
-    resolution: {integrity: sha512-FROX3TxQnC/ox4N+3xQoWZzvGXSuscxR32rbzjpXgEzWudJFEJBpdlkkob2ylrv5yzzufD1zph1OoFsLtm6stQ==}
+  /webpack@5.88.2:
+    resolution: {integrity: sha512-JmcgNZ1iKj+aiR0OvTYtWQqJwq37Pf683dY9bVORwVbUrDhLhdn/PlO2sHsFHPkj7sHNQF3JwaAkp49V+Sq1tQ==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -16354,7 +16354,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.9(webpack@5.88.1)
+      terser-webpack-plugin: 5.3.9(webpack@5.88.2)
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
@@ -16711,10 +16711,10 @@ packages:
       '@embroider/macros': 1.12.2
       '@glimmer/env': 0.1.7
       broccoli-merge-trees: 4.2.0
-      ember-auto-import: 2.6.3(webpack@5.88.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 7.26.11
       ember-inflector: 4.0.2
-      webpack: 5.88.1
+      webpack: 5.88.2
     transitivePeerDependencies:
       - '@babel/core'
       - '@glimmer/tracking'
@@ -16810,9 +16810,9 @@ packages:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.12.2
-      ember-auto-import: 2.6.3(webpack@5.88.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 7.26.11
-      webpack: 5.88.1
+      webpack: 5.88.2
     transitivePeerDependencies:
       - '@glint/template'
       - '@swc/core'
@@ -16834,9 +16834,9 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
       '@embroider/macros': 1.12.2
-      ember-auto-import: 2.6.3(webpack@5.88.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 7.26.11
-      webpack: 5.88.1
+      webpack: 5.88.2
     transitivePeerDependencies:
       - '@glint/template'
       - '@swc/core'
@@ -17398,7 +17398,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.12.2
       broccoli-merge-trees: 4.2.0
-      ember-auto-import: 2.6.3(webpack@5.88.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 7.26.11
       ember-cli-blueprint-test-helpers: 0.19.2
       ember-get-config: 2.1.1
@@ -17407,7 +17407,7 @@ packages:
       rsvp: 4.8.5
       semver: 7.5.4
       testem: 3.10.1
-      webpack: 5.88.1
+      webpack: 5.88.2
     transitivePeerDependencies:
       - '@glint/template'
       - '@swc/core'
