@@ -5,7 +5,7 @@ module.exports = function (environment) {
     modulePrefix: 'json-api-test-app',
     environment,
     rootURL: '/',
-    locationType: 'auto',
+    locationType: 'history',
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build

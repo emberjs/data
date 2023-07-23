@@ -6,7 +6,7 @@ module.exports = function (environment) {
     podModulePrefix: 'main-test-app',
     environment: environment,
     rootURL: '/',
-    locationType: 'auto',
+    locationType: 'history',
     EmberENV: {
       RAISE_ON_DEPRECATION: false,
     },

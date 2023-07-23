@@ -43,6 +43,8 @@
     "@babel/runtime": "^7.22.6",
     "@ember-data/active-record": "workspace:5.3.0-alpha.8",
     "@ember-data/json-api": "workspace:5.3.0-alpha.8",
+    "@ember-data/graph": "workspace:5.3.0-alpha.8",
+    "@ember-data/store": "workspace:5.3.0-alpha.8",
     "@ember-data/private-build-infra": "workspace:5.3.0-alpha.8",
     "@ember-data/request-utils": "workspace:5.3.0-alpha.8",
     "@ember-data/rest": "workspace:5.3.0-alpha.8",
