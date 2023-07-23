@@ -139,10 +139,17 @@ export function configureDeprecationHandler() {
     HANDLED_DEPRECATIONS_FOR_TEST = [];
   });
 
-  registerDeprecationHandler(function (message, options: DeprecationConfig /*, next*/) {
-    options.stacktrace = new Error().stack;
-    if (DEPRECATIONS_FOR_TEST) {
-      DEPRECATIONS_FOR_TEST.push({ message, options });
+  registerDeprecationHandler(function (message, options /*, next*/) {
+    if (DEPRECATIONS_FOR_TEST && options) {
+      DEPRECATIONS_FOR_TEST.push({
+        message,
+        options: {
+          id: options.id,
+          stacktrace: new Error().stack,
+          until: options.until,
+          url: options.url,
+        },
+      });
     }
     // we do not call next to avoid spamming the console
   });

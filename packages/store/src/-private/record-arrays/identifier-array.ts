@@ -1,7 +1,6 @@
 /**
   @module @ember-data/store
 */
-// @ts-expect-error
 import { tagForProperty } from '@ember/-internals/metal';
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
