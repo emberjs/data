@@ -77,6 +77,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
+    "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "ember-source": "~5.1.2"

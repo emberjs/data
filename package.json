@@ -117,7 +117,9 @@
     },
     "peerDependencyRules": {
       "ignoreMissing": [
-        "rsvp"
+        "rsvp",
+        "webpack",
+        "ember-auto-import"
       ],
       "allowAny": [
         "ember-source",
