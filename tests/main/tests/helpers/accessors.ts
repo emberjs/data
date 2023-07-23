@@ -4,7 +4,7 @@ import type BelongsToRelationship from '@ember-data/graph/-private/relationships
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 export function getRelationshipStateForRecord(
@@ -27,7 +27,7 @@ export function hasRelationshipForRecord(
 }
 
 export function implicitRelationshipsFor(
-  storeWrapper: CacheStoreWrapper,
+  storeWrapper: CacheCapabilitiesManager,
   identifier: StableRecordIdentifier
 ): { [key: string]: ImplicitRelationship } {
   const rels = graphFor(storeWrapper).identifiers.get(identifier);

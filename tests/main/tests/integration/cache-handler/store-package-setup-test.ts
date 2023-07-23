@@ -25,7 +25,7 @@ import type {
   SingleResourceDataDocument,
 } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
@@ -59,7 +59,7 @@ class TestStore extends Store {
     });
   }
 
-  createCache(wrapper: CacheStoreWrapper) {
+  createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
 
@@ -283,7 +283,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           });
         }
 
-        createCache(wrapper: CacheStoreWrapper) {
+        createCache(wrapper: CacheCapabilitiesManager) {
           return new Cache(wrapper);
         }
 
@@ -376,7 +376,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           });
         }
 
-        createCache(wrapper: CacheStoreWrapper) {
+        createCache(wrapper: CacheCapabilitiesManager) {
           return new Cache(wrapper);
         }
 
@@ -470,7 +470,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           });
         }
 
-        createCache(wrapper: CacheStoreWrapper) {
+        createCache(wrapper: CacheCapabilitiesManager) {
           return new Cache(wrapper);
         }
 

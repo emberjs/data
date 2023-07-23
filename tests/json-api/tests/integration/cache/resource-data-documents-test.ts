@@ -7,7 +7,7 @@ import Store from '@ember-data/store';
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { SingleResourceDataDocument, StructuredDocument } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel } from '@ember-data/types/q/ds-model';
 import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -16,7 +16,7 @@ import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
-  createCache(wrapper: CacheStoreWrapper) {
+  createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
 

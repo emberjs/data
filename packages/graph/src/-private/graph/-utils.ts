@@ -3,7 +3,7 @@ import { assert, inspect, warn } from '@ember/debug';
 import { LOG_GRAPH } from '@ember-data/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { coerceId } from '../coerce-id';
@@ -12,7 +12,7 @@ import type ManyRelationship from '../relationships/state/has-many';
 import type { UpdateRelationshipOperation } from './-operations';
 import type { Graph, ImplicitRelationship } from './graph';
 
-export function getStore(wrapper: CacheStoreWrapper | { _store: Store }): Store {
+export function getStore(wrapper: CacheCapabilitiesManager | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);
   return wrapper._store;
 }

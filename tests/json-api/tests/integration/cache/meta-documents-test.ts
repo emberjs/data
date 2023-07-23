@@ -11,12 +11,12 @@ import type {
   StructuredDocument,
 } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
 class TestStore extends Store {
-  createCache(wrapper: CacheStoreWrapper) {
+  createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
 }

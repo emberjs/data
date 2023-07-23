@@ -7,7 +7,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import { DSModel } from '@ember-data/types/q/ds-model';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import publicProps from '@ember-data/unpublished-test-infra/test-support/public-props';
@@ -101,7 +101,7 @@ class TestRecordData {
 
 class CustomStore extends Store {
   // @ts-expect-error
-  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
+  createRecordDataFor(identifier: StableRecordIdentifier, wrapper: CacheCapabilitiesManager) {
     return new TestRecordData();
   }
 }
@@ -139,10 +139,10 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
   test('Relationship definitions', async function (assert) {
     const { owner } = this;
-    let storeWrapper!: CacheStoreWrapper;
+    let storeWrapper!: CacheCapabilitiesManager;
 
     class TestStore extends Store {
-      createCache(wrapper: CacheStoreWrapper) {
+      createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return super.createCache(wrapper);
       }
@@ -215,10 +215,10 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
   test('setRecordId', async function (assert) {
     const { owner } = this;
-    let storeWrapper!: CacheStoreWrapper;
+    let storeWrapper!: CacheCapabilitiesManager;
 
     class TestStore extends Store {
-      createCache(wrapper: CacheStoreWrapper) {
+      createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return super.createCache(wrapper);
       }
@@ -240,9 +240,9 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
   test('hasRecord', async function (assert) {
     const { owner } = this;
 
-    let storeWrapper!: CacheStoreWrapper;
+    let storeWrapper!: CacheCapabilitiesManager;
     class TestStore extends Store {
-      createCache(wrapper: CacheStoreWrapper) {
+      createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return super.createCache(wrapper);
       }
@@ -270,9 +270,9 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
   test('disconnectRecord', async function (assert) {
     const { owner } = this;
 
-    let storeWrapper!: CacheStoreWrapper;
+    let storeWrapper!: CacheCapabilitiesManager;
     class TestStore extends Store {
-      createCache(wrapper: CacheStoreWrapper) {
+      createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return super.createCache(wrapper);
       }
