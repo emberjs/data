@@ -13,8 +13,8 @@ import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 import RecordReference from '../legacy-model-support/record-reference';
-import { CacheManager } from '../managers/cache-manager';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
+import { CacheManager } from '../managers/cache-manager';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
