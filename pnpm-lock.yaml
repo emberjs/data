@@ -4663,7 +4663,7 @@ packages:
     resolution: {integrity: sha512-3yWpPsK5O77tUdCwW3HayrAcdlRitIRYMvLIG69Pkal1JMIGdNYVTvJ2R1lenhQh2syd/WFmGM07vQuDAtotQw==}
     engines: {node: 16.* || >= 18}
     peerDependencies:
-      ember-source: ^4.0.0 || ^5.0.0
+      ember-source: '*'
     dependencies:
       '@ember/test-waiters': 3.0.2
       '@embroider/macros': 1.12.2
@@ -9249,7 +9249,7 @@ packages:
     resolution: {integrity: sha512-VDgrpIJ6rDDHIfkYrsFR1BM3fpcC0+zFWIOsX0qY44zPrIXjhQWVXs2iVXLIPHprSgf+tFQ3ESxwDscpeRe/0A==}
     engines: {node: 14.* || >= 16}
     peerDependencies:
-      ember-source: ^3.13.0 || ^4.0.0
+      ember-source: '*'
     dependencies:
       '@embroider/macros': 1.12.2
       '@glimmer/tracking': 1.1.2
@@ -9267,7 +9267,7 @@ packages:
     resolution: {integrity: sha512-VDgrpIJ6rDDHIfkYrsFR1BM3fpcC0+zFWIOsX0qY44zPrIXjhQWVXs2iVXLIPHprSgf+tFQ3ESxwDscpeRe/0A==}
     engines: {node: 14.* || >= 16}
     peerDependencies:
-      ember-source: ^3.13.0 || ^4.0.0
+      ember-source: '*'
     dependencies:
       '@embroider/macros': 1.12.2
       '@glimmer/tracking': 1.1.2
@@ -9356,7 +9356,7 @@ packages:
     resolution: {integrity: sha512-nevPv77Wjk0Mslb0AF0wgHfbjki6Fi3/dapTrFz17WLX6n5maLr/MTL1hZcZdbT+69DHdgckCza8Z1WyxiUbBA==}
     engines: {node: 12.* || 14.* || 16.* || >= 18}
     peerDependencies:
-      ember-source: ^3.28.0 || ^4.0.0 || ^5.0.0
+      ember-source: '*'
     dependencies:
       body-parser: 1.20.2
       ember-auto-import: 2.6.3(webpack@5.88.2)
@@ -9989,7 +9989,7 @@ packages:
     engines: {node: 16.* || >= 18}
     peerDependencies:
       '@ember/test-helpers': '>=3.0.3'
-      ember-source: '>=4.0.0'
+      ember-source: '*'
       qunit: ^2.13.0
     dependencies:
       '@ember/test-helpers': 3.2.0(ember-source@5.1.2)(webpack@5.88.2)
@@ -10014,7 +10014,7 @@ packages:
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
       '@ember/string': ^3.0.1
-      ember-source: ^4.8.3 || >= 5.0.0
+      ember-source: '*'
     peerDependenciesMeta:
       ember-source:
         optional: true
@@ -10030,7 +10030,7 @@ packages:
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
       '@ember/string': ^3.0.1
-      ember-source: ^4.8.3 || >= 5.0.0
+      ember-source: '*'
     peerDependenciesMeta:
       ember-source:
         optional: true
@@ -14936,6 +14936,9 @@ packages:
     peerDependencies:
       route-recognizer: ^0.3.4
       rsvp: ^4.8.5
+    peerDependenciesMeta:
+      rsvp:
+        optional: true
     dependencies:
       '@glimmer/env': 0.1.7
       route-recognizer: 0.3.4
@@ -16153,7 +16156,7 @@ packages:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: '*'
     dependencies:
       tslib: 1.14.1
       typescript: 5.1.6
