@@ -5,7 +5,7 @@ module.exports = function (environment) {
     modulePrefix: 'full-data-asset-size-app',
     environment,
     rootURL: '/',
-    locationType: 'auto',
+    locationType: 'history',
     EmberENV: {
       FEATURES: {},
       EXTEND_PROTOTYPES: {},
