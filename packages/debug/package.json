@@ -25,7 +25,7 @@
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.3.0-alpha.8",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.12.3",
+    "@embroider/macros": "^1.13.0",
     "ember-auto-import": "^2.6.3",
     "webpack": "^5.88.2",
     "ember-cli-babel": "^7.26.11"
