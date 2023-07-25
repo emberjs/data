@@ -38,7 +38,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: pnpm/action-setup@c3b53f6a16e57305370b4ae5a540c2077a1d50dd # tag=v2.2.4
+    - uses: pnpm/action-setup@0b715c7ebbf3cf2174d1386336c5f6d3d8d5504a # v2.3.0
     - uses: actions/setup-node@v3
       with:
         registry-url: 'https://registry.npmjs.org'
