@@ -1,15 +1,11 @@
 import { assert, warn } from '@ember/debug';
 import { computed } from '@ember/object';
-import { dasherize } from '@ember/string';
 
 import { DEBUG } from '@ember-data/env';
 
 import { lookupLegacySupport } from './model';
-import { computedMacroWithOptionalParams } from './util';
+import { computedMacroWithOptionalParams, normalizeModelName } from './util';
 
-function normalizeType(type) {
-  return dasherize(type);
-}
 /**
   @module @ember-data/model
 */
@@ -115,7 +111,7 @@ function belongsTo(modelName, options) {
   );
 
   let meta = {
-    type: normalizeType(userEnteredModelName),
+    type: normalizeModelName(userEnteredModelName),
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',

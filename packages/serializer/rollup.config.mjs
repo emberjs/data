@@ -15,7 +15,6 @@ export default {
   external: [
     '@embroider/macros',
     '@ember/service',
-    '@ember-data/store/-private',
     '@ember/object',
     '@ember/application',
     '@ember/string',

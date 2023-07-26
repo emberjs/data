@@ -9,3 +9,4 @@ export { default as BooleanTransform } from './-private/transforms/boolean';
 export { default as DateTransform } from './-private/transforms/date';
 export { default as NumberTransform } from './-private/transforms/number';
 export { default as StringTransform } from './-private/transforms/string';
+export { coerceId } from './-private/utils';

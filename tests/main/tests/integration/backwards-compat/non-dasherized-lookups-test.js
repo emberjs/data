@@ -1,10 +1,11 @@
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module(
   'integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code finders',
@@ -27,45 +28,61 @@ module(
       this.owner.register('serializer:application', class extends JSONAPISerializer {});
     });
 
-    test('can lookup records using camelCase strings', async function (assert) {
-      assert.expect(1);
+    deprecatedTest(
+      'can lookup records using camelCase strings',
+      {
+        count: 1,
+        until: '6.0',
+        id: 'ember-data:deprecate-non-strict-types',
+      },
+      async function (assert) {
+        assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
+        let store = this.owner.lookup('service:store');
 
-      store.pushPayload('post-note', {
-        data: {
-          type: 'post-notes',
-          id: '1',
-          attributes: {
-            name: 'Ember Data',
+        store.pushPayload('post-note', {
+          data: {
+            type: 'post-notes',
+            id: '1',
+            attributes: {
+              name: 'Ember Data',
+            },
           },
-        },
-      });
+        });
 
-      const postNote = await store.findRecord('postNote', '1');
+        const postNote = await store.findRecord('postNote', '1');
 
-      assert.strictEqual(postNote.name, 'Ember Data', 'record found');
-    });
+        assert.strictEqual(postNote.name, 'Ember Data', 'record found');
+      }
+    );
 
-    test('can lookup records using under_scored strings', async function (assert) {
-      assert.expect(1);
+    deprecatedTest(
+      'can lookup records using under_scored strings',
+      {
+        count: 1,
+        until: '6.0',
+        id: 'ember-data:deprecate-non-strict-types',
+      },
+      async function (assert) {
+        assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
+        let store = this.owner.lookup('service:store');
 
-      store.pushPayload('post-note', {
-        data: {
-          type: 'post-notes',
-          id: '1',
-          attributes: {
-            name: 'Ember Data',
+        store.pushPayload('post-note', {
+          data: {
+            type: 'post-notes',
+            id: '1',
+            attributes: {
+              name: 'Ember Data',
+            },
           },
-        },
-      });
+        });
 
-      const postNote = await store.findRecord('post_note', '1');
+        const postNote = await store.findRecord('post_note', '1');
 
-      assert.strictEqual(postNote.name, 'Ember Data', 'record found');
-    });
+        assert.strictEqual(postNote.name, 'Ember Data', 'record found');
+      }
+    );
   }
 );
 
@@ -102,72 +119,88 @@ module(
       this.owner.register('serializer:application', class extends JSONAPISerializer {});
     });
 
-    test('looks up belongsTo using camelCase strings', async function (assert) {
-      assert.expect(1);
+    deprecatedTest(
+      'looks up belongsTo using camelCase strings',
+      {
+        count: 2,
+        until: '6.0',
+        id: 'ember-data:deprecate-non-strict-types',
+      },
+      async function (assert) {
+        assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
+        let store = this.owner.lookup('service:store');
 
-      store.pushPayload('post-note', {
-        data: {
-          type: 'post-notes',
-          id: '1',
-          attributes: {
-            name: 'Ember Data',
-          },
-          relationships: {
-            'note-post': {
-              data: { type: 'note-post', id: '1' },
+        store.pushPayload('post-note', {
+          data: {
+            type: 'post-notes',
+            id: '1',
+            attributes: {
+              name: 'Ember Data',
+            },
+            relationships: {
+              'note-post': {
+                data: { type: 'note-post', id: '1' },
+              },
             },
           },
-        },
-      });
-      store.pushPayload('notePost', {
-        data: {
-          type: 'note-posts',
-          id: '1',
-          attributes: {
-            name: 'Inverse',
-          },
-        },
-      });
-
-      const postNote = await store.findRecord('post-note', '1');
-      assert.strictEqual(postNote.notePost.name, 'Inverse', 'inverse record found');
-    });
-
-    test('looks up belongsTo using under_scored strings', async function (assert) {
-      assert.expect(1);
-
-      let store = this.owner.lookup('service:store');
-
-      store.pushPayload('long_model_name', {
-        data: {
-          type: 'long-model-names',
-          id: '1',
-          attributes: {},
-          relationships: {
-            'post-notes': {
-              data: [{ type: 'post-note', id: '1' }],
+        });
+        store.pushPayload('notePost', {
+          data: {
+            type: 'note-posts',
+            id: '1',
+            attributes: {
+              name: 'Inverse',
             },
           },
-        },
-      });
+        });
 
-      store.pushPayload('post-note', {
-        data: {
-          type: 'post-notes',
-          id: '1',
-          attributes: {
-            name: 'Ember Data',
+        const postNote = await store.findRecord('post-note', '1');
+        assert.strictEqual(postNote.notePost.name, 'Inverse', 'inverse record found');
+      }
+    );
+
+    deprecatedTest(
+      'looks up belongsTo using under_scored strings',
+      {
+        count: 4,
+        until: '6.0',
+        id: 'ember-data:deprecate-non-strict-types',
+      },
+      async function (assert) {
+        assert.expect(1);
+
+        let store = this.owner.lookup('service:store');
+
+        store.pushPayload('long_model_name', {
+          data: {
+            type: 'long-model-names',
+            id: '1',
+            attributes: {},
+            relationships: {
+              'post-notes': {
+                data: [{ type: 'post-note', id: '1' }],
+              },
+            },
           },
-        },
-      });
+        });
 
-      const longModel = await store.findRecord('long_model_name', '1');
-      const postNotesRel = await longModel.postNotes;
-      const postNotes = postNotesRel.slice();
+        store.pushPayload('post-note', {
+          data: {
+            type: 'post-notes',
+            id: '1',
+            attributes: {
+              name: 'Ember Data',
+            },
+          },
+        });
 
-      assert.deepEqual(postNotes, [store.peekRecord('postNote', '1')], 'inverse records found');
-    });
+        const longModel = await store.findRecord('long_model_name', '1');
+        const postNotesRel = await longModel.postNotes;
+        const postNotes = postNotesRel.slice();
+
+        assert.deepEqual(postNotes, [store.peekRecord('postNote', '1')], 'inverse records found');
+      }
+    );
   }
 );

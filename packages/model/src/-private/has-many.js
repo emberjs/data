@@ -2,19 +2,40 @@
   @module @ember-data/model
 */
 import { A } from '@ember/array';
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import { computed } from '@ember/object';
 import { dasherize } from '@ember/string';
 
 import { singularize } from 'ember-inflector';
 
+import { DEPRECATE_NON_STRICT_TYPES } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 
 import { lookupLegacySupport } from './model';
 import { computedMacroWithOptionalParams } from './util';
 
 function normalizeType(type) {
-  return singularize(dasherize(type));
+  if (DEPRECATE_NON_STRICT_TYPES) {
+    const result = singularize(dasherize(type));
+
+    deprecate(
+      `The resource type '${type}' is not normalized. Update your application code to use '${result}' instead of '${type}'.`,
+      result === type,
+      {
+        id: 'ember-data:deprecate-non-strict-types',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '5.3',
+          enabled: '5.3',
+        },
+      }
+    );
+
+    return result;
+  }
+
+  return type;
 }
 
 /**

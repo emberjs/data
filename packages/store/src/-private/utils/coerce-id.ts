@@ -2,6 +2,10 @@
   @module @ember-data/store
 */
 
+import { assert, deprecate } from '@ember/debug';
+
+import { DEPRECATE_NON_STRICT_ID } from '@ember-data/deprecations';
+
 // Used by the store to normalize IDs entering the store.  Despite the fact
 // that developers may provide IDs as numbers (e.g., `store.findRecord('person', 1)`),
 // it is important that internally we use strings, since IDs may be serialized
@@ -11,16 +15,43 @@
 type Coercable = string | number | boolean | null | undefined | symbol;
 
 function coerceId(id: Coercable): string | null {
-  if (id === null || id === undefined || id === '') {
-    return null;
+  if (DEPRECATE_NON_STRICT_ID) {
+    let normalized: string | null;
+    if (id === null || id === undefined || id === '') {
+      normalized = null;
+    } else if (typeof id === 'string') {
+      normalized = id;
+    } else if (typeof id === 'symbol') {
+      normalized = id.toString();
+    } else {
+      normalized = '' + id;
+    }
+
+    deprecate(
+      `The resource id '<${typeof id}> ${String(
+        id
+      )} ' is not normalized. Update your application code to use '${JSON.stringify(normalized)}' instead.`,
+      normalized === id,
+      {
+        id: 'ember-data:deprecate-non-strict-id',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '5.3',
+          enabled: '5.3',
+        },
+      }
+    );
+
+    return normalized;
   }
-  if (typeof id === 'string') {
-    return id;
-  }
-  if (typeof id === 'symbol') {
-    return id.toString();
-  }
-  return '' + id;
+
+  assert(
+    `Resource IDs must be a non-empty string or null. Received '${String(id)}'.`,
+    id === null || (typeof id === 'string' && id.length > 0)
+  );
+
+  return id;
 }
 
 export function ensureStringId(id: Coercable): string {
