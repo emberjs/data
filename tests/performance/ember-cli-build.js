@@ -63,6 +63,11 @@ module.exports = function (defaults) {
                   inline: 5,
                   reduce_funcs: false,
                 },
+                mangle: {
+                  keep_classnames: true,
+                  keep_fnames: true,
+                  module: true,
+                },
                 format: { beautify: true },
                 toplevel: false,
                 sourceMap: false,
