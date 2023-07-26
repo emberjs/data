@@ -23,7 +23,7 @@ import type {
   UpdateMethod,
 } from '@ember-data/types/q/identifier';
 
-import coerceId from '../utils/coerce-id';
+import coerceId, { ensureStringId } from '../utils/coerce-id';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifier-debug-consts';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import normalizeModelName from '../utils/normalize-model-name';
@@ -215,7 +215,7 @@ export class IdentifierCache {
       return resource;
     }
 
-    let lid = coerceId(resource.lid);
+    let lid = resource.lid || null;
     let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids.get(lid) : undefined;
 
     if (identifier !== undefined) {
@@ -687,7 +687,7 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
     identifier = DEBUG_MAP.get(wrapper);
 
     if (lid !== undefined) {
-      let newLid = coerceId(lid);
+      let newLid = ensureStringId(lid);
       if (newLid !== identifier.lid) {
         throw new Error(
           `The 'lid' for a RecordIdentifier cannot be updated once it has been created. Attempted to set lid for '${wrapper}' to '${lid}'.`
