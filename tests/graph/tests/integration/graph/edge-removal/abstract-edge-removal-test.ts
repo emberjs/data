@@ -193,7 +193,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
     });
   });
 
-  module('Persisted Deletion w/o dematerialization of Record removes it from the graph', function (hooks) {
+  module('Persisted Deletion w/o dematerialization of Record removes it from the graph', function (innerHooks) {
     function persistedDeletionTest(config: TestConfig) {
       test(config.name, async function (this: Context, assert) {
         const testState = await setInitialState(this, config, assert);
@@ -239,31 +239,34 @@ module('Integration | Graph | Edge Removal', function (hooks) {
     });
   });
 
-  module('Persisted Deletion + dematerialization of Record removes it from the graph and cleans up', function (hooks) {
-    function persistedDeletionUnloadedTest(config: TestConfig) {
-      test(config.name, async function (this: Context, assert) {
-        const testState = await setInitialState(this, config, assert);
-        const { john } = testState;
+  module(
+    'Persisted Deletion + dematerialization of Record removes it from the graph and cleans up',
+    function (innerHooks) {
+      function persistedDeletionUnloadedTest(config: TestConfig) {
+        test(config.name, async function (this: Context, assert) {
+          const testState = await setInitialState(this, config, assert);
+          const { john } = testState;
 
-        // now we delete
-        john.deleteRecord();
-        await john.save();
-        john.unloadRecord();
+          // now we delete
+          john.deleteRecord();
+          await john.save();
+          john.unloadRecord();
 
-        await settled();
+          await settled();
 
-        await testFinalState(this, testState, config, { removed: true, cleared: true }, assert);
+          await testFinalState(this, testState, config, { removed: true, cleared: true }, assert);
+        });
+      }
+
+      TestScenarios.forEach(persistedDeletionUnloadedTest);
+      TestScenarios.forEach((testConfig) => {
+        const config = Object.assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
+        persistedDeletionUnloadedTest(config);
+      });
+      TestScenarios.forEach((testConfig) => {
+        const config = Object.assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
+        persistedDeletionUnloadedTest(config);
       });
     }
-
-    TestScenarios.forEach(persistedDeletionUnloadedTest);
-    TestScenarios.forEach((testConfig) => {
-      const config = Object.assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
-      persistedDeletionUnloadedTest(config);
-    });
-    TestScenarios.forEach((testConfig) => {
-      const config = Object.assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
-      persistedDeletionUnloadedTest(config);
-    });
-  });
+  );
 });

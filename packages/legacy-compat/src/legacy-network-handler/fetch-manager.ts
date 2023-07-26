@@ -292,7 +292,7 @@ function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): b
   return (
     !isLoaded &&
     // fulfilled === null &&
-    req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+    req.getPendingRequestsForRecord(identifier).some((r) => r.type === 'query')
   );
 }
 
@@ -413,8 +413,8 @@ function handleFoundRecords(
 
   // reject missing records
   let rejected: Snapshot[] = [];
-  snapshotsById.forEach((snapshots) => {
-    rejected.push(...snapshots);
+  snapshotsById.forEach((snapshotArray) => {
+    rejected.push(...snapshotArray);
   });
   warn(
     'Ember Data expected to find records with the following ids in the adapter response from findMany but they were missing: [ "' +

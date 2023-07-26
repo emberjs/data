@@ -504,7 +504,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    await store.findRecord('person', '1', { preload: { friend: 2 } }).then(() => {
+    await store.findRecord('person', '1', { preload: { friend: '2' } }).then(() => {
       return store.peekRecord('person', '1').friend.then((friend) => {
         assert.strictEqual(friend.id, '2', 'Preloaded belongsTo set');
       });
@@ -567,7 +567,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    await store.findRecord('person', '1', { preload: { friends: [2] } });
+    await store.findRecord('person', '1', { preload: { friends: ['2'] } });
   });
 
   test('initial empty values of hasMany can be passed in as the third argument to find as records', async function (assert) {
@@ -615,7 +615,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    await store.findRecord('person', 1, { preload: { friends: [] } });
+    await store.findRecord('person', '1', { preload: { friends: [] } });
   });
 
   test('records should have their ids updated when the adapter returns the id data', async function (assert) {

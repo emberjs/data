@@ -191,7 +191,7 @@ export default class RelatedCollection extends RecordArray {
           op: 'addToRelatedRecords',
           record: this.identifier,
           field: this.key,
-          value: extractIdentifiersFromRecords(args as RecordInstance[]),
+          value: extractIdentifiersFromRecords(args),
         });
         break;
       case 'pop':
@@ -210,7 +210,7 @@ export default class RelatedCollection extends RecordArray {
           op: 'addToRelatedRecords',
           record: this.identifier,
           field: this.key,
-          value: extractIdentifiersFromRecords(args as RecordInstance[]),
+          value: extractIdentifiersFromRecords(args),
           index: 0,
         });
         break;

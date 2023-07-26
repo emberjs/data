@@ -130,7 +130,7 @@ function maybeUpdateUiObjects<T>(
     const data = document.data ? store.peekRecord(document.data) : null;
     let doc: Document<RecordInstance | null> | undefined;
     if (identifier) {
-      doc = store._documentCache.get(identifier) as Document<RecordInstance | null> | undefined;
+      doc = store._documentCache.get(identifier);
     }
 
     if (!doc) {

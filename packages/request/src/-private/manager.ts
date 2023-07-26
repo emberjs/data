@@ -591,7 +591,7 @@ export class RequestManager {
     if (TESTING) {
       if (!request.disableTestWaiter) {
         const { waitForPromise } = importSync('@ember/test-waiters') as {
-          waitForPromise: <T>(promise: Promise<T>) => Promise<T>;
+          waitForPromise: <PT>(promise: Promise<PT>) => Promise<PT>;
         };
         const newPromise = waitForPromise(promise);
         return upgradePromise(newPromise, promise);

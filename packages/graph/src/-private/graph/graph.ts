@@ -525,18 +525,18 @@ function removeDematerializedInverse(
   silenceNotifications?: boolean
 ) {
   if (isBelongsTo(relationship)) {
-    const inverseIdentifier = relationship.localState;
-    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
+    const localInverse = relationship.localState;
+    if (!relationship.definition.isAsync || (localInverse && isNew(localInverse))) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
       // if the record being unloaded only exists on the client, we similarly
       // treat it as a client side delete
-      if (relationship.localState === inverseIdentifier && inverseIdentifier !== null) {
+      if (relationship.localState === localInverse && localInverse !== null) {
         relationship.localState = null;
       }
 
-      if (relationship.remoteState === inverseIdentifier && inverseIdentifier !== null) {
+      if (relationship.remoteState === localInverse && localInverse !== null) {
         relationship.remoteState = null;
         relationship.state.hasReceivedData = true;
         relationship.state.isEmpty = true;

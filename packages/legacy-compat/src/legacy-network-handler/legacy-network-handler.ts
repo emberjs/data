@@ -180,9 +180,9 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
     .then((payload) => {
       if (LOG_PAYLOADS) {
         try {
-          let data: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
+          let payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
           // eslint-disable-next-line no-console
-          console.log(`EmberData | Payload - ${operation!}`, data);
+          console.log(`EmberData | Payload - ${operation!}`, payloadCopy);
         } catch (e) {
           // eslint-disable-next-line no-console
           console.log(`EmberData | Payload - ${operation!}`, payload);
@@ -356,7 +356,7 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
     }
   }
 
-  return promise.then((identifier: StableRecordIdentifier) => store.peekRecord(identifier)) as Promise<T>;
+  return promise.then((i: StableRecordIdentifier) => store.peekRecord(i)) as Promise<T>;
 }
 
 function findAll<T>(context: StoreRequestContext): Promise<T> {
@@ -437,7 +437,7 @@ function _findAll<T>(
   if (TESTING) {
     if (!request.disableTestWaiter) {
       const { waitForPromise } = importSync('@ember/test-waiters') as {
-        waitForPromise: <T>(promise: Promise<T>) => Promise<T>;
+        waitForPromise: <PT>(promise: Promise<PT>) => Promise<PT>;
       };
       promise = waitForPromise(promise);
     }
@@ -451,6 +451,7 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   let { options } = data as {
     options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
   };
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const { type, query } = data as {
     type: string;
     query: Record<string, unknown>;
@@ -509,6 +510,7 @@ function assertSingleResourceDocument(payload: JsonApiDocument): asserts payload
 
 function queryRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const { type, query, options } = data as { type: string; query: Record<string, unknown>; options: object };
   const adapter = store.adapterFor(type);
 

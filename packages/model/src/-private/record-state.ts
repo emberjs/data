@@ -12,7 +12,7 @@ import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-type Model = InstanceType<typeof import('./model')>;
+import type Model from './model';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;

@@ -69,9 +69,9 @@ class TestRecordData implements Cache {
   put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
     if ('content' in doc && !('error' in doc)) {
       if (Array.isArray(doc.content.data)) {
-        const data = doc.content.data.map((data) => {
-          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(data);
-          this.upsert(identifier, data, this._storeWrapper.hasRecord(identifier));
+        const data = doc.content.data.map((resource) => {
+          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(resource);
+          this.upsert(identifier, resource, this._storeWrapper.hasRecord(identifier));
           return identifier;
         });
         return { data };
@@ -83,7 +83,7 @@ class TestRecordData implements Cache {
         return { data: identifier } as SingleResourceDataDocument;
       }
     } else if ('error' in doc) {
-      throw typeof doc.error === 'string' ? new Error(doc.error) : doc.error;
+      throw typeof doc.error === 'string' ? new Error(doc.error) : (doc.error as Error);
     }
     throw new Error('Not Implemented');
   }

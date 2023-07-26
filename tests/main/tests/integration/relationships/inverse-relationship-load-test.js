@@ -235,7 +235,7 @@ module('inverse relationship load test', function (hooks) {
     );
 
     class Person extends Model {
-      @hasMany('dogs', {
+      @hasMany('dog', {
         inverse: null,
         async: true,
       })

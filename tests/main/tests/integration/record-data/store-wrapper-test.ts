@@ -8,7 +8,6 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import { DSModel } from '@ember-data/types/q/ds-model';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import publicProps from '@ember-data/unpublished-test-infra/test-support/public-props';
 
@@ -227,7 +226,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     owner.register('service:store', TestStore);
     const store = owner.lookup('service:store') as unknown as Store;
 
-    let house = store.createRecord('house', {}) as DSModel;
+    let house = store.createRecord('house', {}) as Model;
     storeWrapper.setRecordId(recordIdentifierFor(house), '17');
     assert.strictEqual(house.id, '17', 'setRecordId correctly set the id');
     assert.strictEqual(
@@ -257,7 +256,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     store.peekRecord('house', '1');
 
     // TODO isRecordInUse returns true if record has never been instantiated, think through whether thats correct
-    let house2 = store.peekRecord('house', '2') as DSModel;
+    let house2 = store.peekRecord('house', '2') as Model;
     house2.unloadRecord();
 
     store.createRecord('house', {});

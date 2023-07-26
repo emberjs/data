@@ -849,10 +849,10 @@ export default class JSONAPICache implements Cache {
     let relatedIdentifiers = _allRelatedIdentifiers(storeWrapper, identifier);
     if (areAllModelsUnloaded(storeWrapper, relatedIdentifiers)) {
       for (let i = 0; i < relatedIdentifiers.length; ++i) {
-        let identifier = relatedIdentifiers[i];
-        storeWrapper.notifyChange(identifier, 'removed');
+        let relatedIdentifier = relatedIdentifiers[i];
+        storeWrapper.notifyChange(relatedIdentifier, 'removed');
         removed = true;
-        storeWrapper.disconnectRecord(identifier);
+        storeWrapper.disconnectRecord(relatedIdentifier);
       }
     }
 
@@ -1324,7 +1324,7 @@ function _isLoading(
   return (
     !isLoaded &&
     // fulfilled === null &&
-    req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+    req.getPendingRequestsForRecord(identifier).some((r) => r.type === 'query')
   );
 }
 
@@ -1492,10 +1492,10 @@ function _allRelatedIdentifiers(
 
     const iterator = _directlyRelatedIdentifiersIterable(storeWrapper, originating).iterator();
     for (let obj = iterator.next(); !obj.done; obj = iterator.next()) {
-      const identifier = obj.value;
-      if (identifier && !seen.has(identifier)) {
-        seen.add(identifier);
-        queue.push(identifier);
+      const relatedIdentifier = obj.value;
+      if (relatedIdentifier && !seen.has(relatedIdentifier)) {
+        seen.add(relatedIdentifier);
+        queue.push(relatedIdentifier);
       }
     }
   }

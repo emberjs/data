@@ -1,4 +1,4 @@
-import { camelize, dasherize, decamelize } from '@ember/string';
+import { dasherize, decamelize } from '@ember/string';
 
 import { module, test } from 'qunit';
 
@@ -110,15 +110,14 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let serializer = store.serializerFor('application');
 
     serializer.modelNameFromPayloadKey = function (root) {
-      let camelized = camelize(root);
-      return singularize(camelized);
+      return root === 'planets' ? 'home-planet' : singularize(dasherize(root));
     };
 
     this.owner.register('serializer:home-planet', JSONSerializer.extend());
     this.owner.register('serializer:super-villain', JSONSerializer.extend());
 
     let jsonHash = {
-      home_planets: [
+      planets: [
         {
           id: '1',
           name: 'Umber',
@@ -246,7 +245,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     assert.deepEqual(homePlanet.data.relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
   });
 
-  testInDebug('normalizeResponse warning with custom modelNameFromPayloadKey', function (assert) {
+  testInDebug('normalizeResponse warning with custom modelNameFromPayloadKey (again)', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
@@ -268,11 +267,11 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     // should not warn if a model is found.
     serializer.modelNameFromPayloadKey = function (root) {
-      return camelize(singularize(root));
+      return root === 'planets' ? 'home-planet' : singularize(dasherize(root));
     };
 
     jsonHash = {
-      home_planets: [{ id: '1', name: 'Umber', superVillains: [1] }],
+      planets: [{ id: '1', name: 'Umber', superVillains: [1] }],
     };
 
     assert.expectNoWarning(function () {
@@ -614,8 +613,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test('normalizeResponse with async polymorphic belongsTo, using <relationshipName>Type', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = (store, type) => {
       if (type.modelName === 'doomsday-device') {
@@ -641,14 +640,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       };
     };
 
-    await store
-      .findRecord('doomsday-device', 1)
-      .then((deathRay) => {
-        return deathRay.evilMinion;
-      })
-      .then((evilMinion) => {
-        assert.strictEqual(evilMinion.eyes, 3);
-      });
+    const deathRay = await store.findRecord('doomsday-device', '1');
+    const evilMinion = await deathRay.evilMinion;
+    assert.strictEqual(evilMinion.eyes, 3);
   });
 
   test('normalizeResponse with async polymorphic belongsTo', async function (assert) {

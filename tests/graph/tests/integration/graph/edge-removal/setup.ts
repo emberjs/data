@@ -4,8 +4,8 @@ import { graphFor } from '@ember-data/graph/-private';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
+import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
@@ -18,6 +18,7 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 class AbstractMap {
   constructor(
     private store: Store,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     private isImplicit: boolean
   ) {}
 
@@ -132,7 +133,7 @@ class Serializer {
   }
 }
 
-export interface UserRecord extends DSModel {
+export interface UserRecord extends Model {
   name?: string;
   bestFriend?: UserRecord;
   bestFriends?: UserRecord[];

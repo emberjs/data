@@ -8,11 +8,11 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 
 module('Integration | Identifiers - lid reflection', function (hooks: NestedHooks) {
   setupTest(hooks);
-  let store;
 
   hooks.beforeEach(function () {
     const { owner } = this;
@@ -23,10 +23,9 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     }
 
     owner.register('model:user', User);
-    store = owner.lookup('service:store');
   });
 
-  test(`We can access the lid when serializing a record`, async function (assert: Assert) {
+  test(`We can access the lid when serializing a record`, function (assert: Assert) {
     class TestSerializer extends EmberObject {
       serialize(snapshot: Snapshot) {
         // TODO should snapshots have direct access to the identifier?
@@ -43,7 +42,8 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     }
     this.owner.register('serializer:application', TestSerializer);
 
-    const record = store.createRecord('user', { name: 'Chris' });
+    const store = this.owner.lookup('service:store') as Store;
+    const record = store.createRecord('user', { name: 'Chris' }) as Model;
     const identifier = recordIdentifierFor(record);
     const serialized = record.serialize();
 
@@ -51,8 +51,9 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     assert.strictEqual(serialized.lid, identifier.lid, 'We have the right lid');
   });
 
-  test(`A newly created record can receive a payload by lid (no save ever called)`, async function (assert: Assert) {
-    const record = store.createRecord('user', { name: 'Chris' });
+  test(`A newly created record can receive a payload by lid (no save ever called)`, function (assert: Assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const record = store.createRecord('user', { name: 'Chris' }) as Model;
     const identifier = recordIdentifierFor(record);
 
     assert.notStrictEqual(identifier.lid, null, 'We have an lid');
@@ -81,12 +82,12 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     const adapterPromise = defer();
     const beganSavePromise = defer();
     class TestSerializer extends EmberObject {
-      normalizeResponse(_, __, payload) {
+      normalizeResponse(_, __, payload: Record<string, unknown>) {
         return payload;
       }
     }
     class TestAdapter extends Adapter {
-      createRecord(store, ModelClass, snapshot) {
+      createRecord(store, ModelClass, snapshot: Snapshot) {
         beganSavePromise.resolve();
         return adapterPromise.promise.then(() => {
           return {
@@ -105,7 +106,8 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     this.owner.register('serializer:application', TestSerializer);
     this.owner.register('adapter:application', TestAdapter);
 
-    const record = store.createRecord('user', { name: 'Chris' });
+    const store = this.owner.lookup('service:store') as Store;
+    const record = store.createRecord('user', { name: 'Chris' }) as Model;
     const identifier = recordIdentifierFor(record);
 
     assert.notStrictEqual(identifier.lid, null, 'We have an lid');
@@ -150,22 +152,23 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
 
     class Cake extends Model {
       @attr name;
-      @hasMany('ingredient', { inverse: null, async: false }) ingredients;
+      @hasMany('ingredient', { inverse: null, async: false }) declare ingredients: Ingredient[];
     }
 
     this.owner.register('model:ingredient', Ingredient);
     this.owner.register('model:cake', Cake);
 
     class TestSerializer extends EmberObject {
-      normalizeResponse(_, __, payload) {
+      normalizeResponse(_, __, payload: Record<string, unknown>) {
         return payload;
       }
     }
 
     class TestAdapter extends Adapter {
-      createRecord(store, ModelClass, snapshot) {
-        const cakeLid = recordIdentifierFor(snapshot.record).lid;
-        const ingredientLid = recordIdentifierFor(snapshot.record.ingredients.at(0)).lid;
+      createRecord(store, ModelClass, snapshot: Snapshot) {
+        const record = snapshot.record as Cake;
+        const cakeLid = recordIdentifierFor(record).lid;
+        const ingredientLid = recordIdentifierFor(record.ingredients.at(0)).lid;
         return resolve({
           data: {
             type: 'cake',
@@ -211,8 +214,9 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     this.owner.register('serializer:application', TestSerializer);
     this.owner.register('adapter:application', TestAdapter);
 
-    const cheese = store.createRecord('ingredient', { name: 'Cheese' });
-    const cake = store.createRecord('cake', { name: 'Cheesecake', ingredients: [cheese] });
+    const store = this.owner.lookup('service:store') as Store;
+    const cheese = store.createRecord('ingredient', { name: 'Cheese' }) as Ingredient;
+    const cake = store.createRecord('cake', { name: 'Cheesecake', ingredients: [cheese] }) as Cake;
 
     // Consume ids before save() to check for update errors
     assert.strictEqual(cake.id, null, 'cake id is initially null');
@@ -221,7 +225,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     await cake.save();
 
     assert.deepEqual(cake.hasMany('ingredients').ids(), ['2']);
-    assert.strictEqual(cake.ingredients.at(0).name, 'Cheese');
+    assert.strictEqual(cake.ingredients.at(0)?.name, 'Cheese');
 
     assert.strictEqual(cake.id, '1', 'cake has the correct id');
     assert.strictEqual(cheese.id, '2', 'cheese has the correct id');
@@ -234,21 +238,22 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
 
     class Cake extends Model {
       @attr name;
-      @belongsTo('topping', { inverse: null, async: false }) topping;
+      @belongsTo('topping', { inverse: null, async: false }) declare topping: Topping;
     }
 
     this.owner.register('model:topping', Topping);
     this.owner.register('model:cake', Cake);
 
     class TestSerializer extends EmberObject {
-      normalizeResponse(_, __, payload) {
+      normalizeResponse(_, __, payload: unknown) {
         return payload;
       }
     }
 
     class TestAdapter extends Adapter {
-      createRecord(store, ModelClass, snapshot) {
-        const lid = recordIdentifierFor(snapshot.record.topping).lid;
+      createRecord(store, ModelClass, snapshot: Snapshot) {
+        const record = snapshot.record as Cake;
+        const lid = recordIdentifierFor(record.topping).lid;
         return resolve({
           data: {
             type: 'cake',
@@ -290,8 +295,9 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     this.owner.register('serializer:application', TestSerializer);
     this.owner.register('adapter:application', TestAdapter);
 
-    const cheese = store.createRecord('topping', { name: 'Cheese' });
-    const cake = store.createRecord('cake', { name: 'Cheesecake', topping: cheese });
+    const store = this.owner.lookup('service:store') as Store;
+    const cheese = store.createRecord('topping', { name: 'Cheese' }) as Topping;
+    const cake = store.createRecord('cake', { name: 'Cheesecake', topping: cheese }) as Cake;
 
     await cake.save();
 

@@ -2,19 +2,14 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import type Store from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('Integration | Identifiers - cache', function (hooks) {
   setupTest(hooks);
-  let store, cache;
-
-  hooks.beforeEach(function () {
-    store = this.owner.lookup('service:store');
-    cache = store.identifierCache;
-  });
 
   module('getOrCreateRecordIdentifier()', function () {
-    test('creates a new resource identifier if forgetRecordIdentifier() has been called on the existing identifier', async function (assert) {
+    test('creates a new resource identifier if forgetRecordIdentifier() has been called on the existing identifier', function (assert) {
       const runspiredHash = {
         type: 'person',
         id: '1',
@@ -22,6 +17,8 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'runspired',
         },
       };
+      const store = this.owner.lookup('service:store') as Store;
+      const cache = store.identifierCache;
       const identifier = cache.getOrCreateRecordIdentifier(runspiredHash);
 
       cache.forgetRecordIdentifier(identifier);
@@ -35,7 +32,7 @@ module('Integration | Identifiers - cache', function (hooks) {
       );
     });
 
-    test('returns the existing identifier when called with an identifier', async function (assert) {
+    test('returns the existing identifier when called with an identifier', function (assert) {
       const houseHash = {
         type: 'house',
         id: '1',
@@ -43,6 +40,7 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'Moomin',
         },
       };
+      const store = this.owner.lookup('service:store') as Store;
       const cache = store.identifierCache;
       const identifier = cache.getOrCreateRecordIdentifier(houseHash);
 
@@ -53,7 +51,7 @@ module('Integration | Identifiers - cache', function (hooks) {
       );
     });
 
-    test('identifiers are cached by lid and can be looked up by lid', async function (assert) {
+    test('identifiers are cached by lid and can be looked up by lid', function (assert) {
       const houseHash = {
         type: 'house',
         id: '1',
@@ -61,6 +59,7 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'Moomin',
         },
       };
+      const store = this.owner.lookup('service:store') as Store;
       const cache = store.identifierCache;
       const identifier = cache.getOrCreateRecordIdentifier(houseHash);
 
@@ -79,7 +78,7 @@ module('Integration | Identifiers - cache', function (hooks) {
   });
 
   module('createIdentifierForNewRecord()', function () {
-    test('returns new identifier', async function (assert) {
+    test('returns new identifier', function (assert) {
       const runspiredHash = {
         type: 'person',
         id: '1',
@@ -87,6 +86,8 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'runspired',
         },
       };
+      const store = this.owner.lookup('service:store') as Store;
+      const cache = store.identifierCache;
       const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
       assert.strictEqual(identifier.id, '1', 'identifier has id');
@@ -96,7 +97,7 @@ module('Integration | Identifiers - cache', function (hooks) {
   });
 
   module('updateRecordIdentifier()', function () {
-    test('returns same identifier', async function (assert) {
+    test('returns same identifier', function (assert) {
       const runspiredHash = {
         type: 'person',
         id: '1',
@@ -104,6 +105,8 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'runspired',
         },
       };
+      const store = this.owner.lookup('service:store') as Store;
+      const cache = store.identifierCache;
       let identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
       let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '1' });
@@ -112,7 +115,7 @@ module('Integration | Identifiers - cache', function (hooks) {
       assert.strictEqual(mergedIdentifier.type, identifier.type, 'merged identifier has same type');
     });
 
-    test('returns new identifier with different id', async function (assert) {
+    test('returns new identifier with different id', function (assert) {
       const runspiredHash = {
         type: 'person',
         id: '1',
@@ -120,6 +123,8 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'runspired',
         },
       };
+      const store = this.owner.lookup('service:store') as Store;
+      const cache = store.identifierCache;
       let identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
       let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '2' });
@@ -136,13 +141,15 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'runspired',
         },
       };
+      const store = this.owner.lookup('service:store') as Store;
+      const cache = store.identifierCache;
       cache.createIdentifierForNewRecord(runspiredHash);
-      assert.expectAssertion(() => {
+      await assert.expectAssertion(() => {
         cache.createIdentifierForNewRecord(runspiredHash);
       }, 'The lid generated for the new record is not unique as it matches an existing identifier');
     });
 
-    test('id is null', async function (assert) {
+    test('id is null', function (assert) {
       const runspiredHash = {
         type: 'person',
         id: '1',
@@ -150,6 +157,8 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'runspired',
         },
       };
+      const store = this.owner.lookup('service:store') as Store;
+      const cache = store.identifierCache;
       let identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
       let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: null });

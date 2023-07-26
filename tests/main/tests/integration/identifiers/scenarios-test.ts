@@ -15,7 +15,6 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   GenerationMethod,
   IdentifierBucket,
@@ -35,7 +34,7 @@ function isResourceData(resource: object): resource is ResourceData {
 module('Integration | Identifiers - scenarios', function (hooks) {
   setupTest(hooks);
 
-  module('Secondary Cache based on an attribute', function (hooks) {
+  module('Secondary Cache based on an attribute', function (innerHooks) {
     let calls;
     let isQuery = false;
     let secondaryCache: {
@@ -75,7 +74,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       }
     }
 
-    hooks.beforeEach(function () {
+    innerHooks.beforeEach(function () {
       const { owner } = this;
 
       class User extends Model {
@@ -167,7 +166,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       setIdentifierGenerationMethod(generationMethod);
     });
 
-    hooks.afterEach(function () {
+    innerHooks.afterEach(function () {
       setIdentifierGenerationMethod(null);
       setIdentifierResetMethod(null);
       setIdentifierUpdateMethod(null);
@@ -248,7 +247,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
   });
 
-  module('Secondary Cache using an attribute as an alternate id', function (hooks) {
+  module('Secondary Cache using an attribute as an alternate id', function (innerHooks) {
     let calls;
     let isQuery = false;
     let secondaryCache: { [key: string]: string };
@@ -285,17 +284,17 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       }
     }
 
-    hooks.beforeEach(function () {
-      const { owner } = this;
+    class User extends Model {
+      @attr()
+      declare firstName: string;
+      @attr()
+      declare username: string;
+      @attr()
+      declare age: number;
+    }
 
-      class User extends Model {
-        @attr()
-        declare firstName: string;
-        @attr()
-        declare username: string;
-        @attr()
-        declare age: number;
-      }
+    innerHooks.beforeEach(function () {
+      const { owner } = this;
 
       owner.register('adapter:application', TestAdapter);
       owner.register('serializer:application', TestSerializer);
@@ -400,7 +399,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       setIdentifierUpdateMethod(updateMethod);
     });
 
-    hooks.afterEach(function () {
+    innerHooks.afterEach(function () {
       setIdentifierGenerationMethod(null);
       setIdentifierResetMethod(null);
       setIdentifierUpdateMethod(null);
@@ -409,7 +408,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
     test(`findRecord by id then by username as id`, async function (assert) {
       const store = this.owner.lookup('service:store') as unknown as Store;
-      const recordById = await store.findRecord('user', '1');
+      const recordById = (await store.findRecord('user', '1')) as User;
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
@@ -434,7 +433,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const store = this.owner.lookup('service:store') as unknown as Store;
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
-      const recordById = await store.findRecord('user', '1');
+      const recordById = (await store.findRecord('user', '1')) as User;
       const identifierById = recordIdentifierFor(recordById);
 
       assert.strictEqual(identifierById, identifierByUsername, 'The identifiers should be identical');
@@ -458,7 +457,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const recordByUsernamePromise = store.findRecord('user', '@runspired');
       const recordByIdPromise = store.findRecord('user', '1');
 
-      const [recordByUsername, recordById] = await all([recordByUsernamePromise, recordByIdPromise]);
+      const [recordByUsername, recordById] = (await all([recordByUsernamePromise, recordByIdPromise])) as [User, User];
 
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const identifierById = recordIdentifierFor(recordById);
@@ -479,7 +478,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       );
 
       // ensure we still use secondary caching for @runspired post-merging of the identifiers
-      const recordByUsernameAgain = await store.findRecord('user', '@runspired');
+      const recordByUsernameAgain = (await store.findRecord('user', '@runspired')) as User;
       const identifier = recordIdentifierFor(recordByUsernameAgain);
 
       assert.strictEqual(identifierById, identifier, 'The identifiers should be identical');
@@ -491,9 +490,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
     test(`findRecord by username and again`, async function (assert) {
       const store = this.owner.lookup('service:store') as unknown as Store;
-      const recordByUsername = await store.findRecord('user', '@runspired');
+      const recordByUsername = (await store.findRecord('user', '@runspired')) as User;
       const identifierByUsername = recordIdentifierFor(recordByUsername);
-      const recordByUsername2 = await store.findRecord('user', '@runspired');
+      const recordByUsername2 = (await store.findRecord('user', '@runspired')) as User;
       const identifierByUsername2 = recordIdentifierFor(recordByUsername2);
 
       assert.strictEqual(identifierByUsername2, identifierByUsername, 'The identifiers should be identical');
@@ -543,9 +542,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     */
     test(`findRecord by username and reload`, async function (assert) {
       const store = this.owner.lookup('service:store') as unknown as Store;
-      const recordByUsername = await store.findRecord('user', '@runspired');
+      const recordByUsername = (await store.findRecord('user', '@runspired')) as User;
       const identifierByUsername = recordIdentifierFor(recordByUsername);
-      const recordByUsername2 = await store.findRecord('user', '@runspired', { reload: true });
+      const recordByUsername2 = (await store.findRecord('user', '@runspired', { reload: true })) as User;
       const identifierByUsername2 = recordIdentifierFor(recordByUsername2);
 
       assert.strictEqual(identifierByUsername2, identifierByUsername, 'The identifiers should be identical');
@@ -576,9 +575,9 @@ module('Integration | Identifiers - scenarios', function (hooks) {
             age: 31,
           },
         },
-      });
+      }) as User;
       const identifierById = recordIdentifierFor(recordById);
-      const recordByUsername = await store.findRecord('user', '@runspired');
+      const recordByUsername = (await store.findRecord('user', '@runspired')) as User;
       const identifierByUsername = recordIdentifierFor(recordByUsername);
 
       assert.strictEqual(identifierById, identifierByUsername, 'The identifiers should be identical');
@@ -611,7 +610,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
             age: 31,
           },
         },
-      });
+      }) as User;
       const identifierById = recordIdentifierFor(recordById);
 
       assert.strictEqual(identifierById, identifierByUsername, 'The identifiers should be identical');
@@ -677,7 +676,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         }
       }
 
-      const user = (await store.findRecord('user', '@runspired')) as DSModel;
+      const user = (await store.findRecord('user', '@runspired')) as Model;
       const identifier = recordIdentifierFor(user);
       set(user, 'username', '@cthoburn');
 

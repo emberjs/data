@@ -18,8 +18,8 @@ export default function notifyChanges(
     if (key) {
       notifyAttribute(store, identifier, key, record);
     } else {
-      record.eachAttribute((key) => {
-        notifyAttribute(store, identifier, key, record);
+      record.eachAttribute((name) => {
+        notifyAttribute(store, identifier, name, record);
       });
     }
   } else if (value === 'relationships') {
@@ -27,8 +27,8 @@ export default function notifyChanges(
       let meta = record.constructor.relationshipsByName.get(key);
       notifyRelationship(identifier, key, record, meta);
     } else {
-      record.eachRelationship((key, meta) => {
-        notifyRelationship(identifier, key, record, meta);
+      record.eachRelationship((name, meta) => {
+        notifyRelationship(identifier, name, record, meta);
       });
     }
   } else if (value === 'identity') {

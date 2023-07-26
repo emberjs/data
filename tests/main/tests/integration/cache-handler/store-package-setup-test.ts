@@ -122,7 +122,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord(identifier) as FakeRecord | null;
       const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -186,7 +186,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord(identifier) as FakeRecord | null;
       const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -257,6 +257,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('When using @ember-data/store, the cache-handler can hydrate any op code', async function (assert) {
       const { owner } = this;
 
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       class RequestManagerService extends RequestManager {
         constructor() {
           super(...arguments);
@@ -265,6 +266,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         }
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       class TestStore extends Store {
         @service('request') declare requestManager: RequestManager;
 
@@ -321,8 +323,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         op: 'random-op',
         url: '/assets/users/1.json',
       });
-      const identifier = recordIdentifierFor(userDocument.content.data!);
-      const record = store.peekRecord(identifier);
+      const identifier = recordIdentifierFor(userDocument.content.data);
+      const record = store.peekRecord(identifier) as FakeRecord | null;
       assert.strictEqual(record?.name, 'Chris Thoburn');
       assert.strictEqual(userDocument.content.data, record, 'we get a hydrated record back as data');
 
@@ -350,6 +352,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('When using @ember-data/store, the cache-handler will cache but not hydrate if the request has the store but does not originate from the store', async function (assert) {
       const { owner } = this;
 
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       class RequestManagerService extends RequestManager {
         constructor() {
           super(...arguments);
@@ -358,6 +361,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         }
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       class TestStore extends Store {
         @service('request') declare requestManager: RequestManager;
 
@@ -437,13 +441,14 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      const record = store.peekRecord(userDocument.content.data!);
+      const record = store.peekRecord(userDocument.content.data!) as FakeRecord | null;
       assert.strictEqual(record?.name, 'Chris Thoburn');
     });
 
     test('When using @ember-data/store, the cache-handler will neither cache nor hydrate if the request does not originate from the store and no store is included', async function (assert) {
       const { owner } = this;
 
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       class RequestManagerService extends RequestManager {
         constructor() {
           super(...arguments);
@@ -452,6 +457,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         }
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       class TestStore extends Store {
         @service('request') declare requestManager: RequestManager;
 
@@ -595,8 +601,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
-      const data = userDocument.content.data!;
+      const record = store.peekRecord(identifier) as FakeRecord | null;
+      const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
       assert.strictEqual(data, record, '<Initial> record was returned as data');
@@ -624,7 +630,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/1.json',
         cacheOptions: { backgroundReload: true },
       });
-      const data2 = userDocument2.content.data!;
+      const data2 = userDocument2.content.data;
 
       assert.strictEqual(data2, record, '<Cached> record was returned as data');
       assert.strictEqual(data2 && recordIdentifierFor(data2), identifier, '<Cached> we get a record back as data');
@@ -649,9 +655,9 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       await store._getAllPending();
 
-      const data3 = userDocument2.content.data!;
+      const data3 = userDocument2.content.data;
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const record2 = store.peekRecord(identifier2);
+      const record2 = store.peekRecord(identifier2) as FakeRecord | null;
 
       assert.strictEqual(record2?.name, 'Wesley Thoburn', '<Updated> record2 name is correct');
       assert.strictEqual(userDocument.content, userDocument2.content, '<Updated> documents are the same');
@@ -736,8 +742,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
-      const data = userDocument.content.data!;
+      const record = store.peekRecord(identifier) as FakeRecord | null;
+      const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
       assert.strictEqual(data, record, '<Initial> record was returned as data');
@@ -794,11 +800,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // Assert the initial document was updated
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const record2 = store.peekRecord(identifier2);
+      const record2 = store.peekRecord(identifier2) as FakeRecord | null;
 
       assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
       assert.strictEqual(record2?.name, 'Wesley Thoburn', 'record2 name is correct');
-      const data3 = userDocument.content.data!;
+      const data3 = userDocument.content.data;
 
       assert.strictEqual(record2?.name, 'Wesley Thoburn', '<Updated> record2 name is correct');
       assert.strictEqual(userDocument.content, userDocument.content, '<Updated> documents are the same');
@@ -884,7 +890,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord(identifier) as FakeRecord | null;
       const data = userDocument.content.data!;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
@@ -1009,7 +1015,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/list.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord(identifier) as FakeRecord | null;
       const data = userDocument.content.data!;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -1123,7 +1129,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/list.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord(identifier) as FakeRecord | null;
       const data = userDocument.content.data!;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -1182,7 +1188,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const record2 = store.peekRecord(identifier2);
+      const record2 = store.peekRecord(identifier2) as FakeRecord | null;
 
       assert.strictEqual(record2?.name, 'Wesley Thoburn', 'record2 name is correct');
       assert.strictEqual(data.length, 2, 'recordArray has two records');
@@ -1273,7 +1279,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const data = userDocument.content.data!;
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord(identifier) as FakeRecord | null;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
       assert.true(Array.isArray(data), 'recordArray was returned as data');
@@ -1335,7 +1341,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // Assert the initial document was updated
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const record2 = store.peekRecord(identifier2);
+      const record2 = store.peekRecord(identifier2) as FakeRecord | null;
 
       assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
       assert.strictEqual(record2?.name, 'Wesley Thoburn', 'record2 name is correct');
@@ -1763,7 +1769,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
       // Initial successful fetch
-      const originalDoc = await store.request<Document<RecordInstance>>({
+      const originalDoc = await store.request<Document<FakeRecord>>({
         url: '/assets/users/2.json?include=author',
       });
       const originalRawDoc = store.cache.peekRequest(
@@ -1981,7 +1987,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       request.abort();
 
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord(identifier) as FakeRecord | null;
       const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -2067,8 +2073,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
-      const data = userDocument.content.data!;
+      const record = store.peekRecord(identifier) as FakeRecord | null;
+      const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
       assert.strictEqual(data, record, '<Initial> record was returned as data');
@@ -2097,7 +2103,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         cacheOptions: { backgroundReload: true },
       });
       const userDocument2 = await request2;
-      const data2 = userDocument2.content.data!;
+      const data2 = userDocument2.content.data;
 
       assert.strictEqual(data2, record, '<Cached> record was returned as data');
       assert.strictEqual(data2 && recordIdentifierFor(data2), identifier, '<Cached> we get a record back as data');
@@ -2124,7 +2130,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       resolve();
       await store._getAllPending();
 
-      const data3 = userDocument2.content.data!;
+      const data3 = userDocument2.content.data;
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const record2 = store.peekRecord(identifier2);
 

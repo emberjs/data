@@ -24,7 +24,6 @@ import type {
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -64,7 +63,7 @@ class TestRecordData implements Cache {
       this.upsert(identifier, doc.content.data as JsonApiResource, this.wrapper.hasRecord(identifier));
       return { data: identifier } as SingleResourceDataDocument;
     } else if ('error' in doc) {
-      throw typeof doc.error === 'string' ? new Error(doc.error) : doc.error;
+      throw typeof doc.error === 'string' ? new Error(doc.error) : (doc.error as Error);
     }
     throw new Error('Not Implemented');
   }
@@ -238,10 +237,10 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
           name: 'Tom',
         },
       },
-    });
+    }) as Model;
 
     try {
-      await (person as DSModel).save();
+      await person.save();
       assert.ok(false, 'we should error');
     } catch (error) {
       assert.ok(true, 'we erred');
@@ -288,10 +287,10 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
           name: 'Tom',
         },
       },
-    });
+    }) as Model;
 
     try {
-      await (person as DSModel).save();
+      await person.save();
       assert.ok(false, 'we should error');
     } catch (error) {
       assert.ok(true, 'we erred');
@@ -321,7 +320,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
 
     const store = owner.lookup('service:store') as unknown as Store;
 
-    const person: DSModel = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -330,7 +329,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
           lastName: 'Dale',
         },
       },
-    }) as DSModel;
+    }) as Model;
 
     const identifier = recordIdentifierFor(person);
     let nameError = person.errors.errorsFor('firstName').objectAt(0);

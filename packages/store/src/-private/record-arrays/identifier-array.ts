@@ -403,7 +403,7 @@ class IdentifierArray {
         }
 
         let original: StableRecordIdentifier | undefined = target[index];
-        let newIdentifier = extractIdentifierFromRecord(value as RecordInstance);
+        let newIdentifier = extractIdentifierFromRecord(value);
         (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         if (!transaction) {
           self[MUTATE]!('replace cell', [index, original, newIdentifier]);

@@ -33,7 +33,7 @@ function mapFromHash<T>(hash: Record<string, T>): Map<string, T> {
   return map;
 }
 
-// Mimics the static apis of DSModel
+// Mimics the static apis of @ember-data/model
 export default class ShimModelClass implements ModelSchema {
   declare __store: Store;
   declare modelName: string;
