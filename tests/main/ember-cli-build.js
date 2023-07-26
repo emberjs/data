@@ -13,7 +13,7 @@ module.exports = function (defaults) {
 
     terser: {
       compress: {
-        ecma: 2021,
+        ecma: 2022,
         passes: 6, // slow, but worth it
         negate_iife: false,
         sequences: 30,
@@ -30,7 +30,7 @@ module.exports = function (defaults) {
       },
       toplevel: false,
       sourceMap: false,
-      ecma: 2021,
+      ecma: 2022,
     },
   };
 

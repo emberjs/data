@@ -2868,6 +2868,9 @@ importers:
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
+      terser-webpack-plugin:
+        specifier: ^5.3.9
+        version: 5.3.9(webpack@5.88.2)
       zlib:
         specifier: 1.0.5
         version: 1.0.5
