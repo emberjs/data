@@ -7,10 +7,6 @@ export default function normalizeModelName(type: string): string {
   if (DEPRECATE_NON_STRICT_TYPES) {
     const result = dasherize(type);
 
-    if (result !== type) {
-      debugger;
-    }
-
     deprecate(
       `The resource type '${type}' is not normalized. Update your application code to use '${result}' instead of '${type}'.`,
       result === type,

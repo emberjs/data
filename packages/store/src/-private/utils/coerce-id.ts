@@ -28,9 +28,9 @@ function coerceId(id: Coercable): string | null {
     }
 
     deprecate(
-      `The resource id '<${typeof id}> ${id} ' is not normalized. Update your application code to use '${JSON.stringify(
-        normalized
-      )}' instead.`,
+      `The resource id '<${typeof id}> ${String(
+        id
+      )} ' is not normalized. Update your application code to use '${JSON.stringify(normalized)}' instead.`,
       normalized === id,
       {
         id: 'ember-data:deprecate-non-strict-id',

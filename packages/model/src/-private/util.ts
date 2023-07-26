@@ -30,16 +30,14 @@ type DataDecoratorFactory = (...args: unknown[]) => DataDecorator;
 
 export function computedMacroWithOptionalParams(fn: DataDecorator | DataDecoratorFactory) {
   return (...maybeDesc: unknown[]) =>
-    isElementDescriptor(maybeDesc) ? (fn as DataDecoratorFactory)()(...maybeDesc) : fn(...maybeDesc);
+    isElementDescriptor(maybeDesc)
+      ? (fn as DataDecoratorFactory)()(...maybeDesc)
+      : fn(...(maybeDesc as [object, string, DecoratorPropertyDescriptor?]));
 }
 
 export function normalizeModelName(type: string): string {
   if (DEPRECATE_NON_STRICT_TYPES) {
     const result = dasherize(type);
-
-    if (result !== type) {
-      debugger;
-    }
 
     deprecate(
       `The resource type '${type}' is not normalized. Update your application code to use '${result}' instead of '${type}'.`,
