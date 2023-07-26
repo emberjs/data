@@ -294,7 +294,11 @@ export class IdentifierCache {
       console.log(`Identifiers: ${lid ? 'no ' : ''}lid ${lid ? lid + ' ' : ''}determined for resource`, resource);
     }
 
-    let identifier: StableRecordIdentifier | undefined = getIdentifierFromLid(this._cache, lid, resource);
+    let identifier: StableRecordIdentifier | undefined = /*#__NOINLINE__*/ getIdentifierFromLid(
+      this._cache,
+      lid,
+      resource
+    );
     if (identifier !== undefined) {
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
@@ -557,15 +561,17 @@ export class IdentifierCache {
    @public
   */
   forgetRecordIdentifier(identifierObject: RecordIdentifier): void {
-    let identifier = this.getOrCreateRecordIdentifier(identifierObject);
-    let keyOptions = getTypeIndex(this._cache.resourcesByType, identifier.type);
+    const identifier = this.getOrCreateRecordIdentifier(identifierObject);
+    const typeSet = this._cache.resourcesByType[identifier.type];
+    assert(`Expected to find a typeSet for ${identifier.type}`, typeSet);
+
     if (identifier.id !== null) {
-      keyOptions.id.delete(identifier.id);
+      typeSet.id.delete(identifier.id);
     }
     this._cache.resources.delete(identifier.lid);
-    keyOptions.lid.delete(identifier.lid);
+    typeSet.lid.delete(identifier.lid);
 
-    IDENTIFIERS.delete(identifierObject);
+    IDENTIFIERS.delete(identifier);
     this._forget(identifier, 'record');
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -574,25 +580,12 @@ export class IdentifierCache {
   }
 
   destroy() {
+    NEW_IDENTIFIERS.clear();
     this._cache.documents.forEach((identifier) => {
       DOCUMENTS.delete(identifier);
     });
     this._reset();
   }
-}
-
-function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
-  let typeIndex: KeyOptions = typeMap[type];
-
-  if (typeIndex === undefined) {
-    typeIndex = {
-      lid: new Map(),
-      id: new Map(),
-    };
-    typeMap[type] = typeIndex;
-  }
-
-  return typeIndex;
 }
 
 function makeStableRecordIdentifier(

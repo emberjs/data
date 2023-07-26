@@ -20,69 +20,58 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
   });
 
   test('a sync belongs to relationship to an unloaded record can restore that record', function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-      cars: hasMany('car', { async: false, inverse: 'person' }),
-      toString: () => 'Person',
-    });
+    class Person extends Model {
+      @attr('string') name;
+      @hasMany('car', { async: false, inverse: 'person' }) cars;
+    }
 
-    const Car = Model.extend({
-      make: attr('string'),
-      model: attr('string'),
-      person: belongsTo('person', { async: false, inverse: 'cars' }),
-      toString: () => 'Car',
-    });
+    class Car extends Model {
+      @attr('string') make;
+      @attr('string') model;
+      @belongsTo('person', { async: false, inverse: 'cars' }) person;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('model:car', Car);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     // disable background reloading so we do not re-create the relationship.
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let adam = run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
-          relationships: {
-            cars: {
-              data: [{ type: 'car', id: '1' }],
-            },
+    let adam = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
+        },
+        relationships: {
+          cars: {
+            data: [{ type: 'car', id: '1' }],
           },
         },
-      });
-
-      return store.peekRecord('person', 1);
+      },
     });
 
-    let bob = run(() => {
-      store.push({
-        data: {
-          type: 'car',
-          id: '1',
-          attributes: {
-            make: 'Lotus',
-            model: 'Exige',
-          },
-          relationships: {
-            person: {
-              data: { type: 'person', id: '1' },
-            },
+    const lotus = store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'Lotus',
+          model: 'Exige',
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' },
           },
         },
-      });
-
-      return store.peekRecord('car', 1);
+      },
     });
 
-    let person = store.peekRecord('person', 1);
-    assert.strictEqual(person.cars.length, 1, 'The inital length of cars is correct');
+    assert.strictEqual(adam.cars.length, 1, 'The inital length of cars is correct');
 
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
     assert.true(
@@ -90,7 +79,11 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       'The person identifier is loaded'
     );
 
-    run(() => person.unloadRecord());
+    if (!store.identifierCache.peekRecordIdentifier({ lid: '@lid:person-1' })) {
+      debugger;
+    }
+
+    run(() => adam.unloadRecord());
 
     assert.strictEqual(store.peekRecord('person', '1'), null, 'The person is unloaded');
     assert.false(
@@ -98,26 +91,25 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       'The person identifier is freed'
     );
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
-          relationships: {
-            cars: {
-              data: [{ type: 'car', id: '1' }],
-            },
+    const newAdam = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
+        },
+        relationships: {
+          cars: {
+            data: [{ type: 'car', id: '1' }],
           },
         },
-      });
+      },
     });
 
-    let rematerializedPerson = bob.person;
+    let rematerializedPerson = lotus.person;
     assert.strictEqual(rematerializedPerson.id, '1');
     assert.strictEqual(rematerializedPerson.name, 'Adam Sunderland');
+    assert.strictEqual(rematerializedPerson, newAdam);
     // the person is rematerialized; the previous person is *not* re-used
     assert.notEqual(rematerializedPerson, adam, 'the person is rematerialized, not recycled');
   });

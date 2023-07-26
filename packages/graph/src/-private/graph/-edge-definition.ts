@@ -333,7 +333,7 @@ export function upgradeDefinition(
   const polymorphicLookup = graph._potentialPolymorphicTypes;
 
   const { type } = identifier;
-  let cached = expandingGet<EdgeDefinition | null>(cache, type, propertyName);
+  let cached = /*#__NOINLINE__*/ expandingGet<EdgeDefinition | null>(cache, type, propertyName);
 
   // CASE: We have a cached resolution (null if no relationship exists)
   if (cached !== undefined) {
@@ -357,7 +357,7 @@ export function upgradeDefinition(
       for (let i = 0; i < altTypes.length; i++) {
         const _cached = expandingGet<EdgeDefinition | null>(cache, altTypes[i], propertyName);
         if (_cached) {
-          expandingSet<EdgeDefinition | null>(cache, type, propertyName, _cached);
+          /*#__NOINLINE__*/ expandingSet<EdgeDefinition | null>(cache, type, propertyName, _cached);
           _cached.rhs_modelNames.push(type);
           return _cached;
         }
@@ -371,7 +371,7 @@ export function upgradeDefinition(
     cache[type]![propertyName] = null;
     return null;
   }
-  const definition = upgradeMeta(meta);
+  const definition = /*#__NOINLINE__*/ upgradeMeta(meta);
 
   let inverseDefinition;
   let inverseKey;
@@ -383,7 +383,7 @@ export function upgradeDefinition(
     assert(`Expected the inverse model to exist`, getStore(storeWrapper).modelFor(inverseType));
     inverseDefinition = null;
   } else {
-    inverseKey = inverseForRelationship(getStore(storeWrapper), identifier, propertyName);
+    inverseKey = /*#__NOINLINE__*/ inverseForRelationship(getStore(storeWrapper), identifier, propertyName);
 
     // CASE: If we are polymorphic, and we declared an inverse that is non-null
     // we must assume that the lack of inverseKey means that there is no
@@ -423,7 +423,7 @@ export function upgradeDefinition(
   // CASE: We have no inverse
   if (!inverseDefinition) {
     // polish off meta
-    inverseKey = implicitKeyFor(type, propertyName);
+    inverseKey = /*#__NOINLINE__*/ implicitKeyFor(type, propertyName);
     inverseDefinition = {
       kind: 'implicit',
       key: inverseKey,

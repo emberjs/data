@@ -418,8 +418,8 @@ export default class JSONAPICache implements Cache {
     const existed = !!peeked;
     const cached = peeked || this._createCache(identifier);
 
-    const isLoading = _isLoading(peeked, this.__storeWrapper, identifier) || !recordIsLoaded(peeked);
-    let isUpdate = !_isEmpty(peeked) && !isLoading;
+    const isLoading = /*#__NOINLINE__*/ _isLoading(peeked, this.__storeWrapper, identifier) || !recordIsLoaded(peeked);
+    let isUpdate = /*#__NOINLINE__*/ !_isEmpty(peeked) && !isLoading;
 
     if (LOG_OPERATIONS) {
       try {

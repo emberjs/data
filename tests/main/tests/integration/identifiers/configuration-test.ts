@@ -410,6 +410,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     const userByIdPromise = store.findRecord('user', '1');
 
     assert.strictEqual(generateLidCalls, 2, 'We generated two lids');
+    assert.strictEqual(store.identifierCache._cache.resources.size, 2, 'We have 2 identifiers in the cache');
     generateLidCalls = 0;
 
     const originalUserByUsernameIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
@@ -421,7 +422,8 @@ module('Integration | Identifiers - configuration', function (hooks) {
       id: '1',
     });
 
-    assert.strictEqual(generateLidCalls, 0, 'We generated no new lids when we looked up the originals');
+    assert.strictEqual(generateLidCalls, 2, 'We generated no new lids when we looked up the originals');
+    assert.strictEqual(store.identifierCache._cache.resources.size, 2, 'We still have 2 identifiers in the cache');
     generateLidCalls = 0;
 
     // we expect that the username based identifier will be abandoned
@@ -431,7 +433,8 @@ module('Integration | Identifiers - configuration', function (hooks) {
     const finalUserByUsernameIdentifier = recordIdentifierFor(userByUsername);
     const finalUserByIdIdentifier = recordIdentifierFor(userById);
 
-    assert.strictEqual(generateLidCalls, 0, 'We generated no new lids when we looked up the final by record');
+    assert.strictEqual(generateLidCalls, 2, 'We generated no new lids when we looked up the originals');
+    assert.strictEqual(store.identifierCache._cache.resources.size, 1, 'We now have only 1 identifier in the cache');
     assert.strictEqual(forgetMethodCalls, 1, 'We abandoned an identifier');
 
     assert.notStrictEqual(
