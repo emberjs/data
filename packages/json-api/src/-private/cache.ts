@@ -8,6 +8,7 @@ import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
@@ -118,11 +119,13 @@ export default class JSONAPICache implements Cache {
   declare __cache: Map<StableRecordIdentifier, CachedResource>;
   declare __destroyedCache: Map<StableRecordIdentifier, CachedResource>;
   declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
+  declare __graph: Graph;
 
   constructor(storeWrapper: CacheCapabilitiesManager) {
     this.version = '2';
     this.__storeWrapper = storeWrapper;
     this.__cache = new Map();
+    this.__graph = graphFor(storeWrapper);
     this.__destroyedCache = new Map();
     this.__documents = new Map();
   }
@@ -285,7 +288,7 @@ export default class JSONAPICache implements Cache {
         this.__cache.set(op.value, cache);
         this.__cache.delete(op.record);
       }
-      graphFor(this.__storeWrapper).update(op, true);
+      this.__graph.update(op, true);
     }
   }
 
@@ -308,7 +311,7 @@ export default class JSONAPICache implements Cache {
         console.log(`EmberData | Mutation - update ${mutation.op}`, mutation);
       }
     }
-    graphFor(this.__storeWrapper).update(mutation, false);
+    this.__graph.update(mutation, false);
   }
 
   /**
@@ -357,8 +360,7 @@ export default class JSONAPICache implements Cache {
       const attributes = Object.assign({}, peeked.remoteAttrs, peeked.inflightAttrs, peeked.localAttrs);
       const relationships = {};
 
-      const graph = graphFor(this.__storeWrapper);
-      const rels = graph.identifiers.get(identifier);
+      const rels = this.__graph.identifiers.get(identifier);
       if (rels) {
         Object.keys(rels).forEach((key) => {
           const rel = rels[key]!;
@@ -458,7 +460,7 @@ export default class JSONAPICache implements Cache {
     }
 
     if (data.relationships) {
-      setupRelationships(this.__storeWrapper, identifier, data);
+      setupRelationships(this.__graph, this.__storeWrapper, identifier, data);
     }
 
     if (changedKeys && changedKeys.length) {
@@ -612,7 +614,7 @@ export default class JSONAPICache implements Cache {
       const storeWrapper = this.__storeWrapper;
       let attributeDefs = storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
       let relationshipDefs = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-      const graph = graphFor(storeWrapper);
+      const graph = this.__graph;
       let propertyNames = Object.keys(options);
 
       for (let i = 0; i < propertyNames.length; i++) {
@@ -713,7 +715,7 @@ export default class JSONAPICache implements Cache {
 
     const cached = this.__peek(identifier, false);
     if (cached.isDeleted) {
-      graphFor(this.__storeWrapper).push({
+      this.__graph.push({
         op: 'deleteRecord',
         record: identifier,
         isNew: false,
@@ -750,7 +752,7 @@ export default class JSONAPICache implements Cache {
       );
 
       if (data.relationships) {
-        setupRelationships(this.__storeWrapper, identifier, data);
+        setupRelationships(this.__graph, this.__storeWrapper, identifier, data);
       }
       newCanonicalAttributes = data.attributes;
     }
@@ -995,7 +997,7 @@ export default class JSONAPICache implements Cache {
     }
 
     if (cached.isNew) {
-      graphFor(this.__storeWrapper).push({
+      this.__graph.push({
         op: 'deleteRecord',
         record: identifier,
         isNew: true,
@@ -1033,7 +1035,7 @@ export default class JSONAPICache implements Cache {
     identifier: StableRecordIdentifier,
     field: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
-    return (graphFor(this.__storeWrapper).get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
+    return (this.__graph.get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
   }
 
   // Resource State
@@ -1055,7 +1057,7 @@ export default class JSONAPICache implements Cache {
     cached.isDeleted = isDeleted;
     if (cached.isNew) {
       // TODO can we delete this since we will do this in unload?
-      graphFor(this.__storeWrapper).push({
+      this.__graph.push({
         op: 'deleteRecord',
         record: identifier,
         isNew: true,
@@ -1329,6 +1331,7 @@ function _isLoading(
 }
 
 function setupRelationships(
+  graph: Graph,
   storeWrapper: CacheCapabilitiesManager,
   identifier: StableRecordIdentifier,
   data: JsonApiResource
@@ -1347,7 +1350,7 @@ function setupRelationships(
       continue;
     }
 
-    graphFor(storeWrapper).push({
+    graph.push({
       op: 'updateRelationship',
       record: identifier,
       field: relationshipName,

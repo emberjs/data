@@ -5,6 +5,7 @@ import { importSync } from '@embroider/macros';
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/graph/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
@@ -39,6 +40,7 @@ type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): Promise
 export class LegacySupport {
   declare record: Model;
   declare store: Store;
+  declare graph: Graph;
   declare cache: Cache;
   declare references: Record<string, BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
@@ -55,6 +57,13 @@ export class LegacySupport {
     this.store = storeFor(record)!;
     this.identifier = recordIdentifierFor(record);
     this.cache = peekCache(record);
+
+    if (HAS_JSON_API_PACKAGE) {
+      const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
+        .graphFor;
+
+      this.graph = graphFor(this.store);
+    }
 
     this._manyArrayCache = Object.create(null) as Record<string, RelatedCollection>;
     this._relationshipPromisesCache = Object.create(null) as Record<
@@ -113,8 +122,7 @@ export class LegacySupport {
       return loadingPromise;
     }
 
-    const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
-    const relationship = graphFor(this.store).get(this.identifier, key);
+    const relationship = this.graph.get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
 
     let resource = this.cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
@@ -135,8 +143,7 @@ export class LegacySupport {
     assert(`Expected a stable identifier`, !relatedIdentifier || isStableIdentifier(relatedIdentifier));
 
     const store = this.store;
-    const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
-    const relationship = graphFor(store).get(this.identifier, key);
+    const relationship = this.graph.get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
 
     let isAsync = relationship.definition.isAsync;
@@ -213,9 +220,7 @@ export class LegacySupport {
     if (HAS_JSON_API_PACKAGE) {
       let manyArray: RelatedCollection | undefined = this._manyArrayCache[key];
       if (!definition) {
-        const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-          .graphFor;
-        definition = graphFor(this.store).get(this.identifier, key).definition;
+        definition = this.graph.get(this.identifier, key).definition;
       }
 
       if (!manyArray) {
@@ -281,9 +286,7 @@ export class LegacySupport {
       if (loadingPromise) {
         return loadingPromise;
       }
-      const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-        .graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
+      const relationship = this.graph.get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
 
       state.hasFailedLoadAttempt = false;
@@ -302,9 +305,7 @@ export class LegacySupport {
 
   getHasMany(key: string, options?: FindOptions): PromiseManyArray | RelatedCollection {
     if (HAS_JSON_API_PACKAGE) {
-      const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-        .graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
+      const relationship = this.graph.get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
       let manyArray = this.getManyArray(key, definition);
 
@@ -379,14 +380,12 @@ export class LegacySupport {
         // because of the intimate API access involved. This is something we will need to redesign.
         assert(`snapshot.belongsTo only supported for @ember-data/json-api`);
       }
-      const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-        .graphFor;
-      const graph = graphFor(this.store);
-      const relationship = graph.get(this.identifier, name);
+      const { graph, identifier } = this;
+      const relationship = graph.get(identifier, name);
 
       if (DEBUG) {
         if (kind) {
-          let modelName = this.identifier.type;
+          let modelName = identifier.type;
           let actualRelationshipKind = relationship.definition.kind;
           assert(
             `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
@@ -398,15 +397,9 @@ export class LegacySupport {
       let relationshipKind = relationship.definition.kind;
 
       if (relationshipKind === 'belongsTo') {
-        reference = new BelongsToReference(
-          this.store,
-          graph,
-          this.identifier,
-          relationship as BelongsToRelationship,
-          name
-        );
+        reference = new BelongsToReference(this.store, graph, identifier, relationship as BelongsToRelationship, name);
       } else if (relationshipKind === 'hasMany') {
-        reference = new HasManyReference(this.store, graph, this.identifier, relationship as ManyRelationship, name);
+        reference = new HasManyReference(this.store, graph, identifier, relationship as ManyRelationship, name);
       }
 
       this.references[name] = reference;
