@@ -63,6 +63,7 @@ module.exports = function (defaults) {
                   inline: 5,
                   reduce_funcs: false,
                 },
+                format: { beautify: true },
                 toplevel: false,
                 sourceMap: false,
                 ecma: 2022,
