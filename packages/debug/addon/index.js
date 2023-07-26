@@ -103,7 +103,7 @@ export default class extends DataAdapter {
     }];
     const discoveredTypes = typesMapFor(store);
 
-    Object.keys(store.identifierCache._cache.types).forEach((type) => {
+    store.identifierCache._cache.resourcesByType.forEach((_v, type) => {
       discoveredTypes.set(type, false);
     });
 

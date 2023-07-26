@@ -214,6 +214,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     // assert our initial cache state
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
+    debugger;
     assert.true(
       !!store.identifierCache.peekRecordIdentifier({ lid: '@lid:person-1' }),
       'The person identifier is loaded'

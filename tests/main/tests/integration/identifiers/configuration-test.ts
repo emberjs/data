@@ -410,6 +410,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     const userByIdPromise = store.findRecord('user', '1');
 
     assert.strictEqual(generateLidCalls, 2, 'We generated two lids');
+    assert.strictEqual(store.identifierCache._cache.resources.size, 2, 'We have 2 identifiers in the cache');
     generateLidCalls = 0;
 
     const originalUserByUsernameIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
@@ -421,7 +422,8 @@ module('Integration | Identifiers - configuration', function (hooks) {
       id: '1',
     });
 
-    assert.strictEqual(generateLidCalls, 0, 'We generated no new lids when we looked up the originals');
+    assert.strictEqual(generateLidCalls, 2, 'We invoked our configured method when we looked up the original 2 again');
+    assert.strictEqual(store.identifierCache._cache.resources.size, 2, 'We still only have 2 identifiers in the cache');
     generateLidCalls = 0;
 
     // we expect that the username based identifier will be abandoned
