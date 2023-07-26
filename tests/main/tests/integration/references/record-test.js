@@ -47,7 +47,7 @@ module('integration/references/record', function (hooks) {
     { withType: true, withLid: true, isCreate: true, desc: 'type and lid via store.createRecord (no local id)' },
   ].forEach(({ withType, withId, withLid, isCreate, desc }) => {
     test(`a RecordReference can be retrieved with ${desc}`, function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
       let person;
       if (isCreate) {
         // no id

@@ -241,7 +241,7 @@ export class IdentifierCache {
     assert('resource.type needs to be a string', 'type' in resource && isNonEmptyString(resource.type));
 
     let type = resource.type && normalizeModelName(resource.type);
-    let id = coerceId(resource.id);
+    let id = 'id' in resource ? coerceId(resource.id) : null;
 
     let keyOptions = getTypeIndex(this._cache.types, type);
 
