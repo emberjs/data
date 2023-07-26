@@ -71,6 +71,60 @@ export const DEPRECATE_CATCH_ALL = '99.0';
 export const DEPRECATE_3_12 = '3.12';
 
 /**
+ * **id: ember-data:deprecate-non-strict-types**
+ *
+ * Currently, EmberData expects that the `type` property associated with
+ * a resource follows several conventions.
+ *
+ * - The `type` property must be a non-empty string
+ * - The `type` property must be singular
+ * - The `type` property must be dasherized
+ *
+ * We are deprecating support for types that do not match this pattern
+ * in order to unlock future improvements in which we can support `type`
+ * being any string of your choosing.
+ *
+ * The goal is that in the future, you will be able to use any string
+ * so long as it matches what your configured cache, identifier generation,
+ * and schemas expect.
+ *
+ * E.G. It will matter not that your string is in a specific format like
+ * singular, dasherized, etc. so long as everywhere you refer to the type
+ * you use the same string.
+ *
+ * If using @ember-data/model, there will always be a restriction that the
+ * `type` must match the path on disk where the model is defined.
+ *
+ * e.g. `app/models/foo/bar-bem.js` must have a type of `foo/bar-bem`
+ *
+ * @class CurrentDeprecations
+ * @public
+ */
+export const DEPRECATE_NON_STRICT_TYPES = '5.3';
+
+/**
+ * **id: ember-data:deprecate-non-strict-id**
+ *
+ * Currently, EmberData expects that the `id` property associated with
+ * a resource is a string.
+ *
+ * However, for legacy support in many locations we would accept a number
+ * which would then immediately be coerced into a string.
+ *
+ * We are deprecating this legacy support for numeric IDs.
+ *
+ * The goal is that in the future, you will be able to use any ID format
+ * so long as everywhere you refer to the ID you use the same format.
+ *
+ * However, for identifiers we will always use string IDs and so any
+ * custom identifier configuration should provide a string ID.
+ *
+ * @class CurrentDeprecations
+ * @public
+ */
+export const DEPRECATE_NON_STRICT_ID = '5.3';
+
+/**
  * **id: <none yet assigned>**
  *
  * This is a planned deprecation which will trigger when observer or computed

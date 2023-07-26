@@ -1,8 +1,11 @@
+import { deprecate } from '@ember/debug';
 import { dasherize } from '@ember/string';
 
-export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: any }) | undefined;
+import { DEPRECATE_NON_STRICT_TYPES } from '@ember-data/deprecations';
 
-export function isElementDescriptor(args: any[]): args is [object, string, DecoratorPropertyDescriptor] {
+export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: () => unknown }) | undefined;
+
+export function isElementDescriptor(args: unknown[]): args is [object, string, DecoratorPropertyDescriptor] {
   let [maybeTarget, maybeKey, maybeDesc] = args;
 
   return (
@@ -22,10 +25,38 @@ export function isElementDescriptor(args: any[]): args is [object, string, Decor
   );
 }
 
-export function computedMacroWithOptionalParams(fn) {
-  return (...maybeDesc: any[]) => (isElementDescriptor(maybeDesc) ? fn()(...maybeDesc) : fn(...maybeDesc));
+type DataDecorator = (target: object, key: string, desc?: DecoratorPropertyDescriptor) => DecoratorPropertyDescriptor;
+type DataDecoratorFactory = (...args: unknown[]) => DataDecorator;
+
+export function computedMacroWithOptionalParams(fn: DataDecorator | DataDecoratorFactory) {
+  return (...maybeDesc: unknown[]) =>
+    isElementDescriptor(maybeDesc) ? (fn as DataDecoratorFactory)()(...maybeDesc) : fn(...maybeDesc);
 }
 
-export function normalizeModelName(modelName: string): string {
-  return dasherize(modelName);
+export function normalizeModelName(type: string): string {
+  if (DEPRECATE_NON_STRICT_TYPES) {
+    const result = dasherize(type);
+
+    if (result !== type) {
+      debugger;
+    }
+
+    deprecate(
+      `The resource type '${type}' is not normalized. Update your application code to use '${result}' instead of '${type}'.`,
+      result === type,
+      {
+        id: 'ember-data:deprecate-non-strict-types',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '5.3',
+          enabled: '5.3',
+        },
+      }
+    );
+
+    return result;
+  }
+
+  return type;
 }

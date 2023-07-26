@@ -9,6 +9,7 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class Person extends Model {
   @attr()
@@ -69,44 +70,52 @@ module('integration/record-array - RecordArray', function (hooks) {
     assert.strictEqual(recordArray.at(-1).name, 'brohuda');
   });
 
-  test('acts as a live query (normalized names)', async function (assert) {
-    const store = this.owner.lookup('service:store');
+  deprecatedTest(
+    'acts as a live query (normalized names)',
+    {
+      count: 9,
+      until: '6.0',
+      id: 'ember-data:deprecate-non-strict-types',
+    },
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
 
-    let recordArray = store.peekAll('Person');
-    let otherRecordArray = store.peekAll('person');
+      let recordArray = store.peekAll('Person');
+      let otherRecordArray = store.peekAll('person');
 
-    assert.strictEqual(recordArray, otherRecordArray, 'Person and person are the same record-array');
+      assert.strictEqual(recordArray, otherRecordArray, 'Person and person are the same record-array');
 
-    store.push({
-      data: {
-        type: 'Person',
-        id: '1',
-        attributes: {
-          name: 'John Churchill',
+      store.push({
+        data: {
+          type: 'Person',
+          id: '1',
+          attributes: {
+            name: 'John Churchill',
+          },
         },
-      },
-    });
+      });
 
-    assert.deepEqual(
-      recordArray.map((v) => v.name),
-      ['John Churchill']
-    );
+      assert.deepEqual(
+        recordArray.map((v) => v.name),
+        ['John Churchill']
+      );
 
-    store.push({
-      data: {
-        type: 'Person',
-        id: '2',
-        attributes: {
-          name: 'Winston Churchill',
+      store.push({
+        data: {
+          type: 'Person',
+          id: '2',
+          attributes: {
+            name: 'Winston Churchill',
+          },
         },
-      },
-    });
+      });
 
-    assert.deepEqual(
-      recordArray.map((v) => v.name),
-      ['John Churchill', 'Winston Churchill']
-    );
-  });
+      assert.deepEqual(
+        recordArray.map((v) => v.name),
+        ['John Churchill', 'Winston Churchill']
+      );
+    }
+  );
 
   test('a loaded record is removed from a record array when it is deleted', async function (assert) {
     assert.expect(5);

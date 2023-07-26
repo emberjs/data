@@ -5,9 +5,10 @@ import { getOwner } from '@ember/application';
 import { assert, warn } from '@ember/debug';
 import { dasherize } from '@ember/string';
 
-import { coerceId } from '@ember-data/store/-private';
+import { singularize } from 'ember-inflector';
 
 import Serializer from '.';
+import { coerceId } from './-private';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -694,7 +695,7 @@ const JSONSerializer = Serializer.extend({
 
       return relationshipHash;
     }
-    return { id: coerceId(relationshipHash), type: relationshipModelName };
+    return { id: coerceId(relationshipHash), type: dasherize(singularize(relationshipModelName)) };
   },
 
   /**
@@ -802,7 +803,7 @@ const JSONSerializer = Serializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return dasherize(key);
+    return dasherize(singularize(key));
   },
 
   /**

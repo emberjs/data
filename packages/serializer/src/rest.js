@@ -7,8 +7,8 @@ import { camelize, dasherize } from '@ember/string';
 import { singularize } from 'ember-inflector';
 
 import { DEBUG } from '@ember-data/env';
-import { coerceId } from '@ember-data/store/-private';
 
+import { coerceId } from './-private';
 import JSONSerializer from './json';
 
 function makeArray(value) {
@@ -481,7 +481,7 @@ const RESTSerializer = JSONSerializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return singularize(dasherize(key));
+    return dasherize(singularize(key));
   },
 
   // SERIALIZE
@@ -786,7 +786,7 @@ const RESTSerializer = JSONSerializer.extend({
     if (isPolymorphic && resourceHash[typeProperty] !== undefined && typeof relationshipHash !== 'object') {
       let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
       return {
-        id: relationshipHash,
+        id: coerceId(relationshipHash),
         type: type,
       };
     }
