@@ -9,7 +9,7 @@ import type { NotificationType } from '@ember-data/store/-private/managers/notif
 import type { CollectionResourceDataDocument, StructuredDocument } from '@ember-data/types/cache/document';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
@@ -103,8 +103,16 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
         ],
       },
     } as StructuredDocument<CollectionResourceDocument>) as CollectionResourceDataDocument;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+      type: 'user',
+      id: '1',
+    }) as StableExistingRecordIdentifier;
+    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({
+      type: 'user',
+      id: '2',
+    }) as StableExistingRecordIdentifier;
+    assert.strictEqual(identifier.id, '1', 'We were given the correct data back');
+    assert.strictEqual(identifier2.id, '2', 'We were given the correct data back');
 
     assert.deepEqual(responseDocument.data, [identifier, identifier2], 'We were given the correct data back');
 

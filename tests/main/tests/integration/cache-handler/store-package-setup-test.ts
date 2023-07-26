@@ -27,7 +27,7 @@ import type {
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
@@ -889,7 +889,10 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         store,
         url: '/assets/users/1.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+        type: 'user',
+        id: '1',
+      }) as StableExistingRecordIdentifier;
       const record = store.peekRecord(identifier) as FakeRecord | null;
       const data = userDocument.content.data!;
 
@@ -948,7 +951,10 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/1.json' })!
       ) as unknown as StructuredDataDocument<ResourceDataDocument>;
       const data3 = updatedUserDocument?.content?.data;
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({
+        type: 'user',
+        id: '2',
+      }) as StableExistingRecordIdentifier;
 
       assert.strictEqual(data3, identifier2, 'we get an identifier back as data');
       assert.strictEqual(updatedUserDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');

@@ -81,7 +81,9 @@ class TestRecordData implements Cache {
     if ('content' in doc && !('error' in doc)) {
       if (Array.isArray(doc.content.data)) {
         const data = doc.content.data.map((resource) => {
-          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(resource);
+          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
+            resource
+          ) as StableExistingRecordIdentifier;
           this.upsert(identifier, resource, this._storeWrapper.hasRecord(identifier));
           return identifier;
         });

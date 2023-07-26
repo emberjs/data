@@ -10,7 +10,7 @@ import type { SingleResourceDataDocument, StructuredDocument } from '@ember-data
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
@@ -82,7 +82,10 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
       },
     } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+      type: 'user',
+      id: '1',
+    }) as StableExistingRecordIdentifier;
 
     assert.strictEqual(responseDocument.data, identifier, 'We were given the correct data back');
   });
@@ -97,7 +100,10 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
       },
     } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+      type: 'user',
+      id: '1',
+    }) as StableExistingRecordIdentifier;
 
     assert.strictEqual(responseDocument.data, identifier, 'We were given the correct data back');
 
@@ -134,7 +140,10 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
       },
     } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+      type: 'user',
+      id: '1',
+    }) as StableExistingRecordIdentifier;
 
     assert.strictEqual(responseDocument.data, identifier, 'We were given the correct data back');
 

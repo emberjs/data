@@ -32,11 +32,7 @@ import type {
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/types/q/ember-data-json-api';
-import type {
-  RecordIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@ember-data/types/q/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 
 class Person extends Model {
@@ -70,15 +66,17 @@ class TestRecordData implements Cache {
     if ('content' in doc && !('error' in doc)) {
       if (Array.isArray(doc.content.data)) {
         const data = doc.content.data.map((resource) => {
-          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(resource);
+          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
+            resource
+          ) as StableExistingRecordIdentifier;
           this.upsert(identifier, resource, this._storeWrapper.hasRecord(identifier));
           return identifier;
         });
         return { data };
       } else {
         const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
-          doc.content.data as RecordIdentifier
-        );
+          doc.content.data
+        ) as StableExistingRecordIdentifier;
         this.upsert(identifier, doc.content.data as JsonApiResource, this._storeWrapper.hasRecord(identifier));
         return { data: identifier } as SingleResourceDataDocument;
       }
