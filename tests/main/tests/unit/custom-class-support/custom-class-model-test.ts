@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import RSVP from 'rsvp';
 
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
@@ -10,19 +9,17 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { Cache } from '@ember-data/types/q/cache';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaService } from '@ember-data/types/q/schema-service';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
-  let store: Store;
   class Person {
     constructor(public store: Store) {
       this.store = store;
     }
     // these types aren't correct but we don't have a registry to help
     // make them correct yet
-    save(): Promise<RecordInstance> {
-      return this.store.saveRecord(this as unknown as RecordInstance);
+    save(): Promise<this> {
+      return this.store.saveRecord(this) as Promise<this>;
     }
   }
 
@@ -62,18 +59,19 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
-        createRecord: () => RSVP.reject(),
+        createRecord: () => Promise.reject(),
       })
     );
     owner.register('serializer:application', JSONAPISerializer);
     // @ts-expect-error missing type
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     owner.unregister('service:store');
   });
 
-  test('notification manager', async function (assert) {
+  test('notification manager', function (assert) {
     assert.expect(7);
     let notificationCount = 0;
-    let identifier;
+    let identifier: StableRecordIdentifier;
     class CreationStore extends CustomStore {
       instantiateRecord(id: StableRecordIdentifier, createRecordArgs): Object {
         identifier = id;
@@ -92,7 +90,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    const store = this.owner.lookup('service:store') as unknown as Store;
+    const store = this.owner.lookup('service:store') as Store;
     const storeWrapper = store._instanceCache._storeWrapper;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
     // emulate this happening within a single push
@@ -108,9 +106,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
 
   test('record creation and teardown', function (assert) {
     assert.expect(5);
-    let returnValue;
+    let returnValue: unknown;
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier, createRecordArgs) {
+      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
@@ -121,8 +119,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    store = this.owner.lookup('service:store') as unknown as Store;
-    let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
+    const store = this.owner.lookup('service:store') as Store;
+    let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' }) as Record<string, unknown>;
     assert.strictEqual(returnValue, person, 'createRecord returns the instantiated record');
     assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
   });
@@ -180,10 +178,11 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             }
             count++;
           });
-          return RSVP.resolve({ data: { type: 'person', id: '1' } });
+          return Promise.resolve({ data: { type: 'person', id: '1' } });
         },
       })
     );
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     class CustomStore extends Store {
       instantiateRecord(identifier, createOptions) {
         return new Person(this);
@@ -191,7 +190,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       teardownRecord(record) {}
     }
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as unknown as Store;
+    const store = this.owner.lookup('service:store') as Store;
     let schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         if (typeof identifier === 'string') {
@@ -246,8 +245,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       },
     };
     store.registerSchemaDefinitionService(schema);
-    let person = store.createRecord('person', { name: 'chris' });
-    await (person as unknown as Person).save();
+    let person = store.createRecord('person', { name: 'chris' }) as Person;
+    await person.save();
   });
 
   test('store.saveRecord', async function (assert) {
@@ -257,12 +256,12 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
         createRecord: (store, type, snapshot) => {
-          return RSVP.resolve({ data: { type: 'person', id: '7' } });
+          return Promise.resolve({ data: { type: 'person', id: '7' } });
         },
       })
     );
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as unknown as Store;
+    const store = this.owner.lookup('service:store') as Store;
     let person = store.createRecord('person', { name: 'chris' });
     let promisePerson = await store.saveRecord(person);
     assert.strictEqual(person, promisePerson, 'save promise resolves with the same record');
@@ -277,16 +276,16 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         shouldBackgroundReloadRecord: () => false,
         deleteRecord: (store, type, snapshot) => {
           assert.ok(true, 'adapter method called');
-          return RSVP.resolve();
+          return Promise.resolve();
         },
       })
     );
     const subscribedValues: string[] = [];
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier, createRecordArgs) {
+      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         ident = identifier;
         assert.false(this.cache.isDeleted(identifier), 'we are not deleted when we start');
-        this.notifications.subscribe(identifier, (passedId, key) => {
+        this.notifications.subscribe(identifier, (passedId, key: string) => {
           subscribedValues.push(key);
           assert.true(this.cache.isDeleted(identifier), 'we have been marked as deleted');
         });
@@ -301,9 +300,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     const rd: Cache = store.cache;
     let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
-    assert.true(rd!.isDeleted(ident!), 'record has been marked as deleted');
+    assert.true(rd.isDeleted(ident!), 'record has been marked as deleted');
     await store.saveRecord(person);
-    assert.true(rd!.isDeletionCommitted(ident!), 'deletion has been commited');
+    assert.true(rd.isDeletionCommitted(ident!), 'deletion has been commited');
     assert.strictEqual(subscribedValues.length, 3, 'we received the proper notifications');
     // TODO this indicates our implementation could likely be more efficient
     assert.deepEqual(subscribedValues, ['state', 'removed', 'state'], 'state change to deleted has been notified');
@@ -316,10 +315,11 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
         createRecord: (store, type, snapshot) => {
-          return RSVP.reject();
+          return Promise.reject();
         },
       })
     );
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     class CustomStore extends Store {
       instantiateRecord(identifier, createOptions) {
         return new Person(this);
@@ -327,7 +327,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       teardownRecord(record) {}
     }
     this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as unknown as Store;
+    const store = this.owner.lookup('service:store') as Store;
     let schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;

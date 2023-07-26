@@ -24,7 +24,6 @@ import {
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -81,9 +80,9 @@ class TestRecordData implements Cache {
   put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
     if ('content' in doc && !('error' in doc)) {
       if (Array.isArray(doc.content.data)) {
-        const data = doc.content.data.map((data) => {
-          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(data);
-          this.upsert(identifier, data, this._storeWrapper.hasRecord(identifier));
+        const data = doc.content.data.map((resource) => {
+          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(resource);
+          this.upsert(identifier, resource, this._storeWrapper.hasRecord(identifier));
           return identifier;
         });
         return { data };
@@ -95,7 +94,7 @@ class TestRecordData implements Cache {
         return { data: identifier } as SingleResourceDataDocument;
       }
     } else if ('error' in doc) {
-      throw typeof doc.error === 'string' ? new Error(doc.error) : doc.error;
+      throw typeof doc.error === 'string' ? new Error(doc.error) : (doc.error as Error);
     }
     throw new Error('Not Implemented');
   }
@@ -353,7 +352,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
     assert.strictEqual(calledUpsert, 1, 'Called upsert');
 
-    let person = store.peekRecord('person', '1') as DSModel;
+    let person = store.peekRecord('person', '1') as Model;
     person.save();
     assert.strictEqual(calledWillCommit, 1, 'Called willCommit');
 
@@ -385,7 +384,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     calledRollbackAttributes = 0;
     calledDidCommit = 0;
 
-    let clientPerson: DSModel = store.createRecord('person', { id: '2' }) as DSModel;
+    let clientPerson = store.createRecord('person', { id: '2' }) as Model;
     assert.strictEqual(calledClientDidCreate, 1, 'Called clientDidCreate');
 
     clientPerson.save();
@@ -472,7 +471,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       data: [personHash],
     });
 
-    let person = store.peekRecord('person', '1') as DSModel;
+    let person = store.peekRecord('person', '1') as Model;
     assert.strictEqual(person.name, 'new attribute');
     assert.strictEqual(calledGet, 1, 'called getAttr for initial get');
     person.set('name', 'new value');

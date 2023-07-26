@@ -7,13 +7,15 @@ import { graphFor } from '@ember-data/graph/-private';
 import JSONAPICache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import { FetchManager } from '@ember-data/legacy-compat/-private';
+import type Model from '@ember-data/model';
+import type { ModelStore } from '@ember-data/model/-private/model';
 import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model/hooks';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { Cache } from '@ember-data/types/cache/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { DSModel, ModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
@@ -35,12 +37,12 @@ export class Store extends BaseStore {
     this: ModelStore,
     identifier: StableRecordIdentifier,
     createRecordArgs: Record<string, unknown>
-  ): DSModel {
+  ): Model {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
   teardownRecord(record: RecordInstance): void {
-    teardownRecord.call(this, record as DSModel);
+    teardownRecord.call(this, record as Model);
   }
 
   modelFor(type: string): ModelSchema {

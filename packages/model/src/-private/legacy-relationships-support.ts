@@ -19,7 +19,6 @@ import {
   storeFor,
 } from '@ember-data/store/-private';
 import type { Cache } from '@ember-data/types/q/cache';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
@@ -27,6 +26,7 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 
 import RelatedCollection from './many-array';
+import type Model from './model';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
 import PromiseBelongsTo from './promise-belongs-to';
 import type { HasManyProxyCreateArgs } from './promise-many-array';
@@ -37,7 +37,7 @@ import HasManyReference from './references/has-many';
 type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): PromiseBelongsTo };
 
 export class LegacySupport {
-  declare record: DSModel;
+  declare record: Model;
   declare store: Store;
   declare cache: Cache;
   declare references: Record<string, BelongsToReference | HasManyReference>;
@@ -50,7 +50,7 @@ export class LegacySupport {
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
 
-  constructor(record: DSModel) {
+  constructor(record: Model) {
     this.record = record;
     this.store = storeFor(record)!;
     this.identifier = recordIdentifierFor(record);
@@ -198,10 +198,10 @@ export class LegacySupport {
     let identifiers: StableRecordIdentifier[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
-        const identifier = jsonApi.data[i];
-        assert(`Expected a stable identifier`, isStableIdentifier(identifier));
-        if (cache.recordIsLoaded(identifier, true)) {
-          identifiers.push(identifier);
+        const relatedIdentifier = jsonApi.data[i];
+        assert(`Expected a stable identifier`, isStableIdentifier(relatedIdentifier));
+        if (cache.recordIsLoaded(relatedIdentifier, true)) {
+          identifiers.push(relatedIdentifier);
         }
       }
     }

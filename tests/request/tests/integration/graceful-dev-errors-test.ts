@@ -17,7 +17,7 @@ module('RequestManager | Graceful Errors', function () {
       },
     };
     try {
-      // @ts-ignore-error
+      // @ts-expect-error-error
       manager.use(handler);
       assert.ok(false, 'we should error when not passing an array');
     } catch (e: unknown) {
@@ -41,7 +41,7 @@ module('RequestManager | Graceful Errors', function () {
     await manager.request({ url: '/wat' });
 
     try {
-      // @ts-ignore-error
+      // @ts-expect-error-error
       manager.use(handler);
       assert.ok(false, 'we should error when not passing an array');
     } catch (e: unknown) {
@@ -62,7 +62,7 @@ module('RequestManager | Graceful Errors', function () {
       },
     };
     try {
-      // @ts-ignore-error
+      // @ts-expect-error-error
       manager.use(handler);
       assert.ok(false, 'we should error when not passing an array');
     } catch (e: unknown) {

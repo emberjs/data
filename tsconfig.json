@@ -33,7 +33,6 @@
       "ember-data-types/q/identifier.ts",
       "ember-data-types/q/fetch-manager.ts",
       "ember-data-types/q/ember-data-json-api.ts",
-      "ember-data-types/q/ds-model.ts",
       "packages/store/src/-private/managers/cache-capabilities-manager.ts",
       "packages/store/src/-private/network/request-cache.ts",
       "packages/store/src/-private/managers/notification-manager.ts",
@@ -84,7 +83,6 @@
       "packages/adapter/src/-private/fastboot-interface.ts",
       "packages/adapter/src/-private/build-url-mixin.ts",
       "packages/-ember-data/addon/store.ts",
-      "tests/main/tests/unit/custom-class-support/custom-class-model-test.ts",
       "tests/main/tests/integration/request-state-service-test.ts",
       "tests/main/tests/integration/record-data/store-wrapper-test.ts",
       "tests/main/tests/integration/record-data/record-data-test.ts",
@@ -95,9 +93,7 @@
       "tests/main/tests/integration/identifiers/record-identifier-for-test.ts",
       "tests/main/tests/integration/identifiers/polymorphic-scenarios-test.ts",
       "tests/main/tests/integration/identifiers/new-records-test.ts",
-      "tests/main/tests/integration/identifiers/lid-reflection-test.ts",
       "tests/main/tests/integration/identifiers/configuration-test.ts",
-      "tests/main/tests/integration/identifiers/cache-test.ts",
       "tests/main/tests/helpers/accessors.ts"
     ]
   }

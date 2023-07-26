@@ -71,7 +71,7 @@ type IdentifierMap = Map<string, StableRecordIdentifier>;
 export type MergeMethod = (
   targetIdentifier: StableRecordIdentifier,
   matchedIdentifier: StableRecordIdentifier,
-  resourceData: ResourceIdentifierObject | ExistingResourceObject
+  resourceData: unknown
 ) => StableRecordIdentifier;
 
 let configuredForgetMethod: ForgetMethod | null;
@@ -474,7 +474,7 @@ export class IdentifierCache {
     @returns {StableRecordIdentifier}
     @public
   */
-  updateRecordIdentifier(identifierObject: RecordIdentifier, data: ResourceData): StableRecordIdentifier {
+  updateRecordIdentifier(identifierObject: RecordIdentifier, data: unknown): StableRecordIdentifier {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
     let newId =
@@ -488,6 +488,7 @@ export class IdentifierCache {
         (data as ExistingResourceObject).type &&
         identifier.type !== normalizeModelName((data as ExistingResourceObject).type)
       ) {
+        // @ts-expect-error TODO this needs to be fixed
         let incomingDataResource = { ...data };
         // Need to strip the lid from the incomingData in order force a new identifier creation
         delete incomingDataResource.lid;
@@ -549,7 +550,7 @@ export class IdentifierCache {
     keyOptions: KeyOptions,
     identifier: StableRecordIdentifier,
     existingIdentifier: StableRecordIdentifier,
-    data: ResourceIdentifierObject | ExistingResourceObject,
+    data: unknown,
     newId: string
   ): StableRecordIdentifier {
     // delegate determining which identifier to keep to the configured MergeMethod
@@ -566,6 +567,7 @@ export class IdentifierCache {
     baseKeyOptions.id.set(newId, kept);
 
     // make sure that the `lid` on the data we are processing matches the lid we kept
+    // @ts-expect-error TODO this needs to be fixed
     data.lid = kept.lid;
 
     return kept;
@@ -650,10 +652,12 @@ function makeStableRecordIdentifier(
         return recordIdentifier.type;
       },
       toString() {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
         let { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
       },
       toJSON() {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
         let { type, id, lid } = recordIdentifier;
         return { type, id, lid };
       },
@@ -669,10 +673,13 @@ function makeStableRecordIdentifier(
   return recordIdentifier;
 }
 
-function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data: ResourceData, updateFn: UpdateMethod) {
+function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data: unknown, updateFn: UpdateMethod) {
   if (DEBUG) {
+    // @ts-expect-error TODO this needs to be fixed
     let { lid } = data;
+    // @ts-expect-error TODO this needs to be fixed
     let id = 'id' in data ? data.id : undefined;
+    // @ts-expect-error TODO this needs to be fixed
     let type = 'type' in data && data.type && normalizeModelName(data.type);
 
     // get the mutable instance behind our proxy wrapper
@@ -689,6 +696,7 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
     }
 
     if (id !== undefined) {
+      // @ts-expect-error TODO this needs to be fixed
       let newId = coerceId(id);
 
       if (identifier.id !== null && identifier.id !== newId) {
@@ -726,7 +734,7 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
 function detectMerge(
   typesCache: { [key: string]: KeyOptions },
   identifier: StableRecordIdentifier,
-  data: ResourceIdentifierObject | ExistingResourceObject,
+  data: unknown,
   newId: string | null,
   lids: IdentifierMap
 ): StableRecordIdentifier | false {
@@ -740,10 +748,13 @@ function detectMerge(
     let newType = (data as ExistingResourceObject).type && normalizeModelName((data as ExistingResourceObject).type);
 
     // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
+    // @ts-expect-error TODO this needs to be fixed
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
+      // @ts-expect-error TODO this needs to be fixed
       let existingIdentifier = lids.get(data.lid);
       return existingIdentifier !== undefined ? existingIdentifier : false;
       // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
+      // @ts-expect-error TODO this needs to be fixed
     } else if (id !== null && id === newId && newType && newType !== type && data.lid && data.lid === lid) {
       let keyOptions = getTypeIndex(typesCache, newType);
       let existingIdentifier = keyOptions.id.get(id);

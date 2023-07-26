@@ -3,12 +3,12 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
+import type Model from '@ember-data/model';
 import Store from '@ember-data/store';
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { SingleResourceDataDocument, StructuredDocument } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
@@ -245,7 +245,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       'We can fetch from the cache'
     );
 
-    const record = store.peekRecord(identifier) as DSModel;
+    const record = store.peekRecord(identifier) as Model;
 
     assert.strictEqual(record.name, 'Chris', 'record name is correct');
 

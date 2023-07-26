@@ -8,7 +8,6 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -95,7 +94,7 @@ module('integration/request-state-service - Request State Service', function (ho
     };
     assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
 
-    let person = (await promise) as DSModel;
+    let person = (await promise) as Model;
     let lastRequest = requestService.getLastRequestForRecord(identifier);
     let requestStateResult = {
       type: 'query' as const,
@@ -221,7 +220,7 @@ module('integration/request-state-service - Request State Service', function (ho
       count++;
     });
 
-    let person = (await store.findRecord('person', '1')) as DSModel;
+    let person = (await store.findRecord('person', '1')) as Model;
     await person.save();
     assert.strictEqual(count, 4, 'callback called four times');
   });

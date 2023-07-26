@@ -2,6 +2,7 @@ import { assert, warn } from '@ember/debug';
 
 import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
+import type Model from '@ember-data/model';
 import type { Cache } from '@ember-data/types/q/cache';
 import type {
   ExistingResourceIdentifierObject,
@@ -17,6 +18,7 @@ import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager
 import { CacheManager } from '../managers/cache-manager';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
+import { ensureStringId } from '../utils/coerce-id';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
 
 /**
@@ -106,12 +108,13 @@ export class InstanceCache {
     this._storeWrapper = new CacheCapabilitiesManager(this.store);
 
     store.identifierCache.__configureMerge(
-      (identifier: StableRecordIdentifier, matchedIdentifier: StableRecordIdentifier, resourceData) => {
+      (identifier: StableRecordIdentifier, matchedIdentifier: StableRecordIdentifier, resourceData: unknown) => {
         let keptIdentifier = identifier;
         if (identifier.id !== matchedIdentifier.id) {
+          // @ts-expect-error TODO this needs to be fixed
           keptIdentifier = 'id' in resourceData && identifier.id === resourceData.id ? identifier : matchedIdentifier;
         } else if (identifier.type !== matchedIdentifier.type) {
-          keptIdentifier =
+          keptIdentifier = // @ts-expect-error TODO this needs to be fixed
             'type' in resourceData && identifier.type === resourceData.type ? identifier : matchedIdentifier;
         }
         let staleIdentifier = identifier === keptIdentifier ? matchedIdentifier : identifier;
@@ -127,6 +130,7 @@ export class InstanceCache {
           // we can probably just "swap" what data source the abandoned
           // record points at so long as
           // it itself is not retained by the store in any way.
+          // @ts-expect-error TODO this needs to be fixed
           if ('id' in resourceData) {
             throw new Error(
               `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${String(identifier.id)} (${
@@ -232,7 +236,7 @@ export class InstanceCache {
     const record = this.__instances.record.get(identifier);
     assert(
       'Cannot destroy record while it is still materialized',
-      !record || record.isDestroyed || record.isDestroying
+      !record || (record as Model).isDestroyed || (record as Model).isDestroying
     );
 
     this.store._graph?.remove(identifier);
@@ -407,10 +411,7 @@ export function preloadData(store: Store, identifier: StableRecordIdentifier, pr
       if (!jsonPayload.relationships) {
         jsonPayload.relationships = {};
       }
-      jsonPayload.relationships[key] = preloadRelationship(
-        relationshipMeta,
-        preloadValue as PreloadRelationshipValue | null | Array<PreloadRelationshipValue>
-      );
+      jsonPayload.relationships[key] = preloadRelationship(relationshipMeta, preloadValue);
     } else {
       if (!jsonPayload.attributes) {
         jsonPayload.attributes = {};
@@ -447,7 +448,7 @@ function _convertPreloadRelationshipToJSON(
   type: string
 ): ExistingResourceIdentifierObject | NewResourceIdentifierObject {
   if (typeof value === 'string' || typeof value === 'number') {
-    return { type, id: value };
+    return { type, id: ensureStringId(value) };
   }
   // TODO if not a record instance assert it's an identifier
   // and allow identifiers to be used

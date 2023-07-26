@@ -63,7 +63,7 @@ module(
     test('groupRecordsForFindMany - findMany', async function (assert) {
       let wait = [];
       for (let i = 1; i <= 1024; i++) {
-        wait.push(store.findRecord('testRecord', i));
+        wait.push(store.findRecord('test-record', String(i)));
       }
 
       assert.ok(
@@ -75,8 +75,8 @@ module(
 
     test('groupRecordsForFindMany works for encodeURIComponent-ified ids', async function (assert) {
       let wait = [];
-      wait.push(store.findRecord('testRecord', 'my-id:1'));
-      wait.push(store.findRecord('testRecord', 'my-id:2'));
+      wait.push(store.findRecord('test-record', 'my-id:1'));
+      wait.push(store.findRecord('test-record', 'my-id:2'));
 
       await settled();
 
@@ -89,8 +89,8 @@ module(
 
     test('_stripIDFromURL works with id being encoded - #4190', function (assert) {
       store._fetchManager = new FetchManager(store);
-      let record = store.createRecord('testRecord', { id: 'id:123' });
-      let adapter = store.adapterFor('testRecord');
+      let record = store.createRecord('test-record', { id: 'id:123' });
+      let adapter = store.adapterFor('test-record');
       let snapshot = store._fetchManager.createSnapshot(recordIdentifierFor(record));
       let strippedUrl = adapter._stripIDFromURL(store, snapshot);
 

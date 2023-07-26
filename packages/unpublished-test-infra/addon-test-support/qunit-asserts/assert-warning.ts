@@ -60,7 +60,7 @@ function verifyWarning(config: WarningConfig, label?: string): AssertSomeResult 
     return isMatched;
   });
   WARNINGS_FOR_TEST = WARNINGS_FOR_TEST.filter((warning) => {
-    matchedWarnings.indexOf(warning) === -1;
+    !matchedWarnings.includes(warning);
   });
   HANDLED_WARNINGS_FOR_TEST.push(...matchedWarnings);
 

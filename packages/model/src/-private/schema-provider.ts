@@ -1,10 +1,11 @@
 import { getOwner } from '@ember/application';
 
 import type Store from '@ember-data/store';
-import type { DSModelSchema, FactoryCache, ModelFactory, ModelStore } from '@ember-data/types/q/ds-model';
 import type { RecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
+import type { FactoryCache, ModelFactory, ModelStore } from './model';
+import Model from './model';
 import _modelForMixin from './model-for-mixin';
 import { normalizeModelName } from './util';
 
@@ -46,7 +47,7 @@ export class ModelSchemaProvider {
     relationships = this._relationshipsDefCache[type];
 
     if (relationships === undefined) {
-      let modelClass = this.store.modelFor(type) as DSModelSchema;
+      let modelClass = this.store.modelFor(type) as typeof Model;
       relationships = modelClass.relationshipsObject || null;
       this._relationshipsDefCache[type] = relationships;
     }

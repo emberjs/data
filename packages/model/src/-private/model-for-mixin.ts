@@ -2,7 +2,7 @@ import { getOwner } from '@ember/application';
 
 import type Store from '@ember-data/store';
 
-import Model from './model';
+import Model, { type ModelFactory } from './model';
 
 /*
     In case someone defined a relationship to a mixin, for example:
@@ -23,7 +23,7 @@ import Model from './model';
     Model, so we can access the relationship CPs of the mixin (`comments`)
     in this case
   */
-export default function modelForMixin(store: Store, normalizedModelName: string): Model | null {
+export default function modelForMixin(store: Store, normalizedModelName: string): ModelFactory | undefined {
   let owner: any = getOwner(store);
   let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
   let mixin = MaybeMixin && MaybeMixin.class;

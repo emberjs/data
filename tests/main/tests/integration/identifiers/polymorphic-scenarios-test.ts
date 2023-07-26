@@ -26,7 +26,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
   */
   setupTest(hooks);
 
-  module('single-table', function (hooks) {
+  module('single-table', function (innerHooks) {
     let store;
 
     class TestSerializer extends EmberObject {
@@ -35,7 +35,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       }
     }
 
-    hooks.beforeEach(function () {
+    innerHooks.beforeEach(function () {
       const { owner } = this;
 
       class Car extends Model {

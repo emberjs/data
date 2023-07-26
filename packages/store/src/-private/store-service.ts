@@ -2380,12 +2380,14 @@ let assertDestroyingStore: Function;
 let assertDestroyedStoreOnly: Function;
 
 if (DEBUG) {
-  assertDestroyingStore = function assertDestroyedStore(store, method) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  assertDestroyingStore = function assertDestroyingStore(store, method) {
     assert(
       `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
       !(store.isDestroying || store.isDestroyed)
     );
   };
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
     assert(
       `Attempted to call store.${method}(), but the store instance has already been destroyed.`,

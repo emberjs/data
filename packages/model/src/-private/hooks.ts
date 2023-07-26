@@ -3,9 +3,10 @@ import { assert } from '@ember/debug';
 
 import { setCacheFor, setRecordIdentifier, type Store, StoreMap } from '@ember-data/store/-private';
 import type { Cache } from '@ember-data/types/cache/cache';
-import type { DSModel, DSModelSchema, ModelStore } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import type { ModelStore } from './model';
+import Model from './model';
 import { getModelFactory } from './schema-provider';
 import { normalizeModelName } from './util';
 
@@ -13,7 +14,7 @@ export function instantiateRecord(
   this: ModelStore,
   identifier: StableRecordIdentifier,
   createRecordArgs: { [key: string]: unknown }
-): DSModel {
+): Model {
   const type = identifier.type;
 
   const cache = this.cache;
@@ -37,15 +38,15 @@ export function instantiateRecord(
   return factory.class.create(createOptions);
 }
 
-export function teardownRecord(record: DSModel): void {
+export function teardownRecord(record: Model): void {
   assert(
-    `expected to receive an instance of DSModel. If using a custom model make sure you implement teardownRecord`,
+    `expected to receive an instance of Model from @ember-data/model. If using a custom model make sure you implement teardownRecord`,
     'destroy' in record
   );
   record.destroy();
 }
 
-export function modelFor(this: Store, modelName: string): DSModelSchema | void {
+export function modelFor(this: Store, modelName: string): typeof Model | void {
   assert(`You need to pass a model name to the store's modelFor method`, modelName);
   assert(
     `Please pass a proper model name to the store's modelFor method`,
@@ -65,7 +66,7 @@ export function modelFor(this: Store, modelName: string): DSModelSchema | void {
   );
 }
 
-function secretInit(record: DSModel, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {
+function secretInit(record: Model, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {
   setRecordIdentifier(record, identifier);
   StoreMap.set(record, store);
   setCacheFor(record, cache);

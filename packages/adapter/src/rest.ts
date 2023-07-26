@@ -940,11 +940,10 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   */
   groupRecordsForFindMany(store: Store, snapshots: Snapshot[]): Snapshot[][] {
     let groups = new Map();
-    let adapter = this;
     let maxURLLength = this.maxURLLength;
 
     snapshots.forEach((snapshot) => {
-      let baseUrl = adapter._stripIDFromURL(store, snapshot);
+      let baseUrl = this._stripIDFromURL(store, snapshot);
       if (!groups.has(baseUrl)) {
         groups.set(baseUrl, []);
       }
@@ -952,31 +951,10 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       groups.get(baseUrl).push(snapshot);
     });
 
-    function splitGroupToFitInUrl(group, maxURLLength, paramNameLength) {
-      let idsSize = 0;
-      let baseUrl = adapter._stripIDFromURL(store, group[0]);
-      let splitGroups: Snapshot[][] = [[]];
-
-      group.forEach((snapshot) => {
-        let additionalLength = encodeURIComponent(snapshot.id).length + paramNameLength;
-        if (baseUrl.length + idsSize + additionalLength >= maxURLLength) {
-          idsSize = 0;
-          splitGroups.push([]);
-        }
-
-        idsSize += additionalLength;
-
-        let lastGroupIndex = splitGroups.length - 1;
-        splitGroups[lastGroupIndex].push(snapshot);
-      });
-
-      return splitGroups;
-    }
-
     let groupsArray: Snapshot[][] = [];
     groups.forEach((group, key) => {
       let paramNameLength = '&ids%5B%5D='.length;
-      let splitGroups = splitGroupToFitInUrl(group, maxURLLength, paramNameLength);
+      let splitGroups = splitGroupToFitInUrl(store, this, group, maxURLLength, paramNameLength);
 
       splitGroups.forEach((splitGroup) => groupsArray.push(splitGroup));
     });
@@ -1408,7 +1386,7 @@ function handleAbort(requestData: RequestData, responseData: ResponseData): Abor
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
 function endsWith(string: string, suffix: string): boolean {
   if (typeof String.prototype.endsWith !== 'function') {
-    return string.indexOf(suffix, string.length - suffix.length) !== -1;
+    return string.includes(suffix, string.length - suffix.length);
   } else {
     return string.endsWith(suffix);
   }
@@ -1430,7 +1408,7 @@ function fetchErrorHandler(
   response: Response,
   errorThrown,
   requestData: RequestData
-) {
+): Error {
   let responseData = fetchResponseData(response);
 
   if (responseData.status === 200 && payload instanceof Error) {
@@ -1519,7 +1497,7 @@ export function fetchOptions(
       // If no options are passed, Ember Data sets `data` to an empty object, which we test for.
       if (Object.keys(options.data).length && options.url) {
         // Test if there are already query params in the url (mimics jQuey.ajax).
-        const queryParamDelimiter = options.url.indexOf('?') > -1 ? '&' : '?';
+        const queryParamDelimiter = options.url.includes('?') ? '&' : '?';
         options.url += `${queryParamDelimiter}${serializeQueryParams(options.data)}`;
       }
     } else {
@@ -1565,6 +1543,27 @@ function ajaxOptions(options: JQueryRequestInit, adapter: RESTAdapter): JQueryRe
   };
 
   return options;
+}
+
+function splitGroupToFitInUrl(store, adapter, group, maxURLLength, paramNameLength) {
+  let idsSize = 0;
+  let baseUrl = adapter._stripIDFromURL(store, group[0]);
+  let splitGroups: Snapshot[][] = [[]];
+
+  group.forEach((snapshot) => {
+    let additionalLength = encodeURIComponent(snapshot.id).length + paramNameLength;
+    if (baseUrl.length + idsSize + additionalLength >= maxURLLength) {
+      idsSize = 0;
+      splitGroups.push([]);
+    }
+
+    idsSize += additionalLength;
+
+    let lastGroupIndex = splitGroups.length - 1;
+    splitGroups[lastGroupIndex].push(snapshot);
+  });
+
+  return splitGroups;
 }
 
 export default RESTAdapter;

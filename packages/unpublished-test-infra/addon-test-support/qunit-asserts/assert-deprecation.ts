@@ -76,7 +76,7 @@ function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSom
     return isMatched;
   });
   DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter((deprecation) => {
-    return matchedDeprecations.indexOf(deprecation) === -1;
+    return !matchedDeprecations.includes(deprecation);
   });
   HANDLED_DEPRECATIONS_FOR_TEST.push(...matchedDeprecations);
 

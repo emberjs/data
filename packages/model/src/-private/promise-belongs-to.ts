@@ -23,11 +23,11 @@ export interface BelongsToProxyCreateArgs {
   _belongsToState: BelongsToProxyMeta;
 }
 
-interface PromiseObjectType<T extends object> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
-  new <T extends object>(...args: unknown[]): PromiseObjectType<T>;
+interface PromiseObjectType<T> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
+  new <PT>(...args: unknown[]): PromiseObjectType<PT>;
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare class PromiseObjectType<T extends object> {}
+declare class PromiseObjectType<T> {}
 
 const Extended: PromiseObjectType<RecordInstance> = PromiseObject as unknown as PromiseObjectType<RecordInstance>;
 

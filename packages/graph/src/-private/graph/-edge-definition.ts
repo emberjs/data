@@ -194,18 +194,18 @@ function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
       return true;
     }
 
-    let isRHS =
+    let _isRHS =
       key === info.rhs_relationshipName &&
       (type === info.rhs_baseModelName || // base or non-polymorphic
         // if the other side is polymorphic then we need to scan our modelNames
-        (info.lhs_isPolymorphic && info.rhs_modelNames.indexOf(type) !== -1)); // polymorphic
-    let isLHS =
+        (info.lhs_isPolymorphic && info.rhs_modelNames.includes(type))); // polymorphic
+    let _isLHS =
       key === info.lhs_relationshipName &&
       (type === info.lhs_baseModelName || // base or non-polymorphic
         // if the other side is polymorphic then we need to scan our modelNames
-        (info.rhs_isPolymorphic && info.lhs_modelNames.indexOf(type) !== -1)); // polymorphic;
+        (info.rhs_isPolymorphic && info.lhs_modelNames.includes(type))); // polymorphic;
 
-    if (!isRHS && !isLHS) {
+    if (!_isRHS && !_isLHS) {
       /*
         this occurs when we are likely polymorphic but not configured to be polymorphic
         most often due to extending a class that has a relationship definition on it.
@@ -259,10 +259,10 @@ function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
         ```
 
        */
-      if (key === info.lhs_relationshipName && info.lhs_modelNames.indexOf(type) !== -1) {
+      if (key === info.lhs_relationshipName && info.lhs_modelNames.includes(type)) {
         // parentIdentifier, parentDefinition, addedIdentifier, store
         assertInheritedSchema(info.lhs_definition, type);
-      } else if (key === info.rhs_relationshipName && info.rhs_modelNames.indexOf(type) !== -1) {
+      } else if (key === info.rhs_relationshipName && info.rhs_modelNames.includes(type)) {
         assertInheritedSchema(info.lhs_definition, type);
       }
       // OPEN AN ISSUE :: we would like to improve our errors but need to understand what corner case got us here
@@ -271,7 +271,7 @@ function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
       );
     }
 
-    if (isRHS && isLHS) {
+    if (_isRHS && _isLHS) {
       // not sure how we get here but it's probably the result of some form of inheritance
       // without having specified polymorphism correctly leading to it not being self-referential
       // OPEN AN ISSUE :: we would like to improve our errors but need to understand what corner case got us here
@@ -295,7 +295,7 @@ export function isLHS(info: EdgeDefinition, type: string, key: string): boolean 
       isSelfReferential === true || // itself
       type === info.lhs_baseModelName || // base or non-polymorphic
       // if the other side is polymorphic then we need to scan our modelNames
-      (info.rhs_isPolymorphic && info.lhs_modelNames.indexOf(type) !== -1) // polymorphic
+      (info.rhs_isPolymorphic && info.lhs_modelNames.includes(type)) // polymorphic
     );
   }
 
@@ -315,7 +315,7 @@ export function isRHS(info: EdgeDefinition, type: string, key: string): boolean 
       isSelfReferential === true || // itself
       type === info.rhs_baseModelName || // base or non-polymorphic
       // if the other side is polymorphic then we need to scan our modelNames
-      (info.lhs_isPolymorphic && info.rhs_modelNames.indexOf(type) !== -1) // polymorphic
+      (info.lhs_isPolymorphic && info.rhs_modelNames.includes(type)) // polymorphic
     );
   }
 
@@ -355,11 +355,11 @@ export function upgradeDefinition(
     if (polymorphicLookup[type]) {
       const altTypes = Object.keys(polymorphicLookup[type] as {});
       for (let i = 0; i < altTypes.length; i++) {
-        let cached = expandingGet<EdgeDefinition | null>(cache, altTypes[i], propertyName);
-        if (cached) {
-          expandingSet<EdgeDefinition | null>(cache, type, propertyName, cached);
-          cached.rhs_modelNames.push(type);
-          return cached;
+        const _cached = expandingGet<EdgeDefinition | null>(cache, altTypes[i], propertyName);
+        if (_cached) {
+          expandingSet<EdgeDefinition | null>(cache, type, propertyName, _cached);
+          _cached.rhs_modelNames.push(type);
+          return _cached;
         }
       }
     }
@@ -410,13 +410,13 @@ export function upgradeDefinition(
         .getSchemaDefinitionService()
         .relationshipsDefinitionFor({ type: inverseType });
       assert(`Expected to have a relationship definition for ${inverseType} but none was found.`, inverseDefinitions);
-      let meta = inverseDefinitions[inverseKey];
+      let metaFromInverse = inverseDefinitions[inverseKey];
       assert(
         `Expected a relationship schema for '${inverseType}.${inverseKey}' to match the inverse of '${type}.${propertyName}', but no relationship schema was found.`,
-        meta
+        metaFromInverse
       );
 
-      inverseDefinition = upgradeMeta(meta);
+      inverseDefinition = upgradeMeta(metaFromInverse);
     }
   }
 
@@ -484,8 +484,8 @@ export function upgradeDefinition(
       cached.hasInverse !== false
     );
 
-    let isLHS = cached.lhs_baseModelName === baseType;
-    let modelNames = isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
+    let _isLHS = cached.lhs_baseModelName === baseType;
+    let modelNames = _isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
     // make this lookup easier in the future by caching the key
     modelNames.push(type);
     expandingSet<EdgeDefinition | null>(cache, type, propertyName, cached);

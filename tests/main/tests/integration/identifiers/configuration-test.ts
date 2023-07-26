@@ -18,7 +18,6 @@ import Store, {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   GenerationMethod,
   IdentifierBucket,
@@ -180,7 +179,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     setIdentifierUpdateMethod(updateMethod);
 
     const store = this.owner.lookup('service:store') as unknown as Store;
-    const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 }) as DSModel;
+    const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 }) as Model;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,
@@ -249,7 +248,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       firstName: 'Chris',
       username: '@runspired',
       age: 31,
-    }) as DSModel;
+    }) as Model;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,
@@ -323,7 +322,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           age: 22,
         },
       },
-    }) as DSModel;
+    }) as Model;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,
@@ -480,7 +479,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           firstName: 'Chris',
         },
       },
-    }) as DSModel;
+    }) as Model;
     const userIdentifier = recordIdentifierFor(user);
 
     user.deleteRecord();
@@ -550,7 +549,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           firstName: 'Chris',
         },
       },
-    }) as DSModel;
+    }) as Model;
     const freeWillieIdentifier = recordIdentifierFor(freeWillie);
     expectedIdentifiers.push(freeWillieIdentifier);
 
@@ -574,7 +573,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           },
         },
       },
-    }) as DSModel;
+    }) as Model;
 
     // the aforementioned async retainer
     const gatekeeper = store.push({
@@ -593,7 +592,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           },
         },
       },
-    }) as DSModel;
+    }) as Model;
 
     // a sync reference to a record we will unload
     const jailhouse = store.push({
@@ -607,7 +606,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
           retainer: { data: { type: 'retainer', id: '1' } },
         },
       },
-    }) as DSModel;
+    }) as Model;
 
     const jailBirdIdentifier = recordIdentifierFor(jailBird);
     const gatekeeperIdentifier = recordIdentifierFor(gatekeeper);

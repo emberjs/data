@@ -232,7 +232,7 @@ export interface GenerationMethod {
 */
 
 export type UpdateMethod = {
-  (identifier: StableRecordIdentifier, newData: ResourceData, bucket: 'record'): void;
+  (identifier: StableRecordIdentifier, newData: unknown, bucket: 'record'): void;
   (identifier: StableIdentifier, newData: unknown, bucket: never): void;
 };
 
