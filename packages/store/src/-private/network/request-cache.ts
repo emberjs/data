@@ -21,10 +21,11 @@ const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as Reque
 
 interface InternalRequest extends RequestState {
   [Touching]: RecordIdentifier[];
-  [RequestPromise]?: Promise<any>;
+  [RequestPromise]?: Promise<unknown>;
 }
 
 type RecordOperation = FindRecordQuery | SaveRecordMutation;
+export type RequestSubscription = (requestState: RequestState) => void;
 
 function hasRecordIdentifier(op: Operation): op is RecordOperation {
   return 'recordIdentifier' in op;
@@ -40,11 +41,11 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
 export default class RequestStateService {
   _pending: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
-  _subscriptions: { [lid: string]: Function[] } = Object.create(null);
+  _subscriptions: Map<StableRecordIdentifier, RequestSubscription[]> = new Map();
   _toFlush: InternalRequest[] = [];
   _store: Store;
 
-  constructor(store) {
+  constructor(store: Store) {
     this._store = store;
   }
 
@@ -124,8 +125,9 @@ export default class RequestStateService {
 
   _flushRequest(req: InternalRequest): void {
     req[Touching].forEach((identifier: StableRecordIdentifier) => {
-      if (this._subscriptions[identifier.lid]) {
-        this._subscriptions[identifier.lid].forEach((callback) => callback(req));
+      const subscriptions = this._subscriptions.get(identifier);
+      if (subscriptions) {
+        subscriptions.forEach((callback) => callback(req));
       }
     });
   }
@@ -147,8 +149,8 @@ export default class RequestStateService {
       if (requests) {
         requests = requests.filter((req) => {
           // TODO add support for multiple
-          let data;
-          if (req.request.data instanceof Array) {
+          let data: Operation;
+          if (Array.isArray(req.request.data)) {
             data = req.request.data[0];
           } else {
             data = req.request.data;
@@ -191,11 +193,13 @@ export default class RequestStateService {
    * @param {StableRecordIdentifier} identifier
    * @param {(state: RequestState) => void} callback
    */
-  subscribeForRecord(identifier: RecordIdentifier, callback: (requestState: RequestState) => void) {
-    if (!this._subscriptions[identifier.lid]) {
-      this._subscriptions[identifier.lid] = [];
+  subscribeForRecord(identifier: RecordIdentifier, callback: RequestSubscription) {
+    let subscriptions = this._subscriptions.get(identifier);
+    if (!subscriptions) {
+      subscriptions = [];
+      this._subscriptions.set(identifier, subscriptions);
     }
-    this._subscriptions[identifier.lid].push(callback);
+    subscriptions.push(callback);
   }
 
   /**

@@ -24,7 +24,7 @@ export function getShimClass(store: Store, modelName: string): ShimModelClass {
 }
 
 function mapFromHash<T>(hash: Record<string, T>): Map<string, T> {
-  let map = new Map();
+  const map: Map<string, T> = new Map();
   for (let i in hash) {
     if (Object.prototype.hasOwnProperty.call(hash, i)) {
       map.set(i, hash[i]);
@@ -64,7 +64,7 @@ export default class ShimModelClass implements ModelSchema {
   eachAttribute<T>(callback: (this: T | undefined, key: string, attribute: AttributeSchema) => void, binding?: T) {
     let attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     Object.keys(attrDefs).forEach((key) => {
-      callback.call(binding, key, attrDefs[key] as AttributeSchema);
+      callback.call(binding, key, attrDefs[key]);
     });
   }
 
@@ -76,7 +76,7 @@ export default class ShimModelClass implements ModelSchema {
       .getSchemaDefinitionService()
       .relationshipsDefinitionFor({ type: this.modelName });
     Object.keys(relationshipDefs).forEach((key) => {
-      callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
+      callback.call(binding, key, relationshipDefs[key]);
     });
   }
 

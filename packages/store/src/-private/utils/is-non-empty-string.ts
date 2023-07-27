@@ -1,3 +1,3 @@
-export default function isNonEmptyString(str: any): str is string {
-  return str && typeof str === 'string';
+export default function isNonEmptyString(str: unknown): str is string {
+  return Boolean(str && typeof str === 'string');
 }

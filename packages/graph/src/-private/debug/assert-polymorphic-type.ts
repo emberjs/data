@@ -1,5 +1,9 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
+import type { UpgradedMeta } from '../graph/-edge-definition';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type Store from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -13,11 +17,11 @@ import { DEBUG } from '@ember-data/env';
   information about the relationship, retrieved via
   `record.relationshipFor(key)`.
 */
-let assertPolymorphicType;
-let assertInheritedSchema;
+let assertPolymorphicType: (parentIdentifier: StableRecordIdentifier, parentDefinition: UpgradedMeta, addedIdentifier: StableRecordIdentifier, store: CacheCapabilitiesManager) => void;
+let assertInheritedSchema: (definition: UpgradedMeta, type: string) => void;
 
 if (DEBUG) {
-  function validateSchema(definition, meta) {
+  function validateSchema(definition: UpgradedMeta, meta: PrintConfig) {
     const errors = new Map();
 
     if (definition.inverseKey !== meta.name) {
@@ -45,7 +49,20 @@ if (DEBUG) {
     return errors;
   }
 
-  function expectedSchema(definition) {
+  type PrintConfig = {
+    name: string;
+    type: string;
+    kind: string;
+    options: {
+      as?: string;
+      async: boolean;
+      polymorphic?: boolean;
+      inverse: string | null;
+    };
+  }
+  type RelationshipSchemaError = 'name' | 'type' | 'kind' | 'as' | 'async' | 'polymorphic' | 'inverse';
+
+  function expectedSchema(definition: UpgradedMeta) {
     return printSchema({
       name: definition.inverseKey,
       type: definition.inverseType,
@@ -59,7 +76,7 @@ if (DEBUG) {
     });
   }
 
-  function printSchema(config, errors) {
+  function printSchema(config: PrintConfig, errors?: Map<RelationshipSchemaError, string>) {
     return `
 
 \`\`\`
@@ -81,7 +98,7 @@ if (DEBUG) {
 `
   }
 
-  function metaFrom(definition) {
+  function metaFrom(definition: UpgradedMeta) {
     return {
       name: definition.key,
       type: definition.type,
@@ -93,7 +110,7 @@ if (DEBUG) {
       }
     };
   }
-  function inverseMetaFrom(definition) {
+  function inverseMetaFrom(definition: UpgradedMeta) {
     return {
       name: definition.inverseKey,
       type: definition.inverseType,
@@ -106,25 +123,29 @@ if (DEBUG) {
       }
     };
   }
-  function inverseDefinition(definition) {
+  function inverseDefinition(definition: UpgradedMeta): UpgradedMeta {
     return {
       key: definition.inverseKey,
       type: definition.inverseType,
       kind: definition.inverseKind,
       isAsync: definition.inverseIsAsync,
       isPolymorphic: true,
+      isCollection: definition.inverseIsCollection,
+      isImplicit: definition.inverseIsImplicit,
       inverseKey: definition.key,
       inverseType: definition.type,
       inverseKind: definition.kind,
       inverseIsAsync: definition.isAsync,
-      inverseIsPolymorphic: definition.isPolymorphic
+      inverseIsPolymorphic: definition.isPolymorphic,
+      inverseIsImplicit: definition.isImplicit,
+      inverseIsCollection: definition.isCollection
     };
   }
-  function definitionWithPolymorphic(definition) {
+  function definitionWithPolymorphic(definition: UpgradedMeta) {
     return Object.assign({}, definition, { inverseIsPolymorphic: true });
   }
 
-  assertInheritedSchema = function assertInheritedSchema(definition, type) {
+  assertInheritedSchema = function assertInheritedSchema(definition: UpgradedMeta, type: string) {
     let meta1 = metaFrom(definition);
     let meta2 = inverseMetaFrom(definition);
     let errors1 = validateSchema(inverseDefinition(definition), meta1);
@@ -142,7 +163,7 @@ if (DEBUG) {
     }
   }
 
-  assertPolymorphicType = function assertPolymorphicType(parentIdentifier, parentDefinition, addedIdentifier, store) {
+  assertPolymorphicType = function assertPolymorphicType(parentIdentifier: StableRecordIdentifier, parentDefinition: UpgradedMeta, addedIdentifier: StableRecordIdentifier, store: CacheCapabilitiesManager) {
     if (parentDefinition.inverseIsImplicit) {
       return;
     }
@@ -153,7 +174,7 @@ if (DEBUG) {
       assert(`No '${parentDefinition.inverseKey}' field exists on '${addedIdentifier.type}'. To use this type in the polymorphic relationship '${parentDefinition.inverseType}.${parentDefinition.key}' the relationships schema definition for ${addedIdentifier.type} should include:${expectedSchema(parentDefinition)}`, meta);
       assert(
         `You should not specify both options.as and options.inverse as null on ${addedIdentifier.type}.${parentDefinition.inverseKey}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
-        !(meta.options.inverse === null && meta?.options.as?.length > 0)
+        !(meta.options.inverse === null && meta?.options.as?.length)
       );
       let errors = validateSchema(parentDefinition, meta);
       assert(

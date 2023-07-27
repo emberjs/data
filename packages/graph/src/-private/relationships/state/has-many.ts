@@ -51,7 +51,11 @@ export default class ManyRelationship {
   }
 
   getData(): CollectionResourceRelationship {
-    let payload: any = {};
+    let payload: {
+      data?: StableRecordIdentifier[];
+      links?: Links | PaginationLinks;
+      meta?: Meta;
+    } = {};
     if (this.state.hasReceivedData) {
       payload.data = this.localState.slice();
     }

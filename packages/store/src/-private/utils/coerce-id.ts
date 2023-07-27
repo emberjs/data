@@ -19,12 +19,8 @@ function coerceId(id: Coercable): string | null {
     let normalized: string | null;
     if (id === null || id === undefined || id === '') {
       normalized = null;
-    } else if (typeof id === 'string') {
-      normalized = id;
-    } else if (typeof id === 'symbol') {
-      normalized = id.toString();
     } else {
-      normalized = '' + id;
+      normalized = String(id);
     }
 
     deprecate(
@@ -59,12 +55,10 @@ export function ensureStringId(id: Coercable): string {
   if (typeof id === 'string') {
     normalized = id.length > 0 ? id : null;
   } else if (typeof id === 'number' && !isNaN(id)) {
-    normalized = '' + id;
+    normalized = String(id);
   }
 
-  if (normalized === null) {
-    throw new Error(`Expected id to be a string or number, received ${String(id)}`);
-  }
+  assert(`Expected id to be a string or number, received ${String(id)}`, normalized !== null);
 
   return normalized;
 }
