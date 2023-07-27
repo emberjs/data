@@ -82,7 +82,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const { localState, localMembers, definition } = relationship;
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
-  const newState = new Array(newValues.size);
+  const newState = new Array(newValues.size) as StableRecordIdentifier[];
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
@@ -161,7 +161,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   const { remoteState, remoteMembers, definition } = relationship;
   const newValues = new Set(identifiers);
   const identifiersLength = identifiers.length;
-  const newState = new Array(newValues.size);
+  const newState = new Array(newValues.size) as StableRecordIdentifier[];
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state

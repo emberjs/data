@@ -4,11 +4,13 @@ import { LOG_GRAPH } from '@ember-data/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
+import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { coerceId } from '../coerce-id';
 import type BelongsToRelationship from '../relationships/state/belongs-to';
 import type ManyRelationship from '../relationships/state/has-many';
+import { UpgradedMeta } from './-edge-definition';
 import type { UpdateRelationshipOperation } from './-operations';
 import type { Graph, ImplicitRelationship } from './graph';
 
@@ -211,7 +213,12 @@ export function notifyChange(graph: Graph, identifier: StableRecordIdentifier, k
   graph.store.notifyChange(identifier, 'relationships', key);
 }
 
-export function assertRelationshipData(store, identifier, data, meta) {
+export function assertRelationshipData(
+  store: Store,
+  identifier: StableRecordIdentifier,
+  data: ResourceIdentifierObject,
+  meta: UpgradedMeta
+) {
   assert(
     `A ${identifier.type} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(
       data
@@ -223,17 +230,17 @@ export function assertRelationshipData(store, identifier, data, meta) {
   assert(
     `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on <${
       identifier.type
-    }:${identifier.id}>, expected an identifier with type '${meta.type}' but found\n\n'${JSON.stringify(
+    }:${String(identifier.id)}>, expected an identifier with type '${meta.type}' but found\n\n'${JSON.stringify(
       data,
       null,
       2
     )}'\n\nPlease check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
-    data === null || (typeof data.type === 'string' && data.type.length)
+    data === null || ('type' in data && typeof data.type === 'string' && data.type.length)
   );
   assert(
     `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on <${
       identifier.type
-    }:${identifier.id}>, expected an identifier but found\n\n'${JSON.stringify(
+    }:${String(identifier.id)}>, expected an identifier but found\n\n'${JSON.stringify(
       data,
       null,
       2
@@ -242,12 +249,20 @@ export function assertRelationshipData(store, identifier, data, meta) {
   );
   if (data?.type === meta.type) {
     assert(
-      `Missing Schema: Encountered a relationship identifier { type: '${data.type}', id: '${data.id}' } for the '${identifier.type}.${meta.key}' ${meta.kind} relationship on <${identifier.type}:${identifier.id}>, but no schema exists for that type.`,
+      `Missing Schema: Encountered a relationship identifier { type: '${data.type}', id: '${String(
+        data.id
+      )}' } for the '${identifier.type}.${meta.key}' ${meta.kind} relationship on <${identifier.type}:${String(
+        identifier.id
+      )}>, but no schema exists for that type.`,
       store.getSchemaDefinitionService().doesTypeExist(data.type)
     );
   } else {
     assert(
-      `Missing Schema: Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on <${identifier.type}:${identifier.id}>, Expected an identifier with type '${meta.type}'. No schema was found for '${data.type}'.`,
+      `Missing Schema: Encountered a relationship identifier with type '${data.type}' for the ${
+        meta.kind
+      } relationship '${meta.key}' on <${identifier.type}:${String(
+        identifier.id
+      )}>, Expected an identifier with type '${meta.type}'. No schema was found for '${data.type}'.`,
       data === null || !data.type || store.getSchemaDefinitionService().doesTypeExist(data.type)
     );
   }

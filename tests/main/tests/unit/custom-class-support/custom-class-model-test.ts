@@ -162,6 +162,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                   kind: 'hasMany',
                   options: {
                     inverse: null,
+                    async: false,
                   },
                   name: 'boats',
                   key: 'boats',
@@ -172,7 +173,13 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
               assert.strictEqual(rel, 'house', 'relationship key is correct');
               assert.deepEqual(
                 relDef,
-                { type: 'house', kind: 'belongsTo', options: { inverse: null }, key: 'house', name: 'house' },
+                {
+                  type: 'house',
+                  kind: 'belongsTo',
+                  options: { inverse: null, async: false },
+                  key: 'house',
+                  name: 'house',
+                },
                 'relationship def matches schem'
               );
             }
@@ -225,6 +232,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             kind: 'hasMany',
             options: {
               inverse: null,
+              async: false,
             },
             key: 'boats',
             name: 'boats',
@@ -234,6 +242,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             kind: 'belongsTo',
             options: {
               inverse: null,
+              async: false,
             },
             key: 'house',
             name: 'house',

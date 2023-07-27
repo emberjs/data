@@ -14,9 +14,10 @@ export interface RelationshipSchema {
   // TODO @runspired sohuld RFC be update to enforce async and inverse are set? else internals need to know
   // that meta came from @ember-data/model vs not from @ember-data/model as defaults should switch.
   options: {
-    async?: boolean; // controls inverse unloading "client side delete semantics" so we should replace that with a real flag
+    as?: string; //for polymorphic relationships, what the abstract type this is satisfying is
+    async: boolean; // controls inverse unloading "client side delete semantics" so we should replace that with a real flag
     polymorphic?: boolean;
-    inverse?: string | null; // property key on the related type (if any)
+    inverse: string | null; // property key on the related type (if any)
     [key: string]: unknown;
   };
   // inverse?: string | null;
