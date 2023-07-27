@@ -79,10 +79,6 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       'The person identifier is loaded'
     );
 
-    if (!store.identifierCache.peekRecordIdentifier({ lid: '@lid:person-1' })) {
-      debugger;
-    }
-
     run(() => adam.unloadRecord());
 
     assert.strictEqual(store.peekRecord('person', '1'), null, 'The person is unloaded');

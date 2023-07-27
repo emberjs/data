@@ -317,7 +317,7 @@ export class IdentifierCache {
 
     // if we still don't have an identifier, time to generate one
     const keyInfo = this._keyInfoForResource(resource, null);
-    identifier = makeStableRecordIdentifier(keyInfo.id, keyInfo.type, lid, 'record', false);
+    identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo.id, keyInfo.type, lid, 'record', false);
 
     addResourceToCache(this._cache, identifier);
 
@@ -411,7 +411,7 @@ export class IdentifierCache {
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
-    let identifier = makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
+    let identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
 
     // populate our unique table
     if (DEBUG) {
@@ -420,7 +420,7 @@ export class IdentifierCache {
       }
     }
 
-    addResourceToCache(this._cache, identifier);
+    /*#__NOINLINE__*/ addResourceToCache(this._cache, identifier);
 
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -456,7 +456,7 @@ export class IdentifierCache {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
     const keyInfo = this._keyInfoForResource(data, identifier);
-    let existingIdentifier = detectMerge(this._cache, keyInfo, identifier, data);
+    let existingIdentifier = /*#__NOINLINE__*/ detectMerge(this._cache, keyInfo, identifier, data);
     const hadLid = hasLid(data);
 
     if (!existingIdentifier) {
@@ -490,7 +490,7 @@ export class IdentifierCache {
     }
 
     let id = identifier.id;
-    performRecordIdentifierUpdate(identifier, keyInfo, data, this._update);
+    /*#__NOINLINE__*/ performRecordIdentifierUpdate(identifier, keyInfo, data, this._update);
     const newId = identifier.id;
 
     // add to our own secondary lookup table
@@ -716,7 +716,8 @@ function detectMerge(
 
       // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
     } else if (id !== null && id === newId && newType && newType !== type && hasLid(data) && data.lid === lid) {
-      const existingIdentifier = typeSet && typeSet.id.get(newId);
+      const newTypeSet = cache.resourcesByType[newType];
+      const existingIdentifier = newTypeSet && newTypeSet.id.get(newId);
 
       return existingIdentifier !== undefined ? existingIdentifier : false;
     }
