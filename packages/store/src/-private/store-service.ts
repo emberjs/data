@@ -307,10 +307,9 @@ class Store extends EmberObject {
     if (TESTING) {
       const all: Promise<any>[] = [];
       const pending = this._requestCache._pending;
-      const lids = Object.keys(pending);
 
-      lids.forEach((lid) => {
-        all.push(...pending[lid].map((v) => v[RequestPromise]!));
+      pending.forEach((requests) => {
+        all.push(...requests.map((v) => v[RequestPromise]!));
       });
       this.requestManager._pending.forEach((v) => all.push(v));
       const promise: Promise<unknown[]> & { length: number } = Promise.allSettled(all) as Promise<unknown[]> & {
