@@ -95,7 +95,7 @@ module('Serializer Contract | pushPayload method forwards to Serializer#pushPayl
 
       const store = this.owner.lookup('service:store');
 
-      assert.throws(() => {
+      await assert.expectAssertion(() => {
         store.pushPayload('person', {
           data: {
             id: '1',
@@ -106,7 +106,7 @@ module('Serializer Contract | pushPayload method forwards to Serializer#pushPayl
             },
           },
         });
-      }, /You cannot use 'store.pushPayload(<type>, <payload>)' unless the serializer for/);
+      }, /You cannot use 'store.pushPayload(<type>, <payload>)' unless the serializer for 'person' defines 'pushPayload'/);
     }
   );
 });
