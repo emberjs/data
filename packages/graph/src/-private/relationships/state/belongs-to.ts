@@ -38,8 +38,13 @@ export default class BelongsToRelationship {
   }
 
   getData(): SingleResourceRelationship {
-    let data;
-    let payload: any = {};
+    let data!: StableRecordIdentifier | null;
+    let payload: {
+      data?: StableRecordIdentifier | null;
+      links?: Links;
+      meta?: Meta;
+    } = {};
+
     if (this.localState) {
       data = this.localState;
     }

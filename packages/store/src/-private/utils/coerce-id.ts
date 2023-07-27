@@ -58,9 +58,7 @@ export function ensureStringId(id: Coercable): string {
     normalized = String(id);
   }
 
-  if (normalized === null) {
-    throw new Error(`Expected id to be a string or number, received ${String(id)}`);
-  }
+  assert(`Expected id to be a string or number, received ${String(id)}`, normalized !== null);
 
   return normalized;
 }

@@ -373,8 +373,8 @@ export function upgradeDefinition(
   }
   const definition = /*#__NOINLINE__*/ upgradeMeta(meta);
 
-  let inverseDefinition;
-  let inverseKey;
+  let inverseDefinition: UpgradedMeta | null;
+  let inverseKey: string | null;
   const inverseType = definition.type;
 
   // CASE: Inverse is explicitly null
@@ -398,8 +398,7 @@ export function upgradeDefinition(
         isImplicit: false,
         isCollection: false, // this must be updated when we find the first belongsTo or hasMany definition that matches
         isPolymorphic: false,
-        isInitialized: false, // tracks whether we have seen the other side at least once
-      };
+      } as UpgradedMeta; // the rest of the fields are populated by syncMeta
 
       // CASE: Inverse resolves to null
     } else if (!inverseKey) {
@@ -432,7 +431,7 @@ export function upgradeDefinition(
       isImplicit: true,
       isCollection: true, // with implicits any number of records could point at us
       isPolymorphic: false,
-    };
+    } as UpgradedMeta; // the rest of the fields are populated by syncMeta
 
     syncMeta(definition, inverseDefinition);
     syncMeta(inverseDefinition, definition);
@@ -475,6 +474,10 @@ export function upgradeDefinition(
   */
   // CASE: We may have already discovered the inverse for the baseModelName
   // CASE: We have already discovered the inverse
+  assert(
+    `We should have determined an inverseKey by now, open an issue if this is hit`,
+    typeof inverseKey! === 'string' && inverseKey.length > 0
+  );
   cached = expandingGet(cache, baseType, propertyName) || expandingGet(cache, inverseType, inverseKey);
 
   if (cached) {
