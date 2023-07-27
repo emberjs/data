@@ -7,6 +7,7 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { recordIdentifierFor } from '@ember-data/store';
 
 type RID = { type: string; id: string };
 
@@ -86,9 +87,12 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
 
       const foundFerrari = await store.findRecord('car', '1');
       assert.strictEqual(foundFerrari.constructor.modelName, 'ferrari', 'We found the right type');
+      assert.strictEqual(recordIdentifierFor(foundFerrari).type, 'ferrari', 'We ended with the correct type');
 
       const cachedFerrari = await store.peekRecord('ferrari', '1');
       assert.strictEqual(cachedFerrari.constructor.modelName, 'ferrari', 'We cached the right type');
+      assert.strictEqual(recordIdentifierFor(cachedFerrari).type, 'ferrari', 'We ended with the correct type');
+      assert.strictEqual(foundFerrari, cachedFerrari, 'We have the same car');
     });
 
     test(`Identity of polymorphic relations can change type when in cache`, async function (assert) {

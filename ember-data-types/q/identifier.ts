@@ -191,7 +191,7 @@ export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewR
 */
 export interface GenerationMethod {
   (data: ImmutableRequestInfo, bucket: 'document'): string | null;
-  (data: ResourceData | { type: string }, bucket: 'record'): string;
+  (data: unknown | { type: string }, bucket: 'record'): string;
   (data: unknown, bucket: IdentifierBucket): string | null;
 }
 

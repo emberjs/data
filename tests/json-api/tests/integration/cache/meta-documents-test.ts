@@ -13,6 +13,7 @@ import type {
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
+import { StableExistingRecordIdentifier } from '@ember-data/types/q/identifier';
 import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
 class TestStore extends Store {
@@ -215,7 +216,10 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         meta: { count: 4, last: 4 },
       },
     } as StructuredDocument<CollectionResourceDocument>) as CollectionResourceDataDocument;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+      type: 'user',
+      id: '1',
+    }) as StableExistingRecordIdentifier;
 
     assert.deepEqual(responseDocument.data, [identifier], 'data is associated');
     assert.deepEqual(responseDocument.meta, { count: 4, last: 4 }, 'meta is correct');

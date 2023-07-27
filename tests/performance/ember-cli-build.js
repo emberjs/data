@@ -28,6 +28,7 @@ module.exports = function (defaults) {
   // along with the exports of each module as its value.
 
   const { Webpack } = require('@embroider/webpack');
+  const TerserPlugin = require('terser-webpack-plugin');
 
   return require('@embroider/compat').compatBuild(app, Webpack, {
     //
@@ -37,9 +38,46 @@ module.exports = function (defaults) {
     // staticModifiers: true,
     // staticComponents: true,
     // splitAtRoutes: ['route.name'], // can also be a RegExp
-    // packagerOptions: {
-    //    webpackConfig: { }
-    // }
+    packagerOptions: {
+      webpackConfig: {
+        optimization: {
+          minimize: true,
+          minimizer: [
+            new TerserPlugin({
+              terserOptions: {
+                compress: {
+                  ecma: 2022,
+                  passes: 6, // slow, but worth it
+                  negate_iife: false,
+                  sequences: 30,
+                  defaults: true,
+                  arguments: false,
+                  keep_fargs: false,
+                  toplevel: false,
+                  unsafe: true,
+                  unsafe_comps: true,
+                  unsafe_math: true,
+                  unsafe_symbols: true,
+                  unsafe_proto: true,
+                  unsafe_undefined: true,
+                  inline: 5,
+                  reduce_funcs: false,
+                },
+                mangle: {
+                  keep_classnames: true,
+                  keep_fnames: true,
+                  module: true,
+                },
+                format: { beautify: true },
+                toplevel: false,
+                sourceMap: false,
+                ecma: 2022,
+              },
+            }),
+          ],
+        },
+      },
+    },
     //
     extraPublicTrees: [],
   });

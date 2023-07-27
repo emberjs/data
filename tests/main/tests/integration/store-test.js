@@ -351,8 +351,8 @@ module('integration/store - findRecord', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => true;
 
     adapter.findRecord = () => {
-      if (calls++ < 3) {
-        return resolve({
+      if (calls++ < 4) {
+        return Promise.resolve({
           data: {
             type: 'car',
             id: '1',
@@ -371,6 +371,7 @@ module('integration/store - findRecord', function (hooks) {
     const car = await proxiedCar; // load 1
 
     assert.strictEqual(car.model, 'Mini', 'car record is returned from cache');
+
     const proxiedCar2 = store.findRecord('car', '1'); // will trigger a backgroundReload
     const car2 = await proxiedCar2;
 
@@ -387,7 +388,7 @@ module('integration/store - findRecord', function (hooks) {
 
     await store._getAllPending();
 
-    assert.strictEqual(calls, 3, 'we triggered one background reload and one load');
+    assert.strictEqual(calls, 3, 'we triggered two background reloads and one load');
   });
 
   test('multiple parallel calls to store#findRecord return the cached record without waiting for background requests', async function (assert) {

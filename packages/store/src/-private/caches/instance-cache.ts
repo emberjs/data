@@ -310,11 +310,11 @@ export class InstanceCache {
     if (type === undefined) {
       // it would be cool if we could just de-ref cache here
       // but probably would require WeakRef models to do so.
-      cache.lids.forEach((identifier) => {
+      cache.resources.forEach((identifier) => {
         this.unloadRecord(identifier);
       });
     } else {
-      const typeCache = cache.types;
+      const typeCache = cache.resourcesByType;
       let identifiers = typeCache[type]?.lid;
       if (identifiers) {
         identifiers.forEach((identifier) => {

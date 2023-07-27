@@ -113,7 +113,7 @@ export class Graph {
 
     let relationship = relationships[propertyName];
     if (!relationship) {
-      const info = upgradeDefinition(this, identifier, propertyName);
+      const info = /*#__NOINLINE__*/ upgradeDefinition(this, identifier, propertyName);
       assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
 
       if (info.rhs_definition?.kind === 'implicit') {
@@ -122,7 +122,9 @@ export class Graph {
         // this.registerPolymorphicType(info.rhs_baseModelName, identifier.type);
       }
 
-      const meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
+      const meta = /*#__NOINLINE__*/ isLHS(info, identifier.type, propertyName)
+        ? info.lhs_definition
+        : info.rhs_definition!;
 
       if (meta.kind !== 'implicit') {
         const Klass = meta.kind === 'hasMany' ? ManyRelationship : BelongsToRelationship;
@@ -227,8 +229,8 @@ export class Graph {
         if (!rel) {
           return;
         }
-        destroyRelationship(this, rel, silenceNotifications);
-        if (isImplicit(rel)) {
+        /*#__NOINLINE__*/ destroyRelationship(this, rel, silenceNotifications);
+        if (/*#__NOINLINE__*/ isImplicit(rel)) {
           // @ts-expect-error
           relationships[key] = undefined;
         }
@@ -293,7 +295,7 @@ export class Graph {
       case 'mergeIdentifiers': {
         const relationships = this.identifiers.get(op.record);
         if (relationships) {
-          mergeIdentifier(this, op, relationships);
+          /*#__NOINLINE__*/ mergeIdentifier(this, op, relationships);
         }
         break;
       }
@@ -304,7 +306,7 @@ export class Graph {
           // TODO add deprecations/assertion here for duplicates
           assertValidRelationshipPayload(this, op);
         }
-        updateRelationshipOperation(this, op);
+        /*#__NOINLINE__*/ updateRelationshipOperation(this, op);
         break;
       case 'deleteRecord': {
         assert(`Can only perform the operation deleteRelationship on remote state`, isRemote);
@@ -320,23 +322,23 @@ export class Graph {
             // works together with the has check
             // @ts-expect-error
             relationships[key] = undefined;
-            removeCompletelyFromInverse(this, rel);
+            /*#__NOINLINE__*/ removeCompletelyFromInverse(this, rel);
           });
           this.identifiers.delete(identifier);
         }
         break;
       }
       case 'replaceRelatedRecord':
-        replaceRelatedRecord(this, op, isRemote);
+        /*#__NOINLINE__*/ replaceRelatedRecord(this, op, isRemote);
         break;
       case 'addToRelatedRecords':
-        addToRelatedRecords(this, op, isRemote);
+        /*#__NOINLINE__*/ addToRelatedRecords(this, op, isRemote);
         break;
       case 'removeFromRelatedRecords':
-        removeFromRelatedRecords(this, op, isRemote);
+        /*#__NOINLINE__*/ removeFromRelatedRecords(this, op, isRemote);
         break;
       case 'replaceRelatedRecords':
-        replaceRelatedRecords(this, op, isRemote);
+        /*#__NOINLINE__*/ replaceRelatedRecords(this, op, isRemote);
         break;
       default:
         assert(`No local relationship update operation exists for '${op.op}'`);
@@ -410,7 +412,7 @@ export class Graph {
     this._willSyncLocal = false;
     let updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
-    updated.forEach((rel) => syncRemoteToLocal(this, rel));
+    updated.forEach((rel) => /*#__NOINLINE__*/ syncRemoteToLocal(this, rel));
   }
 
   destroy() {
@@ -446,7 +448,7 @@ export class Graph {
 function destroyRelationship(graph: Graph, rel: RelationshipEdge, silenceNotifications?: boolean) {
   if (isImplicit(rel)) {
     if (graph.isReleasable(rel.identifier)) {
-      removeCompletelyFromInverse(graph, rel);
+      /*#__NOINLINE__*/ removeCompletelyFromInverse(graph, rel);
     }
     return;
   }
@@ -455,14 +457,20 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge, silenceNotific
   const { inverseKey } = rel.definition;
 
   if (!rel.definition.inverseIsImplicit) {
-    forAllRelatedIdentifiers(rel, (inverseIdentifer: StableRecordIdentifier) =>
-      notifyInverseOfDematerialization(graph, inverseIdentifer, inverseKey, identifier, silenceNotifications)
+    /*#__NOINLINE__*/ forAllRelatedIdentifiers(rel, (inverseIdentifer: StableRecordIdentifier) =>
+      /*#__NOINLINE__*/ notifyInverseOfDematerialization(
+        graph,
+        inverseIdentifer,
+        inverseKey,
+        identifier,
+        silenceNotifications
+      )
     );
   }
 
   if (!rel.definition.inverseIsImplicit && !rel.definition.inverseIsAsync) {
     rel.state.isStale = true;
-    clearRelationship(rel);
+    /*#__NOINLINE__*/ clearRelationship(rel);
 
     // necessary to clear relationships in the ui from dematerialized records
     // hasMany is managed by Model which calls `retreiveLatest` after
@@ -473,7 +481,7 @@ function destroyRelationship(graph: Graph, rel: RelationshipEdge, silenceNotific
     // leave the ui relationship populated since the record is destroyed and
     // internally we've fully cleaned up.
     if (!rel.definition.isAsync && !silenceNotifications) {
-      notifyChange(graph, rel.identifier, rel.definition.key);
+      /*#__NOINLINE__*/ notifyChange(graph, rel.identifier, rel.definition.key);
     }
   }
 }
@@ -495,7 +503,7 @@ function notifyInverseOfDematerialization(
   // For remote members, it is possible that inverseRecordData has already been associated to
   // to another record. For such cases, do not dematerialize the inverseRecordData
   if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
-    removeDematerializedInverse(
+    /*#__NOINLINE__*/ removeDematerializedInverse(
       graph,
       relationship as BelongsToRelationship | ManyRelationship,
       identifier,
@@ -558,7 +566,7 @@ function removeDematerializedInverse(
       // cache.
       // if the record being unloaded only exists on the client, we similarly
       // treat it as a client side delete
-      removeIdentifierCompletelyFromRelationship(graph, relationship, inverseIdentifier);
+      /*#__NOINLINE__*/ removeIdentifierCompletelyFromRelationship(graph, relationship, inverseIdentifier);
     } else {
       relationship.state.hasDematerializedInverse = true;
     }

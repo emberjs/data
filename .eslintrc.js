@@ -230,8 +230,6 @@ module.exports = {
         'packages/store/src/-private/store-service.ts',
         'packages/store/src/-private/utils/coerce-id.ts',
         'packages/store/src/-private/index.ts',
-        'packages/store/src/-private/caches/identifier-cache.ts',
-        'packages/serializer/src/index.ts',
         '@types/@ember/runloop/index.d.ts',
         '@types/@ember/polyfills/index.d.ts',
         'tests/graph/tests/integration/graph/polymorphism/implicit-keys-test.ts',

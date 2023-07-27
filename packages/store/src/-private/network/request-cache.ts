@@ -3,6 +3,7 @@
  */
 import { assert } from '@ember/debug';
 
+import { DEBUG } from '@ember-data/env';
 import type {
   FindRecordQuery,
   Operation,
@@ -16,6 +17,7 @@ import Store from '../store-service';
 
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
+const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as RequestState[]) : [];
 
 interface InternalRequest extends RequestState {
   [Touching]: RecordIdentifier[];
@@ -36,7 +38,7 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
  * @public
  */
 export default class RequestStateService {
-  _pending: { [lid: string]: InternalRequest[] } = Object.create(null);
+  _pending: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _subscriptions: { [lid: string]: Function[] } = Object.create(null);
   _toFlush: InternalRequest[] = [];
@@ -53,10 +55,10 @@ export default class RequestStateService {
   _enqueue<T>(promise: Promise<T>, queryRequest: Request): Promise<T> {
     let query = queryRequest.data[0];
     if (hasRecordIdentifier(query)) {
-      let lid = query.recordIdentifier.lid;
+      const identifier = query.recordIdentifier;
       let type = query.op === 'saveRecord' ? ('mutation' as const) : ('query' as const);
-      if (!this._pending[lid]) {
-        this._pending[lid] = [];
+      if (!this._pending.has(identifier)) {
+        this._pending.set(identifier, []);
       }
       let request: InternalRequest = {
         state: 'pending',
@@ -65,11 +67,11 @@ export default class RequestStateService {
       } as InternalRequest;
       request[Touching] = [query.recordIdentifier];
       request[RequestPromise] = promise;
-      this._pending[lid].push(request);
+      this._pending.get(identifier)!.push(request);
       this._triggerSubscriptions(request);
       return promise.then(
         (result) => {
-          this._dequeue(lid, request);
+          this._dequeue(identifier, request);
           let finalizedRequest = {
             state: 'fulfilled',
             request: queryRequest,
@@ -82,7 +84,7 @@ export default class RequestStateService {
           return result;
         },
         (error) => {
-          this._dequeue(lid, request);
+          this._dequeue(identifier, request);
           let finalizedRequest = {
             state: 'rejected',
             request: queryRequest,
@@ -128,8 +130,12 @@ export default class RequestStateService {
     });
   }
 
-  _dequeue(lid: string, request: InternalRequest) {
-    this._pending[lid] = this._pending[lid].filter((req) => req !== request);
+  _dequeue(identifier: StableRecordIdentifier, request: InternalRequest) {
+    const pending = this._pending.get(identifier)!;
+    this._pending.set(
+      identifier,
+      pending.filter((req) => req !== request)
+    );
   }
 
   _addDone(request: InternalRequest) {
@@ -200,11 +206,8 @@ export default class RequestStateService {
    * @param {StableRecordIdentifier} identifier
    * @returns {RequestState[]} an array of request states for any pending requests for the given identifier
    */
-  getPendingRequestsForRecord(identifier: RecordIdentifier): RequestState[] {
-    if (this._pending[identifier.lid]) {
-      return this._pending[identifier.lid];
-    }
-    return [];
+  getPendingRequestsForRecord(identifier: StableRecordIdentifier): RequestState[] {
+    return this._pending.get(identifier) || EMPTY_ARR;
   }
 
   /**

@@ -73,7 +73,7 @@ module('integration/record-array - RecordArray', function (hooks) {
   deprecatedTest(
     'acts as a live query (normalized names)',
     {
-      count: 11,
+      count: 9,
       until: '6.0',
       id: 'ember-data:deprecate-non-strict-types',
     },
