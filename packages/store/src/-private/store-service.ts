@@ -2092,7 +2092,7 @@ class Store extends EmberObject {
     const serializer = this.serializerFor(normalizedModelName);
 
     assert(
-      `You cannot use 'store#pushPayload' without a modelName unless your default serializer defines 'pushPayload'`,
+      `You cannot use 'store.pushPayload(<type>, <payload>)' unless the serializer for '${normalizedModelName}' defines 'pushPayload'`,
       serializer && typeof serializer.pushPayload === 'function'
     );
     serializer.pushPayload(this, payload);

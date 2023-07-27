@@ -106,7 +106,7 @@ module('Serializer Contract | pushPayload method forwards to Serializer#pushPayl
             },
           },
         });
-      }, /You must define a pushPayload method in your serializer in order to call store.pushPayload/);
+      }, /You cannot use 'store.pushPayload(<type>, <payload>)' unless the serializer for/);
     }
   );
 });
