@@ -1,10 +1,12 @@
 /**
   @module @ember-data/store
  */
-import { getOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
+import { getOwner } from '@ember/owner';
 import { _backburner as emberBackburner } from '@ember/runloop';
+
+import type { Object as JSONObject } from 'json-typescript';
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
@@ -12,6 +14,7 @@ import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { FetchManager } from '@ember-data/legacy-compat/-private';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
+import { ResourceDocument } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
@@ -250,8 +253,8 @@ class Store extends EmberObject {
     // private
     this._requestCache = new RequestStateService(this);
     this._instanceCache = new InstanceCache(this);
-    this._adapterCache = Object.create(null);
-    this._serializerCache = Object.create(null);
+    this._adapterCache = Object.create(null) as Record<string, MinimumAdapterInterface & { store: Store }>;
+    this._serializerCache = Object.create(null) as Record<string, MinimumSerializerInterface & { store: Store }>;
     this._documentCache = new Map();
 
     this.isDestroying = false;
@@ -305,7 +308,7 @@ class Store extends EmberObject {
 
   _getAllPending(): (Promise<unknown[]> & { length: number }) | void {
     if (TESTING) {
-      const all: Promise<any>[] = [];
+      const all: Promise<unknown>[] = [];
       const pending = this._requestCache._pending;
 
       pending.forEach((requests) => {
@@ -673,7 +676,7 @@ class Store extends EmberObject {
           const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
 
           assert(
-            `The id ${properties.id} has already been used with another '${normalizedModelName}' record.`,
+            `The id ${String(properties.id)} has already been used with another '${normalizedModelName}' record.`,
             !identifier
           );
         }
@@ -1219,7 +1222,7 @@ class Store extends EmberObject {
       assertDestroyingStore(this, 'getReference');
     }
 
-    let resourceIdentifier;
+    let resourceIdentifier: ResourceIdentifierObject;
     if (arguments.length === 1 && isMaybeIdentifier(resource)) {
       resourceIdentifier = resource;
     } else {
@@ -1303,7 +1306,9 @@ class Store extends EmberObject {
 
     assert(`You need to pass a model name to the store's peekRecord method`, identifier);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${identifier}`,
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${String(
+        identifier
+      )}`,
       typeof identifier === 'string'
     );
 
@@ -1786,7 +1791,9 @@ class Store extends EmberObject {
       assertDestroyedStoreOnly(this, 'unloadAll');
     }
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${String(
+        modelName
+      )}`,
       !modelName || typeof modelName === 'string'
     );
 
@@ -1985,7 +1992,7 @@ class Store extends EmberObject {
     @method _push
     @private
     @param {Object} jsonApiDoc
-    @return {StableRecordIdentifier|Array<StableRecordIdentifier>} identifiers for the primary records that had data loaded
+    @return {StableRecordIdentifier|Array<StableRecordIdentifier>|null} identifiers for the primary records that had data loaded
   */
   _push(
     jsonApiDoc: JsonApiDocument,
@@ -1996,7 +2003,7 @@ class Store extends EmberObject {
     }
     if (LOG_PAYLOADS) {
       try {
-        let data = JSON.parse(JSON.stringify(jsonApiDoc));
+        let data: unknown = JSON.parse(JSON.stringify(jsonApiDoc)) as unknown;
         // eslint-disable-next-line no-console
         console.log('EmberData | Payload - push', data);
       } catch (e) {
@@ -2007,14 +2014,15 @@ class Store extends EmberObject {
     if (asyncFlush) {
       this._enableAsyncFlush = true;
     }
-    let ret;
+
+    let ret!: ResourceDocument;
     this._join(() => {
       ret = this.cache.put({ content: jsonApiDoc });
     });
 
     this._enableAsyncFlush = null;
 
-    return ret.data;
+    return 'data' in ret ? ret.data : null;
   }
 
   /**
@@ -2074,31 +2082,18 @@ class Store extends EmberObject {
     @param {Object} inputPayload
   */
   // TODO @runspired @deprecate pushPayload in favor of looking up the serializer
-  pushPayload(modelName, inputPayload) {
+  pushPayload(modelName: string, inputPayload: JSONObject): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'pushPayload');
     }
-    let serializer;
-    let payload;
-    if (!inputPayload) {
-      payload = modelName;
-      serializer = this.serializerFor('application');
-      assert(
-        `You cannot use 'store#pushPayload' without a modelName unless your default serializer defines 'pushPayload'`,
-        typeof serializer.pushPayload === 'function'
-      );
-    } else {
-      payload = inputPayload;
-      assert(
-        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-        typeof modelName === 'string'
-      );
-      let normalizedModelName = normalizeModelName(modelName);
-      serializer = this.serializerFor(normalizedModelName);
-    }
+
+    const payload = inputPayload || (modelName as unknown as object);
+    const normalizedModelName = inputPayload ? normalizeModelName(modelName) : 'application';
+    const serializer = this.serializerFor(normalizedModelName);
+
     assert(
-      `You must define a pushPayload method in your serializer in order to call store.pushPayload`,
-      serializer.pushPayload
+      `You cannot use 'store#pushPayload' without a modelName unless your default serializer defines 'pushPayload'`,
+      serializer && typeof serializer.pushPayload === 'function'
     );
     serializer.pushPayload(this, payload);
   }
@@ -2127,7 +2122,7 @@ class Store extends EmberObject {
     }
     // TODO we used to check if the record was destroyed here
     assert(
-      `Cannot initiate a save request for an unloaded record: ${identifier}`,
+      `Cannot initiate a save request for an unloaded record: ${identifier.lid}`,
       this._instanceCache.recordIsLoaded(identifier)
     );
     if (resourceIsFullyDeleted(this._instanceCache, identifier)) {
@@ -2212,7 +2207,7 @@ class Store extends EmberObject {
     @return {Object} The normalized payload
   */
   // TODO @runspired @deprecate users should call normalize on the associated serializer directly
-  normalize(modelName: string, payload) {
+  normalize(modelName: string, payload: JSONObject) {
     if (DEBUG) {
       assertDestroyingStore(this, 'normalize');
     }
@@ -2221,14 +2216,14 @@ class Store extends EmberObject {
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${typeof modelName}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
-    let serializer = this.serializerFor(normalizedModelName);
-    let model = this.modelFor(normalizedModelName);
+    const normalizedModelName = normalizeModelName(modelName);
+    const serializer = this.serializerFor(normalizedModelName);
+    const schema = this.modelFor(normalizedModelName);
     assert(
       `You must define a normalize method in your serializer in order to call store.normalize`,
-      serializer?.normalize
+      typeof serializer?.normalize === 'function'
     );
-    return serializer.normalize(model, payload);
+    return serializer.normalize(schema, payload);
   }
 
   /**
@@ -2257,15 +2252,17 @@ class Store extends EmberObject {
     let normalizedModelName = normalizeModelName(modelName);
 
     let { _adapterCache } = this;
-    let adapter = _adapterCache[normalizedModelName];
+    let adapter: (MinimumAdapterInterface & { store: Store }) | undefined = _adapterCache[normalizedModelName];
     if (adapter) {
       return adapter;
     }
 
-    let owner: any = getOwner(this);
+    const owner = getOwner(this)!;
 
     // name specific adapter
-    adapter = owner.lookup(`adapter:${normalizedModelName}`);
+    adapter = owner.lookup(`adapter:${normalizedModelName}`) as
+      | (MinimumAdapterInterface & { store: Store })
+      | undefined;
     if (adapter !== undefined) {
       _adapterCache[normalizedModelName] = adapter;
       return adapter;
@@ -2311,15 +2308,16 @@ class Store extends EmberObject {
     let normalizedModelName = normalizeModelName(modelName);
 
     let { _serializerCache } = this;
-    let serializer = _serializerCache[normalizedModelName];
+    let serializer: (MinimumSerializerInterface & { store: Store }) | undefined = _serializerCache[normalizedModelName];
     if (serializer) {
       return serializer;
     }
 
-    let owner: any = getOwner(this);
-
     // by name
-    serializer = owner.lookup(`serializer:${normalizedModelName}`);
+    const owner = getOwner(this)!;
+    serializer = owner.lookup(`serializer:${normalizedModelName}`) as
+      | (MinimumSerializerInterface & { store: Store })
+      | undefined;
     if (serializer !== undefined) {
       _serializerCache[normalizedModelName] = serializer;
       return serializer;
@@ -2381,14 +2379,14 @@ let assertDestroyedStoreOnly: Function;
 
 if (DEBUG) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  assertDestroyingStore = function assertDestroyingStore(store, method) {
+  assertDestroyingStore = function assertDestroyingStore(store: Store, method: string) {
     assert(
       `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
       !(store.isDestroying || store.isDestroyed)
     );
   };
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
+  assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store: Store, method: string) {
     assert(
       `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
       !store.isDestroyed
@@ -2442,7 +2440,7 @@ function normalizeProperties(
             }
             relationshipValue = extractIdentifiersFromRecords(properties[prop] as RecordInstance[]);
           } else {
-            relationshipValue = extractIdentifierFromRecord(properties[prop] as RecordInstance);
+            relationshipValue = extractIdentifierFromRecord(properties[prop]);
           }
 
           properties[prop] = relationshipValue;
