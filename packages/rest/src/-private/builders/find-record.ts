@@ -3,8 +3,12 @@ import { camelize } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
+import type {
+  ConstrainedRequestOptions,
+  FindRecordRequestOptions,
+  RemotelyAccessibleIdentifier,
+} from '@ember-data/types/request';
 
-import type { ConstrainedRequestOptions, FindRecordRequestOptions, RemotelyAccessibleIdentifier } from './-types';
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
 type FindRecordOptions = ConstrainedRequestOptions & {
