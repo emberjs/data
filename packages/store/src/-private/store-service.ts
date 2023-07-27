@@ -1,9 +1,10 @@
 /**
   @module @ember-data/store
  */
+// this import location is deprecated but breaks in 4.8 and older
+import { getOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
-import { getOwner } from '@ember/owner';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
 import type { Object as JSONObject } from 'json-typescript';
