@@ -1,13 +1,13 @@
 import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
+import type {
+  FindRecordOptions,
+  FindRecordRequestOptions,
+  RemotelyAccessibleIdentifier,
+} from '@ember-data/types/request';
 
-import type { ConstrainedRequestOptions, FindRecordRequestOptions, RemotelyAccessibleIdentifier } from './-types';
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
-
-type FindRecordOptions = ConstrainedRequestOptions & {
-  include?: string | string[];
-};
 
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
