@@ -106,7 +106,7 @@ module('Serializer Contract | pushPayload method forwards to Serializer#pushPayl
             },
           },
         });
-      }, /You cannot use 'store.pushPayload(<type>, <payload>)' unless the serializer for 'person' defines 'pushPayload'/);
+      }, `Assertion Failed: You cannot use 'store.pushPayload(<type>, <payload>)' unless the serializer for 'person' defines 'pushPayload'`);
     }
   );
 });
