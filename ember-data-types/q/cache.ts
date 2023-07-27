@@ -6,6 +6,10 @@ import type { JsonApiError, JsonApiResource } from './record-data-json-api';
   @module @ember-data/store
 */
 
+/**
+ * A hash of changed attributes with the key being the attribute name and the value being an
+ * array of `[oldValue, newValue]`.
+ */
 export type ChangedAttributesHash = Record<string, [unknown, unknown]>;
 
 export interface MergeOperation {
