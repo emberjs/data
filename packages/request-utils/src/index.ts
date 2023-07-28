@@ -245,7 +245,7 @@ export function filterEmpty(obj: Record<string, Serializable>): Record<string, S
   return result;
 }
 
-export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
+export function sortQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): URLSearchParams {
   options = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
   const paramsIsObject = !(params instanceof URLSearchParams);
   const urlParams = new URLSearchParams();
@@ -302,5 +302,9 @@ export function buildQueryParams(params: QueryParamsSource, options?: QueryParam
     }
   });
 
-  return urlParams.toString();
+  return urlParams;
+}
+
+export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
+  return sortQueryParams(params, options).toString();
 }
