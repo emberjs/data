@@ -1,4 +1,4 @@
 /**
   @module @ember-data/serializer
 */
-export { Transform as default } from './-private';
+export { Transform as default, BooleanTransform, DateTransform, NumberTransform, StringTransform } from './-private';
