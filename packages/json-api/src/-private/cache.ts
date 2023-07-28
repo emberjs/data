@@ -951,7 +951,7 @@ export default class JSONAPICache implements Cache {
    * @method changedAttrs
    * @public
    * @param identifier
-   * @returns { <field>: [<old>, <new>] }
+   * @returns {ChangedAttributesHash} { <field>: [<old>, <new>] }
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     // TODO freeze in dev

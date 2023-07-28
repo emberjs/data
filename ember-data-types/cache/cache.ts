@@ -330,10 +330,16 @@ export interface Cache {
   /**
    * Query the cache for the changed attributes of a resource.
    *
+   * Returns a map of field names to tuples of [old, new] values
+   *
+   * ```
+   * { <field>: [<old>, <new>] }
+   * ```
+   *
    * @method changedAttrs
    * @public
    * @param identifier
-   * @returns { <field>: [<old>, <new>] }
+   * @returns {Record<string, [unknown, unknown]>} { <field>: [<old>, <new>] }
    */
   changedAttrs(identifier: StableRecordIdentifier): Record<string, [unknown, unknown]>;
 
