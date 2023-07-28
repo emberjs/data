@@ -97,7 +97,8 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   const identifier = identifiers?.[0];
 
   // short circuit if we are already loading
-  let pendingRequest = identifier && store._fetchManager.getPendingFetch(identifier, options);
+  let pendingRequest =
+    identifier && store._fetchManager.getPendingFetch(identifier as StableExistingRecordIdentifier, options);
   if (pendingRequest) {
     return pendingRequest as Promise<T>;
   }
