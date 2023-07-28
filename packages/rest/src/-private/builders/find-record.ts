@@ -1,16 +1,42 @@
+/**
+ * @module @ember-data/rest/request
+ */
 import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
+import type {
+  ConstrainedRequestOptions,
+  FindRecordRequestOptions,
+  RemotelyAccessibleIdentifier,
+} from '@ember-data/types/request';
 
-import type { ConstrainedRequestOptions, FindRecordRequestOptions, RemotelyAccessibleIdentifier } from './-types';
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
 type FindRecordOptions = ConstrainedRequestOptions & {
   include?: string | string[];
 };
 
+/**
+ * Builds request options to fetch a single resource by a known id or identifier
+ * configured for the url and header expectations of most REST APIs.
+ *
+ * **Basic Usage**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/rest/request';
+ *
+ * const data = await store.request(findRecord({ type: 'person', id: '1' }));
+ * ```
+ *
+ * @method findRecord
+ * @public
+ * @static
+ * @for @ember-data/rest/request
+ * @param identifier
+ * @param options
+ */
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
   options?: FindRecordOptions

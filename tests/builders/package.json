@@ -45,6 +45,7 @@
     "@ember-data/json-api": "workspace:5.3.0-alpha.9",
     "@ember-data/graph": "workspace:5.3.0-alpha.9",
     "@ember-data/store": "workspace:5.3.0-alpha.9",
+    "@ember-data/tracking": "workspace:5.3.0-alpha.9",
     "@ember-data/private-build-infra": "workspace:5.3.0-alpha.9",
     "@ember-data/request-utils": "workspace:5.3.0-alpha.9",
     "@ember-data/rest": "workspace:5.3.0-alpha.9",

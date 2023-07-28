@@ -1,8 +1,44 @@
 import { assert } from '@ember/debug';
 
 /**
-  @module @ember-data/request-utils
-*/
+ * Simple utility function to assist in url building,
+ * query params, and other common request operations.
+ *
+ * These primitives may be used directly or composed
+ * by request builders to provide a consistent interface
+ * for building requests.
+ *
+ * For instance:
+ *
+ * ```ts
+ * import { buildBaseURL, buildQueryParams } from '@ember-data/request-utils';
+ *
+ * const baseURL = buildBaseURL({
+ *   host: 'https://api.example.com',
+ *   namespace: 'api/v1',
+ *   resourcePath: 'emberDevelopers',
+ *   op: 'query',
+ *   identifier: { type: 'ember-developer' }
+ * });
+ * const url = `${baseURL}?${buildQueryParams({ name: 'Chris', include:['pets'] })}`;
+ * // => 'https://api.example.com/api/v1/emberDevelopers?include=pets&name=Chris'
+ * ```
+ *
+ * This is useful, but not as useful as the REST request builder for query which is sugar
+ * over this (and more!):
+ *
+ * ```ts
+ * import { query } from '@ember-data/rest/request';
+ *
+ * const options = query('ember-developer', { name: 'Chris', include:['pets'] });
+ * // => { url: 'https://api.example.com/api/v1/emberDevelopers?include=pets&name=Chris' }
+ * // Note: options will also include other request options like headers, method, etc.
+ * ```
+ *
+ * @module @ember-data/request-utils
+ * @main @ember-data/request-utils
+ * @public
+ */
 
 // prevents the final constructed object from needing to add
 // host and namespace which are provided by the final consuming
@@ -55,7 +91,7 @@ export interface FindRelatedCollectionUrlOptions {
 }
 
 export interface FindRelatedResourceUrlOptions {
-  op: 'findRelatedResource';
+  op: 'findRelatedRecord';
   identifier: { type: string; id: string };
   fieldPath: string;
   resourcePath?: string;
@@ -99,7 +135,7 @@ export type UrlOptions =
 
 const OPERATIONS_WITH_PRIMARY_RECORDS = new Set([
   'findRecord',
-  'findRelatedResource',
+  'findRelatedRecord',
   'findRelatedCollection',
   'updateRecord',
   'deleteRecord',
@@ -120,6 +156,47 @@ function resourcePathForType(options: UrlOptions): string {
   return options.op === 'findMany' ? options.identifiers[0].type : options.identifier.type;
 }
 
+/**
+ * Builds a URL for a request based on the provided options.
+ * Does not include support for building query params (see `buildQueryParams`)
+ * so that it may be composed cleanly with other query-params strategies.
+ *
+ * Usage:
+ *
+ * ```ts
+ * import { buildBaseURL } from '@ember-data/request-utils';
+ *
+ * const url = buildBaseURL({
+ *   host: 'https://api.example.com',
+ *   namespace: 'api/v1',
+ *   resourcePath: 'emberDevelopers',
+ *   op: 'query',
+ *   identifier: { type: 'ember-developer' }
+ * });
+ *
+ * // => 'https://api.example.com/api/v1/emberDevelopers'
+ * ```
+ *
+ * On the surface this may seem like a lot of work to do something simple, but
+ * it is designed to be composable with other utilities and interfaces that the
+ * average product engineer will never need to see or use.
+ *
+ * A few notes:
+ *
+ * - `resourcePath` is optional, but if it is not provided, `identifier.type` will be used.
+ * - `host` and `namespace` are optional, but if they are not provided, the values globally
+ *    configured via `setBuildURLConfig` will be used.
+ * - `op` is required and must be one of the following:
+ *   - 'findRecord' 'query' 'findMany' 'findRelatedCollection' 'findRelatedRecord'` 'createRecord' 'updateRecord' 'deleteRecord'
+ * - Depending on the value of `op`, `identifier` or `identifiers` will be required.
+ *
+ * @method buildBaseURL
+ * @static
+ * @public
+ * @for @ember-data/request-utils
+ * @param urlOptions
+ * @returns string
+ */
 export function buildBaseURL(urlOptions: UrlOptions): string {
   const options = Object.assign(
     {
@@ -176,7 +253,7 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
       (options as { op: string }).op
     )} request to ${resourcePath} but op must be one of "${[
       'findRecord',
-      'findRelatedResource',
+      'findRelatedRecord',
       'findRelatedCollection',
       'updateRecord',
       'deleteRecord',
@@ -189,7 +266,7 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
       'query',
       'findMany',
       'findRelatedCollection',
-      'findRelatedResource',
+      'findRelatedRecord',
       'createRecord',
       'updateRecord',
       'deleteRecord',
