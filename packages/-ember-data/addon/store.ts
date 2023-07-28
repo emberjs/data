@@ -13,7 +13,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-w
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-export class Store extends BaseStore {
+export default class Store extends BaseStore {
   constructor(args: Record<string, unknown>) {
     super(args);
     this.requestManager = new RequestManager();

@@ -6,7 +6,7 @@ const version = require('@ember-data/private-build-infra/src/create-version-modu
 const addonBaseConfig = addonBuildConfigForDataPackage(require('./package.json'));
 
 module.exports = Object.assign({}, addonBaseConfig, {
-  shouldRollupPrivate: true,
+  shouldRollupPrivate: false,
   externalDependenciesForPrivateModule() {
     return [
       'ember',
