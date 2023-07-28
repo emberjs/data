@@ -9,6 +9,8 @@ import type { JsonApiError, JsonApiResource } from './record-data-json-api';
 /**
  * A hash of changed attributes with the key being the attribute name and the value being an
  * array of `[oldValue, newValue]`.
+ *
+ * @internal
  */
 export type ChangedAttributesHash = Record<string, [unknown, unknown]>;
 
