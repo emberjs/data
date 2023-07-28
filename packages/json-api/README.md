@@ -15,9 +15,9 @@
     />
 </p>
 
-<p align="center">Provides an in-memory JSON:API document and resource cache implementation</p>
+<p align="center">Elegantly composable. Made for <strong>JSON:</strong>API</p>
 
-This package provides an [*Ember***Data** Cache](https://github.com/emberjs/data/blob/main/ember-data-types/cache/cache.ts) implementation for [JSON:API](https://jsonapi.org/)
+This package provides an in-memory document and resource [Cache](https://github.com/emberjs/data/blob/main/ember-data-types/cache/cache.ts) and associated utilities for use with [*Ember***Data**](https://github.com/emberjs/data/) and [JSON:API](https://jsonapi.org/).
 
 ## Installation
 
@@ -26,6 +26,10 @@ Install using your javascript package manager of choice. For instance with [pnpm
 ```no-highlight
 pnpm add @ember-data/json-api
 ```
+
+## Getting Started
+
+If this package is how you are first learning about EmberData, we recommend starting with learning about the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md) and [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md)
 
 ## 🚀 Setup
 
@@ -91,3 +95,42 @@ class extends Store {
 ```
 
 For the full list of APIs available read the code documentation for [*Ember***Data** Cache](https://github.com/emberjs/data/blob/main/ember-data-types/cache/cache.ts)
+
+## Request Builders
+
+Request builders are functions that produce [Fetch Options](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). They take a few contextual inputs about the request you want to make, abstracting away the gnarlier details.
+
+For instance, to fetch a resource from your API
+
+```ts
+import { findRecord } from '@ember-data/json-api/request';
+
+const options = findRecord('ember-developer', '1', { include: ['pets', 'friends'] });
+
+/*
+  => {
+    url: 'https://api.example.com/v1/ember-developers/1?include=friends,pets',
+    method: 'GET',
+    headers: <Headers>,
+      // => 'Accept': 'application/vnd.api+json'
+      // => 'Content-Type': 'application/vnd.api+json'
+    op: 'findRecord';
+    records: [{ type: 'ember-developer', id: '1' }]
+  }
+*/
+``````
+
+Request builder output may be used with either `requestManager.request` or `store.request`.
+
+URLs are stable. The same query will produce the same URL every time, even if the order of keys in
+the query or values in an array changes.
+
+URLs follow the most common JSON:API format (dasherized pluralized resource types).
+
+### Available Builders
+
+- [createRecord]()
+- [deleteRecord]()
+- [findRecord]()
+- [query]()
+- [updateRecord]()
