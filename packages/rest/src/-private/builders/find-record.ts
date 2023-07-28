@@ -25,7 +25,7 @@ type FindRecordOptions = ConstrainedRequestOptions & {
  * **Basic Usage**
  *
  * ```ts
- * import { findRecord } from '@ember-data/rest';
+ * import { findRecord } from '@ember-data/rest/request';
  *
  * const data = await store.request(findRecord({ type: 'person', id: '1' }));
  * ```

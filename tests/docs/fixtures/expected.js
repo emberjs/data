@@ -330,6 +330,7 @@ module.exports = {
     '(public) @ember-data/request Future#abort',
     '(public) @ember-data/request Future#getStream',
     '(public) @ember-data/request Future#onFinalize',
+    '(public) @ember-data/request-utils @ember-data/request-utils#buildBaseURL',
     '(public) @ember-data/rest/request @ember-data/rest/request#findRecord',
     '(public) @ember-data/serializer Serializer#normalize',
     '(public) @ember-data/serializer Serializer#normalizeResponse',

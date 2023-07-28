@@ -37,12 +37,12 @@ module('buildBaseURL', function (hooks) {
 
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         fieldPath: 'bestFriend',
       }),
       '/user/1/bestFriend',
-      `buildBaseURL works for findRelatedResource`
+      `buildBaseURL works for findRelatedRecord`
     );
 
     assert.strictEqual(
@@ -109,13 +109,13 @@ module('buildBaseURL', function (hooks) {
 
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         resourcePath: 'people',
         fieldPath: 'bestFriend',
       }),
       '/people/1/bestFriend',
-      `buildBaseURL works for findRelatedResource`
+      `buildBaseURL works for findRelatedRecord`
     );
 
     assert.strictEqual(
@@ -156,7 +156,7 @@ module('buildBaseURL', function (hooks) {
   test('namespace uses local when present (no global config)', function (assert) {
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         resourcePath: 'people',
         fieldPath: 'bestFriend',
@@ -171,7 +171,7 @@ module('buildBaseURL', function (hooks) {
     setBuildURLConfig({ namespace: 'api/v2', host: '' });
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         resourcePath: 'people',
         fieldPath: 'bestFriend',
@@ -185,7 +185,7 @@ module('buildBaseURL', function (hooks) {
     setBuildURLConfig({ namespace: 'api/v2', host: '' });
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         resourcePath: 'people',
         fieldPath: 'bestFriend',
@@ -199,7 +199,7 @@ module('buildBaseURL', function (hooks) {
   test('host uses local when present (no global config)', function (assert) {
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         resourcePath: 'people',
         fieldPath: 'bestFriend',
@@ -214,7 +214,7 @@ module('buildBaseURL', function (hooks) {
     setBuildURLConfig({ namespace: '', host: 'https://api2.example.com' });
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         resourcePath: 'people',
         fieldPath: 'bestFriend',
@@ -228,7 +228,7 @@ module('buildBaseURL', function (hooks) {
     setBuildURLConfig({ namespace: '', host: 'https://api2.example.com' });
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         resourcePath: 'people',
         fieldPath: 'bestFriend',
@@ -242,7 +242,7 @@ module('buildBaseURL', function (hooks) {
   test('host may start with a /', function (assert) {
     assert.strictEqual(
       buildBaseURL({
-        op: 'findRelatedResource',
+        op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
         resourcePath: 'people',
         host: '/api',
