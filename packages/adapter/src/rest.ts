@@ -1283,6 +1283,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     if (payloadContentType === 'text/html' && typeof payload === 'string' && payload.length > 250) {
       shortenedPayload = '[Omitted Lengthy HTML]';
+    } else if (typeof payload === 'object' && payload !== null) {
+      shortenedPayload = JSON.stringify(payload, null, 2);
     } else {
       shortenedPayload = payload;
     }
