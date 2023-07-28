@@ -163,6 +163,8 @@ that has not explicitly activated it. To activate it set the appropriate flag to
 */
 import 'ember-inflector';
 
+import { deprecate } from '@ember/debug';
+
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
@@ -198,6 +200,20 @@ import {
   Store,
 } from './-private';
 import setupContainer from './setup-container';
+
+deprecate(
+  'Importing from `ember-data` is deprecated. Please import from the appropriate `@ember-data/*` instead.',
+  false,
+  {
+    id: 'ember-data:deprecate-legacy-imports',
+    for: 'ember-data',
+    until: '6.0',
+    since: {
+      enabled: '5.2',
+      available: '5.2',
+    },
+  }
+);
 
 DS.Store = Store;
 DS.PromiseArray = PromiseArray;

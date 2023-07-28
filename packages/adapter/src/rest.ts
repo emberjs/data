@@ -1124,8 +1124,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
   _ajaxRequest(options: JQueryRequestInit): void {
-    // TODO add assertion that jquery is there rather then equality check
-    typeof jQuery !== 'undefined' && jQuery.ajax(options);
+    assert('You must install jQuery globally when `useFetch` is false', typeof jQuery !== 'undefined');
+    jQuery.ajax(options);
   }
 
   _fetchRequest(options: FetchRequestInit): Promise<Response> {

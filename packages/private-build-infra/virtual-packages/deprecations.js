@@ -97,10 +97,12 @@ export const DEPRECATE_3_12 = '3.12';
  *
  * e.g. `app/models/foo/bar-bem.js` must have a type of `foo/bar-bem`
  *
- * @class CurrentDeprecations
+ * @property DEPRECATE_NON_STRICT_TYPES
+ * @since 5.2
+ * @until 6.0
  * @public
  */
-export const DEPRECATE_NON_STRICT_TYPES = '5.3';
+export const DEPRECATE_NON_STRICT_TYPES = '5.2';
 
 /**
  * **id: ember-data:deprecate-non-strict-id**
@@ -119,10 +121,12 @@ export const DEPRECATE_NON_STRICT_TYPES = '5.3';
  * However, for identifiers we will always use string IDs and so any
  * custom identifier configuration should provide a string ID.
  *
- * @class CurrentDeprecations
+ * @property DEPRECATE_NON_STRICT_ID
+ * @since 5.2
+ * @until 6.0
  * @public
  */
-export const DEPRECATE_NON_STRICT_ID = '5.3';
+export const DEPRECATE_NON_STRICT_ID = '5.2';
 
 /**
  * **id: <none yet assigned>**
@@ -140,3 +144,22 @@ export const DEPRECATE_NON_STRICT_ID = '5.3';
  * @public
  */
 export const DEPRECATE_COMPUTED_CHAINS = '5.0';
+
+/**
+ * **id: ember-data:deprecate-legacy-imports**
+ *
+ * Deprecates when importing from `ember-data/*` instead of `@ember-data/*`
+ * in order to prepare for the eventual removal of the legacy `ember-data/*`
+ *
+ * All imports from `ember-data/*` should be updated to `@ember-data/*`
+ * except for `ember-data/store`. When you are using `ember-data` (as opposed to
+ * installing the indivudal packages) you should import from `ember-data/store`
+ * instead of `@ember-data/store` in order to receive the appropriate configuration
+ * of defaults.
+ *
+ * @property DEPRECATE_LEGACY_IMPORTS
+ * @since 5.2
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_LEGACY_IMPORTS = '5.2';
