@@ -33,25 +33,21 @@ module.exports = function (defaults) {
       },
     ],
     compatAdapters: new Map([
-      ['@ember-data/store', null],
-      ['@ember-data/record-data', null],
-      ['@ember-data/serializer', null],
+      ['@ember-data/active-record', null],
       ['@ember-data/adapter', null],
-      ['@ember-data/model', null],
       ['@ember-data/debug', null],
-      ['@ember-data/tracking', null],
+      ['@ember-data/graph', null],
+      ['@ember-data/json-api', null],
+      ['@ember-data/legacy-compat', null],
+      ['@ember-data/model', null],
+      ['@ember-data/record-data', null],
+      ['@ember-data/request-utils', null],
       ['@ember-data/request', null],
+      ['@ember-data/rest', null],
+      ['@ember-data/serializer', null],
+      ['@ember-data/store', null],
+      ['@ember-data/tracking', null],
       ['ember-data', null],
     ]),
-    packageRules: [
-      {
-        package: '@ember-data/store',
-        addonModules: {
-          '-private.js': {
-            dependsOnModules: ['@ember-data/json-api'],
-          },
-        },
-      },
-    ],
   });
 };
