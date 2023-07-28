@@ -44,7 +44,7 @@ export default class Store extends BaseStore {
   }
 
   // TODO @runspired @deprecate records should implement their own serialization if desired
-  serializeRecord(record: Model, options?: Record<string, unknown>): unknown {
+  serializeRecord(record: unknown, options?: Record<string, unknown>): unknown {
     // TODO we used to check if the record was destroyed here
     if (!this._fetchManager) {
       this._fetchManager = new FetchManager(this);
