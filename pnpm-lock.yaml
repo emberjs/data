@@ -663,8 +663,8 @@ importers:
         specifier: ^1.12.2
         version: 1.12.2
       ember-cached-decorator-polyfill:
-        specifier: ^1.0.1
-        version: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+        specifier: ^1.0.2
+        version: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
@@ -1088,8 +1088,8 @@ importers:
         specifier: ^1.12.2
         version: 1.12.2
       ember-cached-decorator-polyfill:
-        specifier: ^1.0.1
-        version: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+        specifier: ^1.0.2
+        version: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli-babel:
         specifier: ^7.26.11
         version: 7.26.11
@@ -2584,8 +2584,8 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cached-decorator-polyfill:
-        specifier: ^1.0.1
-        version: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+        specifier: ^1.0.2
+        version: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli:
         specifier: ~5.1.0
         version: 5.1.0
@@ -9206,15 +9206,15 @@ packages:
       - '@babel/core'
       - supports-color
 
-  /ember-cached-decorator-polyfill@1.0.1(@babel/core@7.22.9)(ember-source@5.1.2):
-    resolution: {integrity: sha512-VDgrpIJ6rDDHIfkYrsFR1BM3fpcC0+zFWIOsX0qY44zPrIXjhQWVXs2iVXLIPHprSgf+tFQ3ESxwDscpeRe/0A==}
+  /ember-cached-decorator-polyfill@1.0.2(@babel/core@7.22.9)(ember-source@5.1.2):
+    resolution: {integrity: sha512-hUX6OYTKltAPAu8vsVZK02BfMTV0OUXrPqvRahYPhgS7D0I6joLjlskd7mhqJMcaXLywqceIy8/s+x8bxF8bpQ==}
     engines: {node: 14.* || >= 16}
     peerDependencies:
       ember-source: '*'
     dependencies:
       '@embroider/macros': 1.12.2
       '@glimmer/tracking': 1.1.2
-      babel-import-util: 1.3.0
+      babel-import-util: 1.4.1
       ember-cache-primitive-polyfill: 1.0.1(@babel/core@7.22.9)
       ember-cli-babel: 7.26.11
       ember-cli-babel-plugin-helpers: 1.1.1
@@ -17173,7 +17173,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
       '@embroider/macros': 1.12.2
-      ember-cached-decorator-polyfill: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+      ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli-babel: 7.26.11
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
@@ -17215,7 +17215,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
       '@embroider/macros': 1.12.2
-      ember-cached-decorator-polyfill: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+      ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli-babel: 7.26.11
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
@@ -17259,7 +17259,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
       '@embroider/macros': 1.12.2
-      ember-cached-decorator-polyfill: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+      ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli-babel: 7.26.11
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
@@ -17301,7 +17301,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
       '@embroider/macros': 1.12.2
-      ember-cached-decorator-polyfill: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+      ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli-babel: 7.26.11
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
@@ -17343,7 +17343,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1
       '@embroider/macros': 1.12.2
-      ember-cached-decorator-polyfill: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+      ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli-babel: 7.26.11
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
@@ -17465,7 +17465,7 @@ packages:
       '@ember/string': 3.1.1
       '@embroider/macros': 1.12.2
       '@glimmer/tracking': 1.1.2
-      ember-cached-decorator-polyfill: 1.0.1(@babel/core@7.22.9)(ember-source@5.1.2)
+      ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.9)(ember-source@5.1.2)
       ember-cli-babel: 7.26.11
     transitivePeerDependencies:
       - '@babel/core'
