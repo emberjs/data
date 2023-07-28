@@ -109,6 +109,8 @@ Stretch Goals:
 
 ### 🔸 5.2 (Upcoming ~ Aug 14, 2023)
 
+See the [5.2 Release Checklist](https://github.com/emberjs/data/issues/8743) for the full list of work targetting this release.
+
 - **Request Builders**
 
 Request builders abstract url-building to ensure friendly, familiar, refactorable, maintainable ergonomics
