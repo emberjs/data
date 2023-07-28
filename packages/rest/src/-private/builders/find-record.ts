@@ -27,7 +27,25 @@ type FindRecordOptions = ConstrainedRequestOptions & {
  * ```ts
  * import { findRecord } from '@ember-data/rest/request';
  *
- * const data = await store.request(findRecord({ type: 'person', id: '1' }));
+ * const data = await store.request(findRecord('person', '1'));
+ * ```
+ *
+ * **With Options**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/rest/request';
+ *
+ * const options = findRecord('person', '1', { include: ['pets', 'friends'] });
+ * const data = await store.request(options);
+ * ```
+ *
+ * **With an Identifier**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/rest/request';
+ *
+ * const options = findRecord({ type: 'person', id: '1' }, { include: ['pets', 'friends'] });
+ * const data = await store.request(options);
  * ```
  *
  * @method findRecord
