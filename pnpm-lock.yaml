@@ -1540,7 +1540,7 @@ importers:
         version: 7.22.6
       '@ember-data/active-record':
         specifier: workspace:5.3.0-alpha.9
-        version: file:packages/active-record(ember-inflector@4.0.2)
+        version: file:packages/active-record(@ember-data/store@packages+store)(ember-inflector@4.0.2)
       '@ember-data/graph':
         specifier: workspace:5.3.0-alpha.9
         version: link:../../packages/graph
@@ -1555,10 +1555,13 @@ importers:
         version: file:packages/request-utils
       '@ember-data/rest':
         specifier: workspace:5.3.0-alpha.9
-        version: file:packages/rest(ember-inflector@4.0.2)
+        version: file:packages/rest(@ember-data/store@packages+store)(ember-inflector@4.0.2)
       '@ember-data/store':
         specifier: workspace:5.3.0-alpha.9
         version: link:../../packages/store
+      '@ember-data/tracking':
+        specifier: workspace:5.3.0-alpha.9
+        version: link:../../packages/tracking
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.3.0-alpha.9
         version: file:packages/unpublished-test-infra
@@ -6473,6 +6476,7 @@ packages:
   /asn1@0.1.11:
     resolution: {integrity: sha512-Fh9zh3G2mZ8qM/kwsiKwL2U2FmXxVsboP4x1mXjnhKHv3SmzaBZoYvxEQJz/YS2gnCgd8xlAVWcZnQyC9qZBsA==}
     engines: {node: '>=0.4.9'}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -6482,6 +6486,7 @@ packages:
   /assert-plus@0.1.5:
     resolution: {integrity: sha512-brU24g7ryhRwGCI2y+1dGQmQXiZF7TtIj583S96y0jjdajIe6wn8BuXyELYhvD22dtIxDQVFk04YTJwwdwOYJw==}
     engines: {node: '>=0.8'}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -6536,6 +6541,7 @@ packages:
 
   /async@0.9.2:
     resolution: {integrity: sha512-l6ToIJIotphWahxxHyzK9bnLR6kM4jJIIgLShZeqLY7iboHoGkdgFl7W2/Ivi4SkMJYGKqW8vSuk0uKUj6qsSw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -7300,6 +7306,7 @@ packages:
     resolution: {integrity: sha512-OvfN8y1oAxxphzkl2SnCS+ztV/uVKTATtgLjWYg/7KwcNyf3rzpHxNQJZCKtsZd4+MteKczhWbSjtEX4bGgU9g==}
     engines: {node: '>=0.8.0'}
     deprecated: This version has been deprecated in accordance with the hapi support policy (hapi.im/support). Please upgrade to the latest version to get the best features, bug fixes, and security patches. If you are unable to upgrade at this time, paid support is available for older versions (hapi.im/commercial).
+    requiresBuild: true
     dependencies:
       hoek: 0.9.1
     dev: true
@@ -8317,6 +8324,7 @@ packages:
   /combined-stream@0.0.7:
     resolution: {integrity: sha512-qfexlmLp9MyrkajQVyjEDb0Vj+KhRgR/rxLiVhaihlT+ZkX0lReqtH6Ack40CvMDERR4b5eFp3CreskpBs1Pig==}
     engines: {node: '>= 0.8'}
+    requiresBuild: true
     dependencies:
       delayed-stream: 0.0.5
     dev: true
@@ -8685,6 +8693,7 @@ packages:
     resolution: {integrity: sha512-gvWSbgqP+569DdslUiCelxIv3IYK5Lgmq1UrRnk+s1WxQOQ16j3GPDcjdtgL5Au65DU/xQi6q3xPtf5Kta+3IQ==}
     engines: {node: '>=0.8.0'}
     deprecated: This version has been deprecated in accordance with the hapi support policy (hapi.im/support). Please upgrade to the latest version to get the best features, bug fixes, and security patches. If you are unable to upgrade at this time, paid support is available for older versions (hapi.im/commercial).
+    requiresBuild: true
     dependencies:
       boom: 0.4.2
     dev: true
@@ -8786,6 +8795,7 @@ packages:
   /ctype@0.5.3:
     resolution: {integrity: sha512-T6CEkoSV4q50zW3TlTHMbzy1E5+zlnNcY+yb7tWVYlTwPhx9LpnfAkd4wecpWknDyptp4k97LUZeInlf6jdzBg==}
     engines: {node: '>= 0.4'}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -8986,6 +8996,7 @@ packages:
   /delayed-stream@0.0.5:
     resolution: {integrity: sha512-v+7uBd1pqe5YtgPacIIbZ8HuHeLFVNe4mUEyFDXL6KiqzEykjbw+5mXZXpGFgNVasdL4jWKgaKIXrEHiynN1LA==}
     engines: {node: '>=0.4.0'}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -11906,6 +11917,7 @@ packages:
     resolution: {integrity: sha512-ZZ6eGyzGjyMTmpSPYVECXy9uNfqBR7x5CavhUaLOeD6W0vWK1mp/b7O3f86XE0Mtfo9rZ6Bh3fnuw9Xr8MF9zA==}
     engines: {node: '>=0.8.0'}
     deprecated: This version has been deprecated in accordance with the hapi support policy (hapi.im/support). Please upgrade to the latest version to get the best features, bug fixes, and security patches. If you are unable to upgrade at this time, paid support is available for older versions (hapi.im/commercial).
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -13373,6 +13385,7 @@ packages:
 
   /mime@1.2.11:
     resolution: {integrity: sha512-Ysa2F/nqTNGHhhm9MV8ure4+Hc+Y8AWiqUdHxsO7xu8zc92ND9f3kpALHjaP026Ft17UfxrMt95c50PLUeynBw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -15246,6 +15259,7 @@ packages:
     resolution: {integrity: sha512-bDLrKa/ywz65gCl+LmOiIhteP1bhEsAAzhfMedPoiHP3dyYnAevlaJshdqb9Yu0sRifyP/fRqSt8t+5qGIWlGQ==}
     engines: {node: '>=0.8.0'}
     deprecated: This module moved to @hapi/sntp. Please make sure to switch over as this distribution is no longer supported and may contain bugs and critical security issues.
+    requiresBuild: true
     dependencies:
       hoek: 0.9.1
     dev: true
@@ -16941,14 +16955,16 @@ packages:
       - uglify-js
       - webpack-cli
 
-  file:packages/active-record(ember-inflector@4.0.2):
+  file:packages/active-record(@ember-data/store@packages+store)(ember-inflector@4.0.2):
     resolution: {directory: packages/active-record, type: directory}
     id: file:packages/active-record
     name: '@ember-data/active-record'
     engines: {node: 16.* || >= 18}
     peerDependencies:
+      '@ember-data/store': ^4.12.0 || ^5.0.0
       ember-inflector: ^4.0.2
     dependencies:
+      '@ember-data/store': link:packages/store
       ember-cli-babel: 7.26.11
       ember-inflector: 4.0.2
     transitivePeerDependencies:
@@ -17399,14 +17415,16 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/rest(ember-inflector@4.0.2):
+  file:packages/rest(@ember-data/store@packages+store)(ember-inflector@4.0.2):
     resolution: {directory: packages/rest, type: directory}
     id: file:packages/rest
     name: '@ember-data/rest'
     engines: {node: 16.* || >= 18}
     peerDependencies:
+      '@ember-data/store': ^4.12.0 || ^5.0.0
       ember-inflector: ^4.0.2
     dependencies:
+      '@ember-data/store': link:packages/store
       ember-cli-babel: 7.26.11
       ember-inflector: 4.0.2
     transitivePeerDependencies:

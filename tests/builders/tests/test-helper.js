@@ -21,4 +21,10 @@ if (window.Testem) {
 
 QUnit.config.testTimeout = 2000;
 
-start({ setupTestIsolationValidation: true });
+start({
+  setupTestIsolationValidation: true,
+  setupTestContainer: false,
+  setupTestAdapter: false,
+  setupEmberTesting: false,
+  setupEmberOnerrorValidation: false,
+});
