@@ -55,7 +55,7 @@
     "ember-cli": "~5.1.0",
     "ember-source": "~5.1.2",
     "eslint": "^8.45.0",
-    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-prettier": "^8.9.0",
     "eslint-plugin-ember": "^11.10.0",
     "eslint-plugin-ember-data": "link:packages/unpublished-eslint-rules",
     "eslint-plugin-import": "^2.27.5",
