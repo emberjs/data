@@ -2,8 +2,8 @@ import type { MergeOperation } from '@ember-data/types/q/cache';
 
 import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { Graph, ImplicitRelationship, GraphEdge } from '../graph';
-import type BelongsToRelationship from '../state/belongs-to';
 import type ManyRelationship from '../state/has-many';
+import { ResourceEdge } from '../edges/resource';
 
 export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, GraphEdge>) {
   Object.keys(relationships).forEach((key) => {
@@ -33,7 +33,7 @@ function mergeInRelationship(graph: Graph, rel: GraphEdge, op: MergeOperation): 
   }
 }
 
-function mergeBelongsTo(graph: Graph, rel: BelongsToRelationship, op: MergeOperation): void {
+function mergeBelongsTo(graph: Graph, rel: ResourceEdge, op: MergeOperation): void {
   if (rel.remoteState === op.record) {
     rel.remoteState = op.value;
   }

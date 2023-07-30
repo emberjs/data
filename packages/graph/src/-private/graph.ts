@@ -4,6 +4,7 @@ import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
+import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { EdgeCache, UpgradedMeta } from './-edge-definition';
@@ -25,16 +26,14 @@ import {
   notifyChange,
   removeIdentifierCompletelyFromRelationship,
 } from './-utils';
+import { createResourceEdge, legacyGetResourceRelationshipData, ResourceEdge } from './edges/resource';
 import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
-import BelongsToRelationship from './state/belongs-to';
 import ManyRelationship from './state/has-many';
-import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
-import { ResourceEdge, createResourceEdge, legacyGetResourceRelationshipData } from './edges/resource';
 
 export interface ImplicitRelationship {
   definition: UpgradedMeta;
@@ -80,7 +79,7 @@ export class Graph {
     deletions: DeleteRecordOperation[];
   };
   declare _updatedRelationships: Set<ManyRelationship>;
-  declare _transaction: Set<ManyRelationship | BelongsToRelationship> | null;
+  declare _transaction: Set<ManyRelationship | ResourceEdge> | null;
   declare _removing: StableRecordIdentifier | null;
 
   constructor(store: CacheCapabilitiesManager) {
@@ -128,10 +127,6 @@ export class Graph {
         ? info.lhs_definition
         : info.rhs_definition!;
 
-      if (meta.kind !== 'implicit') {
-        const Klass = meta.kind === 'hasMany' ? ManyRelationship : BelongsToRelationship;
-        relationship = relationships[propertyName] = new Klass(meta, identifier);
-      }
       if (meta.kind === 'belongsTo') {
         relationship = relationships[propertyName] = createResourceEdge(meta, identifier);
       } else if (meta.kind === 'hasMany') {
@@ -160,7 +155,8 @@ export class Graph {
     if (isBelongsTo(relationship)) {
       return legacyGetResourceRelationshipData(relationship);
     }
-    assert(`Cannot getData() on a colllection relationship (yet)`);
+
+    return relationship.getData();
   }
 
   /*
@@ -420,7 +416,7 @@ export class Graph {
     this._finalize();
   }
 
-  _addToTransaction(relationship: ManyRelationship | BelongsToRelationship) {
+  _addToTransaction(relationship: ManyRelationship | ResourceEdge) {
     assert(`expected a transaction`, this._transaction !== null);
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -543,14 +539,14 @@ function notifyInverseOfDematerialization(
   if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
     /*#__NOINLINE__*/ removeDematerializedInverse(
       graph,
-      relationship as BelongsToRelationship | ManyRelationship,
+      relationship as ResourceEdge | ManyRelationship,
       identifier,
       silenceNotifications
     );
   }
 }
 
-function clearRelationship(relationship: ManyRelationship | BelongsToRelationship) {
+function clearRelationship(relationship: ManyRelationship | ResourceEdge) {
   if (isBelongsTo(relationship)) {
     relationship.localState = null;
     relationship.remoteState = null;
@@ -566,7 +562,7 @@ function clearRelationship(relationship: ManyRelationship | BelongsToRelationshi
 
 function removeDematerializedInverse(
   graph: Graph,
-  relationship: ManyRelationship | BelongsToRelationship,
+  relationship: ManyRelationship | ResourceEdge,
   inverseIdentifier: StableRecordIdentifier,
   silenceNotifications?: boolean
 ) {
@@ -615,10 +611,7 @@ function removeDematerializedInverse(
   }
 }
 
-function removeCompletelyFromInverse(
-  graph: Graph,
-  relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship
-) {
+function removeCompletelyFromInverse(graph: Graph, relationship: GraphEdge) {
   const { identifier } = relationship;
   const { inverseKey } = relationship.definition;
 

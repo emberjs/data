@@ -8,9 +8,9 @@ import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
-import type { Graph } from '@ember-data/graph/-private/graph';
+import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
+import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/index';
-import type BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { StructuredErrorDocument } from '@ember-data/request/-private/types';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
@@ -40,9 +40,7 @@ import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@em
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
-function isImplicit(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ImplicitRelationship {
+function isImplicit(relationship: GraphEdge): relationship is ImplicitRelationship {
   return relationship.definition.isImplicit;
 }
 
@@ -366,8 +364,9 @@ export default class JSONAPICache implements Cache {
           const rel = rels[key]!;
           if (rel.definition.isImplicit) {
             return;
+          } else {
+            relationships[key] = this.__graph.getData(identifier, key);
           }
-          relationships[key] = (rel as ManyRelationship | BelongsToRelationship).getData();
         });
       }
       return {
@@ -1035,7 +1034,7 @@ export default class JSONAPICache implements Cache {
     identifier: StableRecordIdentifier,
     field: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
-    return (this.__graph.get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
+    return this.__graph.getData(identifier, field);
   }
 
   // Resource State
@@ -1426,7 +1425,7 @@ function _directlyRelatedIdentifiersIterable(
     return EMPTY_ITERATOR;
   }
 
-  const initializedRelationshipsArr: Array<ManyRelationship | BelongsToRelationship> = [];
+  const initializedRelationshipsArr: Array<ManyRelationship | ResourceEdge> = [];
   Object.keys(initializedRelationships).forEach((key) => {
     const rel = initializedRelationships[key];
     if (rel && !isImplicit(rel)) {

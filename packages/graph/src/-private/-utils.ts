@@ -11,7 +11,6 @@ import { UpgradedMeta } from './-edge-definition';
 import type { UpdateRelationshipOperation } from './-operations';
 import { coerceId } from './coerce-id';
 import type { Graph, GraphEdge, ImplicitRelationship } from './graph';
-import type BelongsToRelationship from './state/belongs-to';
 import type ManyRelationship from './state/has-many';
 import { ResourceEdge } from './edges/resource';
 
@@ -154,7 +153,7 @@ export function forAllRelatedIdentifiers(
   */
 export function removeIdentifierCompletelyFromRelationship(
   graph: Graph,
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship,
+  relationship: GraphEdge,
   value: StableRecordIdentifier,
   silenceNotifications?: boolean
 ): void {

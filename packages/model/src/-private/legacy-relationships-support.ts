@@ -7,7 +7,6 @@ import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/index';
-import type BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
