@@ -5,8 +5,8 @@ import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
-import { assertInheritedSchema } from '../debug/assert-polymorphic-type';
 import { expandingGet, expandingSet, getStore } from './-utils';
+import { assertInheritedSchema } from './debug/assert-polymorphic-type';
 import type { Graph } from './graph';
 
 export type EdgeCache = Record<string, Record<string, EdgeDefinition | null>>;

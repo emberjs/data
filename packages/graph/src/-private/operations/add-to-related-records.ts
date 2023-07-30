@@ -3,11 +3,11 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import { assertPolymorphicType } from '../../debug/assert-polymorphic-type';
-import type ManyRelationship from '../../relationships/state/has-many';
 import type { AddToRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
+import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { Graph } from '../graph';
+import type ManyRelationship from '../state/has-many';
 import { addToInverse } from './replace-related-records';
 
 export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecordsOperation, isRemote: boolean) {

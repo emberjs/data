@@ -4,8 +4,8 @@ import { cached, tracked } from '@glimmer/tracking';
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
 import { DEBUG } from '@ember-data/env';
-import type { Graph } from '@ember-data/graph/-private/graph/graph';
-import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
+import type { Graph } from '@ember-data/graph/-private/graph';
+import type BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';

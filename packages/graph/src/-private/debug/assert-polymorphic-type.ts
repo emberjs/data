@@ -1,8 +1,7 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
-import type { UpgradedMeta } from '../graph/-edge-definition';
+import type { UpgradedMeta } from '../-edge-definition';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 
 /*

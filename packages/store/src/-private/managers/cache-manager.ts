@@ -1,4 +1,4 @@
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import type { StructuredDataDocument } from '@ember-data/request/-private/types';
 import type { Change } from '@ember-data/types/cache/change';
 import type {

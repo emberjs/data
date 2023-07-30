@@ -1,9 +1,9 @@
 import type { MergeOperation } from '@ember-data/types/q/cache';
 
-import type BelongsToRelationship from '../../relationships/state/belongs-to';
-import type ManyRelationship from '../../relationships/state/has-many';
 import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { Graph, ImplicitRelationship, RelationshipEdge } from '../graph';
+import type BelongsToRelationship from '../state/belongs-to';
+import type ManyRelationship from '../state/has-many';
 
 export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, RelationshipEdge>) {
   Object.keys(relationships).forEach((key) => {

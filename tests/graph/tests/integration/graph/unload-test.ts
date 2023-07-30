@@ -3,8 +3,8 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/graph/-private';
-import type { Graph } from '@ember-data/graph/-private/graph/graph';
-import BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
+import type { Graph } from '@ember-data/graph/-private/graph';
+import BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
