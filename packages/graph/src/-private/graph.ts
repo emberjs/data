@@ -33,6 +33,8 @@ import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-r
 import updateRelationshipOperation from './operations/update-relationship';
 import BelongsToRelationship from './state/belongs-to';
 import ManyRelationship from './state/has-many';
+import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import { ResourceEdge, createResourceEdge, legacyGetResourceRelationshipData } from './edges/resource';
 
 export interface ImplicitRelationship {
   definition: UpgradedMeta;
@@ -41,7 +43,7 @@ export interface ImplicitRelationship {
   remoteMembers: Set<StableRecordIdentifier>;
 }
 
-export type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
+export type GraphEdge = ImplicitRelationship | ManyRelationship | ResourceEdge;
 
 export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
 
@@ -67,7 +69,7 @@ export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
 export class Graph {
   declare _definitionCache: EdgeCache;
   declare _potentialPolymorphicTypes: Record<string, Record<string, boolean>>;
-  declare identifiers: Map<StableRecordIdentifier, Record<string, RelationshipEdge>>;
+  declare identifiers: Map<StableRecordIdentifier, Record<string, GraphEdge>>;
   declare store: CacheCapabilitiesManager;
   declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
@@ -103,11 +105,11 @@ export class Graph {
     return relationships[propertyName] !== undefined;
   }
 
-  get(identifier: StableRecordIdentifier, propertyName: string): RelationshipEdge {
+  get(identifier: StableRecordIdentifier, propertyName: string): GraphEdge {
     assert(`expected propertyName`, propertyName);
     let relationships = this.identifiers.get(identifier);
     if (!relationships) {
-      relationships = Object.create(null) as Record<string, RelationshipEdge>;
+      relationships = Object.create(null) as Record<string, GraphEdge>;
       this.identifiers.set(identifier, relationships);
     }
 
@@ -129,6 +131,11 @@ export class Graph {
       if (meta.kind !== 'implicit') {
         const Klass = meta.kind === 'hasMany' ? ManyRelationship : BelongsToRelationship;
         relationship = relationships[propertyName] = new Klass(meta, identifier);
+      }
+      if (meta.kind === 'belongsTo') {
+        relationship = relationships[propertyName] = createResourceEdge(meta, identifier);
+      } else if (meta.kind === 'hasMany') {
+        relationship = relationships[propertyName] = new ManyRelationship(meta, identifier);
       } else {
         relationship = relationships[propertyName] = {
           definition: meta,
@@ -140,6 +147,20 @@ export class Graph {
     }
 
     return relationship;
+  }
+
+  getData(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): SingleResourceRelationship | CollectionResourceRelationship {
+    const relationship = this.get(identifier, propertyName);
+
+    assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
+
+    if (isBelongsTo(relationship)) {
+      return legacyGetResourceRelationshipData(relationship);
+    }
+    assert(`Cannot getData() on a colllection relationship (yet)`);
   }
 
   /*
@@ -209,7 +230,7 @@ export class Graph {
     }
     const keys = Object.keys(relationships);
     for (let i = 0; i < keys.length; i++) {
-      const relationship: RelationshipEdge = relationships[keys[i]];
+      const relationship: GraphEdge = relationships[keys[i]];
       // account for previously unloaded relationships
       // typically from a prior deletion of a record that pointed to this one implicitly
       if (relationship === undefined) {
@@ -462,7 +483,7 @@ export class Graph {
 // delete, so we remove the inverse records from this relationship to
 // disconnect the graph.  Because it's not async, we don't need to keep around
 // the identifier as an id-wrapper for references
-function destroyRelationship(graph: Graph, rel: RelationshipEdge, silenceNotifications?: boolean) {
+function destroyRelationship(graph: Graph, rel: GraphEdge, silenceNotifications?: boolean) {
   if (isImplicit(rel)) {
     if (graph.isReleasable(rel.identifier)) {
       /*#__NOINLINE__*/ removeCompletelyFromInverse(graph, rel);

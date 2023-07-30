@@ -1,11 +1,11 @@
 import type { MergeOperation } from '@ember-data/types/q/cache';
 
 import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
-import type { Graph, ImplicitRelationship, RelationshipEdge } from '../graph';
+import type { Graph, ImplicitRelationship, GraphEdge } from '../graph';
 import type BelongsToRelationship from '../state/belongs-to';
 import type ManyRelationship from '../state/has-many';
 
-export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, RelationshipEdge>) {
+export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, GraphEdge>) {
   Object.keys(relationships).forEach((key) => {
     const rel = relationships[key];
     if (!rel) {
@@ -15,7 +15,7 @@ export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships:
   });
 }
 
-function mergeIdentifierForRelationship(graph: Graph, op: MergeOperation, rel: RelationshipEdge): void {
+function mergeIdentifierForRelationship(graph: Graph, op: MergeOperation, rel: GraphEdge): void {
   rel.identifier = op.value;
   forAllRelatedIdentifiers(rel, (identifier) => {
     const inverse = graph.get(identifier, rel.definition.inverseKey);
@@ -23,7 +23,7 @@ function mergeIdentifierForRelationship(graph: Graph, op: MergeOperation, rel: R
   });
 }
 
-function mergeInRelationship(graph: Graph, rel: RelationshipEdge, op: MergeOperation): void {
+function mergeInRelationship(graph: Graph, rel: GraphEdge, op: MergeOperation): void {
   if (isBelongsTo(rel)) {
     mergeBelongsTo(graph, rel, op);
   } else if (isHasMany(rel)) {

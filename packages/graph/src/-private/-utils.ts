@@ -10,9 +10,10 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { UpgradedMeta } from './-edge-definition';
 import type { UpdateRelationshipOperation } from './-operations';
 import { coerceId } from './coerce-id';
-import type { Graph, ImplicitRelationship } from './graph';
+import type { Graph, GraphEdge, ImplicitRelationship } from './graph';
 import type BelongsToRelationship from './state/belongs-to';
 import type ManyRelationship from './state/has-many';
+import { ResourceEdge } from './edges/resource';
 
 export function getStore(wrapper: CacheCapabilitiesManager | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);
@@ -80,25 +81,25 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
 }
 
 export function isBelongsTo(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is BelongsToRelationship {
+  relationship: GraphEdge
+): relationship is ResourceEdge {
   return relationship.definition.kind === 'belongsTo';
 }
 
 export function isImplicit(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
+  relationship: GraphEdge
 ): relationship is ImplicitRelationship {
   return relationship.definition.isImplicit;
 }
 
 export function isHasMany(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
+  relationship: GraphEdge
 ): relationship is ManyRelationship {
   return relationship.definition.kind === 'hasMany';
 }
 
 export function forAllRelatedIdentifiers(
-  rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship,
+  rel: GraphEdge,
   cb: (identifier: StableRecordIdentifier) => void
 ): void {
   if (isBelongsTo(rel)) {
