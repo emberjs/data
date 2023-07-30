@@ -3,12 +3,12 @@ import { assert } from '@ember/debug';
 import { importSync } from '@embroider/macros';
 
 import { DEBUG } from '@ember-data/env';
-import type { UpgradedMeta } from '@ember-data/graph/-private/graph/-edge-definition';
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
-import type { Graph } from '@ember-data/graph/-private/graph/graph';
-import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
-import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
+import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
+import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
+import type { Graph } from '@ember-data/graph/-private/graph';
+import type { ImplicitRelationship } from '@ember-data/graph/-private/index';
+import type BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
+import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import {

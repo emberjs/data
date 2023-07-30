@@ -6,8 +6,6 @@ import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import BelongsToRelationship from '../relationships/state/belongs-to';
-import ManyRelationship from '../relationships/state/has-many';
 import type { EdgeCache, UpgradedMeta } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
 import type {
@@ -33,6 +31,8 @@ import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
+import BelongsToRelationship from './state/belongs-to';
+import ManyRelationship from './state/has-many';
 
 export interface ImplicitRelationship {
   definition: UpgradedMeta;

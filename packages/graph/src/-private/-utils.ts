@@ -7,12 +7,12 @@ import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-w
 import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import { coerceId } from '../coerce-id';
-import type BelongsToRelationship from '../relationships/state/belongs-to';
-import type ManyRelationship from '../relationships/state/has-many';
 import { UpgradedMeta } from './-edge-definition';
 import type { UpdateRelationshipOperation } from './-operations';
+import { coerceId } from './coerce-id';
 import type { Graph, ImplicitRelationship } from './graph';
+import type BelongsToRelationship from './state/belongs-to';
+import type ManyRelationship from './state/has-many';
 
 export function getStore(wrapper: CacheCapabilitiesManager | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);

@@ -7,7 +7,7 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { StructuredDataDocument } from '@ember-data/request/-private/types';
 import JSONAPISerializer from '@ember-data/serializer/json-api';

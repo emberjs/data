@@ -11,7 +11,7 @@ import type { Object as JSONObject } from 'json-typescript';
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
-import type { Graph } from '@ember-data/graph/-private/graph/graph';
+import type { Graph } from '@ember-data/graph/-private/graph';
 import type { FetchManager } from '@ember-data/legacy-compat/-private';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';

@@ -5,8 +5,8 @@ import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
+import type BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
+import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import type { ChangedAttributesHash } from '@ember-data/types/q/cache';

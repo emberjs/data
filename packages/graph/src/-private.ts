@@ -1,4 +1,4 @@
-export { graphFor, peekGraph } from './-private/graph/index';
+export { graphFor, peekGraph } from './-private/index';
 
 /**
  * <p align="center">

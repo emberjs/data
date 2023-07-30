@@ -6,8 +6,8 @@ import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { ManyArray } from 'ember-data/-private';
 
 import { DEBUG } from '@ember-data/env';
-import type { Graph } from '@ember-data/graph/-private/graph/graph';
-import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
+import type { Graph } from '@ember-data/graph/-private/graph';
+import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
