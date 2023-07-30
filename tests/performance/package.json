@@ -48,7 +48,7 @@
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "terser-webpack-plugin": "^5.3.9",
-    "ember-resolver": "^10.1.1",
+    "ember-resolver": "^11.0.0",
     "ember-source": "~5.1.2",
     "loader.js": "^4.7.0",
     "webpack": "^5.88.2",
