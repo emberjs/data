@@ -3,8 +3,8 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/graph/-private';
+import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
-import BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -51,9 +51,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -125,9 +125,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -213,9 +213,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -293,9 +293,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -387,9 +387,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -461,9 +461,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -549,9 +549,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -629,9 +629,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -723,9 +723,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -797,9 +797,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -885,9 +885,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -965,9 +965,9 @@ module('Integration | Graph | Unload', function (hooks) {
           });
         });
 
-        const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-        const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-        const worstFriend = graph.get(identifier, 'worstFriend') as BelongsToRelationship;
+        const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+        const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+        const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
         assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
         assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
@@ -1060,9 +1060,9 @@ module('Integration | Graph | Unload', function (hooks) {
         });
       });
 
-      const bestFriend = graph.get(identifier, 'bestFriend') as BelongsToRelationship;
-      const bestFriend2 = graph.get(identifier2, 'bestFriend') as BelongsToRelationship;
-      const worstFriend3 = graph.get(identifier3, 'worstFriend') as BelongsToRelationship;
+      const bestFriend = graph.get(identifier, 'bestFriend') as ResourceEdge;
+      const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
+      const worstFriend3 = graph.get(identifier3, 'worstFriend') as ResourceEdge;
 
       assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
       assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');

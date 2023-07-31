@@ -10,8 +10,8 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { UpgradedMeta } from './-edge-definition';
 import type { UpdateRelationshipOperation } from './-operations';
 import { coerceId } from './coerce-id';
-import type { Graph, ImplicitRelationship } from './graph';
-import type BelongsToRelationship from './state/belongs-to';
+import { ResourceEdge } from './edges/resource';
+import type { Graph, GraphEdge, ImplicitRelationship } from './graph';
 import type ManyRelationship from './state/has-many';
 
 export function getStore(wrapper: CacheCapabilitiesManager | { _store: Store }): Store {
@@ -79,28 +79,19 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
   return Boolean(cache?.isNew(identifier));
 }
 
-export function isBelongsTo(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is BelongsToRelationship {
+export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ImplicitRelationship {
+export function isImplicit(relationship: GraphEdge): relationship is ImplicitRelationship {
   return relationship.definition.isImplicit;
 }
 
-export function isHasMany(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ManyRelationship {
+export function isHasMany(relationship: GraphEdge): relationship is ManyRelationship {
   return relationship.definition.kind === 'hasMany';
 }
 
-export function forAllRelatedIdentifiers(
-  rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship,
-  cb: (identifier: StableRecordIdentifier) => void
-): void {
+export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: StableRecordIdentifier) => void): void {
   if (isBelongsTo(rel)) {
     if (rel.remoteState) {
       cb(rel.remoteState);
@@ -153,7 +144,7 @@ export function forAllRelatedIdentifiers(
   */
 export function removeIdentifierCompletelyFromRelationship(
   graph: Graph,
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship,
+  relationship: GraphEdge,
   value: StableRecordIdentifier,
   silenceNotifications?: boolean
 ): void {

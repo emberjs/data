@@ -1,16 +1,11 @@
 import { graphFor } from '@ember-data/graph/-private';
-import type { ImplicitRelationship } from '@ember-data/graph/-private/graph';
-import type BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
-import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
+import type { GraphEdge, ImplicitRelationship } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-export function getRelationshipStateForRecord(
-  record: { store: Store },
-  propertyName: string
-): BelongsToRelationship | ManyRelationship | ImplicitRelationship {
+export function getRelationshipStateForRecord(record: { store: Store }, propertyName: string): GraphEdge {
   const identifier = recordIdentifierFor(record);
   return graphFor(record.store).get(identifier, propertyName);
 }

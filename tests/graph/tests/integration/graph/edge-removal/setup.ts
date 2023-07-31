@@ -1,8 +1,8 @@
 import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/graph/-private';
-import type { ImplicitRelationship } from '@ember-data/graph/-private/graph';
-import type BelongsToRelationship from '@ember-data/graph/-private/state/belongs-to';
+import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
+import type { GraphEdge, ImplicitRelationship } from '@ember-data/graph/-private/graph';
 import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
@@ -41,10 +41,7 @@ class AbstractGraph {
     };
   }
 
-  get(
-    identifier: StableRecordIdentifier,
-    propertyName: string
-  ): ManyRelationship | BelongsToRelationship | ImplicitRelationship {
+  get(identifier: StableRecordIdentifier, propertyName: string): GraphEdge {
     return graphFor(this.store).get(identifier, propertyName);
   }
 
@@ -67,21 +64,15 @@ function graphForTest(store: Store) {
   return new AbstractGraph(store);
 }
 
-export function isBelongsTo(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is BelongsToRelationship {
+export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ImplicitRelationship {
+export function isImplicit(relationship: GraphEdge): relationship is ImplicitRelationship {
   return relationship.definition.isImplicit;
 }
 
-export function isHasMany(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ManyRelationship {
+export function isHasMany(relationship: GraphEdge): relationship is ManyRelationship {
   return relationship.definition.kind === 'hasMany';
 }
 
@@ -89,7 +80,7 @@ function setToArray<T>(set: Set<T>): T[] {
   return Array.from(set);
 }
 
-export function stateOf(rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship): {
+export function stateOf(rel: GraphEdge): {
   remote: StableRecordIdentifier[];
   local: StableRecordIdentifier[];
 } {
