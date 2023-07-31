@@ -196,8 +196,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }, /Assertion Failed: Encountered a relationship identifier without a type for the hasMany relationship 'comments' on <post:2>, expected an identifier with type 'comment' but found/);
   });
 
-  test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function (assert) {
-    assert.expect(0);
+  test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", async function (assert) {
+    assert.expect(1);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -216,25 +216,29 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.ok(false, "The adapter's find method should not be called");
     };
 
+    adapter.shouldBackgroundReloadRecord = () => false;
+
     adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: postData };
+      assert.ok(false, "The adapter's find method should not be called");
     };
 
-    return run(() => {
-      store.push({
+    store.push(
+      structuredClone({
         data: postData,
         included: [
           {
             type: 'comment',
             id: '1',
+            attributes: {},
           },
         ],
-      });
+      })
+    );
 
-      return store.findRecord('post', 1).then((post) => {
-        return post.comments;
-      });
-    });
+    const post = await store.findRecord('post', '1');
+    const comments = await post.comments;
+
+    assert.strictEqual(comments.length, 1, 'The comments are correctly loaded');
   });
 
   test('hasMany + canonical vs currentState + destroyRecord  ', async function (assert) {
@@ -422,8 +426,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.strictEqual(contacts, user.contacts);
   });
 
-  test('adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship', function (assert) {
-    assert.expect(2);
+  test('adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship', async function (assert) {
+    assert.expect(3);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -456,18 +460,22 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     };
 
     adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: bookData };
+      return structuredClone({ data: bookData });
     };
 
-    return run(() => {
-      store.push({
+    store.push(
+      structuredClone({
         data: bookData,
-      });
+      })
+    );
 
-      return store.findRecord('book', 1).then((book) => {
-        return book.chapters;
-      });
-    });
+    const book = await store.findRecord('book', '1');
+    const chapters = await book.chapters;
+
+    assert.deepEqual(
+      chapters.map((c) => c.title),
+      ['Chapter One', 'Chapter Two']
+    );
   });
 
   // This tests the case where a serializer materializes a has-many
@@ -1431,19 +1439,6 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", async function (assert) {
     assert.expect(1);
 
-    let userData = {
-      type: 'user',
-      id: '1',
-      relationships: {
-        messages: {
-          data: [
-            { type: 'post', id: '1' },
-            { type: 'comment', id: '3' },
-          ],
-        },
-      },
-    };
-
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -1452,27 +1447,41 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     };
 
     adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: userData };
+      return {
+        data: {
+          type: 'user',
+          id: '1',
+          relationships: {
+            messages: {
+              data: [
+                { type: 'post', id: '1' },
+                { type: 'comment', id: '3' },
+              ],
+            },
+          },
+        },
+      };
     };
 
     store.push({
-      data: userData,
-      included: [
+      data: [
         {
           type: 'post',
           id: '1',
+          attributes: {},
         },
         {
           type: 'comment',
           id: '3',
+          attributes: {},
         },
       ],
     });
 
-    await store.findRecord('user', '1').then(function (user) {
-      let messages = user.messages;
-      assert.strictEqual(messages.length, 2, 'The messages are correctly loaded');
-    });
+    const user = await store.findRecord('user', '1');
+    const messages = await user.messages;
+
+    assert.strictEqual(messages.length, 2, 'The messages are correctly loaded');
   });
 
   test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany or find methods if the records are not loaded", async function (assert) {
