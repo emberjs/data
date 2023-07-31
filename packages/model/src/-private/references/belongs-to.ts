@@ -4,6 +4,7 @@ import { cached, tracked } from '@glimmer/tracking';
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
 import { DEBUG } from '@ember-data/env';
+import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
@@ -48,15 +49,15 @@ function isResourceIdentiferWithRelatedLinks(
  */
 export default class BelongsToReference {
   declare key: string;
-  declare belongsToRelationship: BelongsToRelationship;
+  declare belongsToRelationship: ResourceEdge;
   declare type: string;
-  ___identifier: StableRecordIdentifier;
+  declare ___identifier: StableRecordIdentifier;
   declare store: Store;
   declare graph: Graph;
 
   // unsubscribe tokens given to us by the notification manager
-  ___token!: object;
-  ___relatedToken: object | null = null;
+  declare ___token: object;
+  declare ___relatedToken: object | null;
 
   @tracked _ref = 0;
 
@@ -64,7 +65,7 @@ export default class BelongsToReference {
     store: Store,
     graph: Graph,
     parentIdentifier: StableRecordIdentifier,
-    belongsToRelationship: BelongsToRelationship,
+    belongsToRelationship: ResourceEdge,
     key: string
   ) {
     this.graph = graph;
@@ -73,6 +74,7 @@ export default class BelongsToReference {
     this.type = belongsToRelationship.definition.type;
     this.store = store;
     this.___identifier = parentIdentifier;
+    this.___relatedToken = null;
 
     this.___token = store.notifications.subscribe(
       parentIdentifier,

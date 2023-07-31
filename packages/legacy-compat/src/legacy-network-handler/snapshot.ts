@@ -5,6 +5,8 @@ import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
+import { DEBUG } from '@ember-data/env';
+import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
@@ -312,22 +314,24 @@ export default class Snapshot implements Snapshot {
 
     const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store).get(identifier, keyName) as BelongsToRelationship;
 
-    assert(
-      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
-        identifier.id || ''
-      }, lid: ${identifier.lid} but no such relationship was found.`,
-      relationship
-    );
-    assert(
-      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
-        identifier.id || ''
-      }, lid: ${identifier.lid} but that relationship is a hasMany.`,
-      relationship.definition.kind === 'belongsTo'
-    );
+    if (DEBUG) {
+      const relationship = graphFor(this._store).get(identifier, keyName) as ResourceEdge;
+      assert(
+        `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
+          identifier.id || ''
+        }, lid: ${identifier.lid} but no such relationship was found.`,
+        relationship
+      );
+      assert(
+        `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
+          identifier.id || ''
+        }, lid: ${identifier.lid} but that relationship is a hasMany.`,
+        relationship.definition.kind === 'belongsTo'
+      );
+    }
 
-    let value = relationship.getData();
+    let value = graphFor(this._store).getData(identifier, keyName);
     let data = value && value.data;
 
     let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;

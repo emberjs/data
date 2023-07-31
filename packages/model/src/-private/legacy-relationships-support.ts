@@ -5,8 +5,8 @@ import { importSync } from '@embroider/macros';
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
-import type { Graph } from '@ember-data/graph/-private/graph';
-import type { ImplicitRelationship } from '@ember-data/graph/-private/index';
+import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
+import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
@@ -103,7 +103,7 @@ export class LegacySupport {
   _findBelongsTo(
     key: string,
     resource: SingleResourceRelationship,
-    relationship: BelongsToRelationship,
+    relationship: ResourceEdge,
     options?: FindOptions
   ): Promise<RecordInstance | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
@@ -396,7 +396,7 @@ export class LegacySupport {
       let relationshipKind = relationship.definition.kind;
 
       if (relationshipKind === 'belongsTo') {
-        reference = new BelongsToReference(this.store, graph, identifier, relationship as BelongsToRelationship, name);
+        reference = new BelongsToReference(this.store, graph, identifier, relationship as ResourceEdge, name);
       } else if (relationshipKind === 'hasMany') {
         reference = new HasManyReference(this.store, graph, identifier, relationship as ManyRelationship, name);
       }
@@ -487,7 +487,7 @@ export class LegacySupport {
   _findBelongsToByJsonApiResource(
     resource: SingleResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
-    relationship: BelongsToRelationship,
+    relationship: ResourceEdge,
     options: FindOptions = {}
   ): Promise<StableRecordIdentifier | null> {
     if (!resource) {
@@ -612,7 +612,7 @@ export class LegacySupport {
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: BelongsToRelationship,
+  relationship: ResourceEdge,
   value: StableRecordIdentifier | null
 ): RecordInstance | null;
 function handleCompletedRelationshipRequest(
@@ -624,7 +624,7 @@ function handleCompletedRelationshipRequest(
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: BelongsToRelationship,
+  relationship: ResourceEdge,
   value: null,
   error: Error
 ): never;
@@ -638,7 +638,7 @@ function handleCompletedRelationshipRequest(
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: BelongsToRelationship | ManyRelationship,
+  relationship: ResourceEdge | ManyRelationship,
   value: RelatedCollection | StableRecordIdentifier | null,
   error?: Error
 ): RelatedCollection | RecordInstance | null {
@@ -727,8 +727,6 @@ export function areAllInverseRecordsLoaded(store: Store, resource: JsonApiRelati
   return instanceCache.recordIsLoaded(identifiers);
 }
 
-function isBelongsTo(
-  relationship: BelongsToRelationship | ImplicitRelationship | ManyRelationship
-): relationship is BelongsToRelationship {
+function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
   return relationship.definition.kind === 'belongsTo';
 }
