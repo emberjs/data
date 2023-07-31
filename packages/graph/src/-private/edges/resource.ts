@@ -5,8 +5,10 @@ import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';
 import { createState } from '../-state';
 
-/**
+/*
  * @module @ember-data/graph
+ *
+ * Stores the data for one side of a "single" resource relationship.
  *
  * @class ResourceEdge
  * @internal
