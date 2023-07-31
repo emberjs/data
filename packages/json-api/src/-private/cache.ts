@@ -9,8 +9,9 @@ import { DEBUG } from '@ember-data/env';
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
+import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type { Graph, GraphEdge, ImplicitRelationship } from '@ember-data/graph/-private/graph';
+import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import { StructuredErrorDocument } from '@ember-data/request/-private/types';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
@@ -39,7 +40,7 @@ import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@em
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
-function isImplicit(relationship: GraphEdge): relationship is ImplicitRelationship {
+function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;
 }
 

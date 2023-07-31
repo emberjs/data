@@ -1,6 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
-import type { ImplicitRelationship } from '@ember-data/graph/-private/graph';
+import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -186,8 +186,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
 
     assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'PreCond: Chris has one implicit relationship');
 
-    const chrisImplicitFriend = chrisImplicits[chrisBestFriend.definition.inverseKey] as ImplicitRelationship;
-    const johnImplicitFriend = johnImplicits[johnBestFriend.definition.inverseKey] as ImplicitRelationship;
+    const chrisImplicitFriend = chrisImplicits[chrisBestFriend.definition.inverseKey] as ImplicitEdge;
+    const johnImplicitFriend = johnImplicits[johnBestFriend.definition.inverseKey] as ImplicitEdge;
 
     assert.ok(chrisImplicitFriend, 'PreCond: Chris has an implicit best friend');
 
@@ -346,7 +346,7 @@ export async function testFinalState(
 
     assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'Result: Chris has one implicit relationship key');
 
-    const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey] as ImplicitRelationship;
+    const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey] as ImplicitEdge;
 
     assert.ok(chrisImplicitFriend, 'Result: Chris has an implicit relationship for best friend');
     const chrisImplicitState = stateOf(chrisImplicitFriend);
@@ -370,7 +370,7 @@ export async function testFinalState(
       assert.false(graph.implicit.has(johnIdentifier), 'implicit cache for john has been removed');
     } else {
       const johnImplicits = graph.getImplicit(johnIdentifier);
-      const johnImplicitFriend = johnImplicits[testState.johnInverseKey] as ImplicitRelationship;
+      const johnImplicitFriend = johnImplicits[testState.johnInverseKey] as ImplicitEdge;
       assert.strictEqual(
         Object.keys(johnImplicits).length,
         1,
