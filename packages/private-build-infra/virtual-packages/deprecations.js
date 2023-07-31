@@ -163,3 +163,16 @@ export const DEPRECATE_COMPUTED_CHAINS = '5.0';
  * @public
  */
 export const DEPRECATE_LEGACY_IMPORTS = '5.2';
+
+/* PLANNED
+ * **id: ember-data:deprecate-non-unique-collection-payloads**
+ *
+ * Deprecates when the data for a hasMany relationship contains
+ * duplicate identifiers.
+ *
+ * @property DEPRECATE_NON_UNIQUE_PAYLOADS
+ * @since 5.2
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_NON_UNIQUE_PAYLOADS = '5.2';

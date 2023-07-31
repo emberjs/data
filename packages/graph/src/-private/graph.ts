@@ -26,14 +26,14 @@ import {
   notifyChange,
   removeIdentifierCompletelyFromRelationship,
 } from './-utils';
-import { createResourceEdge, legacyGetResourceRelationshipData, ResourceEdge } from './edges/resource';
+import { type CollectionEdge, createCollectionEdge, legacyGetCollectionRelationshipData } from './edges/collection';
+import { createResourceEdge, legacyGetResourceRelationshipData, type ResourceEdge } from './edges/resource';
 import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
-import ManyRelationship from './state/has-many';
 
 export interface ImplicitRelationship {
   definition: UpgradedMeta & { kind: 'implicit'; isImplicit: true };
@@ -42,7 +42,7 @@ export interface ImplicitRelationship {
   remoteMembers: Set<StableRecordIdentifier>;
 }
 
-export type GraphEdge = ImplicitRelationship | ManyRelationship | ResourceEdge;
+export type GraphEdge = ImplicitRelationship | CollectionEdge | ResourceEdge;
 
 export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
 
@@ -78,8 +78,8 @@ export class Graph {
     hasMany: RemoteRelationshipOperation[];
     deletions: DeleteRecordOperation[];
   };
-  declare _updatedRelationships: Set<ManyRelationship>;
-  declare _transaction: Set<ManyRelationship | ResourceEdge> | null;
+  declare _updatedRelationships: Set<CollectionEdge>;
+  declare _transaction: Set<CollectionEdge | ResourceEdge> | null;
   declare _removing: StableRecordIdentifier | null;
 
   constructor(store: CacheCapabilitiesManager) {
@@ -130,7 +130,7 @@ export class Graph {
       if (meta.kind === 'belongsTo') {
         relationship = relationships[propertyName] = createResourceEdge(meta, identifier);
       } else if (meta.kind === 'hasMany') {
-        relationship = relationships[propertyName] = new ManyRelationship(meta, identifier);
+        relationship = relationships[propertyName] = createCollectionEdge(meta, identifier);
       } else {
         assert(`Expected kind to be implicit`, meta.kind === 'implicit' && meta.isImplicit === true);
         relationship = relationships[propertyName] = {
@@ -157,7 +157,7 @@ export class Graph {
       return legacyGetResourceRelationshipData(relationship);
     }
 
-    return relationship.getData();
+    return legacyGetCollectionRelationshipData(relationship);
   }
 
   /*
@@ -380,7 +380,7 @@ export class Graph {
     }
   }
 
-  _scheduleLocalSync(relationship: ManyRelationship) {
+  _scheduleLocalSync(relationship: CollectionEdge) {
     this._updatedRelationships.add(relationship);
     if (!this._willSyncLocal) {
       this._willSyncLocal = true;
@@ -417,7 +417,7 @@ export class Graph {
     this._finalize();
   }
 
-  _addToTransaction(relationship: ManyRelationship | ResourceEdge) {
+  _addToTransaction(relationship: CollectionEdge | ResourceEdge) {
     assert(`expected a transaction`, this._transaction !== null);
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -542,7 +542,7 @@ function notifyInverseOfDematerialization(
   }
 }
 
-function clearRelationship(relationship: ManyRelationship | ResourceEdge) {
+function clearRelationship(relationship: CollectionEdge | ResourceEdge) {
   if (isBelongsTo(relationship)) {
     relationship.localState = null;
     relationship.remoteState = null;
@@ -558,7 +558,7 @@ function clearRelationship(relationship: ManyRelationship | ResourceEdge) {
 
 function removeDematerializedInverse(
   graph: Graph,
-  relationship: ManyRelationship | ResourceEdge,
+  relationship: CollectionEdge | ResourceEdge,
   inverseIdentifier: StableRecordIdentifier,
   silenceNotifications?: boolean
 ) {

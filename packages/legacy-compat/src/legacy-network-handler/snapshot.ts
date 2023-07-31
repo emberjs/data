@@ -6,10 +6,11 @@ import { assert } from '@ember/debug';
 import { importSync } from '@embroider/macros';
 
 import { DEBUG } from '@ember-data/env';
+import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
+import { CollectionRelationship } from '@ember-data/types/cache/relationship';
 import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
@@ -423,21 +424,23 @@ export default class Snapshot implements Snapshot {
 
     const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store).get(identifier, keyName) as ManyRelationship;
-    assert(
-      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
-        identifier.id || ''
-      }, lid: ${identifier.lid} but no such relationship was found.`,
-      relationship
-    );
-    assert(
-      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
-        identifier.id || ''
-      }, lid: ${identifier.lid} but that relationship is a belongsTo.`,
-      relationship.definition.kind === 'hasMany'
-    );
+    if (DEBUG) {
+      const relationship = graphFor(this._store).get(identifier, keyName) as CollectionEdge;
+      assert(
+        `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
+          identifier.id || ''
+        }, lid: ${identifier.lid} but no such relationship was found.`,
+        relationship
+      );
+      assert(
+        `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
+          identifier.id || ''
+        }, lid: ${identifier.lid} but that relationship is a belongsTo.`,
+        relationship.definition.kind === 'hasMany'
+      );
+    }
 
-    let value = relationship.getData();
+    let value = graphFor(this._store).getData(identifier, keyName) as CollectionRelationship;
 
     if (value.data) {
       results = [];

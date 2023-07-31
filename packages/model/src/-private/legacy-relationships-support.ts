@@ -5,9 +5,9 @@ import { importSync } from '@embroider/macros';
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
-import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
+import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
+import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
-import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import {
@@ -251,7 +251,7 @@ export class LegacySupport {
 
   fetchAsyncHasMany(
     key: string,
-    relationship: ManyRelationship,
+    relationship: CollectionEdge,
     manyArray: RelatedCollection,
     options?: FindOptions
   ): Promise<RelatedCollection> {
@@ -285,7 +285,7 @@ export class LegacySupport {
       if (loadingPromise) {
         return loadingPromise;
       }
-      const relationship = this.graph.get(this.identifier, key) as ManyRelationship;
+      const relationship = this.graph.get(this.identifier, key) as CollectionEdge;
       const { definition, state } = relationship;
 
       state.hasFailedLoadAttempt = false;
@@ -304,7 +304,7 @@ export class LegacySupport {
 
   getHasMany(key: string, options?: FindOptions): PromiseManyArray | RelatedCollection {
     if (HAS_JSON_API_PACKAGE) {
-      const relationship = this.graph.get(this.identifier, key) as ManyRelationship;
+      const relationship = this.graph.get(this.identifier, key) as CollectionEdge;
       const { definition, state } = relationship;
       let manyArray = this.getManyArray(key, definition);
 
@@ -398,7 +398,7 @@ export class LegacySupport {
       if (relationshipKind === 'belongsTo') {
         reference = new BelongsToReference(this.store, graph, identifier, relationship as ResourceEdge, name);
       } else if (relationshipKind === 'hasMany') {
-        reference = new HasManyReference(this.store, graph, identifier, relationship as ManyRelationship, name);
+        reference = new HasManyReference(this.store, graph, identifier, relationship as CollectionEdge, name);
       }
 
       this.references[name] = reference;
@@ -410,7 +410,7 @@ export class LegacySupport {
   _findHasManyByJsonApiResource(
     resource: CollectionResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
-    relationship: ManyRelationship,
+    relationship: CollectionEdge,
     options: FindOptions = {}
   ): Promise<void | unknown[]> | void {
     if (HAS_JSON_API_PACKAGE) {
@@ -618,7 +618,7 @@ function handleCompletedRelationshipRequest(
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: ManyRelationship,
+  relationship: CollectionEdge,
   value: RelatedCollection
 ): RelatedCollection;
 function handleCompletedRelationshipRequest(
@@ -631,14 +631,14 @@ function handleCompletedRelationshipRequest(
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: ManyRelationship,
+  relationship: CollectionEdge,
   value: RelatedCollection,
   error: Error
 ): never;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
-  relationship: ResourceEdge | ManyRelationship,
+  relationship: ResourceEdge | CollectionEdge,
   value: RelatedCollection | StableRecordIdentifier | null,
   error?: Error
 ): RelatedCollection | RecordInstance | null {
@@ -698,7 +698,7 @@ function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance
   return recordIdentifierFor(record);
 }
 
-function anyUnloaded(store: Store, relationship: ManyRelationship) {
+function anyUnloaded(store: Store, relationship: CollectionEdge) {
   let state = relationship.localState;
   const cache = store._instanceCache;
   const unloaded = state.find((s) => {

@@ -4,3 +4,4 @@ export const DEPRECATE_COMPUTED_CHAINS: boolean;
 export const DEPRECATE_NON_STRICT_TYPES: boolean;
 export const DEPRECATE_NON_STRICT_ID: boolean;
 export const DEPRECATE_LEGACY_IMPORTS: boolean;
+export const DEPRECATE_NON_UNIQUE_PAYLOADS: boolean;

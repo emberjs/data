@@ -6,8 +6,8 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
+import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
-import type ManyRelationship from '../state/has-many';
 
 /*
     case many:1
@@ -364,7 +364,7 @@ export function removeFromInverse(
   }
 }
 
-export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
+export function syncRemoteToLocal(graph: Graph, rel: CollectionEdge) {
   let toSet = rel.remoteState;
   let newIdentifiers = rel.localState.filter((identifier) => isNew(identifier) && !toSet.includes(identifier));
   let existingState = rel.localState;
@@ -389,6 +389,6 @@ export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
   }
 }
 
-function flushCanonical(graph: Graph, rel: ManyRelationship) {
+function flushCanonical(graph: Graph, rel: CollectionEdge) {
   graph._scheduleLocalSync(rel);
 }
