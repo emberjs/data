@@ -1,9 +1,9 @@
 import type { MergeOperation } from '@ember-data/types/q/cache';
 
 import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
-import { ResourceEdge } from '../edges/resource';
+import type { CollectionEdge } from '../edges/collection';
+import type { ResourceEdge } from '../edges/resource';
 import type { Graph, GraphEdge, ImplicitRelationship } from '../graph';
-import type ManyRelationship from '../state/has-many';
 
 export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, GraphEdge>) {
   Object.keys(relationships).forEach((key) => {
@@ -43,7 +43,7 @@ function mergeBelongsTo(graph: Graph, rel: ResourceEdge, op: MergeOperation): vo
   }
 }
 
-function mergeHasMany(graph: Graph, rel: ManyRelationship, op: MergeOperation): void {
+function mergeHasMany(graph: Graph, rel: CollectionEdge, op: MergeOperation): void {
   if (rel.remoteMembers.has(op.record)) {
     rel.remoteMembers.delete(op.record);
     rel.remoteMembers.add(op.value);

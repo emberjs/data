@@ -6,8 +6,8 @@ import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import { ManyArray } from 'ember-data/-private';
 
 import { DEBUG } from '@ember-data/env';
+import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { Graph } from '@ember-data/graph/-private/graph';
-import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
@@ -53,7 +53,7 @@ function isResourceIdentiferWithRelatedLinks(
 export default class HasManyReference {
   declare graph: Graph;
   declare key: string;
-  declare hasManyRelationship: ManyRelationship;
+  declare hasManyRelationship: CollectionEdge;
   declare type: string;
   declare store: Store;
 
@@ -68,7 +68,7 @@ export default class HasManyReference {
     store: Store,
     graph: Graph,
     parentIdentifier: StableRecordIdentifier,
-    hasManyRelationship: ManyRelationship,
+    hasManyRelationship: CollectionEdge,
     key: string
   ) {
     this.graph = graph;

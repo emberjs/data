@@ -8,9 +8,9 @@ import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
-import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
+import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
+import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge, ImplicitRelationship } from '@ember-data/graph/-private/graph';
-import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import { StructuredErrorDocument } from '@ember-data/request/-private/types';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
@@ -1424,7 +1424,7 @@ function _directlyRelatedIdentifiersIterable(
     return EMPTY_ITERATOR;
   }
 
-  const initializedRelationshipsArr: Array<ManyRelationship | ResourceEdge> = [];
+  const initializedRelationshipsArr: Array<CollectionEdge | ResourceEdge> = [];
   Object.keys(initializedRelationships).forEach((key) => {
     const rel = initializedRelationships[key];
     if (rel && !isImplicit(rel)) {

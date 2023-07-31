@@ -1,9 +1,9 @@
 import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/graph/-private';
-import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
+import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
+import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { GraphEdge, ImplicitRelationship } from '@ember-data/graph/-private/graph';
-import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
 import type {
@@ -72,7 +72,7 @@ export function isImplicit(relationship: GraphEdge): relationship is ImplicitRel
   return relationship.definition.isImplicit;
 }
 
-export function isHasMany(relationship: GraphEdge): relationship is ManyRelationship {
+export function isHasMany(relationship: GraphEdge): relationship is CollectionEdge {
   return relationship.definition.kind === 'hasMany';
 }
 

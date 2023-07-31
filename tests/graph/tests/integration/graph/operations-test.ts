@@ -3,7 +3,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/graph/-private';
-import type ManyRelationship from '@ember-data/graph/-private/state/has-many';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 
@@ -47,9 +46,9 @@ module('Integration | Graph | Operations', function (hooks: NestedHooks) {
       });
     });
 
-    const data = graph.get(appIdentifier, 'configs') as ManyRelationship;
+    const data = graph.getData(appIdentifier, 'configs');
     assert.deepEqual(
-      JSON.parse(JSON.stringify(data.getData())),
+      JSON.parse(JSON.stringify(data)),
       {
         data: [
           { type: 'config', id: '1', lid: '@lid:config-1' },
@@ -101,9 +100,9 @@ module('Integration | Graph | Operations', function (hooks: NestedHooks) {
       });
     });
 
-    const data = graph.get(appIdentifier, 'configs') as ManyRelationship;
+    const data = graph.getData(appIdentifier, 'configs');
     assert.deepEqual(
-      JSON.parse(JSON.stringify(data.getData())),
+      JSON.parse(JSON.stringify(data)),
       {
         data: [
           { type: 'config', id: '1', lid: '@lid:config-1' },
