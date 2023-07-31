@@ -2,8 +2,9 @@ import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/graph/-private';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
+import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type { GraphEdge, ImplicitRelationship } from '@ember-data/graph/-private/graph';
+import type { GraphEdge } from '@ember-data/graph/-private/graph';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
 import type {
@@ -45,7 +46,7 @@ class AbstractGraph {
     return graphFor(this.store).get(identifier, propertyName);
   }
 
-  getImplicit(identifier: StableRecordIdentifier): Record<string, ImplicitRelationship> {
+  getImplicit(identifier: StableRecordIdentifier): Record<string, ImplicitEdge> {
     const rels = graphFor(this.store).identifiers.get(identifier);
     let implicits = Object.create(null);
     if (rels) {
@@ -68,7 +69,7 @@ export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEd
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit(relationship: GraphEdge): relationship is ImplicitRelationship {
+export function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;
 }
 

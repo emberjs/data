@@ -31,6 +31,7 @@ export function createCollectionEdge(definition: UpgradedMeta, identifier: Stabl
     definition,
     identifier,
     state: createState(),
+    transactionRef: 0,
 
     localMembers: new Set(),
     remoteMembers: new Set(),
@@ -40,7 +41,6 @@ export function createCollectionEdge(definition: UpgradedMeta, identifier: Stabl
 
     meta: null,
     links: null,
-    transactionRef: 0,
   };
 }
 

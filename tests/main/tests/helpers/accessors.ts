@@ -1,5 +1,6 @@
 import { graphFor } from '@ember-data/graph/-private';
-import type { GraphEdge, ImplicitRelationship } from '@ember-data/graph/-private/graph';
+import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
+import type { GraphEdge } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
@@ -24,7 +25,7 @@ export function hasRelationshipForRecord(
 export function implicitRelationshipsFor(
   storeWrapper: CacheCapabilitiesManager,
   identifier: StableRecordIdentifier
-): { [key: string]: ImplicitRelationship } {
+): { [key: string]: ImplicitEdge } {
   const rels = graphFor(storeWrapper).identifiers.get(identifier);
   if (!rels) {
     throw new Error(`Expected at least one relationship to be populated`);

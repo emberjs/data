@@ -7,7 +7,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-w
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type { EdgeCache, UpgradedMeta } from './-edge-definition';
+import type { EdgeCache } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
 import type {
   DeleteRecordOperation,
@@ -27,6 +27,7 @@ import {
   removeIdentifierCompletelyFromRelationship,
 } from './-utils';
 import { type CollectionEdge, createCollectionEdge, legacyGetCollectionRelationshipData } from './edges/collection';
+import { createImplicitEdge, ImplicitEdge, ImplicitMeta } from './edges/implicit';
 import { createResourceEdge, legacyGetResourceRelationshipData, type ResourceEdge } from './edges/resource';
 import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
@@ -35,14 +36,7 @@ import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
 
-export interface ImplicitRelationship {
-  definition: UpgradedMeta & { kind: 'implicit'; isImplicit: true };
-  identifier: StableRecordIdentifier;
-  localMembers: Set<StableRecordIdentifier>;
-  remoteMembers: Set<StableRecordIdentifier>;
-}
-
-export type GraphEdge = ImplicitRelationship | CollectionEdge | ResourceEdge;
+export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
 
 export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
 
@@ -133,12 +127,7 @@ export class Graph {
         relationship = relationships[propertyName] = createCollectionEdge(meta, identifier);
       } else {
         assert(`Expected kind to be implicit`, meta.kind === 'implicit' && meta.isImplicit === true);
-        relationship = relationships[propertyName] = {
-          definition: meta,
-          identifier,
-          localMembers: new Set(),
-          remoteMembers: new Set(),
-        } as ImplicitRelationship;
+        relationship = relationships[propertyName] = createImplicitEdge(meta as ImplicitMeta, identifier);
       }
     }
 

@@ -11,8 +11,9 @@ import { UpgradedMeta } from './-edge-definition';
 import type { UpdateRelationshipOperation } from './-operations';
 import { coerceId } from './coerce-id';
 import type { CollectionEdge } from './edges/collection';
+import type { ImplicitEdge } from './edges/implicit';
 import type { ResourceEdge } from './edges/resource';
-import type { Graph, GraphEdge, ImplicitRelationship } from './graph';
+import type { Graph, GraphEdge } from './graph';
 
 export function getStore(wrapper: CacheCapabilitiesManager | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);
@@ -83,7 +84,7 @@ export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEd
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit(relationship: GraphEdge): relationship is ImplicitRelationship {
+export function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;
 }
 
