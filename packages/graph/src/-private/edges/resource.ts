@@ -22,10 +22,7 @@ export interface ResourceEdge {
   transactionRef: number;
 }
 
-export function createResourceEdge(
-  definition: UpgradedMeta,
-  identifier: StableRecordIdentifier
-): ResourceEdge {
+export function createResourceEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): ResourceEdge {
   return {
     definition,
     identifier,

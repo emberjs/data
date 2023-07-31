@@ -36,7 +36,7 @@ import updateRelationshipOperation from './operations/update-relationship';
 import ManyRelationship from './state/has-many';
 
 export interface ImplicitRelationship {
-  definition: UpgradedMeta;
+  definition: UpgradedMeta & { kind: 'implicit'; isImplicit: true };
   identifier: StableRecordIdentifier;
   localMembers: Set<StableRecordIdentifier>;
   remoteMembers: Set<StableRecordIdentifier>;
@@ -132,12 +132,13 @@ export class Graph {
       } else if (meta.kind === 'hasMany') {
         relationship = relationships[propertyName] = new ManyRelationship(meta, identifier);
       } else {
+        assert(`Expected kind to be implicit`, meta.kind === 'implicit' && meta.isImplicit === true);
         relationship = relationships[propertyName] = {
           definition: meta,
           identifier,
           localMembers: new Set(),
           remoteMembers: new Set(),
-        };
+        } as ImplicitRelationship;
       }
     }
 
@@ -537,12 +538,7 @@ function notifyInverseOfDematerialization(
   // For remote members, it is possible that inverseRecordData has already been associated to
   // to another record. For such cases, do not dematerialize the inverseRecordData
   if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
-    /*#__NOINLINE__*/ removeDematerializedInverse(
-      graph,
-      relationship as ResourceEdge | ManyRelationship,
-      identifier,
-      silenceNotifications
-    );
+    /*#__NOINLINE__*/ removeDematerializedInverse(graph, relationship, identifier, silenceNotifications);
   }
 }
 

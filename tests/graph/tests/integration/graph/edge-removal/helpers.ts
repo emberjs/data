@@ -1,6 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
-import { ImplicitRelationship } from '@ember-data/graph/-private/graph';
+import type { ImplicitRelationship } from '@ember-data/graph/-private/graph';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';

@@ -1,18 +1,9 @@
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type { UpgradedMeta } from './-edge-definition';
 import { getStore } from './-utils';
 import { Graph, Graphs } from './graph';
-
-export interface ImplicitRelationship {
-  definition: UpgradedMeta;
-  identifier: StableRecordIdentifier;
-  localMembers: Set<StableRecordIdentifier>;
-  remoteMembers: Set<StableRecordIdentifier>;
-}
 
 function isStore(maybeStore: unknown): maybeStore is Store {
   return (maybeStore as Store)._instanceCache !== undefined;
