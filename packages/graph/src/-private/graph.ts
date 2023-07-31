@@ -7,7 +7,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-w
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import type { EdgeCache } from './-edge-definition';
+import type { EdgeCache, UpgradedMeta } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
 import type {
   DeleteRecordOperation,
@@ -61,6 +61,7 @@ export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
  */
 export class Graph {
   declare _definitionCache: EdgeCache;
+  declare _metaCache: Record<string, Record<string, UpgradedMeta>>;
   declare _potentialPolymorphicTypes: Record<string, Record<string, boolean>>;
   declare identifiers: Map<StableRecordIdentifier, Record<string, GraphEdge>>;
   declare store: CacheCapabilitiesManager;
@@ -78,6 +79,7 @@ export class Graph {
 
   constructor(store: CacheCapabilitiesManager) {
     this._definitionCache = Object.create(null) as EdgeCache;
+    this._metaCache = Object.create(null) as Record<string, Record<string, UpgradedMeta>>;
     this._potentialPolymorphicTypes = Object.create(null) as Record<string, Record<string, boolean>>;
     this.identifiers = new Map();
     this.store = store;
@@ -98,6 +100,26 @@ export class Graph {
     return relationships[propertyName] !== undefined;
   }
 
+  getDefinition(identifier: StableRecordIdentifier, propertyName: string): UpgradedMeta {
+    let defs = this._metaCache[identifier.type];
+    let meta: UpgradedMeta | null | undefined = defs?.[propertyName];
+    if (!meta) {
+      const info = /*#__NOINLINE__*/ upgradeDefinition(this, identifier, propertyName);
+      assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
+
+      // if (info.rhs_definition?.kind === 'implicit') {
+      // we should possibly also do this
+      // but it would result in being extremely permissive for other relationships by accident
+      // this.registerPolymorphicType(info.rhs_baseModelName, identifier.type);
+      // }
+
+      meta = /*#__NOINLINE__*/ isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
+      defs = this._metaCache[identifier.type] = defs || {};
+      defs[propertyName] = meta;
+    }
+    return meta;
+  }
+
   get(identifier: StableRecordIdentifier, propertyName: string): GraphEdge {
     assert(`expected propertyName`, propertyName);
     let relationships = this.identifiers.get(identifier);
@@ -108,18 +130,7 @@ export class Graph {
 
     let relationship = relationships[propertyName];
     if (!relationship) {
-      const info = /*#__NOINLINE__*/ upgradeDefinition(this, identifier, propertyName);
-      assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
-
-      if (info.rhs_definition?.kind === 'implicit') {
-        // we should possibly also do this
-        // but it would result in being extremely permissive for other relationships by accident
-        // this.registerPolymorphicType(info.rhs_baseModelName, identifier.type);
-      }
-
-      const meta = /*#__NOINLINE__*/ isLHS(info, identifier.type, propertyName)
-        ? info.lhs_definition
-        : info.rhs_definition!;
+      const meta = this.getDefinition(identifier, propertyName);
 
       if (meta.kind === 'belongsTo') {
         relationship = relationships[propertyName] = createResourceEdge(meta, identifier);
@@ -287,9 +298,9 @@ export class Graph {
     } else if (op.op === 'replaceRelatedRecord') {
       this._pushedUpdates.belongsTo.push(op);
     } else {
-      const relationship = this.get(op.record, op.field);
-      assert(`Cannot push a remote update for an implicit relationship`, !isImplicit(relationship));
-      this._pushedUpdates[relationship.definition.kind as 'belongsTo' | 'hasMany'].push(op);
+      const definition = this.getDefinition(op.record, op.field);
+      assert(`Cannot push a remote update for an implicit relationship`, definition.kind !== 'implicit');
+      this._pushedUpdates[definition.kind].push(op);
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
@@ -356,9 +367,13 @@ export class Graph {
         /*#__NOINLINE__*/ replaceRelatedRecord(this, op, isRemote);
         break;
       case 'addToRelatedRecords':
+        // we will lift this restriction once the cache is allowed to make remote updates directly
+        assert(`Can only perform the operation addToRelatedRecords on local state`, !isRemote);
         /*#__NOINLINE__*/ addToRelatedRecords(this, op, isRemote);
         break;
       case 'removeFromRelatedRecords':
+        // we will lift this restriction once the cache is allowed to make remote updates directly
+        assert(`Can only perform the operation removeFromRelatedRecords on local state`, !isRemote);
         /*#__NOINLINE__*/ removeFromRelatedRecords(this, op, isRemote);
         break;
       case 'replaceRelatedRecords':
