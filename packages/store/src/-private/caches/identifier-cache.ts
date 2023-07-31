@@ -259,13 +259,21 @@ export class IdentifierCache {
     this._merge = method || defaultMergeMethod;
   }
 
+  upgradeIdentifier(resource: { type: string; id: string | null; lid?: string }): StableRecordIdentifier {
+    return this._getRecordIdentifier(resource, 2);
+  }
+
   /**
    * @method _getRecordIdentifier
    * @private
    */
-  _getRecordIdentifier(resource: unknown, shouldGenerate: true): StableRecordIdentifier;
-  _getRecordIdentifier(resource: unknown, shouldGenerate: false): StableRecordIdentifier | undefined;
-  _getRecordIdentifier(resource: unknown, shouldGenerate: boolean): StableRecordIdentifier | undefined {
+  _getRecordIdentifier(
+    resource: { type: string; id: string | null; lid?: string },
+    shouldGenerate: 2
+  ): StableRecordIdentifier;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 1): StableRecordIdentifier;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 0): StableRecordIdentifier | undefined;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 0 | 1 | 2): StableRecordIdentifier | undefined {
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
       console.groupCollapsed(`Identifiers: ${shouldGenerate ? 'Generating' : 'Peeking'} Identifier`, resource);
@@ -307,7 +315,7 @@ export class IdentifierCache {
       return identifier;
     }
 
-    if (shouldGenerate === false) {
+    if (shouldGenerate === 0) {
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
         console.groupEnd();
@@ -316,8 +324,15 @@ export class IdentifierCache {
     }
 
     // if we still don't have an identifier, time to generate one
-    const keyInfo = this._keyInfoForResource(resource, null);
-    identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo.id, keyInfo.type, lid, 'record', false);
+    if (shouldGenerate === 2) {
+      (resource as StableRecordIdentifier).lid = lid;
+      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(resource as StableRecordIdentifier, 'record', false);
+    } else {
+      // we lie a bit here as a memory optimization
+      const keyInfo = this._keyInfoForResource(resource, null) as StableRecordIdentifier;
+      keyInfo.lid = lid;
+      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo, 'record', false);
+    }
 
     addResourceToCache(this._cache, identifier);
 
@@ -340,7 +355,7 @@ export class IdentifierCache {
    * @private
    */
   peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
-    return this._getRecordIdentifier(resource, false);
+    return this._getRecordIdentifier(resource, 0);
   }
 
   /**
@@ -393,7 +408,7 @@ export class IdentifierCache {
     @public
   */
   getOrCreateRecordIdentifier(resource: unknown): StableRecordIdentifier {
-    return this._getRecordIdentifier(resource, true);
+    return this._getRecordIdentifier(resource, 1);
   }
 
   /**
@@ -411,7 +426,11 @@ export class IdentifierCache {
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
-    let identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
+    let identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
+      { id: data.id || null, type: data.type, lid: newLid },
+      'record',
+      true
+    );
 
     // populate our unique table
     if (DEBUG) {
@@ -589,17 +608,10 @@ export class IdentifierCache {
 }
 
 function makeStableRecordIdentifier(
-  _id: string | null,
-  _type: string,
-  _lid: string,
+  recordIdentifier: { type: string; id: string | null; lid: string },
   bucket: IdentifierBucket,
   clientOriginated: boolean
-): Readonly<StableRecordIdentifier> {
-  let recordIdentifier = {
-    lid: _lid,
-    id: _id,
-    type: _type,
-  };
+): StableRecordIdentifier {
   IDENTIFIERS.add(recordIdentifier);
 
   if (DEBUG) {

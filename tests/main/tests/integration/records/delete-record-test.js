@@ -440,8 +440,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     };
 
     // Server push with the group and employee
-    store.push(jsonEmployee);
-    store.push(jsonGroup);
+    store.push(structuredClone(jsonEmployee));
+    store.push(structuredClone(jsonGroup));
 
     group = store.peekRecord('group', '1');
     const groupCompany = await group.company;

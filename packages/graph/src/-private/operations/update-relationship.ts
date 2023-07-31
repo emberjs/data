@@ -1,6 +1,8 @@
 import { assert, warn } from '@ember/debug';
 
+import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { UpdateRelationshipOperation } from '../-operations';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
@@ -41,7 +43,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
           op: 'replaceRelatedRecords',
           record: identifier,
           field: op.field,
-          value: payload.data.map((i) => cache.getOrCreateRecordIdentifier(i)),
+          value: upgradeIdentifiers(payload.data, cache),
         },
         true
       );
@@ -52,7 +54,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
           record: identifier,
           field: op.field,
           value: payload.data
-            ? graph.store.identifierCache.getOrCreateRecordIdentifier(payload.data as ExistingResourceIdentifierObject)
+            ? graph.store.identifierCache.upgradeIdentifier(payload.data as ExistingResourceIdentifierObject)
             : null,
         },
         true
@@ -150,4 +152,14 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
       relationship.state.isStale = false;
     }
   }
+}
+
+export function upgradeIdentifiers(
+  arr: (ExistingResourceIdentifierObject | StableRecordIdentifier)[],
+  cache: IdentifierCache
+): StableRecordIdentifier[] {
+  for (let i = 0; i < arr.length; i++) {
+    arr[i] = cache.upgradeIdentifier(arr[i]);
+  }
+  return arr as StableRecordIdentifier[];
 }
