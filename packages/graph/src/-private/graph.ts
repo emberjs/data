@@ -2,6 +2,7 @@ import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
+import type Store from '@ember-data/store';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
@@ -40,6 +41,13 @@ export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
 
 export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
 
+let transactionRef = 0;
+type PendingOps = {
+  belongsTo?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
+  hasMany?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
+  deletions: DeleteRecordOperation[];
+};
+
 /*
  * Graph acts as the cache for relationship data. It allows for
  * us to ask about and update relationships for a given Identifier
@@ -68,13 +76,10 @@ export class Graph {
   declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
-  declare _pushedUpdates: {
-    belongsTo: RemoteRelationshipOperation[];
-    hasMany: RemoteRelationshipOperation[];
-    deletions: DeleteRecordOperation[];
-  };
+  declare silenceNotifications: boolean;
+  declare _pushedUpdates: PendingOps;
   declare _updatedRelationships: Set<CollectionEdge>;
-  declare _transaction: Set<CollectionEdge | ResourceEdge> | null;
+  declare _transaction: number | null;
   declare _removing: StableRecordIdentifier | null;
 
   constructor(store: CacheCapabilitiesManager) {
@@ -86,10 +91,15 @@ export class Graph {
     this.isDestroyed = false;
     this._willSyncRemote = false;
     this._willSyncLocal = false;
-    this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
+    this._pushedUpdates = {
+      belongsTo: undefined,
+      hasMany: undefined,
+      deletions: [],
+    };
     this._updatedRelationships = new Set();
     this._transaction = null;
     this._removing = null;
+    this.silenceNotifications = false;
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
@@ -152,6 +162,14 @@ export class Graph {
     const relationship = this.get(identifier, propertyName);
 
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
+
+    if (hasPending(this, relationship.definition, identifier, propertyName)) {
+      this.silenceNotifications = true;
+      (this.store as unknown as { _store: Store })._store._join(() => {
+        this._flushRemoteForType(identifier, propertyName);
+      });
+      this.silenceNotifications = false;
+    }
 
     if (isBelongsTo(relationship)) {
       return legacyGetResourceRelationshipData(relationship);
@@ -216,6 +234,7 @@ export class Graph {
    to be do things like remove the comment from the post if the comment were to be deleted.
   */
 
+  // @todo does isReleasable need to account for lazy?
   isReleasable(identifier: StableRecordIdentifier): boolean {
     const relationships = this.identifiers.get(identifier);
     if (!relationships) {
@@ -249,6 +268,7 @@ export class Graph {
     return true;
   }
 
+  // @todo does unload need to account for lazy?
   unload(identifier: StableRecordIdentifier, silenceNotifications?: boolean) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -273,6 +293,7 @@ export class Graph {
     }
   }
 
+  // @todo does unload need to account for lazy?
   remove(identifier: StableRecordIdentifier) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -295,12 +316,10 @@ export class Graph {
     }
     if (op.op === 'deleteRecord') {
       this._pushedUpdates.deletions.push(op);
-    } else if (op.op === 'replaceRelatedRecord') {
-      this._pushedUpdates.belongsTo.push(op);
     } else {
       const definition = this.getDefinition(op.record, op.field);
       assert(`Cannot push a remote update for an implicit relationship`, definition.kind !== 'implicit');
-      this._pushedUpdates[definition.kind].push(op);
+      addPending(this._pushedUpdates, definition, op);
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
@@ -400,25 +419,30 @@ export class Graph {
       // eslint-disable-next-line no-console
       console.groupCollapsed(`Graph: Initialized Transaction`);
     }
-    this._transaction = new Set();
+    this._transaction = ++transactionRef;
     this._willSyncRemote = false;
-    const { deletions, hasMany, belongsTo } = this._pushedUpdates;
-    this._pushedUpdates.deletions = [];
-    this._pushedUpdates.hasMany = [];
-    this._pushedUpdates.belongsTo = [];
+    const updates = this._pushedUpdates;
+    const { deletions, hasMany, belongsTo } = updates;
+    updates.deletions = [];
 
     for (let i = 0; i < deletions.length; i++) {
       this.update(deletions[i], true);
     }
 
-    for (let i = 0; i < hasMany.length; i++) {
-      this.update(hasMany[i], true);
+    if (hasMany) {
+      flushPending(this, hasMany);
+    }
+    if (belongsTo) {
+      flushPending(this, belongsTo);
     }
 
-    for (let i = 0; i < belongsTo.length; i++) {
-      this.update(belongsTo[i], true);
+    this._transaction = null;
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: transaction finalized`);
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
-    this._finalize();
   }
 
   _addToTransaction(relationship: CollectionEdge | ResourceEdge) {
@@ -427,20 +451,64 @@ export class Graph {
       // eslint-disable-next-line no-console
       console.log(`Graph: ${String(relationship.identifier)} ${relationship.definition.key} added to transaction`);
     }
-    relationship.transactionRef++;
-    this._transaction.add(relationship);
+    relationship.transactionRef = this._transaction;
   }
 
-  _finalize() {
-    if (this._transaction) {
-      this._transaction.forEach((v) => (v.transactionRef = 0));
-      this._transaction = null;
-      if (LOG_GRAPH) {
-        // eslint-disable-next-line no-console
-        console.log(`Graph: transaction finalized`);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
+  _flushRemoteForType(identifier: StableRecordIdentifier, field: string) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.groupCollapsed(`Graph: Initialized Transaction`);
+    }
+    this._transaction = ++transactionRef;
+    const updates = this._pushedUpdates;
+    const definition = this.getDefinition(identifier, field);
+    const inversePayloads =
+      definition.inverseKind !== 'implicit'
+        ? updates[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey)
+        : null;
+    const payloads = updates[definition.kind as 'belongsTo' | 'hasMany']
+      ?.get(definition.inverseType)
+      ?.get(definition.key);
+
+    const first = definition.inverseKind === 'hasMany' ? inversePayloads : payloads;
+    const second = definition.inverseKind === 'hasMany' ? payloads : inversePayloads;
+
+    if (first) {
+      for (let i = 0; i < first.length; i++) {
+        this.update(first[i], true);
       }
+    }
+    if (second) {
+      for (let i = 0; i < second.length; i++) {
+        this.update(second[i], true);
+      }
+    }
+    if (payloads) {
+      const typeMap = updates[definition.kind as 'belongsTo' | 'hasMany']!;
+      const fieldMap = typeMap.get(definition.inverseType)!;
+      fieldMap.delete(definition.key);
+      if (fieldMap.size === 0) {
+        typeMap.delete(definition.inverseType);
+      }
+    }
+    if (inversePayloads) {
+      const typeMap = updates[definition.inverseKind as 'belongsTo' | 'hasMany']!;
+      const fieldMap = typeMap.get(definition.type)!;
+
+      if (fieldMap) {
+        fieldMap.delete(definition.inverseKey);
+        if (fieldMap.size === 0) {
+          typeMap.delete(definition.type);
+        }
+      }
+    }
+
+    this._transaction = null;
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: transaction finalized`);
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
   }
 
@@ -474,6 +542,34 @@ export class Graph {
     this.store = null as unknown as CacheCapabilitiesManager;
     this.isDestroyed = true;
   }
+}
+
+type CacheOp = {
+  record: StableRecordIdentifier;
+  field: string;
+};
+
+function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelationshipOperation[]>>) {
+  ops.forEach((type) => {
+    type.forEach((opList) => {
+      flushPendingList(graph, opList);
+    });
+  });
+}
+function flushPendingList(graph: Graph, opList: RemoteRelationshipOperation[]) {
+  for (let i = 0; i < opList.length; i++) {
+    if (isActive(graph, opList[i] as CacheOp)) {
+      graph.update(opList[i], true);
+      i--;
+      opList.splice(i, 1);
+    }
+  }
+}
+
+function isActive(graph: Graph, op: CacheOp): boolean {
+  const relationships = graph.identifiers.get(op.record);
+
+  return Boolean(relationships?.[op.field]);
 }
 
 // Handle dematerialization for relationship `rel`.  In all cases, notify the
@@ -637,4 +733,41 @@ function removeCompletelyFromInverse(graph: Graph, relationship: GraphEdge) {
     relationship.remoteMembers.clear();
     relationship.localMembers.clear();
   }
+}
+
+function addPending(
+  cache: PendingOps,
+  definition: UpgradedMeta,
+  op: RemoteRelationshipOperation & { field: string }
+): void {
+  let lc = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
+    cache[definition.kind as 'hasMany' | 'belongsTo'] || new Map<string, Map<string, RemoteRelationshipOperation[]>>());
+  let lc2 = lc.get(definition.inverseType);
+  if (!lc2) {
+    lc2 = new Map<string, RemoteRelationshipOperation[]>();
+    lc.set(definition.inverseType, lc2);
+  }
+  let arr = lc2.get(op.field);
+  if (!arr) {
+    arr = [];
+    lc2.set(op.field, arr);
+  }
+  arr.push(op);
+}
+
+function hasPending(
+  graph: Graph,
+  definition: UpgradedMeta,
+  identifier: StableRecordIdentifier,
+  field: string
+): boolean {
+  let cache = graph._pushedUpdates;
+  let hasPrimary = cache[definition.kind as 'belongsTo' | 'hasMany']?.get(definition.inverseType)?.get(field);
+  if (hasPrimary) {
+    return true;
+  }
+  if (definition.inverseKind === 'implicit') {
+    return false;
+  }
+  return Boolean(cache[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey));
 }
