@@ -92,7 +92,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 3. Publish the LTS
 
     ```
-    node ./scripts/publish.js lts
+    node ./scripts/publish.js lts --skipSmokeTest /* for older (lts-<major>-<minor>) */
     ```
 
 4. Update the Release Notes on Github
