@@ -74,7 +74,7 @@ For subsequent versions it will be whatever version number we previously publish
 
 To actually generate the changelog, run:
 ```
-yarn lerna-changelog --from=PREVIOUS_VERSION_TAG
+yarn lerna-changelog --from=PREVIOUS_VERSION_TAG /* v<SemVerVersion> */
 ```
 Note: if it is the first time that you use lerna-changelog, you might have to add a token to fetch from Github API:
 https://github.com/lerna/lerna-changelog#github-token 
