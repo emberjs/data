@@ -519,9 +519,15 @@ export class Graph {
       return;
     }
     this._willSyncLocal = false;
+    if (this.silenceNotifications) {
+      this.silenceNotifications = false;
+      this._updatedRelationships = new Set();
+      return;
+    }
     let updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
-    updated.forEach((rel) => /*#__NOINLINE__*/ syncRemoteToLocal(this, rel));
+    // updated.forEach((rel) => /*#__NOINLINE__*/ syncRemoteToLocal(this, rel));
+    updated.forEach((rel) => notifyChange(this, rel.identifier, rel.definition.key));
   }
 
   destroy() {
