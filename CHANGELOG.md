@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## v4.4.2 (2023-08-01)
+
+#### :bug: Bug Fix
+* `model`
+  * [#8713](https://github.com/emberjs/data/pull/8713) Notify on length when notifying that many-array has changed ([@richgt](https://github.com/richgt))
+
+#### Committers: 1
+- Rich Glazerman ([@richgt](https://github.com/richgt))
+
 ## v4.4.0 (2021-05-09)
 ## v4.3.0 (2021-12-30)
 ## v4.2.0 (2021-12-30)
@@ -3029,7 +3038,7 @@ correctly will need a shim for Object.create.
 ### Ember Data 1.0.0-beta.3 _(September 28, 2013)_
 
 - Add `normalizePayload` to `RESTAdapter` for payload normalization that is the same
-  across all requests.
+  across all reqm uests.
 - Add `record.toJSON()`
 - Normalize relationships on payloads returned from saves.
 - Rename `rootForType` to `pathForType` in `RESTAdapter`
