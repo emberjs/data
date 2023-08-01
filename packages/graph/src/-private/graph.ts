@@ -2,6 +2,7 @@ import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
+import type Store from '@ember-data/store';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
@@ -162,6 +163,14 @@ export class Graph {
 
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
 
+    if (hasPending(this, relationship.definition, identifier, propertyName)) {
+      this.silenceNotifications = true;
+      (this.store as unknown as { _store: Store })._store._join(() => {
+        this._flushRemoteForType(identifier, propertyName);
+      });
+      this.silenceNotifications = false;
+    }
+
     if (isBelongsTo(relationship)) {
       return legacyGetResourceRelationshipData(relationship);
     }
@@ -225,6 +234,7 @@ export class Graph {
    to be do things like remove the comment from the post if the comment were to be deleted.
   */
 
+  // @todo does isReleasable need to account for lazy?
   isReleasable(identifier: StableRecordIdentifier): boolean {
     const relationships = this.identifiers.get(identifier);
     if (!relationships) {
@@ -258,6 +268,7 @@ export class Graph {
     return true;
   }
 
+  // @todo does unload need to account for lazy?
   unload(identifier: StableRecordIdentifier, silenceNotifications?: boolean) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -282,6 +293,7 @@ export class Graph {
     }
   }
 
+  // @todo does unload need to account for lazy?
   remove(identifier: StableRecordIdentifier) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -444,6 +456,64 @@ export class Graph {
     relationship.transactionRef = this._transaction;
   }
 
+  _flushRemoteForType(identifier: StableRecordIdentifier, field: string) {
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.groupCollapsed(`Graph: Initialized Transaction`);
+    }
+    this._transaction = ++transactionRef;
+    const updates = this._pushedUpdates;
+    const definition = this.getDefinition(identifier, field);
+    const inversePayloads =
+      definition.inverseKind !== 'implicit'
+        ? updates[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey)
+        : null;
+    const payloads = updates[definition.kind as 'belongsTo' | 'hasMany']
+      ?.get(definition.inverseType)
+      ?.get(definition.key);
+
+    const first = definition.inverseKind === 'hasMany' ? inversePayloads : payloads;
+    const second = definition.inverseKind === 'hasMany' ? payloads : inversePayloads;
+
+    if (first) {
+      for (let i = 0; i < first.length; i++) {
+        this.update(first[i], true);
+      }
+    }
+    if (second) {
+      for (let i = 0; i < second.length; i++) {
+        this.update(second[i], true);
+      }
+    }
+    if (payloads) {
+      const typeMap = updates[definition.kind as 'belongsTo' | 'hasMany']!;
+      const fieldMap = typeMap.get(definition.inverseType)!;
+      fieldMap.delete(definition.key);
+      if (fieldMap.size === 0) {
+        typeMap.delete(definition.inverseType);
+      }
+    }
+    if (inversePayloads) {
+      const typeMap = updates[definition.inverseKind as 'belongsTo' | 'hasMany']!;
+      const fieldMap = typeMap.get(definition.type)!;
+
+      if (fieldMap) {
+        fieldMap.delete(definition.inverseKey);
+        if (fieldMap.size === 0) {
+          typeMap.delete(definition.type);
+        }
+      }
+    }
+
+    this._transaction = null;
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: transaction finalized`);
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
+  }
+
   _flushLocalQueue() {
     if (!this._willSyncLocal) {
       return;
@@ -476,6 +546,11 @@ export class Graph {
   }
 }
 
+type CacheOp = {
+  record: StableRecordIdentifier;
+  field: string;
+};
+
 function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelationshipOperation[]>>) {
   ops.forEach((type) => {
     type.forEach((opList) => {
@@ -485,8 +560,18 @@ function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelations
 }
 function flushPendingList(graph: Graph, opList: RemoteRelationshipOperation[]) {
   for (let i = 0; i < opList.length; i++) {
-    graph.update(opList[i], true);
+    if (isActive(graph, opList[i] as CacheOp)) {
+      graph.update(opList[i], true);
+      i--;
+      opList.splice(i, 1);
+    }
   }
+}
+
+function isActive(graph: Graph, op: CacheOp): boolean {
+  const relationships = graph.identifiers.get(op.record);
+
+  return Boolean(relationships?.[op.field]);
 }
 
 // Handle dematerialization for relationship `rel`.  In all cases, notify the
@@ -670,4 +755,21 @@ function addPending(
     lc2.set(op.field, arr);
   }
   arr.push(op);
+}
+
+function hasPending(
+  graph: Graph,
+  definition: UpgradedMeta,
+  identifier: StableRecordIdentifier,
+  field: string
+): boolean {
+  let cache = graph._pushedUpdates;
+  let hasPrimary = cache[definition.kind as 'belongsTo' | 'hasMany']?.get(definition.inverseType)?.get(field);
+  if (hasPrimary) {
+    return true;
+  }
+  if (definition.inverseKind === 'implicit') {
+    return false;
+  }
+  return Boolean(cache[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey));
 }
