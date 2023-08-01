@@ -542,6 +542,15 @@ This is a re-release of 4.10.0
 - Cameron Dubas ([@camerondubas](https://github.com/camerondubas))
 - Jen Weber ([@jenweber](https://github.com/jenweber))
 
+## v4.4.2 (2023-08-01)
+
+#### :bug: Bug Fix
+* `model`
+  * [#8713](https://github.com/emberjs/data/pull/8713) Notify on length when notifying that many-array has changed ([@richgt](https://github.com/richgt))
+
+#### Committers: 1
+- Rich Glazerman ([@richgt](https://github.com/richgt))
+
 ## v4.1.0 (2021-12-30)
 
 #### :house: Internal
