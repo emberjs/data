@@ -104,9 +104,12 @@ function belongsTo(modelName, options) {
   let opts = options;
   let userEnteredModelName = modelName;
 
-  assert(`Expected belongsTo options.async to be a boolean`, opts && typeof opts.async === 'boolean');
   assert(
-    `Expected belongsTo options.inverse to be either null or the string type of the related resource.`,
+    `Expected options.async from @belongsTo('${userEnteredModelName}', options) to be a boolean`,
+    opts && typeof opts.async === 'boolean'
+  );
+  assert(
+    `Expected options.inverse from @belongsTo('${userEnteredModelName}', options) to be either null or the string type of the related resource.`,
     opts.inverse === null || (typeof opts.inverse === 'string' && opts.inverse.length > 0)
   );
 
