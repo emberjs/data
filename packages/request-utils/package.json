@@ -53,7 +53,7 @@
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-typescript": "^7.22.5",
     "@babel/runtime": "^7.22.6",
-    "@embroider/addon-dev": "^3.2.0",
+    "@embroider/addon-dev": "^4.1.0",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "rollup": "^3.27.2",
