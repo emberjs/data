@@ -1,6 +1,6 @@
 {
   "name": "performance-test-app",
-  "version": "5.3.0-alpha.12",
+  "version": "5.3.0-alpha.13",
   "private": true,
   "description": "Small description for performance-test-app goes here",
   "repository": {
@@ -21,7 +21,7 @@
   "dependencies": {
     "@ember/string": "^3.1.1",
     "ember-auto-import": "^2.6.3",
-    "ember-data": "workspace:5.3.0-alpha.12",
+    "ember-data": "workspace:5.3.0-alpha.13",
     "webpack": "^5.88.2"
   },
   "dependenciesMeta": {
