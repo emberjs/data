@@ -45,7 +45,7 @@
     "ember-cli": "~5.1.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-inflector": "^4.0.2",
-    "ember-source": "~5.1.2",
+    "ember-source": "~5.2.0",
     "mocha": "^10.2.0",
     "silent-error": "^1.1.1"
   },

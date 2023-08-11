@@ -80,7 +80,7 @@
     "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-source": "~5.1.2"
+    "ember-source": "~5.2.0"
   },
   "engines": {
     "node": "16.* || >= 18.*"
