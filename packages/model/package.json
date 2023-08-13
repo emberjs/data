@@ -85,7 +85,7 @@
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "ember-source": "~5.2.0",
-    "rollup": "^3.27.2",
+    "rollup": "^3.28.0",
     "tslib": "^2.6.1",
     "typescript": "^5.1.6",
     "walk-sync": "^3.0.0",
