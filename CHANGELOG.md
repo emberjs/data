@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## 5.2.0 (2023-08-17)
+
+* Re-release of 5.1.2 to keep lockstep pace. This release contains no new work.
 ## 5.1.2 (2023-08-17)
 #### :bug: Bug Fix
 
