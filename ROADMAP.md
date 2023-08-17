@@ -100,16 +100,17 @@ Stretch Goals:
 - Experimental TypeScript Support
 - DataWorker: Background WebWorker+IndexedDB solution for syncing Cache and Requests cross-tabs 
 
+### 🔸 5.4 (Upcoming ~ Mid November)
+
+- Forking support for JSON:API Cache
+- Schema DSL
+
 ### 🔸 5.3 (Upcoming ~ Oct 1, 2023)
 
-- Schema DSL
 - SchemaModel
-- Forking support for JSON:API Cache
 - Refactor @ember-data/model setup/teardown hooks logic to be importable
 
-### 🔸 5.2 (Upcoming ~ Aug 14, 2023)
-
-See the [5.2 Release Checklist](https://github.com/emberjs/data/issues/8743) for the full list of work targetting this release.
+See the [5.3 Release Checklist](https://github.com/emberjs/data/issues/8743) for the full list of work targetting this release.
 
 - **Request Builders**
 
@@ -135,3 +136,8 @@ const resourceDocument = serializeResources(cache, identifier);
 const collectionDocument = serializeResources(cache, [identifier]);
 const resourcePatchDocument = serializePatch(cache, identifier, { include: [] });
 ```
+
+### 🔸 5.2 - 08/17/2023
+
+Due to documentation for request builders and patch utilities for serialization not
+being completed we opted to push those efforts delivery to 5.3.
