@@ -1,5 +1,17 @@
 # Ember Data Changelog
 
+## 5.1.2 (2023-08-17)
+#### :bug: Bug Fix
+
+* [#8750](https://github.com/emberjs/data/pull/8750) Backport into release ([@jrjohnson](https://github.com/jrjohnson))
+  * fix: @ember-data/debug should declare its peer-dependency on @ember-data/store #8703
+  * fix: de-dupe coalescing when includes or adapterOptions is present but still use findRecord #8704
+  * fix: make implicit relationship teardown following delete of related record safe #8705
+  * fix: catch errors during didCommit in DEBUG #8708
+
+#### Committers: 1
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+
 ## 5.1.1 (2023-07-07)
 
 #### :bug: Bug Fix
