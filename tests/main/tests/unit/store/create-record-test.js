@@ -25,7 +25,7 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
     store.instantiateRecord = function (record, properties) {
       assert.step('instantiateRecord');
       assert.strictEqual(properties.unknownProp, 'Unknown prop', 'unknownProp is passed along');
-      assert.strictEqual(properties.recent, true, 'recent is passed along');
+      assert.true(properties.recent, 'recent is passed along');
       return originalInstantiate.apply(this, arguments);
     };
 
@@ -41,9 +41,9 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
     });
 
     assert.strictEqual(record.unknownProp, 'Unknown prop', 'unknownProp is set');
-    assert.strictEqual(record.recent, true, 'recent is set');
+    assert.true(record.recent, 'recent is set');
     assert.strictEqual(classicRecord.unknownProp, 'Unknown prop', 'unknownProp is set');
-    assert.strictEqual(classicRecord.recent, true, 'recent is set');
+    assert.true(classicRecord.recent, 'recent is set');
 
     assert.verifySteps(['instantiateRecord', 'instantiateRecord']);
   });
