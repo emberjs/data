@@ -86,7 +86,7 @@
     "ember-resolver": "^11.0.0",
     "ember-source": "~5.2.0",
     "ember-source-channel-url": "^3.0.0",
-    "ember-try": "^2.0.0",
+    "ember-try": "^3.0.0",
     "loader.js": "^4.7.0",
     "qunit": "^2.19.4",
     "qunit-console-grouper": "^0.3.0",
