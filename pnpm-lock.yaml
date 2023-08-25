@@ -50,8 +50,8 @@ importers:
         specifier: ^0.1.7
         version: 0.1.7
       '@types/jquery':
-        specifier: ^3.5.16
-        version: 3.5.16
+        specifier: ^3.5.17
+        version: 3.5.17
       '@types/qunit':
         specifier: ^2.19.6
         version: 2.19.6
@@ -92,14 +92,14 @@ importers:
         specifier: ^8.10.0
         version: 8.10.0(eslint@8.47.0)
       eslint-plugin-ember:
-        specifier: ^11.10.0
-        version: 11.10.0(eslint@8.47.0)
+        specifier: ^11.11.1
+        version: 11.11.1(eslint@8.47.0)
       eslint-plugin-ember-data:
         specifier: link:packages/unpublished-eslint-rules
         version: link:packages/unpublished-eslint-rules
       eslint-plugin-import:
-        specifier: ^2.28.0
-        version: 2.28.0(@typescript-eslint/parser@5.62.0)(eslint@8.47.0)
+        specifier: ^2.28.1
+        version: 2.28.1(@typescript-eslint/parser@5.62.0)(eslint@8.47.0)
       eslint-plugin-mocha:
         specifier: ^10.1.0
         version: 10.1.0(eslint@8.47.0)
@@ -5983,8 +5983,8 @@ packages:
   /@types/http-errors@2.0.1:
     resolution: {integrity: sha512-/K3ds8TRAfBvi5vfjuz8y6+GiAYBZ0x4tXv1Av6CWBWn0IlADc+ZX9pMq7oU0fNQPnBwIZl3rmeLp6SBApbxSQ==}
 
-  /@types/jquery@3.5.16:
-    resolution: {integrity: sha512-bsI7y4ZgeMkmpG9OM710RRzDFp+w4P1RGiIt30C1mSBT+ExCleeh4HObwgArnDFELmRrOpXgSYN9VF1hj+f1lw==}
+  /@types/jquery@3.5.17:
+    resolution: {integrity: sha512-U40tNEAGSTZ7R1OC6kGkD7f4TKW5DoVx6jd9kTB9mo5truFMi1m9Yohnw9kl1WpTPvDdj7zAw38LfCHSqnk5kA==}
     dependencies:
       '@types/sizzle': 2.3.3
     dev: true
@@ -10598,7 +10598,7 @@ packages:
     resolution: {integrity: sha512-gozW2blMLJCeFpBwugLTGyvVjNoeo1knonXAcatC6bjPBZitotxdWf7Gimr25N4c0AAOo4eOUfaG82IJPDpqCA==}
     dependencies:
       debug: 3.2.7
-      is-core-module: 2.12.1
+      is-core-module: 2.13.0
       resolve: 1.22.3
     transitivePeerDependencies:
       - supports-color
@@ -10633,8 +10633,8 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-ember@11.10.0(eslint@8.47.0):
-    resolution: {integrity: sha512-/5VanfpfzIdmWgXWyQ6ylAJWITu8mXivRce06h0uoifVpUoGaBdAkwuto/PLGfDxWdi43xWUFLb5Tpkhx2MoFg==}
+  /eslint-plugin-ember@11.11.1(eslint@8.47.0):
+    resolution: {integrity: sha512-dvsDa4LkDkGqCE2bzBIguRMi1g40JVwRWMSHmn8S7toRDxSOU3M7yromgi5eSAJX2O2vEvJZ9QnR15YDbvNfVQ==}
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
       eslint: '>= 7'
@@ -10668,8 +10668,8 @@ packages:
       regexpp: 3.2.0
     dev: true
 
-  /eslint-plugin-import@2.28.0(@typescript-eslint/parser@5.62.0)(eslint@8.47.0):
-    resolution: {integrity: sha512-B8s/n+ZluN7sxj9eUf7/pRFERX0r5bnFA2dCaLHy2ZeaQEAz0k+ZZkFWRFHJAqxfxQDx6KLv9LeIki7cFdwW+Q==}
+  /eslint-plugin-import@2.28.1(@typescript-eslint/parser@5.62.0)(eslint@8.47.0):
+    resolution: {integrity: sha512-9I9hFlITvOV55alzoKBI+K9q74kv0iKMeY6av5+umsNwayt59fz692daGyjR+oStBQgx6nwR9rXldDev3Clw+A==}
     engines: {node: '>=4'}
     peerDependencies:
       '@typescript-eslint/parser': '*'
@@ -10689,13 +10689,12 @@ packages:
       eslint-import-resolver-node: 0.3.7
       eslint-module-utils: 2.8.0(@typescript-eslint/parser@5.62.0)(eslint-import-resolver-node@0.3.7)(eslint@8.47.0)
       has: 1.0.3
-      is-core-module: 2.12.1
+      is-core-module: 2.13.0
       is-glob: 4.0.3
       minimatch: 3.1.2
       object.fromentries: 2.0.6
       object.groupby: 1.0.0
       object.values: 1.1.6
-      resolve: 1.22.3
       semver: 6.3.1
       tsconfig-paths: 3.14.2
     transitivePeerDependencies:
@@ -12546,6 +12545,12 @@ packages:
     resolution: {integrity: sha512-Q4ZuBAe2FUsKtyQJoQHlvP8OvBERxO3jEmy1I7hcRXcJBGGHFh/aJBswbXuS9sgrDH2QUO8ilkwNPHvHMd8clg==}
     dependencies:
       has: 1.0.3
+
+  /is-core-module@2.13.0:
+    resolution: {integrity: sha512-Z7dk6Qo8pOCp3l4tsX2C5ZVas4V+UxwQodwZhLopL91TX8UyyHEXafPcyoeeWuLrwzHcr3igO78wNLwHJHsMCQ==}
+    dependencies:
+      has: 1.0.3
+    dev: true
 
   /is-data-descriptor@0.1.4:
     resolution: {integrity: sha512-+w9D5ulSoBNlmw9OHn3U2v51SyoCd0he+bB3xMl62oijhrspxowjU+AIcDY0N3iEJbUEkB15IlMASQsxYigvXg==}
