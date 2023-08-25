@@ -31,15 +31,6 @@ module.exports = function (blueprint) {
       } else {
         type = 'qunit';
       }
-    } else if ('ember-mocha' in dependencies) {
-      let checker = new VersionChecker(this.project);
-      if (fs.existsSync(blueprint.root + '/mocha-rfc-232-files') && checker.for('ember-mocha', 'npm').gte('0.14.0')) {
-        type = 'mocha-rfc-232';
-      } else {
-        type = 'mocha';
-      }
-    } else if ('ember-cli-mocha' in dependencies) {
-      type = 'mocha';
     } else {
       this.ui.writeLine("Couldn't determine test style - using QUnit");
       type = 'qunit';

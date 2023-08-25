@@ -110,48 +110,6 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
         });
       });
     });
-
-    describe('with ember-cli-mocha v0.12+', function () {
-      beforeEach(async function () {
-        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
-      });
-
-      it('serializer-test for mocha v0.12+', function () {
-        let args = ['serializer-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-            fixture(__dirname, 'serializer-test/foo-mocha-0.12.js')
-          );
-        });
-      });
-    });
-
-    describe('with ember-mocha v0.14+', function () {
-      beforeEach(async function () {
-        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
-        await modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.14.0');
-      });
-
-      it('serializer-test for mocha v0.14+', function () {
-        let args = ['serializer-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-            fixture(__dirname, 'serializer-test/mocha-rfc232.js')
-          );
-        });
-      });
-    });
   });
 
   describe('octane', function () {
@@ -246,48 +204,6 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
         });
       });
     });
-
-    describe('with ember-cli-mocha v0.12+', function () {
-      beforeEach(async function () {
-        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
-      });
-
-      it('serializer-test for mocha v0.12+', function () {
-        let args = ['serializer-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-            fixture(__dirname, 'serializer-test/foo-mocha-0.12.js')
-          );
-        });
-      });
-    });
-
-    describe('with ember-mocha v0.14+', function () {
-      beforeEach(async function () {
-        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.14.0');
-      });
-
-      it('serializer-test for mocha v0.14+', function () {
-        let args = ['serializer-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-            fixture(__dirname, 'serializer-test/mocha-rfc232.js')
-          );
-        });
-      });
-    });
   });
 
   describe('in addon', function () {
@@ -301,25 +217,6 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
         return emberGenerateDestroy(['serializer-test', 'foo'], (_file) => {
           expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/rfc232-addon.js')
-          );
-        });
-      });
-    });
-
-    describe('with ember-mocha', function () {
-      beforeEach(async function () {
-        await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.16.2');
-      });
-
-      it('serializer-test foo', function () {
-        return emberGenerateDestroy(['serializer-test', 'foo'], (_file) => {
-          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-            fixture(__dirname, 'serializer-test/mocha-rfc232-addon.js')
           );
         });
       });

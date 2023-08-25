@@ -121,42 +121,6 @@ describe('Acceptance: generate and destroy model blueprints', function () {
         });
       });
     });
-
-    describe('with ember-cli-mocha v0.12+', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
-      });
-
-      it('model-test for mocha v0.12+', function () {
-        let args = ['model-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-mocha-0.12.js'));
-        });
-      });
-    });
-
-    describe('with ember-mocha v0.14+', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.14.0');
-      });
-
-      it('model-test for mocha v0.14+', function () {
-        let args = ['model-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/mocha-rfc232.js'));
-        });
-      });
-    });
   });
 
   describe('octane', function () {
@@ -263,42 +227,6 @@ describe('Acceptance: generate and destroy model blueprints', function () {
         });
       });
     });
-
-    describe('with ember-cli-mocha v0.12+', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
-      });
-
-      it('model-test for mocha v0.12+', function () {
-        let args = ['model-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-mocha-0.12.js'));
-        });
-      });
-    });
-
-    describe('with ember-mocha v0.14+', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.14.0');
-      });
-
-      it('model-test for mocha v0.14+', function () {
-        let args = ['model-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/mocha-rfc232.js'));
-        });
-      });
-    });
   });
 
   describe('in addon', function () {
@@ -311,24 +239,6 @@ describe('Acceptance: generate and destroy model blueprints', function () {
       it('model-test foo', function () {
         return emberGenerateDestroy(['model-test', 'foo'], (_file) => {
           expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232-addon.js'));
-        });
-      });
-    });
-
-    describe('with ember-mocha', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.16.2');
-      });
-
-      it('model-test foo', function () {
-        return emberGenerateDestroy(['model-test', 'foo'], (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(
-            fixture(__dirname, 'model-test/mocha-rfc232-addon.js')
-          );
         });
       });
     });
