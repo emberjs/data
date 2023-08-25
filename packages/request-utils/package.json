@@ -55,7 +55,7 @@
     "@babel/runtime": "^7.22.10",
     "@embroider/addon-dev": "^4.1.0",
     "@rollup/plugin-babel": "^6.0.3",
-    "@rollup/plugin-node-resolve": "^15.2.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
     "rollup": "^3.28.0",
     "tslib": "^2.6.1",
     "typescript": "^5.1.6",
