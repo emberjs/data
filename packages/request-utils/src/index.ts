@@ -451,6 +451,11 @@ function isStale(headers: Headers, expirationTime: number): boolean {
   // const expires = headers.get('expires');
   // const lastModified = headers.get('last-modified');
   const date = headers.get('date');
+
+  if (!date) {
+    return true;
+  }
+
   const time = new Date(date).getTime();
   const now = Date.now();
   const deadline = time + expirationTime;
@@ -472,10 +477,10 @@ export class LifetimesService {
 
   isHardExpired(identifier: StableDocumentIdentifier): boolean {
     const cached = this.store.cache.peekRequest(identifier);
-    return !cached || isStale(cached.response.headers, this.config.apiCacheHardExpires);
+    return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheHardExpires);
   }
   isSoftExpired(identifier: StableDocumentIdentifier): boolean {
     const cached = this.store.cache.peekRequest(identifier);
-    return !cached || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
+    return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
   }
 }

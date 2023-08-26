@@ -179,9 +179,9 @@ export default class JSONAPICache implements Cache {
       doc instanceof Error || (typeof doc.content === 'object' && doc.content !== null)
     );
     if (isErrorDocument(doc)) {
-      return this._putDocument(doc as StructuredErrorDocument<ResourceErrorDocument>);
+      return this._putDocument(doc as StructuredErrorDocument<ResourceErrorDocument>, undefined, undefined);
     } else if (isMetaDocument(doc)) {
-      return this._putDocument(doc);
+      return this._putDocument(doc, undefined, undefined);
     }
 
     const jsonApiDoc = doc.content as SingleResourceDocument | CollectionResourceDocument;
@@ -202,11 +202,19 @@ export default class JSONAPICache implements Cache {
       for (i = 0; i < length; i++) {
         identifiers.push(putOne(this, identifierCache, jsonApiDoc.data[i]));
       }
-      return this._putDocument(doc as StructuredDataDocument<CollectionResourceDocument>, identifiers, included);
+      return this._putDocument(
+        doc as StructuredDataDocument<CollectionResourceDocument>,
+        identifiers,
+        included as StableExistingRecordIdentifier[]
+      );
     }
 
     if (jsonApiDoc.data === null) {
-      return this._putDocument(doc as StructuredDataDocument<SingleResourceDocument>, null, included);
+      return this._putDocument(
+        doc as StructuredDataDocument<SingleResourceDocument>,
+        null,
+        included as StableExistingRecordIdentifier[]
+      );
     }
 
     assert(
@@ -215,11 +223,23 @@ export default class JSONAPICache implements Cache {
     );
 
     let identifier = putOne(this, identifierCache, jsonApiDoc.data);
-    return this._putDocument(doc as StructuredDataDocument<SingleResourceDocument>, identifier, included);
+    return this._putDocument(
+      doc as StructuredDataDocument<SingleResourceDocument>,
+      identifier,
+      included as StableExistingRecordIdentifier[]
+    );
   }
 
-  _putDocument<T extends ResourceErrorDocument>(doc: StructuredErrorDocument<T>): ResourceErrorDocument;
-  _putDocument<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
+  _putDocument<T extends ResourceErrorDocument>(
+    doc: StructuredErrorDocument<T>,
+    data: undefined,
+    included: undefined
+  ): ResourceErrorDocument;
+  _putDocument<T extends ResourceMetaDocument>(
+    doc: StructuredDataDocument<T>,
+    data: undefined,
+    included: undefined
+  ): ResourceMetaDocument;
   _putDocument<T extends SingleResourceDocument>(
     doc: StructuredDataDocument<T>,
     data: StableExistingRecordIdentifier | null,
@@ -232,7 +252,7 @@ export default class JSONAPICache implements Cache {
   ): CollectionResourceDataDocument;
   _putDocument<T extends ResourceDocument>(
     doc: StructuredDocument<T>,
-    data?: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null,
+    data: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null | undefined,
     included: StableExistingRecordIdentifier[] | undefined
   ): SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument | ResourceMetaDocument {
     // @ts-expect-error narrowing within is just horrible  in TS :/
@@ -244,7 +264,9 @@ export default class JSONAPICache implements Cache {
     }
 
     if (included !== undefined) {
-      resourceDocument.included = included;
+      assert(`There should not be included data on an Error document`, !isErrorDocument(doc));
+      assert(`There should not be included data on a Meta document`, !isMetaDocument(doc));
+      (resourceDocument as SingleResourceDataDocument | CollectionResourceDataDocument).included = included;
     }
 
     const request = doc.request as StoreRequestInfo | undefined;
