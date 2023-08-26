@@ -1,15 +1,13 @@
 diff --git a/index.js b/index.js
-index c4c64a8c50480c3c453686492de8f87fa54ae139..04c0bdb4655d6bb3a2cb272ecfd0d5a716798ee2 100644
+index c4c64a8c50480c3c453686492de8f87fa54ae139..ebf8a35dd29bba78484aca3e6423c61790a2cb2a 100644
 --- a/index.js
 +++ b/index.js
-@@ -53,8 +53,9 @@ module.exports = {
+@@ -52,7 +52,7 @@ module.exports = {
+     const emberBabelChecker = this.parentChecker.for('ember-cli-babel', 'npm');
  
      this._usingBabel6 = emberBabelChecker.satisfies('^6.0.0-beta.1');
-     this._usingBabel7 = emberBabelChecker.satisfies('^7.0.0-beta.1');
-+    this._usingBabel8 = emberBabelChecker.satisfies('^8.0.0-beta.1');
+-    this._usingBabel7 = emberBabelChecker.satisfies('^7.0.0-beta.1');
++    this._usingBabel7 = emberBabelChecker.satisfies('^7.0.0-beta.1') || emberBabelChecker.satisfies('^8.0.0-beta.1');
  
--    if (!this._usingBabel6 && !this._usingBabel7) {
-+    if (!this._usingBabel6 && !this._usingBabel7 && !this._usingBabel8) {
+     if (!this._usingBabel6 && !this._usingBabel7) {
        host.project.ui.writeWarnLine(
-         'ember-compatibility-helpers: You are using an unsupported ember-cli-babel version, ' +
-         'compatibility helper tranforms will not be included automatically'
