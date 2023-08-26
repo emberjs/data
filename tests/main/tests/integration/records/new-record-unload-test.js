@@ -4,12 +4,13 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Model, { attr, hasMany } from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Person extends Model {
   @attr name;
   @hasMany('person', { async: true, inverse: 'friends' }) friends;
+  @belongsTo('person', { async: true, inverse: null }) bestFriend;
 }
 
 module('Integration | Records | New Record Unload', function (hooks) {
@@ -60,13 +61,12 @@ module('Integration | Records | New Record Unload', function (hooks) {
     assert.strictEqual(people.length, 1, 'precond - one person left in the store');
   });
 
-  test('Rolling Back Attributes on multiple New (related) Records unloads them safely', async function (assert) {
+  test('Rolling Back Attributes on multiple New (related via async self-reflexive HasMany) Records unloads them safely', async function (assert) {
     const store = this.owner.lookup('service:store');
-    let Pat = store.createRecord('person', { name: 'Patrick Wachter' });
-    let Matt = store.createRecord('person', { name: 'Matthew Seidel' });
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Matt = store.createRecord('person', { name: 'Matthew Seidel', friends: [Pat] });
     const friends = Matt.hasMany('friends').value();
-    friends.push(Pat);
-    let people = store.peekAll('person');
+    const people = store.peekAll('person');
 
     assert.strictEqual(friends.length, 1, 'Matt has friends');
     assert.strictEqual(people.length, 2, 'precond - two people records in the store');
@@ -77,28 +77,59 @@ module('Integration | Records | New Record Unload', function (hooks) {
 
     Pat.rollbackAttributes();
 
-    assert.false(Pat.isDestroyed, 'record is not yet destroyed');
-    assert.true(Pat.isDestroying, 'record is destroying');
-    assert.strictEqual(friends.length, 0, 'Matt has no friends');
-    assert.strictEqual(people.length, 1, 'precond - one person left in the store');
-
-    await settled();
-
-    assert.true(Pat.isDestroyed, 'record is destroyed');
-    assert.true(Pat.isDestroying, 'record is destroying');
+    assert.false(Pat.isDestroyed, 'Pat record is not yet destroyed');
+    assert.true(Pat.isDestroying, 'Pat record is destroying');
     assert.strictEqual(friends.length, 0, 'Matt has no friends');
     assert.strictEqual(people.length, 1, 'precond - one person left in the store');
 
     Matt.rollbackAttributes();
-    assert.false(Matt.isDestroyed, 'record is not yet destroyed');
-    assert.true(Matt.isDestroying, 'record is destroying');
-    assert.strictEqual(people.length, 0, 'precond - no person left in the store');
+    assert.false(Matt.isDestroyed, 'Matt record is not yet destroyed');
+    assert.true(Matt.isDestroying, 'Matt record is destroying');
+    assert.strictEqual(people.length, 0, 'precond - no people left in the store');
 
     await settled();
 
-    assert.true(Matt.isDestroyed, 'record is destroyed');
-    assert.true(Matt.isDestroying, 'record is destroying');
-    assert.strictEqual(people.length, 0, 'precond - one person left in the store');
+    assert.true(Pat.isDestroyed, 'Pat record is destroyed');
+    assert.true(Pat.isDestroying, 'Pat record is destroying');
+    assert.true(Matt.isDestroyed, 'Matt record is destroyed');
+    assert.true(Matt.isDestroying, 'Matt record is destroying');
+    assert.strictEqual(people.length, 0, 'precond - no people left in the store');
+  });
+
+  test('Rolling Back Attributes on multiple New (related via async belongsTo with no inverse) Records unloads them safely', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Matt = store.createRecord('person', { name: 'Matthew Seidel', bestFriend: Pat });
+    let bestFriend = Matt.belongsTo('bestFriend').value();
+    const people = store.peekAll('person');
+
+    assert.strictEqual(people.length, 2, 'precond - two people records in the store');
+    assert.strictEqual(bestFriend, Pat, 'Matt has a best friend');
+    assert.true(Matt.hasDirtyAttributes, 'precond - record has dirty attributes');
+    assert.true(Matt.isNew, 'precond - record is new');
+    assert.true(Pat.hasDirtyAttributes, 'precond - record has dirty attributes');
+    assert.true(Pat.isNew, 'precond - record is new');
+
+    Pat.rollbackAttributes();
+
+    bestFriend = Matt.belongsTo('bestFriend').value();
+    assert.strictEqual(bestFriend, null, 'Matt has no best friend');
+    assert.false(Pat.isDestroyed, 'Pat record is not yet destroyed');
+    assert.true(Pat.isDestroying, 'Pat record is destroying');
+    assert.strictEqual(people.length, 1, 'precond - one person left in the store');
+
+    Matt.rollbackAttributes();
+    assert.false(Matt.isDestroyed, 'Matt record is not yet destroyed');
+    assert.true(Matt.isDestroying, 'Matt record is destroying');
+    assert.strictEqual(people.length, 0, 'precond - no people left in the store');
+
+    await settled();
+
+    assert.true(Pat.isDestroyed, 'Pat record is destroyed');
+    assert.true(Pat.isDestroying, 'Pat record is destroying');
+    assert.true(Matt.isDestroyed, 'Matt record is destroyed');
+    assert.true(Matt.isDestroying, 'Matt record is destroying');
+    assert.strictEqual(people.length, 0, 'precond - no people left in the store');
   });
 
   test('Unload on a New Record unloads that record safely', async function (assert) {

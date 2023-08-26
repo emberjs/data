@@ -1025,11 +1025,7 @@ export default class JSONAPICache implements Cache {
     }
 
     if (cached.isNew) {
-      this.__graph.push({
-        op: 'deleteRecord',
-        record: identifier,
-        isNew: true,
-      });
+      // > Note: Graph removal handled by unloadRecord
       cached.isDeleted = true;
       cached.isNew = false;
     }
@@ -1083,14 +1079,7 @@ export default class JSONAPICache implements Cache {
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
     const cached = this.__peek(identifier, false);
     cached.isDeleted = isDeleted;
-    if (cached.isNew) {
-      // TODO can we delete this since we will do this in unload?
-      this.__graph.push({
-        op: 'deleteRecord',
-        record: identifier,
-        isNew: true,
-      });
-    }
+    // > Note: Graph removal for isNew handled by unloadRecord
     this.__storeWrapper.notifyChange(identifier, 'state');
   }
 

@@ -36,10 +36,12 @@
 			// the reporter is configured to ignore them. This results
 			// in extremely high memory and cpu utilization and eventually
 			// will crash the console.
-			const ignoredLogTypes = new Set(['log', 'warn', 'info', 'group']);
+			const ignoredLogTypes = new Set(['log', 'warn', 'info', 'group', 'debug', 'groupEnd', 'error', 'trace', 'dir']);
 			// restore original functionality
 			ignoredLogTypes.forEach((method) => {
-				console[method] = Testem.console[method];
+        if (Testem.console[method]) {
+          console[method] = Testem.console[method];
+        }
 			});
 
 			// enable debugging memory over time
