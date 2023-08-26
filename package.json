@@ -114,7 +114,6 @@
       "broccoli-merge-trees": "^4.2.0",
       "ember-cli-babel": "^8.0.0",
       "ember-cli-htmlbars": "^6.3.0",
-      "ember-cli-typescript": "^5.2.1",
       "ember-compatibility-helpers": "^1.2.6"
     },
     "peerDependencyRules": {
