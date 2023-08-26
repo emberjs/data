@@ -93,6 +93,12 @@ module('Integration | Records | New Record Unload', function (hooks) {
     assert.false(Matt.isDestroyed, 'record is not yet destroyed');
     assert.true(Matt.isDestroying, 'record is destroying');
     assert.strictEqual(people.length, 0, 'precond - no person left in the store');
+
+    await settled();
+
+    assert.true(Matt.isDestroyed, 'record is destroyed');
+    assert.true(Matt.isDestroying, 'record is destroying');
+    assert.strictEqual(people.length, 0, 'precond - one person left in the store');
   });
 
   test('Unload on a New Record unloads that record safely', async function (assert) {
