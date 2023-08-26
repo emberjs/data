@@ -71,7 +71,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.22.10",
-    "@babel/core": "^7.22.10",
+    "@babel/core": "^7.22.11",
     "@babel/plugin-proposal-decorators": "^7.22.10",
     "@babel/plugin-transform-class-properties": "^7.22.5",
     "@babel/plugin-transform-private-methods": "^7.22.5",
