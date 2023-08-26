@@ -113,7 +113,7 @@
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
       "ember-cli-babel": "^7.26.11",
-      "ember-cli-htmlbars": "^6.2.0"
+      "ember-cli-htmlbars": "^6.3.0"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
