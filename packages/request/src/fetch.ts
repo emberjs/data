@@ -40,6 +40,10 @@ const Fetch = {
     const response = await _fetch(context.request.url!, context.request);
     context.setResponse(response);
 
+    if (!response.headers.has('date')) {
+      response.headers.set('date', new Date().toUTCString());
+    }
+
     // if we are an error, we will want to throw
     if (!response.ok || response.status >= 400) {
       const text = await response.text();

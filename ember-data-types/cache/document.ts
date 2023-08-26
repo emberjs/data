@@ -20,6 +20,7 @@ export interface SingleResourceDataDocument<T = StableExistingRecordIdentifier> 
   links?: Links | PaginationLinks;
   meta?: Meta;
   data: T | null;
+  included?: T[];
 }
 
 export interface CollectionResourceDataDocument<T = StableExistingRecordIdentifier> {
@@ -28,6 +29,7 @@ export interface CollectionResourceDataDocument<T = StableExistingRecordIdentifi
   links?: Links | PaginationLinks;
   meta?: Meta;
   data: T[];
+  included?: T[];
 }
 
 export type ResourceDataDocument<T = StableExistingRecordIdentifier> =

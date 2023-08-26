@@ -1,5 +1,8 @@
 import { assert } from '@ember/debug';
 
+import type Store from '@ember-data/store';
+import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+
 /**
  * Simple utility function to assist in url building,
  * query params, and other common request operations.
@@ -384,4 +387,95 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
 
 export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
   return sortQueryParams(params, options).toString();
+}
+export interface CacheControlValue {
+  immutable?: boolean;
+  'max-age'?: number;
+  'must-revalidate'?: boolean;
+  'must-understand'?: boolean;
+  'no-cache'?: boolean;
+  'no-store'?: boolean;
+  'no-transform'?: boolean;
+  'only-if-cached'?: boolean;
+  private?: boolean;
+  'proxy-revalidate'?: boolean;
+  public?: boolean;
+  's-maxage'?: number;
+  'stale-if-error'?: number;
+  'stale-while-revalidate'?: number;
+}
+
+const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-while-revalidate']);
+
+export function parseCacheControl(header: string): CacheControlValue {
+  let key = '';
+  let value = '';
+  let isParsingKey = true;
+  let cacheControlValue: CacheControlValue = {};
+
+  for (let i = 0; i < header.length; i++) {
+    let char = header.charAt(i);
+    if (char === ',') {
+      assert(`Invalid Cache-Control value, expected a value`, !isParsingKey || !NUMERIC_KEYS.has(key));
+      assert(
+        `Invalid Cache-Control value, expected a value after "=" but got ","`,
+        i === 0 || header.charAt(i - 1) !== '='
+      );
+      isParsingKey = true;
+      cacheControlValue[key] = NUMERIC_KEYS.has(key) ? Number.parseInt(value) : true;
+      key = '';
+      value = '';
+      continue;
+    } else if (char === '=') {
+      assert(`Invalid Cache-Control value, expected a value after "="`, i + 1 !== header.length);
+      isParsingKey = false;
+    } else if (char === ' ' || char === `\t` || char === `\n`) {
+      continue;
+    } else if (isParsingKey) {
+      key += char;
+    } else {
+      value += char;
+    }
+
+    if (i === header.length - 1) {
+      cacheControlValue[key] = NUMERIC_KEYS.has(key) ? Number.parseInt(value) : true;
+    }
+  }
+
+  return cacheControlValue;
+}
+
+function isStale(headers: Headers, expirationTime: number): boolean {
+  // const age = headers.get('age');
+  // const cacheControl = parseCacheControl(headers.get('cache-control') || '');
+  // const expires = headers.get('expires');
+  // const lastModified = headers.get('last-modified');
+  const date = headers.get('date');
+  const time = new Date(date).getTime();
+  const now = Date.now();
+  const deadline = time + expirationTime;
+
+  const result = now > deadline;
+
+  return result;
+}
+
+export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: number };
+
+export class LifetimesService {
+  declare store: Store;
+  declare config: LifetimesConfig;
+  constructor(store: Store, config: LifetimesConfig) {
+    this.store = store;
+    this.config = config;
+  }
+
+  isHardExpired(identifier: StableDocumentIdentifier): boolean {
+    const cached = this.store.cache.peekRequest(identifier);
+    return !cached || isStale(cached.response.headers, this.config.apiCacheHardExpires);
+  }
+  isSoftExpired(identifier: StableDocumentIdentifier): boolean {
+    const cached = this.store.cache.peekRequest(identifier);
+    return !cached || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
+  }
 }
