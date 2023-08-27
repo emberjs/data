@@ -125,7 +125,7 @@ class TestRecordData implements Cache {
   mutate(operation: LocalRelationshipOperation): void {
     throw new Error('Method not implemented.');
   }
-  version: '2' = '2';
+  version = '2' as const;
 
   _errors?: JsonApiError[];
   _isNew: boolean = false;

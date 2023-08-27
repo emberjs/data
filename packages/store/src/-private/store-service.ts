@@ -64,8 +64,6 @@ import normalizeModelName from './utils/normalize-model-name';
 
 export { storeFor };
 
-export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
 export interface CreateRecordProperties {
   id?: string | null;
   [key: string]: unknown;
@@ -2392,8 +2390,8 @@ class Store extends EmberObject {
 
 export default Store;
 
-let assertDestroyingStore: Function;
-let assertDestroyedStoreOnly: Function;
+let assertDestroyingStore: (store: Store, method: string) => void;
+let assertDestroyedStoreOnly: (store: Store, method: string) => void;
 
 if (DEBUG) {
   // eslint-disable-next-line @typescript-eslint/no-shadow

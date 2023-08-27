@@ -428,7 +428,7 @@ class IdentifierArray {
 
     if (DEBUG) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.hasMixin = (mixin: object) => {
         assert(`Do not call A() on EmberData RecordArrays`);
       };
     }
@@ -466,7 +466,7 @@ class IdentifierArray {
     this.isUpdating = true;
 
     let updatingPromise = this._update();
-    updatingPromise.finally(() => {
+    void updatingPromise.finally(() => {
       this._updatingPromise = null;
       if (this.isDestroying || this.isDestroyed) {
         return;

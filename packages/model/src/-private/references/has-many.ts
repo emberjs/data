@@ -58,9 +58,9 @@ export default class HasManyReference {
   declare store: Store;
 
   // unsubscribe tokens given to us by the notification manager
-  ___token!: Object;
+  ___token!: object;
   ___identifier: StableRecordIdentifier;
-  ___relatedTokenMap!: Map<StableRecordIdentifier, Object>;
+  ___relatedTokenMap!: Map<StableRecordIdentifier, object>;
 
   @tracked _ref = 0;
 

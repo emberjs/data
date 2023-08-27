@@ -535,7 +535,11 @@ module('Integration | Identifiers - configuration', function (hooks) {
       forgetMethodCalls++;
       let expectedIdentifier = expectedIdentifiers.shift();
       if (expectedIdentifier) {
-        assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
+        assert.strictEqual(
+          expectedIdentifier,
+          identifier,
+          `We forgot the expected identifier ${expectedIdentifier.lid}`
+        );
       } else {
         assert.ok(false, 'Missing expected identifier');
       }

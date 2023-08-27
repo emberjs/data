@@ -24,6 +24,7 @@ export interface BelongsToProxyCreateArgs {
 }
 
 interface PromiseObjectType<T> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
+  // eslint-disable-next-line @typescript-eslint/no-misused-new
   new <PT>(...args: unknown[]): PromiseObjectType<PT>;
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

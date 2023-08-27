@@ -18,8 +18,6 @@ import { RecordInstance } from '@ember-data/types/q/record-instance';
 
 import { Document } from './document';
 
-export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
 export interface LifetimesService {
   isHardExpired(identifier: StableDocumentIdentifier): boolean;
   isSoftExpired(identifier: StableDocumentIdentifier): boolean;

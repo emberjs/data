@@ -235,6 +235,7 @@ module('RequestManager | Graceful Errors', function () {
         integrity: false,
         // @ts-expect-error
         keepalive: 'yes',
+        // @ts-expect-error
         method: 'get',
         // @ts-expect-error
         mode: 'find-out',
