@@ -1,7 +1,10 @@
 import { assert, warn } from '@ember/debug';
 
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type {
+  ExistingResourceIdentifierObject,
+  NewResourceIdentifierObject,
+} from '@ember-data/types/q/ember-data-json-api';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { UpdateRelationshipOperation } from '../-operations';
@@ -155,7 +158,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
 }
 
 export function upgradeIdentifiers(
-  arr: (ExistingResourceIdentifierObject | StableRecordIdentifier)[],
+  arr: (ExistingResourceIdentifierObject | NewResourceIdentifierObject | StableRecordIdentifier)[],
   cache: IdentifierCache
 ): StableRecordIdentifier[] {
   for (let i = 0; i < arr.length; i++) {

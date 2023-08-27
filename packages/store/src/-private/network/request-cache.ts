@@ -11,7 +11,7 @@ import type {
   RequestState,
   SaveRecordMutation,
 } from '@ember-data/types/q/fetch-manager';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import Store from '../store-service';
 
@@ -20,7 +20,7 @@ export const RequestPromise: unique symbol = Symbol('promise');
 const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as RequestState[]) : [];
 
 interface InternalRequest extends RequestState {
-  [Touching]: RecordIdentifier[];
+  [Touching]: StableRecordIdentifier[];
   [RequestPromise]?: Promise<unknown>;
 }
 
@@ -193,7 +193,7 @@ export default class RequestStateService {
    * @param {StableRecordIdentifier} identifier
    * @param {(state: RequestState) => void} callback
    */
-  subscribeForRecord(identifier: RecordIdentifier, callback: RequestSubscription) {
+  subscribeForRecord(identifier: StableRecordIdentifier, callback: RequestSubscription) {
     let subscriptions = this._subscriptions.get(identifier);
     if (!subscriptions) {
       subscriptions = [];
@@ -222,7 +222,7 @@ export default class RequestStateService {
    * @param {StableRecordIdentifier} identifier
    * @returns {RequestState | null} the state of the most recent request for the given identifier
    */
-  getLastRequestForRecord(identifier: RecordIdentifier): RequestState | null {
+  getLastRequestForRecord(identifier: StableRecordIdentifier): RequestState | null {
     let requests = this._done.get(identifier);
     if (requests) {
       return requests[requests.length - 1];

@@ -1,20 +1,20 @@
-import type { RecordIdentifier } from './identifier';
+import type { StableRecordIdentifier } from './identifier';
 
 export interface Operation {
   op: string;
   options: Record<string, unknown> | undefined;
-  recordIdentifier: RecordIdentifier;
+  recordIdentifier: StableRecordIdentifier;
 }
 
 export interface FindRecordQuery extends Operation {
   op: 'findRecord';
-  recordIdentifier: RecordIdentifier;
+  recordIdentifier: StableRecordIdentifier;
   options: any;
 }
 
 export interface SaveRecordMutation extends Operation {
   op: 'saveRecord';
-  recordIdentifier: RecordIdentifier;
+  recordIdentifier: StableRecordIdentifier;
   options: any;
 }
 
