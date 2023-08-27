@@ -30,8 +30,8 @@ importers:
         specifier: ^7.22.11
         version: 7.22.11
       '@babel/eslint-parser':
-        specifier: ^7.22.10
-        version: 7.22.10(@babel/core@7.22.11)(eslint@8.47.0)
+        specifier: ^7.22.11
+        version: 7.22.11(@babel/core@7.22.11)(eslint@8.47.0)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.22.10
         version: 7.22.10(@babel/core@7.22.11)
@@ -3239,8 +3239,8 @@ packages:
       - supports-color
     dev: true
 
-  /@babel/eslint-parser@7.22.10(@babel/core@7.22.11)(eslint@8.47.0):
-    resolution: {integrity: sha512-0J8DNPRXQRLeR9rPaUMM3fA+RbixjnVLe/MRMYCkp3hzgsSuxCHQ8NN8xQG1wIHKJ4a1DTROTvFJdW+B5/eOsg==}
+  /@babel/eslint-parser@7.22.11(@babel/core@7.22.11)(eslint@8.47.0):
+    resolution: {integrity: sha512-YjOYZ3j7TjV8OhLW6NCtyg8G04uStATEUe5eiLuCZaXz2VSDQ3dsAtm2D+TuQyAqNMUK2WacGo0/uma9Pein1w==}
     engines: {node: ^10.13.0 || ^12.13.0 || >=14.0.0}
     peerDependencies:
       '@babel/core': ^7.11.0
@@ -6167,7 +6167,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
       '@typescript-eslint/types': 5.62.0
-      eslint-visitor-keys: 3.4.1
+      eslint-visitor-keys: 3.4.3
     dev: true
 
   /@webassemblyjs/ast@1.11.6:
@@ -10724,11 +10724,6 @@ packages:
   /eslint-visitor-keys@2.1.0:
     resolution: {integrity: sha512-0rSmRBzXgDzIsD6mGdJgevzgezI534Cer5L/vyMX0kHzT/jiB43jRhd9YUlMGYLQy2zprNmoT8qasCGtY+QaKw==}
     engines: {node: '>=10'}
-    dev: true
-
-  /eslint-visitor-keys@3.4.1:
-    resolution: {integrity: sha512-pZnmmLwYzf+kWaM/Qgrvpen51upAktaaiI01nsJD/Yr3lMOdNtq0cxkrrg16w64VtisN6okbs7Q8AfGqj4c9fA==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
   /eslint-visitor-keys@3.4.3:
