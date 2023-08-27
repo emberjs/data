@@ -24,7 +24,12 @@ import type {
 } from '@ember-data/types/q/identifier';
 
 import coerceId from '../utils/coerce-id';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifier-debug-consts';
+import {
+  CACHE_OWNER,
+  DEBUG_CLIENT_ORIGINATED,
+  DEBUG_IDENTIFIER_BUCKET,
+  STALE_CACHE_OWNER,
+} from '../utils/identifier-debug-consts';
 import normalizeModelName from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';
 import { hasId, hasLid, hasType } from './resource-utils';
@@ -33,7 +38,7 @@ const IDENTIFIERS = new Set();
 const DOCUMENTS = new Set();
 
 export function isStableIdentifier(identifier: unknown): identifier is StableRecordIdentifier {
-  return (identifier as { __warpDriveCache: number }).__warpDriveCache !== undefined || IDENTIFIERS.has(identifier);
+  return (identifier as StableRecordIdentifier)[CACHE_OWNER] !== undefined || IDENTIFIERS.has(identifier);
 }
 
 export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
@@ -329,17 +334,13 @@ export class IdentifierCache {
     // if we still don't have an identifier, time to generate one
     if (shouldGenerate === 2) {
       (resource as StableRecordIdentifier).lid = lid;
-      (resource as { __warpDriveCache: number }).__warpDriveCache = this._id;
-      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
-        resource as StableRecordIdentifier & { __warpDriveCache: number },
-        'record',
-        false
-      );
+      (resource as StableRecordIdentifier)[CACHE_OWNER] = this._id;
+      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(resource as StableRecordIdentifier, 'record', false);
     } else {
       // we lie a bit here as a memory optimization
-      const keyInfo = this._keyInfoForResource(resource, null) as StableRecordIdentifier & { __warpDriveCache: number };
+      const keyInfo = this._keyInfoForResource(resource, null) as StableRecordIdentifier;
       keyInfo.lid = lid;
-      keyInfo.__warpDriveCache = this._id;
+      keyInfo[CACHE_OWNER] = this._id;
       identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo, 'record', false);
     }
 
@@ -436,7 +437,7 @@ export class IdentifierCache {
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
     let identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
-      { id: data.id || null, type: data.type, lid: newLid, __warpDriveCache: this._id },
+      { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id, [STALE_CACHE_OWNER]: undefined },
       'record',
       true
     );
@@ -599,11 +600,8 @@ export class IdentifierCache {
     this._cache.resources.delete(identifier.lid);
     typeSet.lid.delete(identifier.lid);
 
-    (identifier as unknown as { __warpDriveOldCache: number }).__warpDriveOldCache = (
-      identifier as unknown as { __warpDriveCache: number }
-    ).__warpDriveCache;
-    (identifier as unknown as { __warpDriveCache: undefined; __warpDriveOldCache: number }).__warpDriveCache =
-      undefined;
+    identifier[STALE_CACHE_OWNER] = identifier[CACHE_OWNER];
+    identifier[CACHE_OWNER] = undefined;
     IDENTIFIERS.delete(identifier);
     this._forget(identifier, 'record');
     if (LOG_IDENTIFIERS) {
@@ -626,8 +624,8 @@ function makeStableRecordIdentifier(
     type: string;
     id: string | null;
     lid: string;
-    __warpDriveCache: number;
-    __warpDriveOldCache?: number;
+    [CACHE_OWNER]: number | undefined;
+    [STALE_CACHE_OWNER]: number | undefined;
   },
   bucket: IdentifierBucket,
   clientOriginated: boolean
@@ -637,7 +635,7 @@ function makeStableRecordIdentifier(
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
-    let wrapper = {
+    let wrapper: StableRecordIdentifier = {
       get lid() {
         return recordIdentifier.lid;
       },
@@ -647,18 +645,19 @@ function makeStableRecordIdentifier(
       get type() {
         return recordIdentifier.type;
       },
-      get __warpDriveCache() {
-        return recordIdentifier.__warpDriveCache;
+      get [CACHE_OWNER](): number | undefined {
+        return recordIdentifier[CACHE_OWNER];
       },
-      set __warpDriveCache(value: number) {
-        recordIdentifier.__warpDriveCache = value;
+      set [CACHE_OWNER](value: number) {
+        recordIdentifier[CACHE_OWNER] = value;
       },
-      get __warpDriveOldCache() {
-        return recordIdentifier.__warpDriveOldCache;
+      get [STALE_CACHE_OWNER](): number | undefined {
+        return recordIdentifier[STALE_CACHE_OWNER];
       },
-      set __warpDriveOldCache(value: number | undefined) {
-        recordIdentifier.__warpDriveOldCache = value;
+      set [STALE_CACHE_OWNER](value: number | undefined) {
+        recordIdentifier[STALE_CACHE_OWNER] = value;
       },
+      // @ts-expect-error debug only
       toString() {
         const { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${String(type)}:${String(id)} (${lid})`;
