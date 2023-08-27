@@ -622,7 +622,13 @@ export class IdentifierCache {
 }
 
 function makeStableRecordIdentifier(
-  recordIdentifier: { type: string; id: string | null; lid: string; __warpDriveCache: number },
+  recordIdentifier: {
+    type: string;
+    id: string | null;
+    lid: string;
+    __warpDriveCache: number;
+    __warpDriveOldCache?: number;
+  },
   bucket: IdentifierBucket,
   clientOriginated: boolean
 ): StableRecordIdentifier {
@@ -641,6 +647,18 @@ function makeStableRecordIdentifier(
       get type() {
         return recordIdentifier.type;
       },
+      get __warpDriveCache() {
+        return recordIdentifier.__warpDriveCache;
+      },
+      set __warpDriveCache(value: number) {
+        recordIdentifier.__warpDriveCache = value;
+      },
+      get __warpDriveOldCache() {
+        return recordIdentifier.__warpDriveOldCache;
+      },
+      set __warpDriveOldCache(value: number | undefined) {
+        recordIdentifier.__warpDriveOldCache = value;
+      },
       toString() {
         const { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${String(type)}:${String(id)} (${lid})`;
@@ -650,10 +668,6 @@ function makeStableRecordIdentifier(
         return { type, id, lid };
       },
     };
-    // @ts-expect-error private api
-    wrapper.__warpDriveCache = recordIdentifier.__warpDriveCache;
-    // @ts-expect-error private api
-    wrapper.__warpDriveOldCache = undefined;
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
     wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
     IDENTIFIERS.add(wrapper);
