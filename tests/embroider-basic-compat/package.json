@@ -37,8 +37,8 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.22.10",
-    "@babel/runtime": "^7.22.10",
+    "@babel/core": "^7.22.11",
+    "@babel/runtime": "^7.22.11",
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.3",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^3.2.0",

@@ -31,11 +31,11 @@
     "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.10",
+    "@babel/core": "^7.22.11",
     "@babel/eslint-parser": "^7.22.10",
     "@babel/plugin-proposal-decorators": "^7.22.10",
-    "@babel/plugin-transform-typescript": "^7.22.10",
-    "@babel/runtime": "^7.22.10",
+    "@babel/plugin-transform-typescript": "^7.22.11",
+    "@babel/runtime": "^7.22.11",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.1.1",
@@ -112,8 +112,10 @@
       "@embroider/macros": "^1.12.2",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
-      "ember-cli-babel": "^7.26.11",
-      "ember-cli-htmlbars": "^6.3.0"
+      "ember-cli-babel": "^8.0.0",
+      "ember-cli-htmlbars": "^6.3.0",
+      "ember-cli-typescript": "^5.2.1",
+      "ember-compatibility-helpers": "^1.2.6"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
@@ -125,6 +127,10 @@
         "ember-source",
         "typescript"
       ]
+    },
+    "patchedDependencies": {
+      "ember-compatibility-helpers@1.2.6": "patches/ember-compatibility-helpers@1.2.6.patch",
+      "ember-cli-babel@8.0.0": "patches/ember-cli-babel@8.0.0.patch"
     }
   }
 }

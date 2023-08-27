@@ -29,7 +29,8 @@
     "@embroider/macros": "^1.13.1",
     "ember-auto-import": "^2.6.3",
     "webpack": "^5.88.2",
-    "ember-cli-babel": "^8.0.0"
+    "ember-cli-babel": "^8.0.0",
+    "@babel/core": "^7.22.11"
   },
   "engines": {
     "node": "16.* || >= 18.*"

@@ -1,0 +1,17 @@
+diff --git a/index.js b/index.js
+index 9460485df9f86b0897ead0abac6de52f485849c3..3993956f96ba2d4bf67819ec10ac72264bd2fa2b 100644
+--- a/index.js
++++ b/index.js
+@@ -181,6 +181,12 @@ module.exports = {
+       },
+     };
+ 
++    Object.keys(options.babel).forEach((key) => {
++      if (options.babel[key] === undefined) {
++        delete options.babel[key];
++      }
++    });
++
+     let output;
+ 
+     const customAddonConfig = config['ember-cli-babel'];
