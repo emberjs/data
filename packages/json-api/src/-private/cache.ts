@@ -868,7 +868,16 @@ export default class JSONAPICache implements Cache {
     const removeFromRecordArray = !this.isDeletionCommitted(identifier);
     let removed = false;
     const cached = this.__peek(identifier, false);
-    peekGraph(storeWrapper)?.unload(identifier);
+
+    if (cached.isNew) {
+      peekGraph(storeWrapper)?.push({
+        op: 'deleteRecord',
+        record: identifier,
+        isNew: true,
+      });
+    } else {
+      peekGraph(storeWrapper)?.unload(identifier);
+    }
 
     // effectively clearing these is ensuring that
     // we report as `isEmpty` during teardown.

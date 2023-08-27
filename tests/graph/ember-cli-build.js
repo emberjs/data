@@ -8,6 +8,9 @@ module.exports = function (defaults) {
   let app = new EmberApp(defaults, {
     emberData: {
       compatWith,
+      debug: {
+        // LOG_GRAPH: true,
+      },
     },
     babel: {
       // this ensures that the same build-time code stripping that is done
