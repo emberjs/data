@@ -7,7 +7,7 @@ import {
   CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
-  STALE_CACHE_OWNER,
+  DEBUG_STALE_CACHE_OWNER,
 } from '@ember-data/store/-private/utils/identifier-debug-consts';
 
 import type { ExistingResourceObject, ResourceIdentifierObject } from './ember-data-json-api';
@@ -67,7 +67,7 @@ export interface StableExistingRecordIdentifier extends StableIdentifier {
   type: string;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
   [CACHE_OWNER]: number | undefined;
-  [STALE_CACHE_OWNER]: number | undefined;
+  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 /**
  * Used when a StableRecordIdentifier was created locally
@@ -85,7 +85,7 @@ export interface StableNewRecordIdentifier extends StableIdentifier {
   type: string;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
   [CACHE_OWNER]: number | undefined;
-  [STALE_CACHE_OWNER]: number | undefined;
+  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
 /**

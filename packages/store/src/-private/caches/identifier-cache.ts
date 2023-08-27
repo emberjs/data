@@ -28,7 +28,7 @@ import {
   CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
-  STALE_CACHE_OWNER,
+  DEBUG_STALE_CACHE_OWNER,
 } from '../utils/identifier-debug-consts';
 import normalizeModelName from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';
@@ -437,7 +437,7 @@ export class IdentifierCache {
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
     let identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
-      { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id, [STALE_CACHE_OWNER]: undefined },
+      { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id },
       'record',
       true
     );
@@ -600,7 +600,9 @@ export class IdentifierCache {
     this._cache.resources.delete(identifier.lid);
     typeSet.lid.delete(identifier.lid);
 
-    identifier[STALE_CACHE_OWNER] = identifier[CACHE_OWNER];
+    if (DEBUG) {
+      identifier[DEBUG_STALE_CACHE_OWNER] = identifier[CACHE_OWNER];
+    }
     identifier[CACHE_OWNER] = undefined;
     IDENTIFIERS.delete(identifier);
     this._forget(identifier, 'record');
@@ -625,7 +627,6 @@ function makeStableRecordIdentifier(
     id: string | null;
     lid: string;
     [CACHE_OWNER]: number | undefined;
-    [STALE_CACHE_OWNER]: number | undefined;
   },
   bucket: IdentifierBucket,
   clientOriginated: boolean
@@ -651,11 +652,11 @@ function makeStableRecordIdentifier(
       set [CACHE_OWNER](value: number) {
         recordIdentifier[CACHE_OWNER] = value;
       },
-      get [STALE_CACHE_OWNER](): number | undefined {
-        return recordIdentifier[STALE_CACHE_OWNER];
+      get [DEBUG_STALE_CACHE_OWNER](): number | undefined {
+        return (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER];
       },
-      set [STALE_CACHE_OWNER](value: number | undefined) {
-        recordIdentifier[STALE_CACHE_OWNER] = value;
+      set [DEBUG_STALE_CACHE_OWNER](value: number | undefined) {
+        recordIdentifier[DEBUG_STALE_CACHE_OWNER] = value;
       },
       // @ts-expect-error debug only
       toString() {
