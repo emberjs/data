@@ -7,7 +7,12 @@ import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 
 type SerializerWithSerializeIntoHash = MinimumSerializerInterface & {
-  serializeIntoHash?(hash: {}, modelClass: ModelSchema, snapshot: Snapshot, options?: { includeId?: boolean }): void;
+  serializeIntoHash?(
+    hash: object,
+    modelClass: ModelSchema,
+    snapshot: Snapshot,
+    options?: { includeId?: boolean }
+  ): void;
 };
 
 export default function serializeIntoHash(

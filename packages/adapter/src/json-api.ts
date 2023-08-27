@@ -7,6 +7,7 @@ import { dasherize } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
+import type { HTTPMethod } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
@@ -173,7 +174,7 @@ class JSONAPIAdapter extends RESTAdapter {
   */
   ajaxOptions(
     url: string,
-    type: string,
+    type: HTTPMethod,
     options: JQueryAjaxSettings | RequestInit = {}
   ): JQueryRequestInit | FetchRequestInit {
     let hash = super.ajaxOptions(url, type, options);

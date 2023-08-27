@@ -57,7 +57,7 @@ class House extends Model {
 }
 
 class TestRecordData implements Cache {
-  version: '2' = '2';
+  version = '2' as const;
 
   _errors?: JsonApiError[];
   _isNew: boolean = false;

@@ -276,7 +276,7 @@ export default class RecordState {
 
   updateInvalidErrors(errors) {
     assert(
-      `Expected the Cache instance for ${this.identifier}  to implement getErrors(identifier)`,
+      `Expected the Cache instance for ${this.identifier.lid}  to implement getErrors(identifier)`,
       typeof this.cache.getErrors === 'function'
     );
     let jsonApiErrors = this.cache.getErrors(this.identifier);

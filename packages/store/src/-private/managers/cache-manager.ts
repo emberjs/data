@@ -36,7 +36,7 @@ import type { StoreRequestContext } from '../cache-handler';
  * @public
  */
 export class CacheManager implements Cache {
-  version: '2' = '2';
+  version = '2' as const;
 
   #cache: Cache;
 

@@ -5,6 +5,8 @@
 import type Store from '@ember-data/store';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
+
 interface Request {
   controller?: AbortController;
   /* Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. */
@@ -20,7 +22,7 @@ interface Request {
   /* Returns a boolean indicating whether or not request can outlive the global in which it was created. */
   keepalive?: boolean;
   /* Returns request's HTTP method, which is "GET" by default. */
-  method?: string;
+  method?: HTTPMethod;
   /* Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs. */
   mode?: RequestMode;
   /* Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default. */
@@ -154,7 +156,7 @@ export interface ImmutableRequestInfo {
   /* Returns a boolean indicating whether or not request can outlive the global in which it was created. */
   readonly keepalive?: boolean;
   /* Returns request's HTTP method, which is "GET" by default. */
-  readonly method?: string;
+  readonly method?: HTTPMethod;
   /* Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs. */
   readonly mode?: RequestMode;
   /* Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default. */

@@ -8,6 +8,7 @@ import { join } from '@ember/runloop';
 
 import { DEBUG } from '@ember-data/env';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
+import type { HTTPMethod } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
@@ -36,9 +37,9 @@ type QueryState = {
 
 export interface FetchRequestInit extends RequestInit {
   url: string;
-  method: string;
-  type: string;
-  contentType?: any;
+  method: HTTPMethod;
+  type: HTTPMethod;
+  contentType?: string | false;
   body?: any;
   data?: any;
   cache?: any;
@@ -47,13 +48,13 @@ export interface FetchRequestInit extends RequestInit {
 
 export interface JQueryRequestInit extends JQueryAjaxSettings {
   url: string;
-  method: string;
-  type: string;
+  method: HTTPMethod;
+  type: HTTPMethod;
 }
 
 export type RequestData = {
   url: string;
-  method: string;
+  method: HTTPMethod;
   [key: string]: any;
 };
 
@@ -1081,40 +1082,24 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Promise} promise
   */
-  async ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<AdapterPayload> {
-    let adapter = this;
-
+  async ajax(url: string, type: HTTPMethod, options: JQueryAjaxSettings | RequestInit = {}): Promise<AdapterPayload> {
     let requestData: RequestData = {
       url: url,
       method: type,
     };
 
     if (this.useFetch) {
-      let hash: FetchRequestInit = adapter.ajaxOptions(url, type, options);
+      let hash: FetchRequestInit = this.ajaxOptions(url, type, options);
       let response = await this._fetchRequest(hash);
       let payload = await determineBodyPromise(response, requestData);
 
       if (response.ok && !(payload instanceof Error)) {
-        return fetchSuccessHandler(adapter, payload, response, requestData);
+        return fetchSuccessHandler(this, payload, response, requestData);
       } else {
-        throw fetchErrorHandler(adapter, payload, response, null, requestData);
+        throw fetchErrorHandler(this, payload, response, null, requestData);
       }
     } else {
-      let hash: JQueryRequestInit = adapter.ajaxOptions(url, type, options);
-
-      return new Promise(function (resolve, reject) {
-        hash.success = function (payload, textStatus, jqXHR) {
-          let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
-          join(null, resolve, response);
-        };
-
-        hash.error = function (jqXHR, textStatus, errorThrown) {
-          let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
-          join(null, reject, error);
-        };
-
-        adapter._ajax(hash);
-      });
+      return execjQAjax(this, requestData, options as JQueryAjaxSettings);
     }
   }
 
@@ -1152,7 +1137,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   */
   ajaxOptions(
     url: string,
-    method: string,
+    method: HTTPMethod,
     options: JQueryAjaxSettings | RequestInit
   ): JQueryRequestInit | FetchRequestInit {
     let reqOptions: JQueryRequestInit | FetchRequestInit = Object.assign(
@@ -1545,6 +1530,28 @@ function ajaxOptions(options: JQueryRequestInit, adapter: RESTAdapter): JQueryRe
   };
 
   return options;
+}
+
+function execjQAjax(
+  adapter: RESTAdapter,
+  requestData: RequestData,
+  options: JQueryAjaxSettings
+): Promise<AdapterPayload> {
+  const hash = adapter.ajaxOptions(requestData.url, requestData.method, options) as JQueryRequestInit;
+
+  return new Promise((resolve, reject) => {
+    hash.success = function (payload, textStatus, jqXHR) {
+      let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
+      join(null, resolve, response);
+    };
+
+    hash.error = function (jqXHR, textStatus, errorThrown) {
+      let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
+      join(null, reject, error);
+    };
+
+    adapter._ajax(hash);
+  });
 }
 
 function splitGroupToFitInUrl(store, adapter, group, maxURLLength, paramNameLength) {

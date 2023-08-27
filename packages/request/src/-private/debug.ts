@@ -113,9 +113,9 @@ export function deepFreeze<T = unknown>(value: T): T {
         case 'null':
           return value;
         case 'object':
-          Object.keys(value as {}).forEach((key) => {
+          Object.keys(value as object).forEach((key) => {
             try {
-              (value as {})[key] = deepFreeze((value as {})[key]) as {};
+              (value as object)[key] = deepFreeze((value as object)[key]) as object;
             } catch {
               // continue
             }

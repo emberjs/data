@@ -73,7 +73,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     let notificationCount = 0;
     let identifier: StableRecordIdentifier;
     class CreationStore extends CustomStore {
-      instantiateRecord(id: StableRecordIdentifier, createRecordArgs): Object {
+      instantiateRecord(id: StableRecordIdentifier, createRecordArgs): object {
         identifier = id;
         this.notifications.subscribe(identifier, (passedId, key) => {
           notificationCount++;

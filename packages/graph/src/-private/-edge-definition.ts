@@ -353,7 +353,7 @@ export function upgradeDefinition(
     // TODO potentially we should just be permissive here since this is an implicit relationship
     // and not require the lookup table to be populated
     if (polymorphicLookup[type]) {
-      const altTypes = Object.keys(polymorphicLookup[type] as {});
+      const altTypes = Object.keys(polymorphicLookup[type]);
       for (let i = 0; i < altTypes.length; i++) {
         const _cached = expandingGet<EdgeDefinition | null>(cache, altTypes[i], propertyName);
         if (_cached) {

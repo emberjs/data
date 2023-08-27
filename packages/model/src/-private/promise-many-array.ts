@@ -43,7 +43,7 @@ export default class PromiseManyArray {
 
     if (DEBUG) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.hasMixin = (mixin: object) => {
         assert(`Do not use A() on an EmberData PromiseManyArray`);
       };
     }
