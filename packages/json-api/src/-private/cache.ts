@@ -868,7 +868,16 @@ export default class JSONAPICache implements Cache {
     const removeFromRecordArray = !this.isDeletionCommitted(identifier);
     let removed = false;
     const cached = this.__peek(identifier, false);
-    peekGraph(storeWrapper)?.unload(identifier);
+
+    if (cached.isNew) {
+      peekGraph(storeWrapper)?.push({
+        op: 'deleteRecord',
+        record: identifier,
+        isNew: true,
+      });
+    } else {
+      peekGraph(storeWrapper)?.unload(identifier);
+    }
 
     // effectively clearing these is ensuring that
     // we report as `isEmpty` during teardown.
@@ -1025,11 +1034,7 @@ export default class JSONAPICache implements Cache {
     }
 
     if (cached.isNew) {
-      this.__graph.push({
-        op: 'deleteRecord',
-        record: identifier,
-        isNew: true,
-      });
+      // > Note: Graph removal handled by unloadRecord
       cached.isDeleted = true;
       cached.isNew = false;
     }
@@ -1083,14 +1088,7 @@ export default class JSONAPICache implements Cache {
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
     const cached = this.__peek(identifier, false);
     cached.isDeleted = isDeleted;
-    if (cached.isNew) {
-      // TODO can we delete this since we will do this in unload?
-      this.__graph.push({
-        op: 'deleteRecord',
-        record: identifier,
-        isNew: true,
-      });
-    }
+    // > Note: Graph removal for isNew handled by unloadRecord
     this.__storeWrapper.notifyChange(identifier, 'state');
   }
 

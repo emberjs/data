@@ -234,7 +234,7 @@ export class Graph {
         continue;
       }
       assert(`Expected a relationship`, relationship);
-      if (relationship.definition.inverseIsAsync) {
+      if (relationship.definition.inverseIsAsync && !isNew(identifier)) {
         if (LOG_GRAPH) {
           // eslint-disable-next-line no-console
           console.log(`graph: <<NOT>> RELEASABLE ${String(identifier)}`);
