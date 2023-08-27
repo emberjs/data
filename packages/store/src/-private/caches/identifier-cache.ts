@@ -33,7 +33,7 @@ const IDENTIFIERS = new Set();
 const DOCUMENTS = new Set();
 
 export function isStableIdentifier(identifier: unknown): identifier is StableRecordIdentifier {
-  return IDENTIFIERS.has(identifier);
+  return (identifier as { __warpDriveCache: number }).__warpDriveCache !== undefined || IDENTIFIERS.has(identifier);
 }
 
 export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
@@ -122,6 +122,7 @@ function assertIsRequest(request: unknown): asserts request is ImmutableRequestI
 // Map<type, Map<id, lid>>
 type TypeIdMap = Map<string, Map<string, string>>;
 const NEW_IDENTIFIERS: TypeIdMap = new Map();
+let IDENTIFIER_CACHE_ID = 0;
 
 function updateTypeIdMapping(typeMap: TypeIdMap, identifier: StableRecordIdentifier, id: string): void {
   let idMap = typeMap.get(identifier.type);
@@ -227,6 +228,7 @@ export class IdentifierCache {
   declare _merge: MergeMethod;
   declare _keyInfoForResource: KeyInfoMethod;
   declare _isDefaultConfig: boolean;
+  declare _id: number;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
@@ -238,6 +240,7 @@ export class IdentifierCache {
     this._merge = defaultMergeMethod;
     this._keyInfoForResource = configuredKeyInfoMethod || defaultKeyInfoMethod;
     this._isDefaultConfig = !configuredGenerationMethod;
+    this._id = IDENTIFIER_CACHE_ID++;
 
     this._cache = {
       resources: new Map<string, StableRecordIdentifier>(),
@@ -326,11 +329,17 @@ export class IdentifierCache {
     // if we still don't have an identifier, time to generate one
     if (shouldGenerate === 2) {
       (resource as StableRecordIdentifier).lid = lid;
-      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(resource as StableRecordIdentifier, 'record', false);
+      (resource as { __warpDriveCache: number }).__warpDriveCache = this._id;
+      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
+        resource as StableRecordIdentifier & { __warpDriveCache: number },
+        'record',
+        false
+      );
     } else {
       // we lie a bit here as a memory optimization
-      const keyInfo = this._keyInfoForResource(resource, null) as StableRecordIdentifier;
+      const keyInfo = this._keyInfoForResource(resource, null) as StableRecordIdentifier & { __warpDriveCache: number };
       keyInfo.lid = lid;
+      keyInfo.__warpDriveCache = this._id;
       identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo, 'record', false);
     }
 
@@ -427,7 +436,7 @@ export class IdentifierCache {
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
     let identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
-      { id: data.id || null, type: data.type, lid: newLid },
+      { id: data.id || null, type: data.type, lid: newLid, __warpDriveCache: this._id },
       'record',
       true
     );
@@ -590,6 +599,11 @@ export class IdentifierCache {
     this._cache.resources.delete(identifier.lid);
     typeSet.lid.delete(identifier.lid);
 
+    (identifier as unknown as { __warpDriveOldCache: number }).__warpDriveOldCache = (
+      identifier as unknown as { __warpDriveCache: number }
+    ).__warpDriveCache;
+    (identifier as unknown as { __warpDriveCache: undefined; __warpDriveOldCache: number }).__warpDriveCache =
+      undefined;
     IDENTIFIERS.delete(identifier);
     this._forget(identifier, 'record');
     if (LOG_IDENTIFIERS) {
@@ -608,7 +622,7 @@ export class IdentifierCache {
 }
 
 function makeStableRecordIdentifier(
-  recordIdentifier: { type: string; id: string | null; lid: string },
+  recordIdentifier: { type: string; id: string | null; lid: string; __warpDriveCache: number },
   bucket: IdentifierBucket,
   clientOriginated: boolean
 ): StableRecordIdentifier {
@@ -636,6 +650,8 @@ function makeStableRecordIdentifier(
         return { type, id, lid };
       },
     };
+    // @ts-expect-error private api
+    wrapper.__warpDriveCache = recordIdentifier.__warpDriveCache;
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
     wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
     IDENTIFIERS.add(wrapper);
