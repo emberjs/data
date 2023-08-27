@@ -14,11 +14,7 @@ import type RequestStateService from '@ember-data/store/-private/network/request
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
-import type {
-  RecordIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@ember-data/types/q/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { FindOptions } from '@ember-data/types/q/store';
@@ -51,7 +47,7 @@ interface PendingSaveItem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: Deferred<any>;
   snapshot: Snapshot;
-  identifier: RecordIdentifier;
+  identifier: StableRecordIdentifier;
   options: FetchMutationOptions;
   queryRequest: Request;
 }
@@ -83,7 +79,10 @@ export default class FetchManager {
 
     @internal
   */
-  scheduleSave(identifier: RecordIdentifier, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
+  scheduleSave(
+    identifier: StableRecordIdentifier,
+    options: FetchMutationOptions
+  ): Promise<null | SingleResourceDocument> {
     let resolver = createDeferred<SingleResourceDocument | null>();
     let query: SaveRecordMutation = {
       op: 'saveRecord',

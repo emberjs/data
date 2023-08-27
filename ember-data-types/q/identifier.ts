@@ -4,8 +4,10 @@
 
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import {
+  CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
+  DEBUG_STALE_CACHE_OWNER,
 } from '@ember-data/store/-private/utils/identifier-debug-consts';
 
 import type { ExistingResourceObject, ResourceIdentifierObject } from './ember-data-json-api';
@@ -64,6 +66,8 @@ export interface StableExistingRecordIdentifier extends StableIdentifier {
   id: string;
   type: string;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
+  [CACHE_OWNER]: number | undefined;
+  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 /**
  * Used when a StableRecordIdentifier was created locally
@@ -80,6 +84,8 @@ export interface StableNewRecordIdentifier extends StableIdentifier {
   id: string | null;
   type: string;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
+  [CACHE_OWNER]: number | undefined;
+  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
 /**

@@ -24,7 +24,12 @@ import type {
 } from '@ember-data/types/q/identifier';
 
 import coerceId from '../utils/coerce-id';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifier-debug-consts';
+import {
+  CACHE_OWNER,
+  DEBUG_CLIENT_ORIGINATED,
+  DEBUG_IDENTIFIER_BUCKET,
+  DEBUG_STALE_CACHE_OWNER,
+} from '../utils/identifier-debug-consts';
 import normalizeModelName from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';
 import { hasId, hasLid, hasType } from './resource-utils';
@@ -33,7 +38,7 @@ const IDENTIFIERS = new Set();
 const DOCUMENTS = new Set();
 
 export function isStableIdentifier(identifier: unknown): identifier is StableRecordIdentifier {
-  return IDENTIFIERS.has(identifier);
+  return (identifier as StableRecordIdentifier)[CACHE_OWNER] !== undefined || IDENTIFIERS.has(identifier);
 }
 
 export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
@@ -122,6 +127,7 @@ function assertIsRequest(request: unknown): asserts request is ImmutableRequestI
 // Map<type, Map<id, lid>>
 type TypeIdMap = Map<string, Map<string, string>>;
 const NEW_IDENTIFIERS: TypeIdMap = new Map();
+let IDENTIFIER_CACHE_ID = 0;
 
 function updateTypeIdMapping(typeMap: TypeIdMap, identifier: StableRecordIdentifier, id: string): void {
   let idMap = typeMap.get(identifier.type);
@@ -227,6 +233,7 @@ export class IdentifierCache {
   declare _merge: MergeMethod;
   declare _keyInfoForResource: KeyInfoMethod;
   declare _isDefaultConfig: boolean;
+  declare _id: number;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
@@ -238,6 +245,7 @@ export class IdentifierCache {
     this._merge = defaultMergeMethod;
     this._keyInfoForResource = configuredKeyInfoMethod || defaultKeyInfoMethod;
     this._isDefaultConfig = !configuredGenerationMethod;
+    this._id = IDENTIFIER_CACHE_ID++;
 
     this._cache = {
       resources: new Map<string, StableRecordIdentifier>(),
@@ -326,11 +334,13 @@ export class IdentifierCache {
     // if we still don't have an identifier, time to generate one
     if (shouldGenerate === 2) {
       (resource as StableRecordIdentifier).lid = lid;
+      (resource as StableRecordIdentifier)[CACHE_OWNER] = this._id;
       identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(resource as StableRecordIdentifier, 'record', false);
     } else {
       // we lie a bit here as a memory optimization
       const keyInfo = this._keyInfoForResource(resource, null) as StableRecordIdentifier;
       keyInfo.lid = lid;
+      keyInfo[CACHE_OWNER] = this._id;
       identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo, 'record', false);
     }
 
@@ -427,7 +437,7 @@ export class IdentifierCache {
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
     let identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
-      { id: data.id || null, type: data.type, lid: newLid },
+      { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id },
       'record',
       true
     );
@@ -590,6 +600,10 @@ export class IdentifierCache {
     this._cache.resources.delete(identifier.lid);
     typeSet.lid.delete(identifier.lid);
 
+    if (DEBUG) {
+      identifier[DEBUG_STALE_CACHE_OWNER] = identifier[CACHE_OWNER];
+    }
+    identifier[CACHE_OWNER] = undefined;
     IDENTIFIERS.delete(identifier);
     this._forget(identifier, 'record');
     if (LOG_IDENTIFIERS) {
@@ -608,7 +622,12 @@ export class IdentifierCache {
 }
 
 function makeStableRecordIdentifier(
-  recordIdentifier: { type: string; id: string | null; lid: string },
+  recordIdentifier: {
+    type: string;
+    id: string | null;
+    lid: string;
+    [CACHE_OWNER]: number | undefined;
+  },
   bucket: IdentifierBucket,
   clientOriginated: boolean
 ): StableRecordIdentifier {
@@ -617,7 +636,7 @@ function makeStableRecordIdentifier(
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
-    let wrapper = {
+    let wrapper: StableRecordIdentifier = {
       get lid() {
         return recordIdentifier.lid;
       },
@@ -627,6 +646,19 @@ function makeStableRecordIdentifier(
       get type() {
         return recordIdentifier.type;
       },
+      get [CACHE_OWNER](): number | undefined {
+        return recordIdentifier[CACHE_OWNER];
+      },
+      set [CACHE_OWNER](value: number) {
+        recordIdentifier[CACHE_OWNER] = value;
+      },
+      get [DEBUG_STALE_CACHE_OWNER](): number | undefined {
+        return (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER];
+      },
+      set [DEBUG_STALE_CACHE_OWNER](value: number | undefined) {
+        recordIdentifier[DEBUG_STALE_CACHE_OWNER] = value;
+      },
+      // @ts-expect-error debug only
       toString() {
         const { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${String(type)}:${String(id)} (${lid})`;
