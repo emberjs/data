@@ -652,6 +652,8 @@ function makeStableRecordIdentifier(
     };
     // @ts-expect-error private api
     wrapper.__warpDriveCache = recordIdentifier.__warpDriveCache;
+    // @ts-expect-error private api
+    wrapper.__warpDriveOldCache = undefined;
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
     wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
     IDENTIFIERS.add(wrapper);
