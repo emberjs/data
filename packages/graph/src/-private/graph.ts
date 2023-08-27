@@ -163,14 +163,6 @@ export class Graph {
 
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
 
-    if (hasPending(this, relationship.definition, identifier, propertyName)) {
-      this.silenceNotifications = true;
-      (this.store as unknown as { _store: Store })._store._join(() => {
-        this._flushRemoteForType(identifier, propertyName);
-      });
-      this.silenceNotifications = false;
-    }
-
     if (isBelongsTo(relationship)) {
       return legacyGetResourceRelationshipData(relationship);
     }
@@ -234,7 +226,6 @@ export class Graph {
    to be do things like remove the comment from the post if the comment were to be deleted.
   */
 
-  // @todo does isReleasable need to account for lazy?
   isReleasable(identifier: StableRecordIdentifier): boolean {
     const relationships = this.identifiers.get(identifier);
     if (!relationships) {
@@ -268,7 +259,6 @@ export class Graph {
     return true;
   }
 
-  // @todo does unload need to account for lazy?
   unload(identifier: StableRecordIdentifier, silenceNotifications?: boolean) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -293,7 +283,6 @@ export class Graph {
     }
   }
 
-  // @todo does unload need to account for lazy?
   remove(identifier: StableRecordIdentifier) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -452,64 +441,6 @@ export class Graph {
       console.log(`Graph: ${String(relationship.identifier)} ${relationship.definition.key} added to transaction`);
     }
     relationship.transactionRef = this._transaction;
-  }
-
-  _flushRemoteForType(identifier: StableRecordIdentifier, field: string) {
-    if (LOG_GRAPH) {
-      // eslint-disable-next-line no-console
-      console.groupCollapsed(`Graph: Initialized Transaction`);
-    }
-    this._transaction = ++transactionRef;
-    const updates = this._pushedUpdates;
-    const definition = this.getDefinition(identifier, field);
-    const inversePayloads =
-      definition.inverseKind !== 'implicit'
-        ? updates[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey)
-        : null;
-    const payloads = updates[definition.kind as 'belongsTo' | 'hasMany']
-      ?.get(definition.inverseType)
-      ?.get(definition.key);
-
-    const first = definition.inverseKind === 'hasMany' ? inversePayloads : payloads;
-    const second = definition.inverseKind === 'hasMany' ? payloads : inversePayloads;
-
-    if (first) {
-      for (let i = 0; i < first.length; i++) {
-        this.update(first[i], true);
-      }
-    }
-    if (second) {
-      for (let i = 0; i < second.length; i++) {
-        this.update(second[i], true);
-      }
-    }
-    if (payloads) {
-      const typeMap = updates[definition.kind as 'belongsTo' | 'hasMany']!;
-      const fieldMap = typeMap.get(definition.inverseType)!;
-      fieldMap.delete(definition.key);
-      if (fieldMap.size === 0) {
-        typeMap.delete(definition.inverseType);
-      }
-    }
-    if (inversePayloads) {
-      const typeMap = updates[definition.inverseKind as 'belongsTo' | 'hasMany']!;
-      const fieldMap = typeMap.get(definition.type)!;
-
-      if (fieldMap) {
-        fieldMap.delete(definition.inverseKey);
-        if (fieldMap.size === 0) {
-          typeMap.delete(definition.type);
-        }
-      }
-    }
-
-    this._transaction = null;
-    if (LOG_GRAPH) {
-      // eslint-disable-next-line no-console
-      console.log(`Graph: transaction finalized`);
-      // eslint-disable-next-line no-console
-      console.groupEnd();
-    }
   }
 
   _flushLocalQueue() {
@@ -753,21 +684,4 @@ function addPending(
     lc2.set(op.field, arr);
   }
   arr.push(op);
-}
-
-function hasPending(
-  graph: Graph,
-  definition: UpgradedMeta,
-  identifier: StableRecordIdentifier,
-  field: string
-): boolean {
-  let cache = graph._pushedUpdates;
-  let hasPrimary = cache[definition.kind as 'belongsTo' | 'hasMany']?.get(definition.inverseType)?.get(field);
-  if (hasPrimary) {
-    return true;
-  }
-  if (definition.inverseKind === 'implicit') {
-    return false;
-  }
-  return Boolean(cache[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey));
 }
