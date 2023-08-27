@@ -129,7 +129,8 @@
       ]
     },
     "patchedDependencies": {
-      "ember-compatibility-helpers@1.2.6": "patches/ember-compatibility-helpers@1.2.6.patch"
+      "ember-compatibility-helpers@1.2.6": "patches/ember-compatibility-helpers@1.2.6.patch",
+      "ember-cli-babel@8.0.0": "patches/ember-cli-babel@8.0.0.patch"
     }
   }
 }

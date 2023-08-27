@@ -15,6 +15,9 @@ overrides:
   ember-compatibility-helpers: ^1.2.6
 
 patchedDependencies:
+  ember-cli-babel@8.0.0:
+    hash: u45mf2ptxi5n6ldhiqont5zk3y
+    path: patches/ember-cli-babel@8.0.0.patch
   ember-compatibility-helpers@1.2.6:
     hash: 5qtypxbsewxcs5l7lcldb5aqhq
     path: patches/ember-compatibility-helpers@1.2.6.patch
@@ -226,7 +229,7 @@ importers:
         version: 2.6.3(webpack@5.88.2)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.22.11)
@@ -277,7 +280,7 @@ importers:
     dependencies:
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -338,7 +341,7 @@ importers:
         version: 1.13.1(@babel/core@7.22.11)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-test-info:
         specifier: ^1.0.0
         version: 1.0.0
@@ -426,7 +429,7 @@ importers:
         version: 2.6.3(webpack@5.88.2)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       webpack:
         specifier: ^5.88.2
         version: 5.88.2
@@ -447,7 +450,7 @@ importers:
         version: 1.13.1(@babel/core@7.22.11)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -526,7 +529,7 @@ importers:
         version: 1.13.1(@babel/core@7.22.11)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -604,7 +607,7 @@ importers:
         version: 1.13.1(@babel/core@7.22.11)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -677,7 +680,7 @@ importers:
         version: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-string-utils:
         specifier: ^1.1.0
         version: 1.1.0
@@ -804,7 +807,7 @@ importers:
         version: 4.1.2
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-path-utils:
         specifier: ^1.0.0
         version: 1.0.0
@@ -840,7 +843,7 @@ importers:
         version: 1.13.1(@babel/core@7.22.11)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -901,7 +904,7 @@ importers:
     dependencies:
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -956,7 +959,7 @@ importers:
     dependencies:
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -1017,7 +1020,7 @@ importers:
         version: 1.13.1(@babel/core@7.22.11)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-test-info:
         specifier: ^1.0.0
         version: 1.0.0
@@ -1102,7 +1105,7 @@ importers:
         version: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -1178,7 +1181,7 @@ importers:
         version: 1.13.1(@babel/core@7.22.11)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.10
@@ -1256,7 +1259,7 @@ importers:
         version: 2.6.3(webpack@5.88.2)
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-blueprint-test-helpers:
         specifier: ^0.19.2
         version: 0.19.2
@@ -1413,7 +1416,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -1604,7 +1607,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -1731,7 +1734,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -1856,7 +1859,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -1964,7 +1967,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -2053,7 +2056,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -2160,7 +2163,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-blueprint-test-helpers:
         specifier: ^0.19.2
         version: 0.19.2
@@ -2305,7 +2308,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-blueprint-test-helpers:
         specifier: ^0.19.2
         version: 0.19.2
@@ -2450,7 +2453,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -2601,7 +2604,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -2752,7 +2755,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -2859,7 +2862,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -2940,7 +2943,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-blueprint-test-helpers:
         specifier: ^0.19.2
         version: 0.19.2
@@ -3079,7 +3082,7 @@ importers:
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
-        version: 8.0.0(@babel/core@7.22.11)
+        version: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.2.1)
@@ -4822,7 +4825,7 @@ packages:
     resolution: {integrity: sha512-UbXJ+k3QOrYN4SRPHgXCqYIJ+yWWUg1+vr0H4DhdQPTy8LJfyqwZ2tc5uqpSSnEXE+/1KopHBE5J8GDagAg5cg==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -4839,7 +4842,7 @@ packages:
       broccoli-debug: 0.6.5
       broccoli-funnel: 3.0.8
       ember-auto-import: 2.6.3(webpack@5.88.2)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-htmlbars: 6.3.0
       ember-source: 5.2.0(@babel/core@7.22.11)(@glimmer/component@1.1.2)(webpack@5.88.2)
     transitivePeerDependencies:
@@ -4853,7 +4856,7 @@ packages:
     engines: {node: 10.* || 12.* || >= 14.*}
     dependencies:
       calculate-cache-key-for-tree: 2.0.0
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-version-checker: 5.1.2
       semver: 7.5.4
     transitivePeerDependencies:
@@ -5016,7 +5019,7 @@ packages:
       '@embroider/shared-internals': 2.4.0
       assert-never: 1.2.1
       babel-import-util: 2.0.0
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       find-up: 5.0.0
       lodash: 4.17.21
       resolve: 1.22.3
@@ -5175,7 +5178,7 @@ packages:
       '@glimmer/util': 0.44.0
       broccoli-file-creator: 2.1.1
       broccoli-merge-trees: 4.2.0
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-get-component-path-option: 1.0.0
       ember-cli-is-package-missing: 1.0.0
       ember-cli-normalize-entity-name: 1.0.0
@@ -9354,7 +9357,7 @@ packages:
     resolution: {integrity: sha512-hSPcvIKarA8wad2/b6jDd/eU+OtKmi6uP+iYQbzi5TQpjsqV6b4QdRqrLk7ClSRRKBAtdTuutx+m+X+WlEd2lw==}
     engines: {node: 10.* || >= 12}
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-version-checker: 5.1.2
       ember-compatibility-helpers: 1.2.6(patch_hash=5qtypxbsewxcs5l7lcldb5aqhq)(@babel/core@7.22.11)
       silent-error: 1.1.1
@@ -9372,7 +9375,7 @@ packages:
       '@glimmer/tracking': 1.1.2
       babel-import-util: 1.4.1
       ember-cache-primitive-polyfill: 1.0.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-babel-plugin-helpers: 1.1.1
       ember-source: 5.2.0(@babel/core@7.22.11)(@glimmer/component@1.1.2)(webpack@5.88.2)
     transitivePeerDependencies:
@@ -9384,7 +9387,7 @@ packages:
     resolution: {integrity: sha512-sKvOiPNHr5F/60NLd7SFzMpYPte/nnGkq/tMIfXejfKHIhaiIkYFqX8Z9UFTKWLLn+V7NOaby6niNPZUdvKCRw==}
     engines: {node: 6.* || 8.* || >= 10.*}
 
-  /ember-cli-babel@8.0.0(@babel/core@7.22.11):
+  /ember-cli-babel@8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11):
     resolution: {integrity: sha512-nf8BFgm6jy+B5tKeovHtcErfTZwzItsB6pJfTJGGR6tg74KLWtLFB5u/zB9S6c8ww1QacMltsffFz2iedCDBPw==}
     engines: {node: 16.* || 18.* || >= 20}
     peerDependencies:
@@ -9419,6 +9422,7 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
+    patched: true
 
   /ember-cli-blueprint-test-helpers@0.19.2:
     resolution: {integrity: sha512-otCKdGcNFK0+MkQo+LLjYbRD9EerApH6Z/odvvlL1hxrN+owHMV5E+jI2rbtdvNEH0/6w5ZqjH4kS232fvtCxQ==}
@@ -9458,7 +9462,7 @@ packages:
     dependencies:
       body-parser: 1.20.2
       ember-auto-import: 2.6.3(webpack@5.88.2)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-source: 5.2.0(@babel/core@7.22.11)(@glimmer/component@1.1.2)(webpack@5.88.2)
       fastboot: 4.1.1
       json-fn: 1.1.1
@@ -9486,7 +9490,7 @@ packages:
       broccoli-merge-trees: 4.2.0
       broccoli-plugin: 4.0.7
       chalk: 4.1.2
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-lodash-subset: 2.0.1
       ember-cli-preprocess-registry: 3.3.0
       ember-cli-version-checker: 5.1.2
@@ -9622,7 +9626,7 @@ packages:
     resolution: {integrity: sha512-0aocZV9SIoOHiU3hrH3IuLR6busWhTX6UVXgd490hmJkIymmOXNH2+jJoC7Ebkeo3PiOfAdjqhb765QDlHSJOw==}
     engines: {node: 10.* || >= 12}
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -9988,7 +9992,7 @@ packages:
     resolution: {integrity: sha512-O154i8sLoVjsiKzSqxGRfHGr+N+drT6mRrLDbNgJCnW/V5uLg/ppZFpUsrdxuXnp5Q9us3OfXV1nX2CH+7bUpA==}
     engines: {node: 8.* || >= 10.*}
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-version-checker: 3.1.3
       ember-compatibility-helpers: 1.2.6(patch_hash=5qtypxbsewxcs5l7lcldb5aqhq)(@babel/core@7.22.11)
     transitivePeerDependencies:
@@ -10006,7 +10010,7 @@ packages:
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -10016,7 +10020,7 @@ packages:
     resolution: {integrity: sha512-+oRstEa52mm0jAFzhr51/xtEWpCEykB3SEBr7vUg8YnXUZJ5hKNBppP938q8Zzr9XfJEbzrtDSGjhKwJCJv6FQ==}
     engines: {node: 10.* || 12.* || >= 14}
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -10025,7 +10029,7 @@ packages:
     resolution: {integrity: sha512-CYR+U/wRxLbrfYN3dh+0Tb6mFaxJKfdyz+wNql6cqTrA0BBi9k6J3AaKXj273TqvEpyyXegQFFkZEiuZdYtgJw==}
     engines: {node: 6.* || 8.* || >= 10.*}
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-typescript: 5.2.1
     transitivePeerDependencies:
       - '@babel/core'
@@ -10037,7 +10041,7 @@ packages:
     dependencies:
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 4.2.0
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       regenerator-runtime: 0.13.11
     transitivePeerDependencies:
       - '@babel/core'
@@ -10056,7 +10060,7 @@ packages:
       broccoli-merge-trees: 4.2.0
       common-tags: 1.8.2
       ember-auto-import: 2.6.3(webpack@5.88.2)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-test-loader: 3.1.0(@babel/core@7.22.11)
       ember-source: 5.2.0(@babel/core@7.22.11)(@glimmer/component@1.1.2)(webpack@5.88.2)
       qunit: 2.19.4
@@ -10078,7 +10082,7 @@ packages:
       ember-source:
         optional: true
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-source: 5.2.0(@babel/core@7.22.11)(@glimmer/component@1.1.2)(webpack@5.88.2)
     transitivePeerDependencies:
       - '@babel/core'
@@ -10102,7 +10106,7 @@ packages:
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
       '@glimmer/component': 1.1.2(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-htmlbars: 6.3.0
     transitivePeerDependencies:
       - '@babel/core'
@@ -10155,7 +10159,7 @@ packages:
       broccoli-merge-trees: 4.2.0
       chalk: 4.1.2
       ember-auto-import: 2.6.3
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-get-component-path-option: 1.0.0
       ember-cli-is-package-missing: 1.0.0
       ember-cli-normalize-entity-name: 1.0.0
@@ -10214,7 +10218,7 @@ packages:
       broccoli-merge-trees: 4.2.0
       chalk: 4.1.2
       ember-auto-import: 2.6.3(webpack@5.88.2)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-get-component-path-option: 1.0.0
       ember-cli-is-package-missing: 1.0.0
       ember-cli-normalize-entity-name: 1.0.0
@@ -10240,7 +10244,7 @@ packages:
     resolution: {integrity: sha512-GeI1LLLt470sjaq/huKGQTDJPDOH0FlrX8FFVcSZPXO2U9FQH7Kc8BaXb4GpViJbfLLC4d7tIUZI4NBnuXSmKg==}
     engines: {node: 10.* || >= 12}
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -14567,7 +14571,7 @@ packages:
     dependencies:
       broccoli-funnel: 3.0.8
       broccoli-merge-trees: 4.2.0
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-version-checker: 5.1.2
     transitivePeerDependencies:
       - '@babel/core'
@@ -17030,7 +17034,7 @@ packages:
       '@glimmer/env': 0.1.7
       broccoli-merge-trees: 4.2.0
       ember-auto-import: 2.6.3(webpack@5.88.2)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-inflector: 4.0.2(@babel/core@7.22.11)
       webpack: 5.88.2
     transitivePeerDependencies:
@@ -17054,7 +17058,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/store': link:packages/store
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-inflector: 4.0.2(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17075,7 +17079,7 @@ packages:
       '@ember-data/store': file:packages/store(@babel/core@7.22.11)(@ember-data/tracking@5.4.0-alpha.3)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@5.2.0)
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.11)
     transitivePeerDependencies:
@@ -17097,7 +17101,7 @@ packages:
       '@ember-data/store': link:packages/store
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.11)
     transitivePeerDependencies:
@@ -17122,7 +17126,7 @@ packages:
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
       ember-auto-import: 2.6.3(webpack@5.88.2)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       webpack: 5.88.2
     transitivePeerDependencies:
       - '@glint/template'
@@ -17144,7 +17148,7 @@ packages:
       '@ember-data/store': file:packages/store(@babel/core@7.22.11)(@ember-data/tracking@5.4.0-alpha.3)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@5.2.0)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17165,7 +17169,7 @@ packages:
       '@ember-data/store': file:packages/store(@babel/core@7.22.11)(@ember-data/tracking@5.4.0-alpha.3)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@5.2.0)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-inflector: 4.0.2(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17187,7 +17191,7 @@ packages:
       '@ember-data/store': link:packages/store
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-inflector: 4.0.2(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17211,7 +17215,7 @@ packages:
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17236,7 +17240,7 @@ packages:
       '@ember-data/json-api': file:packages/json-api(@babel/core@7.22.11)(@ember-data/graph@5.4.0-alpha.3)(@ember-data/store@5.4.0-alpha.3)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17275,7 +17279,7 @@ packages:
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.11)
@@ -17317,7 +17321,7 @@ packages:
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.11)
@@ -17361,7 +17365,7 @@ packages:
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.11)
@@ -17403,7 +17407,7 @@ packages:
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.11)
@@ -17445,7 +17449,7 @@ packages:
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.11)
@@ -17478,7 +17482,7 @@ packages:
       broccoli-rollup: 5.0.0
       calculate-cache-key-for-tree: 2.0.0
       chalk: 4.1.2
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-path-utils: 1.0.0
       ember-cli-string-utils: 1.1.0
       ember-cli-version-checker: 5.1.2
@@ -17502,7 +17506,7 @@ packages:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember/test-waiters': 3.0.2(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17514,7 +17518,7 @@ packages:
     name: '@ember-data/request-utils'
     engines: {node: 16.* || >= 18}
     dependencies:
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -17530,7 +17534,7 @@ packages:
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/store': link:packages/store
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-inflector: 4.0.2(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17549,7 +17553,7 @@ packages:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember/string': 3.1.1(@babel/core@7.22.11)
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.11)
     transitivePeerDependencies:
@@ -17573,7 +17577,7 @@ packages:
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
       '@glimmer/tracking': 1.1.2
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17588,7 +17592,7 @@ packages:
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17605,7 +17609,7 @@ packages:
       '@embroider/macros': 1.13.1(@babel/core@7.22.11)
       broccoli-merge-trees: 4.2.0
       ember-auto-import: 2.6.3(webpack@5.88.2)
-      ember-cli-babel: 8.0.0(@babel/core@7.22.11)
+      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.11)
       ember-cli-blueprint-test-helpers: 0.19.2
       ember-get-config: 2.1.1(@babel/core@7.22.11)
       qunit: 2.19.4
