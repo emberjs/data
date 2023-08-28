@@ -101,36 +101,18 @@ export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: Stable
       cb(rel.localState);
     }
   } else if (isHasMany(rel)) {
-    // ensure we don't walk anything twice if an entry is
-    // in both localMembers and remoteMembers
-    let seen = new Set();
-
-    for (let i = 0; i < rel.localState.length; i++) {
-      const inverseIdentifier = rel.localState[i];
-      if (!seen.has(inverseIdentifier)) {
-        seen.add(inverseIdentifier);
-        cb(inverseIdentifier);
-      }
-    }
-
+    // TODO
+    // rel.remoteMembers.forEach(cb);
+    // might be simpler if performance is not a concern
     for (let i = 0; i < rel.remoteState.length; i++) {
       const inverseIdentifier = rel.remoteState[i];
-      if (!seen.has(inverseIdentifier)) {
-        seen.add(inverseIdentifier);
-        cb(inverseIdentifier);
-      }
+      cb(inverseIdentifier);
     }
+    rel.additions?.forEach(cb);
   } else {
-    let seen = new Set();
-    rel.localMembers.forEach((inverseIdentifier) => {
-      if (!seen.has(inverseIdentifier)) {
-        seen.add(inverseIdentifier);
-        cb(inverseIdentifier);
-      }
-    });
+    rel.localMembers.forEach(cb);
     rel.remoteMembers.forEach((inverseIdentifier) => {
-      if (!seen.has(inverseIdentifier)) {
-        seen.add(inverseIdentifier);
+      if (!rel.localMembers.has(inverseIdentifier)) {
         cb(inverseIdentifier);
       }
     });
@@ -165,21 +147,24 @@ export function removeIdentifierCompletelyFromRelationship(
     }
   } else if (isHasMany(relationship)) {
     relationship.remoteMembers.delete(value);
-    relationship.localMembers.delete(value);
+    relationship.additions?.delete(value);
+    let wasInRemovals = relationship.removals?.delete(value);
 
     const canonicalIndex = relationship.remoteState.indexOf(value);
     if (canonicalIndex !== -1) {
       relationship.remoteState.splice(canonicalIndex, 1);
     }
 
-    const currentIndex = relationship.localState.indexOf(value);
-    if (currentIndex !== -1) {
-      relationship.localState.splice(currentIndex, 1);
-      // This allows dematerialized inverses to be rematerialized
-      // we shouldn't be notifying here though, figure out where
-      // a notification was missed elsewhere.
-      if (!silenceNotifications) {
-        notifyChange(graph, relationship.identifier, relationship.definition.key);
+    if (!wasInRemovals) {
+      const currentIndex = relationship.localState?.indexOf(value);
+      if (currentIndex !== -1 && currentIndex !== undefined) {
+        relationship.localState!.splice(currentIndex, 1);
+        // This allows dematerialized inverses to be rematerialized
+        // we shouldn't be notifying here though, figure out where
+        // a notification was missed elsewhere.
+        if (!silenceNotifications) {
+          notifyChange(graph, relationship.identifier, relationship.definition.key);
+        }
       }
     }
   } else {

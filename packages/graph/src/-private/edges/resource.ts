@@ -1,4 +1,5 @@
-import type { Links, Meta, PaginationLinks, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import { ResourceRelationship } from '@ember-data/types/cache/relationship';
+import type { Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { UpgradedMeta } from '../-edge-definition';
@@ -37,9 +38,9 @@ export function createResourceEdge(definition: UpgradedMeta, identifier: StableR
   };
 }
 
-export function legacyGetResourceRelationshipData(source: ResourceEdge): SingleResourceRelationship {
+export function legacyGetResourceRelationshipData(source: ResourceEdge): ResourceRelationship {
   let data: StableRecordIdentifier | null | undefined;
-  let payload: SingleResourceRelationship = {};
+  let payload: ResourceRelationship = {};
   if (source.localState) {
     data = source.localState;
   }

@@ -1,117 +1,134 @@
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('Integration | Graph | Operations', function (hooks: NestedHooks) {
   setupTest(hooks);
 
-  test('updateRelationship operation filters duplicates', function (assert: Assert) {
-    const { owner } = this;
+  deprecatedTest(
+    'updateRelationship operation filters duplicates',
+    {
+      id: 'ember-data:deprecate-non-unique-relationship-entries',
+      until: '6.0.0',
+      count: 1,
+    },
+    function (assert: Assert) {
+      const { owner } = this;
 
-    class App extends Model {
-      @attr declare name: string;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
-    }
+      class App extends Model {
+        @attr declare name: string;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
+      }
 
-    class Config extends Model {
-      @attr declare name: string;
-    }
+      class Config extends Model {
+        @attr declare name: string;
+      }
 
-    owner.register('model:app', App);
-    owner.register('model:config', Config);
-    const store = owner.lookup('service:store') as unknown as Store;
-    const graph = graphFor(store);
-    const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      owner.register('model:app', App);
+      owner.register('model:config', Config);
+      const store = owner.lookup('service:store') as unknown as Store;
+      const graph = graphFor(store);
+      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
-    store._join(() => {
-      graph.push({
-        op: 'updateRelationship',
-        field: 'configs',
-        record: appIdentifier,
-        value: {
+      store._join(() => {
+        graph.push({
+          op: 'updateRelationship',
+          field: 'configs',
+          record: appIdentifier,
+          value: {
+            data: [
+              { type: 'config', id: '1' },
+              { type: 'config', id: '1' },
+              { type: 'config', id: '1' },
+              { type: 'config', id: '2' },
+              { type: 'config', id: '3' },
+              { type: 'config', id: '4' },
+            ],
+          },
+        });
+      });
+
+      const data = graph.getData(appIdentifier, 'configs');
+      assert.deepEqual(
+        JSON.parse(JSON.stringify(data)),
+        {
           data: [
-            { type: 'config', id: '1' },
-            { type: 'config', id: '1' },
-            { type: 'config', id: '1' },
-            { type: 'config', id: '2' },
-            { type: 'config', id: '3' },
-            { type: 'config', id: '4' },
+            { type: 'config', id: '1', lid: '@lid:config-1' },
+            { type: 'config', id: '2', lid: '@lid:config-2' },
+            { type: 'config', id: '3', lid: '@lid:config-3' },
+            { type: 'config', id: '4', lid: '@lid:config-4' },
           ],
         },
-      });
-    });
-
-    const data = graph.getData(appIdentifier, 'configs');
-    assert.deepEqual(
-      JSON.parse(JSON.stringify(data)),
-      {
-        data: [
-          { type: 'config', id: '1', lid: '@lid:config-1' },
-          { type: 'config', id: '2', lid: '@lid:config-2' },
-          { type: 'config', id: '3', lid: '@lid:config-3' },
-          { type: 'config', id: '4', lid: '@lid:config-4' },
-        ],
-      },
-      'we have the expected data'
-    );
-  });
-
-  test('replaceRelatedRecords operation filters duplicates in a local replace', function (assert) {
-    const { owner } = this;
-
-    class App extends Model {
-      @attr declare name: string;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
+        'we have the expected data'
+      );
     }
+  );
 
-    class Config extends Model {
-      @attr declare name: string;
-    }
+  deprecatedTest(
+    'replaceRelatedRecords operation filters duplicates in a local replace',
+    {
+      id: 'ember-data:deprecate-non-unique-relationship-entries',
+      until: '6.0.0',
+      count: 1,
+    },
+    function (assert) {
+      const { owner } = this;
 
-    owner.register('model:app', App);
-    owner.register('model:config', Config);
-    const store = owner.lookup('service:store') as unknown as Store;
-    const graph = graphFor(store);
-    const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
-    const configIdentifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
-    const configIdentifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '2' });
-    const configIdentifier3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '3' });
-    const configIdentifier4 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+      class App extends Model {
+        @attr declare name: string;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
+      }
 
-    store._join(() => {
-      graph.update({
-        op: 'replaceRelatedRecords',
-        field: 'configs',
-        record: appIdentifier,
-        value: [
-          configIdentifier1,
-          configIdentifier1,
-          configIdentifier1,
-          configIdentifier2,
-          configIdentifier3,
-          configIdentifier4,
-        ],
+      class Config extends Model {
+        @attr declare name: string;
+      }
+
+      owner.register('model:app', App);
+      owner.register('model:config', Config);
+      const store = owner.lookup('service:store') as unknown as Store;
+      const graph = graphFor(store);
+      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const configIdentifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '2' });
+      const configIdentifier3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '3' });
+      const configIdentifier4 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+
+      store._join(() => {
+        graph.update({
+          op: 'replaceRelatedRecords',
+          field: 'configs',
+          record: appIdentifier,
+          value: [
+            configIdentifier1,
+            configIdentifier1,
+            configIdentifier1,
+            configIdentifier2,
+            configIdentifier3,
+            configIdentifier4,
+          ],
+        });
       });
-    });
 
-    const data = graph.getData(appIdentifier, 'configs');
-    assert.deepEqual(
-      JSON.parse(JSON.stringify(data)),
-      {
-        data: [
-          { type: 'config', id: '1', lid: '@lid:config-1' },
-          { type: 'config', id: '2', lid: '@lid:config-2' },
-          { type: 'config', id: '3', lid: '@lid:config-3' },
-          { type: 'config', id: '4', lid: '@lid:config-4' },
-        ],
-      },
-      'we have the expected data'
-    );
-  });
+      const data = graph.getData(appIdentifier, 'configs');
+      assert.deepEqual(
+        JSON.parse(JSON.stringify(data)),
+        {
+          data: [
+            { type: 'config', id: '1', lid: '@lid:config-1' },
+            { type: 'config', id: '2', lid: '@lid:config-2' },
+            { type: 'config', id: '3', lid: '@lid:config-3' },
+            { type: 'config', id: '4', lid: '@lid:config-4' },
+          ],
+        },
+        'we have the expected data'
+      );
+    }
+  );
 });

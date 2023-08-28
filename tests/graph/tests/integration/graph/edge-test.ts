@@ -69,7 +69,7 @@ module('Integration | Graph | Edges', function (hooks) {
         'We still have no record data instance after push of only an identifier within a relationship'
       );
 
-      let state = stateOf(bestFriend);
+      let state = stateOf(graph, bestFriend);
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
@@ -118,7 +118,7 @@ module('Integration | Graph | Edges', function (hooks) {
         'We have no record data instance after push of only an identifier within a relationship'
       );
 
-      let state = stateOf(bestFriend);
+      let state = stateOf(graph, bestFriend);
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
@@ -132,7 +132,7 @@ module('Integration | Graph | Edges', function (hooks) {
         });
       });
 
-      state = stateOf(bestFriend);
+      state = stateOf(graph, bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after canonical update');
       assert.deepEqual(state.local, [identifier3], 'Our current state is correct after canonical update');
 
@@ -151,7 +151,7 @@ module('Integration | Graph | Edges', function (hooks) {
         });
       });
 
-      state = stateOf(bestFriend);
+      state = stateOf(graph, bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after local update');
       assert.deepEqual(state.local, [identifier2], 'Our current state is correct after local update');
 
@@ -204,7 +204,7 @@ module('Integration | Graph | Edges', function (hooks) {
         'We have no record data instance after push of only an identifier within a relationship'
       );
 
-      let state = stateOf(bestFriend);
+      let state = stateOf(graph, bestFriend);
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
@@ -218,7 +218,7 @@ module('Integration | Graph | Edges', function (hooks) {
         });
       });
 
-      state = stateOf(bestFriend);
+      state = stateOf(graph, bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after canonical update');
       assert.deepEqual(state.local, [identifier3], 'Our current state is correct after canonical update');
 
@@ -237,7 +237,7 @@ module('Integration | Graph | Edges', function (hooks) {
         });
       });
 
-      state = stateOf(bestFriend);
+      state = stateOf(graph, bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after local update');
       assert.deepEqual(state.local, [identifier2], 'Our current state is correct after local update');
 
@@ -295,7 +295,7 @@ module('Integration | Graph | Edges', function (hooks) {
         'We have no record data instance after push of only an identifier within a relationship'
       );
 
-      let state = stateOf(bestFriends);
+      let state = stateOf(graph, bestFriends);
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
@@ -308,7 +308,7 @@ module('Integration | Graph | Edges', function (hooks) {
         });
       });
 
-      state = stateOf(bestFriends);
+      state = stateOf(graph, bestFriends);
       assert.deepEqual(
         state.remote,
         [identifier2, identifier3],
@@ -332,7 +332,7 @@ module('Integration | Graph | Edges', function (hooks) {
         });
       });
 
-      state = stateOf(bestFriends);
+      state = stateOf(graph, bestFriends);
       assert.deepEqual(state.remote, [identifier2, identifier3], 'Our canonical state is correct after local update');
       assert.deepEqual(
         state.local,
@@ -394,7 +394,7 @@ module('Integration | Graph | Edges', function (hooks) {
         'We have no record data instance after push of only an identifier within a relationship'
       );
 
-      let state = stateOf(bestFriends);
+      let state = stateOf(graph, bestFriends);
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
@@ -407,7 +407,7 @@ module('Integration | Graph | Edges', function (hooks) {
         });
       });
 
-      state = stateOf(bestFriends);
+      state = stateOf(graph, bestFriends);
       assert.deepEqual(
         state.remote,
         [identifier2, identifier3],
@@ -431,7 +431,7 @@ module('Integration | Graph | Edges', function (hooks) {
         });
       });
 
-      state = stateOf(bestFriends);
+      state = stateOf(graph, bestFriends);
       assert.deepEqual(state.remote, [identifier2, identifier3], 'Our canonical state is correct after local update');
       assert.deepEqual(
         state.local,

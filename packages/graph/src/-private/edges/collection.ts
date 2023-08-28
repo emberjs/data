@@ -1,11 +1,8 @@
-import type {
-  CollectionResourceRelationship,
-  Links,
-  Meta,
-  PaginationLinks,
-} from '@ember-data/types/q/ember-data-json-api';
+import type { CollectionRelationship } from '@ember-data/types/cache/relationship';
+import type { Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { computeLocalState } from '../-diff';
 import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';
 import { createState } from '../-state';
@@ -15,15 +12,23 @@ export interface CollectionEdge {
   identifier: StableRecordIdentifier;
   state: RelationshipState;
 
-  localMembers: Set<StableRecordIdentifier>;
   remoteMembers: Set<StableRecordIdentifier>;
-
   remoteState: StableRecordIdentifier[];
-  localState: StableRecordIdentifier[];
+
+  additions: Set<StableRecordIdentifier> | null;
+  removals: Set<StableRecordIdentifier> | null;
 
   meta: Meta | null;
   links: Links | PaginationLinks | null;
+
+  localState: StableRecordIdentifier[] | null;
+  isDirty: boolean;
   transactionRef: number;
+
+  _diff?: {
+    add: Set<StableRecordIdentifier>;
+    del: Set<StableRecordIdentifier>;
+  };
 }
 
 export function createCollectionEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): CollectionEdge {
@@ -31,24 +36,26 @@ export function createCollectionEdge(definition: UpgradedMeta, identifier: Stabl
     definition,
     identifier,
     state: createState(),
-    transactionRef: 0,
-
-    localMembers: new Set(),
     remoteMembers: new Set(),
-
     remoteState: [],
-    localState: [],
+    additions: null,
+    removals: null,
 
     meta: null,
     links: null,
+
+    localState: null,
+    isDirty: true,
+    transactionRef: 0,
+    _diff: undefined,
   };
 }
 
-export function legacyGetCollectionRelationshipData(source: CollectionEdge): CollectionResourceRelationship {
-  let payload: CollectionResourceRelationship = {};
+export function legacyGetCollectionRelationshipData(source: CollectionEdge): CollectionRelationship {
+  let payload: CollectionRelationship = {};
 
   if (source.state.hasReceivedData) {
-    payload.data = source.localState.slice();
+    payload.data = computeLocalState(source);
   }
 
   if (source.links) {

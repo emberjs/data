@@ -1,16 +1,19 @@
 import { assert } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { _addLocal } from '../-diff';
 import type { AddToRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
-import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
 import { addToInverse } from './replace-related-records';
 
-export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecordsOperation, isRemote: boolean) {
+export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecordsOperation, isRemote: false) {
+  assert(
+    `Graph does not yet support updating the remote state of a relationship via the ${op.op} operation`,
+    !isRemote
+  );
   const { record, value, index } = op;
   const relationship = graph.get(record, op.field);
   assert(
@@ -34,30 +37,11 @@ function addRelatedRecord(
   record: StableRecordIdentifier,
   value: StableRecordIdentifier,
   index: number | undefined,
-  isRemote: boolean
+  isRemote: false
 ) {
-  assert(`expected an identifier to add to the relationship`, value);
-  const { localMembers, localState } = relationship;
+  assert(`expected an identifier to add to the collection relationship`, value);
 
-  if (localMembers.has(value)) {
-    return;
+  if (_addLocal(graph, record, relationship, value)) {
+    addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
   }
-
-  const { type } = relationship.definition;
-  if (type !== value.type) {
-    if (DEBUG) {
-      assertPolymorphicType(record, relationship.definition, value, graph.store);
-    }
-    graph.registerPolymorphicType(value.type, type);
-  }
-
-  relationship.state.hasReceivedData = true;
-  localMembers.add(value);
-  if (index === undefined) {
-    localState.push(value);
-  } else {
-    localState.splice(index, 0, value);
-  }
-
-  addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
 }

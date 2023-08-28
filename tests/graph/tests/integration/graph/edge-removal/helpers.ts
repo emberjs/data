@@ -154,8 +154,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   assert.false(chris.isDeleted, 'PreCond: Chris is not deleted');
   assert.false(john.isDeleted, 'PreCond: John is not deleted');
 
-  const chrisState = stateOf(chrisBestFriend);
-  const johnState = stateOf(johnBestFriend);
+  const chrisState = stateOf(store._graph!, chrisBestFriend);
+  const johnState = stateOf(store._graph!, johnBestFriend);
 
   assert.deepEqual(
     chrisState.remote,
@@ -191,7 +191,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
 
     assert.ok(chrisImplicitFriend, 'PreCond: Chris has an implicit best friend');
 
-    const chrisImplicitState = stateOf(chrisImplicitFriend);
+    const chrisImplicitState = stateOf(store._graph!, chrisImplicitFriend);
 
     assert.deepEqual(
       chrisImplicitState.remote,
@@ -214,7 +214,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     } else {
       assert.strictEqual(Object.keys(johnImplicits).length, 1, 'PreCond: John has one implicit relationship');
       assert.ok(johnImplicitFriend, 'PreCond: John has no implicit best friend');
-      const johnImplicitState = stateOf(johnImplicitFriend);
+      const johnImplicitState = stateOf(store._graph!, johnImplicitFriend);
       assert.deepEqual(
         johnImplicitState.remote,
         config.dirtyLocal || config.useCreate ? [] : [chrisIdentifier],
@@ -252,11 +252,11 @@ export async function testFinalState(
   statuses: ExpectedTestOutcomes,
   assert
 ) {
-  const { graph } = context;
+  const { graph, store } = context;
   const { chrisIdentifier, johnIdentifier } = testState;
 
   const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
-  const chrisState = stateOf(chrisBestFriend);
+  const chrisState = stateOf(store._graph!, chrisBestFriend);
 
   // this specific case gets it's own WAT
   // this is something ideally a refactor should do away with.
@@ -323,7 +323,7 @@ export async function testFinalState(
     assert.false(graph.identifiers.has(johnIdentifier), 'Result: Relationships for John were cleared from the cache');
   } else {
     const johnBestFriend = graph.get(johnIdentifier, 'bestFriends');
-    const johnState = stateOf(johnBestFriend);
+    const johnState = stateOf(store._graph!, johnBestFriend);
 
     assert.deepEqual(
       johnState.remote,
@@ -349,7 +349,7 @@ export async function testFinalState(
     const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey] as ImplicitEdge;
 
     assert.ok(chrisImplicitFriend, 'Result: Chris has an implicit relationship for best friend');
-    const chrisImplicitState = stateOf(chrisImplicitFriend);
+    const chrisImplicitState = stateOf(store._graph!, chrisImplicitFriend);
 
     assert.deepEqual(
       chrisImplicitState.remote,
@@ -377,7 +377,7 @@ export async function testFinalState(
         'Result: John has one implicit relationship in the cache'
       );
       assert.ok(johnImplicitFriend, 'Result: John has an implicit key for best friend');
-      const johnImplicitState = stateOf(johnImplicitFriend);
+      const johnImplicitState = stateOf(store._graph!, johnImplicitFriend);
 
       assert.deepEqual(
         johnImplicitState.remote,

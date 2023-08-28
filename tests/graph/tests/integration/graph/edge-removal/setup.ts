@@ -4,9 +4,10 @@ import { graphFor } from '@ember-data/graph/-private';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type { GraphEdge } from '@ember-data/graph/-private/graph';
+import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
+import type { CollectionRelationship } from '@ember-data/types/cache/relationship';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
@@ -81,7 +82,10 @@ function setToArray<T>(set: Set<T>): T[] {
   return Array.from(set);
 }
 
-export function stateOf(rel: GraphEdge): {
+export function stateOf(
+  graph: Graph,
+  rel: GraphEdge
+): {
   remote: StableRecordIdentifier[];
   local: StableRecordIdentifier[];
 } {
@@ -93,8 +97,10 @@ export function stateOf(rel: GraphEdge): {
     local = rel.localState ? [rel.localState] : [];
     remote = rel.remoteState ? [rel.remoteState] : [];
   } else if (isHasMany(rel)) {
-    local = rel.localState.filter((m) => m !== null) as StableRecordIdentifier[];
-    remote = rel.remoteState.filter((m) => m !== null) as StableRecordIdentifier[];
+    // ensure we calculate what is otherwise lazy
+    const data = graph.getData(rel.identifier, rel.definition.key) as CollectionRelationship;
+    local = data.data || [];
+    remote = rel.remoteState;
   } else {
     local = setToArray<StableRecordIdentifier>(rel.localMembers);
     remote = setToArray<StableRecordIdentifier>(rel.remoteMembers);

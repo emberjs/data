@@ -2,9 +2,9 @@ import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
+import type { CollectionRelationship, ResourceRelationship } from '@ember-data/types/cache/relationship';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { EdgeCache, UpgradedMeta } from './-edge-definition';
@@ -33,7 +33,7 @@ import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
-import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
+import replaceRelatedRecords from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
 
 export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
@@ -154,10 +154,7 @@ export class Graph {
     return relationship;
   }
 
-  getData(
-    identifier: StableRecordIdentifier,
-    propertyName: string
-  ): SingleResourceRelationship | CollectionResourceRelationship {
+  getData(identifier: StableRecordIdentifier, propertyName: string): ResourceRelationship | CollectionRelationship {
     const relationship = this.get(identifier, propertyName);
 
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
@@ -448,10 +445,17 @@ export class Graph {
     if (!this._willSyncLocal) {
       return;
     }
+
+    if (this.silenceNotifications) {
+      this.silenceNotifications = false;
+      this._updatedRelationships = new Set();
+      return;
+    }
+
     this._willSyncLocal = false;
     let updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
-    updated.forEach((rel) => /*#__NOINLINE__*/ syncRemoteToLocal(this, rel));
+    updated.forEach((rel) => notifyChange(this, rel.identifier, rel.definition.key));
   }
 
   destroy() {
@@ -566,10 +570,11 @@ function clearRelationship(relationship: CollectionEdge | ResourceEdge) {
     relationship.state.hasReceivedData = false;
     relationship.state.isEmpty = true;
   } else {
-    relationship.localMembers.clear();
     relationship.remoteMembers.clear();
-    relationship.localState = [];
     relationship.remoteState = [];
+    relationship.additions = null;
+    relationship.removals = null;
+    relationship.localState = null;
   }
 }
 

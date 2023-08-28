@@ -3,8 +3,9 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { _addLocal, _removeLocal, diffCollection } from '../-diff';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
-import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
+import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
@@ -77,70 +78,47 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
   relationship.state.hasReceivedData = true;
+  const { additions, removals } = relationship;
+  const { inverseKey, type } = relationship.definition;
+  const { record } = op;
+  relationship.isDirty = false;
 
-  // cache existing state
-  const { localState, localMembers, definition } = relationship;
-  const newValues = new Set(identifiers);
-  const identifiersLength = identifiers.length;
-  const newState = new Array(newValues.size) as StableRecordIdentifier[];
-  const newMembership = new Set<StableRecordIdentifier>();
-
-  // wipe existing state
-  relationship.localMembers = newMembership;
-  relationship.localState = newState;
-
-  const { type } = relationship.definition;
-
-  let changed = false;
-
-  const currentLength = localState.length;
-  const iterationLength = currentLength > identifiersLength ? currentLength : identifiersLength;
-  const equalLength = currentLength === identifiersLength;
-
-  for (let i = 0, j = 0; i < iterationLength; i++) {
-    let adv = false;
-    if (i < identifiersLength) {
-      const identifier = identifiers[i];
-      // skip processing if we encounter a duplicate identifier in the array
-      if (!newMembership.has(identifier)) {
+  const diff = diffCollection(
+    identifiers,
+    relationship,
+    (identifier) => {
+      // Since we are diffing against the remote state, we check
+      // if our previous local state did not contain this identifier
+      if (removals?.has(identifier) || !additions?.has(identifier)) {
         if (type !== identifier.type) {
           if (DEBUG) {
             assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
           }
           graph.registerPolymorphicType(type, identifier.type);
         }
-        newState[j] = identifier;
-        adv = true;
-        newMembership.add(identifier);
 
-        if (!localMembers.has(identifier)) {
-          changed = true;
-          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
+        relationship.isDirty = true;
+        addToInverse(graph, identifier, inverseKey, op.record, isRemote);
+      }
+    },
+    (identifier) => {
+      // Since we are diffing against the remote state, we check
+      // if our previous local state had contained this identifier
+      if (additions?.has(identifier) || !removals?.has(identifier)) {
+        relationship.isDirty = true;
+        removeFromInverse(graph, identifier, inverseKey, record, isRemote);
       }
     }
-    if (i < currentLength) {
-      const identifier = localState[i];
+  );
 
-      // detect reordering
-      if (!newMembership.has(identifier)) {
-        if (equalLength && newState[i] !== identifier) {
-          changed = true;
-        }
+  const becameDirty = relationship.isDirty;
+  relationship.additions = diff.add;
+  relationship.removals = diff.del;
+  relationship.localState = diff.finalState;
+  relationship.isDirty = false;
 
-        if (!newValues.has(identifier)) {
-          changed = true;
-          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
-      }
-    }
-    if (adv) {
-      j++;
-    }
-  }
-
-  if (changed) {
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
+  if (becameDirty) {
+    notifyChange(graph, op.record, op.field);
   }
 }
 
@@ -158,79 +136,58 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   relationship.state.hasReceivedData = true;
 
   // cache existing state
-  const { remoteState, remoteMembers, definition } = relationship;
-  const newValues = new Set(identifiers);
-  const identifiersLength = identifiers.length;
-  const newState = new Array(newValues.size) as StableRecordIdentifier[];
-  const newMembership = new Set<StableRecordIdentifier>();
-
-  // wipe existing state
-  relationship.remoteMembers = newMembership;
-  relationship.remoteState = newState;
+  const { definition } = relationship;
 
   const { type } = relationship.definition;
 
-  let changed = false;
-
-  const canonicalLength = remoteState.length;
-  const iterationLength = canonicalLength > identifiersLength ? canonicalLength : identifiersLength;
-  const equalLength = canonicalLength === identifiersLength;
-
-  for (let i = 0, j = 0; i < iterationLength; i++) {
-    let adv = false;
-    if (i < identifiersLength) {
-      const identifier = identifiers[i];
-      if (!newMembership.has(identifier)) {
-        if (type !== identifier.type) {
-          if (DEBUG) {
-            assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-          }
-          graph.registerPolymorphicType(type, identifier.type);
+  const diff = diffCollection(
+    identifiers,
+    relationship,
+    (identifier) => {
+      if (type !== identifier.type) {
+        if (DEBUG) {
+          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
         }
-        newState[j] = identifier;
-        newMembership.add(identifier);
-        adv = true;
-
-        if (!remoteMembers.has(identifier)) {
-          changed = true;
-          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
+        graph.registerPolymorphicType(type, identifier.type);
       }
-    }
-    if (i < canonicalLength) {
-      const identifier = remoteState[i];
-
-      if (!newMembership.has(identifier)) {
-        // detect reordering
-        if (equalLength && newState[j] !== identifier) {
-          changed = true;
-        }
-
-        if (!newValues.has(identifier)) {
-          changed = true;
-          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
+      // commit additions
+      // TODO build this into the diff?
+      // because we are not dirty if this was a committed local addition
+      if (relationship.additions?.has(identifier)) {
+        relationship.additions.delete(identifier);
+      } else {
+        relationship.isDirty = true;
       }
+      addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+    },
+    (identifier) => {
+      // commit removals
+      // TODO build this into the diff?
+      // because we are not dirty if this was a committed local addition
+      if (relationship.removals?.has(identifier)) {
+        relationship.removals.delete(identifier);
+      } else {
+        relationship.isDirty = true;
+      }
+      removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
     }
-    if (adv) {
-      j++;
-    }
-  }
+  );
 
-  if (changed) {
+  // replace existing state
+  relationship.remoteMembers = diff.finalSet;
+  relationship.remoteState = diff.finalState;
+
+  // TODO unsure if we need this but it
+  // may allow us to more efficiently patch
+  // the associated ManyArray
+  relationship._diff = diff;
+
+  if (diff.changed) {
     flushCanonical(graph, relationship);
-    /*
-    replaceRelatedRecordsLocal(
-      graph,
-      {
-        op: op.op,
-        record: op.record,
-        field: op.field,
-        value: remoteState,
-      },
-      false
-    );*/
   } else {
+    // TODO
+    // this is because we used to eagerly notify on remote updates which
+    // has the effect of clearing certain kinds of local changes.
     // preserve legacy behavior we want to change but requires some sort
     // of deprecation.
     flushCanonical(graph, relationship);
@@ -271,7 +228,7 @@ export function addToInverse(
         removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, identifier, isRemote);
       }
       relationship.localState = value;
-      notifyChange(graph, relationship.identifier, relationship.definition.key);
+      notifyChange(graph, identifier, key);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
@@ -279,15 +236,17 @@ export function addToInverse(
         graph._addToTransaction(relationship);
         relationship.remoteState.push(value);
         relationship.remoteMembers.add(value);
-        relationship.state.hasReceivedData = true;
-        flushCanonical(graph, relationship);
+        if (relationship.additions?.has(value)) {
+          relationship.additions.delete(value);
+        } else {
+          relationship.isDirty = true;
+          relationship.state.hasReceivedData = true;
+          flushCanonical(graph, relationship);
+        }
       }
     } else {
-      if (!relationship.localMembers.has(value)) {
-        relationship.localState.push(value);
-        relationship.localMembers.add(value);
-        relationship.state.hasReceivedData = true;
-        notifyChange(graph, relationship.identifier, relationship.definition.key);
+      if (_addLocal(graph, identifier, relationship, value)) {
+        notifyChange(graph, identifier, key);
       }
     }
   } else {
@@ -313,7 +272,7 @@ export function notifyInverseOfPotentialMaterialization(
 ) {
   const relationship = graph.get(identifier, key);
   if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
+    notifyChange(graph, identifier, key);
   }
 }
 
@@ -339,19 +298,21 @@ export function removeFromInverse(
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
+      // TODO this needs to alert stuffs
+      // And patch state better
+      // This is almost definitely wrong
+      // WARNING WARNING WARNING
       graph._addToTransaction(relationship);
       let index = relationship.remoteState.indexOf(value);
       if (index !== -1) {
         relationship.remoteMembers.delete(value);
         relationship.remoteState.splice(index, 1);
       }
+    } else {
+      if (_removeLocal(relationship, value)) {
+        notifyChange(graph, identifier, key);
+      }
     }
-    let index = relationship.localState.indexOf(value);
-    if (index !== -1) {
-      relationship.localMembers.delete(value);
-      relationship.localState.splice(index, 1);
-    }
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
     if (isRemote) {
       relationship.remoteMembers.delete(value);
@@ -359,31 +320,6 @@ export function removeFromInverse(
     } else {
       if (value && relationship.localMembers.has(value)) {
         relationship.localMembers.delete(value);
-      }
-    }
-  }
-}
-
-export function syncRemoteToLocal(graph: Graph, rel: CollectionEdge) {
-  let toSet = rel.remoteState;
-  let newIdentifiers = rel.localState.filter((identifier) => isNew(identifier) && !toSet.includes(identifier));
-  let existingState = rel.localState;
-  rel.localState = toSet.concat(newIdentifiers);
-
-  let localMembers = (rel.localMembers = new Set<StableRecordIdentifier>());
-  rel.remoteMembers.forEach((v) => localMembers.add(v));
-  for (let i = 0; i < newIdentifiers.length; i++) {
-    localMembers.add(newIdentifiers[i]);
-  }
-
-  // TODO always notifying fails only one test and we should probably do away with it
-  if (existingState.length !== rel.localState.length) {
-    notifyChange(graph, rel.identifier, rel.definition.key);
-  } else {
-    for (let i = 0; i < existingState.length; i++) {
-      if (existingState[i] !== rel.localState[i]) {
-        notifyChange(graph, rel.identifier, rel.definition.key);
-        break;
       }
     }
   }

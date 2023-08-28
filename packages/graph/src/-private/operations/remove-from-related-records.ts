@@ -2,17 +2,18 @@ import { assert } from '@ember/debug';
 
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { _removeLocal } from '../-diff';
 import type { RemoveFromRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
 import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
 import { removeFromInverse } from './replace-related-records';
 
-export default function removeFromRelatedRecords(
-  graph: Graph,
-  op: RemoveFromRelatedRecordsOperation,
-  isRemote: boolean
-) {
+export default function removeFromRelatedRecords(graph: Graph, op: RemoveFromRelatedRecordsOperation, isRemote: false) {
+  assert(
+    `Graph does not yet support updating the remote state of a relationship via the ${op.op} operation`,
+    !isRemote
+  );
   const { record, value } = op;
   const relationship = graph.get(record, op.field);
   assert(
@@ -34,20 +35,10 @@ function removeRelatedRecord(
   relationship: CollectionEdge,
   record: StableRecordIdentifier,
   value: StableRecordIdentifier,
-  isRemote: boolean
+  isRemote: false
 ) {
-  assert(`expected an identifier to add to the relationship`, value);
-  const { localMembers, localState } = relationship;
-
-  if (!localMembers.has(value)) {
-    return;
+  assert(`expected an identifier to remove from the collection relationship`, value);
+  if (_removeLocal(relationship, value)) {
+    removeFromInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
   }
-
-  localMembers.delete(value);
-  let index = localState.indexOf(value);
-
-  assert(`expected localMembers and localState to be in sync`, index !== -1);
-  localState.splice(index, 1);
-
-  removeFromInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
 }
