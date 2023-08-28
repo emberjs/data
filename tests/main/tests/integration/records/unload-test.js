@@ -719,7 +719,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', async function (assert) {
-    assert.expect(13);
+    assert.expect(16);
 
     let person = store.push({
       data: {
@@ -749,7 +749,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let boatPerson = await boat.person;
 
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should be 1');
-    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should be 1');
+    assert.strictEqual(relationshipState.additions, null, 'additions should be empty');
+    assert.strictEqual(relationshipState.removals, null, 'removals should be empty');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
     assert.strictEqual(peopleBoats.at(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
@@ -760,7 +761,8 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     // ensure that our new state is correct
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
-    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should still be 1');
+    assert.strictEqual(relationshipState.additions, null, 'additions should be empty');
+    assert.strictEqual(relationshipState.removals, null, 'removals should be empty');
     assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
     run(() =>
@@ -773,7 +775,8 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     // ensure that our new state is correct
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
-    assert.strictEqual(relationshipState.localMembers.size, 1, 'localMembers size should still be 1');
+    assert.strictEqual(relationshipState.additions, null, 'additions should be empty');
+    assert.strictEqual(relationshipState.removals, null, 'removals should be empty');
     assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has their boats');
   });
 
