@@ -1,5 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
+import { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -145,14 +146,31 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   await settled();
 
   const chrisIdentifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-  const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
-  const johnBestFriend = graph.get(johnIdentifier, 'bestFriends');
+  const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends') as CollectionEdge;
+  const johnBestFriend = graph.get(johnIdentifier, 'bestFriends') as CollectionEdge;
 
   // pre-conds
   assert.strictEqual(chris.name, 'Chris', 'PreCond: We have chris');
   assert.strictEqual(john.name, 'John', 'PreCond: We have john');
   assert.false(chris.isDeleted, 'PreCond: Chris is not deleted');
   assert.false(john.isDeleted, 'PreCond: John is not deleted');
+
+  if (config.useCreate || config.dirtyLocal) {
+    assert[config.inverseNull ? 'false' : 'true'](
+      chrisBestFriend.state.hasReceivedData,
+      'PreCond: (eager) Chris has not received data'
+    );
+    assert.true(johnBestFriend.state.hasReceivedData, 'PreCond: (eager) John has not received data');
+  } else {
+    assert.false(chrisBestFriend.state.hasReceivedData, 'PreCond: (lazy) Chris has not received data');
+    assert.false(johnBestFriend.state.hasReceivedData, 'PreCond: (lazy) John has not received data');
+
+    graph.getData(chrisIdentifier, 'bestFriends');
+    graph.getData(johnIdentifier, 'bestFriends');
+
+    assert.true(chrisBestFriend.state.hasReceivedData, 'PreCond: (flushed) Chris has not received data');
+    assert.true(johnBestFriend.state.hasReceivedData, 'PreCond: (flushed) John has not received data');
+  }
 
   const chrisState = stateOf(store._graph!, chrisBestFriend);
   const johnState = stateOf(store._graph!, johnBestFriend);

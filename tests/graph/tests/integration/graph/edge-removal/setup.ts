@@ -60,6 +60,11 @@ class AbstractGraph {
     }
     return implicits;
   }
+
+  getData(identifier: StableRecordIdentifier, field: string) {
+    let graph = graphFor(this.store);
+    return graph.getData(identifier, field);
+  }
 }
 
 function graphForTest(store: Store) {
