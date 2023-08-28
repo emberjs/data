@@ -2,7 +2,6 @@ import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import type Store from '@ember-data/store';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
@@ -413,6 +412,8 @@ export class Graph {
     const updates = this._pushedUpdates;
     const { deletions, hasMany, belongsTo } = updates;
     updates.deletions = [];
+    updates.hasMany = undefined;
+    updates.belongsTo = undefined;
 
     for (let i = 0; i < deletions.length; i++) {
       this.update(deletions[i], true);
@@ -475,11 +476,6 @@ export class Graph {
   }
 }
 
-type CacheOp = {
-  record: StableRecordIdentifier;
-  field: string;
-};
-
 function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelationshipOperation[]>>) {
   ops.forEach((type) => {
     type.forEach((opList) => {
@@ -489,18 +485,8 @@ function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelations
 }
 function flushPendingList(graph: Graph, opList: RemoteRelationshipOperation[]) {
   for (let i = 0; i < opList.length; i++) {
-    if (isActive(graph, opList[i] as CacheOp)) {
-      graph.update(opList[i], true);
-      i--;
-      opList.splice(i, 1);
-    }
+    graph.update(opList[i], true);
   }
-}
-
-function isActive(graph: Graph, op: CacheOp): boolean {
-  const relationships = graph.identifiers.get(op.record);
-
-  return Boolean(relationships?.[op.field]);
 }
 
 // Handle dematerialization for relationship `rel`.  In all cases, notify the
