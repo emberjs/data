@@ -40,6 +40,13 @@ export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
 
 export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
 
+let transactionRef = 0;
+type PendingOps = {
+  belongsTo?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
+  hasMany?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
+  deletions: DeleteRecordOperation[];
+};
+
 /*
  * Graph acts as the cache for relationship data. It allows for
  * us to ask about and update relationships for a given Identifier
@@ -68,13 +75,10 @@ export class Graph {
   declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
-  declare _pushedUpdates: {
-    belongsTo: RemoteRelationshipOperation[];
-    hasMany: RemoteRelationshipOperation[];
-    deletions: DeleteRecordOperation[];
-  };
+  declare silenceNotifications: boolean;
+  declare _pushedUpdates: PendingOps;
   declare _updatedRelationships: Set<CollectionEdge>;
-  declare _transaction: Set<CollectionEdge | ResourceEdge> | null;
+  declare _transaction: number | null;
   declare _removing: StableRecordIdentifier | null;
 
   constructor(store: CacheCapabilitiesManager) {
@@ -86,10 +90,15 @@ export class Graph {
     this.isDestroyed = false;
     this._willSyncRemote = false;
     this._willSyncLocal = false;
-    this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
+    this._pushedUpdates = {
+      belongsTo: undefined,
+      hasMany: undefined,
+      deletions: [],
+    };
     this._updatedRelationships = new Set();
     this._transaction = null;
     this._removing = null;
+    this.silenceNotifications = false;
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
@@ -295,12 +304,10 @@ export class Graph {
     }
     if (op.op === 'deleteRecord') {
       this._pushedUpdates.deletions.push(op);
-    } else if (op.op === 'replaceRelatedRecord') {
-      this._pushedUpdates.belongsTo.push(op);
     } else {
       const definition = this.getDefinition(op.record, op.field);
       assert(`Cannot push a remote update for an implicit relationship`, definition.kind !== 'implicit');
-      this._pushedUpdates[definition.kind].push(op);
+      addPending(this._pushedUpdates, definition, op);
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
@@ -400,25 +407,32 @@ export class Graph {
       // eslint-disable-next-line no-console
       console.groupCollapsed(`Graph: Initialized Transaction`);
     }
-    this._transaction = new Set();
+    this._transaction = ++transactionRef;
     this._willSyncRemote = false;
-    const { deletions, hasMany, belongsTo } = this._pushedUpdates;
-    this._pushedUpdates.deletions = [];
-    this._pushedUpdates.hasMany = [];
-    this._pushedUpdates.belongsTo = [];
+    const updates = this._pushedUpdates;
+    const { deletions, hasMany, belongsTo } = updates;
+    updates.deletions = [];
+    updates.hasMany = undefined;
+    updates.belongsTo = undefined;
 
     for (let i = 0; i < deletions.length; i++) {
       this.update(deletions[i], true);
     }
 
-    for (let i = 0; i < hasMany.length; i++) {
-      this.update(hasMany[i], true);
+    if (hasMany) {
+      flushPending(this, hasMany);
+    }
+    if (belongsTo) {
+      flushPending(this, belongsTo);
     }
 
-    for (let i = 0; i < belongsTo.length; i++) {
-      this.update(belongsTo[i], true);
+    this._transaction = null;
+    if (LOG_GRAPH) {
+      // eslint-disable-next-line no-console
+      console.log(`Graph: transaction finalized`);
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
-    this._finalize();
   }
 
   _addToTransaction(relationship: CollectionEdge | ResourceEdge) {
@@ -427,21 +441,7 @@ export class Graph {
       // eslint-disable-next-line no-console
       console.log(`Graph: ${String(relationship.identifier)} ${relationship.definition.key} added to transaction`);
     }
-    relationship.transactionRef++;
-    this._transaction.add(relationship);
-  }
-
-  _finalize() {
-    if (this._transaction) {
-      this._transaction.forEach((v) => (v.transactionRef = 0));
-      this._transaction = null;
-      if (LOG_GRAPH) {
-        // eslint-disable-next-line no-console
-        console.log(`Graph: transaction finalized`);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
-    }
+    relationship.transactionRef = this._transaction;
   }
 
   _flushLocalQueue() {
@@ -473,6 +473,19 @@ export class Graph {
     this.identifiers.clear();
     this.store = null as unknown as CacheCapabilitiesManager;
     this.isDestroyed = true;
+  }
+}
+
+function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelationshipOperation[]>>) {
+  ops.forEach((type) => {
+    type.forEach((opList) => {
+      flushPendingList(graph, opList);
+    });
+  });
+}
+function flushPendingList(graph: Graph, opList: RemoteRelationshipOperation[]) {
+  for (let i = 0; i < opList.length; i++) {
+    graph.update(opList[i], true);
   }
 }
 
@@ -637,4 +650,24 @@ function removeCompletelyFromInverse(graph: Graph, relationship: GraphEdge) {
     relationship.remoteMembers.clear();
     relationship.localMembers.clear();
   }
+}
+
+function addPending(
+  cache: PendingOps,
+  definition: UpgradedMeta,
+  op: RemoteRelationshipOperation & { field: string }
+): void {
+  let lc = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
+    cache[definition.kind as 'hasMany' | 'belongsTo'] || new Map<string, Map<string, RemoteRelationshipOperation[]>>());
+  let lc2 = lc.get(definition.inverseType);
+  if (!lc2) {
+    lc2 = new Map<string, RemoteRelationshipOperation[]>();
+    lc.set(definition.inverseType, lc2);
+  }
+  let arr = lc2.get(op.field);
+  if (!arr) {
+    arr = [];
+    lc2.set(op.field, arr);
+  }
+  arr.push(op);
 }
