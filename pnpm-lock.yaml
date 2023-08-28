@@ -90,7 +90,7 @@ importers:
         specifier: ^4.3.4
         version: 4.3.4
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1(debug@4.3.4)
       ember-source:
         specifier: ~5.2.0
@@ -1310,7 +1310,7 @@ importers:
         specifier: ^7.5.0
         version: 7.5.0
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-dependency-checker:
         specifier: ^3.3.2
@@ -1412,7 +1412,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -1514,7 +1514,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.11)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-blueprint-test-helpers:
         specifier: ^0.19.2
@@ -1603,7 +1603,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -1730,7 +1730,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -1855,7 +1855,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -1963,7 +1963,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -2052,7 +2052,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -2159,7 +2159,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -2304,7 +2304,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -2449,7 +2449,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -2600,7 +2600,7 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2(@babel/core@7.22.11)(ember-source@5.2.0)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -2751,7 +2751,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -2858,7 +2858,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -2939,7 +2939,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
@@ -3078,7 +3078,7 @@ importers:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
       ember-cli:
-        specifier: ~5.2.0
+        specifier: ~5.2.1
         version: 5.2.1
       ember-cli-babel:
         specifier: ^8.0.0
