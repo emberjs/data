@@ -1,11 +1,12 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { _addLocal, _removeLocal, diffCollection } from '../-diff';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
-import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
+import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
@@ -181,6 +182,70 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   // may allow us to more efficiently patch
   // the associated ManyArray
   relationship._diff = diff;
+
+  debugger;
+  if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+    // only do this for legacy hasMany, not collection
+    // and provide a way to incrementally migrate
+    if (relationship.definition.kind === 'hasMany' && relationship.definition.resetOnRemoteUpdate !== false) {
+      const deprecationInfo: {
+        removals: StableRecordIdentifier[];
+        additions: StableRecordIdentifier[];
+        triggered: boolean;
+      } = {
+        removals: [],
+        additions: [],
+        triggered: false,
+      };
+      if (relationship.removals) {
+        deprecationInfo.triggered = true;
+        relationship.isDirty = true;
+        relationship.removals.forEach((identifier) => {
+          deprecationInfo.removals.push(identifier);
+          // reverse the removal
+          // if we are still in removals at this point then
+          // we were not "committed" which means we are present
+          // in the remoteMembers. So we "add back" on the inverse.
+          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        });
+        relationship.removals = null;
+      }
+      if (relationship.additions) {
+        relationship.additions.forEach((identifier) => {
+          // reverse the addition
+          // if we are still in additions at this point then
+          // we were not "committed" which means we are not present
+          // in the remoteMembers. So we "remove" from the inverse.
+          // however we only do this if we are not a "new" record.
+          if (!isNew(identifier)) {
+            deprecationInfo.triggered = true;
+            deprecationInfo.additions.push(identifier);
+            relationship.isDirty = true;
+            relationship.additions!.delete(identifier);
+            removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+          }
+        });
+        if (relationship.additions.size === 0) {
+          relationship.additions = null;
+        }
+      }
+
+      if (deprecationInfo.triggered) {
+        deprecate(
+          `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared but will not be once this deprecation is resolved:\n\n\tAdded: [${deprecationInfo.additions
+            .map((i) => i.lid)
+            .join(', ')}]\n\tRemoved: [${deprecationInfo.removals.map((i) => i.lid).join(', ')}]`,
+          false,
+          {
+            id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
+            for: 'ember-data',
+            since: { enabled: '5.3', available: '5.3' },
+            until: '6.0',
+          }
+        );
+      }
+    }
+  }
 
   if (diff.changed) {
     flushCanonical(graph, relationship);

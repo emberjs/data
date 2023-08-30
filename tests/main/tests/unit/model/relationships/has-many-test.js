@@ -2077,11 +2077,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
     );
 
     await shen.destroyRecord({});
-    // were ember-data to now preserve local edits during a relationship push, this would be '2'
+    // were ember-data to now preserve local edits during a relationship push, this would be 2 pets
     assert.deepEqual(
       pets.map((p) => p.id),
-      ['2'],
-      'relationship now has only one pet, we lost the local change'
+      ['2'], // ['2', '3'],
+      'we only have one pet' // 'relationship has two pets, we kept the local change'
     );
   });
 

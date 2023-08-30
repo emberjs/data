@@ -13,7 +13,7 @@ import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/
 import Application from '../app';
 import config from '../config/environment';
 
-QUnit.dump.maxDepth = 3;
+QUnit.dump.maxDepth = 5;
 setup(QUnit.assert);
 
 configureAsserts();

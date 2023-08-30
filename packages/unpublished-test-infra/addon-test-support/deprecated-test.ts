@@ -19,10 +19,13 @@ function gte(EDVersion: string, DeprecationVersion: string): boolean {
 export function deprecatedTest(
   testName: string,
   deprecation: {
-    until: `${number}.${number}.${number}`;
+    until: `${number}.${number}`;
     id: string;
     count: number;
+    // this test should only run in debug mode
     debugOnly?: boolean;
+    // this test should remain in the codebase but
+    // should be refactored to no longer use the deprecated feature
     refactor?: boolean;
   },
   testCallback: <T extends TestContext>(this: T, assert: Assert) => void | Promise<void>
