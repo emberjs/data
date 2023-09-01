@@ -4,7 +4,7 @@
 import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 
-import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/debugging';
+import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
@@ -188,6 +188,35 @@ export default class JSONAPICache implements Cache {
     let included = jsonApiDoc.included;
     let i: number, length: number;
     const { identifierCache } = this.__storeWrapper;
+
+    if (true) {
+      const Counts = new Map();
+      if (included) {
+        for (i = 0, length = included.length; i < length; i++) {
+          const type = included[i].type;
+          Counts.set(type, (Counts.get(type) || 0) + 1);
+        }
+      }
+      if (Array.isArray(jsonApiDoc.data)) {
+        for (i = 0, length = jsonApiDoc.data.length; i < length; i++) {
+          const type = jsonApiDoc.data[i].type;
+          Counts.set(type, (Counts.get(type) || 0) + 1);
+        }
+      } else if (jsonApiDoc.data) {
+        const type = jsonApiDoc.data.type;
+        Counts.set(type, (Counts.get(type) || 0) + 1);
+      }
+
+      let str = `JSON:API Cache - put (${doc.content?.lid || doc.request?.url || 'unknown-request'})\n\tContents:`;
+      Counts.forEach((count, type) => {
+        str += `\n\t\t${type}: ${count}`;
+      });
+      if (Counts.size === 0) {
+        str += `\t(empty)`;
+      }
+      // eslint-disable-next-line no-console
+      console.log(str);
+    }
 
     if (included) {
       for (i = 0, length = included.length; i < length; i++) {

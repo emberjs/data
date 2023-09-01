@@ -17,6 +17,7 @@ import AdapterError, {
   UnauthorizedError,
 } from '@ember-data/adapter/error';
 import RESTAdapter from '@ember-data/adapter/rest';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
@@ -546,6 +547,130 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.strictEqual(post.comments.length, 0, 'the post has the no comments');
     }
   );
+
+  test('updateRecord - hasMany relationships set locally will NOT be removed with empty response when flag is set', async function (assert) {
+    class Post extends Model {
+      @attr name;
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
+    }
+    this.owner.register('model:post', Post);
+    class Comment extends Model {
+      @attr name;
+      @belongsTo('post', { async: false, inverse: 'comments', resetOnRemoteUpdate: false }) post;
+    }
+
+    this.owner.register('model:comment', Comment);
+
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Not everyone uses React',
+        },
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
+          },
+        },
+      },
+    });
+
+    store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: {
+          name: 'Go is omakase',
+        },
+      },
+    });
+
+    const comment2 = store.push({
+      data: {
+        type: 'comment',
+        id: '2',
+        attributes: {
+          name: 'Ember is omakase',
+        },
+      },
+    });
+
+    ajaxResponse({
+      posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
+    });
+
+    post.comments.push(comment2);
+    assert.strictEqual(post.comments.length, 2, 'the post has two comments');
+
+    await post.save();
+
+    assert.strictEqual(post.comments.length, 1, 'the post has one comment');
+    assert.strictEqual(post.comments.at(0).id, '2', 'the post has the correct comment');
+  });
+
+  if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+    test('updateRecord - hasMany relationships set locally will NOT be removed with empty response', async function (assert) {
+      class Post extends Model {
+        @attr name;
+        @hasMany('comment', { async: false, inverse: 'post' }) comments;
+      }
+      this.owner.register('model:post', Post);
+      class Comment extends Model {
+        @attr name;
+        @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      }
+
+      this.owner.register('model:comment', Comment);
+
+      const post = store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            name: 'Not everyone uses React',
+          },
+          relationships: {
+            comments: {
+              data: [{ type: 'comment', id: '1' }],
+            },
+          },
+        },
+      });
+
+      store.push({
+        data: {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            name: 'Go is omakase',
+          },
+        },
+      });
+
+      const comment2 = store.push({
+        data: {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            name: 'Ember is omakase',
+          },
+        },
+      });
+
+      ajaxResponse({
+        posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
+      });
+
+      post.comments.push(comment2);
+      assert.strictEqual(post.comments.length, 2, 'the post has two comments');
+
+      await post.save();
+
+      assert.strictEqual(post.comments.length, 1, 'the post has one comment');
+      assert.strictEqual(post.comments.at(0).id, '2', 'the post has the correct comment');
+    });
+  }
 
   test('deleteRecord - an empty payload is a basic success', async function (assert) {
     class Post extends Model {
