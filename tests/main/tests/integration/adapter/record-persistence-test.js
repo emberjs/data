@@ -249,7 +249,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     assert.strictEqual(savedTom, tom, 'The record is correct');
     assert.strictEqual(savedYehuda, yehuda, 'The record is correct');
     assert.false(tom.hasDirtyAttributes, 'Tom is not dirty after saving record');
-    assert.false(yehuda.hasDirtyAttributes, 'Yehuda is not dirty after dsaving record');
+    assert.false(yehuda.hasDirtyAttributes, 'Yehuda is not dirty after saving record');
     assert.strictEqual(tom.name, 'Tom Dale', 'name attribute should reflect value of hash returned from the request');
     assert.strictEqual(
       tom.updatedAt,
