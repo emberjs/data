@@ -20,6 +20,10 @@ export default function removeFromRelatedRecords(graph: Graph, op: RemoveFromRel
     `You can only '${op.op}' on a hasMany relationship. ${record.type}.${op.field} is a ${relationship.definition.kind}`,
     isHasMany(relationship)
   );
+  // TODO we should potentially thread the index information through here
+  // when available as it may make it faster to remove from the local state
+  // when trying to patch more efficiently without blowing away the entire
+  // local state array
   if (Array.isArray(value)) {
     for (let i = 0; i < value.length; i++) {
       removeRelatedRecord(graph, relationship, record, value[i], isRemote);

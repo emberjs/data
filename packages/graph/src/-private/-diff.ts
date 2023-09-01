@@ -223,7 +223,8 @@ export function _addLocal(
   graph: Graph,
   record: StableRecordIdentifier,
   relationship: CollectionEdge,
-  value: StableRecordIdentifier
+  value: StableRecordIdentifier,
+  index: number | null
 ): boolean {
   const { remoteMembers, removals } = relationship;
   let additions = relationship.additions;
@@ -256,7 +257,25 @@ export function _addLocal(
     }
   }
 
-  relationship.isDirty = true;
+  // if we have existing localState
+  // and we have an index
+  // apply the change, as this is more efficient
+  // than recomputing localState and
+  // it allows us to preserve local ordering
+  // to a small extend. Local ordering should not
+  // be relied upon as any remote change will blow it away
+  if (relationship.localState) {
+    if (index !== null) {
+      relationship.localState.splice(index, 0, value);
+    } else {
+      relationship.localState.push(value);
+    }
+  }
+  assert(
+    `Expected relationship to be dirty when adding a local mutation`,
+    relationship.localState || relationship.isDirty
+  );
+
   return true;
 }
 
@@ -284,6 +303,69 @@ export function _removeLocal(relationship: CollectionEdge, value: StableRecordId
     removals.add(value);
   }
 
-  relationship.isDirty = true;
+  // if we have existing localState
+  // apply the change, as this is more efficient
+  // than recomputing localState and
+  // it allows us to preserve local ordering
+  // to a small extend. Local ordering should not
+  // be relied upon as any remote change will blow it away
+  if (relationship.localState) {
+    const index = relationship.localState.indexOf(value);
+    assert(`Cannot remove a resource that is not present`, index !== -1);
+    relationship.localState.splice(index, 1);
+  }
+  assert(
+    `Expected relationship to be dirty when performing a local mutation`,
+    relationship.localState || relationship.isDirty
+  );
+
+  return true;
+}
+
+export function _removeRemote(relationship: CollectionEdge, value: StableRecordIdentifier): boolean {
+  assert(`expected an identifier to remove from the collection relationship`, value);
+  const { remoteMembers, additions, removals, remoteState } = relationship;
+
+  assert(`Cannot remove a resource that is not present`, remoteMembers.has(value));
+  if (!remoteMembers.has(value)) {
+    return false;
+  }
+
+  // remove from remote state
+  remoteMembers.delete(value);
+  let index = remoteState.indexOf(value);
+  assert(`Cannot remove a resource that is not present`, index !== -1);
+  remoteState.splice(index, 1);
+
+  // remove from removals if present
+  if (removals?.has(value)) {
+    removals.delete(value);
+
+    // nothing more to do this was our state already
+    return false;
+  }
+
+  assert(
+    `Remote state indicated removal of a resource that was present only as a local mutation`,
+    !additions?.has(value)
+  );
+
+  // if we have existing localState
+  // and we have an index
+  // apply the change, as this is more efficient
+  // than recomputing localState and
+  // it allows us to preserve local ordering
+  // to a small extend. Local ordering should not
+  // be relied upon as any remote change will blow it away
+  if (relationship.localState) {
+    index = relationship.localState.indexOf(value);
+    assert(`Cannot remove a resource that is not present`, index !== -1);
+    relationship.localState.splice(index, 1);
+  }
+  assert(
+    `Expected relationship to be dirty when performing a local mutation`,
+    relationship.localState || relationship.isDirty
+  );
+
   return true;
 }

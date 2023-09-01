@@ -9,6 +9,7 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model/relationships - belongsTo', function (hooks) {
@@ -434,64 +435,72 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     });
   });
 
-  test('when response to saving a belongsTo is a success but includes changes that reset the users change', async function (assert) {
-    const Tag = Model.extend({
-      label: attr(),
-    });
-    const User = Model.extend({
-      tag: belongsTo('tag', { async: false, inverse: null }),
-    });
+  deprecatedTest(
+    'when response to saving a belongsTo is a success but includes changes that reset the users change',
+    {
+      id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
+      until: '6.0',
+      count: 1,
+      refactor: true, // should probably assert against this scenario in dev at the cache level by comparing to in-flight state
+    },
+    async function (assert) {
+      class Tag extends Model {
+        @attr label;
+      }
+      class User extends Model {
+        @belongsTo('tag', { async: false, inverse: null }) tag;
+      }
 
-    this.owner.register('model:tag', Tag);
-    this.owner.register('model:user', User);
+      this.owner.register('model:tag', Tag);
+      this.owner.register('model:user', User);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-
-    const [user, tag1, tag2] = store.push({
-      data: [
-        {
-          type: 'user',
-          id: '1',
-          relationships: {
-            tag: {
-              data: { type: 'tag', id: '1' },
-            },
-          },
-        },
-        { type: 'tag', id: '1', attributes: { label: 'A' } },
-        { type: 'tag', id: '2', attributes: { label: 'B' } },
-      ],
-    });
-
-    assert.strictEqual(tag1.label, 'A', 'tag1 is loaded');
-    assert.strictEqual(tag2.label, 'B', 'tag2 is loaded');
-    assert.strictEqual(user.tag.id, '1', 'user starts with tag1 as tag');
-
-    user.set('tag', tag2);
-
-    assert.strictEqual(user.tag.id, '2', 'user tag updated to tag2');
-
-    adapter.updateRecord = function () {
-      return {
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            tag: {
-              data: {
-                id: '1',
-                type: 'tag',
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+      const [user, tag1, tag2] = store.push({
+        data: [
+          {
+            type: 'user',
+            id: '1',
+            relationships: {
+              tag: {
+                data: { type: 'tag', id: '1' },
               },
             },
           },
-        },
-      };
-    };
+          { type: 'tag', id: '1', attributes: { label: 'A' } },
+          { type: 'tag', id: '2', attributes: { label: 'B' } },
+        ],
+      });
 
-    await user.save();
-    assert.strictEqual(user.tag.id, '1', 'expected new server state to be applied');
-  });
+      assert.strictEqual(tag1.label, 'A', 'tag1 is loaded');
+      assert.strictEqual(tag2.label, 'B', 'tag2 is loaded');
+      assert.strictEqual(user.tag.id, '1', 'user starts with tag1 as tag');
+
+      user.set('tag', tag2);
+
+      assert.strictEqual(user.tag.id, '2', 'user tag updated to tag2');
+
+      adapter.updateRecord = function () {
+        return {
+          data: {
+            type: 'user',
+            id: '1',
+            relationships: {
+              tag: {
+                data: {
+                  id: '1',
+                  type: 'tag',
+                },
+              },
+            },
+          },
+        };
+      };
+
+      await user.save();
+      assert.strictEqual(user.tag.id, '1', 'expected new server state to be applied');
+    }
+  );
 
   test('calling createRecord and passing in an undefined value for a relationship should be treated as if null', function (assert) {
     assert.expect(1);

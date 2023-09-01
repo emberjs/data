@@ -427,9 +427,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: { id: '1', name: 'Not everyone uses Rails', comments: [2] },
     });
 
-    await store.findRecord('comment', 2);
-    let post = await store.findRecord('post', 1);
-    let newComment = store.peekRecord('comment', 2);
+    await store.findRecord('comment', '2');
+    let post = await store.findRecord('post', '1');
+    let newComment = store.peekRecord('comment', '2');
     let comments = post.comments;
 
     // Replace the comment with a new one

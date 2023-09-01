@@ -1029,9 +1029,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
   });
 
   test('snapshot.hasMany() respects the order of items in the relationship', async function (assert) {
-    assert.expect(3);
+    assert.expect(10);
 
-    store.push({
+    const [comment1, comment2, comment3, post] = store.push({
       data: [
         {
           type: 'comment',
@@ -1072,18 +1072,86 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment3 = store.peekRecord('comment', 3);
-    let post = store.peekRecord('post', 4);
     const comments = await post.comments;
-    comments.splice(comments.indexOf(comment3), 1);
-    comments.unshift(comment3);
-
     let snapshot = post._createSnapshot();
     let relationship = snapshot.hasMany('comments');
 
-    assert.strictEqual(relationship[0].id, '3', 'order of comment 3 is correct');
-    assert.strictEqual(relationship[1].id, '1', 'order of comment 1 is correct');
-    assert.strictEqual(relationship[2].id, '2', 'order of comment 2 is correct');
+    assert.arrayStrictEquals(comments, [comment1, comment2, comment3], 'initial relationship order is correct');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['1', '2', '3'],
+      'initial relationship reference order is correct'
+    );
+
+    // change order locally
+    comments.splice(comments.indexOf(comment3), 1);
+    comments.unshift(comment3);
+
+    snapshot = post._createSnapshot();
+    relationship = snapshot.hasMany('comments');
+
+    assert.arrayStrictEquals(comments, [comment3, comment1, comment2], 'relationship preserved local order');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['3', '1', '2'],
+      'relationship reference preserved local order'
+    );
+
+    // change order locally again
+    comments.splice(comments.indexOf(comment1), 1);
+
+    snapshot = post._createSnapshot();
+    relationship = snapshot.hasMany('comments');
+
+    assert.arrayStrictEquals(comments, [comment3, comment2], 'relationship preserved local order');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['3', '2'],
+      'relationship reference preserved local order'
+    );
+
+    // and again
+    comments.push(comment1);
+
+    snapshot = post._createSnapshot();
+    relationship = snapshot.hasMany('comments');
+
+    assert.arrayStrictEquals(comments, [comment3, comment2, comment1], 'relationship preserved local order');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['3', '2', '1'],
+      'relationship reference preserved local order'
+    );
+
+    // push a new remote state with a different order
+    store.push({
+      data: {
+        type: 'post',
+        id: '4',
+        attributes: {
+          title: 'Hello World',
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '3' },
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+            ],
+          },
+        },
+      },
+    });
+
+    snapshot = post._createSnapshot();
+    relationship = snapshot.hasMany('comments');
+
+    assert.arrayStrictEquals(comments, [comment3, comment1, comment2], 'relationship updated to remote order');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['3', '1', '2'],
+      'relationship updated to remote order'
+    );
   });
 
   test('snapshot.eachAttribute() proxies to record', function (assert) {

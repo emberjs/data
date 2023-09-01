@@ -9,6 +9,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT, PromiseManyArray } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
@@ -545,77 +546,86 @@ module('unit/model/relationships - hasMany', function (hooks) {
     assert.strictEqual(tag.people.length, 0, 'relationship is correct');
   });
 
-  test('hasMany with duplicates from payload', function (assert) {
-    assert.expect(1);
+  deprecatedTest(
+    'hasMany with duplicates from payload',
+    {
+      id: 'ember-data:deprecate-non-unique-relationship-entries',
+      count: 1,
+      until: '6.0',
+      refactor: true, // should assert when stripped
+    },
+    function (assert) {
+      assert.expect(1);
 
-    const Tag = Model.extend({
-      name: attr('string'),
-      people: hasMany('person', { async: false, inverse: 'tag' }),
-    });
+      const Tag = Model.extend({
+        name: attr('string'),
+        people: hasMany('person', { async: false, inverse: 'tag' }),
+      });
 
-    Tag.toString = () => {
-      return 'tag';
-    };
+      Tag.toString = () => {
+        return 'tag';
+      };
 
-    const Person = Model.extend({
-      name: attr('string'),
-      tag: belongsTo('tag', { async: false, inverse: 'people' }),
-    });
+      const Person = Model.extend({
+        name: attr('string'),
+        tag: belongsTo('tag', { async: false, inverse: 'people' }),
+      });
 
-    Person.toString = () => {
-      return 'person';
-    };
+      Person.toString = () => {
+        return 'person';
+      };
 
-    this.owner.register('model:tag', Tag);
-    this.owner.register('model:person', Person);
+      this.owner.register('model:tag', Tag);
+      this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+      let store = this.owner.lookup('service:store');
 
-    // first we push in data with the relationship
-    store.push({
-      data: {
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'David J. Hamilton',
-        },
-        relationships: {
-          tag: {
-            data: {
-              type: 'tag',
-              id: '1',
-            },
-          },
-        },
-      },
-      included: [
-        {
-          type: 'tag',
+      // first we push in data with the relationship
+      store.push({
+        data: {
+          type: 'person',
           id: '1',
           attributes: {
-            name: 'whatever',
+            name: 'David J. Hamilton',
           },
           relationships: {
-            people: {
-              data: [
-                {
-                  type: 'person',
-                  id: '1',
-                },
-                {
-                  type: 'person',
-                  id: '1',
-                },
-              ],
+            tag: {
+              data: {
+                type: 'tag',
+                id: '1',
+              },
             },
           },
         },
-      ],
-    });
+        included: [
+          {
+            type: 'tag',
+            id: '1',
+            attributes: {
+              name: 'whatever',
+            },
+            relationships: {
+              people: {
+                data: [
+                  {
+                    type: 'person',
+                    id: '1',
+                  },
+                  {
+                    type: 'person',
+                    id: '1',
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      });
 
-    let tag = store.peekRecord('tag', 1);
-    assert.strictEqual(tag.people.length, 1, 'relationship does not contain duplicates');
-  });
+      let tag = store.peekRecord('tag', 1);
+      assert.strictEqual(tag.people.length, 1, 'relationship does not contain duplicates');
+    }
+  );
 
   test('many2many loads both sides #5140', function (assert) {
     assert.expect(3);
@@ -1973,117 +1983,126 @@ module('unit/model/relationships - hasMany', function (hooks) {
     the parent record's hasMany is a situation in which this limitation will be encountered should other
     local changes to the relationship still exist.
    */
-  test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship info from a delete clears local state', async function (assert) {
-    assert.expect(4);
+  deprecatedTest(
+    '[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship info from a delete clears local state',
+    {
+      id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
+      until: '6.0',
+      count: 1,
+      refactor: true,
+    },
+    async function (assert) {
+      assert.expect(4);
 
-    const Person = Model.extend({
-      name: attr('string'),
-      pets: hasMany('pet', { async: false, inverse: null }),
-    });
+      const Person = Model.extend({
+        name: attr('string'),
+        pets: hasMany('pet', { async: false, inverse: null }),
+      });
 
-    const Pet = Model.extend({
-      name: attr('string'),
-      person: belongsTo('person', { async: false, inverse: null }),
-    });
+      const Pet = Model.extend({
+        name: attr('string'),
+        person: belongsTo('person', { async: false, inverse: null }),
+      });
 
-    this.owner.register('model:person', Person);
-    this.owner.register('model:pet', Pet);
+      this.owner.register('model:person', Person);
+      this.owner.register('model:pet', Pet);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.shouldBackgroundReloadRecord = () => false;
-    adapter.deleteRecord = () => {
-      return Promise.resolve({
-        data: null,
+      adapter.shouldBackgroundReloadRecord = () => false;
+      adapter.deleteRecord = () => {
+        return Promise.resolve({
+          data: null,
+          included: [
+            {
+              type: 'person',
+              id: '1',
+              attributes: {
+                name: 'Chris Thoburn',
+              },
+              relationships: {
+                pets: {
+                  data: [{ type: 'pet', id: '2' }],
+                },
+              },
+            },
+          ],
+        });
+      };
+
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
+          relationships: {
+            pets: {
+              data: [
+                { type: 'pet', id: '1' },
+                { type: 'pet', id: '2' },
+              ],
+            },
+          },
+        },
         included: [
           {
-            type: 'person',
+            type: 'pet',
             id: '1',
             attributes: {
-              name: 'Chris Thoburn',
+              name: 'Shenanigans',
             },
-            relationships: {
-              pets: {
-                data: [{ type: 'pet', id: '2' }],
-              },
+          },
+          {
+            type: 'pet',
+            id: '2',
+            attributes: {
+              name: 'Rambunctious',
+            },
+          },
+          {
+            type: 'pet',
+            id: '3',
+            attributes: {
+              name: 'Rebel',
             },
           },
         ],
       });
-    };
 
-    store.push({
-      data: {
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Chris Thoburn',
-        },
-        relationships: {
-          pets: {
-            data: [
-              { type: 'pet', id: '1' },
-              { type: 'pet', id: '2' },
-            ],
-          },
-        },
-      },
-      included: [
-        {
-          type: 'pet',
-          id: '1',
-          attributes: {
-            name: 'Shenanigans',
-          },
-        },
-        {
-          type: 'pet',
-          id: '2',
-          attributes: {
-            name: 'Rambunctious',
-          },
-        },
-        {
-          type: 'pet',
-          id: '3',
-          attributes: {
-            name: 'Rebel',
-          },
-        },
-      ],
-    });
+      const person = store.peekRecord('person', '1');
+      const pets = await person.pets;
 
-    const person = store.peekRecord('person', '1');
-    const pets = await person.pets;
+      const shen = store.peekRecord('pet', '1');
+      const rebel = store.peekRecord('pet', '3');
 
-    const shen = store.peekRecord('pet', '1');
-    const rebel = store.peekRecord('pet', '3');
+      assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
+      assert.deepEqual(
+        pets.map((p) => p.id),
+        ['1', '2'],
+        'precond - relationship has the correct pets to start'
+      );
 
-    assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
-    assert.deepEqual(
-      pets.map((p) => p.id),
-      ['1', '2'],
-      'precond - relationship has the correct pets to start'
-    );
+      pets.push(rebel);
+      await settled();
 
-    pets.push(rebel);
-    await settled();
+      assert.deepEqual(
+        pets.map((p) => p.id),
+        ['1', '2', '3'],
+        'precond2 - relationship now has the correct three pets'
+      );
 
-    assert.deepEqual(
-      pets.map((p) => p.id),
-      ['1', '2', '3'],
-      'precond2 - relationship now has the correct three pets'
-    );
-
-    await shen.destroyRecord({});
-    // were ember-data to now preserve local edits during a relationship push, this would be 2 pets
-    assert.deepEqual(
-      pets.map((p) => p.id),
-      ['2'], // ['2', '3'],
-      'we only have one pet' // 'relationship has two pets, we kept the local change'
-    );
-  });
+      await shen.destroyRecord({});
+      // were ember-data to now preserve local edits during a relationship push, this would be 2 pets
+      assert.deepEqual(
+        pets.map((p) => p.id),
+        ['2'], // ['2', '3'],
+        'we only have one pet' // 'relationship has two pets, we kept the local change'
+      );
+    }
+  );
 
   test('possible to replace items in a relationship using setObjects w/ Ember Enumerable Array/Object as the argument (GH-2533)', function (assert) {
     assert.expect(2);

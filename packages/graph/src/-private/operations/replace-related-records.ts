@@ -4,7 +4,7 @@ import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@embe
 import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import { _addLocal, _removeLocal, diffCollection } from '../-diff';
+import { _addLocal, _removeLocal, _removeRemote, diffCollection } from '../-diff';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
@@ -178,12 +178,16 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   relationship.remoteMembers = diff.finalSet;
   relationship.remoteState = diff.finalState;
 
+  // changed also indicates a change in order
+  if (diff.changed) {
+    relationship.isDirty = true;
+  }
+
   // TODO unsure if we need this but it
   // may allow us to more efficiently patch
   // the associated ManyArray
   relationship._diff = diff;
 
-  debugger;
   if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
     // only do this for legacy hasMany, not collection
     // and provide a way to incrementally migrate
@@ -198,9 +202,9 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
         triggered: false,
       };
       if (relationship.removals) {
-        deprecationInfo.triggered = true;
         relationship.isDirty = true;
         relationship.removals.forEach((identifier) => {
+          deprecationInfo.triggered = true;
           deprecationInfo.removals.push(identifier);
           // reverse the removal
           // if we are still in removals at this point then
@@ -232,7 +236,11 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
 
       if (deprecationInfo.triggered) {
         deprecate(
-          `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared but will not be once this deprecation is resolved:\n\n\tAdded: [${deprecationInfo.additions
+          `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
+            relationship.identifier.type
+          }>.${
+            relationship.definition.key
+          } hasMany relationship but will not be once this deprecation is resolved:\n\n\tAdded: [${deprecationInfo.additions
             .map((i) => i.lid)
             .join(', ')}]\n\tRemoved: [${deprecationInfo.removals.map((i) => i.lid).join(', ')}]`,
           false,
@@ -247,14 +255,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
     }
   }
 
-  if (diff.changed) {
-    flushCanonical(graph, relationship);
-  } else {
-    // TODO
-    // this is because we used to eagerly notify on remote updates which
-    // has the effect of clearing certain kinds of local changes.
-    // preserve legacy behavior we want to change but requires some sort
-    // of deprecation.
+  if (relationship.isDirty) {
     flushCanonical(graph, relationship);
   }
 }
@@ -297,6 +298,11 @@ export function addToInverse(
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
+      // TODO this needs to alert stuffs
+      // And patch state better
+      // This is almost definitely wrong
+      // WARNING WARNING WARNING
+
       if (!relationship.remoteMembers.has(value)) {
         graph._addToTransaction(relationship);
         relationship.remoteState.push(value);
@@ -310,7 +316,7 @@ export function addToInverse(
         }
       }
     } else {
-      if (_addLocal(graph, identifier, relationship, value)) {
+      if (_addLocal(graph, identifier, relationship, value, null)) {
         notifyChange(graph, identifier, key);
       }
     }
@@ -363,15 +369,9 @@ export function removeFromInverse(
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
-      // TODO this needs to alert stuffs
-      // And patch state better
-      // This is almost definitely wrong
-      // WARNING WARNING WARNING
       graph._addToTransaction(relationship);
-      let index = relationship.remoteState.indexOf(value);
-      if (index !== -1) {
-        relationship.remoteMembers.delete(value);
-        relationship.remoteState.splice(index, 1);
+      if (_removeRemote(relationship, value)) {
+        notifyChange(graph, identifier, key);
       }
     } else {
       if (_removeLocal(relationship, value)) {

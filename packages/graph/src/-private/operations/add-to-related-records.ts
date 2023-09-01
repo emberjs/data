@@ -41,7 +41,7 @@ function addRelatedRecord(
 ) {
   assert(`expected an identifier to add to the collection relationship`, value);
 
-  if (_addLocal(graph, record, relationship, value)) {
+  if (_addLocal(graph, record, relationship, value, index ?? null)) {
     addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
   }
 }

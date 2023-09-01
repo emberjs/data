@@ -1,5 +1,6 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
@@ -81,10 +82,31 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
       }
       if (existingState && localState === existingState) {
         notifyInverseOfPotentialMaterialization(graph, existingState, definition.inverseKey, op.record, isRemote);
-      } else {
-        relationship.localState = existingState;
+      } else if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+        // if localState does not match existingState then we know
+        // we have a local mutation that has not been persisted yet
+        if (localState !== op.value) {
+          relationship.localState = existingState;
 
-        notifyChange(graph, relationship.identifier, relationship.definition.key);
+          deprecate(
+            `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
+              relationship.identifier.type
+            }>.${
+              relationship.definition.key
+            } belongsTo relationship but will not be once this deprecation is resolved:\n\n\t${
+              localState ? 'Added: ' + localState.lid + '\n\t' : ''
+            }${existingState ? 'Removed: ' + existingState.lid : ''}`,
+            false,
+            {
+              id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
+              for: 'ember-data',
+              since: { enabled: '5.3', available: '5.3' },
+              until: '6.0',
+            }
+          );
+
+          notifyChange(graph, relationship.identifier, relationship.definition.key);
+        }
       }
     }
     return;
@@ -127,9 +149,38 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
     if (localState && isNew(localState) && !remoteState) {
       return;
     }
-    if (localState !== remoteState) {
+    // when localState does not match the new remoteState and
+    // localState === existingState then we had no local mutation
+    // and we can safely sync the new remoteState to local
+    if (localState !== remoteState && localState === existingState) {
       relationship.localState = remoteState;
       notifyChange(graph, relationship.identifier, relationship.definition.key);
+      // But when localState does not match the new remoteState and
+      // and localState !== existingState then we know we have a local mutation
+      // that has not been persisted yet.
+    } else if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+      if (localState !== remoteState && localState !== existingState) {
+        relationship.localState = existingState;
+
+        deprecate(
+          `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
+            relationship.identifier.type
+          }>.${
+            relationship.definition.key
+          } belongsTo relationship but will not be once this deprecation is resolved:\n\n\t${
+            localState ? 'Added: ' + localState.lid + '\n\t' : ''
+          }${existingState ? 'Removed: ' + existingState.lid : ''}`,
+          false,
+          {
+            id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
+            for: 'ember-data',
+            since: { enabled: '5.3', available: '5.3' },
+            until: '6.0',
+          }
+        );
+
+        notifyChange(graph, relationship.identifier, relationship.definition.key);
+      }
     }
   } else {
     notifyChange(graph, relationship.identifier, relationship.definition.key);

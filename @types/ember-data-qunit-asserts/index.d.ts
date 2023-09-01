@@ -22,6 +22,7 @@ declare global {
     expectNoWarning(callback: () => unknown): Promise<void>;
     expectAssertion(callback: () => unknown, matcher: string | RegExp): Promise<void>;
     expectNoAssertion(callback: () => unknown): Promise<void>;
+    arrayStrictEquals<T>(actual: T[], expected: T[], message: string): void;
   }
 
   namespace QUnit {
@@ -33,6 +34,7 @@ declare global {
       expectNoWarning(callback: () => unknown): Promise<void>;
       expectAssertion(callback: () => unknown, matcher: string | RegExp): Promise<void>;
       expectNoAssertion(callback: () => unknown): Promise<void>;
+      arrayStrictEquals<T>(actual: T[], expected: T[], message: string): void;
     }
   }
 
