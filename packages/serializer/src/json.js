@@ -942,7 +942,7 @@ const JSONSerializer = Serializer.extend({
     @public
     @param {Snapshot} snapshot
     @param {String} key
-    @param {String} relationshipType
+    @param {RelationshipSchema} relationship
     @return {boolean} true if the hasMany relationship should be serialized
   */
   shouldSerializeHasMany(snapshot, key, relationship) {
