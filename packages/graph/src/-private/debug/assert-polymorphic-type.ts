@@ -137,7 +137,8 @@ if (DEBUG) {
       inverseIsAsync: definition.isAsync,
       inverseIsPolymorphic: definition.isPolymorphic,
       inverseIsImplicit: definition.isImplicit,
-      inverseIsCollection: definition.isCollection
+      inverseIsCollection: definition.isCollection,
+      resetOnRemoteUpdate: definition.resetOnRemoteUpdate,
     };
   }
   function definitionWithPolymorphic(definition: UpgradedMeta) {
