@@ -1,3 +1,21 @@
+//
+// ========================
+// FOR CONTRIBUTING AUTHORS
+//
+// Deprecations here should also have guides PR'd to the emberjs deprecation app
+//
+// github: https://github.com/ember-learn/deprecation-app
+// website: https://deprecations.emberjs.com
+//
+// Each deprecation should also be given an associated URL pointing to the
+// relevant guide.
+//
+// URLs should be of the form: https://deprecations.emberjs.com/v<major>.x#toc_<fileName>
+// where <major> is the major version of the deprecation and <fileName> is the
+// name of the markdown file in the guides repo.
+//
+// ========================
+//
 /**
  * ## Deprecations
  *

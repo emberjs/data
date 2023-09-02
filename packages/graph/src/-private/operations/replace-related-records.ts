@@ -240,7 +240,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
             relationship.identifier.type
           }>.${
             relationship.definition.key
-          } hasMany relationship but will not be once this deprecation is resolved:\n\n\tAdded: [${deprecationInfo.additions
+          } hasMany relationship but will not be once this deprecation is resolved by opting into the new behavior:\n\n\tAdded: [${deprecationInfo.additions
             .map((i) => i.lid)
             .join(', ')}]\n\tRemoved: [${deprecationInfo.removals.map((i) => i.lid).join(', ')}]`,
           false,
@@ -249,6 +249,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
             for: 'ember-data',
             since: { enabled: '5.3', available: '5.3' },
             until: '6.0',
+            url: 'https://deprecations.emberjs.com/v5.x#ember-data-deprecate-relationship-remote-update-clearing-local-state',
           }
         );
       }
