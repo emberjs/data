@@ -92,6 +92,7 @@ export interface UpgradedMeta {
   isImplicit: boolean;
   isCollection: boolean;
   isPolymorphic: boolean;
+  resetOnRemoteUpdate: boolean;
 
   inverseKind: 'hasMany' | 'belongsTo' | 'implicit';
   /**
@@ -163,6 +164,10 @@ function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
   definition.inverseIsCollection = inverseDefinition.isCollection;
   definition.inverseIsPolymorphic = inverseDefinition.isPolymorphic;
   definition.inverseIsImplicit = inverseDefinition.isImplicit;
+  const resetOnRemoteUpdate =
+    definition.resetOnRemoteUpdate === false || inverseDefinition.resetOnRemoteUpdate === false ? false : true;
+  definition.resetOnRemoteUpdate = resetOnRemoteUpdate;
+  inverseDefinition.resetOnRemoteUpdate = resetOnRemoteUpdate;
 }
 
 function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
@@ -182,6 +187,8 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
   niceMeta.inverseIsAsync = BOOL_LATER;
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;
   niceMeta.inverseIsCollection = BOOL_LATER;
+
+  niceMeta.resetOnRemoteUpdate = options && options.resetOnRemoteUpdate === false ? false : true;
 
   return niceMeta;
 }

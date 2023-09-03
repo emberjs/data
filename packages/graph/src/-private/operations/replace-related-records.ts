@@ -1,8 +1,10 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { _addLocal, _removeLocal, _removeRemote, diffCollection } from '../-diff';
 import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
@@ -77,70 +79,48 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
   relationship.state.hasReceivedData = true;
+  const { additions, removals } = relationship;
+  const { inverseKey, type } = relationship.definition;
+  const { record } = op;
+  const wasDirty = relationship.isDirty;
+  relationship.isDirty = false;
 
-  // cache existing state
-  const { localState, localMembers, definition } = relationship;
-  const newValues = new Set(identifiers);
-  const identifiersLength = identifiers.length;
-  const newState = new Array(newValues.size) as StableRecordIdentifier[];
-  const newMembership = new Set<StableRecordIdentifier>();
-
-  // wipe existing state
-  relationship.localMembers = newMembership;
-  relationship.localState = newState;
-
-  const { type } = relationship.definition;
-
-  let changed = false;
-
-  const currentLength = localState.length;
-  const iterationLength = currentLength > identifiersLength ? currentLength : identifiersLength;
-  const equalLength = currentLength === identifiersLength;
-
-  for (let i = 0, j = 0; i < iterationLength; i++) {
-    let adv = false;
-    if (i < identifiersLength) {
-      const identifier = identifiers[i];
-      // skip processing if we encounter a duplicate identifier in the array
-      if (!newMembership.has(identifier)) {
+  const diff = diffCollection(
+    identifiers,
+    relationship,
+    (identifier) => {
+      // Since we are diffing against the remote state, we check
+      // if our previous local state did not contain this identifier
+      if (removals?.has(identifier) || !additions?.has(identifier)) {
         if (type !== identifier.type) {
           if (DEBUG) {
             assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
           }
           graph.registerPolymorphicType(type, identifier.type);
         }
-        newState[j] = identifier;
-        adv = true;
-        newMembership.add(identifier);
 
-        if (!localMembers.has(identifier)) {
-          changed = true;
-          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
+        relationship.isDirty = true;
+        addToInverse(graph, identifier, inverseKey, op.record, isRemote);
+      }
+    },
+    (identifier) => {
+      // Since we are diffing against the remote state, we check
+      // if our previous local state had contained this identifier
+      if (additions?.has(identifier) || !removals?.has(identifier)) {
+        relationship.isDirty = true;
+        removeFromInverse(graph, identifier, inverseKey, record, isRemote);
       }
     }
-    if (i < currentLength) {
-      const identifier = localState[i];
+  );
 
-      // detect reordering
-      if (!newMembership.has(identifier)) {
-        if (equalLength && newState[i] !== identifier) {
-          changed = true;
-        }
+  const becameDirty = relationship.isDirty || diff.changed;
+  relationship.additions = diff.add;
+  relationship.removals = diff.del;
+  relationship.localState = diff.finalState;
+  relationship.isDirty = wasDirty;
 
-        if (!newValues.has(identifier)) {
-          changed = true;
-          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
-      }
-    }
-    if (adv) {
-      j++;
-    }
-  }
-
-  if (changed) {
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
+  if (!wasDirty && becameDirty) {
+    notifyChange(graph, op.record, op.field);
   }
 }
 
@@ -158,81 +138,126 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   relationship.state.hasReceivedData = true;
 
   // cache existing state
-  const { remoteState, remoteMembers, definition } = relationship;
-  const newValues = new Set(identifiers);
-  const identifiersLength = identifiers.length;
-  const newState = new Array(newValues.size) as StableRecordIdentifier[];
-  const newMembership = new Set<StableRecordIdentifier>();
-
-  // wipe existing state
-  relationship.remoteMembers = newMembership;
-  relationship.remoteState = newState;
+  const { definition } = relationship;
 
   const { type } = relationship.definition;
 
-  let changed = false;
-
-  const canonicalLength = remoteState.length;
-  const iterationLength = canonicalLength > identifiersLength ? canonicalLength : identifiersLength;
-  const equalLength = canonicalLength === identifiersLength;
-
-  for (let i = 0, j = 0; i < iterationLength; i++) {
-    let adv = false;
-    if (i < identifiersLength) {
-      const identifier = identifiers[i];
-      if (!newMembership.has(identifier)) {
-        if (type !== identifier.type) {
-          if (DEBUG) {
-            assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-          }
-          graph.registerPolymorphicType(type, identifier.type);
+  const diff = diffCollection(
+    identifiers,
+    relationship,
+    (identifier) => {
+      if (type !== identifier.type) {
+        if (DEBUG) {
+          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
         }
-        newState[j] = identifier;
-        newMembership.add(identifier);
-        adv = true;
+        graph.registerPolymorphicType(type, identifier.type);
+      }
+      // commit additions
+      // TODO build this into the diff?
+      // because we are not dirty if this was a committed local addition
+      if (relationship.additions?.has(identifier)) {
+        relationship.additions.delete(identifier);
+      } else {
+        relationship.isDirty = true;
+      }
+      addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+    },
+    (identifier) => {
+      // commit removals
+      // TODO build this into the diff?
+      // because we are not dirty if this was a committed local addition
+      if (relationship.removals?.has(identifier)) {
+        relationship.removals.delete(identifier);
+      } else {
+        relationship.isDirty = true;
+      }
+      removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+    }
+  );
 
-        if (!remoteMembers.has(identifier)) {
-          changed = true;
+  // replace existing state
+  relationship.remoteMembers = diff.finalSet;
+  relationship.remoteState = diff.finalState;
+
+  // changed also indicates a change in order
+  if (diff.changed) {
+    relationship.isDirty = true;
+  }
+
+  // TODO unsure if we need this but it
+  // may allow us to more efficiently patch
+  // the associated ManyArray
+  relationship._diff = diff;
+
+  if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+    // only do this for legacy hasMany, not collection
+    // and provide a way to incrementally migrate
+    if (relationship.definition.kind === 'hasMany' && relationship.definition.resetOnRemoteUpdate !== false) {
+      const deprecationInfo: {
+        removals: StableRecordIdentifier[];
+        additions: StableRecordIdentifier[];
+        triggered: boolean;
+      } = {
+        removals: [],
+        additions: [],
+        triggered: false,
+      };
+      if (relationship.removals) {
+        relationship.isDirty = true;
+        relationship.removals.forEach((identifier) => {
+          deprecationInfo.triggered = true;
+          deprecationInfo.removals.push(identifier);
+          // reverse the removal
+          // if we are still in removals at this point then
+          // we were not "committed" which means we are present
+          // in the remoteMembers. So we "add back" on the inverse.
           addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        });
+        relationship.removals = null;
+      }
+      if (relationship.additions) {
+        relationship.additions.forEach((identifier) => {
+          // reverse the addition
+          // if we are still in additions at this point then
+          // we were not "committed" which means we are not present
+          // in the remoteMembers. So we "remove" from the inverse.
+          // however we only do this if we are not a "new" record.
+          if (!isNew(identifier)) {
+            deprecationInfo.triggered = true;
+            deprecationInfo.additions.push(identifier);
+            relationship.isDirty = true;
+            relationship.additions!.delete(identifier);
+            removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+          }
+        });
+        if (relationship.additions.size === 0) {
+          relationship.additions = null;
         }
       }
-    }
-    if (i < canonicalLength) {
-      const identifier = remoteState[i];
 
-      if (!newMembership.has(identifier)) {
-        // detect reordering
-        if (equalLength && newState[j] !== identifier) {
-          changed = true;
-        }
-
-        if (!newValues.has(identifier)) {
-          changed = true;
-          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
-        }
+      if (deprecationInfo.triggered) {
+        deprecate(
+          `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
+            relationship.identifier.type
+          }>.${
+            relationship.definition.key
+          } hasMany relationship but will not be once this deprecation is resolved by opting into the new behavior:\n\n\tAdded: [${deprecationInfo.additions
+            .map((i) => i.lid)
+            .join(', ')}]\n\tRemoved: [${deprecationInfo.removals.map((i) => i.lid).join(', ')}]`,
+          false,
+          {
+            id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
+            for: 'ember-data',
+            since: { enabled: '5.3', available: '5.3' },
+            until: '6.0',
+            url: 'https://deprecations.emberjs.com/v5.x#ember-data-deprecate-relationship-remote-update-clearing-local-state',
+          }
+        );
       }
-    }
-    if (adv) {
-      j++;
     }
   }
 
-  if (changed) {
-    flushCanonical(graph, relationship);
-    /*
-    replaceRelatedRecordsLocal(
-      graph,
-      {
-        op: op.op,
-        record: op.record,
-        field: op.field,
-        value: remoteState,
-      },
-      false
-    );*/
-  } else {
-    // preserve legacy behavior we want to change but requires some sort
-    // of deprecation.
+  if (relationship.isDirty) {
     flushCanonical(graph, relationship);
   }
 }
@@ -271,23 +296,30 @@ export function addToInverse(
         removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, identifier, isRemote);
       }
       relationship.localState = value;
-      notifyChange(graph, relationship.identifier, relationship.definition.key);
+      notifyChange(graph, identifier, key);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
+      // TODO this needs to alert stuffs
+      // And patch state better
+      // This is almost definitely wrong
+      // WARNING WARNING WARNING
+
       if (!relationship.remoteMembers.has(value)) {
         graph._addToTransaction(relationship);
         relationship.remoteState.push(value);
         relationship.remoteMembers.add(value);
-        relationship.state.hasReceivedData = true;
-        flushCanonical(graph, relationship);
+        if (relationship.additions?.has(value)) {
+          relationship.additions.delete(value);
+        } else {
+          relationship.isDirty = true;
+          relationship.state.hasReceivedData = true;
+          flushCanonical(graph, relationship);
+        }
       }
     } else {
-      if (!relationship.localMembers.has(value)) {
-        relationship.localState.push(value);
-        relationship.localMembers.add(value);
-        relationship.state.hasReceivedData = true;
-        notifyChange(graph, relationship.identifier, relationship.definition.key);
+      if (_addLocal(graph, identifier, relationship, value, null)) {
+        notifyChange(graph, identifier, key);
       }
     }
   } else {
@@ -313,7 +345,7 @@ export function notifyInverseOfPotentialMaterialization(
 ) {
   const relationship = graph.get(identifier, key);
   if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
+    notifyChange(graph, identifier, key);
   }
 }
 
@@ -340,18 +372,14 @@ export function removeFromInverse(
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
-      let index = relationship.remoteState.indexOf(value);
-      if (index !== -1) {
-        relationship.remoteMembers.delete(value);
-        relationship.remoteState.splice(index, 1);
+      if (_removeRemote(relationship, value)) {
+        notifyChange(graph, identifier, key);
+      }
+    } else {
+      if (_removeLocal(relationship, value)) {
+        notifyChange(graph, identifier, key);
       }
     }
-    let index = relationship.localState.indexOf(value);
-    if (index !== -1) {
-      relationship.localMembers.delete(value);
-      relationship.localState.splice(index, 1);
-    }
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
   } else {
     if (isRemote) {
       relationship.remoteMembers.delete(value);
@@ -359,31 +387,6 @@ export function removeFromInverse(
     } else {
       if (value && relationship.localMembers.has(value)) {
         relationship.localMembers.delete(value);
-      }
-    }
-  }
-}
-
-export function syncRemoteToLocal(graph: Graph, rel: CollectionEdge) {
-  let toSet = rel.remoteState;
-  let newIdentifiers = rel.localState.filter((identifier) => isNew(identifier) && !toSet.includes(identifier));
-  let existingState = rel.localState;
-  rel.localState = toSet.concat(newIdentifiers);
-
-  let localMembers = (rel.localMembers = new Set<StableRecordIdentifier>());
-  rel.remoteMembers.forEach((v) => localMembers.add(v));
-  for (let i = 0; i < newIdentifiers.length; i++) {
-    localMembers.add(newIdentifiers[i]);
-  }
-
-  // TODO always notifying fails only one test and we should probably do away with it
-  if (existingState.length !== rel.localState.length) {
-    notifyChange(graph, rel.identifier, rel.definition.key);
-  } else {
-    for (let i = 0; i < existingState.length; i++) {
-      if (existingState[i] !== rel.localState[i]) {
-        notifyChange(graph, rel.identifier, rel.definition.key);
-        break;
       }
     }
   }

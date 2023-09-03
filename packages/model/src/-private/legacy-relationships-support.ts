@@ -18,6 +18,7 @@ import {
   SOURCE,
   storeFor,
 } from '@ember-data/store/-private';
+import { CollectionRelationship } from '@ember-data/types/cache/relationship';
 import type { Cache } from '@ember-data/types/q/cache';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -699,9 +700,14 @@ function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance
 }
 
 function anyUnloaded(store: Store, relationship: CollectionEdge) {
-  let state = relationship.localState;
+  const graph = store._graph!;
+  const relationshipData = graph.getData(
+    relationship.identifier,
+    relationship.definition.key
+  ) as CollectionRelationship;
+  const state = relationshipData.data;
   const cache = store._instanceCache;
-  const unloaded = state.find((s) => {
+  const unloaded = state?.find((s) => {
     let isLoaded = cache.recordIsLoaded(s, true);
     return !isLoaded;
   });

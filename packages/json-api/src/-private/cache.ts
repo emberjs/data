@@ -4,7 +4,8 @@
 import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 
-import { LOG_MUTATIONS, LOG_OPERATIONS } from '@ember-data/debugging';
+import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@ember-data/debugging';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
@@ -188,6 +189,35 @@ export default class JSONAPICache implements Cache {
     let included = jsonApiDoc.included;
     let i: number, length: number;
     const { identifierCache } = this.__storeWrapper;
+
+    if (LOG_REQUESTS) {
+      const Counts = new Map();
+      if (included) {
+        for (i = 0, length = included.length; i < length; i++) {
+          const type = included[i].type;
+          Counts.set(type, (Counts.get(type) || 0) + 1);
+        }
+      }
+      if (Array.isArray(jsonApiDoc.data)) {
+        for (i = 0, length = jsonApiDoc.data.length; i < length; i++) {
+          const type = jsonApiDoc.data[i].type;
+          Counts.set(type, (Counts.get(type) || 0) + 1);
+        }
+      } else if (jsonApiDoc.data) {
+        const type = jsonApiDoc.data.type;
+        Counts.set(type, (Counts.get(type) || 0) + 1);
+      }
+
+      let str = `JSON:API Cache - put (${doc.content?.lid || doc.request?.url || 'unknown-request'})\n\tContents:`;
+      Counts.forEach((count, type) => {
+        str += `\n\t\t${type}: ${count}`;
+      });
+      if (Counts.size === 0) {
+        str += `\t(empty)`;
+      }
+      // eslint-disable-next-line no-console
+      console.log(str);
+    }
 
     if (included) {
       for (i = 0, length = included.length; i < length; i++) {
@@ -708,6 +738,24 @@ export default class JSONAPICache implements Cache {
     const cached = this.__peek(identifier, false);
     cached.inflightAttrs = cached.localAttrs;
     cached.localAttrs = null;
+
+    if (DEBUG) {
+      if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+        // save off info about saved relationships
+        const relationships = this.__storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+        Object.keys(relationships).forEach((relationshipName) => {
+          const relationship = relationships[relationshipName];
+          if (relationship.kind === 'belongsTo') {
+            if (this.__graph._isDirty(identifier, relationshipName)) {
+              const relationshipData = this.__graph.getData(identifier, relationshipName);
+              // @ts-expect-error debugging only property
+              const inFlight = (cached.inflightRelationships = cached.inflightRelationships || Object.create(null));
+              inFlight[relationshipName] = relationshipData;
+            }
+          }
+        });
+      }
+    }
   }
 
   /**
@@ -780,6 +828,41 @@ export default class JSONAPICache implements Cache {
       );
 
       if (data.relationships) {
+        if (DEBUG) {
+          if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+            // assert against bad API behavior where a belongsTo relationship
+            // is saved but the return payload indicates a different final state.
+            const relationships = this.__storeWrapper
+              .getSchemaDefinitionService()
+              .relationshipsDefinitionFor(identifier);
+            Object.keys(relationships).forEach((relationshipName) => {
+              const relationship = relationships[relationshipName];
+              if (relationship.kind === 'belongsTo') {
+                const relationshipData = data.relationships![relationshipName]?.data;
+                if (relationshipData !== undefined) {
+                  // @ts-expect-error debugging only property
+                  const inFlightData = cached.inflightRelationships?.[relationshipName] as ResourceRelationship;
+                  if (!inFlightData || !('data' in inFlightData)) {
+                    return;
+                  }
+                  const actualData = relationshipData
+                    ? this.__storeWrapper.identifierCache.getOrCreateRecordIdentifier(relationshipData)
+                    : null;
+                  assert(
+                    `Expected the resource relationship '<${identifier.type}>.${relationshipName}' on ${
+                      identifier.lid
+                    } to be saved as ${inFlightData.data ? inFlightData.data.lid : '<null>'} but it was saved as ${
+                      actualData ? actualData.lid : '<null>'
+                    }`,
+                    inFlightData.data === actualData
+                  );
+                }
+              }
+            });
+            // @ts-expect-error debugging only property
+            cached.inflightRelationships = undefined;
+          }
+        }
         setupRelationships(this.__graph, this.__storeWrapper, identifier, data);
       }
       newCanonicalAttributes = data.attributes;
@@ -1226,7 +1309,7 @@ function getLocalState(rel) {
   if (rel.definition.kind === 'belongsTo') {
     return rel.localState ? [rel.localState] : [];
   }
-  return rel.localState;
+  return rel.additions ? [...rel.additions] : [];
 }
 function getRemoteState(rel) {
   if (rel.definition.kind === 'belongsTo') {

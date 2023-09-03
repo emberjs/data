@@ -1,10 +1,12 @@
+import { type TestContext } from '@ember/test-helpers';
+
 import { skip, test } from 'qunit';
 
 import { DEBUG } from '@ember-data/env';
 import VERSION, { COMPAT_VERSION } from '@ember-data/unpublished-test-infra/test-support/version';
 
 // small comparison function for major and minor semver values
-function gte(EDVersion, DeprecationVersion) {
+function gte(EDVersion: string, DeprecationVersion: string): boolean {
   let _edv = EDVersion.split('.');
   let _depv = DeprecationVersion.split('.');
   // compare major
@@ -14,7 +16,20 @@ function gte(EDVersion, DeprecationVersion) {
   return major || minor;
 }
 
-export function deprecatedTest(testName, deprecation, testCallback) {
+export function deprecatedTest(
+  testName: string,
+  deprecation: {
+    until: `${number}.${number}`;
+    id: string;
+    count: number;
+    // this test should only run in debug mode
+    debugOnly?: boolean;
+    // this test should remain in the codebase but
+    // should be refactored to no longer use the deprecated feature
+    refactor?: boolean;
+  },
+  testCallback: <T extends TestContext>(this: T, assert: Assert) => void | Promise<void>
+) {
   // '4.0'
   if (typeof deprecation.until !== 'string' || deprecation.until.length < 3) {
     throw new Error(`deprecatedTest expects { until } to be a version.`);
@@ -24,10 +39,14 @@ export function deprecatedTest(testName, deprecation, testCallback) {
     throw new Error(`deprecatedTest expects { id } to be a meaningful string`);
   }
 
-  async function interceptor(assert) {
+  async function interceptor<T extends TestContext>(this: T, assert: Assert) {
     await testCallback.call(this, assert);
     if (DEBUG) {
+      // @ts-expect-error test is not typed correctly
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (typeof assert.test.expected === 'number') {
+        // @ts-expect-error test is not typed correctly
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         assert.test.expected += 1;
       }
       assert.expectDeprecation(deprecation);

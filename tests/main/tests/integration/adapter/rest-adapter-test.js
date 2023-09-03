@@ -17,11 +17,13 @@ import AdapterError, {
   UnauthorizedError,
 } from '@ember-data/adapter/error';
 import RESTAdapter from '@ember-data/adapter/rest';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, adapter, SuperUser;
@@ -426,9 +428,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: { id: '1', name: 'Not everyone uses Rails', comments: [2] },
     });
 
-    await store.findRecord('comment', 2);
-    let post = await store.findRecord('post', 1);
-    let newComment = store.peekRecord('comment', 2);
+    await store.findRecord('comment', '2');
+    let post = await store.findRecord('post', '1');
+    let newComment = store.peekRecord('comment', '2');
     let comments = post.comments;
 
     // Replace the comment with a new one
@@ -490,7 +492,63 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.strictEqual(post.comments.length, 0, 'the post has the no comments');
   });
 
-  test('updateRecord - hasMany relationships set locally will be removed with empty response', async function (assert) {
+  deprecatedTest(
+    'updateRecord - hasMany relationships set locally will be removed with empty response',
+    {
+      id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
+      until: '6.0',
+      count: 1,
+    },
+    async function (assert) {
+      class Post extends Model {
+        @attr name;
+        @hasMany('comment', { async: false, inverse: 'post' }) comments;
+      }
+      this.owner.register('model:post', Post);
+      class Comment extends Model {
+        @attr name;
+        @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      }
+
+      this.owner.register('model:comment', Comment);
+
+      store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            name: 'Not everyone uses Rails',
+          },
+        },
+      });
+
+      store.push({
+        data: {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            name: 'Rails is omakase',
+          },
+        },
+      });
+
+      ajaxResponse({
+        posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
+      });
+
+      let post = await store.peekRecord('post', 1);
+      let comment = await store.peekRecord('comment', 1);
+      let comments = post.comments;
+      comments.push(comment);
+      assert.strictEqual(post.comments.length, 1, 'the post has one comment');
+
+      post = await post.save();
+
+      assert.strictEqual(post.comments.length, 0, 'the post has the no comments');
+    }
+  );
+
+  test('updateRecord - hasMany relationships set locally will NOT be removed with empty response when flag is set', async function (assert) {
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: false, inverse: 'post' }) comments;
@@ -498,17 +556,22 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:post', Post);
     class Comment extends Model {
       @attr name;
-      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      @belongsTo('post', { async: false, inverse: 'comments', resetOnRemoteUpdate: false }) post;
     }
 
     this.owner.register('model:comment', Comment);
 
-    store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
         attributes: {
-          name: 'Not everyone uses Rails',
+          name: 'Not everyone uses React',
+        },
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
+          },
         },
       },
     });
@@ -518,7 +581,17 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         type: 'comment',
         id: '1',
         attributes: {
-          name: 'Rails is omakase',
+          name: 'Go is omakase',
+        },
+      },
+    });
+
+    const comment2 = store.push({
+      data: {
+        type: 'comment',
+        id: '2',
+        attributes: {
+          name: 'Ember is omakase',
         },
       },
     });
@@ -527,16 +600,77 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
     });
 
-    let post = await store.peekRecord('post', 1);
-    let comment = await store.peekRecord('comment', 1);
-    let comments = post.comments;
-    comments.push(comment);
+    post.comments.push(comment2);
+    assert.strictEqual(post.comments.length, 2, 'the post has two comments');
+
+    await post.save();
+
     assert.strictEqual(post.comments.length, 1, 'the post has one comment');
-
-    post = await post.save();
-
-    assert.strictEqual(post.comments.length, 0, 'the post has the no comments');
+    assert.strictEqual(post.comments.at(0).id, '2', 'the post has the correct comment');
   });
+
+  if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+    test('updateRecord - hasMany relationships set locally will NOT be removed with empty response', async function (assert) {
+      class Post extends Model {
+        @attr name;
+        @hasMany('comment', { async: false, inverse: 'post' }) comments;
+      }
+      this.owner.register('model:post', Post);
+      class Comment extends Model {
+        @attr name;
+        @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      }
+
+      this.owner.register('model:comment', Comment);
+
+      const post = store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            name: 'Not everyone uses React',
+          },
+          relationships: {
+            comments: {
+              data: [{ type: 'comment', id: '1' }],
+            },
+          },
+        },
+      });
+
+      store.push({
+        data: {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            name: 'Go is omakase',
+          },
+        },
+      });
+
+      const comment2 = store.push({
+        data: {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            name: 'Ember is omakase',
+          },
+        },
+      });
+
+      ajaxResponse({
+        posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
+      });
+
+      post.comments.push(comment2);
+      assert.strictEqual(post.comments.length, 2, 'the post has two comments');
+
+      await post.save();
+
+      assert.strictEqual(post.comments.length, 1, 'the post has one comment');
+      assert.strictEqual(post.comments.at(0).id, '2', 'the post has the correct comment');
+    });
+  }
 
   test('deleteRecord - an empty payload is a basic success', async function (assert) {
     class Post extends Model {

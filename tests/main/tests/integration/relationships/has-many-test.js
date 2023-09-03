@@ -12,6 +12,7 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
@@ -426,57 +427,65 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.strictEqual(contacts, user.contacts);
   });
 
-  test('adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship', async function (assert) {
-    assert.expect(3);
+  deprecatedTest(
+    'adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship',
+    {
+      id: 'ember-data:deprecate-non-unique-relationship-entries',
+      until: '6.0',
+      count: 2,
+    },
+    async function (assert) {
+      assert.expect(3);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Chapter = store.modelFor('chapter');
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
+      let Chapter = store.modelFor('chapter');
 
-    let bookData = {
-      type: 'book',
-      id: '1',
-      relationships: {
-        chapters: {
-          data: [
-            { type: 'chapter', id: '2' },
-            { type: 'chapter', id: '3' },
-            { type: 'chapter', id: '3' },
-          ],
+      let bookData = {
+        type: 'book',
+        id: '1',
+        relationships: {
+          chapters: {
+            data: [
+              { type: 'chapter', id: '2' },
+              { type: 'chapter', id: '3' },
+              { type: 'chapter', id: '3' },
+            ],
+          },
         },
-      },
-    };
+      };
 
-    adapter.findMany = function (store, type, ids, snapshots) {
-      assert.strictEqual(type, Chapter, 'type passed to adapter.findMany is correct');
-      assert.deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
+      adapter.findMany = function (store, type, ids, snapshots) {
+        assert.strictEqual(type, Chapter, 'type passed to adapter.findMany is correct');
+        assert.deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
 
-      return resolve({
-        data: [
-          { id: '2', type: 'chapter', attributes: { title: 'Chapter One' } },
-          { id: '3', type: 'chapter', attributes: { title: 'Chapter Two' } },
-        ],
-      });
-    };
+        return resolve({
+          data: [
+            { id: '2', type: 'chapter', attributes: { title: 'Chapter One' } },
+            { id: '3', type: 'chapter', attributes: { title: 'Chapter Two' } },
+          ],
+        });
+      };
 
-    adapter.findRecord = function (store, type, ids, snapshots) {
-      return structuredClone({ data: bookData });
-    };
+      adapter.findRecord = function (store, type, ids, snapshots) {
+        return structuredClone({ data: bookData });
+      };
 
-    store.push(
-      structuredClone({
-        data: bookData,
-      })
-    );
+      store.push(
+        structuredClone({
+          data: bookData,
+        })
+      );
 
-    const book = await store.findRecord('book', '1');
-    const chapters = await book.chapters;
+      const book = await store.findRecord('book', '1');
+      const chapters = await book.chapters;
 
-    assert.deepEqual(
-      chapters.map((c) => c.title),
-      ['Chapter One', 'Chapter Two']
-    );
-  });
+      assert.deepEqual(
+        chapters.map((c) => c.title),
+        ['Chapter One', 'Chapter Two']
+      );
+    }
+  );
 
   // This tests the case where a serializer materializes a has-many
   // relationship as an identifier  that it can fetch lazily. The most
@@ -2452,43 +2461,28 @@ If using this relationship in a polymorphic manner is desired, the relationships
     assert.strictEqual(run(post, 'get', 'comments.length'), 0);
   });
 
-  test('If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync', function (assert) {
+  test('If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    let comment1, comment2, comment3, comment4;
-    let post;
-
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'comment',
-            id: '1',
-          },
-          {
-            type: 'comment',
-            id: '2',
-          },
-          {
-            type: 'comment',
-            id: '3',
-          },
-          {
-            type: 'comment',
-            id: '4',
-          },
-        ],
-      });
-
-      comment1 = store.peekRecord('comment', 1);
-      comment2 = store.peekRecord('comment', 2);
-      comment3 = store.peekRecord('comment', 3);
-      comment4 = store.peekRecord('comment', 4);
-    });
-
-    run(() => {
-      store.push({
-        data: {
+    const [comment1, comment2, comment3, comment4, post] = store.push({
+      data: [
+        {
+          type: 'comment',
+          id: '1',
+        },
+        {
+          type: 'comment',
+          id: '2',
+        },
+        {
+          type: 'comment',
+          id: '3',
+        },
+        {
+          type: 'comment',
+          id: '4',
+        },
+        {
           type: 'post',
           id: '1',
           relationships: {
@@ -2500,103 +2494,99 @@ If using this relationship in a polymorphic manner is desired, the relationships
             },
           },
         },
-      });
-      post = store.peekRecord('post', 1);
-
-      assert.deepEqual(post.comments.slice(), [comment1, comment2], 'Initial ordering is correct');
+      ],
     });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '1' },
-              ],
-            },
+    assert.arrayStrictEquals(post.comments.slice(), [comment1, comment2], 'Initial ordering is correct');
+
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '1' },
+            ],
           },
         },
-      });
+      },
     });
-    assert.deepEqual(post.comments.slice(), [comment2, comment1], 'Updated ordering is correct');
+    assert.arrayStrictEquals(post.comments.slice(), [comment2, comment1], 'Updated ordering is correct');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [{ type: 'comment', id: '2' }],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '2' }],
           },
         },
-      });
+      },
     });
-    assert.deepEqual(post.comments.slice(), [comment2], 'Updated ordering is correct');
+    assert.arrayStrictEquals(post.comments.slice(), [comment2], 'Updated ordering is correct');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-                { type: 'comment', id: '4' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+              { type: 'comment', id: '4' },
+            ],
           },
         },
-      });
+      },
     });
-    assert.deepEqual(post.comments.slice(), [comment1, comment2, comment3, comment4], 'Updated ordering is correct');
+    assert.arrayStrictEquals(
+      post.comments.slice(),
+      [comment1, comment2, comment3, comment4],
+      'Updated ordering is correct'
+    );
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '4' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '4' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
+      },
     });
-    assert.deepEqual(post.comments.slice(), [comment4, comment3], 'Updated ordering is correct');
+    assert.arrayStrictEquals(post.comments.slice(), [comment4, comment3], 'Updated ordering is correct');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '4' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-                { type: 'comment', id: '1' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '4' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+              { type: 'comment', id: '1' },
+            ],
           },
         },
-      });
+      },
     });
-
-    assert.deepEqual(post.comments.slice(), [comment4, comment2, comment3, comment1], 'Updated ordering is correct');
+    assert.arrayStrictEquals(
+      post.comments.slice(),
+      [comment4, comment2, comment3, comment1],
+      'Updated ordering is correct'
+    );
   });
 
   test('Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - async', async function (assert) {
@@ -4034,49 +4024,58 @@ If using this relationship in a polymorphic manner is desired, the relationships
     assert.strictEqual(commentsAgain.length, 2, 'comments have 2 length');
   });
 
-  test('Pushing a relationship with duplicate identifiers results in a single entry for the record in the relationship', async function (assert) {
-    class PhoneUser extends Model {
-      @hasMany('phone-number', { async: false, inverse: null })
-      phoneNumbers;
-      @attr name;
-    }
-    class PhoneNumber extends Model {
-      @attr number;
-    }
-    const { owner } = this;
+  deprecatedTest(
+    'Pushing a relationship with duplicate identifiers results in a single entry for the record in the relationship',
+    {
+      id: 'ember-data:deprecate-non-unique-relationship-entries',
+      until: '6.0',
+      count: 1,
+      refactor: true, // should assert
+    },
+    async function (assert) {
+      class PhoneUser extends Model {
+        @hasMany('phone-number', { async: false, inverse: null })
+        phoneNumbers;
+        @attr name;
+      }
+      class PhoneNumber extends Model {
+        @attr number;
+      }
+      const { owner } = this;
 
-    owner.register('model:phone-user', PhoneUser);
-    owner.register('model:phone-number', PhoneNumber);
+      owner.register('model:phone-user', PhoneUser);
+      owner.register('model:phone-number', PhoneNumber);
 
-    const store = owner.lookup('service:store');
+      const store = owner.lookup('service:store');
 
-    store.push({
-      data: {
-        id: 'call-me-anytime',
-        type: 'phone-number',
-        attributes: {
-          number: '1-800-DATA',
-        },
-      },
-    });
-
-    const person = store.push({
-      data: {
-        id: '1',
-        type: 'phone-user',
-        attributes: {},
-        relationships: {
-          phoneNumbers: {
-            data: [
-              { type: 'phone-number', id: 'call-me-anytime' },
-              { type: 'phone-number', id: 'call-me-anytime' },
-              { type: 'phone-number', id: 'call-me-anytime' },
-            ],
+      store.push({
+        data: {
+          id: 'call-me-anytime',
+          type: 'phone-number',
+          attributes: {
+            number: '1-800-DATA',
           },
         },
-      },
-    });
+      });
 
-    assert.strictEqual(person.phoneNumbers.length, 1);
-  });
+      const person = store.push({
+        data: {
+          id: '1',
+          type: 'phone-user',
+          attributes: {},
+          relationships: {
+            phoneNumbers: {
+              data: [
+                { type: 'phone-number', id: 'call-me-anytime' },
+                { type: 'phone-number', id: 'call-me-anytime' },
+                { type: 'phone-number', id: 'call-me-anytime' },
+              ],
+            },
+          },
+        },
+      });
+
+      assert.strictEqual(person.phoneNumbers.length, 1);
+    }
+  );
 });

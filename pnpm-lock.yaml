@@ -2143,6 +2143,9 @@ importers:
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.22.11)(ember-source@5.2.0)(webpack@5.88.2)
+      '@embroider/macros':
+        specifier: ^1.12.2
+        version: 1.13.1(@babel/core@7.22.11)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.22.11)

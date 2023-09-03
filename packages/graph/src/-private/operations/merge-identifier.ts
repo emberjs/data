@@ -50,12 +50,19 @@ function mergeHasMany(graph: Graph, rel: CollectionEdge, op: MergeOperation): vo
     rel.remoteMembers.add(op.value);
     const index = rel.remoteState.indexOf(op.record);
     rel.remoteState.splice(index, 1, op.value);
+    rel.isDirty = true;
   }
-  if (rel.localMembers.has(op.record)) {
-    rel.localMembers.delete(op.record);
-    rel.localMembers.add(op.value);
-    const index = rel.localState.indexOf(op.record);
-    rel.localState.splice(index, 1, op.value);
+  if (rel.additions?.has(op.record)) {
+    rel.additions.delete(op.record);
+    rel.additions.add(op.value);
+    rel.isDirty = true;
+  }
+  if (rel.removals?.has(op.record)) {
+    rel.removals.delete(op.record);
+    rel.removals.add(op.value);
+    rel.isDirty = true;
+  }
+  if (rel.isDirty) {
     notifyChange(graph, rel.identifier, rel.definition.key);
   }
 }

@@ -56,6 +56,8 @@ module.exports = {
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_LEGACY_IMPORTS',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_NON_STRICT_ID',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_NON_STRICT_TYPES',
+    '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_NON_UNIQUE_PAYLOADS',
+    '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE',
     '(private) @ember-data/legacy-compat SnapshotRecordArray#_recordArray',
     '(private) @ember-data/legacy-compat SnapshotRecordArray#_snapshots',
     '(private) @ember-data/legacy-compat SnapshotRecordArray#constructor',

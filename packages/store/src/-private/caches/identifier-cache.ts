@@ -310,12 +310,8 @@ export class IdentifierCache {
       console.log(`Identifiers: ${lid ? 'no ' : ''}lid ${lid ? lid + ' ' : ''}determined for resource`, resource);
     }
 
-    let identifier: StableRecordIdentifier | undefined = /*#__NOINLINE__*/ getIdentifierFromLid(
-      this._cache,
-      lid,
-      resource
-    );
-    if (identifier !== undefined) {
+    let identifier: StableRecordIdentifier | null = /*#__NOINLINE__*/ getIdentifierFromLid(this._cache, lid, resource);
+    if (identifier !== null) {
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
         console.groupEnd();
@@ -756,7 +752,7 @@ function detectMerge(
     // we trigger a merge of the identifiers
     // though probably we should just throw an error here
     if (id !== null && id === newId && newType === type && hasLid(data) && data.lid !== lid) {
-      return cache.resources.get(data.lid) || false;
+      return getIdentifierFromLid(cache, data.lid, data) || false;
 
       // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
     } else if (id !== null && id === newId && newType && newType !== type && hasLid(data) && data.lid === lid) {
@@ -770,13 +766,13 @@ function detectMerge(
   return false;
 }
 
-function getIdentifierFromLid(cache: StableCache, lid: string, resource: unknown): StableRecordIdentifier | undefined {
+function getIdentifierFromLid(cache: StableCache, lid: string, resource: unknown): StableRecordIdentifier | null {
   const identifier = cache.resources.get(lid);
   if (LOG_IDENTIFIERS) {
     // eslint-disable-next-line no-console
     console.log(`Identifiers: cache ${identifier ? 'HIT' : 'MISS'} - Non-Stable ${lid}`, resource);
   }
-  return identifier;
+  return identifier || null;
 }
 
 function addResourceToCache(cache: StableCache, identifier: StableRecordIdentifier): void {

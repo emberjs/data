@@ -11,6 +11,7 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import { CollectionRelationship } from '@ember-data/types/cache/relationship';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -449,9 +450,9 @@ export default class HasManyReference {
       return false;
     }
 
-    let localState = this.hasManyRelationship.localState;
+    const relationship = this.graph.getData(this.hasManyRelationship.identifier, this.key) as CollectionRelationship;
 
-    return localState.every((identifier) => {
+    return relationship.data?.every((identifier) => {
       return this.store._instanceCache.recordIsLoaded(identifier, true) === true;
     });
   }
