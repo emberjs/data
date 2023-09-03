@@ -1,3 +1,7 @@
+import type { CacheOperation, NotificationType } from "@ember-data/store/-private/managers/notification-manager";
+import type { StableDocumentIdentifier } from "@ember-data/types/cache/identifier";
+import type { StableRecordIdentifier } from "@ember-data/types/q/identifier";
+
 declare global {
   interface DeprecationConfig {
     id: string;
@@ -27,6 +31,21 @@ declare global {
      * Asserts that actual is an array and has the same length as expected.
      */
     arrayStrictEquals<T>(actual: unknown, expected: T[], message: string): void;
+    /**
+     * Asserts that the given identifier has been notified of a change to the given bucket
+     * and optional key the given number of times during the test.
+     *
+     * Clears the notification count for the given identifier, bucket and key after the assertion
+     * is made so that it is easy to assert notification counts in between steps of a test.
+     */
+    notified(
+      identifier: StableDocumentIdentifier | StableRecordIdentifier,
+      bucket: NotificationType | CacheOperation,
+      key: string | null,
+      count: number
+    ): void;
+
+    clearNotifications(): void;
   }
 
   namespace QUnit {
@@ -39,6 +58,14 @@ declare global {
       expectAssertion(callback: () => unknown, matcher: string | RegExp): Promise<void>;
       expectNoAssertion(callback: () => unknown): Promise<void>;
       arrayStrictEquals<T>(unknown, expected: T[], message: string): void;
+      notified(
+        identifier: StableDocumentIdentifier | StableRecordIdentifier,
+        bucket: NotificationType | CacheOperation,
+        key: string | null,
+        count: number
+      ): void;
+
+      clearNotifications(): void;
     }
   }
 

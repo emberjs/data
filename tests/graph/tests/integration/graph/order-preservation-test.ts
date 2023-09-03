@@ -5,6 +5,7 @@ import { setupTest } from 'ember-qunit';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
+import { setupNotifications } from '@ember-data/unpublished-test-infra/test-support/setup-notifications';
 
 class App extends Model {
   @attr declare name: string;
@@ -41,7 +42,8 @@ module('Graph | Order Preservation', function (hooks) {
   });
 
   module('during local mutation', function (innerHooks) {
-    innerHooks.beforeEach(function () {
+    innerHooks.beforeEach(function (assert: Assert) {
+      setupNotifications(this);
       const { owner } = this;
 
       const store = owner.lookup('service:store') as Store;
@@ -117,6 +119,19 @@ module('Graph | Order Preservation', function (hooks) {
           });
         });
       });
+
+      // flush initial state to localState
+      graph.getData(appIdentifier, 'configs');
+      graph.getData(appIdentifier, 'cluster');
+      graph.getData(clusterIdentifier, 'apps');
+      graph.getData(appIdentifier, 'groups');
+      ['1', '2', '3'].forEach((id) => {
+        const groupIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'group', id });
+        graph.getData(groupIdentifier, 'apps');
+      });
+
+      // start each test with a clean slate
+      assert.clearNotifications();
     });
 
     test('order is preserved when doing a full replace of a hasMany', function (assert) {
@@ -142,6 +157,11 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '1'), 'relationships', 'app', 0);
+      assert.notified(identifier('config', '2'), 'relationships', 'app', 0);
+      assert.notified(identifier('config', '3'), 'relationships', 'app', 0);
+
       const configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
         configState.data,
@@ -161,6 +181,11 @@ module('Graph | Order Preservation', function (hooks) {
           value: [identifier('group', '3'), identifier('group', '1'), identifier('group', '2')],
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'groups', 1);
+      assert.notified(identifier('group', '1'), 'relationships', 'app', 0);
+      assert.notified(identifier('group', '2'), 'relationships', 'app', 0);
+      assert.notified(identifier('group', '3'), 'relationships', 'app', 0);
 
       const groupState = graph.getData(appIdentifier, 'groups');
       assert.arrayStrictEquals(
@@ -200,6 +225,9 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '4'), 'relationships', 'app', 1);
+
       let configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
         configState.data,
@@ -217,6 +245,9 @@ module('Graph | Order Preservation', function (hooks) {
           index: 1,
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '5'), 'relationships', 'app', 1);
 
       configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -243,6 +274,8 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(identifier('group', '4'), 'relationships', 'apps', 1);
+
       // assert starting state
       let appsState = graph.getData(identifier('group', '4'), 'apps');
       assert.arrayStrictEquals(
@@ -261,6 +294,8 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(identifier('group', '4'), 'relationships', 'apps', 1);
+
       // assert mutated state
       appsState = graph.getData(identifier('group', '4'), 'apps');
       assert.arrayStrictEquals(
@@ -278,6 +313,9 @@ module('Graph | Order Preservation', function (hooks) {
           value: identifier('group', '4'),
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'groups', 1);
+      assert.notified(identifier('group', '4'), 'relationships', 'apps', 1);
 
       // assert mutated state
       const groupsState = graph.getData(appIdentifier, 'groups');
@@ -317,6 +355,9 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '2'), 'relationships', 'app', 1);
+
       let configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
         configState.data,
@@ -333,6 +374,9 @@ module('Graph | Order Preservation', function (hooks) {
           value: identifier('config', '2'),
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '2'), 'relationships', 'app', 1);
 
       configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -351,6 +395,9 @@ module('Graph | Order Preservation', function (hooks) {
           index: 1,
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '3'), 'relationships', 'app', 1);
 
       configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -383,6 +430,11 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(identifier('group', '4'), 'relationships', 'apps', 1);
+      assert.notified(identifier('app', '2'), 'relationships', 'groups', 1);
+      assert.notified(identifier('app', '3'), 'relationships', 'groups', 1);
+      assert.notified(identifier('app', '4'), 'relationships', 'groups', 1);
+
       // assert starting state
       let appsState = graph.getData(identifier('group', '4'), 'apps');
       assert.arrayStrictEquals(
@@ -401,6 +453,11 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(identifier('group', '4'), 'relationships', 'apps', 1);
+      assert.notified(identifier('app', '2'), 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '3'), 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '4'), 'relationships', 'groups', 0);
+
       // assert mutated state
       appsState = graph.getData(identifier('group', '4'), 'apps');
       assert.arrayStrictEquals(
@@ -418,6 +475,9 @@ module('Graph | Order Preservation', function (hooks) {
           value: identifier('group', '4'),
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'groups', 1);
+      assert.notified(identifier('group', '4'), 'relationships', 'apps', 1);
 
       // assert mutated state
       const groupsState = graph.getData(appIdentifier, 'groups');
@@ -460,6 +520,12 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(groupIdentifier, 'relationships', 'apps', 1);
+      assert.notified(appIdentifier, 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '2'), 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '3'), 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '4'), 'relationships', 'groups', 1);
+
       // assert starting state
       let appsState = graph.getData(groupIdentifier, 'apps');
       assert.arrayStrictEquals(
@@ -478,6 +544,12 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(groupIdentifier, 'relationships', 'apps', 1);
+      assert.notified(appIdentifier, 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '2'), 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '3'), 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '4'), 'relationships', 'groups', 0);
+
       // assert mutated state
       appsState = graph.getData(groupIdentifier, 'apps');
       assert.arrayStrictEquals(
@@ -495,6 +567,9 @@ module('Graph | Order Preservation', function (hooks) {
           value: groupIdentifier,
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'groups', 1);
+      assert.notified(groupIdentifier, 'relationships', 'apps', 1);
 
       // assert mutated state
       const groupsState = graph.getData(appIdentifier, 'groups');
@@ -536,6 +611,11 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '1'), 'relationships', 'app', 0);
+      assert.notified(identifier('config', '2'), 'relationships', 'app', 0);
+      assert.notified(identifier('config', '3'), 'relationships', 'app', 0);
+
       const configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
         configState.data,
@@ -552,6 +632,9 @@ module('Graph | Order Preservation', function (hooks) {
           value: appIdentifier,
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '4'), 'relationships', 'app', 1);
 
       // assert mutated state
       const config4State = graph.getData(identifier('config', '4'), 'app');
@@ -588,6 +671,11 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '1'), 'relationships', 'app', 0);
+      assert.notified(identifier('config', '2'), 'relationships', 'app', 0);
+      assert.notified(identifier('config', '3'), 'relationships', 'app', 0);
+
       const configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
         configState.data,
@@ -604,6 +692,9 @@ module('Graph | Order Preservation', function (hooks) {
           value: null,
         });
       });
+
+      assert.notified(appIdentifier, 'relationships', 'configs', 1);
+      assert.notified(identifier('config', '1'), 'relationships', 'app', 1);
 
       // assert mutated state
       const config1State = graph.getData(identifier('config', '1'), 'app');

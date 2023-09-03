@@ -82,6 +82,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const { additions, removals } = relationship;
   const { inverseKey, type } = relationship.definition;
   const { record } = op;
+  const wasDirty = relationship.isDirty;
   relationship.isDirty = false;
 
   const diff = diffCollection(
@@ -112,13 +113,13 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     }
   );
 
-  const becameDirty = relationship.isDirty;
+  const becameDirty = relationship.isDirty || diff.changed;
   relationship.additions = diff.add;
   relationship.removals = diff.del;
   relationship.localState = diff.finalState;
-  relationship.isDirty = false;
+  relationship.isDirty = wasDirty;
 
-  if (becameDirty) {
+  if (!wasDirty && becameDirty) {
     notifyChange(graph, op.record, op.field);
   }
 }
