@@ -7,7 +7,7 @@ import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { test } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('Integration | Graph | Duplicate Data', function (hooks: NestedHooks) {
   setupTest(hooks);
@@ -135,7 +135,7 @@ module('Integration | Graph | Duplicate Data', function (hooks: NestedHooks) {
   );
 
   if (!DEPRECATE_NON_UNIQUE_PAYLOADS) {
-    testInDebug('updateRelationship operation asserts on duplicates in remote payloads', function (assert: Assert) {
+    test('updateRelationship operation asserts on duplicates in remote payloads', function (assert) {
       const { owner } = this;
 
       class App extends Model {
@@ -182,7 +182,7 @@ module('Integration | Graph | Duplicate Data', function (hooks: NestedHooks) {
       }
     });
 
-    testInDebug('replaceRelatedRecords asserts on duplicates in a local replace', function (assert) {
+    test('replaceRelatedRecords asserts on duplicates in a local replace', function (assert) {
       const { owner } = this;
 
       class App extends Model {
