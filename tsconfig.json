@@ -32,7 +32,6 @@
       "ember-data-types/q/ember-data-json-api.ts",
       "tests/graph/tests/integration/graph/polymorphism/implicit-keys-test.ts",
       "tests/graph/tests/integration/graph/graph-test.ts",
-      "tests/graph/tests/integration/graph/operations-test.ts",
       "tests/graph/tests/integration/graph/edge-test.ts",
       "tests/graph/tests/integration/graph/edge-removal/setup.ts",
       "tests/graph/tests/integration/graph/edge-removal/helpers.ts",

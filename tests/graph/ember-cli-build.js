@@ -5,25 +5,24 @@ const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function (defaults) {
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
-  let app = new EmberApp(defaults, {
-    emberData: {
-      compatWith,
-      debug: {
-        // LOG_GRAPH: true,
-      },
+  const isProd = process.env.EMBER_ENV === 'production';
+
+  const config = {
+    compatWith,
+    debug: {
+      // LOG_GRAPH: true,
     },
+    deprecations: require('@ember-data/private-build-infra/src/deprecations')(compatWith || null),
+    features: require('@ember-data/private-build-infra/src/features')(isProd),
+    env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
+  };
+
+  let app = new EmberApp(defaults, {
+    emberData: Object.assign({}, config),
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
-      plugins: [
-        ...require('@ember-data/private-build-infra/src/debug-macros')({
-          compatWith,
-          debug: {},
-          features: {},
-          deprecations: {},
-          env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
-        }),
-      ],
+      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(config)],
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
@@ -31,6 +30,14 @@ module.exports = function (defaults) {
     },
     'ember-cli-terser': {
       exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js'],
+    },
+    '@embroider/macros': {
+      // setConfig: {
+      //   '@ember-data/store': {
+      //     polyfillUUID: true,
+      //   },
+      // },
+      setOwnConfig: config,
     },
   });
 
