@@ -5,6 +5,7 @@ import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@ember-data/debugging';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
@@ -737,6 +738,24 @@ export default class JSONAPICache implements Cache {
     const cached = this.__peek(identifier, false);
     cached.inflightAttrs = cached.localAttrs;
     cached.localAttrs = null;
+
+    if (DEBUG) {
+      if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+        // save off info about saved relationships
+        const relationships = this.__storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+        Object.keys(relationships).forEach((relationshipName) => {
+          const relationship = relationships[relationshipName];
+          if (relationship.kind === 'belongsTo') {
+            if (this.__graph._isDirty(identifier, relationshipName)) {
+              const relationshipData = this.__graph.getData(identifier, relationshipName);
+              // @ts-expect-error debugging only property
+              const inFlight = (cached.inflightRelationships = cached.inflightRelationships || Object.create(null));
+              inFlight[relationshipName] = relationshipData;
+            }
+          }
+        });
+      }
+    }
   }
 
   /**
@@ -809,6 +828,41 @@ export default class JSONAPICache implements Cache {
       );
 
       if (data.relationships) {
+        if (DEBUG) {
+          if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+            // assert against bad API behavior where a belongsTo relationship
+            // is saved but the return payload indicates a different final state.
+            const relationships = this.__storeWrapper
+              .getSchemaDefinitionService()
+              .relationshipsDefinitionFor(identifier);
+            Object.keys(relationships).forEach((relationshipName) => {
+              const relationship = relationships[relationshipName];
+              if (relationship.kind === 'belongsTo') {
+                const relationshipData = data.relationships![relationshipName]?.data;
+                if (relationshipData !== undefined) {
+                  // @ts-expect-error debugging only property
+                  const inFlightData = cached.inflightRelationships?.[relationshipName] as ResourceRelationship;
+                  if (!inFlightData || !('data' in inFlightData)) {
+                    return;
+                  }
+                  const actualData = relationshipData
+                    ? this.__storeWrapper.identifierCache.getOrCreateRecordIdentifier(relationshipData)
+                    : null;
+                  assert(
+                    `Expected the resource relationship '<${identifier.type}>.${relationshipName}' on ${
+                      identifier.lid
+                    } to be saved as ${inFlightData.data ? inFlightData.data.lid : '<null>'} but it was saved as ${
+                      actualData ? actualData.lid : '<null>'
+                    }`,
+                    inFlightData.data === actualData
+                  );
+                }
+              }
+            });
+            // @ts-expect-error debugging only property
+            cached.inflightRelationships = undefined;
+          }
+        }
         setupRelationships(this.__graph, this.__storeWrapper, identifier, data);
       }
       newCanonicalAttributes = data.attributes;

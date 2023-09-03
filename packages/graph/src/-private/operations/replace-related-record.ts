@@ -85,7 +85,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
       } else if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
         // if localState does not match existingState then we know
         // we have a local mutation that has not been persisted yet
-        if (localState !== op.value) {
+        if (localState !== op.value && relationship.definition.resetOnRemoteUpdate !== false) {
           relationship.localState = existingState;
 
           deprecate(
@@ -160,7 +160,11 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
       // and localState !== existingState then we know we have a local mutation
       // that has not been persisted yet.
     } else if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
-      if (localState !== remoteState && localState !== existingState) {
+      if (
+        localState !== remoteState &&
+        localState !== existingState &&
+        relationship.definition.resetOnRemoteUpdate !== false
+      ) {
         relationship.localState = existingState;
 
         deprecate(

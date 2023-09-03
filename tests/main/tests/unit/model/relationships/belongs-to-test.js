@@ -441,7 +441,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
       until: '6.0',
       count: 1,
-      refactor: true, // should probably assert against this scenario in dev at the cache level by comparing to in-flight state
+      refactor: true, // we assert against this scenario in dev at the cache level by comparing to in-flight state
     },
     async function (assert) {
       class Tag extends Model {

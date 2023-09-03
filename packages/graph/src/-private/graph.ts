@@ -279,6 +279,25 @@ export class Graph {
     }
   }
 
+  _isDirty(identifier: StableRecordIdentifier, field: string): boolean {
+    const relationships = this.identifiers.get(identifier);
+    if (!relationships) {
+      return false;
+    }
+    const relationship = relationships[field];
+    if (!relationship) {
+      return false;
+    }
+    if (isBelongsTo(relationship)) {
+      return relationship.localState !== relationship.remoteState;
+    } else if (isHasMany(relationship)) {
+      const hasAdditions = relationship.additions !== null && relationship.additions.size > 0;
+      const hasRemovals = relationship.removals !== null && relationship.removals.size > 0;
+      return hasAdditions || hasRemovals;
+    }
+    return false;
+  }
+
   remove(identifier: StableRecordIdentifier) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
