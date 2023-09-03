@@ -84,10 +84,14 @@ Features:
 
 - SchemaModel
 - Schema DSL
-- JSON:API, REST | Request Builders
-- JSON:API | Serialization Utils
+- JSON:API, REST, ActiveRecord | Request Builders
+- JSON:API, REST, ActiveRecord | Serialization Utils
 - JSON:API | Cache Forking
 - JSON:API | Operations Support
+- REST, ActiveRecord | Cache
+- Graph
+- DataWorker
+- PersistedCache
 
 Deprecations:
 
@@ -104,10 +108,10 @@ Stretch Goals:
 
 - Forking support for JSON:API Cache
 - Schema DSL
+- SchemaModel
 
 ### 🔸 5.3 (Upcoming ~ Oct 1, 2023)
 
-- SchemaModel
 - Refactor @ember-data/model setup/teardown hooks logic to be importable
 
 See the [5.3 Release Checklist](https://github.com/emberjs/data/issues/8743) for the full list of work targetting this release.
