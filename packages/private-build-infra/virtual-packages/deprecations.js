@@ -188,6 +188,36 @@ export const DEPRECATE_LEGACY_IMPORTS = '5.3';
  * Deprecates when the data for a hasMany relationship contains
  * duplicate identifiers.
  *
+ * Previously, relationships would silently de-dupe the data
+ * when received, but this behavior is being removed in favor
+ * of erroring if the same related record is included multiple
+ * times.
+ *
+ * For instance, in JSON:API the below relationship data would
+ * be considered invalid:
+ *
+ * ```json
+ * {
+ *  "data": {
+ *   "type": "article",
+ *    "id": "1",
+ *    "relationships": {
+ *      "comments": {
+ *        "data": [
+ *          { "type": "comment", "id": "1" },
+ *          { "type": "comment", "id": "2" },
+ *          { "type": "comment", "id": "1" } // duplicate
+ *        ]
+ *     }
+ *  }
+ * }
+ * ```
+ *
+ * To resolve this deprecation, either update your server to
+ * not include duplicate data, or implement normalization logic
+ * in either a request handler or serializer which removes
+ * duplicate data from relationship payloads.
+ *
  * @property DEPRECATE_NON_UNIQUE_PAYLOADS
  * @since 5.3
  * @until 6.0
@@ -287,6 +317,51 @@ export const DEPRECATE_NON_UNIQUE_PAYLOADS = '5.3';
  *
  * Once you have migrated all relationships, you can remove the the resetOnRemoteUpdate
  * option and set the deprecation flag to false in ember-cli-build.
+ *
+ * ### What if I don't want the new behavior?
+ *
+ * EmberData's philosophy is to not make assumptions about your application. Where possible
+ * we seek out "100%" solutions – solutions that work for all use cases - and where that is
+ * not possible we default to "90%" solutions – solutions that work for the vast majority of use
+ * cases. In the case of "90%" solutions we look for primitives that allow you to resolve the
+ * 10% case in your application. If no such primitives exist, we provide an escape hatch that
+ * ensures you can build the behavior you need without adopting the cost of the default solution.
+ *
+ * In this case, the old behavior was a "40%" solution. The inability for an application developer
+ * to determine what changes were made locally, and thus what changes should be preserved, made
+ * it impossible to build certain features easily, or in some cases at all. The proliferation of
+ * feature requests, bug reports (from folks surprised by the prior behavior) and addon attempts
+ * in this space are all evidence of this.
+ *
+ * We believe the new behavior is a "90%" solution. It works for the vast majority of use cases,
+ * often without noticeable changes to existing application behavior, and provides primitives that
+ * allow you to build the behavior you need for the remaining 10%.
+ *
+ * The great news is that this behavior defaults to trusting your API similar to the old behavior.
+ * If your API is correct, you will not need to make any changes to your application to adopt
+ * the new behavior.
+ *
+ * This means the 10% cases are those where you can't trust your API to provide the correct
+ * information. In these cases, because you now have cheap access to a diff of the relationship
+ * state, there are a few options that weren't available before:
+ *
+ * - you can adjust returned API payloads to contain the expected changes that it doesn't include
+ * - you can modify local state by adding or removing records on the HasMany record array to remove
+ *   any local changes that were not returned by the API.
+ * - you can use `<Cache>.mutate(mutation)` to directly modify the local cache state of the relationship
+ *   to match the expected state.
+ *
+ * What this version (5.3) does not yet provide is a way to directly modify the cache's remote state
+ * for the relationship via public APIs other than via the broader action of upserting a response via
+ * `<Cache>.put(document)`. However, such an API was sketched in the Cache 2.1 RFC
+ * `<Cache>.patch(operation)` and is likely to be added in a future 5.x release of EmberData.
+ *
+ * This version (5.3) also does not yet provide a way to directly modify the graph (a general purpose
+ * subset of cache behaviors specific to relationships) via public APIs. However, during the
+ * 5.x release series we will be working on finalizing the Graph API and making it public.
+ *
+ * If none of these options work for you, you can always opt-out more broadly by implementing
+ * a custom Cache with the relationship behaviors you need.
  *
  * @property DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE
  * @since 5.3
