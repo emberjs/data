@@ -189,7 +189,7 @@ export default class JSONAPICache implements Cache {
     let i: number, length: number;
     const { identifierCache } = this.__storeWrapper;
 
-    if (true) {
+    if (LOG_REQUESTS) {
       const Counts = new Map();
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {

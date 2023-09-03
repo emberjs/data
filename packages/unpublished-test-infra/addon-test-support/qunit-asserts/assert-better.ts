@@ -20,6 +20,24 @@ export function configureBetterAsserts() {
   HAS_REGISTERED = true;
 
   QUnit.assert.arrayStrictEquals = function <T>(actual: T[], expected: T[], message: string): void {
+    if (!Array.isArray(actual)) {
+      this.pushResult({
+        result: false,
+        actual: false,
+        expected: true,
+        message: 'Expected the value for "actual" to be an array | ' + message,
+      });
+      return;
+    }
+    if (!Array.isArray(expected)) {
+      this.pushResult({
+        result: false,
+        actual: false,
+        expected: true,
+        message: 'Expected the value for "expected"" to be an array',
+      });
+      return;
+    }
     let passed = actual.length === expected.length;
 
     let actualRefs = new Map<T, string>();

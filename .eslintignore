@@ -8,17 +8,19 @@
 **/dist-control/
 **/dist-experiment/
 **/tmp/
+/packages/-ember-data/docs/
 /packages/tracking/addon/
 /packages/request/addon/
 /packages/store/addon/
 /packages/adapter/addon/
-/packages/-ember-data/docs/
-/packages/tracking/addon/
 /packages/serializer/addon/
 /packages/model/addon/
 /packages/json-api/addon/
 /packages/graph/addon/
 /packages/legacy-compat/addon/
+/packages/request-utils/addon/
+/packages/rest/addon/
+/packages/active-record/addon/
 
 **/DEBUG/
 

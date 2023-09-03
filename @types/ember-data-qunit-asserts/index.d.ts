@@ -22,6 +22,10 @@ declare global {
     expectNoWarning(callback: () => unknown): Promise<void>;
     expectAssertion(callback: () => unknown, matcher: string | RegExp): Promise<void>;
     expectNoAssertion(callback: () => unknown): Promise<void>;
+    /**
+     * Asserts that each member of actual strictly matches the corresponding member of expected.
+     * Asserts that actual is an array and has the same length as expected.
+     */
     arrayStrictEquals<T>(actual: unknown, expected: T[], message: string): void;
   }
 
@@ -34,7 +38,7 @@ declare global {
       expectNoWarning(callback: () => unknown): Promise<void>;
       expectAssertion(callback: () => unknown, matcher: string | RegExp): Promise<void>;
       expectNoAssertion(callback: () => unknown): Promise<void>;
-      arrayStrictEquals<T>(actual: T[], expected: T[], message: string): void;
+      arrayStrictEquals<T>(unknown, expected: T[], message: string): void;
     }
   }
 

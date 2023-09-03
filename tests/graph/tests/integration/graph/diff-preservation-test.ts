@@ -8,7 +8,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
-module('Integration | Graph | Remote State Does Not Reset Local State', function (hooks: NestedHooks) {
+module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) {
   setupTest(hooks);
 
   deprecatedTest(
