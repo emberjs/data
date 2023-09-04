@@ -5,11 +5,8 @@ const addonBuildConfigForDataPackage = require('@ember-data/private-build-infra/
 const addonBaseConfig = addonBuildConfigForDataPackage(require('./package.json'));
 
 module.exports = Object.assign({}, addonBaseConfig, {
-  shouldRollupPrivate: false,
   __isEnabled: null,
-  externalDependenciesForPrivateModule() {
-    return [];
-  },
+
   treeFor() {
     // Nested addons don't call isEnabled automatically,
     // So this ensures that we return empty trees whenever
