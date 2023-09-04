@@ -119,22 +119,8 @@ export class ContextOwner {
     }
     this.hasSetResponse = true;
     if (response instanceof Response) {
-      const { headers, ok, redirected, status, statusText, type, url } = response;
-      (headers as ImmutableHeaders).clone = () => {
-        return new Headers([...headers.entries()]);
-      };
-      (headers as ImmutableHeaders).toJSON = () => {
-        return [...headers.entries()];
-      };
-      let responseData: ResponseInfo = {
-        headers: headers as ImmutableHeaders,
-        ok,
-        redirected,
-        status,
-        statusText,
-        type,
-        url,
-      };
+      let responseData = cloneResponseProperties(response);
+
       if (DEBUG) {
         responseData = deepFreeze(responseData);
       }
