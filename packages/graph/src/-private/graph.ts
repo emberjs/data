@@ -2,6 +2,7 @@ import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
+import type Store from '@ember-data/store';
 import type { CollectionRelationship, ResourceRelationship } from '@ember-data/types/cache/relationship';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
@@ -158,6 +159,7 @@ export class Graph {
     const relationship = this.get(identifier, propertyName);
 
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
+    flushPendingForIdentifier(this, relationship, identifier, propertyName);
 
     if (isBelongsTo(relationship)) {
       return legacyGetResourceRelationshipData(relationship);
@@ -224,6 +226,7 @@ export class Graph {
 
   isReleasable(identifier: StableRecordIdentifier): boolean {
     const relationships = this.identifiers.get(identifier);
+    flushAllPendingForIdentifier(this, relationships, identifier);
     if (!relationships) {
       if (LOG_GRAPH) {
         // eslint-disable-next-line no-console
@@ -261,6 +264,7 @@ export class Graph {
       console.log(`graph: unload ${String(identifier)}`);
     }
     const relationships = this.identifiers.get(identifier);
+    flushAllPendingForIdentifier(this, relationships, identifier);
 
     if (relationships) {
       // cleans up the graph but retains some nodes
@@ -304,6 +308,7 @@ export class Graph {
       console.log(`graph: remove ${String(identifier)}`);
     }
     assert(`Cannot remove ${String(identifier)} while still removing ${String(this._removing)}`, !this._removing);
+    flushAllPendingForIdentifier(this, this.identifiers.get(identifier), identifier);
     this._removing = identifier;
     this.unload(identifier);
     this.identifiers.delete(identifier);
@@ -428,8 +433,6 @@ export class Graph {
     const updates = this._pushedUpdates;
     const { deletions, hasMany, belongsTo } = updates;
     updates.deletions = [];
-    updates.hasMany = undefined;
-    updates.belongsTo = undefined;
 
     for (let i = 0; i < deletions.length; i++) {
       this.update(deletions[i], true);
@@ -499,6 +502,11 @@ export class Graph {
   }
 }
 
+type CacheOp = {
+  record: StableRecordIdentifier;
+  field: string;
+};
+
 function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelationshipOperation[]>>) {
   ops.forEach((type) => {
     type.forEach((opList) => {
@@ -508,8 +516,18 @@ function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelations
 }
 function flushPendingList(graph: Graph, opList: RemoteRelationshipOperation[]) {
   for (let i = 0; i < opList.length; i++) {
-    graph.update(opList[i], true);
+    if (isActive(graph, opList[i] as CacheOp)) {
+      graph.update(opList[i], true);
+      opList.splice(i, 1);
+      i--;
+    }
   }
+}
+
+function isActive(graph: Graph, op: CacheOp): boolean {
+  const relationships = graph.identifiers.get(op.record);
+
+  return Boolean(relationships?.[op.field]);
 }
 
 // Handle dematerialization for relationship `rel`.  In all cases, notify the
@@ -694,4 +712,111 @@ function addPending(
     lc2.set(op.field, arr);
   }
   arr.push(op);
+}
+
+function hasPending(
+  graph: Graph,
+  definition: UpgradedMeta,
+  identifier: StableRecordIdentifier,
+  field: string
+): boolean {
+  let cache = graph._pushedUpdates;
+  let hasPrimary = cache[definition.kind as 'belongsTo' | 'hasMany']?.get(definition.inverseType)?.get(field);
+  if (hasPrimary) {
+    return true;
+  }
+  if (definition.inverseKind === 'implicit') {
+    return false;
+  }
+  return Boolean(cache[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey));
+}
+
+function _flushRemoteForType(graph: Graph, identifier: StableRecordIdentifier, field: string) {
+  if (LOG_GRAPH) {
+    // eslint-disable-next-line no-console
+    console.groupCollapsed(`Graph: Initialized Transaction`);
+  }
+  graph._transaction = ++transactionRef;
+  const updates = graph._pushedUpdates;
+  const definition = graph.getDefinition(identifier, field);
+  const inversePayloads =
+    definition.inverseKind !== 'implicit'
+      ? updates[definition.inverseKind]?.get(definition.type)?.get(definition.inverseKey)
+      : null;
+  const payloads = updates[definition.kind as 'belongsTo' | 'hasMany']
+    ?.get(definition.inverseType)
+    ?.get(definition.key);
+
+  const first = definition.inverseKind === 'hasMany' ? inversePayloads : payloads;
+  const second = definition.inverseKind === 'hasMany' ? payloads : inversePayloads;
+
+  if (first) {
+    for (let i = 0; i < first.length; i++) {
+      graph.update(first[i], true);
+    }
+  }
+  if (second) {
+    for (let i = 0; i < second.length; i++) {
+      graph.update(second[i], true);
+    }
+  }
+  if (payloads) {
+    const typeMap = updates[definition.kind as 'belongsTo' | 'hasMany']!;
+    const fieldMap = typeMap.get(definition.inverseType)!;
+    fieldMap.delete(definition.key);
+    if (fieldMap.size === 0) {
+      typeMap.delete(definition.inverseType);
+    }
+  }
+  if (inversePayloads) {
+    const typeMap = updates[definition.inverseKind as 'belongsTo' | 'hasMany']!;
+    const fieldMap = typeMap.get(definition.type)!;
+
+    if (fieldMap) {
+      fieldMap.delete(definition.inverseKey);
+      if (fieldMap.size === 0) {
+        typeMap.delete(definition.type);
+      }
+    }
+  }
+
+  graph._transaction = null;
+  if (LOG_GRAPH) {
+    // eslint-disable-next-line no-console
+    console.log(`Graph: transaction finalized`);
+    // eslint-disable-next-line no-console
+    console.groupEnd();
+  }
+}
+
+function flushPendingForIdentifier(
+  graph: Graph,
+  relationship: GraphEdge,
+  identifier: StableRecordIdentifier,
+  propertyName: string
+) {
+  if (hasPending(graph, relationship.definition, identifier, propertyName)) {
+    graph.silenceNotifications = true;
+    (graph.store as unknown as { _store: Store })._store._join(() => {
+      _flushRemoteForType(graph, identifier, propertyName);
+    });
+    graph.silenceNotifications = false;
+  }
+}
+
+function flushAllPendingForIdentifier(
+  graph: Graph,
+  relationships: Record<string, GraphEdge> | undefined,
+  identifier: StableRecordIdentifier
+) {
+  if (!relationships) {
+    return;
+  }
+  Object.keys(relationships).forEach((key) => {
+    const rel = relationships[key];
+    if (!rel) {
+      return;
+    }
+    flushPendingForIdentifier(graph, rel, identifier, key);
+  });
 }
