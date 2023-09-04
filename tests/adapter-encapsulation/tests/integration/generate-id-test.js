@@ -98,4 +98,22 @@ module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
 
     assert.deepEqual(record.serialize().data.attributes, props, 'record created without error');
   });
+
+  test('store.createRecord does not error if adapter is undefined.', async function (assert) {
+    let store = this.owner.lookup('service:store');
+    let expectedData = {
+      data: {
+        type: 'person',
+        attributes: {
+          firstName: 'Gaurav',
+          lastName: 'Munjal',
+        },
+      },
+    };
+
+    let props = expectedData.data.attributes;
+    let record = store.createRecord('person', props);
+
+    assert.deepEqual(record.serialize().data.attributes, props, 'record created without error');
+  });
 });
