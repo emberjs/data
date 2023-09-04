@@ -37,6 +37,5 @@ module.exports = function (defaults) {
         package: 'qunit',
       },
     ],
-    extraPublicTrees: ['worker'],
   });
 };

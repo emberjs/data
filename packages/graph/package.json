@@ -37,6 +37,9 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
     }
   },
   "dependencies": {
