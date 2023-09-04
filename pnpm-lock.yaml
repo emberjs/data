@@ -3094,7 +3094,7 @@ importers:
         specifier: ^4.18.2
         version: 4.18.2
       glob:
-        specifier: ^10.3.3
+        specifier: ^10.3.4
         version: 10.3.4
       loader.js:
         specifier: ^4.7.0

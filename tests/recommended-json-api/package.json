@@ -104,7 +104,7 @@
     "silent-error": "^1.1.1",
     "webpack": "^5.88.2",
     "express": "^4.18.2",
-    "glob": "^10.3.3",
+    "glob": "^10.3.4",
     "morgan": "^1.10.0"
   },
   "ember": {
