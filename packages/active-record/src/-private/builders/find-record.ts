@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/active-record/request
+ */
 import { underscore } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
@@ -15,6 +18,43 @@ type FindRecordOptions = ConstrainedRequestOptions & {
   include?: string | string[];
 };
 
+/**
+ * Builds request options to fetch a single resource by a known id or identifier
+ * configured for the url and header expectations of most JSON:API APIs.
+ *
+ * **Basic Usage**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/active-record/request';
+ *
+ * const data = await store.request(findRecord('person', '1'));
+ * ```
+ *
+ * **With Options**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/active-record/request';
+ *
+ * const options = findRecord('person', '1', { include: ['pets', 'friends'] });
+ * const data = await store.request(options);
+ * ```
+ *
+ * **With an Identifier**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/active-record/request';
+ *
+ * const options = findRecord({ type: 'person', id: '1' }, { include: ['pets', 'friends'] });
+ * const data = await store.request(options);
+ * ```
+ *
+ * @method findRecord
+ * @public
+ * @static
+ * @for @ember-data/active-record/request
+ * @param identifier
+ * @param options
+ */
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
   options?: FindRecordOptions
