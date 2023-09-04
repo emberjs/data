@@ -146,10 +146,6 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     });
   }
 
-  // ensure we've processed all extent additions and removals
-  assert(`Expected relationship to be in a consistent state`, !additions || additions.size === 0);
-  assert(`Expected relationship to be in a consistent state`, !removals || removals.size === 0);
-
   relationship.additions = diff.add;
   relationship.removals = diff.del;
   relationship.localState = diff.finalState;
