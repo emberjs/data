@@ -38,11 +38,12 @@ const _fetch: typeof fetch =
 const Fetch = {
   async request(context: Context) {
     const response = await _fetch(context.request.url!, context.request);
-    context.setResponse(response);
 
     if (!response.headers.has('date')) {
       response.headers.set('date', new Date().toUTCString());
     }
+
+    context.setResponse(response);
 
     // if we are an error, we will want to throw
     if (!response.ok || response.status >= 400) {
