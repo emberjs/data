@@ -469,8 +469,8 @@ export class CacheManager implements Cache {
    * @param {StableRecordIdentifier} identifier
    * @returns {string[]} the names of relationships that were restored
    */
-  rollbackRelationships(identifier: StableRecordIdentifier): void {
-    this.#cache.rollbackRelationships(identifier);
+  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+    return this.#cache.rollbackRelationships(identifier);
   }
 
   /**

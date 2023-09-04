@@ -358,10 +358,11 @@ export class Graph {
     return false;
   }
 
-  rollback(identifier: StableRecordIdentifier): void {
+  rollback(identifier: StableRecordIdentifier): string[] {
     const relationships = this.identifiers.get(identifier);
+    const changed: string[] = [];
     if (!relationships) {
-      return;
+      return changed;
     }
     const keys = Object.keys(relationships);
     for (let i = 0; i < keys.length; i++) {
@@ -373,8 +374,11 @@ export class Graph {
 
       if (this._isDirty(identifier, field)) {
         rollbackRelationship(this, identifier, field, relationship as CollectionEdge | ResourceEdge);
+        changed.push(field);
       }
     }
+
+    return changed;
   }
 
   remove(identifier: StableRecordIdentifier) {

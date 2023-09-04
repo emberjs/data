@@ -431,7 +431,7 @@ export interface Cache {
    * @param {StableRecordIdentifier} identifier
    * @returns {string[]} the names of relationships that were restored
    */
-  rollbackRelationships(identifier: StableRecordIdentifier): void;
+  rollbackRelationships(identifier: StableRecordIdentifier): string[];
 
   /**
    * Query the cache for the current state of a relationship property

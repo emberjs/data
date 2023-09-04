@@ -1194,8 +1194,13 @@ export default class JSONAPICache implements Cache {
    * @param {StableRecordIdentifier} identifier
    * @returns {string[]} the names of relationships that were restored
    */
-  rollbackRelationships(identifier: StableRecordIdentifier): void {
-    this.__graph.rollback(identifier);
+  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+    let result;
+    // @ts-expect-error we reach into private API here
+    this.__storeWrapper._store._join(() => {
+      result = this.__graph.rollback(identifier);
+    });
+    return result;
   }
 
   /**
