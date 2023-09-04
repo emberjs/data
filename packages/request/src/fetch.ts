@@ -46,7 +46,7 @@ const Fetch = {
   async request(context: Context) {
     let response = await _fetch(context.request.url!, context.request);
 
-    if (!response.headers.has('date1')) {
+    if (!response.headers.has('date')) {
       const headers = new Headers(response.headers);
       headers.set('date1', new Date().toUTCString());
       response = cloneResponse(response, { headers });
