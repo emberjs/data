@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/active-record",
   "description": "ActiveRecord Format Support for EmberData",
-  "version": "5.4.0-alpha.8",
+  "version": "5.4.0-alpha.9",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
