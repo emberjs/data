@@ -12,7 +12,7 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: ['@embroider/macros', '@ember-data/store/-private'],
+  external: ['@ember/debug', '@embroider/macros', '@ember-data/store/-private', '@ember-data/request'],
 
   plugins: [
     // These are the modules that users should be able to import from your
@@ -21,7 +21,7 @@ export default {
 
     nodeResolve({ extensions: ['.ts'] }),
     babel({
-      extensions: ['.ts'],
+      extensions: ['.js', '.ts'],
       babelHelpers: 'runtime', // we should consider "external",
     }),
 

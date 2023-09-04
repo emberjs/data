@@ -28,6 +28,7 @@
     "@ember-data/model": "workspace:5.4.0-alpha.9",
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.9",
     "@ember-data/request": "workspace:5.4.0-alpha.9",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.9",
     "@ember-data/serializer": "workspace:5.4.0-alpha.9",
     "@ember-data/store": "workspace:5.4.0-alpha.9",
     "@ember-data/tracking": "workspace:5.4.0-alpha.9",
@@ -57,6 +58,9 @@
       "injected": true
     },
     "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
       "injected": true
     },
     "@ember-data/legacy-compat": {
