@@ -2936,7 +2936,7 @@ importers:
         version: file:packages/json-api(@babel/core@7.22.11)(@ember-data/graph@5.4.0-alpha.9)(@ember-data/request-utils@5.4.0-alpha.9)(@ember-data/store@5.4.0-alpha.9)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
         specifier: workspace:5.4.0-alpha.9
-        version: file:packages/legacy-compat(@babel/core@7.22.11)(@ember-data/graph@5.4.0-alpha.9)(@ember-data/json-api@5.4.0-alpha.9)
+        version: file:packages/legacy-compat(@babel/core@7.22.11)(@ember-data/graph@5.4.0-alpha.9)(@ember-data/json-api@5.4.0-alpha.9)(@ember-data/request@5.4.0-alpha.9)
       '@ember-data/model':
         specifier: workspace:5.4.0-alpha.9
         version: file:packages/model(@babel/core@7.22.11)(@ember-data/graph@5.4.0-alpha.9)(@ember-data/json-api@5.4.0-alpha.9)(@ember-data/legacy-compat@5.4.0-alpha.9)(@ember-data/store@5.4.0-alpha.9)(@ember-data/tracking@5.4.0-alpha.9)(@ember/string@3.1.1)(ember-inflector@4.0.2)(ember-source@5.1.2)
@@ -17963,7 +17963,7 @@ packages:
     dependencies:
       '@ember-data/graph': file:packages/graph(@babel/core@7.22.11)(@ember-data/store@5.4.0-alpha.9)
       '@ember-data/json-api': file:packages/json-api(@babel/core@7.22.11)(@ember-data/graph@5.4.0-alpha.9)(@ember-data/request-utils@5.4.0-alpha.9)(@ember-data/store@5.4.0-alpha.9)(ember-inflector@4.0.2)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.22.11)(@ember-data/graph@5.4.0-alpha.9)(@ember-data/json-api@5.4.0-alpha.9)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.22.11)(@ember-data/graph@5.4.0-alpha.9)(@ember-data/json-api@5.4.0-alpha.9)(@ember-data/request@5.4.0-alpha.9)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/store': file:packages/store(@babel/core@7.22.11)(@ember-data/tracking@5.4.0-alpha.9)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@5.1.2)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.22.11)
