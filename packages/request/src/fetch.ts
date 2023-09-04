@@ -48,7 +48,7 @@ const Fetch = {
 
     if (!response.headers.has('date')) {
       const headers = new Headers(response.headers);
-      headers.set('date1', new Date().toUTCString());
+      headers.set('date', new Date().toUTCString());
       response = cloneResponse(response, { headers });
     }
 
