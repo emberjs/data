@@ -23,7 +23,6 @@ export interface CollectionEdge {
 
   localState: StableRecordIdentifier[] | null;
   isDirty: boolean;
-  reordered: boolean;
   transactionRef: number;
 
   _diff?: {

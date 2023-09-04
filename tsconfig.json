@@ -57,8 +57,6 @@
       "tests/main/tests/integration/request-state-service-test.ts",
       "tests/main/tests/integration/record-data/store-wrapper-test.ts",
       "tests/main/tests/integration/record-data/record-data-test.ts",
-      "tests/main/tests/integration/record-data/record-data-state-test.ts",
-      "tests/main/tests/integration/record-data/record-data-errors-test.ts",
       "tests/main/tests/integration/model-errors-test.ts",
       "tests/main/tests/integration/identifiers/scenarios-test.ts",
       "tests/main/tests/integration/identifiers/record-identifier-for-test.ts",

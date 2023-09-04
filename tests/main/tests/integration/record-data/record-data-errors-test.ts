@@ -12,6 +12,7 @@ import Model, { attr } from '@ember-data/model';
 import { StructuredDataDocument } from '@ember-data/request/-private/types';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
+import type { RelationshipDiff } from '@ember-data/types/cache/cache';
 import type { Change } from '@ember-data/types/cache/change';
 import type {
   CollectionResourceDataDocument,
@@ -48,6 +49,15 @@ class TestRecordData implements Cache {
   _data: Map<StableRecordIdentifier, object> = new Map();
   constructor(wrapper: CacheCapabilitiesManager) {
     this.wrapper = wrapper;
+  }
+  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+    throw new Error('Method not implemented.');
+  }
+  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+    throw new Error('Method not implemented.');
+  }
+  rollbackRelationships(identifier: StableRecordIdentifier): void {
+    throw new Error('Method not implemented.');
   }
   patch(op: MergeOperation): void {
     throw new Error('Method not implemented.');
@@ -297,10 +307,10 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     }
   });
 
-  test('RecordData Invalid Errors Can Be Reflected On The Record', async function (assert) {
+  test('RecordData Invalid Errors Can Be Reflected On The Record', function (assert) {
     const { owner } = this;
     let errorsToReturn: JsonApiError[] | undefined;
-    let storeWrapper;
+    let storeWrapper!: CacheCapabilitiesManager;
 
     class LifecycleRecordData extends TestRecordData {
       getErrors(): JsonApiError[] {
