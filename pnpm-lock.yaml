@@ -3073,8 +3073,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.15)
       ember-page-title:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.15)
+        specifier: ^8.0.0
+        version: 8.0.0
       ember-qunit:
         specifier: ^7.0.0
         version: 7.0.0(@babel/core@7.22.15)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
@@ -4708,6 +4708,17 @@ packages:
       - rollup
       - supports-color
       - utf-8-validate
+    dev: true
+
+  /@embroider/addon-shim@1.8.6:
+    resolution: {integrity: sha512-siC9kP78uucEbpDcVyxjkwa76pcs5rVzDVpWO4PDc9EAXRX+pzmUuSTLAK3GztUwx7/PWhz1BenAivqdSvSgfg==}
+    engines: {node: 12.* || 14.* || >= 16}
+    dependencies:
+      '@embroider/shared-internals': 2.4.0(supports-color@8.1.1)
+      broccoli-funnel: 3.0.8
+      semver: 7.5.4
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@embroider/babel-loader-8@3.0.1(@embroider/core@3.2.1)(supports-color@8.1.1)(webpack@5.88.2):
@@ -9711,13 +9722,12 @@ packages:
       - '@babel/core'
       - supports-color
 
-  /ember-page-title@7.0.0(@babel/core@7.22.15):
-    resolution: {integrity: sha512-oq6+HYbeVD/BnxIO5AkP4gWlsatdgW2HFO10F8+XQiJZrwa7cC7Wm54JNGqQkavkDQTgNSiy1Fe2NILJ14MmAg==}
-    engines: {node: 12.* || 14.* || >= 16}
+  /ember-page-title@8.0.0:
+    resolution: {integrity: sha512-4bu8CpoPObJZNUogwIjpntxS3jMDlZ1eoJsZUuktcCgOI7LfZocuYbu9LnLM215QjEOV0TxGDWwJck1l8cWKeg==}
+    engines: {node: 16.* || >= 18}
     dependencies:
-      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.15)
+      '@embroider/addon-shim': 1.8.6
     transitivePeerDependencies:
-      - '@babel/core'
       - supports-color
     dev: true
 
