@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/json-api",
-  "version": "5.4.0-alpha.7",
+  "version": "5.4.0-alpha.8",
   "description": "Provides a JSON:API document and resource cache implementation for EmberData",
   "keywords": [
     "ember-addon"
@@ -32,9 +32,9 @@
     "ember-data-logo-light.svg"
   ],
   "peerDependencies": {
-    "@ember-data/graph": "workspace:5.4.0-alpha.7",
-    "@ember-data/store": "workspace:5.4.0-alpha.7",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.7",
+    "@ember-data/graph": "workspace:5.4.0-alpha.8",
+    "@ember-data/store": "workspace:5.4.0-alpha.8",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.8",
     "ember-inflector": "^4.0.2"
   },
   "dependenciesMeta": {
@@ -50,7 +50,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.7",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.8",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.1",
     "ember-cli-babel": "^8.0.0"
