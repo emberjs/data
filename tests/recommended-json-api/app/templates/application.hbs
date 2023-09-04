@@ -1,0 +1,18 @@
+{{page-title "Library"}}
+
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <h2>Browse</h2>
+        <div class="scroll-container">
+          <InfiniteBooks @allBooks={{@model.allBooks}} />
+        </div>
+      </td>
+      <td><h2>Search</h2><BookSearch @authors={{@model.authors}} @genres={{@model.genres}}/></td>
+      <td><h2>All Books</h2><BookList /></td>
+    </tr>
+  </tbody>
+</table>
+
+{{outlet}}

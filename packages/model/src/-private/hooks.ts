@@ -10,12 +10,16 @@ import Model from './model';
 import { getModelFactory } from './schema-provider';
 import { normalizeModelName } from './util';
 
+function recast(context: Store): asserts context is ModelStore {}
+
 export function instantiateRecord(
-  this: ModelStore,
+  this: Store,
   identifier: StableRecordIdentifier,
   createRecordArgs: { [key: string]: unknown }
 ): Model {
   const type = identifier.type;
+
+  recast(this);
 
   const cache = this.cache;
   // TODO deprecate allowing unknown args setting
@@ -52,8 +56,10 @@ export function modelFor(this: Store, modelName: string): typeof Model | void {
     `Please pass a proper model name to the store's modelFor method`,
     typeof modelName === 'string' && modelName.length
   );
+  recast(this);
+
   const type = normalizeModelName(modelName);
-  const maybeFactory = getModelFactory(this as ModelStore, type);
+  const maybeFactory = getModelFactory(this, type);
   const klass = maybeFactory && maybeFactory.class ? maybeFactory.class : null;
 
   const ignoreType = !klass || !klass.isModel || this._forceShim;

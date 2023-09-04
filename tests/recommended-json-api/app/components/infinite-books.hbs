@@ -1,0 +1,15 @@
+<VerticalCollection
+  @items={{this.books}}
+  @tagName="ul"
+  @staticHeight={{true}}
+  @estimateHeight={{60}}
+  @bufferSize={{10}}
+  @lastReached={{this.next}}
+  @containerSelector=".scroll-container"
+  as |book|
+>
+  <li>
+    <strong>{{book.title}}</strong> ({{book.genre}}) - {{book.publicationDate}}
+    <br> by <em>{{book.author}}</em> ISBN: {{book.isbn}}
+  </li>
+</VerticalCollection>

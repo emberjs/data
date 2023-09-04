@@ -45,6 +45,8 @@
       "@ember-data/types/*": ["ember-data-types/*"],
       "@ember-data/store": ["packages/store/src"],
       "@ember-data/store/*": ["packages/store/src/*"],
+      "@ember-data/data-worker": ["packages/data-worker/src"],
+      "@ember-data/data-worker/*": ["packages/data-worker/src/*"],
       "@ember-data/tracking": ["packages/tracking/src"],
       "@ember-data/tracking/*": ["packages/tracking/src/*"],
       "@ember-data/request": ["packages/request/src"],
@@ -102,6 +104,7 @@
     "packages/tracking/src/**/*",
     "packages/request/src/**/*",
     "packages/request-utils/src/**/*",
+    "packages/data-worker/src/**/*",
     "packages/store/src/**/*",
     "packages/adapter/src/**/*",
     "packages/graph/src/**/*",
@@ -118,7 +121,8 @@
     "packages/**/addon-test-support/**/*",
     "tests/**/app/**/*",
     "tests/**/addon/**/*",
-    "tests/**/tests/**/*"
+    "tests/**/tests/**/*",
+    "tests/recommended-json-api/workers/**/*",
   ],
   "exclude": ["node_modules", "packages/**/node_modules",  "packages/**/dist",  "packages/**/DEBUG"]
 }
