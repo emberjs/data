@@ -1,4 +1,3 @@
-import { graphFor } from '@ember-data/graph/-private';
 import JSONAPICache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import type Model from '@ember-data/model';
@@ -20,7 +19,6 @@ export default class Store extends BaseStore {
     this.requestManager.use([LegacyNetworkHandler, Fetch]);
     this.requestManager.useCache(CacheHandler);
     this.registerSchema(buildSchema(this));
-    this._graph = graphFor(this);
   }
 
   createCache(storeWrapper: CacheCapabilitiesManager): Cache {
