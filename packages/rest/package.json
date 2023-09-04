@@ -26,6 +26,7 @@
   },
   "peerDependencies": {
     "ember-inflector": "^4.0.2",
+    "@ember/string": "^3.1.1",
     "@ember-data/store": "^4.12.0 || ^5.0.0"
   },
   "files": [

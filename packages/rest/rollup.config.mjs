@@ -12,7 +12,7 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: [],
+  external: ['@ember/debug', '@ember-data/request-utils', 'ember-inflector', '@ember/string', '@ember-data/store'],
 
   plugins: [
     // These are the modules that users should be able to import from your
