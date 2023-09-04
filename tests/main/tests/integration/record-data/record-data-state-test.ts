@@ -13,6 +13,7 @@ import { StructuredDataDocument } from '@ember-data/request/-private/types';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
+import type { RelationshipDiff } from '@ember-data/types/cache/cache';
 import type { Change } from '@ember-data/types/cache/change';
 import type {
   CollectionResourceDataDocument,
@@ -51,6 +52,16 @@ class TestRecordData implements Cache {
   constructor(wrapper: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
+  }
+
+  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+    throw new Error('Method not implemented.');
+  }
+  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+    throw new Error('Method not implemented.');
+  }
+  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+    throw new Error('Method not implemented.');
   }
 
   patch(op: MergeOperation): void {
@@ -202,13 +213,12 @@ class TestRecordData implements Cache {
 module('integration/record-data - Record Data State', function (hooks) {
   setupTest(hooks);
 
-  let store;
-
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:person', Person);
     // @ts-expect-error missing type
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     owner.unregister('service:store');
     owner.register('service:store', Store);
     owner.register('serializer:application', JSONAPISerializer);
@@ -217,7 +227,7 @@ module('integration/record-data - Record Data State', function (hooks) {
   test('Record Data state saving', async function (assert) {
     assert.expect(3);
 
-    let isDeleted, isNew, isDeletionCommitted;
+    let isDeleted: boolean, isNew: boolean, isDeletionCommitted: boolean;
     let calledDelete = false;
     let calledUpdate = false;
     let calledCreate = false;
@@ -276,13 +286,13 @@ module('integration/record-data - Record Data State', function (hooks) {
     owner.register('service:store', TestStore);
     owner.register('adapter:application', TestAdapter, { singleton: false });
 
-    store = owner.lookup('service:store');
+    const store = owner.lookup('service:store') as Store;
 
     store.push({
       data: [personHash],
     });
 
-    let person = store.peekRecord('person', '1');
+    let person = store.peekRecord('person', '1') as Person;
     isNew = true;
     await person.save();
     assert.true(calledCreate, 'called create if record isNew');
@@ -301,9 +311,9 @@ module('integration/record-data - Record Data State', function (hooks) {
 
   test('Record Data state record flags', async function (assert) {
     assert.expect(13);
-    let isDeleted, isNew, isDeletionCommitted;
+    let isDeleted: boolean, isNew: boolean, isDeletionCommitted: boolean;
     let calledSetIsDeleted = false;
-    let storeWrapper;
+    let storeWrapper!: CacheCapabilitiesManager;
 
     const personHash = {
       type: 'person',
@@ -351,13 +361,13 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     owner.register('service:store', TestStore);
 
-    store = owner.lookup('service:store');
+    const store = owner.lookup('service:store') as Store;
 
     store.push({
       data: [personHash],
     });
 
-    let person = store.peekRecord('person', '1');
+    let person = store.peekRecord('person', '1') as Person;
     let personIdentifier = recordIdentifierFor(person);
     let people = store.peekAll('person');
     assert.strictEqual(people.length, 1, 'live array starting length is 1');

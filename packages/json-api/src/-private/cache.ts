@@ -17,6 +17,7 @@ import { StructuredErrorDocument } from '@ember-data/request/-private/types';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
+import type { RelationshipDiff } from '@ember-data/types/cache/cache';
 import type { Change } from '@ember-data/types/cache/change';
 import type {
   CollectionResourceDataDocument,
@@ -1136,6 +1137,70 @@ export default class JSONAPICache implements Cache {
     }
 
     return dirtyKeys || [];
+  }
+
+  /**
+     * Query the cache for the changes to relationships of a resource.
+     *
+     * Returns a map of relationship names to RelationshipDiff objects.
+     *
+     * ```ts
+     * type RelationshipDiff =
+    | {
+        kind: 'collection';
+        remoteState: StableRecordIdentifier[];
+        additions: Set<StableRecordIdentifier>;
+        removals: Set<StableRecordIdentifier>;
+        localState: StableRecordIdentifier[];
+        reordered: boolean;
+      }
+    | {
+        kind: 'resource';
+        remoteState: StableRecordIdentifier | null;
+        localState: StableRecordIdentifier | null;
+      };
+      ```
+     *
+     * @method changedRelationships
+     * @public
+     * @param {StableRecordIdentifier} identifier
+     * @returns {Map<string, RelationshipDiff>}
+     */
+  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+    return this.__graph.getChanged(identifier);
+  }
+
+  /**
+   * Query the cache for whether any mutated attributes exist
+   *
+   * @method hasChangedRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {boolean}
+   */
+  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+    return this.__graph.hasChanged(identifier);
+  }
+
+  /**
+   * Tell the cache to discard any uncommitted mutations to relationships.
+   *
+   * This will also discard the change on any appropriate inverses.
+   *
+   * This method is a candidate to become a mutation
+   *
+   * @method rollbackRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {string[]} the names of relationships that were restored
+   */
+  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+    let result;
+    // @ts-expect-error we reach into private API here
+    this.__storeWrapper._store._join(() => {
+      result = this.__graph.rollback(identifier);
+    });
+    return result;
   }
 
   /**

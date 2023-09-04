@@ -1,5 +1,6 @@
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import type { StructuredDataDocument } from '@ember-data/request/-private/types';
+import type { RelationshipDiff } from '@ember-data/types/cache/cache';
 import type { Change } from '@ember-data/types/cache/change';
 import type {
   ResourceDocument,
@@ -412,6 +413,65 @@ export class CacheManager implements Cache {
 
   // Relationships
   // =============
+
+  /**
+   * Query the cache for the changes to relationships of a resource.
+   *
+   * Returns a map of relationship names to RelationshipDiff objects.
+   *
+   * ```ts
+   * type RelationshipDiff =
+  | {
+      kind: 'collection';
+      remoteState: StableRecordIdentifier[];
+      additions: Set<StableRecordIdentifier>;
+      removals: Set<StableRecordIdentifier>;
+      localState: StableRecordIdentifier[];
+      reordered: boolean;
+    }
+  | {
+      kind: 'resource';
+      remoteState: StableRecordIdentifier | null;
+      localState: StableRecordIdentifier | null;
+    };
+    ```
+   *
+   * @method changedRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {Map<string, RelationshipDiff>}
+   */
+  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+    return this.#cache.changedRelationships(identifier);
+  }
+
+  /**
+   * Query the cache for whether any mutated attributes exist
+   *
+   * @method hasChangedRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {boolean}
+   */
+  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+    return this.#cache.hasChangedRelationships(identifier);
+  }
+
+  /**
+   * Tell the cache to discard any uncommitted mutations to relationships.
+   *
+   * This will also discard the change on any appropriate inverses.
+   *
+   * This method is a candidate to become a mutation
+   *
+   * @method rollbackRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {string[]} the names of relationships that were restored
+   */
+  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+    return this.#cache.rollbackRelationships(identifier);
+  }
 
   /**
    * Query the cache for the current state of a relationship property

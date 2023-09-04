@@ -2,11 +2,13 @@ import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
+import type { RelationshipDiff } from '@ember-data/types/cache/cache';
 import type { CollectionRelationship, ResourceRelationship } from '@ember-data/types/cache/relationship';
 import { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { rollbackRelationship } from './-diff';
 import type { EdgeCache, UpgradedMeta } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
 import type {
@@ -293,9 +295,90 @@ export class Graph {
     } else if (isHasMany(relationship)) {
       const hasAdditions = relationship.additions !== null && relationship.additions.size > 0;
       const hasRemovals = relationship.removals !== null && relationship.removals.size > 0;
-      return hasAdditions || hasRemovals;
+      return hasAdditions || hasRemovals || isReordered(relationship);
     }
     return false;
+  }
+
+  getChanged(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+    const relationships = this.identifiers.get(identifier);
+    const changed = new Map<string, RelationshipDiff>();
+
+    if (!relationships) {
+      return changed;
+    }
+
+    const keys = Object.keys(relationships);
+    for (let i = 0; i < keys.length; i++) {
+      const field = keys[i];
+      const relationship = relationships[field];
+      if (!relationship) {
+        continue;
+      }
+      if (isBelongsTo(relationship)) {
+        if (relationship.localState !== relationship.remoteState) {
+          changed.set(field, {
+            kind: 'resource',
+            remoteState: relationship.remoteState,
+            localState: relationship.localState,
+          });
+        }
+      } else if (isHasMany(relationship)) {
+        const hasAdditions = relationship.additions !== null && relationship.additions.size > 0;
+        const hasRemovals = relationship.removals !== null && relationship.removals.size > 0;
+        const reordered = isReordered(relationship);
+
+        if (hasAdditions || hasRemovals || reordered) {
+          changed.set(field, {
+            kind: 'collection',
+            additions: new Set(relationship.additions) || new Set(),
+            removals: new Set(relationship.removals) || new Set(),
+            remoteState: relationship.remoteState,
+            localState: legacyGetCollectionRelationshipData(relationship).data || [],
+            reordered,
+          });
+        }
+      }
+    }
+
+    return changed;
+  }
+
+  hasChanged(identifier: StableRecordIdentifier): boolean {
+    const relationships = this.identifiers.get(identifier);
+    if (!relationships) {
+      return false;
+    }
+    const keys = Object.keys(relationships);
+    for (let i = 0; i < keys.length; i++) {
+      if (this._isDirty(identifier, keys[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  rollback(identifier: StableRecordIdentifier): string[] {
+    const relationships = this.identifiers.get(identifier);
+    const changed: string[] = [];
+    if (!relationships) {
+      return changed;
+    }
+    const keys = Object.keys(relationships);
+    for (let i = 0; i < keys.length; i++) {
+      const field = keys[i];
+      const relationship = relationships[field];
+      if (!relationship) {
+        continue;
+      }
+
+      if (this._isDirty(identifier, field)) {
+        rollbackRelationship(this, identifier, field, relationship as CollectionEdge | ResourceEdge);
+        changed.push(field);
+      }
+    }
+
+    return changed;
   }
 
   remove(identifier: StableRecordIdentifier) {
@@ -694,4 +777,40 @@ function addPending(
     lc2.set(op.field, arr);
   }
   arr.push(op);
+}
+
+function isReordered(relationship: CollectionEdge): boolean {
+  // if we are dirty we are never re-ordered because accessing
+  // the state would flush away any reordering.
+  if (relationship.isDirty) {
+    return false;
+  }
+
+  const { remoteState, localState, additions, removals } = relationship;
+  assert(`Expected localSate`, localState);
+
+  for (let i = 0, j = 0; i < remoteState.length; i++) {
+    const member = remoteState[i];
+    const localMember = localState[j];
+
+    if (member !== localMember) {
+      if (removals && removals.has(member)) {
+        // dont increment j because we want to skip this
+        continue;
+      }
+      if (additions && additions.has(localMember)) {
+        // increment j to skip this localMember
+        // decrement i to repeat this remoteMember
+        j++;
+        i--;
+        continue;
+      }
+      return true;
+    }
+
+    // if we made it here, increment j
+    j++;
+  }
+
+  return false;
 }

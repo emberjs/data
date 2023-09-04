@@ -46,6 +46,7 @@ QUnit.begin(function () {
   });
 });
 
+QUnit.dump.maxDepth = 10;
 QUnit.config.testTimeout = 2000;
 QUnit.config.urlConfig.push({
   id: 'enableoptionalfeatures',

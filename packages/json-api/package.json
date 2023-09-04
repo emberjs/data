@@ -34,6 +34,7 @@
   "peerDependencies": {
     "@ember-data/graph": "workspace:5.4.0-alpha.6",
     "@ember-data/store": "workspace:5.4.0-alpha.6",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.6",
     "ember-inflector": "^4.0.2"
   },
   "dependenciesMeta": {
@@ -42,6 +43,10 @@
     },
     "@ember-data/graph": {
       "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true,
+      "optional": true
     }
   },
   "dependencies": {

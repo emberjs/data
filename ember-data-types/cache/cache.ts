@@ -13,6 +13,21 @@ import { StableDocumentIdentifier } from './identifier';
 import { Mutation } from './mutations';
 import { Operation } from './operations';
 
+export type RelationshipDiff =
+  | {
+      kind: 'collection';
+      remoteState: StableRecordIdentifier[];
+      additions: Set<StableRecordIdentifier>;
+      removals: Set<StableRecordIdentifier>;
+      localState: StableRecordIdentifier[];
+      reordered: boolean;
+    }
+  | {
+      kind: 'resource';
+      remoteState: StableRecordIdentifier | null;
+      localState: StableRecordIdentifier | null;
+    };
+
 /**
  * The interface for EmberData Caches.
  *
@@ -366,12 +381,65 @@ export interface Cache {
   rollbackAttrs(identifier: StableRecordIdentifier): string[];
 
   /**
+   * Query the cache for the changes to relationships of a resource.
+   *
+   * Returns a map of relationship names to RelationshipDiff objects.
+   *
+   * ```ts
+   * type RelationshipDiff =
+  | {
+      kind: 'collection';
+      remoteState: StableRecordIdentifier[];
+      additions: Set<StableRecordIdentifier>;
+      removals: Set<StableRecordIdentifier>;
+      localState: StableRecordIdentifier[];
+      reordered: boolean;
+    }
+  | {
+      kind: 'resource';
+      remoteState: StableRecordIdentifier | null;
+      localState: StableRecordIdentifier | null;
+    };
+    ```
+   *
+   * @method changedRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {Map<string, RelationshipDiff>}
+   */
+  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff>;
+
+  /**
+   * Query the cache for whether any mutated attributes exist
+   *
+   * @method hasChangedRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {boolean}
+   */
+  hasChangedRelationships(identifier: StableRecordIdentifier): boolean;
+
+  /**
+   * Tell the cache to discard any uncommitted mutations to relationships.
+   *
+   * This will also discard the change on any appropriate inverses.
+   *
+   * This method is a candidate to become a mutation
+   *
+   * @method rollbackRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @returns {string[]} the names of relationships that were restored
+   */
+  rollbackRelationships(identifier: StableRecordIdentifier): string[];
+
+  /**
    * Query the cache for the current state of a relationship property
    *
    * @method getRelationship
    * @public
-   * @param identifier
-   * @param field
+   * @param {StableRecordIdentifier} identifier
+   * @param {string} field
    * @returns resource relationship object
    */
   getRelationship(

@@ -85,41 +85,73 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const wasDirty = relationship.isDirty;
   relationship.isDirty = false;
 
-  const diff = diffCollection(
-    identifiers,
-    relationship,
-    (identifier) => {
-      // Since we are diffing against the remote state, we check
-      // if our previous local state did not contain this identifier
-      if (removals?.has(identifier) || !additions?.has(identifier)) {
-        if (type !== identifier.type) {
-          if (DEBUG) {
-            assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-          }
-          graph.registerPolymorphicType(type, identifier.type);
+  const onAdd = (identifier: StableRecordIdentifier) => {
+    // Since we are diffing against the remote state, we check
+    // if our previous local state did not contain this identifier
+    const removalsHas = removals?.has(identifier);
+    if (removalsHas || !additions?.has(identifier)) {
+      if (type !== identifier.type) {
+        if (DEBUG) {
+          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
         }
-
-        relationship.isDirty = true;
-        addToInverse(graph, identifier, inverseKey, op.record, isRemote);
+        graph.registerPolymorphicType(type, identifier.type);
       }
-    },
-    (identifier) => {
-      // Since we are diffing against the remote state, we check
-      // if our previous local state had contained this identifier
-      if (additions?.has(identifier) || !removals?.has(identifier)) {
-        relationship.isDirty = true;
-        removeFromInverse(graph, identifier, inverseKey, record, isRemote);
+
+      relationship.isDirty = true;
+      addToInverse(graph, identifier, inverseKey, op.record, isRemote);
+
+      if (removalsHas) {
+        removals!.delete(identifier);
       }
     }
-  );
+  };
 
-  const becameDirty = relationship.isDirty || diff.changed;
+  const onRemove = (identifier: StableRecordIdentifier) => {
+    // Since we are diffing against the remote state, we check
+    // if our previous local state had contained this identifier
+    const additionsHas = additions?.has(identifier);
+    if (additionsHas || !removals?.has(identifier)) {
+      relationship.isDirty = true;
+      removeFromInverse(graph, identifier, inverseKey, record, isRemote);
+
+      if (additionsHas) {
+        additions!.delete(identifier);
+      }
+    }
+  };
+
+  const diff = diffCollection(identifiers, relationship, onAdd, onRemove);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let becameDirty = relationship.isDirty || diff.changed;
+
+  // any additions no longer in the local state
+  // need to be removed from the inverse
+  if (additions && additions.size > 0) {
+    additions.forEach((identifier) => {
+      if (!diff.add.has(identifier)) {
+        becameDirty = true;
+        onRemove(identifier);
+      }
+    });
+  }
+
+  // any removals no longer in the local state
+  // need to be added back to the inverse
+  if (removals && removals.size > 0) {
+    removals.forEach((identifier) => {
+      if (!diff.del.has(identifier)) {
+        becameDirty = true;
+        onAdd(identifier);
+      }
+    });
+  }
+
   relationship.additions = diff.add;
   relationship.removals = diff.del;
   relationship.localState = diff.finalState;
   relationship.isDirty = wasDirty;
 
-  if (!wasDirty && becameDirty) {
+  if (!wasDirty /*&& becameDirty // TODO to guard like this we need to detect reorder when diffing local */) {
     notifyChange(graph, op.record, op.field);
   }
 }

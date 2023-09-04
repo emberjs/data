@@ -654,16 +654,21 @@ function makeStableRecordIdentifier(
       set [DEBUG_STALE_CACHE_OWNER](value: number | undefined) {
         recordIdentifier[DEBUG_STALE_CACHE_OWNER] = value;
       },
-      // @ts-expect-error debug only
-      toString() {
+    };
+    Object.defineProperty(wrapper, 'toString', {
+      enumerable: false,
+      value: () => {
         const { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${String(type)}:${String(id)} (${lid})`;
       },
-      toJSON() {
+    });
+    Object.defineProperty(wrapper, 'toJSON', {
+      enumerable: false,
+      value: () => {
         const { type, id, lid } = recordIdentifier;
         return { type, id, lid };
       },
-    };
+    });
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
     wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
     IDENTIFIERS.add(wrapper);

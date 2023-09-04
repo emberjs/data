@@ -118,7 +118,7 @@ const options = findRecord('ember-developer', '1', { include: ['pets', 'friends'
     records: [{ type: 'ember-developer', id: '1' }]
   }
 */
-``````
+```
 
 Request builder output may be used with either `requestManager.request` or `store.request`.
 

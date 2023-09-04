@@ -37,6 +37,9 @@
     },
     "@ember-data/unpublished-test-infra": {
       "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -48,6 +51,7 @@
     "@ember-data/store": "workspace:5.4.0-alpha.6",
     "@ember-data/tracking": "workspace:5.4.0-alpha.6",
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.6",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.6",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.1.1",
