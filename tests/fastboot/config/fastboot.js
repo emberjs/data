@@ -1,4 +1,3 @@
-/* global ReadableStream, WritableStream, TransformStream */
 module.exports = function (environment) {
   return {
     buildSandboxGlobals(defaultGlobals) {
