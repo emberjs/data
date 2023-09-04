@@ -4,6 +4,25 @@ import { deepFreeze } from './debug';
 import { createDeferred } from './future';
 import type { Deferred, GodContext, ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from './types';
 
+export function cloneResponseProperties(response: Response): ResponseInfo {
+  const { headers, ok, redirected, status, statusText, type, url } = response;
+      (headers as ImmutableHeaders).clone = () => {
+        return new Headers(headers);
+      };
+      (headers as ImmutableHeaders).toJSON = () => {
+        return Array.from(headers);
+      };
+      return {
+        headers: headers as ImmutableHeaders,
+        ok,
+        redirected,
+        status,
+        statusText,
+        type,
+        url,
+      }
+}
+
 export class ContextOwner {
   hasSetStream = false;
   hasSetResponse = false;
