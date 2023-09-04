@@ -1,5 +1,6 @@
 module.exports = {
   modules: [
+    '@ember-data/active-record/request',
     '@ember-data/adapter',
     '@ember-data/adapter/error',
     '@ember-data/adapter/json-api',
@@ -101,6 +102,8 @@ module.exports = {
     '(private) @ember-data/store Snapshot#constructor',
     '(private) @ember-data/store Store#_push',
     '(private) @ember-data/store Store#init',
+    '(public) @ember-data/active-record/request @ember-data/active-record/request#query',
+    '(public) @ember-data/active-record/request @ember-data/active-record/request#findRecord',
     '(public) @ember-data/adapter Adapter#coalesceFindRequests',
     '(public) @ember-data/adapter Adapter#createRecord',
     '(public) @ember-data/adapter Adapter#deleteRecord',
@@ -247,6 +250,8 @@ module.exports = {
     '(public) @ember-data/json-api Cache#changedRelationships',
     '(public) @ember-data/json-api Cache#hasChangedRelationships',
     '(public) @ember-data/json-api Cache#rollbackRelationships',
+    '(public) @ember-data/json-api/request @ember-data/json-api/request#findRecord',
+    '(public) @ember-data/json-api/request @ember-data/json-api/request#query',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#serializePatch',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#serializeResources',
     '(public) @ember-data/legacy-compat SnapshotRecordArray#adapterOptions',
@@ -350,6 +355,7 @@ module.exports = {
     '(public) @ember-data/request-utils @ember-data/request-utils#setBuildURLConfig',
     '(public) @ember-data/request-utils @ember-data/request-utils#sortQueryParams',
     '(public) @ember-data/rest/request @ember-data/rest/request#findRecord',
+    '(public) @ember-data/rest/request @ember-data/rest/request#query',
     '(public) @ember-data/serializer Serializer#normalize',
     '(public) @ember-data/serializer Serializer#normalizeResponse',
     '(public) @ember-data/serializer Serializer#serialize',

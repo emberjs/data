@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/json-api/request
+ */
 import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
@@ -9,6 +12,43 @@ import type {
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
+/**
+ * Builds request options to fetch a single resource by a known id or identifier
+ * configured for the url and header expectations of most JSON:API APIs.
+ *
+ * **Basic Usage**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/json-api/request';
+ *
+ * const data = await store.request(findRecord('person', '1'));
+ * ```
+ *
+ * **With Options**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/json-api/request';
+ *
+ * const options = findRecord('person', '1', { include: ['pets', 'friends'] });
+ * const data = await store.request(options);
+ * ```
+ *
+ * **With an Identifier**
+ *
+ * ```ts
+ * import { findRecord } from '@ember-data/json-api/request';
+ *
+ * const options = findRecord({ type: 'person', id: '1' }, { include: ['pets', 'friends'] });
+ * const data = await store.request(options);
+ * ```
+ *
+ * @method findRecord
+ * @public
+ * @static
+ * @for @ember-data/json-api/request
+ * @param identifier
+ * @param options
+ */
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
   options?: FindRecordOptions
