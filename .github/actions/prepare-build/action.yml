@@ -29,9 +29,10 @@ runs:
 
     - if: ${{ steps.restore-ref-artifact.outputs.cache-hit != 'true' }}
       name: Build ${{ inputs.name }}
-      uses: actions/checkout@v3
+      uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 1
+          progress: false
       run: pnpm install
       run: ${{ inputs.build }} --output-path ./dist-${{ inputs.ref }}${{ inputs.ext }}
