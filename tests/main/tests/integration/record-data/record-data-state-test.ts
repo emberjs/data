@@ -60,7 +60,7 @@ class TestRecordData implements Cache {
   hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
     throw new Error('Method not implemented.');
   }
-  rollbackRelationships(identifier: StableRecordIdentifier): void {
+  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
     throw new Error('Method not implemented.');
   }
 

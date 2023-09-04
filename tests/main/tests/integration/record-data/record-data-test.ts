@@ -12,6 +12,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { StructuredDataDocument } from '@ember-data/request/-private/types';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { ResourceBlob } from '@ember-data/types/cache/aliases';
+import type { RelationshipDiff } from '@ember-data/types/cache/cache';
 import { Change } from '@ember-data/types/cache/change';
 import {
   CollectionResourceDataDocument,
@@ -67,6 +68,15 @@ class TestRecordData implements Cache {
   constructor(wrapper: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
+  }
+  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+    throw new Error('Method not implemented.');
+  }
+  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+    throw new Error('Method not implemented.');
+  }
+  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+    throw new Error('Method not implemented.');
   }
   patch(op: MergeOperation): void {
     throw new Error('Method not implemented.');
