@@ -2256,7 +2256,9 @@ class Store extends EmberObject {
     @param {String} modelName
     @return Adapter
   */
-  adapterFor(modelName: string, _allowMissing?: boolean): MinimumAdapterInterface | undefined {
+  adapterFor(modelName: string): MinimumAdapterInterface;
+  adapterFor(modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;
+  adapterFor(modelName: string, _allowMissing?: true): MinimumAdapterInterface | undefined {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
