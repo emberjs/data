@@ -12,7 +12,7 @@
  * @main @ember-data/request/fetch
  */
 
-import type { Context } from './-private/context';
+import { cloneResponseProperties, type Context } from './-private/context';
 
 const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
@@ -22,6 +22,13 @@ const _fetch: typeof fetch =
     : ((() => {
         throw new Error('No Fetch Implementation Found');
       }) as typeof fetch);
+
+// clones a response in a way that should still
+// allow it to stream
+function cloneResponse(response: Response, overrides: Partial<Response>) {
+  const props = cloneResponseProperties(response);
+  return new Response(response.body, Object.assign(props, overrides));
+}
 /**
  * A basic handler which converts a request into a
  * `fetch` call presuming the response to be `json`.
@@ -37,10 +44,12 @@ const _fetch: typeof fetch =
  */
 const Fetch = {
   async request(context: Context) {
-    const response = await _fetch(context.request.url!, context.request);
+    let response = await _fetch(context.request.url!, context.request);
 
     if (!response.headers.has('date')) {
-      response.headers.set('date', new Date().toUTCString());
+      const headers = new Headers(response.headers);
+      headers.set('date', new Date().toUTCString());
+      response = cloneResponse(response, { headers });
     }
 
     context.setResponse(response);
