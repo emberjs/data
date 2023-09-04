@@ -57,8 +57,31 @@ let CONFIG: BuildURLConfig = {
   namespace: '',
 };
 
-export function setBuildURLConfig(values: BuildURLConfig) {
-  CONFIG = values;
+/**
+ * Sets the global configuration for `buildBaseURL`
+ * for host and namespace values for the application.
+ *
+ * These values may still be overridden by passing
+ * them to buildBaseURL directly.
+ *
+ * This method may be called as many times as needed
+ *
+ * ```ts
+   type BuildURLConfig = {
+     host: string;
+     namespace: string'
+   }
+   ```
+ *
+ * @method setBuildURLConfig
+ * @static
+ * @public
+ * @for @ember-data/request-utils
+ * @param {BuildURLConfig} config
+ * @returns void
+ */
+export function setBuildURLConfig(config: BuildURLConfig) {
+  CONFIG = config;
 }
 
 export interface FindRecordUrlOptions {
@@ -312,19 +335,52 @@ function handleInclude(include: string | string[]): string[] {
   return typeof include === 'string' ? include.split(',') : include;
 }
 
-export function filterEmpty(obj: Record<string, Serializable>): Record<string, Serializable> {
+/**
+ * filter out keys of an object that have falsey values or point to empty arrays
+ * returning a new object with only those keys that have truthy values / non-empty arrays
+ *
+ * @method filterEmpty
+ * @static
+ * @public
+ * @for @ember-data/request-utils
+ * @param {Record<string, Serializable>} source object to filter keys with empty values from
+ * @returns {Record<string, Serializable>} A new object with the keys that contained empty values removed
+ */
+export function filterEmpty(source: Record<string, Serializable>): Record<string, Serializable> {
   const result: Record<string, Serializable> = {};
-  for (const key in obj) {
-    const value = obj[key];
+  for (const key in source) {
+    const value = source[key];
     if (value) {
       if (!Array.isArray(value) || value.length > 0) {
-        result[key] = obj[key];
+        result[key] = source[key];
       }
     }
   }
   return result;
 }
 
+/**
+ * Sorts query params by both key and value returning a new URLSearchParams
+ * object with the keys inserted in sorted order.
+ *
+ * Treats `included` specially, splicing it into an array if it is a string and sorting the array.
+ *
+ * Options:
+ * - arrayFormat: 'bracket' | 'indices' | 'repeat' | 'comma'
+ *
+ * 'bracket': appends [] to the key for every value e.g. `&ids[]=1&ids[]=2`
+ * 'indices': appends [i] to the key for every value e.g. `&ids[0]=1&ids[1]=2`
+ * 'repeat': appends the key for every value e.g. `&ids=1&ids=2`
+ * 'comma' (default): appends the key once with a comma separated list of values e.g. `&ids=1,2`
+ *
+ * @method sortQueryParams
+ * @static
+ * @public
+ * @for @ember-data/request-utils
+ * @param {URLSearchParams | object} params
+ * @param {object} options
+ * @returns {URLSearchParams} A URLSearchParams with keys inserted in sorted order
+ */
 export function sortQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): URLSearchParams {
   options = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
   const paramsIsObject = !(params instanceof URLSearchParams);
@@ -385,6 +441,27 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
   return urlParams;
 }
 
+/**
+ * Sorts query params by both key and value, returning a query params string
+ *
+ * Treats `included` specially, splicing it into an array if it is a string and sorting the array.
+ *
+ * Options:
+ * - arrayFormat: 'bracket' | 'indices' | 'repeat' | 'comma'
+ *
+ * 'bracket': appends [] to the key for every value e.g. `ids[]=1&ids[]=2`
+ * 'indices': appends [i] to the key for every value e.g. `ids[0]=1&ids[1]=2`
+ * 'repeat': appends the key for every value e.g. `ids=1&ids=2`
+ * 'comma' (default): appends the key once with a comma separated list of values e.g. `ids=1,2`
+ *
+ * @method sortQueryParams
+ * @static
+ * @public
+ * @for @ember-data/request-utils
+ * @param {URLSearchParams | object} params
+ * @param {object} [options]
+ * @returns {string} A sorted query params string without the leading `?`
+ */
 export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
   return sortQueryParams(params, options).toString();
 }
@@ -407,6 +484,35 @@ export interface CacheControlValue {
 
 const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-while-revalidate']);
 
+/**
+ *  Parses a string Cache-Control header value into an object with the following structure:
+ *
+   ```ts
+   interface CacheControlValue {
+     immutable?: boolean;
+     'max-age'?: number;
+     'must-revalidate'?: boolean;
+     'must-understand'?: boolean;
+     'no-cache'?: boolean;
+     'no-store'?: boolean;
+     'no-transform'?: boolean;
+     'only-if-cached'?: boolean;
+     private?: boolean;
+     'proxy-revalidate'?: boolean;
+     public?: boolean;
+     's-maxage'?: number;
+     'stale-if-error'?: number;
+     'stale-while-revalidate'?: number;
+   }
+   ```
+
+  * @method parseCacheControl
+  * @static
+  * @public
+  * @for @ember-data/request-utils
+  * @param {string} header
+  * @returns {CacheControlValue}
+ */
 export function parseCacheControl(header: string): CacheControlValue {
   let key = '';
   let value = '';
@@ -467,6 +573,40 @@ function isStale(headers: Headers, expirationTime: number): boolean {
 
 export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: number };
 
+/**
+ * A basic LifetimesService that can be added to the Store service.
+ *
+ * Determines staleness based on time since the request was last received from the API
+ * using the `date` header.
+ *
+ * This allows the Store's CacheHandler to determine if a request is expired and
+ * should be refetched upon next request.
+ *
+ * The `Fetch` handler provided by `@ember-data/request/fetch` will automatically
+ * add the `date` header to responses if it is not present.
+ *
+ * Usage:
+ *
+ * ```ts
+ * import { LifetimesService } from '@ember-data/request-utils';
+ * import DataStore from '@ember-data/store';
+ *
+ * // ...
+ *
+ * export class Store extends DataStore {
+ *   constructor(args) {
+ *     super(args);
+ *     this.lifetimes = new LifetimesService(this, { apiCacheSoftExpires: 30_000, apiCacheHardExpires: 60_000 });
+ *   }
+ * }
+ * ```
+ *
+ * @class LifetimesService
+ * @public
+ * @module @ember-data/request-utils
+ */
+// TODO this doesn't get documented correctly on the website because it shares a class name
+// with the interface expected by the Store service
 export class LifetimesService {
   declare store: Store;
   declare config: LifetimesConfig;

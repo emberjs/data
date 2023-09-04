@@ -4,9 +4,13 @@ import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { isBelongsTo } from './-utils';
 import { assertPolymorphicType } from './debug/assert-polymorphic-type';
 import type { CollectionEdge } from './edges/collection';
+import { ResourceEdge } from './edges/resource';
 import { Graph } from './graph';
+import replaceRelatedRecord from './operations/replace-related-record';
+import replaceRelatedRecords from './operations/replace-related-records';
 
 function _deprecatedCompare<T>(
   newState: T[],
@@ -368,4 +372,35 @@ export function _removeRemote(relationship: CollectionEdge, value: StableRecordI
   );
 
   return true;
+}
+
+export function rollbackRelationship(
+  graph: Graph,
+  identifier: StableRecordIdentifier,
+  field: string,
+  relationship: CollectionEdge | ResourceEdge
+): void {
+  if (isBelongsTo(relationship)) {
+    replaceRelatedRecord(
+      graph,
+      {
+        op: 'replaceRelatedRecord',
+        record: identifier,
+        field,
+        value: relationship.remoteState,
+      },
+      false
+    );
+  } else {
+    replaceRelatedRecords(
+      graph,
+      {
+        op: 'replaceRelatedRecords',
+        record: identifier,
+        field,
+        value: relationship.remoteState,
+      },
+      false
+    );
+  }
 }

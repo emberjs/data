@@ -1,9 +1,23 @@
+/**
+ * @module @ember-data/json-api/request
+ */
 import { assert } from '@ember/debug';
 
 import type { Cache } from '@ember-data/types/cache/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 
+/**
+ * Serializes the current state of a resource or array of resources for use with POST or PUT requests.
+ *
+ * @method serializeResources
+ * @static
+ * @public
+ * @for @ember-data/json-api/request
+ * @param {Cache} cache}
+ * @param {StableRecordIdentifier} identifier
+ * @returns {object} An object with a `data` property containing the serialized resource patch
+ */
 export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier): { data: JsonApiResource };
 export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier[]): { data: JsonApiResource[] };
 export function serializeResources(
@@ -30,6 +44,30 @@ function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): J
   return record;
 }
 
+/**
+ * Serializes changes to a resource for use with PATCH requests.
+ *
+ * Only attributes which are changed are serialized.
+ * Only relationships which are changed are serialized.
+ *
+ * Collection relationships serialize the collection as a whole.
+ *
+ * If you would like to serialize updates to a collection more granularly
+ * (for instance, as operations) request the diff from the store and
+ * serialize as desired:
+ *
+ * ```ts
+ * const relationshipDiffMap = cache.changedRelationships(identifier);
+ * ```
+ *
+ * @method serializePatch
+ * @static
+ * @public
+ * @for @ember-data/json-api/request
+ * @param {Cache} cache}
+ * @param {StableRecordIdentifier} identifier
+ * @returns {object} An object with a `data` property containing the serialized resource patch
+ */
 export function serializePatch(
   cache: Cache,
   identifier: StableRecordIdentifier
@@ -42,22 +80,34 @@ export function serializePatch(
     record
   );
 
-  const attrsChanges = cache.changedAttrs(identifier);
-  const attributes = {};
-
-  Object.keys(attrsChanges).forEach((key) => {
-    const newVal = attrsChanges[key][1];
-    attributes[key] = newVal === undefined ? null : newVal;
-  });
-
   const data: JsonApiResource = {
     type,
     lid,
     id,
-    attributes,
-    // TODO we don't patch relationships yet ...
-    // ... but we will as soon as we land the diff PR
   };
+
+  if (cache.hasChangedAttrs(identifier)) {
+    const attrsChanges = cache.changedAttrs(identifier);
+    const attributes = {};
+
+    Object.keys(attrsChanges).forEach((key) => {
+      const newVal = attrsChanges[key][1];
+      attributes[key] = newVal === undefined ? null : newVal;
+    });
+
+    data.attributes = attributes;
+  }
+
+  const changedRelationships = cache.changedRelationships(identifier);
+  if (changedRelationships.size) {
+    const relationships = {};
+
+    changedRelationships.forEach((diff, key) => {
+      relationships[key] = { data: diff.localState };
+    });
+
+    data.relationships = relationships;
+  }
 
   return { data };
 }
