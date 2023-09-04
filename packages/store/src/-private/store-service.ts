@@ -675,7 +675,7 @@ class Store extends EmberObject {
         // to avoid conflicts.
 
         if (properties.id === null || properties.id === undefined) {
-          let adapter = this.adapterFor(modelName);
+          let adapter = this.adapterFor(modelName, true);
 
           if (adapter && adapter.generateIdForRecord) {
             properties.id = adapter.generateIdForRecord(this, modelName, properties);
@@ -2256,7 +2256,7 @@ class Store extends EmberObject {
     @param {String} modelName
     @return Adapter
   */
-  adapterFor(modelName: string) {
+  adapterFor(modelName: string, _allowMissing?: boolean): MinimumAdapterInterface | undefined {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
@@ -2292,7 +2292,10 @@ class Store extends EmberObject {
       return adapter;
     }
 
-    assert(`No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`);
+    assert(
+      `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
+      _allowMissing
+    );
   }
 
   /**
