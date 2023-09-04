@@ -18,6 +18,7 @@ packages/legacy-compat/addon
 packages/request-utils/addon
 packages/rest/addon
 packages/active-record/addon
+packages/data-worker/addon
 
 # dependencies
 bower_components

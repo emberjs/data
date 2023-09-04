@@ -24,7 +24,10 @@ export interface LifetimesService {
 }
 
 export type StoreRequestInfo = ImmutableRequestInfo;
-export type LooseStoreRequestInfo = Omit<StoreRequestInfo, 'records'> & { records: ResourceIdentifierObject[] };
+export type LooseStoreRequestInfo = Omit<StoreRequestInfo, 'records' | 'headers'> & {
+  records?: ResourceIdentifierObject[];
+  headers?: Headers;
+};
 
 export type StoreRequestInput = StoreRequestInfo | LooseStoreRequestInfo;
 

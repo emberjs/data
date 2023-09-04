@@ -44,6 +44,9 @@
     "@ember-data/graph": {
       "injected": true
     },
+    "@ember-data/store": {
+      "injected": true
+    },
     "@ember-data/request-utils": {
       "injected": true,
       "optional": true

@@ -1,0 +1,63 @@
+<div>
+  <label for="author">Author</label>
+  <select name="author" id="author" {{on 'input' this.update}}>
+    <option value="">--</option>
+    {{#each @authors as |author|}}
+      <option value={{author.name}} selected={{eq this.author author.name}}>{{author.name}}</option>
+    {{/each}}
+  </select>
+
+  <label for="genre">Genre</label>
+  <select name="genre" id="genre" {{on 'input' this.update}}>
+    <option value="">--</option>
+    {{#each @genres as |genre|}}
+      <option value={{genre.name}} selected={{eq this.genre genre.name}}>{{genre.name}}</option>
+    {{/each}}
+  </select>
+
+  <label for="title">Title Includes</label>
+  <input type="text" name="title" id="title" placeholder="--" value={{this.filter}} {{on 'input' this.update}}/>
+
+  <br>
+
+  <label for="sort">Sort By</label>
+  <select name="sort" id="sort" {{on 'input' this.update}}>
+    <option value="">--</option>
+    {{#each this.sortOptions as |sortOption|}}
+      <option value={{sortOption}} selected={{eq this.sort sortOption}}>{{sortOption}}</option>
+    {{/each}}
+  </select>
+
+  <label for="sortDirection">Direction</label>
+  <select name="sort direction" id="sortDirection" disabled={{not this.sort}} {{on 'input' this.update}}>
+    {{#if this.sort}}
+      <option value="asc" selected={{eq this.sortDirection "asc"}}>Ascending</option>
+      <option value="desc" selected={{eq this.sortDirection "desc"}}>Descending</option>
+    {{else}}
+      <option value="">--</option>
+    {{/if}}
+  </select>
+
+  {{#if this.sort}}
+    <label for="sort2">Then Sort By</label>
+    <select name="secondary sort" id="sort2" {{on 'input' this.update}}>
+      <option value="">--</option>
+      {{#each this.sortOptions as |sortOption|}}
+        <option value={{sortOption}} selected={{eq this.sort2 sortOption}}>{{sortOption}}</option>
+      {{/each}}
+    </select>
+
+    <label for="sort2Direction">Direction</label>
+    <select name="secondary sort direction" id="sort2Direction" disabled={{not this.sort2}} {{on 'input' this.update}}>
+      {{#if this.sort2}}
+        <option value="asc" selected={{eq this.sort2Direction "asc"}}>Ascending</option>
+        <option value="desc" selected={{eq this.sort2Direction "desc"}}>Descending</option>
+      {{else}}
+        <option value="">--</option>
+      {{/if}}
+    </select>
+  {{/if}}
+
+  <hr>
+</div>
+<BookList @genre={{this.genre}} @author={{this.author}} @filter={{this.title}} @sort={{this.sortQuery}} />
