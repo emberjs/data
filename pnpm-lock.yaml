@@ -3079,7 +3079,7 @@ importers:
         specifier: ^7.0.0
         version: 7.0.0(@babel/core@7.22.15)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
       ember-resolver:
-        specifier: ^11.0.0
+        specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.15)(ember-source@5.2.0)
       ember-source:
         specifier: ~5.2.0
