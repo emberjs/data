@@ -6,21 +6,21 @@ import type { Deferred, GodContext, ImmutableHeaders, ImmutableRequestInfo, Requ
 
 export function cloneResponseProperties(response: Response): ResponseInfo {
   const { headers, ok, redirected, status, statusText, type, url } = response;
-      (headers as ImmutableHeaders).clone = () => {
-        return new Headers(headers);
-      };
-      (headers as ImmutableHeaders).toJSON = () => {
-        return Array.from(headers);
-      };
-      return {
-        headers: headers as ImmutableHeaders,
-        ok,
-        redirected,
-        status,
-        statusText,
-        type,
-        url,
-      }
+  (headers as ImmutableHeaders).clone = () => {
+    return new Headers(headers);
+  };
+  (headers as ImmutableHeaders).toJSON = () => {
+    return Array.from(headers);
+  };
+  return {
+    headers: headers as ImmutableHeaders,
+    ok,
+    redirected,
+    status,
+    statusText,
+    type,
+    url,
+  };
 }
 
 export class ContextOwner {
