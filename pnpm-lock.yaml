@@ -220,7 +220,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       '@glimmer/env':
         specifier: ^0.1.7
@@ -352,7 +352,7 @@ importers:
         specifier: workspace:5.4.0-alpha.10
         version: file:packages/private-build-infra
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cli-babel:
         specifier: ^8.0.0
@@ -439,7 +439,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-auto-import:
         specifier: ^2.6.3
@@ -467,7 +467,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cli-babel:
         specifier: ^8.0.0
@@ -548,7 +548,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cli-babel:
         specifier: ^8.0.0
@@ -631,7 +631,7 @@ importers:
         specifier: workspace:5.4.0-alpha.10
         version: file:packages/private-build-infra
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cli-babel:
         specifier: ^8.0.0
@@ -707,7 +707,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cached-decorator-polyfill:
         specifier: ^1.0.2
@@ -808,7 +808,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       babel-import-util:
         specifier: ^1.4.1
@@ -871,7 +871,7 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2(@babel/core@7.22.15)
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cli-babel:
         specifier: ^8.0.0
@@ -1053,7 +1053,7 @@ importers:
         specifier: workspace:5.4.0-alpha.10
         version: file:packages/private-build-infra
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cli-babel:
         specifier: ^8.0.0
@@ -1137,7 +1137,7 @@ importers:
         specifier: workspace:5.4.0-alpha.10
         version: file:packages/private-build-infra
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cached-decorator-polyfill:
         specifier: ^1.0.2
@@ -1218,7 +1218,7 @@ importers:
         specifier: workspace:5.4.0-alpha.10
         version: file:packages/private-build-infra
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       ember-cli-babel:
         specifier: ^8.0.0
@@ -1290,7 +1290,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       broccoli-merge-trees:
         specifier: ^4.2.0
@@ -2193,7 +2193,7 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.22.15)(ember-source@5.2.0)(webpack@5.88.2)
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -2602,7 +2602,7 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.22.15)(ember-source@5.2.0)(webpack@5.88.2)
       '@embroider/macros':
-        specifier: ^1.13.1
+        specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.15)
       '@glimmer/component':
         specifier: ^1.1.2
