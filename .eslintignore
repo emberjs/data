@@ -23,6 +23,7 @@
 /packages/active-record/addon/
 /packages/data-worker/addon/
 /packages/holodeck/
+/packages/schema-record/addon/
 
 **/DEBUG/
 
