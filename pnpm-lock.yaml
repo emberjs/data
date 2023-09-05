@@ -3088,8 +3088,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-try:
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^3.0.0
+        version: 3.0.0
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -9923,25 +9923,6 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - encoding
-    dev: true
-
-  /ember-try@2.0.0:
-    resolution: {integrity: sha512-2N7Vic45sbAegA5fhdfDjVbEVS4r+ze+tTQs2/wkY+8fC5yAGHfCM5ocyoTfBN5m7EhznC3AyMsOy4hLPzHFSQ==}
-    engines: {node: 10.* || 12.* || >= 14.*}
-    dependencies:
-      chalk: 4.1.2
-      cli-table3: 0.6.3
-      core-object: 3.1.5
-      debug: 4.3.4(supports-color@8.1.1)
-      ember-try-config: 4.0.0
-      execa: 4.1.0
-      fs-extra: 9.1.0
-      resolve: 1.22.4
-      rimraf: 3.0.2
-      walk-sync: 2.2.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
     dev: true
 
   /ember-try@3.0.0:
