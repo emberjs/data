@@ -57,8 +57,8 @@
     }
   },
   "dependencies": {
-    "@babel/core": "^7.22.11",
-    "@babel/runtime": "^7.22.11",
+    "@babel/core": "^7.22.15",
+    "@babel/runtime": "^7.22.15",
     "@ember-data/debug": "workspace:5.4.0-alpha.10",
     "@ember-data/graph": "workspace:5.4.0-alpha.10",
     "@ember-data/json-api": "workspace:5.4.0-alpha.10",
@@ -71,7 +71,7 @@
     "@ember-data/tracking": "workspace:5.4.0-alpha.10",
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.10",
     "@ember/optional-features": "^2.0.0",
-    "@ember/string": "^3.1.1",
+    "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.2.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
