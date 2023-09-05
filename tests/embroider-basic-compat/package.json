@@ -22,7 +22,7 @@
     "test": "ember test --test-port=0"
   },
   "dependencies": {
-    "@ember/string": "^3.1.1",
+    "@ember/string": "3.1.1",
     "ember-auto-import": "^2.6.3",
     "ember-data": "workspace:5.4.0-alpha.10",
     "ember-inflector": "^4.0.2",
@@ -37,8 +37,8 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.22.11",
-    "@babel/runtime": "^7.22.11",
+    "@babel/core": "^7.22.15",
+    "@babel/runtime": "^7.22.15",
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.10",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^3.2.0",
