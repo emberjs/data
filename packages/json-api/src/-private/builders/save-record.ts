@@ -52,6 +52,48 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
   };
 }
 
+/**
+ * Builds request options to create new record for resources,
+ * configured for the url, method and header expectations of most JSON:API APIs.
+ *
+ * **Basic Usage**
+ *
+ * ```ts
+ * import { createRecord } from '@ember-data/json-api/request';
+ *
+ * const person = this.store.createRecord('person', { name: 'Ted' });
+ * const data = await store.request(createRecord(person));
+ * ```
+ *
+ * **Supplying Options to Modify the Request Behavior**
+ *
+ * The following options are supported:
+ *
+ * - `host` - The host to use for the request, defaults to the `host` configured with `setBuildURLConfig`.
+ * - `namespace` - The namespace to use for the request, defaults to the `namespace` configured with `setBuildURLConfig`.
+ * - `resourcePath` - The resource path to use for the request, defaults to pluralizing the supplied type
+ * - `reload` - Whether to forcibly reload the request if it is already in the store, not supplying this
+ *      option will delegate to the store's lifetimes service, defaulting to `false` if none is configured.
+ * - `backgroundReload` - Whether to reload the request if it is already in the store, but to also resolve the
+ *      promise with the cached value, not supplying this option will delegate to the store's lifetimes service,
+ *      defaulting to `false` if none is configured.
+ * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
+ *
+ * ```ts
+ * import { createRecord } from '@ember-data/json-api/request';
+ *
+ * const person = this.store.createRecord('person', { name: 'Ted' });
+ * const options = createRecord(person, { namespace: 'api/v1' });
+ * const data = await store.request(options);
+ * ```
+ *
+ * @method createRecord
+ * @public
+ * @static
+ * @for @ember-data/json-api/request
+ * @param record
+ * @param options
+ */
 export function createRecord(record: unknown, options: ConstrainedRequestOptions = {}): CreateRequestOptions {
   const identifier = recordIdentifierFor(record);
   assert(`Expected to be given a record instance`, identifier);
