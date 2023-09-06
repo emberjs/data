@@ -67,11 +67,11 @@ let CONFIG: BuildURLConfig = {
  * This method may be called as many times as needed
  *
  * ```ts
-   type BuildURLConfig = {
-     host: string;
-     namespace: string'
-   }
-   ```
+ * type BuildURLConfig = {
+ *   host: string;
+ *   namespace: string'
+ * }
+ * ```
  *
  * @method setBuildURLConfig
  * @static
@@ -336,7 +336,7 @@ function handleInclude(include: string | string[]): string[] {
 }
 
 /**
- * filter out keys of an object that have falsey values or point to empty arrays
+ * filter out keys of an object that have falsy values or point to empty arrays
  * returning a new object with only those keys that have truthy values / non-empty arrays
  *
  * @method filterEmpty
@@ -487,31 +487,30 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
 /**
  *  Parses a string Cache-Control header value into an object with the following structure:
  *
-   ```ts
-   interface CacheControlValue {
-     immutable?: boolean;
-     'max-age'?: number;
-     'must-revalidate'?: boolean;
-     'must-understand'?: boolean;
-     'no-cache'?: boolean;
-     'no-store'?: boolean;
-     'no-transform'?: boolean;
-     'only-if-cached'?: boolean;
-     private?: boolean;
-     'proxy-revalidate'?: boolean;
-     public?: boolean;
-     's-maxage'?: number;
-     'stale-if-error'?: number;
-     'stale-while-revalidate'?: number;
-   }
-   ```
-
-  * @method parseCacheControl
-  * @static
-  * @public
-  * @for @ember-data/request-utils
-  * @param {string} header
-  * @returns {CacheControlValue}
+ * ```ts
+ * interface CacheControlValue {
+ *   immutable?: boolean;
+ *   'max-age'?: number;
+ *   'must-revalidate'?: boolean;
+ *   'must-understand'?: boolean;
+ *   'no-cache'?: boolean;
+ *   'no-store'?: boolean;
+ *   'no-transform'?: boolean;
+ *   'only-if-cached'?: boolean;
+ *   private?: boolean;
+ *   'proxy-revalidate'?: boolean;
+ *   public?: boolean;
+ *   's-maxage'?: number;
+ *   'stale-if-error'?: number;
+ *   'stale-while-revalidate'?: number;
+ * }
+ * ```
+ * @method parseCacheControl
+ * @static
+ * @public
+ * @for @ember-data/request-utils
+ * @param {string} header
+ * @returns {CacheControlValue}
  */
 export function parseCacheControl(header: string): CacheControlValue {
   let key = '';
