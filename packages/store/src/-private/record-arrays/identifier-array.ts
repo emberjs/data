@@ -428,7 +428,7 @@ class IdentifierArray {
 
     if (DEBUG) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: object) => {
+      meta.addMixin = (mixin: object) => {
         assert(`Do not call A() on EmberData RecordArrays`);
       };
     }
