@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "5.4.0-alpha.11",
+  "version": "5.4.0-alpha.12",
   "description": "Provides Legacy JSON, JSON:API and REST Implementations of the Serializer Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -46,7 +46,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.11",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.12",
     "@embroider/macros": "^1.13.1",
     "ember-cli-babel": "^8.0.0",
     "ember-cli-test-info": "^1.0.0"
@@ -62,7 +62,7 @@
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-typescript": "^7.22.15",
     "@babel/runtime": "^7.22.15",
-    "@ember-data/store": "workspace:5.4.0-alpha.11",
+    "@ember-data/store": "workspace:5.4.0-alpha.12",
     "@embroider/addon-dev": "^4.1.0",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.3",
