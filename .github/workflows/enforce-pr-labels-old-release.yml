@@ -23,8 +23,8 @@ jobs:
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          BANNED_LABELS: 'target:canary,target:beta,target:release,target:lts,target:lts-prev,changelog:dependencies'
-          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the main branch, remove them. ['target:canary', 'target:beta', 'target:release', 'target:lts', 'target:lts-prev', 'changelog:dependencies']"
+          BANNED_LABELS: ':dart: canary,:dart: beta,:dart: release,:dart: lts,:dart: lts-prev,changelog:dependencies'
+          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the main branch, remove them. [':dart: canary', ':dart: beta', ':dart: release', ':dart: lts', ':dart: lts-prev', 'changelog:dependencies']"
   ban-other-release-branch-labels:
     runs-on: ubuntu-latest
     steps:

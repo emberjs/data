@@ -63,11 +63,11 @@ We use one set of labels to indicate that a PR needs to be backported and where 
 
 To indicate that a PR should be backported, the following labels, all prefixed with `target:` are available:
 
-- `target:canary` indicates that a PR will not require backporting.
-- `target:beta` indicates the PR requires being backported to the current beta release.
-- `target:release` indicates the PR requires being backported to the current active release.
-- `target:lts` indicates that a PR requires being backported to the most current LTS release.
-- `target:lts-prev` indicates that a PR requires being backported to the second-most recent LTS release.
+- `:dart: canary` indicates that a PR will not require backporting.
+- `:dart: beta` indicates the PR requires being backported to the current beta release.
+- `:dart: release` indicates the PR requires being backported to the current active release.
+- `:dart: lts` indicates that a PR requires being backported to the most current LTS release.
+- `:dart: lts-prev` indicates that a PR requires being backported to the second-most recent LTS release.
 
 Note: a PR should add the individual label for _every_ backport target required. We use this while releasing to search
 for any commits still requiring backport to include, and will eventually automate opening backport PRs via a bot when
