@@ -3,7 +3,7 @@
   "extends": [
     "config:base"
   ],
-  "labels": ["target:canary", "skip-changelog", "dependencies"],
+  "labels": ["changelog:dependencies"],
   "packageRules": [
     {
       "matchPackagePatterns": [
