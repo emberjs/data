@@ -42,8 +42,7 @@ labeled by maintainers prior to a PR being accepted and merged.
 
 #### Changelog Labels
 
-Labels used for the changelog include `skip-changelog` which should be used if the PR should not be considered for the changelog,
-and any labels listed in the changelog config in the [root package.json](https://github.com/emberjs/data/blob/main/package.json).
+Labels used for the changelog include any labels listed in the changelog config in the [root package.json](https://github.com/emberjs/data/blob/main/package.json).
 
 These labels are prefixed with `changelog:` and currently the options are:
 
@@ -56,6 +55,7 @@ These labels are prefixed with `changelog:` and currently the options are:
 - `changelog:doc` which should be used to signify a fix or improvement to documentation generated for api.emberjs.com
 - `changelog:test` which should be used to signify addition of new tests or refactoring of existing tests
 - `changelog:chore` which should be used to signify refactoring of internal code that should not have an affect on public APIs or behaviors but which we may want to call out for potentially unintended consequences.
+- `changelog:dependencies` which should be used when bumping dependencies on `main`. Bumps on other branches should use other labels as this implies a more substantive change.
 
 #### Backporting Labels
 
