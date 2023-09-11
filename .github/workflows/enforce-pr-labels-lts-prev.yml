@@ -17,15 +17,15 @@ jobs:
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          REQUIRED_LABELS_ANY: 'changelog:breaking,changelog:feat,changelog:bugfix,changelog:perf,changelog:cleanup,changelog:deprecation,changelog:doc,changelog:test,changelog:chore'
-          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. ['changelog:breaking', 'changelog:feat', 'changelog:bugfix', 'changelog:perf', 'changelog:cleanup', 'changelog:deprecation', 'changelog:doc', 'changelog:test', 'changelog:chore']"
+          REQUIRED_LABELS_ANY: ':label: breaking,:label: feat,:label: bug,:label: perf,:label: cleanup,:label: deprecation,:label: doc,:label: test,:label: chore'
+          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. [':label: breaking', ':label: feat', ':label: bug', ':label: perf', ':label: cleanup', ':label: deprecation', ':label: doc', ':label: test', ':label: chore']"
   ban-target-labels:
     runs-on: ubuntu-latest
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          BANNED_LABELS: 'target:canary,target:beta,target:release,target:lts,target:lts-prev,changelog:dependencies'
-          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the main branch, remove them. ['target:canary', 'target:beta', 'target:release', 'target:lts', 'target:lts-prev','changelog:dependencies']"
+          BANNED_LABELS: ':dart: canary,:dart: beta,:dart: release,:dart: lts,:dart: lts-prev,:label: dependencies'
+          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the main branch, remove them. [':dart: canary', ':dart: beta', ':dart: release', ':dart: lts', ':dart: lts-prev',':label: dependencies']"
   ban-other-release-branch-labels:
     runs-on: ubuntu-latest
     steps:

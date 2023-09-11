@@ -3,7 +3,7 @@
   "extends": [
     "config:base"
   ],
-  "labels": ["changelog:dependencies"],
+  "labels": [":dependabot:", ":label: dependencies"],
   "packageRules": [
     {
       "matchPackagePatterns": [
@@ -116,7 +116,7 @@
   "prHourlyLimit": 10,
   "vulnerabilityAlerts": {
     "labels": [
-      "security"
+      ":label: security"
     ],
     "automerge": false,
     "assignees": [

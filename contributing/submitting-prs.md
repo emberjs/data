@@ -46,16 +46,16 @@ Labels used for the changelog include any labels listed in the changelog config 
 
 These labels are prefixed with `changelog:` and currently the options are:
 
-- `changelog:breaking` which should be used to signify a breaking change
-- `changelog:feat` which should be used to signify an addition of a new public feature or behavior
-- `changelog:bugfix` which should be used to signify a fix for a reported issue
-- `changelog:perf` which should be used to signify that the commit will improve performance characteristics in a meaningful way
-- `changelog:cleanup` which should be used to signify removal of deprecated features or that a deprecation has become an assertion.
-- `changelog:deprecation` which should be used to signify addition of a new deprecation
-- `changelog:doc` which should be used to signify a fix or improvement to documentation generated for api.emberjs.com
-- `changelog:test` which should be used to signify addition of new tests or refactoring of existing tests
-- `changelog:chore` which should be used to signify refactoring of internal code that should not have an affect on public APIs or behaviors but which we may want to call out for potentially unintended consequences.
-- `changelog:dependencies` which should be used when bumping dependencies on `main`. Bumps on other branches should use other labels as this implies a more substantive change.
+- `:label: breaking` which should be used to signify a breaking change
+- `:label: feat` which should be used to signify an addition of a new public feature or behavior
+- `:label: bug` which should be used to signify a fix for a reported issue
+- `:label: perf` which should be used to signify that the commit will improve performance characteristics in a meaningful way
+- `:label: cleanup` which should be used to signify removal of deprecated features or that a deprecation has become an assertion.
+- `:label: deprecation` which should be used to signify addition of a new deprecation
+- `:label: doc` which should be used to signify a fix or improvement to documentation generated for api.emberjs.com
+- `:label: test` which should be used to signify addition of new tests or refactoring of existing tests
+- `:label: chore` which should be used to signify refactoring of internal code that should not have an affect on public APIs or behaviors but which we may want to call out for potentially unintended consequences.
+- `:label: dependencies` which should be used when bumping dependencies on `main`. Bumps on other branches should use other labels as this implies a more substantive change.
 
 #### Backporting Labels
 
@@ -63,11 +63,11 @@ We use one set of labels to indicate that a PR needs to be backported and where 
 
 To indicate that a PR should be backported, the following labels, all prefixed with `target:` are available:
 
-- `target:canary` indicates that a PR will not require backporting.
-- `target:beta` indicates the PR requires being backported to the current beta release.
-- `target:release` indicates the PR requires being backported to the current active release.
-- `target:lts` indicates that a PR requires being backported to the most current LTS release.
-- `target:lts-prev` indicates that a PR requires being backported to the second-most recent LTS release.
+- `:dart: canary` indicates that a PR will not require backporting.
+- `:dart: beta` indicates the PR requires being backported to the current beta release.
+- `:dart: release` indicates the PR requires being backported to the current active release.
+- `:dart: lts` indicates that a PR requires being backported to the most current LTS release.
+- `:dart: lts-prev` indicates that a PR requires being backported to the second-most recent LTS release.
 
 Note: a PR should add the individual label for _every_ backport target required. We use this while releasing to search
 for any commits still requiring backport to include, and will eventually automate opening backport PRs via a bot when
