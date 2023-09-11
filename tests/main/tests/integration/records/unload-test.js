@@ -2728,4 +2728,224 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     return run(() => store.findRecord('person', 1, { backgroundReload: true }).then((person) => person.unloadRecord()));
   });
+
+  test('edit then unloadAll removes all records (async) (emberjs/data#8863)', async function (assert) {
+    class Company extends Model {
+      @attr name;
+    }
+
+    this.owner.register('model:company', Company);
+    this.owner.register(
+      'adapter:company',
+      class {
+        updateRecord() {
+          return Promise.resolve({
+            data: {
+              id: '1',
+              type: 'company',
+              attributes: {
+                name: 'Rebrand',
+              },
+            },
+          });
+        }
+
+        static create() {
+          return new this();
+        }
+      }
+    );
+    const store = this.owner.lookup('service:store');
+
+    const editRecord = store.push({
+      data: {
+        id: '1',
+        type: 'company',
+        attributes: {
+          name: 'ACME',
+        },
+      },
+
+      included: [
+        {
+          id: '2',
+          type: 'company',
+          attributes: {
+            name: 'EMCA',
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(store.peekAll('company').length, 2, '2 companies loaded');
+    editRecord.name = 'Rebrand';
+    await editRecord.save();
+    assert.false(editRecord.hasDirtyAttributes, 'edit record does not have dirty attrs after save');
+
+    store.unloadAll('company');
+    await settled();
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'peekAll 0 - companies unloaded');
+  });
+
+  test('edit then unloadAll removes all records (sync) (emberjs/data#8863)', async function (assert) {
+    class Company extends Model {
+      @attr name;
+    }
+
+    this.owner.register('model:company', Company);
+    this.owner.register(
+      'adapter:company',
+      class {
+        updateRecord() {
+          return Promise.resolve({
+            data: {
+              id: '1',
+              type: 'company',
+              attributes: {
+                name: 'Rebrand',
+              },
+            },
+          });
+        }
+
+        static create() {
+          return new this();
+        }
+      }
+    );
+    const store = this.owner.lookup('service:store');
+
+    const editRecord = store.push({
+      data: {
+        id: '1',
+        type: 'company',
+        attributes: {
+          name: 'ACME',
+        },
+      },
+
+      included: [
+        {
+          id: '2',
+          type: 'company',
+          attributes: {
+            name: 'EMCA',
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(store.peekAll('company').length, 2, '2 companies loaded');
+    editRecord.name = 'Rebrand';
+    assert.true(editRecord.hasDirtyAttributes, 'edit record has dirty attrs before save');
+    await editRecord.save();
+    assert.false(editRecord.hasDirtyAttributes, 'edit record does not have dirty attrs after save');
+
+    store.unloadAll('company');
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'peekAll 0 - companies unloaded');
+  });
+
+  test('edit then unloadAll removes all records (async) - no save response (emberjs/data#8863)', async function (assert) {
+    class Company extends Model {
+      @attr name;
+    }
+
+    this.owner.register('model:company', Company);
+    this.owner.register(
+      'adapter:company',
+      class {
+        updateRecord() {
+          return Promise.resolve();
+        }
+
+        static create() {
+          return new this();
+        }
+      }
+    );
+    const store = this.owner.lookup('service:store');
+
+    const editRecord = store.push({
+      data: {
+        id: '1',
+        type: 'company',
+        attributes: {
+          name: 'ACME',
+        },
+      },
+
+      included: [
+        {
+          id: '2',
+          type: 'company',
+          attributes: {
+            name: 'EMCA',
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(store.peekAll('company').length, 2, '2 companies loaded');
+    editRecord.name = 'Rebrand';
+    await editRecord.save();
+    assert.false(editRecord.hasDirtyAttributes, 'edit record does not have dirty attrs after save');
+
+    store.unloadAll('company');
+    await settled();
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'peekAll 0 - companies unloaded');
+  });
+
+  test('edit then unloadAll removes all records (sync) - no save response (emberjs/data#8863)', async function (assert) {
+    class Company extends Model {
+      @attr name;
+    }
+
+    this.owner.register('model:company', Company);
+    this.owner.register(
+      'adapter:company',
+      class {
+        updateRecord() {
+          return Promise.resolve();
+        }
+
+        static create() {
+          return new this();
+        }
+      }
+    );
+    const store = this.owner.lookup('service:store');
+
+    const editRecord = store.push({
+      data: {
+        id: '1',
+        type: 'company',
+        attributes: {
+          name: 'ACME',
+        },
+      },
+
+      included: [
+        {
+          id: '2',
+          type: 'company',
+          attributes: {
+            name: 'EMCA',
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(store.peekAll('company').length, 2, '2 companies loaded');
+    editRecord.name = 'Rebrand';
+    assert.true(editRecord.hasDirtyAttributes, 'edit record has dirty attrs before save');
+    await editRecord.save();
+    assert.false(editRecord.hasDirtyAttributes, 'edit record does not have dirty attrs after save');
+
+    store.unloadAll('company');
+
+    assert.strictEqual(store.peekAll('company').length, 0, 'peekAll 0 - companies unloaded');
+  });
 });
