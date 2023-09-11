@@ -16,15 +16,15 @@ jobs:
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          REQUIRED_LABELS_ANY: 'changelog:breaking,changelog:feat,changelog:bugfix,changelog:perf,changelog:cleanup,changelog:deprecation,changelog:doc,changelog:test,changelog:chore,changelog:dependencies'
-          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. ['changelog:breaking', 'changelog:feat', 'changelog:bugfix', 'changelog:perf', 'changelog:cleanup', 'changelog:deprecation', 'changelog:doc', 'changelog:test', 'changelog:chore', 'changelog:dependencies']"
+          REQUIRED_LABELS_ANY: ':label: breaking,:label: feat,:label: bugfix,:label: perf,:label: cleanup,:label: deprecation,:label: doc,:label: test,:label: chore,:label: dependencies'
+          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. [':label: breaking', ':label: feat', ':label: bugfix', ':label: perf', ':label: cleanup', ':label: deprecation', ':label: doc', ':label: test', ':label: chore', ':label: dependencies']"
   enforce-target-label:
     runs-on: ubuntu-latest
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          REQUIRED_LABELS_ANY: ':dart: canary,:dart: beta,:dart: release,:dart: lts,:dart: lts-prev,changelog:dependencies'
-          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for what release channels to target. Use the labels `:dart: canary` or `changelog:dependencies` and none of the others in the list if this PR should not be backported. [':dart: canary', ':dart: beta', ':dart: release', ':dart: lts', ':dart: lts-prev']"
+          REQUIRED_LABELS_ANY: ':dart: canary,:dart: beta,:dart: release,:dart: lts,:dart: lts-prev,:label: dependencies'
+          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for what release channels to target. Use the labels `:dart: canary` or `:label: dependencies` and none of the others in the list if this PR should not be backported. [':dart: canary', ':dart: beta', ':dart: release', ':dart: lts', ':dart: lts-prev']"
   ban-release-branch-labels:
     runs-on: ubuntu-latest
     steps:

@@ -95,15 +95,15 @@
   "packageManager": "pnpm@8.7.4",
   "changelog": {
     "labels": {
-      "changelog:breaking": ":boom: Breaking Change",
-      "changelog:feat": ":rocket: Enhancement",
-      "changelog:bugfix": ":bug: Bug Fix",
-      "changelog:perf:": ":zap: Performance",
-      "changelog:cleanup": ":shower: Deprecation Removal",
-      "changelog:deprecation": ":evergreen_tree: New Deprecation",
-      "changelog:doc": ":memo: Documentation",
-      "changelog:test": ":goal_net: Test",
-      "changelog:chore": ":house: Internal"
+      ":label: breaking": ":boom: Breaking Change",
+      ":label: feat": ":rocket: Enhancement",
+      ":label: bugfix": ":bug: Bug Fix",
+      ":label: perf:": ":zap: Performance",
+      ":label: cleanup": ":shower: Deprecation Removal",
+      ":label: deprecation": ":evergreen_tree: New Deprecation",
+      ":label: doc": ":memo: Documentation",
+      ":label: test": ":goal_net: Test",
+      ":label: chore": ":house: Internal"
     }
   },
   "pnpm": {

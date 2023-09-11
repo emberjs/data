@@ -46,16 +46,16 @@ Labels used for the changelog include any labels listed in the changelog config 
 
 These labels are prefixed with `changelog:` and currently the options are:
 
-- `changelog:breaking` which should be used to signify a breaking change
-- `changelog:feat` which should be used to signify an addition of a new public feature or behavior
-- `changelog:bugfix` which should be used to signify a fix for a reported issue
-- `changelog:perf` which should be used to signify that the commit will improve performance characteristics in a meaningful way
-- `changelog:cleanup` which should be used to signify removal of deprecated features or that a deprecation has become an assertion.
-- `changelog:deprecation` which should be used to signify addition of a new deprecation
-- `changelog:doc` which should be used to signify a fix or improvement to documentation generated for api.emberjs.com
-- `changelog:test` which should be used to signify addition of new tests or refactoring of existing tests
-- `changelog:chore` which should be used to signify refactoring of internal code that should not have an affect on public APIs or behaviors but which we may want to call out for potentially unintended consequences.
-- `changelog:dependencies` which should be used when bumping dependencies on `main`. Bumps on other branches should use other labels as this implies a more substantive change.
+- `:label: breaking` which should be used to signify a breaking change
+- `:label: feat` which should be used to signify an addition of a new public feature or behavior
+- `:label: bugfix` which should be used to signify a fix for a reported issue
+- `:label: perf` which should be used to signify that the commit will improve performance characteristics in a meaningful way
+- `:label: cleanup` which should be used to signify removal of deprecated features or that a deprecation has become an assertion.
+- `:label: deprecation` which should be used to signify addition of a new deprecation
+- `:label: doc` which should be used to signify a fix or improvement to documentation generated for api.emberjs.com
+- `:label: test` which should be used to signify addition of new tests or refactoring of existing tests
+- `:label: chore` which should be used to signify refactoring of internal code that should not have an affect on public APIs or behaviors but which we may want to call out for potentially unintended consequences.
+- `:label: dependencies` which should be used when bumping dependencies on `main`. Bumps on other branches should use other labels as this implies a more substantive change.
 
 #### Backporting Labels
 
