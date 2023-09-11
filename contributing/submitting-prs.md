@@ -48,7 +48,7 @@ These labels are prefixed with `changelog:` and currently the options are:
 
 - `:label: breaking` which should be used to signify a breaking change
 - `:label: feat` which should be used to signify an addition of a new public feature or behavior
-- `:label: bugfix` which should be used to signify a fix for a reported issue
+- `:label: bug` which should be used to signify a fix for a reported issue
 - `:label: perf` which should be used to signify that the commit will improve performance characteristics in a meaningful way
 - `:label: cleanup` which should be used to signify removal of deprecated features or that a deprecation has become an assertion.
 - `:label: deprecation` which should be used to signify addition of a new deprecation

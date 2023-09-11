@@ -17,8 +17,8 @@ jobs:
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          REQUIRED_LABELS_ANY: ':label: breaking,:label: feat,:label: bugfix,:label: perf,:label: cleanup,:label: deprecation,:label: doc,:label: test,:label: chore'
-          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. [':label: breaking', ':label: feat', ':label: bugfix', ':label: perf', ':label: cleanup', ':label: deprecation', ':label: doc', ':label: test', ':label: chore']"
+          REQUIRED_LABELS_ANY: ':label: breaking,:label: feat,:label: bug,:label: perf,:label: cleanup,:label: deprecation,:label: doc,:label: test,:label: chore'
+          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. [':label: breaking', ':label: feat', ':label: bug', ':label: perf', ':label: cleanup', ':label: deprecation', ':label: doc', ':label: test', ':label: chore']"
   ban-target-labels:
     runs-on: ubuntu-latest
     steps:
