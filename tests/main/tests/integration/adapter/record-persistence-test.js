@@ -305,7 +305,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       ],
     });
 
-    let { tom, yehuda } = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
+    let [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     assert.false(tom.isDeleted, 'Tom is not deleted');
     assert.false(yehuda.isDeleted, 'Yehuda is not deleted');
