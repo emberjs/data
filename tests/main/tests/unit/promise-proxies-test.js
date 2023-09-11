@@ -1,7 +1,6 @@
 import { A } from '@ember/array';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -16,7 +15,7 @@ module('PromiseManyArray', function () {
 
     let content = A();
 
-    content.reload = () => EmberPromise.resolve(content);
+    content.reload = () => Promise.resolve(content);
 
     let array = PromiseManyArray.create({
       content,
@@ -34,11 +33,11 @@ module('PromiseManyArray', function () {
     let array;
 
     content.reload = () => {
-      let p = EmberPromise.resolve(content);
+      let p = Promise.resolve(content);
       array._update(p);
       return p;
     };
-    let promise = EmberPromise.resolve(content);
+    let promise = Promise.resolve(content);
 
     array = PromiseManyArray.create({
       promise,
@@ -79,7 +78,7 @@ module('PromiseManyArray', function () {
 
     let content = A([1, 2, 3]);
 
-    let promise = EmberPromise.resolve(content);
+    let promise = Promise.resolve(content);
 
     let array = PromiseManyArray.create({
       promise,
@@ -96,7 +95,7 @@ module('PromiseManyArray', function () {
     assert.true(array.isSettled, 'should be settled');
     assert.true(array.isFulfilled, 'should be fulfilled');
 
-    array._update(EmberPromise.resolve(content));
+    array._update(Promise.resolve(content));
 
     assert.false(array.isRejected, 'should NOT be rejected');
     assert.true(array.isPending, 'should be pending');
@@ -142,7 +141,7 @@ module('unit/PromiseBelongsTo', function (hooks) {
           },
         },
       };
-      return EmberPromise.resolve(ChildRecord);
+      return Promise.resolve(ChildRecord);
     }
   }
 

@@ -2,7 +2,6 @@ import EmberObject from '@ember/object';
 
 import Store from 'adapter-encapsulation-test-app/services/store';
 import { module, test } from 'qunit';
-import { all, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -90,14 +89,14 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
-        return resolve(expectedResultsCopy[findRecordCalled++]);
+        return Promise.resolve(expectedResultsCopy[findRecordCalled++]);
       }
     }
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
     let promises = expectedResults.map((result) => result.data.id).map((id) => store.findRecord('person', id));
-    let records = await all(promises);
+    let records = await Promise.all(promises);
 
     let serializedRecords = records.map((record) => record.serialize());
 
@@ -160,7 +159,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
           assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
-        return resolve(expectedResultsCopy);
+        return Promise.resolve(expectedResultsCopy);
       }
 
       groupRecordsForFindMany(store, snapshots) {
@@ -172,7 +171,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     owner.register('adapter:application', TestFindRecordAdapter);
 
     let promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
-    let records = await all(promises);
+    let records = await Promise.all(promises);
 
     let serializedRecords = records.slice().map((record) => record.serialize());
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
@@ -247,7 +246,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       store.findRecord('person', '2', { include: 'users' }), // de-duped
       store.findRecord('person', '2', { include: 'users.foo' }), // de-duped
     ];
-    let records = await all(promises);
+    let records = await Promise.all(promises);
     let foundIdentifiers = records.map((record) => recordIdentifierFor(record));
     let expectedIdentifiers = [
       person1,
@@ -350,7 +349,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
           assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
-        return resolve(expectedResults);
+        return Promise.resolve(expectedResults);
       }
 
       groupRecordsForFindMany(_store, snapshots) {
@@ -371,7 +370,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       store.findRecord('person', '3', { include: 'users.foo', adapterOptions: { opt: '1' } }),
       store.findRecord('person', '4', { include: ['comments'], adapterOptions: { opt: '2' } }),
     ];
-    let records = await all(promises);
+    let records = await Promise.all(promises);
     let foundIdentifiers = records.map((record) => recordIdentifierFor(record));
     let expectedIdentifiers = [person1, person2, person3, person4];
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
@@ -441,14 +440,14 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
           assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
-        return resolve(expectedResultsCopy);
+        return Promise.resolve(expectedResultsCopy);
       }
     }
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
     let promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
-    let records = await all(promises);
+    let records = await Promise.all(promises);
 
     let serializedRecords = records.slice().map((record) => record.serialize());
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
@@ -507,7 +506,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
-        return resolve(expectedResultsCopy[findRecordCalled++]);
+        return Promise.resolve(expectedResultsCopy[findRecordCalled++]);
       }
 
       findMany() {
@@ -523,7 +522,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     owner.register('adapter:application', TestFindRecordAdapter);
 
     let promises = expectedResults.map((result) => result.data.id).map((id) => store.findRecord('person', id));
-    let records = await all(promises);
+    let records = await Promise.all(promises);
 
     let serializedRecords = records.map((record) => record.serialize());
 
@@ -600,7 +599,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     const request8 = store.findRecord('person', '1', options[7]);
     const request9 = store.findRecord('person', '1', options[8]);
 
-    await all([request, request2, request3, request4, request5, request6, request7, request8, request9]);
+    await Promise.all([request, request2, request3, request4, request5, request6, request7, request8, request9]);
 
     assert.strictEqual(store.peekAll('person').length, 1, 'only one record is in the store');
 
@@ -674,7 +673,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     const request8 = store.findRecord('person', '1', options[7]);
     const request9 = store.findRecord('person', '1', options[8]);
 
-    await all([request, request2, request3, request4, request5, request6, request7, request8, request9]);
+    await Promise.all([request, request2, request3, request4, request5, request6, request7, request8, request9]);
 
     assert.strictEqual(store.peekAll('person').length, 1, 'only one record is in the store');
 
@@ -745,7 +744,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     const request8 = store.findRecord('person', '1', options[7]);
     const request9 = store.findRecord('person', '1', options[8]);
 
-    await all([request, request2, request3, request4, request5, request6, request7, request8, request9]);
+    await Promise.all([request, request2, request3, request4, request5, request6, request7, request8, request9]);
 
     assert.strictEqual(store.peekAll('person').length, 1, 'only one record is in the store');
 

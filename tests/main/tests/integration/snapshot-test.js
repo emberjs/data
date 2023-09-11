@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -112,7 +111,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       const record = store._instanceCache.peek({ identifier, bucket: 'record' });
       assert.false(!!record, 'We do not have a materialized record');
       assert.strictEqual(snapshot.__attributes, null, 'attributes were not populated initially');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'post',
           id: '1',
@@ -448,7 +447,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.expect(2);
 
     store.adapterFor('application').findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({ data: null });
+      return Promise.resolve({ data: null });
     };
 
     store.push({
@@ -502,7 +501,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.expect(4);
 
     store.adapterFor('application').findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({ data: { id: '1', type: 'post', attributes: { title: 'Hello World' } } });
+      return Promise.resolve({ data: { id: '1', type: 'post', attributes: { title: 'Hello World' } } });
     };
 
     store.push({
@@ -971,7 +970,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.expect(2);
 
     store.adapterFor('application').findHasMany = function (store, snapshot, link, relationship) {
-      return resolve({
+      return Promise.resolve({
         data: [{ id: '2', type: 'comment', attributes: { body: 'This is comment' } }],
       });
     };

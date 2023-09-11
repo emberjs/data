@@ -1,7 +1,7 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { defer, resolve } from 'rsvp';
+import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -157,7 +157,7 @@ module('integration/references/record', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'person',
@@ -227,7 +227,7 @@ module('integration/references/record', function (hooks) {
       count++;
       assert.strictEqual(count, 1);
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'person',
@@ -249,7 +249,7 @@ module('integration/references/record', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'person',

@@ -1,7 +1,6 @@
 import { computed, get, observer, set } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -71,7 +70,7 @@ module('unit/model - Model', function (hooks) {
 
     test('supports canonical updates via pushedData in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
-        return resolve({ data: null });
+        return Promise.resolve({ data: null });
       };
 
       let record = store.push({
@@ -116,7 +115,7 @@ module('unit/model - Model', function (hooks) {
 
     testInDebug('Does not support dirtying in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
-        return resolve({ data: null });
+        return Promise.resolve({ data: null });
       };
 
       let record = store.push({
@@ -669,7 +668,7 @@ module('unit/model - Model', function (hooks) {
     test('ensure model exits loading state, materializes data and fulfills promise only after data is available', async function (assert) {
       assert.expect(2);
       adapter.findRecord = () =>
-        resolve({
+        Promise.resolve({
           data: {
             id: '1',
             type: 'person',
@@ -934,7 +933,7 @@ module('unit/model - Model', function (hooks) {
 
     test('resetting a property to the current in-flight value causes it to become clean when the save completes', async function (assert) {
       adapter.updateRecord = function () {
-        return resolve();
+        return Promise.resolve();
       };
 
       store.push({
@@ -992,7 +991,7 @@ module('unit/model - Model', function (hooks) {
 
     test('an invalid record becomes clean again if changed property is reset', async function (assert) {
       adapter.updateRecord = () => {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               source: {
@@ -1040,7 +1039,7 @@ module('unit/model - Model', function (hooks) {
 
     test('an invalid record stays dirty if only invalid property is reset', async function (assert) {
       adapter.updateRecord = () => {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               source: {
@@ -1177,7 +1176,7 @@ module('unit/model - Model', function (hooks) {
           likes: [undefined, 'Cheese'],
         });
 
-        return resolve({ data: { id: '1', type: 'mascot' } });
+        return Promise.resolve({ data: { id: '1', type: 'mascot' } });
       };
 
       let cat;
@@ -1235,7 +1234,7 @@ module('unit/model - Model', function (hooks) {
 
     test('changedAttributes() reset after save', async function (assert) {
       adapter.updateRecord = function (store, type, snapshot) {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'person',

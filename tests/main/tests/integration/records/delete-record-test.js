@@ -4,7 +4,6 @@ import EmberObject, { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { all, Promise as EmberPromise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -56,7 +55,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
-      return EmberPromise.resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -106,7 +105,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
-      return EmberPromise.resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -157,7 +156,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
-      return EmberPromise.resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -201,7 +200,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.createRecord = function () {
-      return EmberPromise.reject(
+      return Promise.reject(
         new InvalidError([
           {
             title: 'Invalid Attribute',
@@ -244,7 +243,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     };
 
     adapter.createRecord = function () {
-      return EmberPromise.reject(
+      return Promise.reject(
         new InvalidError([
           {
             title: 'Invalid Attribute',
@@ -289,7 +288,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     adapter.createRecord = function () {
       assert.ok(true, 'save operation resolves');
-      return EmberPromise.resolve({
+      return Promise.resolve({
         data: {
           id: '123',
           type: 'person',
@@ -302,7 +301,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     promises = [adam.destroyRecord(), dave.save()];
 
-    await all(promises);
+    await Promise.all(promises);
   });
 
   test('Calling save on a newly created then deleted record should not error', async function (assert) {
@@ -395,7 +394,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
-      return EmberPromise.resolve();
+      return Promise.resolve();
     };
 
     // Push the company as a long-lived record that will be referenced by the group

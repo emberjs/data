@@ -2,7 +2,6 @@ import { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -126,7 +125,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       'adapter:application',
       Adapter.extend({
         deleteRecord() {
-          return resolve({ data: null });
+          return Promise.resolve({ data: null });
         },
         shouldBackgroundReloadRecord() {
           return false;
@@ -305,7 +304,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       'adapter:application',
       Adapter.extend({
         deleteRecord() {
-          return resolve({ data: null });
+          return Promise.resolve({ data: null });
         },
       })
     );
@@ -346,7 +345,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       'adapter:application',
       Adapter.extend({
         deleteRecord() {
-          return resolve({ data: null });
+          return Promise.resolve({ data: null });
         },
       })
     );
@@ -502,7 +501,7 @@ module('integration/record-array - RecordArray', function (hooks) {
 
     adapter.query = function (store, type, query, recordArray) {
       assert.false(recordArray.isLoaded, 'not loaded yet');
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
           { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } },

@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -32,7 +31,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
 
     adapter.deleteRecord = function (_store, _modelClass, snapshot) {
       if (snapshot.adapterOptions.clientSideDelete) {
-        return resolve();
+        return Promise.resolve();
       }
 
       assert.ok(false, 'unreachable');

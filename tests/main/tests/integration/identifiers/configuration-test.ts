@@ -1,10 +1,7 @@
 import EmberObject, { set } from '@ember/object';
-// eslint-disable-next-line no-restricted-imports
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { all, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -143,7 +140,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     }
     class TestAdapter extends Adapter {
       createRecord() {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'user',
@@ -207,7 +204,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     }
     class TestAdapter extends Adapter {
       createRecord() {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'user',
@@ -276,7 +273,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     }
     class TestAdapter extends Adapter {
       updateRecord() {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'user',
@@ -352,7 +349,8 @@ module('Integration | Identifiers - configuration', function (hooks) {
     });
 
     const store = new Store();
-    run(() => store.destroy());
+    store.destroy();
+    await settled();
     assert.ok(resetMethodCalled, 'We called the reset method when the application was torn down');
   });
 
@@ -364,7 +362,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     }
     class TestAdapter extends Adapter {
       findRecord() {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'user',
@@ -430,7 +428,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     // we expect that the username based identifier will be abandoned
     expectedIdentifier = originalUserByUsernameIdentifier;
 
-    const [userByUsername, userById] = await all([userByUsernamePromise, userByIdPromise]);
+    const [userByUsername, userById] = await Promise.all([userByUsernamePromise, userByIdPromise]);
     const finalUserByUsernameIdentifier = recordIdentifierFor(userByUsername);
     const finalUserByIdIdentifier = recordIdentifierFor(userById);
 
@@ -470,7 +468,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = () => {
-      return resolve({
+      return Promise.resolve({
         data: null,
       });
     };

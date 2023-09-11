@@ -2,7 +2,6 @@ import EmberObject from '@ember/object';
 
 import Store from 'adapter-encapsulation-test-app/services/store';
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -64,12 +63,12 @@ function setupReloadTest(options) {
 
     findAll() {
       this.requestsMade++;
-      return resolve(options.resolveFindAllWith || { data: [] });
+      return Promise.resolve(options.resolveFindAllWith || { data: [] });
     }
 
     findRecord() {
       this.requestsMade++;
-      return resolve(options.resolveFindRecordWith || { data: null });
+      return Promise.resolve(options.resolveFindRecordWith || { data: null });
     }
   }
   this.owner.register('adapter:application', TestMinimumAdapter);

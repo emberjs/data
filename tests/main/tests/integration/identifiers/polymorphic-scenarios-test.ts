@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -72,7 +71,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
           return false;
         }
         findRecord(_, __, id) {
-          return resolve({
+          return Promise.resolve({
             data: {
               id,
               type: 'ferrari',
@@ -110,7 +109,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
         }
         findRecord(_, { modelName: type }, id) {
           if (type === 'dealership') {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dealership',
@@ -134,7 +133,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
           requests.push({ type, id });
           // return the polymorphic type instead of 'car';
           type = id === '1' ? 'ferrari' : 'bmw';
-          return resolve({
+          return Promise.resolve({
             data: {
               id,
               type,

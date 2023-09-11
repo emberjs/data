@@ -2,7 +2,6 @@ import EmberObject from '@ember/object';
 
 import Store from 'adapter-encapsulation-test-app/services/store';
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -110,7 +109,7 @@ module('integration/mutations - Mutations Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to deleteRecord with correct modelName');
         assert.deepEqual(data, expectedData, 'snapshot is passed to deleteRecord with correct data');
 
-        return resolve(data);
+        return Promise.resolve(data);
       }
 
       deleteRecord(passedStore, type, snapshot) {
@@ -207,7 +206,7 @@ module('integration/mutations - Mutations Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to deleteRecord with correct modelName');
         assert.deepEqual(data, expectedData, 'snapshot is passed to deleteRecord with correct data');
 
-        return resolve(data);
+        return Promise.resolve(data);
       }
     }
 
@@ -249,7 +248,7 @@ module('integration/mutations - Mutations Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to deleteRecord with correct modelName');
         assert.deepEqual(data, expectedData, 'snapshot is passed to deleteRecord with correct data');
 
-        return resolve(data);
+        return Promise.resolve(data);
       }
 
       updateRecord(passedStore, type, snapshot) {
@@ -265,7 +264,7 @@ module('integration/mutations - Mutations Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to deleteRecord with correct modelName');
         assert.deepEqual(data, expectedData, 'snapshot is passed to deleteRecord with correct data');
 
-        return resolve(expectedData);
+        return Promise.resolve(expectedData);
       }
     }
 
@@ -318,7 +317,7 @@ module('integration/mutations - Mutations Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to deleteRecord with correct modelName');
         assert.deepEqual(data, expectedData, 'snapshot is passed to deleteRecord with correct data');
 
-        return resolve(expectedData);
+        return Promise.resolve(expectedData);
       }
     }
 

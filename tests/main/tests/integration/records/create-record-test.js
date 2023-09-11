@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -148,7 +147,7 @@ module('Store.createRecord() coverage', function (hooks) {
           assert.ok(false, 'Adapter should not make any findBelongsTo Requests');
         },
         createRecord() {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'pet',
               id: '2',

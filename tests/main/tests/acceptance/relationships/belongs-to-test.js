@@ -1,7 +1,6 @@
 import { render, settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise, resolve } from 'rsvp';
 
 import { hbs } from 'ember-cli-htmlbars';
 import { render as legacyRender } from 'ember-data/test-support';
@@ -99,7 +98,7 @@ class TestAdapter extends JSONAPIAdapter {
   }
 
   deleteRecord() {
-    return resolve({ data: null });
+    return Promise.resolve({ data: null });
   }
 }
 

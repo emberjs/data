@@ -2,7 +2,6 @@ import EmberObject from '@ember/object';
 
 import Store from 'adapter-encapsulation-test-app/services/store';
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -185,7 +184,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
         assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -287,7 +286,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
-        return resolve({ data: expectedResultCopy.data[index] });
+        return Promise.resolve({ data: expectedResultCopy.data[index] });
       }
 
       findMany() {
@@ -363,7 +362,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
-        return resolve({ data: expectedResultCopy.data[index] });
+        return Promise.resolve({ data: expectedResultCopy.data[index] });
       }
 
       findMany() {
@@ -450,7 +449,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
           assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -529,7 +528,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
           assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -607,7 +606,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
         assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -690,7 +689,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
           assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -757,7 +756,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
-        return resolve({ data: expectedResultCopy.data[index] });
+        return Promise.resolve({ data: expectedResultCopy.data[index] });
       }
 
       findMany() {

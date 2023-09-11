@@ -1,5 +1,5 @@
 import { module, skip, test } from 'qunit';
-import RSVP from 'rsvp';
+import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -64,7 +64,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
   test('#update uses _update enabling query specific behavior', async function (assert) {
     let queryCalled = 0;
-    let deferred = RSVP.defer();
+    let deferred = defer();
 
     const store = {
       query(modelName, query, options) {

@@ -1,7 +1,6 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -332,7 +331,7 @@ module('integration/references/belongs-to', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -368,7 +367,7 @@ module('integration/references/belongs-to', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'team',
@@ -405,7 +404,7 @@ module('integration/references/belongs-to', function (hooks) {
       assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       assert.strictEqual(link, '/families/1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -444,7 +443,7 @@ module('integration/references/belongs-to', function (hooks) {
       assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       assert.strictEqual(link, '/families/1', 'link was passed correctly');
 
-      return resolve({
+      return Promise.resolve({
         data: null,
         meta: { it: 'works' },
       });
@@ -484,7 +483,7 @@ module('integration/references/belongs-to', function (hooks) {
       count++;
       assert.strictEqual(count, 1);
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -525,7 +524,7 @@ module('integration/references/belongs-to', function (hooks) {
       count++;
       assert.strictEqual(count, 1);
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -570,7 +569,7 @@ module('integration/references/belongs-to', function (hooks) {
 
       assert.strictEqual(link, '/families/1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',

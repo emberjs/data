@@ -2,7 +2,6 @@ import EmberObject from '@ember/object';
 
 import Store from 'adapter-encapsulation-test-app/services/store';
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -66,7 +65,7 @@ module('integration/queries - Queries Tests', function (hooks) {
         assert.strictEqual(query.initialOption, 'bar', 'query is mutated');
         assert.strictEqual(adapterOptions.otherOption, 'baz', 'adapterOptions is mutated');
 
-        return resolve({
+        return Promise.resolve({
           data: [expectedResult],
         });
       }
@@ -80,7 +79,7 @@ module('integration/queries - Queries Tests', function (hooks) {
         assert.strictEqual(query.initialOption, 'bar', 'query is mutated');
         assert.strictEqual(adapterOptions.otherOption, 'baz', 'adapterOptions is mutated');
 
-        return resolve({
+        return Promise.resolve({
           data: expectedResult,
         });
       }
@@ -125,7 +124,7 @@ module('integration/queries - Queries Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, '12', 'snapshot is passed to findRecord with correct id');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -178,7 +177,7 @@ module('integration/queries - Queries Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findAll with correct modelName');
         assert.strictEqual(snapshot.length, 0, 'snapshot is passed to findAll represnts empty array');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -217,7 +216,7 @@ module('integration/queries - Queries Tests', function (hooks) {
         assert.deepEqual(query, { firstName: 'Gaurav' }, 'query is passed to queryRecord');
         assert.deepEqual(options, {}, 'options is passsed to queryRecord');
 
-        return resolve(expectedResult);
+        return Promise.resolve(expectedResult);
       }
     }
 
@@ -264,7 +263,7 @@ module('integration/queries - Queries Tests', function (hooks) {
         assert.deepEqual(recordArray.slice(), [], 'recordArray is passsed to query');
         assert.deepEqual(options, {}, 'options is passed to query');
 
-        return resolve(expectedResult);
+        return Promise.resolve(expectedResult);
       }
     }
 

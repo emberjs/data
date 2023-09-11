@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { all, allSettled, Promise, reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -98,7 +97,7 @@ module('integration/adapter - Finding Records', function (hooks) {
       },
     });
 
-    await allSettled([firstPlayerRequest, secondPlayerRequest]);
+    await Promise.allSettled([firstPlayerRequest, secondPlayerRequest]);
   });
 
   test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', async function (assert) {
@@ -113,7 +112,7 @@ module('integration/adapter - Finding Records', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return reject();
+          return Promise.reject();
         },
       })
     );
@@ -140,7 +139,7 @@ module('integration/adapter - Finding Records', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return reject();
+          return Promise.reject();
         },
       })
     );
@@ -167,7 +166,7 @@ module('integration/adapter - Finding Records', function (hooks) {
     this.owner.register(
       'adapter:person',
       Adapter.extend({
-        findRecord: () => resolve({}),
+        findRecord: () => Promise.resolve({}),
       })
     );
 
@@ -196,7 +195,7 @@ module('integration/adapter - Finding Records', function (hooks) {
       'adapter:person',
       Adapter.extend({
         coalesceFindRequests: true,
-        findMany: () => resolve({}),
+        findMany: () => Promise.resolve({}),
       })
     );
 
@@ -204,7 +203,7 @@ module('integration/adapter - Finding Records', function (hooks) {
     const promises = [store.findRecord('person', '1'), store.findRecord('person', '2')];
 
     try {
-      await all(promises);
+      await Promise.all(promises);
     } catch (e) {
       const expectedMessageRegex =
         "Assertion Failed: You made a 'findMany' request for 'person' records with ids '[1,2]', but the adapter's response did not have any data";

@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -34,7 +33,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     let posts = store.peekAll('post');
 
     adapter.createRecord = function (store, type, snapshot) {
-      return resolve({ data: { id: id++, type: 'post' } });
+      return Promise.resolve({ data: { id: id++, type: 'post' } });
     };
 
     await posts.save().then(() => {
@@ -52,7 +51,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     let posts = store.peekAll('post');
 
     adapter.createRecord = function (store, type, snapshot) {
-      return reject();
+      return Promise.reject();
     };
 
     try {
@@ -77,14 +76,14 @@ module('integration/records/collection_save - Save Collection of Records', funct
 
     adapter.createRecord = function (store, type, snapshot) {
       if (count++ === 0) {
-        return reject();
+        return Promise.reject();
       } else {
-        return resolve({ data: { id: id++, type: 'post' } });
+        return Promise.resolve({ data: { id: id++, type: 'post' } });
       }
     };
 
     adapter.updateRecord = function (store, type, snapshot) {
-      return resolve({ data: { id: snapshot.id, type: 'post' } });
+      return Promise.resolve({ data: { id: snapshot.id, type: 'post' } });
     };
 
     await posts
@@ -109,7 +108,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     let posts = store.peekAll('post');
 
     adapter.createRecord = function (store, type, snapshot) {
-      return reject({ title: 'invalid' });
+      return Promise.reject({ title: 'invalid' });
     };
 
     await posts.save().catch(() => {

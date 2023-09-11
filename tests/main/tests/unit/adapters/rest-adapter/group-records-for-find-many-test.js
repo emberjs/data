@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -49,7 +48,7 @@ module(
           lengths.push(fullUrl.length);
 
           let testRecords = options.data.ids.map((id) => ({ id }));
-          return EmberPromise.resolve({ testRecords: testRecords });
+          return Promise.resolve({ testRecords: testRecords });
         }
       }
 
@@ -84,7 +83,7 @@ module(
       assert.strictEqual(requests[0].url, '/testRecords');
       assert.deepEqual(requests[0].ids, ['my-id:1', 'my-id:2']);
 
-      await EmberPromise.all(wait);
+      await Promise.all(wait);
     });
 
     test('_stripIDFromURL works with id being encoded - #4190', function (assert) {

@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -55,7 +54,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
     adapter.query = function (store, type, query, recordArray) {
       assert.strictEqual(type, Person, 'the query method is called with the correct type');
 
-      return EmberPromise.resolve({
+      return Promise.resolve({
         data: [
           {
             id: '1',
@@ -95,7 +94,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.query = function () {
-      return resolve({ data: [{ id: 'first', type: 'person' }] });
+      return Promise.resolve({ data: [{ id: 'first', type: 'person' }] });
     };
 
     let personsQuery = await store.query('person', {});
@@ -146,7 +145,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
       adapter.query = function (store, type, query, recordArray) {
         assert.strictEqual(type, Person, 'the query method is called with the correct type');
 
-        return resolve({
+        return Promise.resolve({
           data: { id: '1', type: 'person', attributes: { name: 'Peter Wagenet' } },
         });
       };
