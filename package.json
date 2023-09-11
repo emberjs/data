@@ -106,6 +106,13 @@
     }
   },
   "pnpm": {
+    "packageExtensions": {
+      "@glimmer/syntax": {
+        "dependencies": {
+          "@glimmer/env": "^0.1.7"
+        }
+      }
+    },
     "overrides": {
       "ember-auto-import": "^2.6.3",
       "@embroider/macros": "^1.12.2",
