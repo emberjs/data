@@ -185,71 +185,65 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(adam, null, 'we have no person');
   });
 
-  test('can unload all records for a given type', function (assert) {
+  test('can unload all records for a given type', async function (assert) {
     assert.expect(6);
 
     let car;
-    run(function () {
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Adam Sunderland',
-            },
-          },
-          {
-            type: 'person',
-            id: '2',
-            attributes: {
-              name: 'Bob Bobson',
-            },
-          },
-        ],
-      });
-      let adam = store.peekRecord('person', 1);
-      let bob = store.peekRecord('person', 2);
-
-      car = store.push({
-        data: {
-          type: 'car',
+    store.push({
+      data: [
+        {
+          type: 'person',
           id: '1',
           attributes: {
-            make: 'VW',
-            model: 'Beetle',
-          },
-          relationships: {
-            person: {
-              data: { type: 'person', id: '1' },
-            },
+            name: 'Adam Sunderland',
           },
         },
-      });
-      bob = store.peekRecord('car', 1);
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Bob Bobson',
+          },
+        },
+      ],
     });
+    let adam = store.peekRecord('person', 1);
+    let bob = store.peekRecord('person', 2);
+
+    car = store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'VW',
+          model: 'Beetle',
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' },
+          },
+        },
+      },
+    });
+    bob = store.peekRecord('car', 1);
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded');
     assert.strictEqual(store.peekAll('car').length, 1, 'one car record loaded');
 
-    run(function () {
-      car.person;
-      store.unloadAll('person');
-    });
+    await car.person;
+    store.unloadAll('person');
 
     assert.strictEqual(store.peekAll('person').length, 0);
     assert.strictEqual(store.peekAll('car').length, 1);
 
-    run(function () {
-      store.push({
-        data: {
-          id: '1',
-          type: 'person',
-          attributes: {
-            name: 'Richard II',
-          },
+    store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Richard II',
         },
-      });
+      },
     });
 
     car = store.peekRecord('car', 1);
@@ -262,52 +256,48 @@ module('integration/unload - Unloading Records', function (hooks) {
   test('can unload all records', function (assert) {
     assert.expect(4);
 
-    run(function () {
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Adam Sunderland',
-            },
-          },
-          {
-            type: 'person',
-            id: '2',
-            attributes: {
-              name: 'Bob Bobson',
-            },
-          },
-        ],
-      });
-      let adam = store.peekRecord('person', 1);
-      let bob = store.peekRecord('person', 2);
-
-      store.push({
-        data: {
-          type: 'car',
+    store.push({
+      data: [
+        {
+          type: 'person',
           id: '1',
           attributes: {
-            make: 'VW',
-            model: 'Beetle',
-          },
-          relationships: {
-            person: {
-              data: { type: 'person', id: '1' },
-            },
+            name: 'Adam Sunderland',
           },
         },
-      });
-      bob = store.peekRecord('car', 1);
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Bob Bobson',
+          },
+        },
+      ],
     });
+    let adam = store.peekRecord('person', '1');
+    let bob = store.peekRecord('person', '2');
+
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'VW',
+          model: 'Beetle',
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' },
+          },
+        },
+      },
+    });
+    bob = store.peekRecord('car', '1');
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded');
     assert.strictEqual(store.peekAll('car').length, 1, 'one car record loaded');
 
-    run(function () {
-      store.unloadAll();
-    });
+    store.unloadAll();
 
     assert.strictEqual(store.peekAll('person').length, 0);
     assert.strictEqual(store.peekAll('car').length, 0);
@@ -642,35 +632,29 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('unloading all records also updates record array from peekAll()', function (assert) {
-    run(function () {
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Adam Sunderland',
-            },
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Adam Sunderland',
           },
-          {
-            type: 'person',
-            id: '2',
-            attributes: {
-              name: 'Bob Bobson',
-            },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Bob Bobson',
           },
-        ],
-      });
-      let adam = store.peekRecord('person', 1);
-      let bob = store.peekRecord('person', 2);
+        },
+      ],
     });
     let all = store.peekAll('person');
 
     assert.strictEqual(all.length, 2);
 
-    run(function () {
-      store.unloadAll('person');
-    });
+    store.unloadAll('person');
     assert.strictEqual(all.length, 0);
   });
 
@@ -756,9 +740,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(peopleBoats.at(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
 
-    run(() => {
-      store.unloadAll('boat');
-    });
+    store.unloadAll('boat');
 
     // ensure that our new state is correct
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
@@ -766,11 +748,9 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(relationshipState.removals, null, 'removals should be empty');
     assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
-    run(() =>
-      store.push({
-        data: makeBoatOneForPersonOne(),
-      })
-    );
+    store.push({
+      data: makeBoatOneForPersonOne(),
+    });
 
     store.peekRecord('boat', '1');
 
@@ -845,23 +825,21 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('(regression) unloadRecord followed by push in the same run-loop', async function (assert) {
-    let person = run(() =>
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Could be Anybody',
-          },
-          relationships: {
-            boats: {
-              data: [{ type: 'boat', id: '1' }],
-            },
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Could be Anybody',
+        },
+        relationships: {
+          boats: {
+            data: [{ type: 'boat', id: '1' }],
           },
         },
-        included: [makeBoatOneForPersonOne()],
-      })
-    );
+      },
+      included: [makeBoatOneForPersonOne()],
+    });
 
     let boat = store.peekRecord('boat', '1');
     let relationshipState = person.hasMany('boats').hasManyRelationship;
@@ -870,9 +848,9 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.notStrictEqual(store.peekRecord('person', '1'), null);
     assert.notStrictEqual(store.peekRecord('boat', '1'), null);
 
-    // ensure the relationship was established (we reach through the async proxy here)
-    let peopleBoats = run(() => person.boats.content);
-    let boatPerson = run(() => boat.person.content);
+    // ensure the relationship was established
+    let peopleBoats = await person.boats;
+    let boatPerson = await boat.person;
 
     assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
@@ -880,18 +858,16 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(peopleBoats.at(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
 
-    run(() => boat.unloadRecord());
+    boat.unloadRecord();
 
     // ensure that our new state is correct
     assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should still be 1');
     assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should still be 1');
     assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
-    run(() =>
-      store.push({
-        data: makeBoatOneForPersonOne(),
-      })
-    );
+    store.push({
+      data: makeBoatOneForPersonOne(),
+    });
 
     let reloadedBoat = store.peekRecord('boat', '1');
 
