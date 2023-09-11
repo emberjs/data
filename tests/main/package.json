@@ -69,7 +69,6 @@
     "@ember/test-helpers": "^3.2.0",
     "@embroider/macros": "^1.13.1",
     "@glimmer/component": "^1.1.2",
-    "@glimmer/env": "^0.1.7",
     "@glimmer/tracking": "^1.1.2",
     "@types/ember": "^4.0.4",
     "@types/ember__debug": "^4.0.4",

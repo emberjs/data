@@ -50,9 +50,8 @@ module.exports = {
     'no-restricted-imports': [
       'error',
       {
-        paths: ['@glimmer/env', '@ember/utils'],
+        paths: ['@glimmer/env', '@ember/utils', '@ember/runloop'],
       },
-      // '@ember/runloop',
       // '@ember/string',
       // '@ember/object',
       // '@ember/service',
@@ -97,10 +96,10 @@ module.exports = {
         'no-restricted-imports': [
           'error',
           {
-            paths: ['@glimmer/env', '@ember/utils'],
+            paths: ['@glimmer/env', '@ember/utils', '@ember/runloop'],
             // patterns: ['@ember/*'],
           },
-          // '@ember/runloop',@glimmer/env
+
           // '@ember/string',
           // '@ember/object',
           // '@ember/service',
@@ -207,8 +206,6 @@ module.exports = {
         '@types/ember/index.d.ts',
         '@types/@glimmer/tracking.d.ts',
         '@types/@ember/utils/index.d.ts',
-        '@types/@ember/runloop/index.d.ts',
-        '@types/@ember/runloop/-private/backburner.d.ts',
         '@types/@ember/object/compat.d.ts',
         '@types/@ember/debug/index.d.ts',
         'ember-data-types/q/schema-definition-service.ts',
@@ -222,7 +219,6 @@ module.exports = {
         'ember-data-types/q/identifier.ts',
         'ember-data-types/q/fetch-manager.ts',
         'ember-data-types/q/ember-data-json-api.ts',
-        '@types/@ember/runloop/index.d.ts',
         '@types/@ember/polyfills/index.d.ts',
         'tests/graph/tests/integration/graph/polymorphism/implicit-keys-test.ts',
         'tests/graph/tests/integration/graph/graph-test.ts',

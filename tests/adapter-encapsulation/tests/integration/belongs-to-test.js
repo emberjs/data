@@ -2,7 +2,6 @@ import EmberObject from '@ember/object';
 
 import Store from 'adapter-encapsulation-test-app/services/store';
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -165,7 +164,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
         assert.strictEqual(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -276,7 +275,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
 
       findBelongsTo() {
@@ -355,7 +354,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -439,7 +438,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
         assert.strictEqual(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 
@@ -514,7 +513,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
         assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
         assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
 
-        return resolve(expectedResultCopy);
+        return Promise.resolve(expectedResultCopy);
       }
     }
 

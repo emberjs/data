@@ -22,7 +22,6 @@ export default {
     '@ember/object',
     '@ember/object/mixin',
     '@ember/application',
-    '@glimmer/env',
     '@ember/polyfills',
   ],
 

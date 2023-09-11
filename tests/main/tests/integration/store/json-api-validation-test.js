@@ -1,5 +1,4 @@
 import QUnit, { module } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -21,7 +20,7 @@ async function payloadError(owner, payload, expectedError, assert) {
     'adapter:person',
     Adapter.extend({
       findRecord() {
-        return resolve(payload);
+        return Promise.resolve(payload);
       },
     })
   );
@@ -68,7 +67,7 @@ module('integration/store/json-validation', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return resolve({ data: {} });
+          return Promise.resolve({ data: {} });
         },
       })
     );
@@ -94,7 +93,7 @@ module('integration/store/json-validation', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return resolve({ data: {} });
+          return Promise.resolve({ data: {} });
         },
       })
     );
@@ -120,7 +119,7 @@ module('integration/store/json-validation', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return resolve({ data: {} });
+          return Promise.resolve({ data: {} });
         },
       })
     );
@@ -151,7 +150,7 @@ module('integration/store/json-validation', function (hooks) {
         'adapter:person',
         Adapter.extend({
           findRecord() {
-            return resolve({ data: {} });
+            return Promise.resolve({ data: {} });
           },
         })
       );

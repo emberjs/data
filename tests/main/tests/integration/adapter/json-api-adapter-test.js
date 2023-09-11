@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -96,7 +95,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       passedVerb[index] = verb;
       passedHash[index] = hash;
 
-      return resolve(responses[index]);
+      return Promise.resolve(responses[index]);
     };
   }
 

@@ -1,4 +1,4 @@
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
@@ -181,7 +181,8 @@ module('integration/store - adapterFor', function (hooks) {
     assert.ok(adapter instanceof AppAdapter, 'precond - We found the correct adapter');
     assert.ok(didInstantiate, 'precond - We instantiated the adapter');
 
-    run(store, 'destroy');
+    store.destroy();
+    await settled();
 
     assert.ok(didDestroy, 'adapter was destroyed');
   });

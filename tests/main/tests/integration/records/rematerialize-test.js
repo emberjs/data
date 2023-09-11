@@ -1,7 +1,3 @@
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
-
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -79,7 +75,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       'The person identifier is loaded'
     );
 
-    run(() => adam.unloadRecord());
+    adam.unloadRecord();
 
     assert.strictEqual(store.peekRecord('person', '1'), null, 'The person is unloaded');
     assert.false(

@@ -3,7 +3,6 @@ import { underscore } from '@ember/string';
 
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
@@ -61,9 +60,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       passedHash = hash;
       passedUrl = passedHash.url;
       passedVerb = passedHash.method;
-      return resolve({
+      return Promise.resolve({
         text() {
-          return resolve(JSON.stringify(deepCopy(value)));
+          return Promise.resolve(JSON.stringify(deepCopy(value)));
         },
         ok: true,
         status: 200,
@@ -75,15 +74,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       passedVerb = verb;
       passedHash = hash;
 
-      return resolve(deepCopy(value));
+      return Promise.resolve(deepCopy(value));
     };
   }
 
   function ajaxError(responseText, status = 400, headers = {}) {
     adapter._fetchRequest = () => {
-      return resolve({
+      return Promise.resolve({
         text() {
-          return resolve(responseText);
+          return Promise.resolve(responseText);
         },
         ok: false,
         status,
@@ -109,9 +108,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   function ajaxZero() {
     adapter._fetchRequest = () => {
-      return resolve({
+      return Promise.resolve({
         text() {
-          return resolve();
+          return Promise.resolve();
         },
         ok: false,
         status: 0,
@@ -2120,12 +2119,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(id, '1');
-      return resolve({ comments: { id: '1' } });
+      return Promise.resolve({ comments: { id: '1' } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.deepEqual(ids, ['2', '3']);
-      return resolve({ comments: [{ id: '2' }, { id: '3' }] });
+      return Promise.resolve({ comments: [{ id: '2' }, { id: '3' }] });
     };
 
     store.push({
@@ -2172,12 +2171,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(id, '1');
-      return resolve({ comments: { id: '1' } });
+      return Promise.resolve({ comments: { id: '1' } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.deepEqual(ids, ['2', '3']);
-      return resolve({ comments: [{ id: '2' }, { id: '3' }] });
+      return Promise.resolve({ comments: [{ id: '2' }, { id: '3' }] });
     };
 
     store.push({
@@ -2325,12 +2324,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         assert.ok(true, 'Found ' + id);
       }
 
-      return resolve({ comments: { id: id } });
+      return Promise.resolve({ comments: { id: id } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.ok(false, 'findMany should not be called - we expect 2 calls to find for a2000 and b2000');
-      return reject();
+      return Promise.reject();
     };
 
     post.comments;
@@ -2379,12 +2378,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.ok(false, 'findRecord should not be called - we expect 1 call to findMany for a100 and b100');
-      return reject();
+      return Promise.reject();
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.deepEqual(ids, [a100, b100]);
-      return resolve({ comments: [{ id: a100 }, { id: b100 }] });
+      return Promise.resolve({ comments: [{ id: a100 }, { id: b100 }] });
     };
 
     await post.comments;

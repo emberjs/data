@@ -1,9 +1,6 @@
-import { get, set } from '@ember/object';
-import { later } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { all, Promise as EmberPromise, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -33,7 +30,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         assert.strictEqual(id, '1', 'Adapter#find was called with the id passed into Store#find');
         assert.strictEqual(snapshot.id, '1', 'Adapter#find was called with the record created from Store#find');
 
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'test',
@@ -59,7 +56,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       findMany(store, type, ids, snapshots) {
         assert.ok(true, 'Adapter#findMany was called');
         assert.deepEqual(ids, ['1', '2'], 'Correct ids were passed in to findMany');
-        return resolve({
+        return Promise.resolve({
           data: [
             { id: '1', type: 'test' },
             { id: '2', type: 'test' },
@@ -75,7 +72,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    await all([store.findRecord('test', '1'), store.findRecord('test', '2')]);
+    await Promise.all([store.findRecord('test', '1'), store.findRecord('test', '2')]);
   });
 
   test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany and adapter#findRecord', async function (assert) {
@@ -107,7 +104,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
           assert.deepEqual(snapshot.adapterOptions, options[snapshot.id], 'we were passed the right adapterOptions');
         });
         assert.deepEqual(ids, ['1', '2'], 'we were passed the expected ids');
-        return resolve({
+        return Promise.resolve({
           data: snapshots.map(({ id }) => ({ id, type: type.modelName })),
         });
       },
@@ -121,7 +118,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         assert.deepEqual(snapshot.adapterOptions, options[snapshot.id], 'we were passed the right adapterOptions');
         assert.strictEqual(id, '3', 'we were passed the expected id');
 
-        return resolve({
+        return Promise.resolve({
           data: { id, type: type.modelName },
         });
       },
@@ -135,7 +132,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let store = this.owner.lookup('service:store');
 
-    await all(
+    await Promise.all(
       Object.keys(includedResourcesForIds).map((id) =>
         store.findRecord('test', id, { include: includedResourcesForIds[id], adapterOptions: options[id] })
       )
@@ -147,7 +144,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        return resolve({ data: { id: '1', type: 'test', attributes: { name: 'Scumbag Dale' } } });
+        return Promise.resolve({ data: { id: '1', type: 'test', attributes: { name: 'Scumbag Dale' } } });
       },
     });
 
@@ -158,7 +155,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     let store = this.owner.lookup('service:store');
 
     await store.findRecord('test', '1').then((object) => {
-      assert.strictEqual(get(object, 'name'), 'Scumbag Dale', 'the data was pushed');
+      assert.strictEqual(object.name, 'Scumbag Dale', 'the data was pushed');
     });
   });
 
@@ -168,7 +165,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.strictEqual(typeof id, 'string', 'id has been normalized to a string');
-        return resolve({ data: { id, type: 'test', attributes: { name: 'Scumbag Sylvain' } } });
+        return Promise.resolve({ data: { id, type: 'test', attributes: { name: 'Scumbag Sylvain' } } });
       },
     });
 
@@ -234,8 +231,8 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
 
     await store.findRecord('person', '1').then((tom) => {
-      assert.false(get(tom, 'hasDirtyAttributes'), 'precond - record is not dirty');
-      assert.strictEqual(get(tom, 'name'), 'Tom Dale', 'returns the correct name');
+      assert.false(tom.hasDirtyAttributes, 'precond - record is not dirty');
+      assert.strictEqual(tom.name, 'Tom Dale', 'returns the correct name');
 
       store.push({
         data: {
@@ -246,7 +243,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
           },
         },
       });
-      assert.strictEqual(get(tom, 'name'), 'Captain Underpants', 'updated record with new date');
+      assert.strictEqual(tom.name, 'Captain Underpants', 'updated record with new date');
     });
   });
 
@@ -263,7 +260,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       query(store, type, query) {
         assert.strictEqual(type, store.modelFor('person'), 'The type was Person');
         assert.strictEqual(query, passedQuery, 'The query was passed in');
-        return resolve({ data: [] });
+        return Promise.resolve({ data: [] });
       },
     });
 
@@ -286,7 +283,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       query(store, type, query) {
-        return resolve([]);
+        return Promise.resolve([]);
       },
     });
 
@@ -330,7 +327,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let results = store.peekAll('person');
 
-    assert.strictEqual(get(results, 'length'), 1, 'record array should have the original object');
+    assert.strictEqual(results.length, 1, 'record array should have the original object');
     assert.strictEqual(results.at(0).name, 'Tom Dale', 'record has the correct information');
 
     store.push({
@@ -358,13 +355,13 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let person = this.owner.lookup('service:store').createRecord('person');
 
-    assert.true(get(person, 'isLoaded'), 'A newly created record is loaded');
-    assert.true(get(person, 'isNew'), 'A newly created record is new');
-    assert.true(get(person, 'hasDirtyAttributes'), 'A newly created record is dirty');
+    assert.true(person.isLoaded, 'A newly created record is loaded');
+    assert.true(person.isNew, 'A newly created record is new');
+    assert.true(person.hasDirtyAttributes, 'A newly created record is dirty');
 
-    set(person, 'name', 'Braaahm Dale');
+    person.name = 'Braaahm Dale';
 
-    assert.strictEqual(get(person, 'name'), 'Braaahm Dale', 'Even if no hash is supplied, `set` still worked');
+    assert.strictEqual(person.name, 'Braaahm Dale', 'Even if no hash is supplied, `set` still worked');
   });
 
   testInDebug(
@@ -396,11 +393,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     let store = this.owner.lookup('service:store');
     let person = store.createRecord('person', { name: 'Brohuda Katz' });
 
-    assert.true(get(person, 'isLoaded'), 'A newly created record is loaded');
-    assert.true(get(person, 'isNew'), 'A newly created record is new');
-    assert.true(get(person, 'hasDirtyAttributes'), 'A newly created record is dirty');
+    assert.true(person.isLoaded, 'A newly created record is loaded');
+    assert.true(person.isNew, 'A newly created record is new');
+    assert.true(person.hasDirtyAttributes, 'A newly created record is dirty');
 
-    assert.strictEqual(get(person, 'name'), 'Brohuda Katz', 'The initial data hash is provided');
+    assert.strictEqual(person.name, 'Brohuda Katz', 'The initial data hash is provided');
   });
 
   test('if an id is supplied in the initial data hash, it can be looked up using `store.find`', async function (assert) {
@@ -650,7 +647,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     let tom = store.createRecord('person', { name: 'Tom Dale' });
     let yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
 
-    await all([tom.save(), yehuda.save()]).then(() => {
+    await Promise.all([tom.save(), yehuda.save()]).then(() => {
       people.forEach((person, index) => {
         assert.strictEqual(person.id, String(index + 1), `The record's id should be correct.`);
       });
@@ -691,7 +688,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '21' }),
     ];
 
-    const result = await all(identifiers.map((id) => store.findRecord(id)));
+    const result = await Promise.all(identifiers.map((id) => store.findRecord(id)));
 
     let ids = result.map((x) => x.id);
     assert.deepEqual(ids, ['10', '20', '21'], 'The promise fulfills with the identifiers');
@@ -710,14 +707,14 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       findRecord(store, type, id, snapshot) {
         let record = { id, type: 'test' };
 
-        return new EmberPromise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           if (id === 'igor') {
             resolve({ data: record });
           } else {
-            later(function () {
+            setTimeout(function () {
               davidResolved = true;
               resolve({ data: record });
-            }, 5);
+            }, 1);
           }
         });
       },
@@ -745,7 +742,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       })
     );
 
-    await all(wait);
+    await Promise.all(wait);
   });
 
   test('the promise returned by `findRecord`, when it rejects, does not depend on the promises returned to other calls to `findRecord` that are in the same run loop, but different groups', async function (assert) {
@@ -761,11 +758,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       findRecord(store, type, id, snapshot) {
         let record = { id, type: 'test' };
 
-        return new EmberPromise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
           if (id === 'igor') {
             reject({ data: record });
           } else {
-            later(() => {
+            setTimeout(() => {
               davidResolved = true;
               resolve({ data: record });
             }, 5);
@@ -796,7 +793,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       })
     );
 
-    await EmberPromise.all(wait);
+    await Promise.all(wait);
   });
 
   testInDebug(

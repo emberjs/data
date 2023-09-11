@@ -1,6 +1,3 @@
-import { get } from '@ember/object';
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -134,9 +131,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     };
 
     assert.expectWarning(function () {
-      run(function () {
-        store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
-      });
+      store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
     }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
   });
 
@@ -170,9 +165,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     };
 
     assert.expectWarning(function () {
-      run(function () {
-        store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
-      });
+      store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
     }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
   });
 
@@ -200,13 +193,11 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     };
 
     assert.expectWarning(function () {
-      run(function () {
-        store.pushPayload(documentHash);
-      });
+      store.pushPayload(documentHash);
     }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
 
-    var user = store.peekRecord('user', 1);
-    assert.strictEqual(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
+    const user = store.peekRecord('user', 1);
+    assert.strictEqual(user.firstName, 'Yehuda', 'firstName is correct');
   });
 
   testInDebug('Errors when pushing payload with unknown type included in relationship', function (assert) {
@@ -247,9 +238,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     };
 
     assert.expectAssertion(function () {
-      run(function () {
-        store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
-      });
+      store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
     }, /Encountered a resource object with an undefined type/);
   });
 
@@ -315,22 +304,20 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     let store = this.owner.lookup('service:store');
     var company, user;
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'company',
-          id: '1',
-          attributes: {
-            name: 'Tilde Inc.',
-          },
+    store.push({
+      data: {
+        type: 'company',
+        id: '1',
+        attributes: {
+          name: 'Tilde Inc.',
         },
-      });
-      company = store.peekRecord('company', 1);
-      user = store.createRecord('user', {
-        firstName: 'Yehuda',
-        title: 'director',
-        company: company,
-      });
+      },
+    });
+    company = store.peekRecord('company', 1);
+    user = store.createRecord('user', {
+      firstName: 'Yehuda',
+      title: 'director',
+      company: company,
     });
 
     var payload = store.serializerFor('user').serialize(user._createSnapshot());
@@ -429,23 +416,21 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
-    run(function () {
-      serializer.pushPayload(store, {
-        data: {
-          type: 'handles',
-          id: '1',
-        },
-      });
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: '1',
+      },
+    });
 
-      let handle = store.peekRecord('handle', 1);
+    let handle = store.peekRecord('handle', 1);
 
-      let serialized = handle.serialize({ includeId: true });
-      assert.deepEqual(serialized, {
-        data: {
-          type: 'handles',
-          id: '1',
-        },
-      });
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1',
+      },
     });
   });
 
@@ -481,25 +466,23 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
-    run(function () {
-      serializer.pushPayload(store, {
-        data: {
-          type: 'handles',
-          id: '1',
-        },
-      });
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: '1',
+      },
+    });
 
-      let handle = store.peekRecord('handle', 1);
-      let user = store.createRecord('user');
-      handle.set('user', user);
+    let handle = store.peekRecord('handle', 1);
+    let user = store.createRecord('user');
+    handle.set('user', user);
 
-      let serialized = handle.serialize({ includeId: true });
-      assert.deepEqual(serialized, {
-        data: {
-          type: 'handles',
-          id: '1',
-        },
-      });
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1',
+      },
     });
   });
 
@@ -515,49 +498,47 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     let store = this.owner.lookup('service:store');
 
-    run(function () {
-      store.serializerFor('user').pushPayload(store, {
-        data: {
-          type: 'users',
-          id: '1',
-          relationships: {
-            handles: {
-              data: [
-                { type: 'handles', id: '1' },
-                { type: 'handles', id: '2' },
-              ],
-            },
+    store.serializerFor('user').pushPayload(store, {
+      data: {
+        type: 'users',
+        id: '1',
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: '1' },
+              { type: 'handles', id: '2' },
+            ],
           },
         },
-        included: [
-          { type: 'handles', id: '1' },
-          { type: 'handles', id: '2' },
-        ],
-      });
+      },
+      included: [
+        { type: 'handles', id: '1' },
+        { type: 'handles', id: '2' },
+      ],
+    });
 
-      let user = store.peekRecord('user', 1);
+    let user = store.peekRecord('user', 1);
 
-      let serialized = user.serialize({ includeId: true });
+    let serialized = user.serialize({ includeId: true });
 
-      assert.deepEqual(serialized, {
-        data: {
-          type: 'users',
-          id: '1',
-          attributes: {
-            'first-name': null,
-            'last-name': null,
-            title: null,
-          },
-          relationships: {
-            handles: {
-              data: [
-                { type: 'handles', id: '1' },
-                { type: 'handles', id: '2' },
-              ],
-            },
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': null,
+          'last-name': null,
+          title: null,
+        },
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: '1' },
+              { type: 'handles', id: '2' },
+            ],
           },
         },
-      });
+      },
     });
   });
 
@@ -573,50 +554,48 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     let store = this.owner.lookup('service:store');
 
-    run(function () {
-      store.serializerFor('user').pushPayload(store, {
-        data: {
-          type: 'users',
-          id: '1',
-          relationships: {
-            handles: {
-              data: [
-                { type: 'handles', id: '1' },
-                { type: 'handles', id: '2' },
-              ],
-            },
+    store.serializerFor('user').pushPayload(store, {
+      data: {
+        type: 'users',
+        id: '1',
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: '1' },
+              { type: 'handles', id: '2' },
+            ],
           },
         },
-        included: [
-          { type: 'handles', id: '1' },
-          { type: 'handles', id: '2' },
-        ],
-      });
+      },
+      included: [
+        { type: 'handles', id: '1' },
+        { type: 'handles', id: '2' },
+      ],
+    });
 
-      let user = store.peekRecord('user', 1);
-      store.createRecord('handle', { user });
+    let user = store.peekRecord('user', 1);
+    store.createRecord('handle', { user });
 
-      let serialized = user.serialize({ includeId: true });
+    let serialized = user.serialize({ includeId: true });
 
-      assert.deepEqual(serialized, {
-        data: {
-          type: 'users',
-          id: '1',
-          attributes: {
-            'first-name': null,
-            'last-name': null,
-            title: null,
-          },
-          relationships: {
-            handles: {
-              data: [
-                { type: 'handles', id: '1' },
-                { type: 'handles', id: '2' },
-              ],
-            },
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': null,
+          'last-name': null,
+          title: null,
+        },
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: '1' },
+              { type: 'handles', id: '2' },
+            ],
           },
         },
-      });
+      },
     });
   });
 
@@ -632,35 +611,33 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     let store = this.owner.lookup('service:store');
 
-    run(function () {
-      store.serializerFor('user').pushPayload(store, {
-        data: {
-          type: 'users',
-          id: '1',
+    store.serializerFor('user').pushPayload(store, {
+      data: {
+        type: 'users',
+        id: '1',
+      },
+    });
+
+    let user = store.peekRecord('user', 1);
+    store.createRecord('handle', { user });
+
+    let serialized = user.serialize({ includeId: true });
+
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': null,
+          'last-name': null,
+          title: null,
         },
-      });
-
-      let user = store.peekRecord('user', 1);
-      store.createRecord('handle', { user });
-
-      let serialized = user.serialize({ includeId: true });
-
-      assert.deepEqual(serialized, {
-        data: {
-          type: 'users',
-          id: '1',
-          attributes: {
-            'first-name': null,
-            'last-name': null,
-            title: null,
-          },
-          relationships: {
-            handles: {
-              data: [],
-            },
+        relationships: {
+          handles: {
+            data: [],
           },
         },
-      });
+      },
     });
   });
 

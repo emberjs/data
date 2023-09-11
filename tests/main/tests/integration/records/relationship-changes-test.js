@@ -1,4 +1,3 @@
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -211,62 +210,53 @@ module('integration/records/relationship-changes - Relationship changes', functi
     assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
   });
 
-  test('Calling push with relationship does not trigger observers if the relationship was not changed', function (assert) {
+  test('Calling push with relationship does not trigger observers if the relationship was not changed', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
-    let person = null;
     let observerCount = 0;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
-            },
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref],
           },
         },
-        included: [sibling1],
-      });
-      person = store.peekRecord('person', 'wat');
+      },
+      included: [sibling1],
     });
 
     const observerMethod = function () {
       observerCount++;
     };
 
-    run(() => {
-      // prime the pump
-      person.siblings;
-      person.addObserver('siblings.[]', observerMethod);
-    });
+    // prime the pump
+    person.siblings;
+    person.addObserver('siblings.[]', observerMethod);
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
-            },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {},
+        relationships: {
+          siblings: {
+            data: [sibling1Ref],
           },
         },
-        included: [],
-      });
+      },
+      included: [],
     });
 
-    run(() => {
-      assert.strictEqual(observerCount, 0, 'siblings observer should not be triggered');
-    });
+    await settled();
+    assert.strictEqual(observerCount, 0, 'siblings observer should not be triggered');
 
     person.removeObserver('siblings.[]', observerMethod);
   });

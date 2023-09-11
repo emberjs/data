@@ -1,8 +1,6 @@
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -36,7 +34,7 @@ class Car extends Model {
 
 function ajaxResponse(value) {
   return function (url, verb, hash) {
-    return resolve(deepCopy(value));
+    return Promise.resolve(deepCopy(value));
   };
 }
 
@@ -161,7 +159,10 @@ module('integration/store - destroy', function (hooks) {
 
     // ensure we make it into the adapter
     await arrivedPromise;
-    run(() => store.destroy());
+    store.destroy();
+    // can't use await settled() since pending promise
+    // is in the waiter system
+    await new Promise((r) => setTimeout(r, 0));
 
     // release the adapter promise
     next();
@@ -408,7 +409,7 @@ module('integration/store - findRecord', function (hooks) {
     adapter.findRecord = async () => {
       await timeout(1);
       if (calls++ < 2) {
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'car',
             id: '1',
@@ -504,7 +505,7 @@ module('integration/store - findRecord', function (hooks) {
       async findRecord() {
         calls++;
 
-        await resolve();
+        await Promise.resolve();
 
         return {
           data: {
@@ -732,7 +733,7 @@ module('integration/store - findRecord', function (hooks) {
     });
 
     adapter.ajax = async function () {
-      await resolve();
+      await Promise.resolve();
 
       return deepCopy({
         cars: [
@@ -784,7 +785,7 @@ module('integration/store - findAll', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.ajax = () => {
-      return resolve({
+      return Promise.resolve({
         cars: [
           {
             id: '1',
@@ -1018,7 +1019,7 @@ module('integration/store - findAll', function (hooks) {
     });
 
     adapter.ajax = () => {
-      return resolve({
+      return Promise.resolve({
         cars: [
           {
             id: '1',
@@ -1130,7 +1131,7 @@ module('integration/store - findAll', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.ajax = () => {
-      return resolve({
+      return Promise.resolve({
         cars: [
           {
             id: '20',

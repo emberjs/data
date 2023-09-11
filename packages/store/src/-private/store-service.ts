@@ -5,7 +5,6 @@
 import { getOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
-import { _backburner as emberBackburner } from '@ember/runloop';
 
 import type { Object as JSONObject } from 'json-typescript';
 
@@ -664,47 +663,45 @@ class Store extends EmberObject {
     //
     //   to remove this, we would need to move to a new `async` API.
     let record!: RecordInstance;
-    emberBackburner.join(() => {
-      this._join(() => {
-        let normalizedModelName = normalizeModelName(modelName);
-        let properties = { ...inputProperties };
+    this._join(() => {
+      let normalizedModelName = normalizeModelName(modelName);
+      let properties = { ...inputProperties };
 
-        // If the passed properties do not include a primary key,
-        // give the adapter an opportunity to generate one. Typically,
-        // client-side ID generators will use something like uuid.js
-        // to avoid conflicts.
+      // If the passed properties do not include a primary key,
+      // give the adapter an opportunity to generate one. Typically,
+      // client-side ID generators will use something like uuid.js
+      // to avoid conflicts.
 
-        if (properties.id === null || properties.id === undefined) {
-          let adapter = this.adapterFor(modelName, true);
+      if (properties.id === null || properties.id === undefined) {
+        let adapter = this.adapterFor(modelName, true);
 
-          if (adapter && adapter.generateIdForRecord) {
-            properties.id = adapter.generateIdForRecord(this, modelName, properties);
-          } else {
-            properties.id = null;
-          }
+        if (adapter && adapter.generateIdForRecord) {
+          properties.id = adapter.generateIdForRecord(this, modelName, properties);
+        } else {
+          properties.id = null;
         }
+      }
 
-        // Coerce ID to a string
-        properties.id = coerceId(properties.id);
-        const resource = { type: normalizedModelName, id: properties.id };
+      // Coerce ID to a string
+      properties.id = coerceId(properties.id);
+      const resource = { type: normalizedModelName, id: properties.id };
 
-        if (resource.id) {
-          const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
+      if (resource.id) {
+        const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
 
-          assert(
-            `The id ${String(properties.id)} has already been used with another '${normalizedModelName}' record.`,
-            !identifier
-          );
-        }
+        assert(
+          `The id ${String(properties.id)} has already been used with another '${normalizedModelName}' record.`,
+          !identifier
+        );
+      }
 
-        const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
-        const cache = this.cache;
+      const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
+      const cache = this.cache;
 
-        const createOptions = normalizeProperties(this, identifier, properties);
-        const resultProps = cache.clientDidCreate(identifier, createOptions);
+      const createOptions = normalizeProperties(this, identifier, properties);
+      const resultProps = cache.clientDidCreate(identifier, createOptions);
 
-        record = this._instanceCache.getRecord(identifier, resultProps);
-      });
+      record = this._instanceCache.getRecord(identifier, resultProps);
     });
     return record;
   }
@@ -738,9 +735,7 @@ class Store extends EmberObject {
       cache.setIsDeleted(identifier, true);
 
       if (cache.isNew(identifier)) {
-        emberBackburner.join(() => {
-          this._instanceCache.unloadRecord(identifier);
-        });
+        this._instanceCache.unloadRecord(identifier);
       }
     });
   }

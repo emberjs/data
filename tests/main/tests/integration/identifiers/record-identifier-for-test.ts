@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -37,7 +36,7 @@ module('Integration | Identifiers - recordIdentifierFor', function (hooks) {
   test(`Saving newly created records updates the associated id on the identifier`, async function (assert) {
     class TestAdapter extends Adapter {
       createRecord() {
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'user',
             id: '1',

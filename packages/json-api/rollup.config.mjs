@@ -22,11 +22,9 @@ export default {
     '@ember/object',
     '@ember/object/mixin',
     '@ember/polyfills',
-    '@ember/runloop',
     '@ember/service',
     '@ember/string',
     '@embroider/macros',
-    '@glimmer/env',
     'ember-inflector',
   ],
 

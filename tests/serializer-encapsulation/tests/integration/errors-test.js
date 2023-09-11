@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { reject } from 'rsvp';
 import Store from 'serializer-encapsulation-test-app/services/store';
 
 import { setupTest } from 'ember-qunit';
@@ -38,7 +37,7 @@ module(
     test('can retrieve errors after findRecord', async function (assert) {
       class TestAdapter extends JSONAPIAdapter {
         ajax(url, type) {
-          return reject({
+          return Promise.reject({
             errors: [
               {
                 status: '404',
@@ -67,7 +66,7 @@ module(
     test('can retrieve errors after save', async function (assert) {
       class TestAdapter extends JSONAPIAdapter {
         ajax(url, type) {
-          return reject({
+          return Promise.reject({
             errors: [
               {
                 status: '400',

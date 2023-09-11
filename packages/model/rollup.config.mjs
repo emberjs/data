@@ -32,9 +32,7 @@ export default {
     '@ember/object',
     '@ember/object/mixin',
     '@ember/application',
-    '@glimmer/env',
     '@glimmer/tracking',
-    '@ember/runloop',
     '@ember/polyfills',
   ],
 

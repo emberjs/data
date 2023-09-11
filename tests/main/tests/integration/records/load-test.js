@@ -2,7 +2,6 @@ import EmberObject from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -127,7 +126,7 @@ module('integration/load - Loading Records', function (hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         findRecord() {
-          return reject();
+          return Promise.reject();
         },
       })
     );
@@ -142,7 +141,7 @@ module('integration/load - Loading Records', function (hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         findRecord() {
-          return resolve({ data: null });
+          return Promise.resolve({ data: null });
         },
       })
     );
@@ -219,10 +218,10 @@ module('integration/load - Loading Records', function (hooks) {
           let payload = payloads.shift();
 
           if (payload === undefined) {
-            return reject(new Error('Invalid Request'));
+            return Promise.reject(new Error('Invalid Request'));
           }
 
-          return resolve(payload);
+          return Promise.resolve(payload);
         },
       })
     );

@@ -34,7 +34,6 @@
     "@ember-data/tracking": "workspace:5.4.0-alpha.12",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.1",
-    "@glimmer/env": "^0.1.7",
     "broccoli-merge-trees": "^4.2.0",
     "ember-auto-import": "^2.6.3",
     "ember-cli-babel": "^8.0.0",

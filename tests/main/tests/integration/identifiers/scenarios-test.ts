@@ -1,7 +1,6 @@
 import EmberObject, { set } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { all, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -55,7 +54,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
           calls.findRecord++;
         }
         isQuery = false;
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'user',
@@ -265,7 +264,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
           calls.findRecord++;
         }
         isQuery = false;
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'user',
@@ -457,7 +456,10 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const recordByUsernamePromise = store.findRecord('user', '@runspired');
       const recordByIdPromise = store.findRecord('user', '1');
 
-      const [recordByUsername, recordById] = (await all([recordByUsernamePromise, recordByIdPromise])) as [User, User];
+      const [recordByUsername, recordById] = (await Promise.all([recordByUsernamePromise, recordByIdPromise])) as [
+        User,
+        User,
+      ];
 
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const identifierById = recordIdentifierFor(recordById);
@@ -637,7 +639,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         if (hasSaved && id === '@runspired') {
           throw new Error(`No record found for the username @runspired`);
         }
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'user',
             id: '1',
@@ -650,7 +652,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       adapter.updateRecord = () => {
         hasSaved = true;
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'user',
             id: '1',

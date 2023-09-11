@@ -1,4 +1,5 @@
 import { get } from '@ember/object';
+// eslint-disable-next-line no-restricted-imports
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';

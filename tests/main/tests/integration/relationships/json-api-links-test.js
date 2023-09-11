@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -34,7 +33,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       'adapter:user',
       class extends JSONAPISerializer {
         findRecord(store, type, id) {
-          return resolve({
+          return Promise.resolve({
             data: {
               id,
               type: 'user',
@@ -53,7 +52,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       'adapter:organisation',
       class extends JSONAPISerializer {
         findRecord(store, type, id) {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'organisation',
               id,
@@ -155,7 +154,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
       findRecord(_, __, id) {
         assert.notStrictEqual(id, '1', `adapter findRecord called for all IDs except "1", called for "${id}"`);
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'pet',
             id,
@@ -225,7 +224,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -307,7 +306,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -391,7 +390,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -478,7 +477,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -548,7 +547,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -691,7 +690,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(deepCopy(payloads.pets));
       };
 
       // setup user
@@ -733,7 +732,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             'We fetched the appropriate link'
           );
         }
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(deepCopy(payloads.pets));
       };
 
       // setup user
@@ -781,7 +780,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             'We fetched the appropriate link'
           );
         }
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(deepCopy(payloads.home));
       };
 
       // setup user
@@ -820,7 +819,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           !homeRelWasEmpty && link === payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(deepCopy(payloads.home));
       };
 
       // setup user
@@ -992,7 +991,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(deepCopy(payloads.pets));
       };
 
       // setup user and pets
@@ -1024,7 +1023,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(deepCopy(payloads.pets));
       };
 
       // setup user and pets
@@ -1059,7 +1058,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(deepCopy(payloads.home));
       };
 
       // setup user and home
@@ -1094,7 +1093,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(deepCopy(payloads.home));
       };
 
       // setup user
@@ -1317,7 +1316,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1376,7 +1375,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1436,7 +1435,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1495,7 +1494,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1557,7 +1556,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1627,7 +1626,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1704,7 +1703,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1774,7 +1773,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1944,7 +1943,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         );
       }
 
-      return resolve({
+      return Promise.resolve({
         data: [],
       });
     };

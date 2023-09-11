@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -106,7 +105,7 @@ module('integration/records/property-changes - Property changes', function (hook
     let adapter = store.adapterFor('application');
 
     adapter.updateRecord = function (store, type, snapshot) {
-      return resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
+      return Promise.resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
     };
 
     store.push({

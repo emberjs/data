@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { Promise } from 'rsvp';
 
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';

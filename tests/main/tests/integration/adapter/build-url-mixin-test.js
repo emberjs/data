@@ -1,7 +1,6 @@
 import { decamelize, underscore } from '@ember/string';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { pluralize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
@@ -20,7 +19,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     adapter.ajax = function (url, verb, hash) {
       passedUrl = url;
 
-      return resolve(deepCopy(value));
+      return Promise.resolve(deepCopy(value));
     };
   }
 

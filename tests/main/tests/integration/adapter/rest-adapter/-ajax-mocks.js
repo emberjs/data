@@ -1,5 +1,3 @@
-import { resolve } from 'rsvp';
-
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 /**
@@ -19,9 +17,9 @@ function ajaxResponse(adapter, value) {
     passedHash = hash;
     passedUrl = passedHash.url;
     passedVerb = passedHash.method;
-    return resolve({
+    return Promise.resolve({
       text() {
-        return resolve(JSON.stringify(deepCopy(value)));
+        return Promise.resolve(JSON.stringify(deepCopy(value)));
       },
       ok: true,
       status: 200,
@@ -33,7 +31,7 @@ function ajaxResponse(adapter, value) {
     passedVerb = verb;
     passedHash = hash;
 
-    return resolve(deepCopy(value));
+    return Promise.resolve(deepCopy(value));
   };
 
   return () => {

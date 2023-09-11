@@ -6,7 +6,6 @@ import { click, find, findAll, render, rerender } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { hbs } from 'ember-cli-htmlbars';
 import { render as legacyRender } from 'ember-data/test-support';
@@ -59,13 +58,13 @@ class TestAdapter extends JSONAPIAdapter {
 
     if (payload === undefined) {
       this.assert.ok(false, 'Too many adapter requests have been made!');
-      return resolve({ data: null });
+      return Promise.resolve({ data: null });
     }
 
     if (payload instanceof ServerError) {
-      return reject(payload);
+      return Promise.reject(payload);
     }
-    return resolve(payload);
+    return Promise.resolve(payload);
   }
 
   // find by link

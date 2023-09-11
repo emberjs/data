@@ -1,7 +1,7 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { defer, resolve } from 'rsvp';
+import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -169,7 +169,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
         const record = snapshot.record as Cake;
         const cakeLid = recordIdentifierFor(record).lid;
         const ingredientLid = recordIdentifierFor(record.ingredients.at(0)).lid;
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'cake',
             id: '1',
@@ -254,7 +254,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
       createRecord(store, ModelClass, snapshot: Snapshot) {
         const record = snapshot.record as Cake;
         const lid = recordIdentifierFor(record.topping).lid;
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'cake',
             id: '1',

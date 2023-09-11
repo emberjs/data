@@ -5,7 +5,6 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
@@ -32,7 +31,7 @@ module('tracking state flags on a record', function (hooks) {
           tag.rev; // subscribe
           if (_isDirty && !_isUpdating) {
             _isUpdating = true;
-            resolve(desc.get.call(this)).then((v) => {
+            Promise.resolve(desc.get.call(this)).then((v) => {
               _value = v;
               _isDirty = false;
               tag.rev++;
@@ -128,7 +127,7 @@ module('tracking state flags on a record', function (hooks) {
     class Adapter {
       createRecord() {
         assert.ok(true, 'createRecord was called to save');
-        return resolve({ data: { type: 'person', id: `${serverId++}` } });
+        return Promise.resolve({ data: { type: 'person', id: `${serverId++}` } });
       }
       static create() {
         return new this();

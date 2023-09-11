@@ -1,4 +1,4 @@
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module } from 'qunit';
 
@@ -8,7 +8,7 @@ import Model from '@ember-data/model';
 import Store from '@ember-data/store';
 import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/store/asserts - DS.Store methods produce useful assertion messages', function (hooks) {
+module('unit/store/asserts - Store methods produce useful assertion messages', function (hooks) {
   setupTest(hooks);
   hooks.beforeEach(function () {
     let { owner } = this;
@@ -67,11 +67,12 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'serializerFor',
   ];
 
-  test('Calling Store methods after the store has been destroyed asserts', function (assert) {
+  test('Calling Store methods after the store has been destroyed asserts', async function (assert) {
     const store = new Store();
     store.shouldAssertMethodCallsOnDestroyedStore = true;
     assert.expect(STORE_ENTRY_METHODS.length);
-    run(() => store.destroy());
+    store.destroy();
+    await settled();
 
     STORE_ENTRY_METHODS.forEach((methodName) => {
       assert.expectAssertion(() => {

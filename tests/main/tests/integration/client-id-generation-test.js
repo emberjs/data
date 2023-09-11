@@ -1,7 +1,6 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -61,7 +60,7 @@ module('integration - Client Id Generation', function (hooks) {
 
       if (type === 'comment') {
         assert.strictEqual(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
-        return resolve({
+        return Promise.resolve({
           data: {
             type,
             id: snapshot.id,
@@ -69,7 +68,7 @@ module('integration - Client Id Generation', function (hooks) {
         });
       } else {
         assert.strictEqual(snapshot.id, 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
-        return resolve({
+        return Promise.resolve({
           data: {
             type,
             id: snapshot.id,
@@ -111,7 +110,7 @@ module('integration - Client Id Generation', function (hooks) {
 
       adapter.createRecord = function (store, type, record) {
         assert.strictEqual(typeof get(record, 'id'), 'object', 'correct type');
-        return resolve({ data: { id: id++, type: type.modelName } });
+        return Promise.resolve({ data: { id: id++, type: type.modelName } });
       };
 
       let comment = store.createRecord('misc');

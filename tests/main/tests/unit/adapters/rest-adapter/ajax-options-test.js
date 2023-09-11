@@ -1,7 +1,4 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
-import { Promise as EmberPromise, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -29,7 +26,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
     this.owner.register('serializer:application', RESTSerializer.extend());
   });
 
-  test('When an id is searched, the correct url should be generated', function (assert) {
+  test('When an id is searched, the correct url should be generated', async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -45,15 +42,14 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
         assert.strictEqual(url, '/places/1', 'should create the correct url');
       }
       count++;
-      return resolve();
+      return Promise.resolve();
     };
 
-    return run(() => {
-      return EmberPromise.all([adapter.findRecord(store, Person, 1, {}), adapter.findRecord(store, Place, 1, {})]);
-    });
+    await adapter.findRecord(store, Person, '1', {});
+    await adapter.findRecord(store, Place, '1', {});
   });
 
-  test(`id's should be sanatized`, function (assert) {
+  test(`id's should be sanatized`, async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -61,10 +57,10 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
 
     adapter.ajax = function (url, method) {
       assert.strictEqual(url, '/people/..%2Fplace%2F1', 'should create the correct url');
-      return resolve();
+      return Promise.resolve();
     };
 
-    return run(() => adapter.findRecord(store, Person, '../place/1', {}));
+    await adapter.findRecord(store, Person, '../place/1', {});
   });
 
   test('ajaxOptions() headers are set', function (assert) {
@@ -227,23 +223,21 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
     });
   });
 
-  test('_fetchRequest() returns a promise', function (assert) {
+  test('_fetchRequest() returns a promise', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     let noop = function () {};
 
-    return run(() => {
-      let fetchPlacePromise = adapter._fetchRequest({
-        url: '/places/1',
-        success: noop,
-        error: noop,
-      });
-
-      assert.strictEqual(typeof fetchPlacePromise.then, 'function', '_fetchRequest does not return a promise');
-
-      return fetchPlacePromise;
+    let fetchPlacePromise = adapter._fetchRequest({
+      url: '/places/1',
+      success: noop,
+      error: noop,
     });
+
+    assert.strictEqual(typeof fetchPlacePromise.then, 'function', '_fetchRequest does not return a promise');
+
+    await fetchPlacePromise;
   });
 
   module('ajax-options - ajax', function (hooks) {

@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import RSVP from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -198,7 +197,7 @@ module('integration/records/error', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.createRecord = () => {
-      return RSVP.reject(
+      return Promise.reject(
         new InvalidError([
           {
             detail: 'Must be unique',

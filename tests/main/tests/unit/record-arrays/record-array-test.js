@@ -1,5 +1,5 @@
 import { module, test } from 'qunit';
-import RSVP from 'rsvp';
+import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -87,7 +87,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('#update', async function (assert) {
     let findAllCalled = 0;
-    let deferred = RSVP.defer();
+    let deferred = defer();
 
     const store = {
       findAll(modelName, options) {
@@ -124,7 +124,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('#update while updating', async function (assert) {
     let findAllCalled = 0;
-    let deferred = RSVP.defer();
+    let deferred = defer();
     const store = {
       findAll(modelName, options) {
         findAllCalled++;

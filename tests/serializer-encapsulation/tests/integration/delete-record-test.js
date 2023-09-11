@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 import Store from 'serializer-encapsulation-test-app/services/store';
 
 import { setupTest } from 'ember-qunit';
@@ -81,7 +80,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
       _payloads = [..._payloads];
 
       ajax(url, type) {
-        return resolve(this._payloads.shift());
+        return Promise.resolve(this._payloads.shift());
       }
     }
     this.owner.register('adapter:application', TestAdapter);
@@ -158,7 +157,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
       _payloads = [..._payloads];
 
       ajax(url, type) {
-        return resolve(this._payloads.shift());
+        return Promise.resolve(this._payloads.shift());
       }
     }
     this.owner.register('adapter:application', TestAdapter);
@@ -222,7 +221,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
       _payloads = [..._payloads];
 
       ajax(url, type) {
-        return resolve(this._payloads.shift());
+        return Promise.resolve(this._payloads.shift());
       }
     }
     this.owner.register('adapter:application', TestAdapter);
