@@ -2,6 +2,7 @@
   An alternative render flush mechanism for glimmer
 */
 import { Renderer } from '@ember/-internals/glimmer';
+// eslint-disable-next-line no-restricted-imports
 import { _backburner } from '@ember/runloop';
 
 import * as RSVP from 'rsvp';
