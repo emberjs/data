@@ -121,6 +121,7 @@ module('integration/peeked-records', function (hooks) {
     let aNewlyCreatedRecord = store.createRecord('person', {
       name: 'James',
     });
+    await settled();
 
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
@@ -142,7 +143,10 @@ module('integration/peeked-records', function (hooks) {
     });
 
     let records = store.peekAll('person');
-    assert.strictEqual(records.length, 1);
+    assert.strictEqual(records.length, 1, 'we see the new record');
+
+    // we should not have notified the array yet because ember schedules this async
+    await settled();
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
     aNewlyCreatedRecord.unloadRecord();
@@ -163,6 +167,9 @@ module('integration/peeked-records', function (hooks) {
       name: 'James',
     });
 
+    // we should not have notified the array yet because ember schedules this async
+    await settled();
+
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
     aNewlyCreatedRecord.unloadRecord();
@@ -180,6 +187,8 @@ module('integration/peeked-records', function (hooks) {
     let aNewlyCreatedRecord = store.createRecord('person', {
       name: 'James',
     });
+
+    await settled();
 
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 

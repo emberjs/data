@@ -8,7 +8,7 @@ import Model from '@ember-data/model';
 import Store from '@ember-data/store';
 import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/store/asserts - DS.Store methods produce useful assertion messages', function (hooks) {
+module('unit/store/asserts - Store methods produce useful assertion messages', function (hooks) {
   setupTest(hooks);
   hooks.beforeEach(function () {
     let { owner } = this;
@@ -71,6 +71,7 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     const store = new Store();
     store.shouldAssertMethodCallsOnDestroyedStore = true;
     assert.expect(STORE_ENTRY_METHODS.length);
+    store.destroy();
     await settled();
 
     STORE_ENTRY_METHODS.forEach((methodName) => {
