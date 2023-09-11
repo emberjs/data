@@ -116,7 +116,7 @@
   "prHourlyLimit": 10,
   "vulnerabilityAlerts": {
     "labels": [
-      "security"
+      ":label: security"
     ],
     "automerge": false,
     "assignees": [
