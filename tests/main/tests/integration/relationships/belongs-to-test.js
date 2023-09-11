@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { hash } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -615,12 +614,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       },
     });
 
-    await hash({
-      message: store.findRecord('post', '1'),
-      comment: store.findRecord('comment', '2'),
-    }).then((records) => {
-      assert.strictEqual(records.comment.message, records.message);
-    });
+    const [message, comment] = await Promise.all([store.findRecord('post', '1'), store.findRecord('comment', '2')]);
+
+    assert.strictEqual(comment.message, message);
   });
 
   test('The store can serialize a polymorphic belongsTo association', async function (assert) {

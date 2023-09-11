@@ -1,13 +1,13 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 
@@ -79,8 +79,8 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
   });
 
   test(`A newly created record can receive a payload by lid (after save, before Adapter.createRecord resolves)`, async function (assert: Assert) {
-    const adapterPromise = defer();
-    const beganSavePromise = defer();
+    const adapterPromise = createDeferred();
+    const beganSavePromise = createDeferred();
     class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload: Record<string, unknown>) {
         return payload;
@@ -88,7 +88,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     }
     class TestAdapter extends Adapter {
       createRecord(store, ModelClass, snapshot: Snapshot) {
-        beganSavePromise.resolve();
+        beganSavePromise.resolve(void 0);
         return adapterPromise.promise.then(() => {
           return {
             data: {
@@ -138,7 +138,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
 
     assert.strictEqual(record.name, 'Chris', 'We use the in-flight name, rollback has no effect');
 
-    adapterPromise.resolve();
+    adapterPromise.resolve(void 0);
     await savePromise;
 
     assert.strictEqual(record.name, '@runspired', 'After we finish we use the most recent clean name');

@@ -76,7 +76,6 @@
     "@types/ember__owner": "^4.0.5",
     "@types/ember__utils": "^4.0.3",
     "@types/qunit": "^2.19.6",
-    "@types/rsvp": "^4.0.4",
     "broccoli-concat": "^4.2.5",
     "broccoli-merge-trees": "^4.2.0",
     "broccoli-stew": "^3.0.0",

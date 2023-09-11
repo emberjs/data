@@ -1,11 +1,11 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -157,7 +157,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is true while records are fetched', async function (assert) {
-    let findAllDeferred = defer();
+    let findAllDeferred = createDeferred();
     let adapter = store.adapterFor('person');
     adapter.findAll = () => findAllDeferred.promise;
     adapter.shouldReloadAll = () => true;
@@ -186,7 +186,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is true while records are fetched in the background', async function (assert) {
-    let findAllDeferred = defer();
+    let findAllDeferred = createDeferred();
     let adapter = store.adapterFor('person');
     adapter.findAll = () => {
       return findAllDeferred.promise;
@@ -223,7 +223,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is false if records are not fetched in the background', async function (assert) {
-    let findAllDeferred = defer();
+    let findAllDeferred = createDeferred();
     let adapter = store.adapterFor('person');
     adapter.findAll = () => {
       return findAllDeferred.promise;
