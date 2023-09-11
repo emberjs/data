@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 import Store from 'serializer-encapsulation-test-app/services/store';
 
 import { setupTest } from 'ember-qunit';
@@ -84,7 +83,7 @@ module('Serializer Contract | running requests for async relationships with mini
       coalesceFindRequests = true;
 
       ajax(url, type) {
-        return resolve({ data: [] });
+        return Promise.resolve({ data: [] });
       }
     }
     this.owner.register('adapter:application', TestAdapter);
@@ -158,7 +157,7 @@ module('Serializer Contract | running requests for async relationships with mini
       coalesceFindRequests = true;
 
       ajax(url, type) {
-        return resolve({ data: [] });
+        return Promise.resolve({ data: [] });
       }
     }
     this.owner.register('adapter:application', TestAdapter);
@@ -224,7 +223,7 @@ module('Serializer Contract | running requests for async relationships with mini
       coalesceFindRequests = true;
 
       ajax(url, type) {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'post',

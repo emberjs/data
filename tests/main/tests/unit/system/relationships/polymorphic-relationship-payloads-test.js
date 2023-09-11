@@ -1,5 +1,3 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -62,7 +60,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       included: [hatData1, bigHatData1, smallHatData1],
     };
 
-    const user = run(() => this.store.push(userData));
+    const user = this.store.push(userData);
 
     const finalResult = user.hats.map((r) => r.type);
 
@@ -117,7 +115,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       included,
     };
 
-    const user = run(() => this.store.push(userData)),
+    const user = this.store.push(userData),
       finalResult = user.hats.map((r) => r.type),
       expectedResults = included.map((m) => m.type);
 
@@ -173,7 +171,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       included,
     };
 
-    const user = run(() => this.store.push(userData)),
+    const user = this.store.push(userData),
       finalResult = user.hats.map((r) => r.type),
       expectedResults = included.map((m) => m.type);
 
@@ -229,7 +227,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     };
 
     const expectedAlienResults = alienIncluded.map((m) => m.type),
-      alien = run(() => this.store.push(alienData)),
+      alien = this.store.push(alienData),
       alienFinalHats = alien.hats.map((r) => r.type);
 
     assert.deepEqual(alienFinalHats, expectedAlienResults, 'We got all alien hats!');
@@ -303,13 +301,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       included: [bigHatData3, smallHatData3],
     };
 
-    const bigPerson = run(() => {
-      return this.store.push(bigPersonData);
-    });
-
-    const smallPerson = run(() => {
-      return this.store.push(smallPersonData);
-    });
+    const bigPerson = this.store.push(bigPersonData);
+    const smallPerson = this.store.push(smallPersonData);
 
     const finalBigResult = bigPerson.hats.slice();
     const finalSmallResult = smallPerson.hats.slice();
@@ -400,10 +393,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       { type: 'grownup', id: motherPayload.id },
     ];
     const expectedTwinReference = { type: 'girl', id: sisterPayload.id };
-
-    const boyInstance = run(() => {
-      return this.store.push(payload);
-    });
+    const boyInstance = this.store.push(payload);
 
     const familyResultReferences = boyInstance.family.slice().map((i) => {
       return { type: i.constructor.modelName, id: i.id };
@@ -500,10 +490,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       { type: 'grownup', id: motherPayload.id },
     ];
     const expectedTwinReference = { type: 'girl', id: sisterPayload.id };
-
-    const boyInstance = run(() => {
-      return this.store.push(payload);
-    });
+    const boyInstance = this.store.push(payload);
 
     const familyResultReferences = boyInstance.family.slice().map((i) => {
       return { type: i.constructor.modelName, id: i.id };
@@ -593,7 +580,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       },
     };
 
-    const hat = run(() => this.store.push(hatData));
+    const hat = this.store.push(hatData);
 
     const expectedHatReference = { id: '1', type: 'big-hat' };
     const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
@@ -629,32 +616,30 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     this.owner.register('model:big-hat', BigHat);
     this.owner.register('model:small-hat', SmallHat);
 
-    const user = run(() =>
-      this.store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          relationships: {
-            hats: {
-              data: [
-                { id: '1', type: 'big-hat' },
-                { id: '1', type: 'small-hat' },
-              ],
-            },
+    const user = this.store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        relationships: {
+          hats: {
+            data: [
+              { id: '1', type: 'big-hat' },
+              { id: '1', type: 'small-hat' },
+            ],
           },
         },
-        included: [
-          {
-            id: '1',
-            type: 'big-hat',
-          },
-          {
-            id: '1',
-            type: 'small-hat',
-          },
-        ],
-      })
-    );
+      },
+      included: [
+        {
+          id: '1',
+          type: 'big-hat',
+        },
+        {
+          id: '1',
+          type: 'small-hat',
+        },
+      ],
+    });
 
     const hats = user.hats;
 
@@ -683,34 +668,32 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     this.owner.register('model:big-hat', Hat.extend({}));
     this.owner.register('model:small-hat', Hat.extend({}));
 
-    const user = run(() =>
-      this.store.push({
-        data: {
+    const user = this.store.push({
+      data: {
+        id: '1',
+        type: 'user',
+      },
+      included: [
+        {
           id: '1',
-          type: 'user',
+          type: 'big-hat',
+          relationships: {
+            user: {
+              data: { id: '1', type: 'user' },
+            },
+          },
         },
-        included: [
-          {
-            id: '1',
-            type: 'big-hat',
-            relationships: {
-              user: {
-                data: { id: '1', type: 'user' },
-              },
+        {
+          id: '1',
+          type: 'small-hat',
+          relationships: {
+            user: {
+              data: { id: '1', type: 'user' },
             },
           },
-          {
-            id: '1',
-            type: 'small-hat',
-            relationships: {
-              user: {
-                data: { id: '1', type: 'user' },
-              },
-            },
-          },
-        ],
-      })
-    );
+        },
+      ],
+    });
 
     const hats = user.hats;
 
@@ -794,13 +777,8 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
       included: [bigHatData3, smallHatData3],
     };
 
-    const bigPerson = run(() => {
-      return this.store.push(bigPersonData);
-    });
-
-    const smallPerson = run(() => {
-      return this.store.push(smallPersonData);
-    });
+    const bigPerson = this.store.push(bigPersonData);
+    const smallPerson = this.store.push(smallPersonData);
 
     const finalBigResult = bigPerson.hats.slice();
     const finalSmallResult = smallPerson.hats.slice();
@@ -842,32 +820,30 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     );
 
     let runInvalidPush = () => {
-      return run(() => {
-        return this.store.push({
-          data: {
-            type: 'post',
-            id: '1',
-            relationships: {
-              comments: {
-                data: [{ type: 'comment', id: '1' }],
-              },
+      return this.store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              data: [{ type: 'comment', id: '1' }],
             },
           },
-          included: [
-            {
-              type: 'comment',
-              id: '1',
-              relationships: {
-                post: {
-                  data: {
-                    type: 'post',
-                    id: '1',
-                  },
+        },
+        included: [
+          {
+            type: 'comment',
+            id: '1',
+            relationships: {
+              post: {
+                data: {
+                  type: 'post',
+                  id: '1',
                 },
               },
             },
-          ],
-        });
+          },
+        ],
       });
     };
 

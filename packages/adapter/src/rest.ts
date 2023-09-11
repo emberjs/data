@@ -4,7 +4,6 @@
 import { getOwner } from '@ember/application';
 import { assert, warn } from '@ember/debug';
 import { computed } from '@ember/object';
-import { join } from '@ember/runloop';
 
 import { DEBUG } from '@ember-data/env';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
@@ -1542,12 +1541,12 @@ function execjQAjax(
   return new Promise((resolve, reject) => {
     hash.success = function (payload, textStatus, jqXHR) {
       let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
-      join(null, resolve, response);
+      resolve(response);
     };
 
     hash.error = function (jqXHR, textStatus, errorThrown) {
       let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
-      join(null, reject, error);
+      reject(error);
     };
 
     adapter._ajax(hash);

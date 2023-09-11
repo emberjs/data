@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 import Store from 'serializer-encapsulation-test-app/services/store';
 
 import { setupTest } from 'ember-qunit';
@@ -81,7 +80,7 @@ module('Serializer Contract | running createRecord with minimum serializer', fun
 
     class TestAdapter extends JSONAPIAdapter {
       ajax(url, type) {
-        return resolve({
+        return Promise.resolve({
           id: '1m',
           type: 'person',
           attributes: {
@@ -176,7 +175,7 @@ module('Serializer Contract | running createRecord with minimum serializer', fun
 
     class TestAdapter extends JSONAPIAdapter {
       ajax(url, type) {
-        return resolve({
+        return Promise.resolve({
           person: {
             id: '1m',
             type: 'person',

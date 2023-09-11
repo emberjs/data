@@ -1,9 +1,7 @@
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -157,7 +155,7 @@ module('unit/model - init properties', function (hooks) {
     let { adapter, store } = setupModels(this.owner, testState);
 
     adapter.findRecord = () => {
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'post',
           id: '1',
@@ -207,7 +205,7 @@ module('unit/model - init properties', function (hooks) {
     let { adapter, store } = setupModels(this.owner, testState);
 
     adapter.queryRecord = () => {
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'post',
           id: '1',
@@ -264,11 +262,9 @@ module('unit/model - init properties', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.createRecord('post', {
-        title: 'My Post',
-        randomProp: 'An unknown prop',
-      });
+    store.createRecord('post', {
+      title: 'My Post',
+      randomProp: 'An unknown prop',
     });
   });
 });

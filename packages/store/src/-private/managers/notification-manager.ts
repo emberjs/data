@@ -2,6 +2,7 @@
  * @module @ember-data/store
  */
 import { assert } from '@ember/debug';
+// eslint-disable-next-line no-restricted-imports
 import { _backburner } from '@ember/runloop';
 
 import { LOG_NOTIFICATIONS } from '@ember-data/debugging';

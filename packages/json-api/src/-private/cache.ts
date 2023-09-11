@@ -2,7 +2,6 @@
  * @module @ember-data/json-api
  */
 import { assert } from '@ember/debug';
-import { schedule } from '@ember/runloop';
 
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
@@ -996,11 +995,10 @@ export default class JSONAPICache implements Cache {
      * of a test won't cause issues.
      */
     if (this.__destroyedCache.size === 1) {
-      schedule('destroy', () => {
-        setTimeout(() => {
-          this.__destroyedCache.clear();
-        }, 100);
-      });
+      // TODO do we still need this?
+      setTimeout(() => {
+        this.__destroyedCache.clear();
+      }, 100);
     }
 
     if (!removed && removeFromRecordArray) {

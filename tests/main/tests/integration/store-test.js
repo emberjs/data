@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 

@@ -1,7 +1,3 @@
-/* eslint no-prototype-builtins: 'off' */
-// prototype hasOwnProperty has no security issues here because it is not production code
-
-import { run } from '@ember/runloop';
 import { underscore } from '@ember/string';
 
 import { module, test } from 'qunit';
@@ -13,6 +9,10 @@ import JSONSerializer from '@ember-data/serializer/json';
 import { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 import Transform from '@ember-data/serializer/transform';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
 
 module('integration/serializer/json - JSONSerializer', function (hooks) {
   setupTest(hooks);
@@ -91,9 +91,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     let post = store.createRecord('post', { title: 'Rails is omakase', comments: [] });
 
-    run(() => {
-      post.set('id', 'test');
-    });
+    post.set('id', 'test');
 
     let json = serializer.serialize(post._createSnapshot(), { includeId: true });
 
@@ -306,9 +304,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
       id: '1',
     });
 
-    run(function () {
-      post.comments.push(comment);
-    });
+    post.comments.push(comment);
 
     let json = {};
 
@@ -334,22 +330,20 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    let post = run(() =>
-      store.push({
-        data: {
-          id: '1',
-          type: 'post',
-          attributes: {
-            title: 'Rails is omakase',
-          },
+    let post = store.push({
+      data: {
+        id: '1',
+        type: 'post',
+        attributes: {
+          title: 'Rails is omakase',
         },
-      })
-    );
+      },
+    });
     let json = {};
 
     store.serializerFor('post').serializeHasMany(post._createSnapshot(), json, { key: 'comments', options: {} });
 
-    assert.notOk(json.hasOwnProperty('comments'), 'Does not add the relationship key to json');
+    assert.notOk(hasOwn(json, 'comments'), 'Does not add the relationship key to json');
   });
 
   test('shouldSerializeHasMany', function (assert) {
@@ -504,9 +498,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    run(function () {
-      store.serializerFor('post').normalizeResponse(store, store.modelFor('post'), posts, null, 'findAll');
-    });
+    store.serializerFor('post').normalizeResponse(store, store.modelFor('post'), posts, null, 'findAll');
 
     assert.strictEqual(postNormalizeCount, 2, 'two posts are normalized');
   });
@@ -609,17 +601,15 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    let parentPost = run(() =>
-      store.push({
-        data: {
-          type: 'post',
-          id: '2',
-          attributes: {
-            title: 'Rails is omakase',
-          },
+    let parentPost = store.push({
+      data: {
+        type: 'post',
+        id: '2',
+        attributes: {
+          title: 'Rails is omakase',
         },
-      })
-    );
+      },
+    });
     let post = store.createRecord('post', {
       title: 'Rails is omakase',
       parentPost: parentPost,
@@ -755,8 +745,8 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let post = store.createRecord('post', { title: 'Rails is omakase' });
     let payload = store.serializerFor('post').serialize(post._createSnapshot());
 
-    assert.notOk(payload.hasOwnProperty('title'), 'Does not add the key to instance');
-    assert.notOk(payload.hasOwnProperty('[object Object]'), 'Does not add some random key like [object Object]');
+    assert.notOk(hasOwn(payload, 'title'), 'Does not add the key to instance');
+    assert.notOk(hasOwn(payload, '[object Object]'), 'Does not add some random key like [object Object]');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function (assert) {
@@ -790,7 +780,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
 
     var payload = serializer.serialize(post._createSnapshot());
-    assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+    assert.notOk(hasOwn(payload, serializedProperty), 'Does not add the key to instance');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function (assert) {
@@ -824,7 +814,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
 
     var payload = serializer.serialize(comment._createSnapshot());
-    assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+    assert.notOk(hasOwn(payload, serializedProperty), 'Does not add the key to instance');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function (assert) {
@@ -858,7 +848,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
 
     var payload = serializer.serialize(post._createSnapshot());
-    assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+    assert.notOk(hasOwn(payload, serializedProperty), 'Does not add the key to instance');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function (assert) {
@@ -892,7 +882,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
 
     var payload = serializer.serialize(comment._createSnapshot());
-    assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+    assert.notOk(hasOwn(payload, serializedProperty), 'Does not add the key to instance');
   });
 
   test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', async function (assert) {
@@ -929,7 +919,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     const serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
     const payload = serializer.serialize(post._createSnapshot());
 
-    assert.ok(payload.hasOwnProperty(serializedProperty), 'Add the key to instance');
+    assert.ok(hasOwn(payload, serializedProperty), 'Add the key to instance');
   });
 
   test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` property', function (assert) {
@@ -963,7 +953,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
 
     var payload = serializer.serialize(comment._createSnapshot());
-    assert.ok(payload.hasOwnProperty(serializedProperty), 'Add the key to instance');
+    assert.ok(hasOwn(payload, serializedProperty), 'Add the key to instance');
   });
 
   test('Serializer should merge attrs from superclasses', function (assert) {

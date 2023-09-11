@@ -1,7 +1,7 @@
+// eslint-disable-next-line no-restricted-imports
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -189,7 +189,7 @@ module('unit/store/push - Store#push', function (hooks) {
     assert.strictEqual(person.lastName, 'Jackson', 'existing fields are untouched');
   });
 
-  test('Calling push with a normalized hash containing IDs of related records returns a record', function (assert) {
+  test('Calling push with a normalized hash containing IDs of related records returns a record', async function (assert) {
     assert.expect(1);
     const store = this.owner.lookup('service:store');
 
@@ -205,7 +205,7 @@ module('unit/store/push - Store#push', function (hooks) {
 
     adapter.findRecord = function (store, type, id) {
       if (id === '1') {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'phone-number',
@@ -220,7 +220,7 @@ module('unit/store/push - Store#push', function (hooks) {
       }
 
       if (id === '2') {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '2',
             type: 'phone-number',
@@ -235,42 +235,40 @@ module('unit/store/push - Store#push', function (hooks) {
       }
     };
 
-    return run(() => {
-      let normalized = store.normalize('person', {
-        id: 'wat',
-        type: 'person',
-        attributes: {
-          'first-name': 'John',
-          'last-name': 'Smith',
+    let normalized = store.normalize('person', {
+      id: 'wat',
+      type: 'person',
+      attributes: {
+        'first-name': 'John',
+        'last-name': 'Smith',
+      },
+      relationships: {
+        'phone-numbers': {
+          data: [
+            { id: '1', type: 'phone-number' },
+            { id: '2', type: 'phone-number' },
+          ],
         },
-        relationships: {
-          'phone-numbers': {
-            data: [
-              { id: '1', type: 'phone-number' },
-              { id: '2', type: 'phone-number' },
-            ],
-          },
-        },
-      });
-      let person = store.push(normalized);
+      },
+    });
+    let person = store.push(normalized);
 
-      return person.phoneNumbers.then((phoneNumbers) => {
-        let items = phoneNumbers.map((item) => {
-          return item ? item.getProperties('id', 'number', 'person') : null;
-        });
-        assert.deepEqual(items, [
-          {
-            id: '1',
-            number: '5551212',
-            person: person,
-          },
-          {
-            id: '2',
-            number: '5552121',
-            person: person,
-          },
-        ]);
+    await person.phoneNumbers.then((phoneNumbers) => {
+      let items = phoneNumbers.map((item) => {
+        return item ? item.getProperties('id', 'number', 'person') : null;
       });
+      assert.deepEqual(items, [
+        {
+          id: '1',
+          number: '5551212',
+          person: person,
+        },
+        {
+          id: '2',
+          number: '5552121',
+          person: person,
+        },
+      ]);
     });
   });
 

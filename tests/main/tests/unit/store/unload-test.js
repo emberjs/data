@@ -1,8 +1,6 @@
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -31,7 +29,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
       Adapter.extend({
         findRecord(store, type, id, snapshot) {
           tryToFind = true;
-          return resolve({
+          return Promise.resolve({
             data: { id, type: snapshot.modelName, attributes: { 'was-fetched': true } },
           });
         },
@@ -80,51 +78,45 @@ module('unit/store/unload - Store unloading records', function (hooks) {
     await promise;
   });
 
-  test('unload a record', function (assert) {
+  test('unload a record', async function (assert) {
     assert.expect(2);
 
-    return run(() => {
-      store.push({
-        data: {
-          type: 'record',
-          id: '1',
-          attributes: {
-            title: 'toto',
-          },
+    store.push({
+      data: {
+        type: 'record',
+        id: '1',
+        attributes: {
+          title: 'toto',
         },
-      });
-
-      return store.findRecord('record', 1).then((record) => {
-        assert.strictEqual(get(record, 'id'), '1', 'found record with id 1');
-
-        run(() => store.unloadRecord(record));
-
-        tryToFind = false;
-
-        return store.findRecord('record', 1).then(() => {
-          assert.true(tryToFind, 'not found record with id 1');
-        });
-      });
+      },
     });
+
+    const record = await store.findRecord('record', '1');
+    assert.strictEqual(get(record, 'id'), '1', 'found record with id 1');
+
+    store.unloadRecord(record);
+
+    tryToFind = false;
+
+    await store.findRecord('record', '1');
+    assert.true(tryToFind, 'not found record with id 1');
   });
 
-  test('unload followed by create of the same type + id', function (assert) {
+  test('unload followed by create of the same type + id', async function (assert) {
     let record = store.createRecord('record', { id: '1' });
 
     assert.strictEqual(store.peekRecord('record', 1), record, 'record should exactly equal');
 
-    return run(() => {
-      record.unloadRecord();
-      let createdRecord = store.createRecord('record', { id: '1' });
-      assert.notStrictEqual(record, createdRecord, 'newly created record is fresh (and was created)');
-    });
+    record.unloadRecord();
+    let createdRecord = store.createRecord('record', { id: '1' });
+    assert.notStrictEqual(record, createdRecord, 'newly created record is fresh (and was created)');
   });
 });
 
 module('Store - unload record with relationships', function (hooks) {
   setupTest(hooks);
 
-  test('can commit store after unload record with relationships', function (assert) {
+  test('can commit store after unload record with relationships', async function (assert) {
     assert.expect(1);
 
     const Brand = Model.extend({
@@ -155,8 +147,11 @@ module('Store - unload record with relationships', function (hooks) {
     this.owner.register(
       'adapter:application',
       Adapter.extend({
+        shouldBackgroundReloadRecord() {
+          return false;
+        },
         findRecord(store, type, id, snapshot) {
-          return resolve({
+          return Promise.resolve({
             data: {
               id: '1',
               type: snapshot.modelName,
@@ -169,56 +164,51 @@ module('Store - unload record with relationships', function (hooks) {
         },
 
         createRecord(store, type, snapshot) {
-          return resolve();
+          return Promise.resolve();
         },
       })
     );
 
     let store = this.owner.lookup('service:store');
 
-    return run(() => {
-      store.push({
-        data: [
-          {
-            type: 'brand',
-            id: '1',
-            attributes: {
-              name: 'EmberJS',
+    store.push({
+      data: [
+        {
+          type: 'brand',
+          id: '1',
+          attributes: {
+            name: 'EmberJS',
+          },
+        },
+        {
+          type: 'product',
+          id: '1',
+          attributes: {
+            description: 'toto',
+          },
+          relationships: {
+            brand: {
+              data: { type: 'brand', id: '1' },
             },
           },
-          {
-            type: 'product',
-            id: '1',
-            attributes: {
-              description: 'toto',
-            },
-            relationships: {
-              brand: {
-                data: { type: 'brand', id: '1' },
-              },
-            },
-          },
-        ],
-      });
+        },
+      ],
+    });
 
-      let product = store.peekRecord('product', 1);
-      let like = store.createRecord('like', { id: '1', product: product });
+    let product = store.peekRecord('product', 1);
+    let like = store.createRecord('like', { id: '1', product: product });
 
-      return like.save();
-    })
-      .then(() => {
-        // TODO: this is strange, future travelers please address
-        run(() => store.unloadRecord(store.peekRecord('product', 1)));
-      })
-      .then(() => {
-        return store.findRecord('product', 1);
-      })
-      .then((product) => {
-        assert.strictEqual(
-          product.description,
-          'cuisinart',
-          "The record was unloaded and the adapter's `findRecord` was called"
-        );
-      });
+    await like.save();
+
+    // TODO: this is strange, future travelers please address
+    store.unloadRecord(product);
+
+    product = await store.findRecord('product', '1');
+
+    assert.strictEqual(
+      product.description,
+      'cuisinart',
+      "The record was unloaded and the adapter's `findRecord` was called"
+    );
   });
 });

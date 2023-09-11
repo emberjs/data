@@ -1,4 +1,5 @@
 import EmberObject from '@ember/object';
+// eslint-disable-next-line no-restricted-imports
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -469,8 +470,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     );
   });
 
-  test('The store can materialize a non loaded monomorphic belongsTo association', function (assert) {
-    assert.expect(1);
+  test('The store can materialize a non loaded monomorphic belongsTo association', async function (assert) {
+    assert.expect(2);
 
     class Post extends Model {
       @attr('string') title;
@@ -493,28 +494,24 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       });
     };
 
-    run(() => {
-      store.push({
-        data: {
-          id: '1',
-          type: 'post',
-          relationships: {
-            user: {
-              data: {
-                id: '2',
-                type: 'user',
-              },
+    store.push({
+      data: {
+        id: '1',
+        type: 'post',
+        relationships: {
+          user: {
+            data: {
+              id: '2',
+              type: 'user',
             },
           },
         },
-      });
+      },
     });
 
-    return run(() => {
-      return store.findRecord('post', 1).then((post) => {
-        post.user;
-      });
-    });
+    const post = await store.findRecord('post', '1');
+    const user = await post.user;
+    assert.strictEqual(user.id, '2', 'The post should have a user now');
   });
 
   testInDebug('Invalid belongsTo relationship identifiers throw errors for null id', function (assert) {

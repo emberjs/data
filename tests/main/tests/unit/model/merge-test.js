@@ -1,7 +1,4 @@
-import { next, run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
-import { Promise as EmberPromise, reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -25,7 +22,7 @@ module('unit/model/merge - Merging', function (hooks) {
     this.store = this.owner.lookup('service:store');
   });
 
-  test('When a record is in flight, changes can be made', function (assert) {
+  test('When a record is in flight, changes can be made', async function (assert) {
     assert.expect(3);
 
     const ApplicationAdapter = Adapter.extend({
@@ -37,161 +34,144 @@ module('unit/model/merge - Merging', function (hooks) {
     this.owner.register('adapter:application', ApplicationAdapter);
 
     let person = this.store.createRecord('person', { name: 'Tom Dale' });
+    let save = person.save();
 
-    // Make sure saving isn't resolved synchronously
-    return run(() => {
-      let save = person.save();
+    assert.strictEqual(person.name, 'Tom Dale');
 
-      assert.strictEqual(person.name, 'Tom Dale');
+    person.set('name', 'Thomas Dale');
 
-      person.set('name', 'Thomas Dale');
-
-      return save.then((person) => {
-        assert.true(person.hasDirtyAttributes, 'The person is still dirty');
-        assert.strictEqual(person.name, 'Thomas Dale', 'The changes made still apply');
-      });
+    await save.then((person) => {
+      assert.true(person.hasDirtyAttributes, 'The person is still dirty');
+      assert.strictEqual(person.name, 'Thomas Dale', 'The changes made still apply');
     });
   });
 
-  test('Make sure snapshot is created at save time not at flush time', function (assert) {
+  test('Make sure snapshot is created at save time not at flush time', async function (assert) {
     assert.expect(5);
 
     const ApplicationAdapter = Adapter.extend({
       updateRecord(store, type, snapshot) {
         assert.strictEqual(snapshot.attr('name'), 'Thomas Dale');
 
-        return resolve();
+        return Promise.resolve();
       },
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person;
-    run(() => {
-      person = this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom',
-          },
+    let person = this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom',
         },
-      });
-      person.set('name', 'Thomas Dale');
+      },
     });
+    person.set('name', 'Thomas Dale');
 
-    return run(() => {
-      let promise = person.save();
+    let promise = person.save();
 
-      assert.strictEqual(person.name, 'Thomas Dale');
+    assert.strictEqual(person.name, 'Thomas Dale');
 
-      person.set('name', 'Tomasz Dale');
+    person.set('name', 'Tomasz Dale');
 
-      assert.strictEqual(person.name, 'Tomasz Dale', 'the local changes applied on top');
+    assert.strictEqual(person.name, 'Tomasz Dale', 'the local changes applied on top');
 
-      return promise.then((person) => {
-        assert.true(person.hasDirtyAttributes, 'The person is still dirty');
-        assert.strictEqual(person.name, 'Tomasz Dale', 'The local changes apply');
-      });
+    await promise.then((person) => {
+      assert.true(person.hasDirtyAttributes, 'The person is still dirty');
+      assert.strictEqual(person.name, 'Tomasz Dale', 'The local changes apply');
     });
   });
 
-  test('When a record is in flight, pushes are applied underneath the in flight changes', function (assert) {
+  test('When a record is in flight, pushes are applied underneath the in flight changes', async function (assert) {
     assert.expect(6);
 
     const ApplicationAdapter = Adapter.extend({
       updateRecord(store, type, snapshot) {
         // Make sure saving isn't resolved synchronously
-        return new EmberPromise((resolve) => {
-          next(null, resolve, {
-            data: {
-              id: '1',
-              type: 'person',
-              attributes: { name: 'Senor Thomas Dale, Esq.', city: 'Portland' },
-            },
-          });
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({
+              data: {
+                id: '1',
+                type: 'person',
+                attributes: { name: 'Senor Thomas Dale, Esq.', city: 'Portland' },
+              },
+            });
+          }, 0);
         });
       },
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person;
-
-    run(() => {
-      person = this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom',
-          },
+    let person = this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom',
         },
-      });
-      person.set('name', 'Thomas Dale');
+      },
+    });
+    person.set('name', 'Thomas Dale');
+
+    const promise = person.save();
+
+    assert.strictEqual(person.name, 'Thomas Dale');
+
+    person.set('name', 'Tomasz Dale');
+
+    this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tommy Dale',
+          city: 'PDX',
+        },
+      },
     });
 
-    return run(() => {
-      var promise = person.save();
+    assert.strictEqual(person.name, 'Tomasz Dale', 'the local changes applied on top');
+    assert.strictEqual(person.city, 'PDX', 'the pushed change is available');
 
-      assert.strictEqual(person.name, 'Thomas Dale');
-
-      person.set('name', 'Tomasz Dale');
-
-      this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tommy Dale',
-            city: 'PDX',
-          },
-        },
-      });
-
-      assert.strictEqual(person.name, 'Tomasz Dale', 'the local changes applied on top');
-      assert.strictEqual(person.city, 'PDX', 'the pushed change is available');
-
-      return promise.then((person) => {
-        assert.true(person.hasDirtyAttributes, 'The person is still dirty');
-        assert.strictEqual(person.name, 'Tomasz Dale', 'The local changes apply');
-        assert.strictEqual(person.city, 'Portland', 'The updates from the server apply on top of the previous pushes');
-      });
+    await promise.then((person) => {
+      assert.true(person.hasDirtyAttributes, 'The person is still dirty');
+      assert.strictEqual(person.name, 'Tomasz Dale', 'The local changes apply');
+      assert.strictEqual(person.city, 'Portland', 'The updates from the server apply on top of the previous pushes');
     });
   });
 
   test('When a record is dirty, pushes are overridden by local changes', function (assert) {
     let person;
 
-    run(() => {
-      person = this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom Dale',
-            city: 'San Francisco',
-          },
+    person = this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
+          city: 'San Francisco',
         },
-      });
-      person.set('name', 'Tomasz Dale');
+      },
     });
+    person.set('name', 'Tomasz Dale');
 
     assert.true(person.hasDirtyAttributes, 'the person is currently dirty');
     assert.strictEqual(person.name, 'Tomasz Dale', 'the update was effective');
     assert.strictEqual(person.city, 'San Francisco', 'the original data applies');
 
-    run(() => {
-      this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Thomas Dale',
-            city: 'Portland',
-          },
+    this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Thomas Dale',
+          city: 'Portland',
         },
-      });
+      },
     });
 
     assert.true(person.hasDirtyAttributes, 'the local changes are reapplied');
@@ -202,25 +182,21 @@ module('unit/model/merge - Merging', function (hooks) {
   test('When a record is invalid, pushes are overridden by local changes', async function (assert) {
     const ApplicationAdapter = Adapter.extend({
       updateRecord() {
-        return reject(new InvalidError());
+        return Promise.reject(new InvalidError());
       },
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person;
-
-    run(() => {
-      person = this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Brendan McLoughlin',
-            city: 'Boston',
-          },
+    let person = this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Brendan McLoughlin',
+          city: 'Boston',
         },
-      });
+      },
     });
 
     person.set('name', 'Brondan McLoughlin');
@@ -236,17 +212,15 @@ module('unit/model/merge - Merging', function (hooks) {
     assert.strictEqual(person.name, 'Brondan McLoughlin', 'the update was effective');
     assert.strictEqual(person.city, 'Boston', 'the original data applies');
 
-    run(() => {
-      this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'bmac',
-            city: 'Prague',
-          },
+    this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'bmac',
+          city: 'Prague',
         },
-      });
+      },
     });
 
     assert.true(person.hasDirtyAttributes, 'the local changes are reapplied');
@@ -255,7 +229,7 @@ module('unit/model/merge - Merging', function (hooks) {
     assert.strictEqual(person.city, 'Prague', 'if there are no local changes, the new data applied');
   });
 
-  test('A record with no changes can still be saved', function (assert) {
+  test('A record with no changes can still be saved', async function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -266,26 +240,21 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = run(() => {
-      return this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom Dale',
-          },
+    let person = this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
         },
-      });
+      },
     });
 
-    return run(() => {
-      return person.save().then((foo) => {
-        assert.strictEqual(person.name, 'Thomas Dale', 'the updates occurred');
-      });
-    });
+    await person.save();
+    assert.strictEqual(person.name, 'Thomas Dale', 'the updates occurred');
   });
 
-  test('A dirty record can be reloaded', function (assert) {
+  test('A dirty record can be reloaded', async function (assert) {
     assert.expect(3);
 
     const ApplicationAdapter = Adapter.extend({
@@ -298,27 +267,21 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person;
-
-    run(() => {
-      person = this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom Dale',
-          },
+    let person = this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
         },
-      });
-      person.set('name', 'Tomasz Dale');
+      },
     });
+    person.set('name', 'Tomasz Dale');
 
-    return run(() => {
-      return person.reload().then(() => {
-        assert.true(person.hasDirtyAttributes, 'the person is dirty');
-        assert.strictEqual(person.name, 'Tomasz Dale', 'the local changes remain');
-        assert.strictEqual(person.city, 'Portland', 'the new changes apply');
-      });
+    await person.reload().then(() => {
+      assert.true(person.hasDirtyAttributes, 'the person is dirty');
+      assert.strictEqual(person.name, 'Tomasz Dale', 'the local changes remain');
+      assert.strictEqual(person.city, 'Portland', 'the new changes apply');
     });
   });
 });

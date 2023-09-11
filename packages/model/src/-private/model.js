@@ -5,7 +5,6 @@
 import { assert, warn } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
-import { run } from '@ember/runloop';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
@@ -734,9 +733,7 @@ class Model extends EmberObject {
       return Promise.resolve(this);
     }
     return this.save(options).then((_) => {
-      run(() => {
-        this.unloadRecord();
-      });
+      this.unloadRecord();
       return this;
     });
   }
