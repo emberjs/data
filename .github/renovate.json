@@ -3,7 +3,7 @@
   "extends": [
     "config:base"
   ],
-  "labels": ["changelog:dependencies"],
+  "labels": [":dependabot:", "changelog:dependencies"],
   "packageRules": [
     {
       "matchPackagePatterns": [
