@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { hash } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -233,10 +232,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       ],
     });
 
-    let { tom, yehuda } = await hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
+    let [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     tom.set('name', 'Draaaaaahm Dale');
     yehuda.set('name', 'Goy Katz');
@@ -309,10 +305,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       ],
     });
 
-    let { tom, yehuda } = await hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
+    let { tom, yehuda } = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     assert.false(tom.isDeleted, 'Tom is not deleted');
     assert.false(yehuda.isDeleted, 'Yehuda is not deleted');

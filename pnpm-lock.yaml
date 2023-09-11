@@ -65,9 +65,6 @@ importers:
       '@types/qunit':
         specifier: ^2.19.6
         version: 2.19.6
-      '@types/rsvp':
-        specifier: ^4.0.4
-        version: 4.0.4
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.6.0
         version: 6.6.0(@typescript-eslint/parser@6.6.0)(eslint@8.48.0)(typescript@5.2.2)
@@ -1890,9 +1887,6 @@ importers:
       '@types/ember__owner':
         specifier: ^4.0.5
         version: 4.0.5
-      '@types/rsvp':
-        specifier: ^4.0.4
-        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1998,9 +1992,6 @@ importers:
       '@types/ember__owner':
         specifier: ^4.0.5
         version: 4.0.5
-      '@types/rsvp':
-        specifier: ^4.0.4
-        version: 4.0.4
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2624,9 +2615,6 @@ importers:
       '@types/qunit':
         specifier: ^2.19.6
         version: 2.19.6
-      '@types/rsvp':
-        specifier: ^4.0.4
-        version: 4.0.4
       broccoli-concat:
         specifier: ^4.2.5
         version: 4.2.5
@@ -14361,9 +14349,6 @@ packages:
     peerDependencies:
       route-recognizer: ^0.3.4
       rsvp: ^4.8.5
-    peerDependenciesMeta:
-      rsvp:
-        optional: true
     dependencies:
       '@glimmer/env': 0.1.7
       route-recognizer: 0.3.4

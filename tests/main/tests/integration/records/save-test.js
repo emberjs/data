@@ -1,13 +1,13 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -29,7 +29,7 @@ module('integration/records/save - Save Record', function (hooks) {
     let adapter = store.adapterFor('application');
     let post = store.createRecord('post', { title: 'toto' });
 
-    const deferred = defer();
+    const deferred = createDeferred();
     adapter.createRecord = function (store, type, snapshot) {
       return deferred.promise;
     };

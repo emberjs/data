@@ -1,7 +1,6 @@
 import { get, set } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { hash } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -117,14 +116,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let tom = store.createRecord('person', { name: 'Tom Dale' });
     let yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
 
-    let promise = hash({
-      tom: tom.save(),
-      yehuda: yehuda.save(),
-    });
-
-    let records = await promise;
-    tom = records.tom;
-    yehuda = records.yehuda;
+    [tom, yehuda] = await Promise.all([tom.save(), yehuda.save()]);
 
     assert.strictEqual(
       tom,
@@ -184,25 +176,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
-
-    let records1 = await promise;
-    let tom = records1.tom;
-    let yehuda = records1.yehuda;
+    let [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     set(tom, 'name', 'Tom Dale');
     set(yehuda, 'name', 'Yehuda Katz');
 
-    let records2 = await hash({
-      tom: tom.save(),
-      yehuda: yehuda.save(),
-    });
-
-    let tom2 = records2.tom;
-    let yehuda2 = records2.yehuda;
+    let [tom2, yehuda2] = await Promise.all([tom.save(), yehuda.save()]);
 
     assert.false(tom2.isSaving, 'record is no longer saving');
     assert.true(tom2.isLoaded, 'record is loaded');
@@ -319,19 +298,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
-
-    let records = await promise;
-    let tom = records.tom;
-    let yehuda = records.yehuda;
+    let [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     tom.deleteRecord();
     yehuda.deleteRecord();
 
-    return Promise.all([tom.save(), yehuda.save()]);
+    await Promise.all([tom.save(), yehuda.save()]);
   });
 
   test('by default, destroyRecord calls deleteRecord once per record without requiring .save', async function (assert) {
@@ -379,16 +351,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
+    let [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
-    let records = await promise;
-    let tom = records.tom;
-    let yehuda = records.yehuda;
-
-    return Promise.all([tom.destroyRecord(), yehuda.destroyRecord()]);
+    await Promise.all([tom.destroyRecord(), yehuda.destroyRecord()]);
   });
 
   test('if an existing model is edited then deleted, deleteRecord is called on the adapter', async function (assert) {

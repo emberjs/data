@@ -1,12 +1,12 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 
@@ -110,7 +110,7 @@ module('integration/references/record', function (hooks) {
     let store = this.owner.lookup('service:store');
     let Person = store.modelFor('person');
 
-    let deferred = defer();
+    let deferred = createDeferred();
     let recordReference = store.getReference('person', 1);
 
     let pushed = recordReference.push(deferred.promise);

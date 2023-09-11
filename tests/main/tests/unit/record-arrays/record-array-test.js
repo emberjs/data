@@ -1,10 +1,10 @@
 import { module, test } from 'qunit';
-import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import { FetchManager, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import Model, { attr } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import { recordIdentifierFor } from '@ember-data/store';
 import { RecordArray, SOURCE } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -87,7 +87,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('#update', async function (assert) {
     let findAllCalled = 0;
-    let deferred = defer();
+    let deferred = createDeferred();
 
     const store = {
       findAll(modelName, options) {
@@ -124,7 +124,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('#update while updating', async function (assert) {
     let findAllCalled = 0;
-    let deferred = defer();
+    let deferred = createDeferred();
     const store = {
       findAll(modelName, options) {
         findAllCalled++;

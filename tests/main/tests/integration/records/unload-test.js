@@ -1,12 +1,8 @@
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
-
-import { get } from '@ember/object';
 // eslint-disable-next-line no-restricted-imports
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { all, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -207,8 +203,6 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       ],
     });
-    let adam = store.peekRecord('person', 1);
-    let bob = store.peekRecord('person', 2);
 
     car = store.push({
       data: {
@@ -225,7 +219,6 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       },
     });
-    bob = store.peekRecord('car', 1);
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded');
     assert.strictEqual(store.peekAll('car').length, 1, 'one car record loaded');
@@ -274,8 +267,6 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       ],
     });
-    let adam = store.peekRecord('person', '1');
-    let bob = store.peekRecord('person', '2');
 
     store.push({
       data: {
@@ -292,7 +283,6 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       },
     });
-    bob = store.peekRecord('car', '1');
 
     assert.strictEqual(store.peekAll('person').length, 2, 'two person records loaded');
     assert.strictEqual(store.peekAll('car').length, 1, 'one car record loaded');
@@ -736,7 +726,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should be 1');
     assert.strictEqual(relationshipState.additions, null, 'additions should be empty');
     assert.strictEqual(relationshipState.removals, null, 'removals should be empty');
-    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
+    assert.strictEqual(peopleBoats.length, 1, 'Our person has a boat');
     assert.strictEqual(peopleBoats.at(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
 
@@ -746,7 +736,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
     assert.strictEqual(relationshipState.additions, null, 'additions should be empty');
     assert.strictEqual(relationshipState.removals, null, 'removals should be empty');
-    assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
+    assert.strictEqual(peopleBoats.length, 0, 'Our person thinks they have no boats');
 
     store.push({
       data: makeBoatOneForPersonOne(),
@@ -758,7 +748,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should still be 1');
     assert.strictEqual(relationshipState.additions, null, 'additions should be empty');
     assert.strictEqual(relationshipState.removals, null, 'removals should be empty');
-    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has their boats');
+    assert.strictEqual(peopleBoats.length, 1, 'Our person has their boats');
   });
 
   test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via relationship reload)', async function (assert) {
@@ -767,7 +757,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     adapter.findRecord = (store, type, id) => {
       assert.strictEqual(type.modelName, 'boat', 'We refetch the boat');
       assert.strictEqual(id, '1', 'We refetch the right boat');
-      return resolve({
+      return Promise.resolve({
         data: makeBoatOneForPersonOne(),
       });
     };
@@ -854,7 +844,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
-    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
+    assert.strictEqual(peopleBoats.length, 1, 'Our person has a boat');
     assert.strictEqual(peopleBoats.at(0), boat, 'Our person has the right boat');
     assert.strictEqual(boatPerson, person, 'Our boat has the right person');
 
@@ -863,7 +853,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     // ensure that our new state is correct
     assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should still be 1');
     assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should still be 1');
-    assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
+    assert.strictEqual(peopleBoats.length, 0, 'Our person thinks they have no boats');
 
     store.push({
       data: makeBoatOneForPersonOne(),
@@ -873,7 +863,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
-    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person thas their boat');
+    assert.strictEqual(peopleBoats.length, 1, 'Our person thas their boat');
 
     // and now the kicker, run-loop fun!
     //   here, we will dematerialize the record, but push it back into the store
@@ -891,7 +881,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.notStrictEqual(boat, null, 'we have a boat');
     assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
-    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person thas their boat');
+    assert.strictEqual(peopleBoats.length, 1, 'Our person thas their boat');
 
     // and the other way too!
     // and now the kicker, run-loop fun!
@@ -1128,7 +1118,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     // stub findRecord
     adapter.findRecord = () => {
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'person',
           id: '1',
@@ -1169,7 +1159,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('after unloading a record, the record can be saved again immediately', async function (assert) {
-    assert.expect(0);
+    assert.expect(1);
 
     const data = {
       data: {
@@ -1181,7 +1171,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       },
     };
 
-    adapter.createRecord = () => resolve(data);
+    adapter.createRecord = () => Promise.resolve(data);
 
     // add an initial record with id '1' to the store
     store.push(data);
@@ -1191,6 +1181,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     // create a new record that will again get id '1' from the backend
     await store.createRecord('person').save();
+    assert.ok(true, 'it worked');
   });
 
   test('after unloading a record, pushing a new copy will setup relationships', function (assert) {
@@ -1222,9 +1213,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       });
     }
 
-    run(() => {
-      store.push(personData);
-    });
+    store.push(personData);
 
     let adam = store.peekRecord('person', 1);
     assert.strictEqual(adam.cars.length, 0, 'cars hasMany starts off empty');
@@ -2015,7 +2004,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     const person1Friends = await person1.friends;
     const [person3, person4] = person1Friends.slice();
 
-    await all([person2.friends, person3.friends, person4.friends]);
+    await Promise.all([person2.friends, person3.friends, person4.friends]);
 
     assert.deepEqual(person1.hasMany('friends').ids(), ['3', '4'], 'initially relationship established lhs');
     assert.deepEqual(person2.hasMany('friends').ids(), ['3', '4'], 'initially relationship established lhs');

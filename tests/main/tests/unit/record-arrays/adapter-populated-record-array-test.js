@@ -1,9 +1,9 @@
 import { module, skip, test } from 'qunit';
-import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import { AdapterPopulatedRecordArray, RecordArrayManager, SOURCE } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -64,7 +64,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
   test('#update uses _update enabling query specific behavior', async function (assert) {
     let queryCalled = 0;
-    let deferred = defer();
+    let deferred = createDeferred();
 
     const store = {
       query(modelName, query, options) {

@@ -1,4 +1,3 @@
-import { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -2137,7 +2136,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     });
     post.set('comments', store.peekAll('comment').slice());
 
-    assert.strictEqual(get(post, 'comments.length'), 2, 'we can set HM relationship');
+    assert.strictEqual(post.comments.length, 2, 'we can set HM relationship');
   });
 
   test('We can set records ASYNC HM relationship', async function (assert) {
@@ -2197,7 +2196,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     comment = store.createRecord('comment');
     post.comments.push(comment);
     await post.save();
-    assert.strictEqual(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
+    assert.strictEqual(post.comments.length, 1, "The unsaved comment should be in the post's comments array");
   });
 
   test('dual non-async HM <-> BT', async function (assert) {
@@ -3272,7 +3271,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
 
     await book1.chapters.then((chapters) => {
       let meta = chapters.meta;
-      assert.strictEqual(get(meta, 'foo'), 'bar', 'metadata should available');
+      assert.strictEqual(meta.foo, 'bar', 'metadata should available');
 
       return book2.chapters.then((chapters) => {
         let meta = chapters.meta;
@@ -3790,7 +3789,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     user = store.peekRecord('user', 'user-1');
     message = store.peekRecord('message', 'message-1');
 
-    assert.strictEqual(get(user, 'messages.length'), 2);
+    assert.strictEqual(user.messages.length, 2);
 
     await message.destroyRecord();
 
@@ -3811,7 +3810,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     });
 
     assert.deepEqual(
-      get(user, 'messages').map((r) => r.id),
+      user.messages.map((r) => r.id),
       ['message-2', 'message-3'],
       'user should have 2 message since 1 was deleted'
     );

@@ -1,10 +1,10 @@
 import { module, test } from 'qunit';
-import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 class Person extends Model {
@@ -35,7 +35,7 @@ module('unit/store/finders', function (hooks) {
   test('findRecord does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
-    let deferedFind = defer();
+    let deferedFind = createDeferred();
 
     this.owner.register(
       'adapter:person',
@@ -68,7 +68,7 @@ module('unit/store/finders', function (hooks) {
   test('findMany does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
-    let deferedFind = defer();
+    let deferedFind = createDeferred();
 
     this.owner.register(
       'adapter:person',
@@ -106,7 +106,7 @@ module('unit/store/finders', function (hooks) {
   test('findHasMany does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
-    let deferedFind = defer();
+    let deferedFind = createDeferred();
 
     this.owner.register(
       'adapter:person',
@@ -159,7 +159,7 @@ module('unit/store/finders', function (hooks) {
   test('findBelongsTo does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
-    let deferedFind = defer();
+    let deferedFind = createDeferred();
 
     this.owner.register(
       'adapter:person',
@@ -208,7 +208,7 @@ module('unit/store/finders', function (hooks) {
   test('findAll does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
-    let deferedFind = defer();
+    let deferedFind = createDeferred();
 
     this.owner.register(
       'adapter:person',
@@ -241,7 +241,7 @@ module('unit/store/finders', function (hooks) {
   test('query does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
-    let deferedFind = defer();
+    let deferedFind = createDeferred();
 
     this.owner.register(
       'adapter:person',
@@ -274,7 +274,7 @@ module('unit/store/finders', function (hooks) {
   test('queryRecord does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
-    let deferedFind = defer();
+    let deferedFind = createDeferred();
 
     this.owner.register(
       'adapter:person',
