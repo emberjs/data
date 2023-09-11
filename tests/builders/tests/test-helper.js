@@ -1,3 +1,5 @@
+import { setApplication } from '@ember/test-helpers';
+
 import * as QUnit from 'qunit';
 
 import { start } from 'ember-qunit';
@@ -6,12 +8,17 @@ import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-suppo
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';
 
+import Application from '../app';
+import config from '../config/environment';
+
 // Handle testing feature flags
 if (QUnit.urlParams.enableoptionalfeatures) {
   window.EmberDataENV = { ENABLE_OPTIONAL_FEATURES: true };
 }
 
 configureAsserts();
+
+setApplication(Application.create(config.APP));
 
 assertAllDeprecations();
 

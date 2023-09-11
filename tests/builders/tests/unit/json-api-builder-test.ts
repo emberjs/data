@@ -1,13 +1,18 @@
 import { module, test } from 'qunit';
 
-import { findRecord, query } from '@ember-data/json-api/request';
+import { setupTest } from 'ember-qunit';
+
+import { createRecord, findRecord, query } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
+import Store from '@ember-data/store';
 
 import { headersToObject } from '../helpers/utils';
 
 const JSON_API_HEADERS = { accept: 'application/vnd.api+json', 'content-type': 'application/vnd.api+json' };
 
 module('JSON:API | Request Builders', function (hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function () {
     setBuildURLConfig({ host: 'https://api.example.com', namespace: 'api/v1' });
   });
@@ -106,6 +111,29 @@ module('JSON:API | Request Builders', function (hooks) {
         op: 'query',
       },
       `query works with type and options`
+    );
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+  });
+
+  test('createRecord', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const record = { type: 'user-setting' };
+    const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
+    // TODO: This still fails: `is not a record instantiated by @ember-data/store`
+    const result = createRecord(userSettingIdentifier);
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/user-settings',
+        method: 'POST',
+        headers: new Headers(JSON_API_HEADERS),
+        op: 'createRecord',
+        data: {
+          record,
+        },
+      },
+      `createRecord works with record object passed`
     );
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
