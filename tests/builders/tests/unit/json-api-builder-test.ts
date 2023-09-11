@@ -1,8 +1,8 @@
-import { module, test } from 'qunit';
+import { module, skip, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { createRecord, findRecord, query } from '@ember-data/json-api/request';
+import { createRecord, deleteRecord, findRecord, query, updateRecord } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import Store from '@ember-data/store';
 
@@ -115,10 +115,12 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('createRecord', function (assert) {
+  test('createRecord with identifier', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const record = { type: 'user-setting' };
     const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
+
+    console.log({ userSettingIdentifier });
     // TODO: This still fails: `is not a record instantiated by @ember-data/store`
     const result = createRecord(userSettingIdentifier);
 
@@ -133,7 +135,79 @@ module('JSON:API | Request Builders', function (hooks) {
           record,
         },
       },
-      `createRecord works with record object passed`
+      `createRecord works with record identifier passed`
+    );
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+  });
+
+  // Do we need this?
+  skip('createRecord with store record object', function (assert) {});
+
+  skip('updateRecord with identifier', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const record = { type: 'user-setting' };
+    const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
+
+    const result = updateRecord(userSettingIdentifier);
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/user-settings',
+        method: 'PUT',
+        headers: new Headers(JSON_API_HEADERS),
+        op: 'updateRecord',
+        data: {
+          record,
+        },
+      },
+      `updateRecord works with record identifier passed`
+    );
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+  });
+
+  skip('updateRecord with PATCH method', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const record = { type: 'user-setting' };
+    const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
+
+    const result = updateRecord(userSettingIdentifier, { patch: true });
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/user-settings',
+        method: 'PATCH',
+        headers: new Headers(JSON_API_HEADERS),
+        op: 'updateRecord',
+        data: {
+          record,
+        },
+      },
+      `updateRecord works with patch option`
+    );
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+  });
+
+  skip('deleteRecord with identifier', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const record = { type: 'user-setting' };
+    const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
+
+    const result = deleteRecord(userSettingIdentifier);
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/user-settings',
+        method: 'DELETE',
+        headers: new Headers(JSON_API_HEADERS),
+        op: 'deleteRecord',
+        data: {
+          record,
+        },
+      },
+      `deleteRecord works with patch option`
     );
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
