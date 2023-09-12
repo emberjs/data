@@ -64,6 +64,6 @@ module('parseCacheControl', function (hooks) {
     await assert.expectAssertion(() => {
       const header = 'max-age="3600"';
       parseCacheControl(header);
-    }, /some useful error about why passing number in quotes is forbidden and would not work/);
+    }, /Assertion Failed: Invalid Cache-Control value, expected a number but got - "3600"/);
   });
 });

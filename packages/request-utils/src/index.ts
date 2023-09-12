@@ -518,6 +518,12 @@ export function parseCacheControl(header: string): CacheControlValue {
   let isParsingKey = true;
   let cacheControlValue: CacheControlValue = {};
 
+  function parseCacheControlValue(stringToParse: string): number {
+    const parsedValue = Number.parseInt(stringToParse);
+    assert(`Invalid Cache-Control value, expected a number but got - ${stringToParse}`, !Number.isNaN(parsedValue));
+    return parsedValue;
+  }
+
   for (let i = 0; i < header.length; i++) {
     let char = header.charAt(i);
     if (char === ',') {
@@ -527,7 +533,7 @@ export function parseCacheControl(header: string): CacheControlValue {
         i === 0 || header.charAt(i - 1) !== '='
       );
       isParsingKey = true;
-      cacheControlValue[key] = NUMERIC_KEYS.has(key) ? Number.parseInt(value) : true;
+      cacheControlValue[key] = NUMERIC_KEYS.has(key) ? parseCacheControlValue(value) : true;
       key = '';
       value = '';
       continue;
@@ -543,7 +549,7 @@ export function parseCacheControl(header: string): CacheControlValue {
     }
 
     if (i === header.length - 1) {
-      cacheControlValue[key] = NUMERIC_KEYS.has(key) ? Number.parseInt(value) : true;
+      cacheControlValue[key] = NUMERIC_KEYS.has(key) ? parseCacheControlValue(value) : true;
     }
   }
 
