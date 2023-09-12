@@ -7,21 +7,21 @@ module('filterEmpty', function () {
     assert.deepEqual(filterEmpty({}), {});
   });
 
-  test('it returns an object with only truthy values', function (assert) {
+  test('it returns an object with truthy values and meaningful falsy values like `false` and `0`', function (assert) {
     assert.deepEqual(
       filterEmpty({
         foo: 'bar',
         baz: null,
         zero: 0,
+        booleanFalse: false,
         emptyArray: [],
         fullArray: [1, 2, 3],
-        // arrayOfEmptyArray: [[]],
-        // arrayWithEmptyArray: [[], [1, 2, 3]],
       }),
       {
+        zero: 0,
+        booleanFalse: false,
         foo: 'bar',
         fullArray: [1, 2, 3],
-        // arrayWithEmptyArray: [[], [1, 2, 3]],
       }
     );
   });

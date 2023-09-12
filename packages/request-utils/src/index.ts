@@ -350,7 +350,8 @@ export function filterEmpty(source: Record<string, Serializable>): Record<string
   const result: Record<string, Serializable> = {};
   for (const key in source) {
     const value = source[key];
-    if (value) {
+    // Allow falsy values except for undefined and null
+    if (value !== undefined && value !== null) {
       if (!Array.isArray(value) || value.length > 0) {
         result[key] = source[key];
       }
