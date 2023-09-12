@@ -14,6 +14,7 @@ module('filterEmpty', function () {
         baz: null,
         zero: 0,
         booleanFalse: false,
+        emptyString: '',
         emptyArray: [],
         fullArray: [1, 2, 3],
       }),
