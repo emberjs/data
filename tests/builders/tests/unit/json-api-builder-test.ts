@@ -1,4 +1,4 @@
-import { module, skip, test } from 'qunit';
+import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
@@ -6,6 +6,7 @@ import { createRecord, deleteRecord, findRecord, query, updateRecord } from '@em
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
+import UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
 
 const JSON_API_HEADERS = { accept: 'application/vnd.api+json', 'content-type': 'application/vnd.api+json' };
@@ -153,7 +154,7 @@ module('JSON:API | Request Builders', function (hooks) {
     };
     store.push(expectedData);
 
-    const userSetting = store.peekRecord('user-setting', '12');
+    const userSetting = store.peekRecord('user-setting', '12') as UserSetting;
     const identifier = recordIdentifierFor(userSetting);
 
     userSetting.name = 'test2';
@@ -190,7 +191,7 @@ module('JSON:API | Request Builders', function (hooks) {
     };
     store.push(expectedData);
 
-    const userSetting = store.peekRecord('user-setting', '12');
+    const userSetting = store.peekRecord('user-setting', '12') as UserSetting;
     const identifier = recordIdentifierFor(userSetting);
 
     userSetting.name = 'test2';
