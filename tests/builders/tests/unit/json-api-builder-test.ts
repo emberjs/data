@@ -4,7 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import { createRecord, deleteRecord, findRecord, query, updateRecord } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
-import Store from '@ember-data/store';
+import Store, { recordIdentifierFor } from '@ember-data/store';
 
 import { headersToObject } from '../helpers/utils';
 
@@ -115,14 +115,13 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('createRecord with identifier', function (assert) {
+  test('createRecord with store.createRecord', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const record = { type: 'user-setting' };
-    const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
-
-    console.log({ userSettingIdentifier });
-    // TODO: This still fails: `is not a record instantiated by @ember-data/store`
-    const result = createRecord(userSettingIdentifier);
+    const userSetting = store.createRecord('user-setting', {
+      name: 'test',
+    });
+    const identifier = recordIdentifierFor(userSetting);
+    const result = createRecord(userSetting);
 
     assert.deepEqual(
       result,
@@ -132,83 +131,120 @@ module('JSON:API | Request Builders', function (hooks) {
         headers: new Headers(JSON_API_HEADERS),
         op: 'createRecord',
         data: {
-          record,
+          record: identifier,
         },
       },
       `createRecord works with record identifier passed`
     );
-    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 
-  // Do we need this?
-  skip('createRecord with store record object', function (assert) {});
-
-  skip('updateRecord with identifier', function (assert) {
+  test('updateRecord with identifier', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const record = { type: 'user-setting' };
-    const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
 
-    const result = updateRecord(userSettingIdentifier);
+    const expectedData = {
+      data: {
+        id: '12',
+        type: 'user-setting',
+        attributes: {
+          name: 'test',
+        },
+      },
+    };
+    store.push(expectedData);
+
+    const userSetting = store.peekRecord('user-setting', '12');
+    const identifier = recordIdentifierFor(userSetting);
+
+    userSetting.name = 'test2';
+
+    const result = updateRecord(userSetting);
 
     assert.deepEqual(
       result,
       {
-        url: 'https://api.example.com/api/v1/user-settings',
+        url: 'https://api.example.com/api/v1/user-settings/12',
         method: 'PUT',
         headers: new Headers(JSON_API_HEADERS),
         op: 'updateRecord',
         data: {
-          record,
+          record: identifier,
         },
       },
       `updateRecord works with record identifier passed`
     );
-    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 
-  skip('updateRecord with PATCH method', function (assert) {
+  test('updateRecord with PATCH method', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const record = { type: 'user-setting' };
-    const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
 
-    const result = updateRecord(userSettingIdentifier, { patch: true });
+    const expectedData = {
+      data: {
+        id: '12',
+        type: 'user-setting',
+        attributes: {
+          name: 'test',
+        },
+      },
+    };
+    store.push(expectedData);
+
+    const userSetting = store.peekRecord('user-setting', '12');
+    const identifier = recordIdentifierFor(userSetting);
+
+    userSetting.name = 'test2';
+
+    const result = updateRecord(userSetting, { patch: true });
 
     assert.deepEqual(
       result,
       {
-        url: 'https://api.example.com/api/v1/user-settings',
+        url: 'https://api.example.com/api/v1/user-settings/12',
         method: 'PATCH',
         headers: new Headers(JSON_API_HEADERS),
         op: 'updateRecord',
         data: {
-          record,
+          record: identifier,
         },
       },
       `updateRecord works with patch option`
     );
-    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 
-  skip('deleteRecord with identifier', function (assert) {
+  test('deleteRecord with identifier', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const record = { type: 'user-setting' };
-    const userSettingIdentifier = store.identifierCache.getOrCreateRecordIdentifier(record);
 
-    const result = deleteRecord(userSettingIdentifier);
+    const expectedData = {
+      data: {
+        id: '12',
+        type: 'user-setting',
+        attributes: {
+          name: 'test',
+        },
+      },
+    };
+    store.push(expectedData);
+
+    const userSetting = store.peekRecord('user-setting', '12');
+    const identifier = recordIdentifierFor(userSetting);
+
+    const result = deleteRecord(userSetting);
 
     assert.deepEqual(
       result,
       {
-        url: 'https://api.example.com/api/v1/user-settings',
+        url: 'https://api.example.com/api/v1/user-settings/12',
         method: 'DELETE',
         headers: new Headers(JSON_API_HEADERS),
         op: 'deleteRecord',
         data: {
-          record,
+          record: identifier,
         },
       },
       `deleteRecord works with patch option`
     );
-    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 });
