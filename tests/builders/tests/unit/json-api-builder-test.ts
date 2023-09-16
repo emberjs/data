@@ -116,7 +116,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('createRecord with store.createRecord', function (assert) {
+  test('createRecord passing store record', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const userSetting = store.createRecord('user-setting', {
       name: 'test',
@@ -140,7 +140,31 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 
-  test('updateRecord with identifier', function (assert) {
+  test('createRecord passing store record and options', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const userSetting = store.createRecord('user-setting', {
+      name: 'test',
+    });
+    const identifier = recordIdentifierFor(userSetting);
+    const result = createRecord(userSetting, { resourcePath: 'user-settings/new' });
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/user-settings/new',
+        method: 'POST',
+        headers: new Headers(JSON_API_HEADERS),
+        op: 'createRecord',
+        data: {
+          record: identifier,
+        },
+      },
+      `createRecord works with record identifier passed`
+    );
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
+  });
+
+  test('updateRecord passing store record', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
 
     const expectedData = {

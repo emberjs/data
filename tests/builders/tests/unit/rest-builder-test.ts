@@ -1,13 +1,19 @@
 import { module, test } from 'qunit';
 
-import { setBuildURLConfig } from '@ember-data/request-utils';
-import { findRecord, query } from '@ember-data/rest/request';
+import { setupTest } from 'ember-qunit';
 
+import { setBuildURLConfig } from '@ember-data/request-utils';
+import { createRecord, deleteRecord, findRecord, query, updateRecord } from '@ember-data/rest/request';
+import Store, { recordIdentifierFor } from '@ember-data/store';
+
+import UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
 
 const REST_HEADERS = { 'content-type': 'application/json; charset=utf-8' };
 
 module('REST | Request Builders', function (hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function () {
     setBuildURLConfig({ host: 'https://api.example.com', namespace: 'api/v1' });
   });
@@ -108,5 +114,162 @@ module('REST | Request Builders', function (hooks) {
       `query works with type and options`
     );
     assert.deepEqual(headersToObject(result.headers), REST_HEADERS);
+  });
+
+  test('createRecord passing store record', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const userSetting = store.createRecord('user-setting', {
+      name: 'test',
+    });
+    const identifier = recordIdentifierFor(userSetting);
+    const result = createRecord(userSetting);
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/userSettings',
+        method: 'POST',
+        headers: new Headers(REST_HEADERS),
+        op: 'createRecord',
+        data: {
+          record: identifier,
+        },
+      },
+      `createRecord works with record identifier passed`
+    );
+    assert.deepEqual(headersToObject(result.headers), REST_HEADERS, "headers are set to REST API's");
+  });
+
+  test('createRecord passing store record and options', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const userSetting = store.createRecord('user-setting', {
+      name: 'test',
+    });
+    const identifier = recordIdentifierFor(userSetting);
+    const result = createRecord(userSetting, { resourcePath: 'userSettings/new' });
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/userSettings/new',
+        method: 'POST',
+        headers: new Headers(REST_HEADERS),
+        op: 'createRecord',
+        data: {
+          record: identifier,
+        },
+      },
+      `createRecord works with record identifier passed`
+    );
+    assert.deepEqual(headersToObject(result.headers), REST_HEADERS, "headers are set to REST API's");
+  });
+
+  test('updateRecord passing store record', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+
+    const expectedData = {
+      data: {
+        id: '12',
+        type: 'user-setting',
+        attributes: {
+          name: 'test',
+        },
+      },
+    };
+    store.push(expectedData);
+
+    const userSetting = store.peekRecord('user-setting', '12') as UserSetting;
+    const identifier = recordIdentifierFor(userSetting);
+
+    userSetting.name = 'test2';
+
+    const result = updateRecord(userSetting);
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/userSettings/12',
+        method: 'PUT',
+        headers: new Headers(REST_HEADERS),
+        op: 'updateRecord',
+        data: {
+          record: identifier,
+        },
+      },
+      `updateRecord works with record identifier passed`
+    );
+    assert.deepEqual(headersToObject(result.headers), REST_HEADERS, "headers are set to REST API's");
+  });
+
+  test('updateRecord with PATCH method', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+
+    const expectedData = {
+      data: {
+        id: '12',
+        type: 'user-setting',
+        attributes: {
+          name: 'test',
+        },
+      },
+    };
+    store.push(expectedData);
+
+    const userSetting = store.peekRecord('user-setting', '12') as UserSetting;
+    const identifier = recordIdentifierFor(userSetting);
+
+    userSetting.name = 'test2';
+
+    const result = updateRecord(userSetting, { patch: true });
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/userSettings/12',
+        method: 'PATCH',
+        headers: new Headers(REST_HEADERS),
+        op: 'updateRecord',
+        data: {
+          record: identifier,
+        },
+      },
+      `updateRecord works with patch option`
+    );
+    assert.deepEqual(headersToObject(result.headers), REST_HEADERS, "headers are set to REST API's");
+  });
+
+  test('deleteRecord with identifier', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+
+    const expectedData = {
+      data: {
+        id: '12',
+        type: 'user-setting',
+        attributes: {
+          name: 'test',
+        },
+      },
+    };
+    store.push(expectedData);
+
+    const userSetting = store.peekRecord('user-setting', '12');
+    const identifier = recordIdentifierFor(userSetting);
+
+    const result = deleteRecord(userSetting);
+
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/userSettings/12',
+        method: 'DELETE',
+        headers: new Headers(REST_HEADERS),
+        op: 'deleteRecord',
+        data: {
+          record: identifier,
+        },
+      },
+      `deleteRecord works with patch option`
+    );
+    assert.deepEqual(headersToObject(result.headers), REST_HEADERS, "headers are set to REST API's");
   });
 });

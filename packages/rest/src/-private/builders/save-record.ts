@@ -139,7 +139,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
 export function createRecord(record: unknown, options: ConstrainedRequestOptions = {}): CreateRequestOptions {
   const identifier = recordIdentifierFor(record);
   assert(`Expected to be given a record instance`, identifier);
-  assert(`Cannot delete a record that does not have an associated type and id.`, isExisting(identifier));
+  // assert(`Cannot delete a record that does not have an associated type and id.`, isExisting(identifier));
 
   const urlOptions: CreateRecordUrlOptions = {
     identifier: identifier,
