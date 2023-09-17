@@ -139,8 +139,6 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
 export function createRecord(record: unknown, options: ConstrainedRequestOptions = {}): CreateRequestOptions {
   const identifier = recordIdentifierFor(record);
   assert(`Expected to be given a record instance`, identifier);
-  // TODO: seems to be wrong assert here, at least message is confusing
-  // assert(`Cannot delete a record that does not have an associated type and id.`, isExisting(identifier));
 
   const urlOptions: CreateRecordUrlOptions = {
     identifier: identifier,
@@ -217,7 +215,7 @@ export function updateRecord(
 ): UpdateRequestOptions {
   const identifier = recordIdentifierFor(record);
   assert(`Expected to be given a record instance`, identifier);
-  assert(`Cannot delete a record that does not have an associated type and id.`, isExisting(identifier));
+  assert(`Cannot update a record that does not have an associated type and id.`, isExisting(identifier));
 
   const urlOptions: UpdateRecordUrlOptions = {
     identifier: identifier,
