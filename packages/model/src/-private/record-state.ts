@@ -373,7 +373,7 @@ export default class RecordState {
   @tagged
   get isDirty() {
     let rd = this.cache;
-    if (rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
+    if (this.isEmpty || rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
     }
     return this.isDeleted || this.isNew || rd.hasChangedAttrs(this.identifier);
