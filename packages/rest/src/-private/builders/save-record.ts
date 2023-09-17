@@ -34,6 +34,11 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * import { deleteRecord } from '@ember-data/rest/request';
  *
  * const person = this.store.peekRecord('person', '1');
+ *
+ * // mark record as deleted
+ * store.deleteRecord(person);
+ *
+ * // persist deletion
  * const data = await store.request(deleteRecord(person));
  * ```
  *
@@ -52,9 +57,14 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { createRecord } from '@ember-data/rest/request';
+ * import { deleteRecord } from '@ember-data/rest/request';
  *
  * const person = this.store.peekRecord('person', '1');
+ *
+ * // mark record as deleted
+ * store.deleteRecord(person);
+ *
+ * // persist deletion
  * const options = deleteRecord(person, { namespace: 'api/v1' });
  * const data = await store.request(options);
  * ```
