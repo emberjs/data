@@ -1,3 +1,5 @@
+import { assert } from '@ember/debug';
+
 import type {
   Future,
   Handler,
@@ -7,14 +9,16 @@ import type {
   StructuredErrorDocument,
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import {
+import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   ResourceErrorDocument,
 } from '@ember-data/types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
-import { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '@ember-data/types/request';
 
 import { Document } from './document';
 
@@ -151,6 +155,8 @@ function maybeUpdateUiObjects<T>(
   }
 }
 
+const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
+
 function calcShouldFetch(
   store: Store,
   request: StoreRequestInfo,
@@ -159,6 +165,7 @@ function calcShouldFetch(
 ): boolean {
   const { cacheOptions } = request;
   return (
+    (request.op && MUTATION_OPS.has(request.op)) ||
     cacheOptions?.reload ||
     !hasCachedValue ||
     (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier) : false)
@@ -179,6 +186,12 @@ function calcShouldBackgroundFetch(
   );
 }
 
+function isMutation(
+  request: Partial<StoreRequestInfo>
+): request is UpdateRequestOptions | CreateRequestOptions | DeleteRequestOptions {
+  return Boolean(request.op && MUTATION_OPS.has(request.op));
+}
+
 function fetchContentAndHydrate<T>(
   next: NextFn<T>,
   context: StoreRequestContext,
@@ -189,13 +202,26 @@ function fetchContentAndHydrate<T>(
   const { store } = context.request;
   const shouldHydrate: boolean =
     (context.request[Symbol.for('ember-data:enable-hydration')] as boolean | undefined) || false;
-  return next(context.request).then(
+
+  let isMut = false;
+  if (isMutation(context.request)) {
+    isMut = true;
+    const record = context.request.data?.record;
+    assert(`Expected to receive a list of records included in the ${context.request.op} request`, record);
+    store.cache.willCommit(record, context);
+  }
+
+  const promise = next(context.request).then(
     (document) => {
       store.requestManager._pending.delete(context.id);
       store._enableAsyncFlush = true;
       let response: ResourceDataDocument;
       store._join(() => {
-        response = store.cache.put(document) as ResourceDataDocument;
+        if (isMutation(context.request)) {
+          response = store.cache.didCommit(context.request.data.record, document) as ResourceDataDocument;
+        } else {
+          response = store.cache.put(document) as ResourceDataDocument;
+        }
         response = maybeUpdateUiObjects(
           store,
           context.request,
@@ -219,34 +245,60 @@ function fetchContentAndHydrate<T>(
       }
       store.requestManager._pending.delete(context.id);
       store._enableAsyncFlush = true;
-      let response: ResourceErrorDocument;
+      let response: ResourceErrorDocument | undefined;
       store._join(() => {
-        response = store.cache.put(error) as ResourceErrorDocument;
-        response = maybeUpdateUiObjects(
-          store,
-          context.request,
-          { shouldHydrate, shouldFetch, shouldBackgroundFetch, identifier },
-          response,
-          false
-        );
+        if (isMutation(context.request)) {
+          // TODO similar to didCommit we should spec this to be similar to cache.put for handling full response
+          // currently we let the response remain undefiend.
+          const errors =
+            error &&
+            error.content &&
+            typeof error.content === 'object' &&
+            'errors' in error.content &&
+            Array.isArray(error.content.errors)
+              ? (error.content.errors as JsonApiError[])
+              : undefined;
+          store.cache.commitWasRejected(context.request.data.record, errors);
+          // re-throw the original error to preserve `errors` property.
+          throw error;
+        } else {
+          response = store.cache.put(error) as ResourceErrorDocument;
+          response = maybeUpdateUiObjects(
+            store,
+            context.request,
+            { shouldHydrate, shouldFetch, shouldBackgroundFetch, identifier },
+            response,
+            false
+          );
+        }
       });
       store._enableAsyncFlush = null;
 
       if (!shouldBackgroundFetch) {
         const newError = cloneError(error);
-        newError.content = response!;
+        newError.content = response;
         throw newError;
       } else {
         store.notifications._flush();
       }
     }
   ) as Promise<T>;
+
+  if (!isMut) {
+    return promise;
+  }
+  assert(`Expected a mutation`, isMutation(context.request));
+
+  // for mutations we need to enqueue the promise with the requestStateService
+  return store._requestCache._enqueue(promise, {
+    data: [{ op: 'saveRecord', recordIdentifier: context.request.data.record, options: undefined }],
+  });
 }
 
 function cloneError(error: Error & { error: string | object }) {
-  const cloned: Error & { error: string | object; content: object } = new Error(error.message) as Error & {
+  const cloned: Error & { error: string | object; content?: object } = new Error(error.message) as Error & {
     error: string | object;
-    content: object;
+    content?: object;
   };
   cloned.stack = error.stack;
   cloned.error = error.error;
