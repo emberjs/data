@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/rest",
   "description": "REST Format Support for EmberData",
-  "version": "5.4.0-alpha.14",
+  "version": "5.4.0-alpha.15",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
