@@ -57,7 +57,7 @@
     "ember-cli-version-checker": "^5.1.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-qunit": "^7.0.0",
+    "ember-qunit": "^8.0.1",
     "ember-resolver": "^11.0.1",
     "ember-simple-tree": "^0.8.3",
     "ember-source": "~5.2.0",

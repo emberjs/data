@@ -1368,8 +1368,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -1473,8 +1473,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -1672,8 +1672,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -1793,8 +1793,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -1918,8 +1918,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -2026,8 +2026,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -2237,8 +2237,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -2387,8 +2387,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -2519,8 +2519,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -2679,8 +2679,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -2815,8 +2815,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -3057,8 +3057,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -3204,8 +3204,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -3331,8 +3331,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.22.17)
       ember-qunit:
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2)
+        specifier: ^8.0.1
+        version: 8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.22.17)(ember-source@5.2.0)
@@ -4745,7 +4745,6 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /@embroider/babel-loader-8@3.0.1(@embroider/core@3.2.1)(supports-color@8.1.1)(webpack@5.88.2):
     resolution: {integrity: sha512-SQYJ7UnKh2GpsnSTHVZ178ZriK+B5kqlh4kWZhH1DFTyguJ89dCCm4zrjOe7iJDPZxw9R/Vmj+MR2NDxKTofYw==}
@@ -8314,6 +8313,7 @@ packages:
   /common-tags@1.8.2:
     resolution: {integrity: sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==}
     engines: {node: '>=4.0.0'}
+    dev: true
 
   /commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
@@ -9603,31 +9603,23 @@ packages:
       - supports-color
     dev: true
 
-  /ember-qunit@7.0.0(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4)(webpack@5.88.2):
-    resolution: {integrity: sha512-KhrndHYEXsHnXvmsGyJLJQ6VCudXaRs5dzPZBsdttZJIhsB6PmYAvq2Q+mh3GRDT/59T/sRDrB3FD3/lATS8aA==}
-    engines: {node: 16.* || >= 18}
+  /ember-qunit@8.0.1(@babel/core@7.22.17)(@ember/test-helpers@3.2.0)(ember-source@5.2.0)(qunit@2.19.4):
+    resolution: {integrity: sha512-13PtywHNPTQKkDW4o8QRkJvcdsZr8hRyvh6xh/YLAX8+HaRLd3nPL8mBF4O/Kur/DAj3QWLvjzktZ2uRNGSh3A==}
     peerDependencies:
       '@ember/test-helpers': '>=3.0.3'
       ember-source: '*'
       qunit: ^2.13.0
     dependencies:
       '@ember/test-helpers': 3.2.0(@babel/core@7.22.17)(ember-source@5.2.0)(webpack@5.88.2)
-      broccoli-funnel: 3.0.8
-      broccoli-merge-trees: 4.2.0
-      common-tags: 1.8.2
-      ember-auto-import: 2.6.3(webpack@5.88.2)
-      ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.17)
+      '@embroider/addon-shim': 1.8.6
+      '@embroider/macros': 1.13.1(@babel/core@7.22.17)
       ember-cli-test-loader: 3.1.0(@babel/core@7.22.17)
       ember-source: 5.2.0(@babel/core@7.22.17)(@glimmer/component@1.1.2)(webpack@5.88.2)
       qunit: 2.19.4
-      resolve-package-path: 4.0.3
-      silent-error: 1.1.1
-      validate-peer-dependencies: 2.2.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
       - supports-color
-      - webpack
 
   /ember-raf-scheduler@0.3.0(@babel/core@7.22.17):
     resolution: {integrity: sha512-i8JWQidNCX7n5TOTIKRDR0bnsQN9aJh/GtOJKINz2Wr+I7L7sYVhli6MFqMYNGKC9j9e6iWsznfAIxddheyEow==}
@@ -15826,13 +15818,6 @@ packages:
       resolve-package-path: 3.1.0
       semver: 7.5.4
     dev: true
-
-  /validate-peer-dependencies@2.2.0:
-    resolution: {integrity: sha512-8X1OWlERjiUY6P6tdeU9E0EwO8RA3bahoOVG7ulOZT5MqgNDUO/BQoVjYiHPcNe+v8glsboZRIw9iToMAA2zAA==}
-    engines: {node: '>= 12'}
-    dependencies:
-      resolve-package-path: 4.0.3
-      semver: 7.5.4
 
   /vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
