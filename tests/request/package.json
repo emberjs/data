@@ -30,7 +30,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.22.17",
+    "@babel/core": "^7.22.19",
     "@babel/runtime": "^7.22.15",
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.15",
     "@ember-data/request": "workspace:5.4.0-alpha.15",

@@ -54,7 +54,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.22.17",
+    "@babel/core": "^7.22.19",
     "@babel/runtime": "^7.22.15",
     "@ember-data/adapter": "workspace:5.4.0-alpha.15",
     "@ember-data/graph": "workspace:5.4.0-alpha.15",
