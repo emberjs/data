@@ -29,6 +29,9 @@ function cloneResponse(response: Response, overrides: Partial<Response>) {
   const props = cloneResponseProperties(response);
   return new Response(response.body, Object.assign(props, overrides));
 }
+
+const MUTATION_OPS = new Set(['updateRecord', 'createRecord', 'deleteRecord']);
+
 /**
  * A basic handler which converts a request into a
  * `fetch` call presuming the response to be `json`.
@@ -46,7 +49,11 @@ const Fetch = {
   async request(context: Context) {
     let response = await _fetch(context.request.url!, context.request);
 
-    if (!response.headers.has('date')) {
+    const isError = !response.ok || response.status >= 400;
+    const op = context.request.op;
+    const isMutationOp = Boolean(op && MUTATION_OPS.has(op));
+
+    if (!isError && !isMutationOp && response.status !== 204 && !response.headers.has('date')) {
       const headers = new Headers(response.headers);
       headers.set('date', new Date().toUTCString());
       response = cloneResponse(response, { headers });
@@ -55,7 +62,7 @@ const Fetch = {
     context.setResponse(response);
 
     // if we are an error, we will want to throw
-    if (!response.ok || response.status >= 400) {
+    if (isError) {
       const text = await response.text();
       let errorPayload: object | undefined;
       try {
@@ -69,7 +76,7 @@ const Fetch = {
       error.content = errorPayload;
       throw error;
     } else {
-      return response.json();
+      return response.status === 204 ? null : response.json();
     }
   },
 };
