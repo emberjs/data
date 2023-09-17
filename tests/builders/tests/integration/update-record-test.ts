@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPICache from '@ember-data/json-api';
-import { deleteRecord } from '@ember-data/json-api/request';
+import { updateRecord } from '@ember-data/json-api/request';
 import Model, { attr, instantiateRecord, teardownRecord } from '@ember-data/model';
 import { buildSchema, modelFor } from '@ember-data/model/hooks';
 import RequestManager from '@ember-data/request';
@@ -48,7 +48,7 @@ class User extends Model {
   @attr declare name: string;
 }
 
-module('Integration - deleteRecord', function (hooks) {
+module('Integration - updateRecord', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
@@ -59,7 +59,7 @@ module('Integration - deleteRecord', function (hooks) {
     setBuildURLConfig({ host: '', namespace: '' });
   });
 
-  test('Persisting deletion for a record with a deleteRecord op works as expected', async function (assert) {
+  test('Saving a record with an updateRecord op works as expected', async function (assert) {
     const { owner } = this;
 
     // intercept cache APIs to ensure they are called as expected
@@ -112,50 +112,35 @@ module('Integration - deleteRecord', function (hooks) {
     const user = store.push({ data: { type: 'user', id: '1', attributes: { name: 'Chris' } } }) as User;
     const identifier = recordIdentifierFor(user);
     assert.false(user.isSaving, 'The user is not saving');
-    assert.false(user.isDeleted, 'The user is not deleted');
+    assert.false(user.isNew, 'The user is not new');
     assert.false(user.hasDirtyAttributes, 'The user is not dirty');
 
-    // our delete response will include some sideloaded data
-    // to ensure it is properly handled
     response = {
-      included: [
-        {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: 'John',
-          },
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'James Thoburn',
         },
-      ],
+      },
     };
 
-    store.deleteRecord(user);
+    user.name = 'James';
 
-    assert.true(user.isDeleted, 'The user is deleted');
-    assert.false(user.isSaving, 'The user is not saving');
     assert.true(user.hasDirtyAttributes, 'The user is dirty');
-    assert.strictEqual(user.currentState.stateName, 'root.deleted.uncommitted', 'The user is in the correct state');
-    assert.strictEqual(user.dirtyType, 'deleted', 'The user is dirty with the correct type');
-
-    const promise = store.request(deleteRecord(user));
+    const promise = store.request(updateRecord(user));
     assert.true(user.isSaving, 'The user is saving');
 
     await promise;
 
-    assert.false(user.hasDirtyAttributes, 'The user is not dirty');
-    assert.strictEqual(user.currentState.stateName, 'root.deleted.saved', 'The user is in the correct state');
-    assert.strictEqual(user.dirtyType, '', 'The user is no longer dirty');
-    assert.true(user.isDeleted, 'The user is deleted');
+    assert.strictEqual(user.name, 'James Thoburn', 'The user is updated from the response');
+    assert.false(user.hasDirtyAttributes, 'The user is no longer dirty');
     assert.false(user.isSaving, 'The user is no longer saving');
 
-    assert.verifySteps([`willCommit ${identifier.lid}`, 'handle deleteRecord request', `didCommit ${identifier.lid}`]);
-
-    const user2 = store.peekRecord('user', '2') as User;
-    assert.notStrictEqual(user2, null, 'The user is in the store');
-    assert.strictEqual(user2?.name, 'John', 'The user has the expected name');
+    assert.verifySteps([`willCommit ${identifier.lid}`, 'handle updateRecord request', `didCommit ${identifier.lid}`]);
   });
 
-  test('Rejecting while persisting a deletion with a deleteRecord op works as expected', async function (assert) {
+  test('Rejecting during Save of a new record with a createRecord op works as expected', async function (assert) {
     const { owner } = this;
 
     // intercept cache APIs to ensure they are called as expected
@@ -208,43 +193,21 @@ module('Integration - deleteRecord', function (hooks) {
     const user = store.push({ data: { type: 'user', id: '1', attributes: { name: 'Chris' } } }) as User;
     const identifier = recordIdentifierFor(user);
     assert.false(user.isSaving, 'The user is not saving');
-    assert.false(user.isDeleted, 'The user is not deleted');
+    assert.false(user.isNew, 'The user is not new');
     assert.false(user.hasDirtyAttributes, 'The user is not dirty');
-
-    // our delete response will include some sideloaded data
-    // to ensure it is properly handled
-    response = {
-      included: [
-        {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: 'John',
-          },
-        },
-      ],
-    };
-
-    store.deleteRecord(user);
-
-    assert.true(user.isDeleted, 'The user is deleted');
-    assert.false(user.isSaving, 'The user is not saving');
-    assert.true(user.hasDirtyAttributes, 'The user is dirty');
-    assert.strictEqual(user.currentState.stateName, 'root.deleted.uncommitted', 'The user is in the correct state');
-    assert.strictEqual(user.dirtyType, 'deleted', 'The user is dirty with the correct type');
 
     const validationError: Error & {
       content: { errors: JsonApiError[] };
-    } = new Error('405 | Not Authorized') as Error & {
+    } = new Error('Something went wrong') as Error & {
       content: { errors: JsonApiError[] };
     };
     validationError.content = {
       errors: [
         {
-          title: 'Not Authorized',
-          detail: 'Not Authorized',
+          title: 'Name must be capitalized',
+          detail: 'Name must be capitalized',
           source: {
-            pointer: '/data',
+            pointer: '/data/attributes/name',
           },
         },
       ],
@@ -252,7 +215,10 @@ module('Integration - deleteRecord', function (hooks) {
 
     response = validationError;
 
-    const promise = store.request(deleteRecord(user));
+    user.name = 'james';
+    assert.true(user.hasDirtyAttributes, 'The user is dirty');
+
+    const promise = store.request(updateRecord(user));
     assert.true(user.isSaving, 'The user is saving');
 
     try {
@@ -260,25 +226,35 @@ module('Integration - deleteRecord', function (hooks) {
       assert.ok(false, 'The promise should reject');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'The error is an error');
-      assert.strictEqual((e as Error).message, '405 | Not Authorized', 'The error has the expected error message');
+      assert.strictEqual((e as Error).message, 'Something went wrong', 'The error has the expected error message');
       assert.true(
         Array.isArray((e as { content: { errors: JsonApiError[] } })?.content?.errors),
         'The error has an errors array'
       );
     }
 
+    assert.true(user.hasDirtyAttributes, 'The user is still dirty');
+    assert.false(user.isNew, 'The user is not new');
+    assert.false(user.isDeleted, 'The user is not deleted');
     assert.false(user.isDestroying, 'The user is not destroying');
     assert.false(user.isDestroyed, 'The user is not destroyed');
-    assert.true(user.hasDirtyAttributes, 'The user is still dirty');
-    assert.strictEqual(user.currentState.stateName, 'root.deleted.invalid', 'The user is in the correct state');
-    assert.strictEqual(user.dirtyType, 'deleted', 'The user is still dirty');
-    assert.strictEqual(user.adapterError?.message, '405 | Not Authorized', 'The user has the expected error message');
-    assert.true(user.isDeleted, 'The user is still deleted');
     assert.false(user.isSaving, 'The user is no longer saving');
+
+    const nameErrors = user.errors.get('name') as Array<{
+      attribute: string;
+      message: string;
+    }>;
+
+    assert.strictEqual(nameErrors.length, 1, 'The user has the expected number of errors');
+    assert.strictEqual(
+      nameErrors[0]?.message,
+      'Name must be capitalized',
+      'The user has the expected error for the field'
+    );
 
     assert.verifySteps([
       `willCommit ${identifier.lid}`,
-      'handle deleteRecord request',
+      'handle updateRecord request',
       `commitWasRejected ${identifier.lid}`,
     ]);
   });
