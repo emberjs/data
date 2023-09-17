@@ -74,6 +74,40 @@ Our stretch goals for Polaris are:
 - EmberData independent of ember-cli/embroider
 - Something to support REST/ActiveRecord out-of-the box a bit better (either a Cache implementation or normalization utils)
 
+### 🌠 Beyond Polaris
+
+A few of the ideas cooking up our sleeve, in no particular order. We may start working on these even before Polaris edition ships, but don't consider these part of the Polaris experience.
+
+1) Use WeakRef to track actively used data
+
+WeakRef's would give us a few potential avenues for nice DX and Performance tuning. Knowing which UI Objects aren't in use could potentially allow us to reduce memory usage, skip some calculations, or even offload data from the cache (either entirely or into persisted storage). It would also allow us to automatically background refresh active data when a user returns to a tab after time away.
+
+2) An HTTP Mock server and Mocking Utilities
+
+Comprehensive DX around data management should extend to testing. We're thinking of adding a lightweight HTTP mock that understands your data schemas. The benefits here could be enormous.
+
+Currently, frontend mocking solutions typically rely on either mocking in the browser's ui-thread, or via ServiceWorker. Both of these present major downsides.
+
+The ui-thread approach slows down test suite performance with high alloc, compute and gc costs. It's also much more difficult to debug due to circumventing the browser's built in tooling for inspecting requests, and less accurate because responses don't behave the same way or with the same timing as they would for a real request. The mix of generating similar looking API mocks and client side data in the same test or test module causes many devs to accidentally mix paradigms, and the difficulty in disocvering what you've mocked and what its state is regularly leads to over-mocking. Finally, it allows devs to often accidentally share object state in their test between the ui and the api which leads to difficult to reason about bugs.
+
+The MSW approach solves many of the problems of the ui-thread approach, but introduces problems of its own. Developers must now carefully uninstall the service worker when changing between apps they are developing that usually run on the same domain, it intercepts even for dev when it ought to be used only for tests, it interferes with using the ServiceWorker for actual application needs, and it lacks privileged access to the file system to cache state for reuse to optimize performance of repeat test runs.
+
+Given that applications already tell EmberData a great deal about their application's data schemas, we think we can leverage that to provide the best-available DX for mocking data for tests.
+
+3) An EdgeRouter and SSD (Server Side Data) Tooling
+
+The EdgeRouter would be a client side router implementation aware of EmberData paradigms. Similar in feel to Ember's router but heavily constrained in what APIs it is allowed to utilize and intended to execute route model hooks in parallel by default. This setup would allow us to hoist the fetch tree out of the application at build time, potentially compile it to WebAssembly (or better all the way to an executable), and run an optimized fetch-tree on the edge.
+
+This would enable applications to pre-fetch the data for routes more optimally, including for the initial request. In this scenario the cache state for an initial page load would begin streaming into the page simultaneously with the initial response body, allowing the application to perform a single optimized render with little-to-no-work to be done at the routing level vs cascading through the request waterfall and associated data handling.
+
+4) PersistedCache
+
+A wrapper for any Cache implementation that automatically syncs its state to IndexedDB in the background. Useful for being able to replay requests when reloading a page or opening a new tab, deduping requests across tabs, and providing minimal but powerful offline support.
+
+5) DataWorker
+
+A SharedWorker that integrates with PersistedCache and utilizes RequestManager in the worker to offload work from the main thread and dedupe/replay requests across tabs and windows.
+
 --------------
 
 ## 💜 Releases
@@ -104,17 +138,17 @@ Stretch Goals:
 - Experimental TypeScript Support
 - DataWorker: Background WebWorker+IndexedDB solution for syncing Cache and Requests cross-tabs 
 
-### 🔸 5.4 (Upcoming ~ Mid November)
+### 🔸 5.4 (Upcoming ~ Late October)
 
 - Forking support for JSON:API Cache
 - Schema DSL
 - SchemaModel
 
-### 🔸 5.3 (Upcoming ~ Oct 1, 2023)
+### 🔸 5.3 - 08/18/2023
 
 - Refactor @ember-data/model setup/teardown hooks logic to be importable
 
-See the [5.3 Release Checklist](https://github.com/emberjs/data/issues/8743) for the full list of work targetting this release.
+See the [5.3 Release Checklist](https://github.com/emberjs/data/issues/8743) for the full list of work included in this release.
 
 - **Request Builders**
 
