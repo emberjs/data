@@ -10,6 +10,7 @@ import type BelongsToReference from './references/belongs-to';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { LegacySupport } from './legacy-relationships-support';
 import type { Cache } from '@ember-data/types/q/cache';
+import type RecordState from './record-state';
 
 export type ModelCreateArgs = {
   _createProps: Record<string, unknown>;
@@ -26,6 +27,8 @@ export type ModelCreateArgs = {
 class Model extends EmberObject {
   store: Store;
   errors: Errors;
+  currentState: RecordState;
+  adapterError?: Error;
   toString(): string;
   save(): Promise<this>;
   hasMany(key: string): HasManyReference;

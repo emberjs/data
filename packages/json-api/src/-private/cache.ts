@@ -1117,6 +1117,7 @@ export default class JSONAPICache implements Cache {
 
     if (cached.isNew) {
       // > Note: Graph removal handled by unloadRecord
+      cached.isDeletionCommitted = true;
       cached.isDeleted = true;
       cached.isNew = false;
     }

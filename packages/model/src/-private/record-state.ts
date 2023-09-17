@@ -202,6 +202,7 @@ export default class RecordState {
             this._errorRequests = [];
             this._lastError = null;
             this.isSaving = false;
+            this.notify('isDirty');
             notifyErrorsStateChanged(this);
             break;
         }
@@ -249,6 +250,7 @@ export default class RecordState {
       (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
         switch (type) {
           case 'state':
+            this.notify('isSaved');
             this.notify('isNew');
             this.notify('isDeleted');
             this.notify('isDirty');
@@ -371,10 +373,10 @@ export default class RecordState {
   @tagged
   get isDirty() {
     let rd = this.cache;
-    if (rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
+    if (this.isEmpty || rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
     }
-    return this.isNew || rd.hasChangedAttrs(this.identifier);
+    return this.isDeleted || this.isNew || rd.hasChangedAttrs(this.identifier);
   }
 
   @tagged
@@ -454,7 +456,7 @@ export default class RecordState {
       return '';
 
       // deleted substates
-    } else if (this.isDeleted) {
+    } else if (this.isDirty && this.isDeleted) {
       return 'deleted';
 
       // loaded.created substates

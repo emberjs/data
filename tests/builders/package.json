@@ -25,6 +25,18 @@
     "@ember-data/rest": {
       "injected": true
     },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
     "@ember-data/request-utils": {
       "injected": true
     },
@@ -44,7 +56,10 @@
     "@ember-data/active-record": "workspace:5.4.0-alpha.14",
     "@ember-data/graph": "workspace:5.4.0-alpha.14",
     "@ember-data/json-api": "workspace:5.4.0-alpha.14",
+    "@ember-data/model": "workspace:5.4.0-alpha.14",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.14",
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.14",
+    "@ember-data/request": "workspace:5.4.0-alpha.14",
     "@ember-data/request-utils": "workspace:5.4.0-alpha.14",
     "@ember-data/rest": "workspace:5.4.0-alpha.14",
     "@ember-data/store": "workspace:5.4.0-alpha.14",

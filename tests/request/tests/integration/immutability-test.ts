@@ -52,7 +52,7 @@ module('RequestManager | Immutability', function () {
     const manager = new RequestManager();
     const handler: Handler = {
       request<T>(context: Context, next: NextFn<T>) {
-        const headers = context.request.headers!.clone();
+        const headers = new Headers(context.request.headers);
         headers.append('house', 'home');
         return Promise.resolve<T>([...headers.entries()] as T);
       },

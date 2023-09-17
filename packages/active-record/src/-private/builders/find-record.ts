@@ -20,7 +20,7 @@ type FindRecordOptions = ConstrainedRequestOptions & {
 
 /**
  * Builds request options to fetch a single resource by a known id or identifier
- * configured for the url and header expectations of most JSON:API APIs.
+ * configured for the url and header expectations of most ActiveRecord APIs.
  *
  * **Basic Usage**
  *
