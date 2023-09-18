@@ -1,5 +1,93 @@
 # Ember Data Changelog
 
+## v5.3.0 (2023-09-18)
+
+#### :rocket: Enhancement
+  * [#8849](https://github.com/emberjs/data/pull/8849) feat: docs, tests and fixes for create/update/deleteRecord builders ([@Baltazore](https://github.com/Baltazore))
+  * [#8824](https://github.com/emberjs/data/pull/8824) feat: relationshipRollback, serializePatch ([@runspired](https://github.com/runspired))
+  * [#8798](https://github.com/emberjs/data/pull/8798) feat: implement a simple LifetimeService utility, improve document reconstruction ([@runspired](https://github.com/runspired))
+  * [#8741](https://github.com/emberjs/data/pull/8741) feat: JSON:API serialization utils ([@runspired](https://github.com/runspired))
+  * [#8740](https://github.com/emberjs/data/pull/8740) feat: saveRecord builders ([@runspired](https://github.com/runspired))
+  * [#8744](https://github.com/emberjs/data/pull/8744) add sortQueryParams, update roadmap with link to checklist ([@runspired](https://github.com/runspired))
+  * [#8716](https://github.com/emberjs/data/pull/8716) feat: filterEmpty for query params ([@runspired](https://github.com/runspired))
+  * [#8687](https://github.com/emberjs/data/pull/8687) feat: findRecord and query request builders ([@runspired](https://github.com/runspired))
+  * [#8673](https://github.com/emberjs/data/pull/8673) DX: Nicer backtracking errors ([@runspired](https://github.com/runspired))
+  * [#8736](https://github.com/emberjs/data/pull/8736) chore: refactor IdentityCache to make resource more opaque ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+  * [#8876](https://github.com/emberjs/data/pull/8876) fix: Fetch handler should account for empty body ([@runspired](https://github.com/runspired))
+  * [#8842](https://github.com/emberjs/data/pull/8842) fix: handle Immutable Response objects ([@runspired](https://github.com/runspired))
+  * [#8828](https://github.com/emberjs/data/pull/8828) fix: set headers after setResponse in Fetch handler ([@runspired](https://github.com/runspired))
+  * [#8850](https://github.com/emberjs/data/pull/8850) Overwrite addMixin ([@patricklx](https://github.com/patricklx))
+  * [#8831](https://github.com/emberjs/data/pull/8831) fix: cleanup build deps and add @ember/string to REST/ActiveRecord builder peer-deps ([@runspired](https://github.com/runspired))
+  * [#8826](https://github.com/emberjs/data/pull/8826) fix createRecord error when no adapter is present ([@runspired](https://github.com/runspired))
+  * [#8791](https://github.com/emberjs/data/pull/8791) fix: clear relationships properly when unloading new records ([@Windvis](https://github.com/Windvis))
+  * [#8794](https://github.com/emberjs/data/pull/8794) Fix check for new records in JSONAPISerializer.serializeHasMany ([@dagroe](https://github.com/dagroe))
+  * [#8751](https://github.com/emberjs/data/pull/8751) Forward fixes from 3.12.x into main ([@jrjohnson](https://github.com/jrjohnson))
+  * [#8684](https://github.com/emberjs/data/pull/8684) fix: unloadAll(void) should not destroy the notification manager ([@runspired](https://github.com/runspired))
+
+#### :evergreen_tree: New Deprecation
+  * [#8747](https://github.com/emberjs/data/pull/8747) feat: implement legacy imports deprecation ([@runspired](https://github.com/runspired))
+  * [#8734](https://github.com/emberjs/data/pull/8734) feat: Implement Strict Types and Id Deprecations ([@runspired](https://github.com/runspired))
+
+#### :shower: Deprecation Removal
+* `adapter`, `model`, `private-build-infra`, `serializer`
+  * [#8797](https://github.com/emberjs/data/pull/8797) Drop support for `ember-cli-mocha` and `ember-mocha` when generating test blueprints ([@bertdeblock](https://github.com/bertdeblock))
+
+#### :memo: Documentation
+  * [#8848](https://github.com/emberjs/data/pull/8848) feat: add request options documentation parts to find-record builder ([@Baltazore](https://github.com/Baltazore))
+  * [#8825](https://github.com/emberjs/data/pull/8825) feat: more docs for builders ([@runspired](https://github.com/runspired))
+  * [#8819](https://github.com/emberjs/data/pull/8819) fix: `JSONAPISerializer.shouldSerializeHasMany` relation param type ([@samridhivig](https://github.com/samridhivig))
+  * [#8746](https://github.com/emberjs/data/pull/8746) docs: more documentation for builders ([@runspired](https://github.com/runspired))
+  * [#8745](https://github.com/emberjs/data/pull/8745) chore: readme overviews for builders ([@runspired](https://github.com/runspired))
+  * [#8724](https://github.com/emberjs/data/pull/8724) chore: rename CacheStoreWrapper => CacheCapabilitiesManager to reflect its role ([@runspired](https://github.com/runspired))
+  * [#8671](https://github.com/emberjs/data/pull/8671) Typo correction in ROADMAP.md ([@wagenet](https://github.com/wagenet))
+
+#### :goal_net: Test
+  * [#8878](https://github.com/emberjs/data/pull/8878) test: add basic test for Fetch handler ([@runspired](https://github.com/runspired))
+  * [#8849](https://github.com/emberjs/data/pull/8849) feat: docs, tests and fixes for create/update/deleteRecord builders ([@Baltazore](https://github.com/Baltazore))
+  * [#8868](https://github.com/emberjs/data/pull/8868) Add tests for filter-empty request util ([@Baltazore](https://github.com/Baltazore))
+  * [#8866](https://github.com/emberjs/data/pull/8866) Add tests for parse-cache-control ([@Baltazore](https://github.com/Baltazore))
+  * [#8864](https://github.com/emberjs/data/pull/8864) test: confirm records unload properly for #8863 ([@runspired](https://github.com/runspired))
+  * [#8780](https://github.com/emberjs/data/pull/8780) chore: add test to demonstrate create props work as expected ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+  * [#8758](https://github.com/emberjs/data/pull/8758) chore: refactor implicit edge to match resource and collection pattern ([@runspired](https://github.com/runspired))
+  * [#8755](https://github.com/emberjs/data/pull/8755) chore: simplify file structure in graph package ([@runspired](https://github.com/runspired))
+  * [#8749](https://github.com/emberjs/data/pull/8749) fix: ensure we are not allowing embroider to do anything ([@runspired](https://github.com/runspired))
+  * [#8672](https://github.com/emberjs/data/pull/8672) chore: update roadmap for 5.3 ([@runspired](https://github.com/runspired))
+  * [#8670](https://github.com/emberjs/data/pull/8670) chore: add ROADMAP and update CONTRIBUTING ([@runspired](https://github.com/runspired))
+  * [#8739](https://github.com/emberjs/data/pull/8739) chore: migrate store/graph to strict types config ([@runspired](https://github.com/runspired))
+  * [#8733](https://github.com/emberjs/data/pull/8733) chore: improve types and lint ([@runspired](https://github.com/runspired))
+  * [#8727](https://github.com/emberjs/data/pull/8727) chore: fix peers and get perf-test-app running again ([@runspired](https://github.com/runspired))
+  * [#8717](https://github.com/emberjs/data/pull/8717) Switch from local and @types/ember types to ember-source types ([@BradBarnich](https://github.com/BradBarnich))
+  * [#8499](https://github.com/emberjs/data/pull/8499) chore: refactor model hook support to live in the model package ([@runspired](https://github.com/runspired))
+  * [#8862](https://github.com/emberjs/data/pull/8862) chore: remove more runloop usage | completely remove rsvp ([@runspired](https://github.com/runspired))
+  * [#8861](https://github.com/emberjs/data/pull/8861) chore: remove runloop usage ([@runspired](https://github.com/runspired))
+  * [#8859](https://github.com/emberjs/data/pull/8859) chore: update target labels ([@runspired](https://github.com/runspired))
+  * [#8858](https://github.com/emberjs/data/pull/8858) chore: update required labels ([@runspired](https://github.com/runspired))
+  * [#8830](https://github.com/emberjs/data/pull/8830) chore: cleanup actions/setup usage ([@runspired](https://github.com/runspired))
+  * [#8812](https://github.com/emberjs/data/pull/8812) fix typo ([@samridhivig](https://github.com/samridhivig))
+  * [#8802](https://github.com/emberjs/data/pull/8802) chore: fix fastboot-testing deprecation ([@runspired](https://github.com/runspired))
+  * [#8801](https://github.com/emberjs/data/pull/8801) chore: resolve deprecation in fastboot app ([@runspired](https://github.com/runspired))
+  * [#8860](https://github.com/emberjs/data/pull/8860) chore: burn down runloop and RSVP usage ([@runspired](https://github.com/runspired))
+  * [#8832](https://github.com/emberjs/data/pull/8832) chore: add recommended JSON:API setup test app ([@runspired](https://github.com/runspired))
+  * [#8829](https://github.com/emberjs/data/pull/8829) chore: eliminate dead build code ([@runspired](https://github.com/runspired))
+  * [#8823](https://github.com/emberjs/data/pull/8823) fix: graph instantiation should not be required ([@runspired](https://github.com/runspired))
+
+#### Committers: 11
+- Bert De Block ([@bertdeblock](https://github.com/bertdeblock))
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Daniel Gröger ([@dagroe](https://github.com/dagroe))
+- Kirill Shaplyko ([@Baltazore](https://github.com/Baltazore))
+- Patrick Pircher ([@patricklx](https://github.com/patricklx))
+- Sam Van Campenhout ([@Windvis](https://github.com/Windvis))
+- Samridhi Vig ([@samridhivig](https://github.com/samridhivig))
+- Brad Barnich ([@BradBarnich](https://github.com/BradBarnich))
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+- Michal Bryxí ([@MichalBryxi](https://github.com/MichalBryxi))
+- Peter Wagenet ([@wagenet](https://github.com/wagenet))
+
 ## 5.2.0 (2023-08-17)
 
 * Re-release of 5.1.2 to keep lockstep pace. This release contains no new work.
