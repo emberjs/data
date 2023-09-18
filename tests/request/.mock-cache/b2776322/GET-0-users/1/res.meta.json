@@ -1,0 +1,11 @@
+{
+  "url": "users/1",
+  "status": 200,
+  "headers": {
+    "Content-Type": "application/vnd.api+json",
+    "Content-Encoding": "br",
+    "Cache-Control": "no-store"
+  },
+  "method": "GET",
+  "requestBody": null
+}

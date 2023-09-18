@@ -76,7 +76,6 @@ export function query(
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
   headers.append('Accept', 'application/vnd.api+json');
-  headers.append('Content-Type', 'application/vnd.api+json');
 
   return {
     url: `${url}?${buildQueryParams(query, options.urlParamsSettings)}`,

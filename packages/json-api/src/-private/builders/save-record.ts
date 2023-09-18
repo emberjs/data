@@ -91,7 +91,6 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
   headers.append('Accept', 'application/vnd.api+json');
-  headers.append('Content-Type', 'application/vnd.api+json');
 
   return {
     url,
@@ -161,7 +160,6 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
   headers.append('Accept', 'application/vnd.api+json');
-  headers.append('Content-Type', 'application/vnd.api+json');
 
   return {
     url,
@@ -238,7 +236,6 @@ export function updateRecord(
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
   headers.append('Accept', 'application/vnd.api+json');
-  headers.append('Content-Type', 'application/vnd.api+json');
 
   return {
     url,
