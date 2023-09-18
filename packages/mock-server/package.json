@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/mock-server",
   "description": "⚡️ Simple, Fast HTTP Mocking for Tests",
-  "version": "5.4.0-alpha.15",
+  "version": "5.4.0-alpha.16",
   "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
