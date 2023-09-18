@@ -9,7 +9,7 @@ import Store, { recordIdentifierFor } from '@ember-data/store';
 import UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
 
-const ACTIVE_RECORD_HEADERS = { 'content-type': 'application/json; charset=utf-8' };
+const ACTIVE_RECORD_HEADERS = { accept: 'application/json; charset=utf-8' };
 
 module('ActiveRecord | Request Builders', function (hooks) {
   setupTest(hooks);
