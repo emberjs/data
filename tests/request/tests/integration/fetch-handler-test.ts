@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 
 import { MockServerHandler } from '@ember-data/mock-server/client';
 import RequestManager from '@ember-data/request';
+import type { Handler } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 
 const IS_RECORDING = false;
@@ -29,7 +30,7 @@ async function mock(
 module('RequestManager | Fetch Handler', function (hooks) {
   test('Parses 200 Responses', async function (assert) {
     const manager = new RequestManager();
-    manager.use([MockServerHandler, Fetch]);
+    manager.use([MockServerHandler as unknown as Handler, Fetch]);
 
     await mock(manager, {
       status: 200,
