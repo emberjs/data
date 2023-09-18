@@ -9,7 +9,7 @@ import Store, { recordIdentifierFor } from '@ember-data/store';
 import UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
 
-const JSON_API_HEADERS = { accept: 'application/vnd.api+json', 'content-type': 'application/vnd.api+json' };
+const JSON_API_HEADERS = { accept: 'application/vnd.api+json' };
 
 module('JSON:API | Request Builders', function (hooks) {
   setupTest(hooks);

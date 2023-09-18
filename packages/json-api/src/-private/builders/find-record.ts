@@ -94,7 +94,6 @@ export function findRecord(
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
   headers.append('Accept', 'application/vnd.api+json');
-  headers.append('Content-Type', 'application/vnd.api+json');
 
   return {
     url: options.include?.length

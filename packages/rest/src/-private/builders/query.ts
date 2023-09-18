@@ -77,7 +77,7 @@ export function query(
 
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
-  headers.append('Content-Type', 'application/json; charset=utf-8');
+  headers.append('Accept', 'application/json; charset=utf-8');
 
   return {
     url: `${url}?${buildQueryParams(query, options.urlParamsSettings)}`,

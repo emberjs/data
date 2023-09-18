@@ -35,6 +35,7 @@ interface Request {
   signal?: AbortSignal;
   /* Returns the URL of request as a string. */
   url?: string;
+  body?: BodyInit | null;
 }
 export type ImmutableHeaders = Headers & { clone?(): Headers; toJSON(): [string, string][] };
 export interface GodContext {

@@ -99,7 +99,7 @@ export function findRecord(
 
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
-  headers.append('Content-Type', 'application/json; charset=utf-8');
+  headers.append('Accept', 'application/json; charset=utf-8');
 
   return {
     url: options.include?.length
