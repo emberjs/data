@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 class User extends Model {
@@ -265,7 +266,7 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
     assert.verifySteps(['updateRecord', 'serializing', 'serialized'], 'serialize was called');
   });
 
-  test('hasMany reflects sort order from server after local changes are made but new server state is recieved', async function (assert) {
+  test('hasMany reflects sort order from local changes aeven after new server state is recieved', async function (assert) {
     const store = this.owner.lookup('service:store');
     this.owner.register(
       'adapter:application',
@@ -378,7 +379,11 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
     });
 
     const petsAgain = user.pets.map((pet) => pet.name);
-    assert.deepEqual(petsAgain, ['Rex', 'Fido', 'Spot'], 'Pets are in the right order');
+    if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+      assert.deepEqual(petsAgain, ['Rex', 'Fido', 'Spot'], 'Pets are in the right order');
+    } else {
+      assert.deepEqual(petsAgain, ['Spot', 'Fido', 'Rex'], 'Pets are still in the right order');
+    }
   });
 
   test('when we remove a record and save, the api is alerted', async function (assert) {
