@@ -172,9 +172,9 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
       class TestAdapter {
         updateRecord(store, type, snapshot) {
           assert.step('updateRecord');
-          store.serializerFor(type.modelName).serialize(snapshot, { includeId: true });
+          const serialized = store.serializerFor(type.modelName).serialize(snapshot, { includeId: true });
           assert.step('serialized');
-          return Promise.resolve();
+          return Promise.resolve(serialized);
         }
         static create() {
           return new this();
@@ -272,9 +272,9 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
       class TestAdapter {
         updateRecord(store, type, snapshot) {
           assert.step('updateRecord');
-          store.serializerFor(type.modelName).serialize(snapshot, { includeId: true });
+          const serialized = store.serializerFor(type.modelName).serialize(snapshot, { includeId: true });
           assert.step('serialized');
-          return Promise.resolve();
+          return Promise.resolve(serialized);
         }
         static create() {
           return new this();
