@@ -41,7 +41,7 @@
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.2.0",
     "@glimmer/component": "^1.1.2",
-    "@types/jquery": "^3.5.18",
+    "@types/jquery": "^3.5.19",
     "@types/qunit": "^2.19.6",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.7.0",
