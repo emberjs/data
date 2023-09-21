@@ -90,7 +90,7 @@
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.2.1",
-    "ember-source": "~5.2.0",
+    "ember-source": "~5.3.0",
     "rollup": "^3.29.2",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
