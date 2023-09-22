@@ -50,7 +50,7 @@
     "command-line-args": "^5.2.1",
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
-    "ember-cli": "~5.2.1",
+    "ember-cli": "~5.3.0",
     "ember-source": "~5.3.0",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
