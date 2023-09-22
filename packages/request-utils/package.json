@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request-utils",
   "description": "Request Building Utilities for use with EmberData",
-  "version": "5.5.0-alpha.1",
+  "version": "5.5.0-alpha.2",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
