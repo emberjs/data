@@ -1,6 +1,7 @@
 import { module, test } from 'qunit';
 
-import { mock, MockServerHandler } from '@ember-data/mock-server';
+import { MockServerHandler } from '@ember-data/mock-server';
+import { GET } from '@ember-data/mock-server/mock';
 import RequestManager from '@ember-data/request';
 import type { Handler } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
@@ -10,25 +11,15 @@ module('RequestManager | Fetch Handler', function (hooks) {
     const manager = new RequestManager();
     manager.use([MockServerHandler as unknown as Handler, Fetch]);
 
-    await mock(
-      () => ({
-        status: 200,
-        headers: {},
-        body: null,
-        method: 'GET',
-        url: 'users/1',
-        response: {
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Chris Thoburn',
-            },
-          },
+    await GET('users/1', () => ({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Chris Thoburn',
         },
-      }),
-      false
-    );
+      },
+    }));
 
     const doc = await manager.request({ url: 'https://localhost:1135/users/1' });
     const serialized = JSON.parse(JSON.stringify(doc)) as unknown;

@@ -39,7 +39,7 @@
     "ember-data-logo-light.svg"
   ],
   "bin": {
-    "with-mocks": "./bin/with-mocks"
+    "with-mocks": "./bin/with-mocks.mjs"
   },
   "scripts": {
     "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
