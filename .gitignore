@@ -19,6 +19,7 @@ packages/request-utils/addon
 packages/rest/addon
 packages/active-record/addon
 packages/data-worker/addon
+packages/mock-server/addon
 
 # dependencies
 bower_components
