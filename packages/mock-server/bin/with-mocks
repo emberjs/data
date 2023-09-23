@@ -1,0 +1,30 @@
+#!/bin/sh -
+':' /*-
+test1=$(bun --version 2>&1) && exec bun "$0" "$@"
+test2=$(node --version 2>&1) && exec node "$0" "$@"
+exec printf '%s\n' "$test1" "$test2" 1>&2
+*/
+
+import chalk from 'chalk';
+
+console.log(
+  chalk.grey(
+    `\nWrapping Command With Mock Server\n=================================\n\tRunning With: ${chalk.green(process.isBun ? 'bun' : 'node')}`
+  )
+);
+
+const args = process.argv.slice(2);
+
+if (process.isBun) {
+  const proc = Bun.spawn(['bun', 'run', 'mock-server:start']);
+  // await completion
+  await proc.exited;
+  const proc2 = Bun.spawn(['bun', 'run', ...args], {
+    stdout: "inherit",
+    stderr: "inherit",
+  });
+  await proc2.exited;
+  const proc3 = Bun.spawn(['bun', 'run', 'mock-server:stop']);
+  await proc3.exited;
+  process.exit(proc2.exitCode);
+}

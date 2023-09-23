@@ -23,11 +23,13 @@
     "extends": "../../package.json"
   },
   "dependencies": {
+    "pm2": "^5.3.0",
     "@hono/node-server": "^1.1.1",
     "hono": "^3.6.3",
     "ember-cli-babel": "^8.0.0"
   },
   "files": [
+    "bun",
     "addon-main.js",
     "addon",
     "README.md",
@@ -36,6 +38,9 @@
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
+  "bin": {
+    "with-mocks": "./bin/with-mocks"
+  },
   "scripts": {
     "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "start": "rollup --config --watch",
