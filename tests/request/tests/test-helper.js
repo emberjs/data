@@ -5,7 +5,7 @@ import { setup } from 'qunit-dom';
 
 import { start } from 'ember-qunit';
 
-import { setTestId } from '@ember-data/mock-server/client';
+import { setTestId } from '@ember-data/mock-server';
 import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-support/assert-all-deprecations';
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';
