@@ -18,7 +18,7 @@
     "mock-server:start": "pm2 start ./mock-server.mjs -f",
     "mock-server:stop": "pm2 stop ./mock-server.mjs",
     "launch:tests": "ember test --port=0 --serve --no-launch",
-    "start": "pnpm launch:mocks && pnpm launch:tests",
+    "start": "with-mocks pnpm launch:tests",
     "test": "with-mocks ember test --test-port=0"
   },
   "author": "",

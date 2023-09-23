@@ -58,7 +58,7 @@ if (isBun) {
 
   let exitCode = 0;
   try {
-    await pSpawn('pnpm', ['run', ...args], {
+    await pSpawn('pnpm', ['exec', ...args], {
       stdio: 'inherit',
     });
   } catch (e) {
