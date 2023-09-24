@@ -1,13 +1,14 @@
 {
-  "name": "@ember-data/request",
-  "description": "⚡️ A simple, small and fast framework-agnostic library to make `fetch` happen",
+  "name": "@warp-drive/holodeck",
+  "description": "⚡️ Simple, Fast HTTP Mocking for Tests",
   "version": "5.5.0-alpha.2",
+  "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "packages/request"
+    "directory": "packages/holodeck"
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
@@ -15,63 +16,73 @@
     "node": "16.* || >= 18"
   },
   "keywords": [
-    "ember-addon"
+    "http-mock"
   ],
   "volta": {
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.2",
-    "@ember/test-waiters": "^3.0.2",
-    "@embroider/macros": "^1.13.1",
-    "ember-cli-babel": "^8.0.0"
+    "pm2": "^5.3.0",
+    "chalk": "^4.1.2",
+    "@hono/node-server": "^1.1.1",
+    "hono": "^3.6.3"
   },
   "files": [
-    "addon-main.js",
-    "addon",
+    "bin",
+    "dist",
     "README.md",
     "LICENSE.md",
+    "server",
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
+  "bin": {
+    "holodeck": "./bin/holodeck.js"
+  },
   "scripts": {
     "build:types": "tsc --build --force",
-    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build:client": "rollup --config",
     "build": "pnpm build:client && pnpm build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },
-  "ember-addon": {
-    "main": "addon-main.js",
-    "type": "addon",
-    "version": 1
-  },
   "dependenciesMeta": {
-    "@ember-data/private-build-infra": {
+    "@ember-data/request": {
       "injected": true
     }
   },
   "devDependencies": {
     "@babel/cli": "^7.22.15",
-    "@babel/core": "^7.22.20",
-    "@babel/plugin-proposal-decorators": "^7.22.15",
-    "@babel/plugin-transform-class-properties": "^7.22.5",
-    "@babel/plugin-transform-private-methods": "^7.22.5",
-    "@babel/plugin-transform-runtime": "^7.22.15",
+    "@babel/core": "^7.22.19",
     "@babel/plugin-transform-typescript": "^7.22.15",
-    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-env": "^7.22.15",
     "@babel/preset-typescript": "^7.22.15",
     "@babel/runtime": "^7.22.15",
     "@embroider/addon-dev": "^4.1.0",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.2.1",
+    "@ember-data/request": "workspace:5.5.0-alpha.2",
     "rollup": "^3.29.2",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0"
   },
-  "ember": {
-    "edition": "octane"
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": "./server/index.js",
+      "bun": "./server/index.js",
+      "deno": "./server/index.js",
+      "browser": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "default": "./server/index.js"
+    },
+    "./mock": {
+       "types": "./dist/mock.d.ts",
+       "default": "./dist/mock.js"
+    }
   }
 }

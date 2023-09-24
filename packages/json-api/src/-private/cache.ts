@@ -12,7 +12,7 @@ import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection
 import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
-import { StructuredErrorDocument } from '@ember-data/request/-private/types';
+import type { StructuredDataDocument, StructuredDocument, StructuredErrorDocument } from '@ember-data/request';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
@@ -24,8 +24,6 @@ import type {
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
-  StructuredDataDocument,
-  StructuredDocument,
 } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';

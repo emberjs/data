@@ -3,16 +3,12 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
+import type { StructuredDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import { CacheOperation } from '@ember-data/store/-private/managers/notification-manager';
-import type {
-  CollectionResourceDataDocument,
-  ResourceMetaDocument,
-  StructuredDocument,
-} from '@ember-data/types/cache/document';
+import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import { StableExistingRecordIdentifier } from '@ember-data/types/q/identifier';
 import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 
@@ -57,7 +53,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       content: {
         meta: { count: 4 },
       },
-    } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+    }) as ResourceMetaDocument;
 
     assert.false('data' in responseDocument, 'No data is associated');
     assert.deepEqual(responseDocument.meta, { count: 4 }, 'meta is correct');
@@ -66,7 +62,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
     const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
     assert.deepEqual(
-      structuredDocument,
+      structuredDocument as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users' },
         content: {
@@ -95,7 +91,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       content: {
         meta: { count: 4 },
       },
-    } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+    }) as ResourceMetaDocument;
 
     assert.false('data' in responseDocument, 'No data is associated');
     assert.deepEqual(responseDocument.meta, { count: 4 }, 'meta is correct');
@@ -106,7 +102,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
     assert.strictEqual(structuredDocument2, null, 'url is not cache key');
     assert.deepEqual(
-      structuredDocument,
+      structuredDocument as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users', cacheOptions: { key: 'users' } },
         content: {
@@ -137,7 +133,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       content: {
         meta: { count: 4, last: 4 },
       },
-    } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+    }) as ResourceMetaDocument;
 
     assert.false('data' in responseDocument, 'No data is associated');
     assert.deepEqual(responseDocument.meta, { count: 4, last: 4 }, 'meta is correct');
@@ -146,7 +142,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
     const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
     assert.deepEqual(
-      structuredDocument,
+      structuredDocument as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users' },
         content: {
@@ -171,7 +167,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       content: {
         meta: { count: 3, next: 8 },
       },
-    } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+    }) as ResourceMetaDocument;
 
     assert.false('data' in responseDocument2, 'No data is associated');
     assert.deepEqual(responseDocument2.meta, { count: 3, next: 8 }, 'meta is correct');
@@ -184,7 +180,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
     const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
     assert.deepEqual(
-      structuredDocument2,
+      structuredDocument2 as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users' },
         content: {
@@ -207,7 +203,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
   test('updating cache with a meta document disregards prior data', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
-    store.registerSchemaDefinitionService(new TestSchema());
+    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users' },
@@ -215,7 +211,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         data: [{ type: 'user', id: '1', attributes: { name: 'Chris' } }],
         meta: { count: 4, last: 4 },
       },
-    } as StructuredDocument<CollectionResourceDocument>) as CollectionResourceDataDocument;
+    }) as CollectionResourceDataDocument;
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
@@ -228,7 +224,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
     const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
     assert.deepEqual(
-      structuredDocument,
+      structuredDocument as Partial<StructuredDocument<CollectionResourceDataDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users' },
         content: {
@@ -255,7 +251,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       content: {
         meta: { count: 3, next: 8 },
       },
-    } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+    }) as ResourceMetaDocument;
 
     assert.false('data' in responseDocument2, 'No data is associated');
     assert.deepEqual(responseDocument2.meta, { count: 3, next: 8 }, 'meta is correct');
@@ -268,7 +264,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
     const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
     assert.deepEqual(
-      structuredDocument2,
+      structuredDocument2 as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users' },
         content: {
@@ -325,7 +321,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         content: {
           meta: { count: 4 },
         },
-      } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+      }) as ResourceMetaDocument;
 
       assert.strictEqual(responseDocument.meta.count, 4, 'We were given the correct data back');
     });
@@ -339,7 +335,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         content: {
           meta: { count: 3 },
         },
-      } as StructuredDocument<ResourceMetaDocument>) as ResourceMetaDocument;
+      }) as ResourceMetaDocument;
 
       assert.strictEqual(responseDocument2.meta.count, 3, 'We were given the correct data back');
     });

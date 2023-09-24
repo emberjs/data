@@ -11,13 +11,14 @@
  * @module @ember-data/request/fetch
  * @main @ember-data/request/fetch
  */
-
 import { cloneResponseProperties, type Context } from './-private/context';
 
 const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
     ? fetch
+    // @ts-expect-error FastBoot is untyped
     : typeof FastBoot !== 'undefined'
+    // @ts-expect-error FastBoot is untyped
     ? (FastBoot.require('node-fetch') as typeof fetch)
     : ((() => {
         throw new Error('No Fetch Implementation Found');

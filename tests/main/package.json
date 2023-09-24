@@ -14,8 +14,12 @@
   },
   "scripts": {
     "build": "ember build",
-    "test": "ember test --test-port=0",
-    "test:try-one": "ember try:one"
+    "test:try-one": "ember try:one",
+    "holodeck:start-program": "holodeck start",
+    "holodeck:end-program": "holodeck end",
+    "launch:tests": "ember test --port=0 --serve --no-launch",
+    "start": "holodeck run pnpm launch:tests",
+    "test": "holodeck run ember test --test-port=0"
   },
   "author": "",
   "license": "MIT",
@@ -55,14 +59,19 @@
     },
     "@ember-data/unpublished-test-infra": {
       "injected": true
+    },
+    "@warp-drive/holodeck": {
+      "injected": true
     }
   },
   "devDependencies": {
+    "pm2": "5.3.0",
     "@babel/core": "^7.22.20",
     "@babel/plugin-transform-typescript": "^7.22.15",
     "@babel/runtime": "^7.22.15",
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.2",
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.2",
+    "@warp-drive/holodeck": "workspace:5.5.0-alpha.2",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",

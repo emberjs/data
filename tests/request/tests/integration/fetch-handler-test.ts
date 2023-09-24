@@ -1,53 +1,25 @@
+import { MockServerHandler } from '@warp-drive/holodeck';
+import { GET } from '@warp-drive/holodeck/mock';
 import { module, test } from 'qunit';
 
-import { MockServerHandler } from '@ember-data/mock-server/client';
 import RequestManager from '@ember-data/request';
 import type { Handler } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
-
-const IS_RECORDING = false;
-
-async function mock(
-  manager: RequestManager,
-  scaffold: {
-    status: number;
-    headers: Record<string, string>;
-    body: Record<string, string> | string | null;
-    method: string;
-    url: string;
-    response: Record<string, unknown>;
-  }
-) {
-  if (IS_RECORDING) {
-    await manager.request({
-      url: 'https://localhost:1135/__record',
-      method: 'POST',
-      body: JSON.stringify(scaffold),
-    });
-  }
-}
 
 module('RequestManager | Fetch Handler', function (hooks) {
   test('Parses 200 Responses', async function (assert) {
     const manager = new RequestManager();
     manager.use([MockServerHandler as unknown as Handler, Fetch]);
 
-    await mock(manager, {
-      status: 200,
-      headers: {},
-      body: null,
-      method: 'GET',
-      url: 'users/1',
-      response: {
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris Thoburn',
-          },
+    await GET('users/1', () => ({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Chris Thoburn',
         },
       },
-    });
+    }));
 
     const doc = await manager.request({ url: 'https://localhost:1135/users/1' });
     const serialized = JSON.parse(JSON.stringify(doc)) as unknown;

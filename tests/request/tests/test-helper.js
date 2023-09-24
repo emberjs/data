@@ -1,11 +1,11 @@
 import { setApplication } from '@ember/test-helpers';
 
+import { setTestId } from '@warp-drive/holodeck';
 import * as QUnit from 'qunit';
 import { setup } from 'qunit-dom';
 
 import { start } from 'ember-qunit';
 
-import { setTestId } from '@ember-data/mock-server/client';
 import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-support/assert-all-deprecations';
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';

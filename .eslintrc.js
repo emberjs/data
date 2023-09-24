@@ -190,7 +190,6 @@ module.exports = {
         'packages/unpublished-test-infra/addon-test-support/qunit-asserts/index.ts',
         'packages/unpublished-test-infra/addon-test-support/qunit-asserts/check-matcher.ts',
         'packages/unpublished-test-infra/addon-test-support/qunit-asserts/assert-warning.ts',
-        'packages/unpublished-test-infra/addon-test-support/qunit-asserts/assert-deprecation.ts',
         'packages/unpublished-test-infra/addon-test-support/qunit-asserts/assert-assertion.ts',
         'tests/fastboot/types/global.d.ts',
         'tests/fastboot/types/fastboot-test-app/index.d.ts',

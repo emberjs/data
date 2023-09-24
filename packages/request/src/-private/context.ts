@@ -3,6 +3,7 @@ import { DEBUG } from '@ember-data/env';
 import { deepFreeze } from './debug';
 import { createDeferred } from './future';
 import type { Deferred, GodContext, ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from './types';
+import { SkipCache } from './types';
 
 export function cloneResponseProperties(response: Response): ResponseInfo {
   const { headers, ok, redirected, status, statusText, type, url } = response;
@@ -52,7 +53,7 @@ export class ContextOwner {
       request
     ) as ImmutableRequestInfo;
     if (DEBUG) {
-      if (!request?.cacheOptions?.[Symbol.for('ember-data:skip-cache')]) {
+      if (!request?.cacheOptions?.[SkipCache]) {
         request = deepFreeze(request) as ImmutableRequestInfo;
         enhancedRequest = deepFreeze(enhancedRequest);
       }

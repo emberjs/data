@@ -54,8 +54,9 @@ interface AssertNoneResult {
   message: string;
 }
 
-// @ts-expect-error
-Error.stackTraceLimit = 50;
+// Case is necessary outside of node types, which we sometimes resolve
+// global times apparently missing this property.
+(Error as unknown as { stackTraceLimit: number }).stackTraceLimit = 50;
 
 /**
  * Returns a qunit assert result object which passes if the given deprecation
@@ -98,12 +99,12 @@ function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSom
 }
 
 function verifyNoDeprecation(filter?: (deprecation: FoundDeprecation) => boolean, label?: string): AssertNoneResult {
-  let UNHANDLED_DEPRECATIONS;
+  let UNHANDLED_DEPRECATIONS: FoundDeprecation[] = [];
 
   if (filter) {
     UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST.filter(filter);
     DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter((deprecation) => {
-      return UNHANDLED_DEPRECATIONS.indexOf(deprecation) === -1;
+      return !UNHANDLED_DEPRECATIONS.includes(deprecation);
     });
   } else {
     UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST;
@@ -214,7 +215,7 @@ export function configureDeprecationHandler() {
       await callback();
     }
 
-    let result;
+    let result: AssertSomeResult;
     if (skipAssert) {
       result = {
         result: true,

@@ -2,8 +2,21 @@
 /**
  * @module @ember-data/request
  */
-import type Store from '@ember-data/store';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+
+// TODO use the real type once it is shipped
+interface StableRecordIdentifier {
+  type: string;
+  id: string | null;
+  lid: string;
+}
+
+
+// TODO use the real type once it is shipped
+type Store = unknown;
+
+export const IS_FUTURE = Symbol('IS_FUTURE');
+export const STRUCTURED = Symbol('DOC');
+export const SkipCache = Symbol.for('ember-data:skip-cache');
 
 export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
 
@@ -37,6 +50,7 @@ interface Request {
   url?: string;
   body?: BodyInit | null;
 }
+
 export type ImmutableHeaders = Headers & { clone?(): Headers; toJSON(): [string, string][] };
 export interface GodContext {
   controller: AbortController;
@@ -46,11 +60,13 @@ export interface GodContext {
 }
 
 export interface StructuredDataDocument<T> {
+  [STRUCTURED]?: true;
   request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
   content: T;
 }
 export interface StructuredErrorDocument<T = unknown> extends Error {
+  [STRUCTURED]?: true;
   request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
   error: string | object;
@@ -73,6 +89,7 @@ export type Deferred<T> = {
  * @public
  */
 export type Future<T> = Promise<StructuredDataDocument<T>> & {
+  [IS_FUTURE]: true;
   /**
    * Cancel this request by firing the AbortController's signal.
    *
@@ -110,7 +127,7 @@ export type DeferredFuture<T> = {
 };
 
 export interface RequestInfo extends Request {
-  cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
+  cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean; [SkipCache]?: true };
   store?: Store;
 
   op?: string;
@@ -128,8 +145,6 @@ export interface RequestInfo extends Request {
    */
   options?: Record<string, unknown>;
 }
-
-const SkipCache = Symbol.for('ember-data:skip-cache');
 
 export interface ImmutableRequestInfo {
   readonly cacheOptions?: {
@@ -333,3 +348,4 @@ export interface RequestResponse<T> {
 }
 
 export type GenericCreateArgs = Record<string | symbol, unknown>;
+export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument<T>;

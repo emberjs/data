@@ -121,6 +121,7 @@ export interface ExistingResourceObject extends ExistingResourceIdentifierObject
 }
 
 interface Document {
+  lid?: string;
   meta?: Record<string, JSONValue>;
   included?: ExistingResourceObject[];
   jsonapi?: Record<string, JSONValue>;

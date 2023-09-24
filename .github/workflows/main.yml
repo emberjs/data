@@ -26,7 +26,6 @@ jobs:
         with:
           restore-lint-caches: true
           install: true
-          skip-addon-build: true
       - name: Lint js
         run: pnpm lint:js
       - name: Check for TypeScript problems

@@ -4,9 +4,10 @@ import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
 import type Model from '@ember-data/model';
+import type { StructuredDataDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CollectionResourceDataDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import type { CollectionResourceDataDocument } from '@ember-data/types/cache/document';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -74,7 +75,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
   test('simple collection resource documents are correctly managed', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
-    store.registerSchemaDefinitionService(new TestSchema());
+    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put({
       content: {
@@ -83,7 +84,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
           { type: 'user', id: '2', attributes: { name: 'Wesley' } },
         ],
       },
-    } as StructuredDocument<CollectionResourceDocument>) as CollectionResourceDataDocument;
+    }) as CollectionResourceDataDocument;
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
     const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
 
@@ -92,7 +93,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
   test('collection resource documents are correctly cached', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
-    store.registerSchemaDefinitionService(new TestSchema());
+    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users' },
@@ -102,7 +103,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
           { type: 'user', id: '2', attributes: { name: 'Wesley' } },
         ],
       },
-    } as StructuredDocument<CollectionResourceDocument>) as CollectionResourceDataDocument;
+    }) as CollectionResourceDataDocument;
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
@@ -118,7 +119,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
     const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
     assert.deepEqual(
-      structuredDocument,
+      structuredDocument as Partial<StructuredDataDocument<CollectionResourceDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users' },
         content: {
@@ -141,13 +142,13 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
   test('resources are accessible via `peek`', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
-    store.registerSchemaDefinitionService(new TestSchema());
+    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put({
       content: {
         data: [{ type: 'user', id: '1', attributes: { name: 'Chris' } }],
       },
-    } as StructuredDocument<CollectionResourceDocument>) as CollectionResourceDataDocument;
+    }) as CollectionResourceDataDocument;
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
     assert.deepEqual(responseDocument.data, [identifier], 'We were given the correct data back');
@@ -177,7 +178,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
       content: {
         data: [{ type: 'user', id: '1', attributes: { username: '@runspired' } }],
       },
-    } as StructuredDocument<CollectionResourceDocument>);
+    });
 
     resourceData = store.cache.peek(identifier);
     assert.deepEqual(
@@ -210,7 +211,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
   test('resource relationships are accessible via `peek`', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
 
-    store.registerSchemaDefinitionService(
+    store.registerSchema(
       new TestSchema<'user'>({
         user: {
           attributes: {
@@ -312,7 +313,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
             },
           ],
         },
-      } as StructuredDocument<CollectionResourceDocument>) as CollectionResourceDataDocument;
+      }) as CollectionResourceDataDocument;
     });
     const identifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
     const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });

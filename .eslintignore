@@ -10,7 +10,7 @@
 **/tmp/
 /packages/-ember-data/docs/
 /packages/tracking/addon/
-/packages/request/addon/
+/packages/request/
 /packages/store/addon/
 /packages/adapter/addon/
 /packages/serializer/addon/
@@ -22,6 +22,7 @@
 /packages/rest/addon/
 /packages/active-record/addon/
 /packages/data-worker/addon/
+/packages/holodeck/
 
 **/DEBUG/
 

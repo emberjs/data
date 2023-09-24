@@ -1,6 +1,7 @@
 /**
  * @module @ember-data/experimental-preview-types
  */
+import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
@@ -8,7 +9,7 @@ import { CollectionResourceRelationship, SingleResourceRelationship } from '../q
 import { JsonApiError } from '../q/record-data-json-api';
 import { ResourceBlob } from './aliases';
 import { Change } from './change';
-import { ResourceDocument, SingleResourceDataDocument, StructuredDataDocument, StructuredDocument } from './document';
+import { ResourceDocument, SingleResourceDataDocument } from './document';
 import { StableDocumentIdentifier } from './identifier';
 import { Mutation } from './mutations';
 import { Operation } from './operations';
@@ -72,7 +73,7 @@ export interface Cache {
    * @returns {ResourceDocument}
    * @public
    */
-  put<T>(doc: StructuredDocument<T>): ResourceDocument;
+  put<T>(doc: StructuredDocument<T> | { content: T }): ResourceDocument;
 
   /**
    * Update the "remote" or "canonical" (persisted) state of the Cache

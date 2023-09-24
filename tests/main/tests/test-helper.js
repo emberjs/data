@@ -1,5 +1,6 @@
 import { setApplication } from '@ember/test-helpers';
 
+import { setTestId } from '@warp-drive/holodeck';
 import * as QUnit from 'qunit';
 import { setup } from 'qunit-dom';
 
@@ -16,6 +17,13 @@ QUnit.dump.maxDepth = 5;
 setup(QUnit.assert);
 
 configureAsserts();
+
+QUnit.hooks.beforeEach(function (assert) {
+  setTestId(assert.test.testId);
+});
+QUnit.hooks.afterEach(function (assert) {
+  setTestId(null);
+});
 
 setApplication(Application.create(config.APP));
 
