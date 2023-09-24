@@ -56,7 +56,7 @@ interface AssertNoneResult {
 
 // Case is necessary outside of node types, which we sometimes resolve
 // global times apparently missing this property.
-(Error as { stackTraceLimit: number }).stackTraceLimit = 50;
+(Error as unknown as { stackTraceLimit: number }).stackTraceLimit = 50;
 
 /**
  * Returns a qunit assert result object which passes if the given deprecation
