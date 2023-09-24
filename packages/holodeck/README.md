@@ -24,6 +24,20 @@
       title="WarpDrive Holodeck" />
 </p>
 
+
+- ⚡️ Real network requests
+  - brotli compression
+  - http/2
+  - no CORS preflight requests
+- 💜 Unparalleled DX
+  - debug real network requests
+  - every request is scoped to a test
+  - run as many tests as desired simultaneously
+- 🔥 Blazing Fast Tests
+  - record your tests when you change them
+  - replays from cache until you change them again
+  - zero-work: setup work is skipped when in replay mode
+
 ## Installation
 
 > ⚠️ Private
@@ -34,6 +48,27 @@ This package may currently only be used within EmberData. A public version is co
 "devDependencies": {
   "@warp-drive/holodeck": "workspace:*"
 }
+```
+
+## Usage
+#### Mocking from Within a Test
+
+```ts
+import { GET } from '@warp-drive/holodeck/mock';
+
+await GET('users/1', () => ({
+  data: {
+    id: '1',
+    type: 'user',
+    attributes: {
+      name: 'Chris Thoburn',
+    },
+  },
+
+// set RECORD to false or remove
+// the options hash entirely once the request
+// has been recorded
+}), { RECORD: true });
 ```
 
 ## Motivations
