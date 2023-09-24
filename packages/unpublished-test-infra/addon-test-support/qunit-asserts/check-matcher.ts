@@ -1,8 +1,8 @@
-function includes(message, search) {
-  return message.includes ? message.includes(search) : message.indexOf(search) !== -1;
+function includes(message: string, search: string) {
+  return message.includes ? message.includes(search) : message.includes(search);
 }
 
-export function checkMatcher(message, matcher) {
+export function checkMatcher(message: string, matcher: string | RegExp) {
   if (typeof matcher === 'string') {
     return includes(message, matcher);
   } else if (matcher instanceof RegExp) {
