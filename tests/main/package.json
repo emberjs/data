@@ -15,11 +15,11 @@
   "scripts": {
     "build": "ember build",
     "test:try-one": "ember try:one",
-    "mock-server:start": "pm2 start holodeck ./mock-server.mjs -f",
-    "mock-server:stop": "pm2 stop holodeck ./mock-server.mjs",
+    "holodeck:start-program": "holodeck start",
+    "holodeck:end-program": "holodeck end",
     "launch:tests": "ember test --port=0 --serve --no-launch",
-    "start": "with-mocks pnpm launch:tests",
-    "test": "with-mocks ember test --test-port=0"
+    "start": "holodeck run pnpm launch:tests",
+    "test": "holodeck run ember test --test-port=0"
   },
   "author": "",
   "license": "MIT",
