@@ -3,17 +3,16 @@ import { DEBUG } from '@ember-data/env';
 import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
 import { createFuture, isFuture } from './future';
-import type {
-  DeferredFuture,
-  Future,
-  GodContext,
-  Handler,
-  RequestInfo,
-  StructuredDataDocument,
-  StructuredErrorDocument,
+import {
+  STRUCTURED,
+  type DeferredFuture,
+  type Future,
+  type GodContext,
+  type Handler,
+  type RequestInfo,
+  type StructuredDataDocument,
+  type StructuredErrorDocument,
 } from './types';
-
-export const STRUCTURED = Symbol('DOC');
 
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());
@@ -21,7 +20,7 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
   inbound.then(
     (doc: StructuredDataDocument<T>) => {
       const document = {
-        [STRUCTURED]: true,
+        [STRUCTURED]: true as const,
         request: owner.request,
         response: doc.response,
         content: doc.content,
@@ -57,7 +56,7 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
 }
 
 function isDoc<T>(doc: T | StructuredDataDocument<T>): doc is StructuredDataDocument<T> {
-  return doc && doc[STRUCTURED] === true;
+  return doc && (doc as StructuredDataDocument<T>)[STRUCTURED] === true;
 }
 
 export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbound: DeferredFuture<T>): Future<T> {
@@ -75,7 +74,7 @@ export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbo
         content = content.content;
       }
       const document = {
-        [STRUCTURED]: true,
+        [STRUCTURED]: true as const,
         request: owner.request,
         response: owner.getResponse(),
         content,

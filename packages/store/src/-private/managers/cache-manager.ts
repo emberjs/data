@@ -1,12 +1,8 @@
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
-import type { StructuredDataDocument } from '@ember-data/request/-private/types';
+import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import type { RelationshipDiff } from '@ember-data/types/cache/cache';
 import type { Change } from '@ember-data/types/cache/change';
-import type {
-  ResourceDocument,
-  SingleResourceDataDocument,
-  StructuredDocument,
-} from '@ember-data/types/cache/document';
+import type { ResourceDocument, SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type {

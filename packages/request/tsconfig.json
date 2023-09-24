@@ -1,11 +1,11 @@
 {
-  "include": ["client/**/*"],
+  "include": ["src/**/*"],
   "compilerOptions": {
     "target": "ES2022",
     "module": "ES2020",
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "declarationDir": "dist",
+    "declarationDir": "addon",
     "emitDeclarationOnly": true,
     "noEmit": false,
 
@@ -40,6 +40,13 @@
     "inlineSourceMap": true,
     "inlineSources": true,
 
-    "baseUrl": "client",
+    "baseUrl": "src",
+
+    "paths": {
+      "@ember-data/store": ["../store/src"],
+      "@ember-data/store/*": ["../store/src/*"],
+      "@ember-data/types/*": ["../../ember-data-types/*"],
+      "@ember-data/env": ["../private-build-infra/virtual-packages/env.d.ts"],
+    }
   }
 }

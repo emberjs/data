@@ -54,7 +54,6 @@ interface AssertNoneResult {
   message: string;
 }
 
-// @ts-expect-error
 Error.stackTraceLimit = 50;
 
 /**

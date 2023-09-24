@@ -35,7 +35,9 @@
     "ember-data-logo-light.svg"
   ],
   "scripts": {
-    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build:types": "tsc",
+    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build": "pnpm build:types && pnpm build:client",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
@@ -48,6 +50,9 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -58,6 +63,7 @@
     "@babel/plugin-transform-private-methods": "^7.22.5",
     "@babel/plugin-transform-runtime": "^7.22.15",
     "@babel/plugin-transform-typescript": "^7.22.15",
+    "@ember-data/store": "workspace:5.5.0-alpha.2",
     "@babel/preset-env": "^7.22.20",
     "@babel/preset-typescript": "^7.22.15",
     "@babel/runtime": "^7.22.15",

@@ -574,6 +574,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.22.15
         version: 7.22.15
+      '@ember-data/request':
+        specifier: workspace:5.5.0-alpha.2
+        version: file:packages/request(@babel/core@7.22.20)
       '@embroider/addon-dev':
         specifier: ^4.1.0
         version: 4.1.0(rollup@3.29.2)
@@ -595,6 +598,9 @@ importers:
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
+    dependenciesMeta:
+      '@ember-data/request':
+        injected: true
 
   packages/json-api:
     dependencies:
@@ -964,6 +970,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.22.15
         version: 7.22.15
+      '@ember-data/store':
+        specifier: workspace:5.5.0-alpha.2
+        version: file:packages/store(@babel/core@7.22.20)(@ember-data/tracking@packages+tracking)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)(ember-source@5.3.0)
       '@embroider/addon-dev':
         specifier: ^4.1.0
         version: 4.1.0(rollup@3.29.2)
@@ -987,6 +996,8 @@ importers:
         version: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
+        injected: true
+      '@ember-data/store':
         injected: true
 
   packages/request-utils:
@@ -1196,6 +1207,9 @@ importers:
       '@embroider/macros':
         specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.22.20)
+      '@glimmer/validator':
+        specifier: ^0.84.3
+        version: 0.84.3
       ember-cached-decorator-polyfill:
         specifier: ^1.0.2
         version: 1.0.2(@babel/core@7.22.20)(ember-source@5.3.0)
@@ -5405,7 +5419,6 @@ packages:
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/global-context': 0.84.3
-    dev: true
 
   /@glimmer/vm-babel-plugins@0.84.3(@babel/core@7.22.20):
     resolution: {integrity: sha512-fucWuuN7Q9QFB0ODd+PCltcTkmH4fLqYyXGArrfLt/TYN8gLv0yo00mPwFOSY7MWti/MUx88xd20/PycvYtg8w==}
@@ -17623,6 +17636,7 @@ packages:
       '@ember/string': 3.1.1(@babel/core@7.22.20)
       '@embroider/macros': 1.13.1(@babel/core@7.22.20)
       '@glimmer/tracking': 1.1.2
+      '@glimmer/validator': 0.84.3
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.20)(ember-source@5.3.0)
       ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.20)
     transitivePeerDependencies:
@@ -17646,6 +17660,7 @@ packages:
       '@ember/string': 3.1.1(@babel/core@7.22.20)
       '@embroider/macros': 1.13.1(@babel/core@7.22.20)
       '@glimmer/tracking': 1.1.2
+      '@glimmer/validator': 0.84.3
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.22.20)(ember-source@5.3.0)
       ember-cli-babel: 8.0.0(patch_hash=u45mf2ptxi5n6ldhiqont5zk3y)(@babel/core@7.22.20)
     transitivePeerDependencies:

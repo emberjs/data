@@ -190,19 +190,8 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
         }
       }
       let result: SingleResourceDataDocument;
-      /*
-      // TODO @runspired re-evaluate the below claim now that
-      // the save request pipeline is more streamlined.
-
-      Note to future spelunkers hoping to optimize.
-      We rely on this `run` to create a run loop if needed
-      that `store._push` and `store.saveRecord` will both share.
-
-      We use `join` because it is often the case that we
-      have an outer run loop available still from the first
-      call to `store._push`;
-     */
       store._join(() => {
+        // @ts-expect-error we don't have access to a response in legacy
         result = store.cache.didCommit(identifier, { request: context.request, content: payload });
       });
       return store.peekRecord(result!.data!);

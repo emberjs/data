@@ -4,9 +4,10 @@ import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
 import type Model from '@ember-data/model';
+import type { StructuredDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { SingleResourceDataDocument, StructuredDocument } from '@ember-data/types/cache/document';
+import type { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
@@ -75,13 +76,13 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test('simple single resource documents are correctly managed', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
-    store.registerSchemaDefinitionService(new TestSchema());
+    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put({
       content: {
         data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
       },
-    } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+    }) as SingleResourceDataDocument;
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
@@ -92,14 +93,14 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test('single resource documents are correctly cached', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
-    store.registerSchemaDefinitionService(new TestSchema());
+    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put({
       request: { url: 'https://api.example.com/v1/users/1' },
       content: {
         data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
       },
-    } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+    }) as SingleResourceDataDocument;
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
@@ -109,7 +110,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
     const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users/1' });
     assert.deepEqual(
-      structuredDocument,
+      structuredDocument as Partial<StructuredDocument<SingleResourceDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users/1' },
         content: {
@@ -139,7 +140,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       content: {
         data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
       },
-    } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+    }) as SingleResourceDataDocument;
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
@@ -151,7 +152,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users/1' });
     assert.strictEqual(structuredDocument2, null, 'we did not use the url as the key');
     assert.deepEqual(
-      structuredDocument,
+      structuredDocument as Partial<StructuredDocument<SingleResourceDocument>>,
       {
         request: { url: 'https://api.example.com/v1/users/1', cacheOptions: { key: 'user-1' } },
         content: {
@@ -178,7 +179,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   test("notifications are generated for create and update of the document's cache key", function (assert) {
     assert.expect(10);
     const store = this.owner.lookup('service:store') as unknown as Store;
-    store.registerSchemaDefinitionService(new TestSchema());
+    store.registerSchema(new TestSchema());
     const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
       url: '/api/v1/query?type=user&name=Chris&limit=1',
     })!;
@@ -212,7 +213,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         content: {
           data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
         },
-      } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+      }) as SingleResourceDataDocument;
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
       assert.strictEqual(responseDocument.data, identifier, 'We were given the correct data back');
@@ -227,7 +228,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         content: {
           data: { type: 'user', id: '2', attributes: { name: 'Chris' } },
         },
-      } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+      }) as SingleResourceDataDocument;
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       assert.strictEqual(responseDocument2.data, identifier2, 'We were given the correct data back');
     });
@@ -235,13 +236,13 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test('resources are accessible via `peek`', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
-    store.registerSchemaDefinitionService(new TestSchema());
+    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put({
       content: {
         data: { type: 'user', id: '1', attributes: { name: 'Chris' } },
       },
-    } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+    }) as SingleResourceDataDocument;
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
     assert.strictEqual(responseDocument.data, identifier, 'We were given the correct data back');
@@ -271,7 +272,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       content: {
         data: { type: 'user', id: '1', attributes: { username: '@runspired' } },
       },
-    } as StructuredDocument<SingleResourceDocument>);
+    });
 
     resourceData = store.cache.peek(identifier);
     assert.deepEqual(
@@ -304,7 +305,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   test('single resource relationships are accessible via `peek`', function (assert) {
     const store = this.owner.lookup('service:store') as unknown as Store;
 
-    store.registerSchemaDefinitionService(
+    store.registerSchema(
       new TestSchema<'user'>({
         user: {
           attributes: {
@@ -404,7 +405,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
             },
           ],
         },
-      } as StructuredDocument<SingleResourceDocument>) as SingleResourceDataDocument;
+      }) as SingleResourceDataDocument;
     });
     const identifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
     const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });

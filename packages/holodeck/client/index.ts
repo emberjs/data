@@ -1,4 +1,4 @@
-import type { Future, Handler, NextFn, RequestContext, RequestInfo } from '@ember-data/request/-private/types';
+import type { Future, Handler, NextFn, RequestContext, RequestInfo } from '@ember-data/request';
 
 import type { ScaffoldGenerator } from './mock';
 

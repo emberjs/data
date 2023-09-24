@@ -8,7 +8,7 @@ import { setupTest } from 'ember-qunit';
 
 import { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import Model, { attr } from '@ember-data/model';
-import { StructuredDataDocument } from '@ember-data/request/-private/types';
+import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
@@ -20,7 +20,6 @@ import type {
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
-  StructuredDocument,
 } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';

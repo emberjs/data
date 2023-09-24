@@ -5,7 +5,6 @@ import { tagForProperty } from '@ember/-internals/metal';
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
-// @ts-expect-error
 import { dirtyTag } from '@glimmer/validator';
 import Ember from 'ember';
 
@@ -65,8 +64,10 @@ export function notifyArray(arr: IdentifierArray) {
   addToTransaction(arr[IDENTIFIER_ARRAY_TAG]);
 
   if (DEPRECATE_COMPUTED_CHAINS) {
+    // @ts-expect-error tagForProperty is mistyped to Tag instead of DirtyableTag
     // eslint-disable-next-line
     dirtyTag(tagForProperty(arr, 'length'));
+    // @ts-expect-error tagForProperty is mistyped to Tag instead of DirtyableTag
     // eslint-disable-next-line
     dirtyTag(tagForProperty(arr, '[]'));
   }

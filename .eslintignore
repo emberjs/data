@@ -10,7 +10,7 @@
 **/tmp/
 /packages/-ember-data/docs/
 /packages/tracking/addon/
-/packages/request/addon/
+/packages/request/
 /packages/store/addon/
 /packages/adapter/addon/
 /packages/serializer/addon/

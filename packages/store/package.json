@@ -51,7 +51,8 @@
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.2",
     "@embroider/macros": "^1.13.1",
     "ember-cached-decorator-polyfill": "^1.0.2",
-    "ember-cli-babel": "^8.0.0"
+    "ember-cli-babel": "^8.0.0",
+    "@glimmer/validator": "^0.84.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.15",

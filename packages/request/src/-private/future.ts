@@ -1,12 +1,8 @@
-import { StructuredDocument } from '@ember-data/types/cache/document';
-
 import type { ContextOwner } from './context';
-import type { Deferred, DeferredFuture, Future } from './types';
-
-const IS_FUTURE = Symbol('IS_FUTURE');
+import { IS_FUTURE, type Deferred, type DeferredFuture, type Future, type StructuredDocument } from './types';
 
 export function isFuture<T>(maybe: T | Future<T> | Promise<T>): maybe is Future<T> {
-  return maybe[IS_FUTURE] === true;
+  return maybe && maybe instanceof Promise && (maybe as Future<T>)[IS_FUTURE] === true;
 }
 
 export function createDeferred<T>(): Deferred<T> {
