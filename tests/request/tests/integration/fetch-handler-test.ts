@@ -9,7 +9,7 @@ import Fetch from '@ember-data/request/fetch';
 module('RequestManager | Fetch Handler', function (hooks) {
   test('Parses 200 Responses', async function (assert) {
     const manager = new RequestManager();
-    manager.use([MockServerHandler as unknown as Handler, Fetch]);
+    manager.use([MockServerHandler, Fetch]);
 
     await GET('users/1', () => ({
       data: {
