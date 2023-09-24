@@ -3,7 +3,6 @@ import { GET } from '@warp-drive/holodeck/mock';
 import { module, test } from 'qunit';
 
 import RequestManager from '@ember-data/request';
-import type { Handler } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 
 module('RequestManager | Fetch Handler', function (hooks) {
