@@ -50,16 +50,12 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
     }
   },
   "devDependencies": {
     "@babel/cli": "^7.22.15",
     "@babel/core": "^7.22.20",
     "@babel/plugin-transform-typescript": "^7.22.15",
-    "@ember-data/store": "workspace:5.5.0-alpha.2",
     "@babel/preset-env": "^7.22.20",
     "@babel/preset-typescript": "^7.22.15",
     "@babel/runtime": "^7.22.15",
