@@ -65,8 +65,6 @@
       "@ember-data/model/*": ["packages/model/src/*"],
       "@ember-data/graph": ["packages/graph/src"],
       "@ember-data/graph/*": ["packages/graph/src/*"],
-      "@ember-data/mock-server": ["packages/mock-server/client"],
-      "@ember-data/mock-server/*": ["packages/mock-server/client/*"],
       "@ember-data/adapter": ["packages/adapter/src"],
       "@ember-data/adapter/*": ["packages/adapter/src/*"],
       "@ember-data/adapter/error": ["packages/adapter/src/error"],

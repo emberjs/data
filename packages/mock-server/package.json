@@ -1,5 +1,5 @@
 {
-  "name": "@ember-data/mock-server",
+  "name": "@warp-drive/holodeck",
   "description": "⚡️ Simple, Fast HTTP Mocking for Tests",
   "version": "5.5.0-alpha.2",
   "private": true,
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "packages/mock-server"
+    "directory": "packages/holodeck"
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
@@ -16,22 +16,19 @@
     "node": "16.* || >= 18"
   },
   "keywords": [
-    "http-mock",
-    "ember-addon"
+    "http-mock"
   ],
   "volta": {
     "extends": "../../package.json"
   },
   "dependencies": {
-    "pm2": "^5.3.0",
+    "chalk": "^4.1.2",
     "@hono/node-server": "^1.1.1",
-    "hono": "^3.6.3",
-    "ember-cli-babel": "^8.0.0"
+    "hono": "^3.6.3"
   },
   "files": [
     "bun",
-    "addon-main.js",
-    "addon",
+    "dist",
     "README.md",
     "LICENSE.md",
     "server",
@@ -39,18 +36,14 @@
     "ember-data-logo-light.svg"
   ],
   "bin": {
-    "with-mocks": "./bin/with-mocks.mjs"
+    "with-mocks": "./bin/with-mocks.mjs",
+    "holodeck": "./bin/holodeck.mjs"
   },
   "scripts": {
-    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build": "rollup --config",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
-  },
-  "ember-addon": {
-    "main": "addon-main.js",
-    "type": "addon",
-    "version": 1
   },
   "devDependencies": {
     "@babel/cli": "^7.22.15",
@@ -70,10 +63,7 @@
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0"
   },
-  "ember": {
-    "edition": "octane"
-  },
   "main": "server/index.mjs",
   "module": "server/index.mjs",
-  "browser": "addon/index.js"
+  "browser": "dist/index.js"
 }

@@ -107,7 +107,7 @@ function createTestHandler(projectRoot) {
               code: 'MISSING_X_TEST_ID_HEADER',
               title: 'Request to the http mock server is missing the `X-Test-Id` header',
               detail:
-                "The `X-Test-Id` header is used to identify the test that is making the request to the mock server. This is used to ensure that the mock server is only used for the test that is currently running. If using @ember-data/request add import { MockServerHandler } from '@ember-data/mock-server'; to your request handlers.",
+                "The `X-Test-Id` header is used to identify the test that is making the request to the mock server. This is used to ensure that the mock server is only used for the test that is currently running. If using @ember-data/request add import { MockServerHandler } from '@warp-drive/holodeck'; to your request handlers.",
               source: { header: 'X-Test-Id' },
             },
           ],
@@ -126,7 +126,7 @@ function createTestHandler(projectRoot) {
               code: 'MISSING_X_TEST_REQUEST_NUMBER_HEADER',
               title: 'Request to the http mock server is missing the `X-Test-Request-Number` header',
               detail:
-                "The `X-Test-Request-Number` header is used to identify the request number for the current test. This is used to ensure that the mock server response is deterministic for the test that is currently running. If using @ember-data/request add import { MockServerHandler } from '@ember-data/mock-server'; to your request handlers.",
+                "The `X-Test-Request-Number` header is used to identify the request number for the current test. This is used to ensure that the mock server response is deterministic for the test that is currently running. If using @ember-data/request add import { MockServerHandler } from '@warp-drive/holodeck'; to your request handlers.",
               source: { header: 'X-Test-Request-Number' },
             },
           ],

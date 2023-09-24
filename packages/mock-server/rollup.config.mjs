@@ -4,7 +4,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 const addon = new Addon({
   srcDir: 'client',
-  destDir: 'addon',
+  destDir: 'dist',
 });
 
 export default {
@@ -12,7 +12,7 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: ['@ember/debug'],
+  external: [],
 
   plugins: [
     // These are the modules that users should be able to import from your

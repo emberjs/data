@@ -1,7 +1,7 @@
+import { MockServerHandler } from '@warp-drive/holodeck';
+import { GET } from '@warp-drive/holodeck/mock';
 import { module, test } from 'qunit';
 
-import { MockServerHandler } from '@ember-data/mock-server';
-import { GET } from '@ember-data/mock-server/mock';
 import RequestManager from '@ember-data/request';
 import type { Handler } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';

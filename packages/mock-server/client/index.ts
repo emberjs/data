@@ -1,5 +1,7 @@
 import type { Future, Handler, NextFn, RequestContext, RequestInfo } from '@ember-data/request/-private/types';
 
+import type { ScaffoldGenerator } from './mock';
+
 let testId: string | null = null;
 let testRequestNumber = 0;
 let testMockNumber = 0;
@@ -38,15 +40,7 @@ export const MockServerHandler: Handler = {
   },
 };
 
-interface Scaffold {
-  status: number;
-  headers: Record<string, string>;
-  body: Record<string, string> | string | null;
-  method: string;
-  url: string;
-  response: Record<string, unknown>;
-}
-export async function mock(generate: () => Scaffold, isRecording: boolean) {
+export async function mock(generate: ScaffoldGenerator, isRecording: boolean) {
   if (!testId) {
     throw new Error(`Cannot call "mock" before configuring a testId. Use setTestId to set the testId for each test`);
   }
