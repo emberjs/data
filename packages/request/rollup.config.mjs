@@ -22,7 +22,7 @@ export default {
     nodeResolve({ extensions: ['.ts'] }),
     babel({
       extensions: ['.ts'],
-      babelHelpers: 'runtime', // we should consider "external",
+      babelHelpers: 'inline', // we should consider "external",
     }),
 
     // Remove leftover build artifacts when starting a new build.

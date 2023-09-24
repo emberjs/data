@@ -2,8 +2,17 @@
 /**
  * @module @ember-data/request
  */
-import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+
+// TODO use the real type once it is shipped
+interface StableRecordIdentifier {
+  type: string;
+  id: string | null;
+  lid: string;
+}
+
+
+// TODO use the real type once it is shipped
+type Store = unknown;
 
 export const IS_FUTURE = Symbol('IS_FUTURE');
 export const STRUCTURED = Symbol('DOC');

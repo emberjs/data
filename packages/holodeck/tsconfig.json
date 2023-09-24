@@ -10,7 +10,8 @@
     "noEmit": false,
 
     // Enable faster builds
-    "incremental": true,
+    // but causes us to not rebuild properly
+    "incremental": false,
 
     "allowJs": false,
     "checkJs": false,
@@ -41,5 +42,9 @@
     "inlineSources": true,
 
     "baseUrl": "client",
+
+    "paths": {
+      "@ember-data/request": ["../../request/addon"],
+    }
   }
 }

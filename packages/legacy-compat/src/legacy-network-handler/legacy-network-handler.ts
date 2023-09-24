@@ -110,7 +110,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   assert(`Expected an identifier`, Array.isArray(identifiers) && identifiers.length === 1);
 
   const manager = store._fetchManager;
-  assertIdentifierHasId(identifier!);
+  assertIdentifierHasId(identifier);
 
   return options.reload
     ? (manager.scheduleFetch(identifier, options, context.request) as Promise<T>)

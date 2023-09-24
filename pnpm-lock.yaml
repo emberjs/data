@@ -553,15 +553,6 @@ importers:
       '@babel/core':
         specifier: ^7.22.19
         version: 7.22.20(supports-color@8.1.1)
-      '@babel/plugin-proposal-decorators':
-        specifier: ^7.22.15
-        version: 7.22.15(@babel/core@7.22.20)
-      '@babel/plugin-transform-class-properties':
-        specifier: ^7.22.5
-        version: 7.22.5(@babel/core@7.22.20)
-      '@babel/plugin-transform-runtime':
-        specifier: ^7.22.15
-        version: 7.22.15(@babel/core@7.22.20)
       '@babel/plugin-transform-typescript':
         specifier: ^7.22.15
         version: 7.22.15(@babel/core@7.22.20)
@@ -946,18 +937,6 @@ importers:
       '@babel/core':
         specifier: ^7.22.20
         version: 7.22.20(supports-color@8.1.1)
-      '@babel/plugin-proposal-decorators':
-        specifier: ^7.22.15
-        version: 7.22.15(@babel/core@7.22.20)
-      '@babel/plugin-transform-class-properties':
-        specifier: ^7.22.5
-        version: 7.22.5(@babel/core@7.22.20)
-      '@babel/plugin-transform-private-methods':
-        specifier: ^7.22.5
-        version: 7.22.5(@babel/core@7.22.20)
-      '@babel/plugin-transform-runtime':
-        specifier: ^7.22.15
-        version: 7.22.15(@babel/core@7.22.20)
       '@babel/plugin-transform-typescript':
         specifier: ^7.22.15
         version: 7.22.15(@babel/core@7.22.20)

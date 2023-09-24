@@ -10,7 +10,8 @@
     "noEmit": false,
 
     // Enable faster builds
-    "incremental": true,
+    // but causes us to not rebuild properly
+    "incremental": false,
 
     "allowJs": false,
     "checkJs": false,
@@ -43,10 +44,7 @@
     "baseUrl": "src",
 
     "paths": {
-      "@ember-data/store": ["../store/src"],
-      "@ember-data/store/*": ["../store/src/*"],
-      "@ember-data/types/*": ["../../ember-data-types/*"],
-      "@ember-data/env": ["../private-build-infra/virtual-packages/env.d.ts"],
+      "@ember-data/env": ["../../private-build-infra/virtual-packages/env.d.ts"],
     }
   }
 }

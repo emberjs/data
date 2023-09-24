@@ -40,9 +40,9 @@
     "holodeck": "./bin/holodeck.js"
   },
   "scripts": {
-    "build:types": "tsc",
+    "build:types": "tsc --build --force",
     "build:client": "rollup --config",
-    "build": "pnpm build:types && pnpm build:client",
+    "build": "pnpm build:client && pnpm build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
@@ -55,9 +55,6 @@
   "devDependencies": {
     "@babel/cli": "^7.22.15",
     "@babel/core": "^7.22.19",
-    "@babel/plugin-proposal-decorators": "^7.22.15",
-    "@babel/plugin-transform-class-properties": "^7.22.5",
-    "@babel/plugin-transform-runtime": "^7.22.15",
     "@babel/plugin-transform-typescript": "^7.22.15",
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-typescript": "^7.22.15",
