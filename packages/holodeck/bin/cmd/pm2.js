@@ -31,10 +31,9 @@ export default async function pm2Delegate(cmd, _args) {
             console.error(err);
             reject(err);
           } else {
-            console.log(`pm2 ${cmd} successful`);
+            console.log(`pm2 ${cmd} successful for ${options.name}`);
             resolve();
           }
-
         }
       );
     });
