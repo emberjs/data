@@ -3,13 +3,12 @@ import { GET } from '@warp-drive/holodeck/mock';
 import { module, test } from 'qunit';
 
 import RequestManager from '@ember-data/request';
-import type { Handler } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 
 module('RequestManager | Fetch Handler', function (hooks) {
   test('Parses 200 Responses', async function (assert) {
     const manager = new RequestManager();
-    manager.use([MockServerHandler as unknown as Handler, Fetch]);
+    manager.use([MockServerHandler, Fetch]);
 
     await GET('users/1', () => ({
       data: {
