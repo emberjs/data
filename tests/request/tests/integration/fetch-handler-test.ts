@@ -8,7 +8,8 @@ import Fetch from '@ember-data/request/fetch';
 function isNetworkError(e: unknown): asserts e is Error & {
   status: number;
   statusText: string;
-  code: string;
+  code: number;
+  name: string;
   isRequestError: boolean;
   content?: object;
   errors?: object[];
@@ -23,19 +24,15 @@ module('RequestManager | Fetch Handler', function (hooks) {
     const manager = new RequestManager();
     manager.use([MockServerHandler, Fetch]);
 
-    await GET(
-      'users/1',
-      () => ({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris Thoburn',
-          },
+    await GET('users/1', () => ({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Chris Thoburn',
         },
-      }),
-      { RECORD: true }
-    );
+      },
+    }));
 
     const doc = await manager.request({ url: 'https://localhost:1135/users/1' });
     const serialized = JSON.parse(JSON.stringify(doc)) as unknown;
@@ -82,25 +79,23 @@ module('RequestManager | Fetch Handler', function (hooks) {
     const manager = new RequestManager();
     manager.use([MockServerHandler, Fetch]);
 
-    await mock(() => {
-      return {
-        url: 'users/1',
-        status: 404,
-        headers: {},
-        method: 'GET',
-        statusText: 'Not Found',
-        body: null,
-        response: {
-          errors: [
-            {
-              status: '404',
-              title: 'Not Found',
-              detail: 'The resource does not exist.',
-            },
-          ],
-        },
-      };
-    }, true);
+    await mock(() => ({
+      url: 'users/1',
+      status: 404,
+      headers: {},
+      method: 'GET',
+      statusText: 'Not Found',
+      body: null,
+      response: {
+        errors: [
+          {
+            status: '404',
+            title: 'Not Found',
+            detail: 'The resource does not exist.',
+          },
+        ],
+      },
+    }));
 
     try {
       await manager.request({ url: 'https://localhost:1135/users/1' });
@@ -111,7 +106,8 @@ module('RequestManager | Fetch Handler', function (hooks) {
       assert.strictEqual(e.message, '[404] - https://localhost:1135/users/1', 'The error message is correct');
       assert.strictEqual(e.status, 404, 'The error status is correct');
       assert.strictEqual(e.statusText, 'Not Found', 'The error statusText is correct');
-      assert.strictEqual(e.code, 'NotFoundError', 'The error code is correct');
+      assert.strictEqual(e.code, 404, 'The error code is correct');
+      assert.strictEqual(e.name, 'NotFoundError', 'The error code is correct');
       assert.true(e.isRequestError, 'The error is a request error');
 
       // error.content is present
@@ -141,6 +137,38 @@ module('RequestManager | Fetch Handler', function (hooks) {
         ],
         'The error.errors is present'
       );
+    }
+  });
+
+  test('It provides useful error during abort', async function (assert) {
+    const manager = new RequestManager();
+    manager.use([MockServerHandler, Fetch]);
+
+    await GET('users/1', () => ({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Chris Thoburn',
+        },
+      },
+    }));
+
+    try {
+      const future = manager.request({ url: 'https://localhost:1135/users/1' });
+      await Promise.resolve();
+      future.abort();
+      await future;
+      assert.ok(false, 'Should have thrown');
+    } catch (e) {
+      isNetworkError(e);
+      assert.true(e instanceof DOMException, 'The error is a DOMException');
+      assert.strictEqual(e.message, 'The user aborted a request.', 'The error message is correct');
+      assert.strictEqual(e.status, 20, 'The error status is correct');
+      assert.strictEqual(e.statusText, 'Aborted', 'The error statusText is correct');
+      assert.strictEqual(e.code, 20, 'The error code is correct');
+      assert.strictEqual(e.name, 'AbortError', 'The error name is correct');
+      assert.true(e.isRequestError, 'The error is a request error');
     }
   });
 });

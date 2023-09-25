@@ -11,6 +11,7 @@
  * @module @ember-data/request/fetch
  * @main @ember-data/request/fetch
  */
+import type { HttpErrorProps } from '-private/utils';
 import { cloneResponseProperties, type Context } from './-private/context';
 
 const _fetch: typeof fetch =
@@ -79,13 +80,6 @@ const ERROR_STATUS_CODE_FOR = new Map([
   [511, 'Network Authentication Required'],
 ]);
 
-export type HttpErrorProps = {
-  code: string;
-  status: number;
-  statusText: string;
-  isRequestError: boolean;
-};
-
 /**
  * A basic handler which converts a request into a
  * `fetch` call presuming the response to be `json`.
@@ -101,7 +95,22 @@ export type HttpErrorProps = {
  */
 const Fetch = {
   async request(context: Context) {
-    let response = await _fetch(context.request.url!, context.request);
+    let response;
+
+    try {
+      response = await _fetch(context.request.url!, context.request);
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        (e as unknown as HttpErrorProps).statusText = 'Aborted';
+        (e as unknown as HttpErrorProps).status = 20;
+        (e as unknown as HttpErrorProps).isRequestError = true;
+      } else {
+        (e as unknown as HttpErrorProps).statusText = 'Unknown Network Error';
+        (e as unknown as HttpErrorProps).status = 0;
+        (e as unknown as HttpErrorProps).isRequestError = true;
+      }
+      throw e;
+    }
 
     const isError = !response.ok || response.status >= 400;
     const op = context.request.op;
@@ -132,7 +141,8 @@ const Fetch = {
       error.status = response.status;
       error.statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
       error.isRequestError = true;
-      error.code = error.statusText.replaceAll(' ', '') + 'Error';
+      error.code = error.status;
+      error.name = error.statusText.replaceAll(' ', '') + 'Error';
       error.content = errorPayload;
       throw error;
     } else {

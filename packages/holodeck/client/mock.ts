@@ -1,4 +1,4 @@
-import { mock } from '.';
+import { getIsRecording, mock } from '.';
 
 export interface Scaffold {
   status: number;
@@ -12,11 +12,6 @@ export interface Scaffold {
 
 export type ScaffoldGenerator = () => Scaffold;
 export type ResponseGenerator = () => Record<string, unknown>;
-
-let IS_RECORDING = false;
-export function setIsRecording(value: boolean) {
-  IS_RECORDING = Boolean(value);
-}
 
 /**
  * Sets up Mocking for a GET request on the mock server
@@ -50,7 +45,7 @@ export function GET(
       url,
       response: response(),
     }),
-    IS_RECORDING || (options?.RECORD ?? false)
+    getIsRecording() || (options?.RECORD ?? false)
   );
 }
 export function POST() {}

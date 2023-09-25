@@ -17,6 +17,14 @@ export function setTestId(str: string | null) {
   testId = str;
 }
 
+let IS_RECORDING = false;
+export function setIsRecording(value: boolean) {
+  IS_RECORDING = Boolean(value);
+}
+export function getIsRecording() {
+  return IS_RECORDING;
+}
+
 export const MockServerHandler: Handler = {
   async request<T>(context: RequestContext, next: NextFn<T>): Promise<StructuredDataDocument<T>> {
     if (!testId) {
@@ -39,7 +47,7 @@ export const MockServerHandler: Handler = {
       return await next(request);
 
     } catch (e) {
-      if (e instanceof Error) {
+      if (e instanceof Error && !(e instanceof DOMException)) {
         e.message = e.message.replace(queryForTest, '');
       }
       throw e;
@@ -47,12 +55,12 @@ export const MockServerHandler: Handler = {
   },
 };
 
-export async function mock(generate: ScaffoldGenerator, isRecording: boolean) {
+export async function mock(generate: ScaffoldGenerator, isRecording?: boolean) {
   if (!testId) {
     throw new Error(`Cannot call "mock" before configuring a testId. Use setTestId to set the testId for each test`);
   }
   const testMockNum = testMockNumber++;
-  if (isRecording) {
+  if (getIsRecording() || isRecording) {
     const url = `https://localhost:1135/__record?__xTestId=${testId}&__xTestRequestNumber=${testMockNum}`;
     await fetch(url, {
       method: 'POST',
