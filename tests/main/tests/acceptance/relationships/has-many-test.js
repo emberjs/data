@@ -2,10 +2,10 @@ import ArrayProxy from '@ember/array/proxy';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { click, find, findAll, render, rerender } from '@ember/test-helpers';
+import { click, find, findAll, render, rerender, setupOnerror } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
-import { module, test } from 'qunit';
+import QUnit, { module, test } from 'qunit';
 
 import { hbs } from 'ember-cli-htmlbars';
 import { render as legacyRender } from 'ember-data/test-support';
@@ -211,21 +211,19 @@ function makePeopleWithRelationshipLinks(removeData = true) {
 }
 
 module('async has-many rendering tests', function (hooks) {
-  let store;
-  let adapter;
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     owner.register('adapter:application', TestAdapter);
     owner.register('serializer:application', JSONAPISerializer);
-    store = owner.lookup('service:store');
-    adapter = store.adapterFor('application');
   });
 
   module('for data-no-link scenarios', function () {
     test('We can render an async hasMany', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -253,6 +251,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Re-rendering an async hasMany does not cause a new fetch', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -292,23 +292,48 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function (assert) {
-      assert.expect(11);
-      let people = makePeopleWithRelationshipData();
-      let parent = store.push({
+      const store = this.owner.lookup('service:store');
+      const people = makePeopleWithRelationshipData();
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
+      let hasFired = false;
 
-      adapter.setupPayloads(assert, [
-        { data: people.dict['4:has-parent-no-children'] },
-        new ServerError([], 'hard error while finding <person>5:has-parent-no-children'),
-      ]);
+      class TestAdapter {
+        static create() {
+          return new this();
+        }
+
+        shouldReloadRecord() {
+          return false;
+        }
+
+        shouldBackgroundReloadRecord() {
+          return false;
+        }
+
+        findRecord(_store, schema, id) {
+          assert.step(`findRecord ${schema.modelName} ${id}`);
+
+          if (id === '4:has-parent-no-children') {
+            return Promise.resolve({ data: people.dict['4:has-parent-no-children'] });
+          }
+          if (hasFired) {
+            assert.ok(false, 'We only reject a single time');
+            // prevent further recursive calls
+            return Promise.resolve({ data: people.dict['5:has-parent-no-children'] });
+          }
+          return Promise.reject(new Error('hard error while finding <person>5:has-parent-no-children'));
+        }
+      }
+      this.owner.register('adapter:application', TestAdapter);
 
       // render
       this.set('parent', parent);
 
-      let hasFired = false;
       // This function handles any unhandled promise rejections
       const globalPromiseRejectionHandler = (event) => {
+        assert.step('unhandledrejection');
         if (!hasFired) {
           hasFired = true;
           assert.ok(true, 'Children promise did reject');
@@ -319,7 +344,7 @@ module('async has-many rendering tests', function (hooks) {
           );
         } else {
           assert.ok(false, 'We only reject a single time');
-          adapter.pause(); // prevent further recursive calls to load the relationship
+          // adapter.pause(); // prevent further recursive calls to load the relationship
         }
         event.preventDefault();
         return false;
@@ -327,18 +352,16 @@ module('async has-many rendering tests', function (hooks) {
 
       // Here we assign our handler to the corresponding global, window property
       window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
-      let originalPushResult = assert.pushResult;
-      assert.pushResult = function (result) {
-        if (
-          result.result === false &&
-          result.message === 'global failure: Error: hard error while finding <person>5:has-parent-no-children'
-        ) {
-          return;
+      const onUncaughtException = QUnit.onUncaughtException;
+      QUnit.onUncaughtException = function (error) {
+        assert.step('onUncaughtException');
+        assert.strictEqual(error.message, 'hard error while finding <person>5:has-parent-no-children');
+        if (error.message !== 'hard error while finding <person>5:has-parent-no-children') {
+          onUncaughtException.call(this, error);
         }
-        return originalPushResult.call(this, result);
       };
 
-      await legacyRender(hbs`
+      await render(hbs`
         <ul>
         {{#each this.parent.children as |child|}}
           <li>{{child.name}}</li>
@@ -346,13 +369,13 @@ module('async has-many rendering tests', function (hooks) {
         </ul>
       `);
 
-      let names = findAll('li').map((e) => e.textContent);
+      const names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
 
-      let relationshipState = parent.hasMany('children').hasManyRelationship;
-      let RelationshipPromiseCache = LEGACY_SUPPORT.get(parent)._relationshipPromisesCache;
-      let RelationshipProxyCache = LEGACY_SUPPORT.get(parent)._relationshipProxyCache;
+      const relationshipState = parent.hasMany('children').hasManyRelationship;
+      const RelationshipPromiseCache = LEGACY_SUPPORT.get(parent)._relationshipPromisesCache;
+      const RelationshipProxyCache = LEGACY_SUPPORT.get(parent)._relationshipProxyCache;
 
       assert.true(relationshipState.definition.isAsync, 'The relationship is async');
       assert.false(relationshipState.state.isEmpty, 'The relationship is not empty');
@@ -363,13 +386,24 @@ module('async has-many rendering tests', function (hooks) {
       assert.true(!!RelationshipProxyCache['children'], 'The relationship has a promise proxy');
       assert.false(!!relationshipState.link, 'The relationship does not have a link');
 
+      await rerender();
+
+      assert.verifySteps([
+        'findRecord person 4:has-parent-no-children',
+        'findRecord person 5:has-parent-no-children',
+        'onUncaughtException',
+        'unhandledrejection',
+      ]);
+
       window.removeEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
-      assert.pushResult = originalPushResult;
+      QUnit.onUncaughtException = onUncaughtException;
     });
   });
 
   module('for link-no-data scenarios', function () {
     test('We can render an async hasMany with a link', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -394,6 +428,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Re-rendering an async hasMany with a link does not cause a new fetch', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -430,6 +466,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       assert.expect(11);
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
@@ -513,6 +551,8 @@ module('async has-many rendering tests', function (hooks) {
 
   module('for link-and-data scenarios', function () {
     test('We can render an async hasMany with a link and data', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       let people = makePeopleWithRelationshipLinks(false);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -537,6 +577,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Rendering an async hasMany with a link and data where data has been side-loaded does not fetch the link', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       let people = makePeopleWithRelationshipLinks(false);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -563,6 +605,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Re-rendering an async hasMany with a link and data does not cause a new fetch', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       let people = makePeopleWithRelationshipLinks(false);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
