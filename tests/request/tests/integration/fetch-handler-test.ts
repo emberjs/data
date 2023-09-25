@@ -1,24 +1,41 @@
-import { MockServerHandler } from '@warp-drive/holodeck';
+import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 import { module, test } from 'qunit';
 
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 
+function isNetworkError(e: unknown): asserts e is Error & {
+  status: number;
+  statusText: string;
+  code: string;
+  isRequestError: boolean;
+  content?: object;
+  errors?: object[];
+} {
+  if (!(e instanceof Error)) {
+    throw new Error('Expected a network error');
+  }
+}
+
 module('RequestManager | Fetch Handler', function (hooks) {
   test('Parses 200 Responses', async function (assert) {
     const manager = new RequestManager();
     manager.use([MockServerHandler, Fetch]);
 
-    await GET('users/1', () => ({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
+    await GET(
+      'users/1',
+      () => ({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
         },
-      },
-    }));
+      }),
+      { RECORD: true }
+    );
 
     const doc = await manager.request({ url: 'https://localhost:1135/users/1' });
     const serialized = JSON.parse(JSON.stringify(doc)) as unknown;
@@ -59,5 +76,71 @@ module('RequestManager | Fetch Handler', function (hooks) {
       },
       'The response is processed correctly'
     );
+  });
+
+  test('It provides useful errors', async function (assert) {
+    const manager = new RequestManager();
+    manager.use([MockServerHandler, Fetch]);
+
+    await mock(() => {
+      return {
+        url: 'users/1',
+        status: 404,
+        headers: {},
+        method: 'GET',
+        statusText: 'Not Found',
+        body: null,
+        response: {
+          errors: [
+            {
+              status: '404',
+              title: 'Not Found',
+              detail: 'The resource does not exist.',
+            },
+          ],
+        },
+      };
+    }, true);
+
+    try {
+      await manager.request({ url: 'https://localhost:1135/users/1' });
+      assert.ok(false, 'Should have thrown');
+    } catch (e) {
+      isNetworkError(e);
+      assert.true(e instanceof AggregateError, 'The error is an AggregateError');
+      assert.strictEqual(e.message, '[404] - https://localhost:1135/users/1', 'The error message is correct');
+      assert.strictEqual(e.status, 404, 'The error status is correct');
+      assert.strictEqual(e.statusText, 'Not Found', 'The error statusText is correct');
+      assert.strictEqual(e.code, 'NotFoundError', 'The error code is correct');
+      assert.true(e.isRequestError, 'The error is a request error');
+
+      // error.content is present
+      assert.deepEqual(
+        e.content,
+        {
+          errors: [
+            {
+              status: '404',
+              title: 'Not Found',
+              detail: 'The resource does not exist.',
+            },
+          ],
+        },
+        'The error.content is present'
+      );
+
+      // error.errors is present
+      assert.deepEqual(
+        e.errors,
+        [
+          {
+            status: '404',
+            title: 'Not Found',
+            detail: 'The resource does not exist.',
+          },
+        ],
+        'The error.errors is present'
+      );
+    }
   });
 });

@@ -8,6 +8,7 @@ import http2 from 'node:http2';
 import { dirname } from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'url';
+import { HTTPException } from 'hono/http-exception'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -75,17 +76,22 @@ function replayRequest(context, cacheKey) {
     );
   }
 
-  const { status, headers } = JSON.parse(meta);
+  const metaJson = JSON.parse(meta);
   const bodyPath = `${cacheKey}.body.br`;
 
-  context.status(status);
-  Object.entries(headers).forEach(([key, value]) => {
-    context.header(key, value);
+  const headers = new Headers(metaJson.headers || {});
+  const bodyInit = metaJson.status !== 204 && metaJson.status < 500 ? fs.createReadStream(bodyPath) : '';
+  const response = new Response(bodyInit, {
+    status: metaJson.status,
+    statusText: metaJson.statusText,
+    headers,
   });
 
-  if (status !== 204 && status < 500) {
-    return context.body(fs.createReadStream(bodyPath));
+  if (metaJson.status > 400) {
+    throw new HTTPException(metaJson.status, { res: response, message: metaJson.statusText });
   }
+
+  return response;
 }
 
 function createTestHandler(projectRoot) {
@@ -136,7 +142,7 @@ function createTestHandler(projectRoot) {
 
     if (req.method === 'POST' || niceUrl === '__record') {
       const payload = await req.json();
-      const { url, headers, method, status, body, response } = payload;
+      const { url, headers, method, status, statusText, body, response } = payload;
       const cacheKey = generateFilepath({
         projectRoot,
         testId,
@@ -163,7 +169,7 @@ function createTestHandler(projectRoot) {
       fs.mkdirSync(cacheDir, { recursive: true });
       fs.writeFileSync(
         `${cacheKey}.meta.json`,
-        JSON.stringify({ url, status, headers, method, requestBody: body }, null, 2)
+        JSON.stringify({ url, status, statusText, headers, method, requestBody: body }, null, 2)
       );
       fs.writeFileSync(`${cacheKey}.body.br`, compress(JSON.stringify(response)));
       context.status(204);

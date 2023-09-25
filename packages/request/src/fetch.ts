@@ -32,6 +32,59 @@ function cloneResponse(response: Response, overrides: Partial<Response>) {
 }
 
 const MUTATION_OPS = new Set(['updateRecord', 'createRecord', 'deleteRecord']);
+const ERROR_STATUS_CODE_FOR = new Map([
+  [400, 'Bad Request'],
+  [401, 'Unauthorized'],
+  [402, 'Payment Required'],
+  [403, 'Forbidden'],
+  [404, 'Not Found'],
+  [405, 'Method Not Allowed'],
+  [406, 'Not Acceptable'],
+  [407, 'Proxy Authentication Required'],
+  [408, 'Request Timeout'],
+  [409, 'Conflict'],
+  [410, 'Gone'],
+  [411, 'Length Required'],
+  [412, 'Precondition Failed'],
+  [413, 'Payload Too Large'],
+  [414, 'URI Too Long'],
+  [415, 'Unsupported Media Type'],
+  [416, 'Range Not Satisfiable'],
+  [417, 'Expectation Failed'],
+  [419, 'Page Expired'],
+  [420, 'Enhance Your Calm'],
+  [421, 'Misdirected Request'],
+  [422, 'Unprocessable Entity'],
+  [423, 'Locked'],
+  [424, 'Failed Dependency'],
+  [425, 'Too Early'],
+  [426, 'Upgrade Required'],
+  [428, 'Precondition Required'],
+  [429, 'Too Many Requests'],
+  [430, 'Request Header Fields Too Large'],
+  [431, 'Request Header Fields Too Large'],
+  [450, 'Blocked By Windows Parental Controls'],
+  [451, 'Unavailable For Legal Reasons'],
+  [500, 'Internal Server Error'],
+  [501, 'Not Implemented'],
+  [502, 'Bad Gateway'],
+  [503, 'Service Unavailable'],
+  [504, 'Gateway Timeout'],
+  [505, 'HTTP Version Not Supported'],
+  [506, 'Variant Also Negotiates'],
+  [507, 'Insufficient Storage'],
+  [508, 'Loop Detected'],
+  [509, 'Bandwidth Limit Exceeded'],
+  [510, 'Not Extended'],
+  [511, 'Network Authentication Required'],
+]);
+
+export type HttpErrorProps = {
+  code: string;
+  status: number;
+  statusText: string;
+  isRequestError: boolean;
+};
 
 /**
  * A basic handler which converts a request into a
@@ -71,9 +124,15 @@ const Fetch = {
       } catch {
         // void;
       }
-      const error: Error & { content: object | undefined } = new Error(
-        `[${response.status}] ${response.statusText} - ${response.url}`
-      ) as Error & { content: object | undefined };
+      // attempt errors discovery
+      const errors = Array.isArray(errorPayload) ? errorPayload : isDict(errorPayload) ? (Array.isArray(errorPayload.errors) ? errorPayload.errors : Array.isArray(errorPayload.data) ? errorPayload.data : null) : null;
+      const msg = `[${response.status}] ${response.statusText ? response.statusText + ' ' : ''}- ${response.url}`;
+
+      const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & { content: object | undefined } & HttpErrorProps;
+      error.status = response.status;
+      error.statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
+      error.isRequestError = true;
+      error.code = error.statusText.replaceAll(' ', '') + 'Error';
       error.content = errorPayload;
       throw error;
     } else {
@@ -81,5 +140,9 @@ const Fetch = {
     }
   },
 };
+
+function isDict(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === 'object';
+}
 
 export default Fetch;

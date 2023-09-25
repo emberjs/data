@@ -1,4 +1,4 @@
-import type { Future, Handler, NextFn, RequestContext, RequestInfo } from '@ember-data/request';
+import type { Handler, NextFn, RequestContext, RequestInfo, StructuredDataDocument } from '@ember-data/request';
 
 import type { ScaffoldGenerator } from './mock';
 
@@ -18,7 +18,7 @@ export function setTestId(str: string | null) {
 }
 
 export const MockServerHandler: Handler = {
-  request<T>(context: RequestContext, next: NextFn<T>): Future<T> {
+  async request<T>(context: RequestContext, next: NextFn<T>): Promise<StructuredDataDocument<T>> {
     if (!testId) {
       throw new Error(
         `MockServerHandler is not configured with a testId. Use setTestId to set the testId for each test`
@@ -27,16 +27,23 @@ export const MockServerHandler: Handler = {
 
     const request: RequestInfo = Object.assign({}, context.request);
     const isRecording = request.url!.endsWith('/__record');
-
-    request.url = request.url!.includes('?') ? request.url! + '&' : request.url! + '?';
-    request.url =
-      request.url + `__xTestId=${testId}&__xTestRequestNumber=${isRecording ? testMockNumber++ : testRequestNumber++}`;
+    const firstChar = request.url!.includes('?') ? '&' : '?';
+    const queryForTest = `${firstChar}__xTestId=${testId}&__xTestRequestNumber=${isRecording ? testMockNumber++ : testRequestNumber++}`;
+    request.url = request.url + queryForTest;
 
     request.mode = 'cors';
     request.credentials = 'omit';
     request.referrerPolicy = '';
 
-    return next(request);
+    try {
+      return await next(request);
+
+    } catch (e) {
+      if (e instanceof Error) {
+        e.message = e.message.replace(queryForTest, '');
+      }
+      throw e;
+    }
   },
 };
 
@@ -47,10 +54,8 @@ export async function mock(generate: ScaffoldGenerator, isRecording: boolean) {
   const testMockNum = testMockNumber++;
   if (isRecording) {
     const url = `https://localhost:1135/__record?__xTestId=${testId}&__xTestRequestNumber=${testMockNum}`;
-    await fetch({
-      url,
+    await fetch(url, {
       method: 'POST',
-      // @ts-expect-error not properly typed to allow string
       body: JSON.stringify(generate()),
       mode: 'cors',
       credentials: 'omit',
