@@ -29,7 +29,7 @@
     "ember-cli-babel": "^8.0.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-get-config": "^2.1.1",
-    "qunit": "^2.19.4",
+    "qunit": "^2.20.0",
     "qunit-dom": "^2.0.0",
     "semver": "^7.5.4",
     "testem": "^3.10.1",

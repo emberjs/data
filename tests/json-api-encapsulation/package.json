@@ -82,7 +82,7 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.3.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.19.4",
+    "qunit": "^2.20.0",
     "qunit-dom": "^2.0.0",
     "webpack": "^5.88.2"
   },
