@@ -1,8 +1,9 @@
 import type { ContextOwner } from './context';
 import { IS_FUTURE, type Deferred, type DeferredFuture, type Future, type StructuredDocument } from './types';
+import { enhanceReason } from './utils';
 
-export function isFuture<T>(maybe: T | Future<T> | Promise<T>): maybe is Future<T> {
-  return maybe && maybe instanceof Promise && (maybe as Future<T>)[IS_FUTURE] === true;
+export function isFuture<T>(maybe: unknown): maybe is Future<T> {
+  return Boolean(maybe && maybe instanceof Promise && (maybe as Future<T>)[IS_FUTURE] === true);
 }
 
 export function createDeferred<T>(): Deferred<T> {
@@ -50,8 +51,4 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   };
   deferred.promise = promise;
   return deferred;
-}
-
-function enhanceReason(reason?: string) {
-  return new DOMException(reason || 'The user aborted a request.', 'AbortError');
 }

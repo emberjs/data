@@ -1,7 +1,8 @@
-import { mock } from '.';
+import { getIsRecording, mock } from '.';
 
 export interface Scaffold {
   status: number;
+  statusText?: string;
   headers: Record<string, string>;
   body: Record<string, string> | string | null;
   method: string;
@@ -37,13 +38,14 @@ export function GET(
   return mock(
     () => ({
       status: options?.status ?? 200,
+      statusText: options?.statusText ?? 'OK',
       headers: options?.headers ?? {},
       body: options?.body ?? null,
       method: 'GET',
       url,
       response: response(),
     }),
-    options?.RECORD ?? false
+    getIsRecording() || (options?.RECORD ?? false)
   );
 }
 export function POST() {}

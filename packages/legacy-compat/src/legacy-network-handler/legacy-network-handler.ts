@@ -4,7 +4,7 @@ import { importSync } from '@embroider/macros';
 
 import { LOG_PAYLOADS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
-import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import type { Future, Handler, NextFn, StructuredDataDocument } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
@@ -49,10 +49,10 @@ const PotentialLegacyOperations = new Set([
 ]);
 
 export const LegacyNetworkHandler: Handler = {
-  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> {
+  request<T>(context: StoreRequestContext, next: NextFn<T>): Future<T> | Promise<StructuredDataDocument<T>> {
     // if we are not a legacy request, move on
     if (context.request.url || !context.request.op || !PotentialLegacyOperations.has(context.request.op)) {
-      return next(context.request) as unknown as Promise<T>;
+      return next(context.request);
     }
 
     const { store } = context.request;
@@ -80,7 +80,7 @@ export const LegacyNetworkHandler: Handler = {
       case 'deleteRecord':
         return saveRecord(context);
       default:
-        return next(context.request) as unknown as Promise<T>;
+        return next(context.request);
     }
   },
 };

@@ -1,7 +1,7 @@
 {
   "url": "users/1",
-  "status": 200,
-  "statusText": "OK",
+  "status": 404,
+  "statusText": "Not Found",
   "headers": {
     "Content-Type": "application/vnd.api+json",
     "Content-Encoding": "br",

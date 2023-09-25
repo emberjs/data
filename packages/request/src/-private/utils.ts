@@ -59,13 +59,25 @@ function isDoc<T>(doc: T | StructuredDataDocument<T>): doc is StructuredDataDocu
   return doc && (doc as StructuredDataDocument<T>)[STRUCTURED] === true;
 }
 
-export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T>, outbound: DeferredFuture<T>): Future<T> {
+export type HttpErrorProps = {
+  code: number;
+  name: string;
+  status: number;
+  statusText: string;
+  isRequestError: boolean;
+};
+
+export function enhanceReason(reason?: string) {
+  return new DOMException(reason || 'The user aborted a request.', 'AbortError');
+}
+
+export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T | StructuredDataDocument<T>>, outbound: DeferredFuture<T>): Future<T> {
   inbound.then(
-    (content: T) => {
+    (content: T | StructuredDataDocument<T>) => {
       if (owner.controller.signal.aborted) {
         // the next function did not respect the signal, we handle it here
         outbound.reject(
-          new DOMException((owner.controller.signal.reason as string) || 'The user aborted a request.', 'AbortError')
+          enhanceReason(owner.controller.signal.reason as string)
         );
         return;
       }
@@ -123,7 +135,7 @@ export function executeNextHandler<T>(
   }
 
   const context = new Context(owner);
-  let outcome: Promise<T> | Future<T>;
+  let outcome: Promise<T | StructuredDataDocument<T>> | Future<T>;
   try {
     outcome = wares[i].request<T>(context, next);
     if (DEBUG) {
@@ -138,7 +150,7 @@ export function executeNextHandler<T>(
       }
     }
   } catch (e) {
-    outcome = Promise.reject<T>(e);
+    outcome = Promise.reject<StructuredDataDocument<T>>(e);
   }
   const future = createFuture<T>(owner);
 
