@@ -6,6 +6,7 @@ import type {
   ImmutableRequestInfo,
   NextFn,
   RequestContext,
+  StructuredDataDocument,
   StructuredErrorDocument,
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
@@ -309,7 +310,7 @@ export const SkipCache = Symbol.for('ember-data:skip-cache');
 export const EnableHydration = Symbol.for('ember-data:enable-hydration');
 
 export const CacheHandler: Handler = {
-  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
+  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> {
     // if we have no cache or no cache-key skip cache handling
     if (!context.request.store || context.request.cacheOptions?.[SkipCache]) {
       return next(context.request);

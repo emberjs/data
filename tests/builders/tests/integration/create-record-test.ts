@@ -85,7 +85,7 @@ module('Integration - createRecord', function (hooks) {
     // intercept Handler APIs to ensure they are called as expected
     let response: unknown;
     const TestHandler: Handler = {
-      request<T>(context: RequestContext): Promise<T> | Future<T> {
+      request<T>(context: RequestContext): Promise<T | StructuredDataDocument<T>> | Future<T> {
         assert.step(`handle ${context.request.op} request`);
         assert.ok(response, 'response is set');
 
@@ -165,7 +165,7 @@ module('Integration - createRecord', function (hooks) {
     // intercept Handler APIs to ensure they are called as expected
     let response: unknown;
     const TestHandler: Handler = {
-      request<T>(context: RequestContext): Promise<T> | Future<T> {
+      request<T>(context: RequestContext): Promise<T | StructuredDataDocument<T>> | Future<T> {
         assert.step(`handle ${context.request.op} request`);
         assert.ok(response, 'response is set');
 
