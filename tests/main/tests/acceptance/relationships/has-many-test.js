@@ -374,12 +374,15 @@ module('async has-many rendering tests', function (hooks) {
         </ul>
       `);
 
-      // we render, which triggers a fetch
-      // and then render again. We don't fully trust the render
-      // waiter to wait for the promise to resolve so
-      // we use settled() to wait for the promise to resolve
-      // to help avoid flakey tests
+      await store._getAllPending();
       await settled();
+
+      assert.verifySteps([
+        'findRecord person 4:has-parent-no-children',
+        'findRecord person 5:has-parent-no-children',
+        'onUncaughtException',
+        'unhandledrejection',
+      ]);
 
       const names = findAll('li').map((e) => e.textContent);
 
@@ -400,12 +403,7 @@ module('async has-many rendering tests', function (hooks) {
 
       await rerender();
 
-      assert.verifySteps([
-        'findRecord person 4:has-parent-no-children',
-        'findRecord person 5:has-parent-no-children',
-        'onUncaughtException',
-        'unhandledrejection',
-      ]);
+      assert.verifySteps([]);
 
       window.removeEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
       QUnit.onUncaughtException = onUncaughtException;
