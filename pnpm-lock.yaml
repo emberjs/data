@@ -535,8 +535,8 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.1.1
-        version: 1.1.1
+        specifier: ^1.2.0
+        version: 1.2.0
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -5428,8 +5428,8 @@ packages:
   /@handlebars/parser@2.0.0:
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
 
-  /@hono/node-server@1.1.1:
-    resolution: {integrity: sha512-0ZfrcW8Y+TAGNzKGoDB1iQ7Gv7uGsGDOYlz7nckXcHRpK60Oxuz1ttiFmdHYmI6kGO+/VJ8Iy58LDhoTPqkiow==}
+  /@hono/node-server@1.2.0:
+    resolution: {integrity: sha512-aHT8lDMLpd7ioXJ1/057+h+oE/k7rCOWmjklYDsE0jE4CoNB9XzG4f8dRHvw4s5HJFocaYDiGgYM/V0kYbQ0ww==}
     engines: {node: '>=18.0.0'}
 
   /@html-next/vertical-collection@4.0.2(@babel/core@7.22.20):
@@ -17184,7 +17184,7 @@ packages:
     engines: {node: 16.* || >= 18}
     hasBin: true
     dependencies:
-      '@hono/node-server': 1.1.1
+      '@hono/node-server': 1.2.0
       chalk: 4.1.2
       hono: 3.6.3
       pm2: 5.3.0
