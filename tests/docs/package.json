@@ -14,7 +14,7 @@
     "test": "qunit ./index.js"
   },
   "devDependencies": {
-    "qunit": "^2.19.4"
+    "qunit": "^2.20.0"
   },
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*"
