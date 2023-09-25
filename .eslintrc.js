@@ -153,7 +153,7 @@ module.exports = {
         tsConfigRootDir: __dirname,
         project: 'tsconfig.json',
       },
-      plugins: ['@typescript-eslint', 'ember-data'],
+      plugins: ['@typescript-eslint', 'ember-data-internal'],
       extends: [
         'plugin:@typescript-eslint/eslint-recommended',
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
