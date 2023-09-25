@@ -134,7 +134,11 @@ const Fetch = {
         // void;
       }
       // attempt errors discovery
-      const errors = Array.isArray(errorPayload) ? errorPayload : isDict(errorPayload) ? (Array.isArray(errorPayload.errors) ? errorPayload.errors : Array.isArray(errorPayload.data) ? errorPayload.data : null) : null;
+      const errors =
+        Array.isArray(errorPayload) ? errorPayload
+        : isDict(errorPayload) && Array.isArray(errorPayload.errors) ? errorPayload.errors
+        : null;
+
       const msg = `[${response.status}] ${response.statusText ? response.statusText + ' ' : ''}- ${response.url}`;
 
       const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & { content: object | undefined } & HttpErrorProps;
