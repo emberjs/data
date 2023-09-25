@@ -2,7 +2,7 @@ import ArrayProxy from '@ember/array/proxy';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { click, find, findAll, render, rerender, setupOnerror } from '@ember/test-helpers';
+import { click, find, findAll, render, rerender } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
 import QUnit, { module, test } from 'qunit';
