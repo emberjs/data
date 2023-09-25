@@ -2,7 +2,7 @@ import ArrayProxy from '@ember/array/proxy';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { click, find, findAll, render, rerender } from '@ember/test-helpers';
+import { click, find, findAll, render, rerender, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
 import QUnit, { module, test } from 'qunit';
@@ -323,7 +323,12 @@ module('async has-many rendering tests', function (hooks) {
             // prevent further recursive calls
             return Promise.resolve({ data: people.dict['5:has-parent-no-children'] });
           }
-          return Promise.reject(new Error('hard error while finding <person>5:has-parent-no-children'));
+          // slight delay helps ensure we are less flakey
+          return new Promise((_res, rej) => {
+            setTimeout(() => {
+              rej(new Error('hard error while finding <person>5:has-parent-no-children'));
+            }, 5);
+          });
         }
       }
       this.owner.register('adapter:application', TestAdapter);
@@ -369,9 +374,16 @@ module('async has-many rendering tests', function (hooks) {
         </ul>
       `);
 
+      // we render, which triggers a fetch
+      // and then render again. We don't fully trust the render
+      // waiter to wait for the promise to resolve so
+      // we use settled() to wait for the promise to resolve
+      // to help avoid flakey tests
+      await settled();
+
       const names = findAll('li').map((e) => e.textContent);
 
-      assert.deepEqual(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
+      assert.arrayStrictEquals(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
 
       const relationshipState = parent.hasMany('children').hasManyRelationship;
       const RelationshipPromiseCache = LEGACY_SUPPORT.get(parent)._relationshipPromisesCache;
