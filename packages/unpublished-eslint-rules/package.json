@@ -1,5 +1,5 @@
 {
-  "name": "eslint-plugin-ember-data",
+  "name": "eslint-plugin-ember-data-internal",
   "main": "./src/index.js",
   "version": "5.5.0-alpha.4",
   "private": true,
