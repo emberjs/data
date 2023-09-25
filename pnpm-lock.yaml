@@ -101,7 +101,7 @@ importers:
       eslint-plugin-ember:
         specifier: ^11.11.1
         version: 11.11.1(eslint@8.50.0)
-      eslint-plugin-ember-data:
+      eslint-plugin-ember-data-internal:
         specifier: link:packages/unpublished-eslint-rules
         version: link:packages/unpublished-eslint-rules
       eslint-plugin-import:
@@ -450,6 +450,8 @@ importers:
         injected: true
       '@ember/string':
         injected: true
+
+  packages/eslint-plugin-ember-data: {}
 
   packages/graph:
     dependencies:
