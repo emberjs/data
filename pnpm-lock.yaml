@@ -776,8 +776,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       inflection:
-        specifier: ~2.0.1
-        version: 2.0.1
+        specifier: ~3.0.0
+        version: 3.0.0
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.15
@@ -12165,6 +12165,10 @@ packages:
     resolution: {integrity: sha512-wzkZHqpb4eGrOKBl34xy3umnYHx8Si5R1U4fwmdxLo5gdH6mEK8gclckTj/qWqy4Je0bsDYe/qazZYuO7xe3XQ==}
     engines: {node: '>=14.0.0'}
 
+  /inflection@3.0.0:
+    resolution: {integrity: sha512-1zEJU1l19SgJlmwqsEyFTbScw/tkMHFenUo//Y0i+XEP83gDFdMvPizAD/WGcE+l1ku12PcTVHQhO6g5E0UCMw==}
+    engines: {node: '>=18.0.0'}
+
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
     dependencies:
@@ -17328,7 +17332,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.20)
-      inflection: 2.0.1
+      inflection: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17370,7 +17374,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.20)
-      inflection: 2.0.1
+      inflection: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17414,7 +17418,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.20)
-      inflection: 2.0.1
+      inflection: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17456,7 +17460,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.20)
-      inflection: 2.0.1
+      inflection: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -17498,7 +17502,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.22.20)
-      inflection: 2.0.1
+      inflection: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
