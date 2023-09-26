@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/adapter",
-  "version": "5.5.0-alpha.5",
+  "version": "5.5.0-alpha.6",
   "description": "Provides Legacy JSON:API and REST Implementations of the Adapter Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -34,7 +34,7 @@
     "ember-data-logo-light.svg"
   ],
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.5.0-alpha.5",
+    "@ember-data/store": "workspace:5.5.0-alpha.6",
     "@ember/string": "^3.1.1",
     "ember-inflector": "^4.0.2"
   },
@@ -47,7 +47,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.5",
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.6",
     "@embroider/macros": "^1.13.1",
     "ember-cli-babel": "^8.0.0",
     "ember-cli-test-info": "^1.0.0"
