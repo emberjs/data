@@ -2,7 +2,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { createRecord, deleteRecord, findRecord, query, updateRecord } from '@ember-data/json-api/request';
+import { createRecord, deleteRecord, findRecord, postQuery, query, updateRecord } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
@@ -109,6 +109,31 @@ module('JSON:API | Request Builders', function (hooks) {
         method: 'GET',
         headers: new Headers(JSON_API_HEADERS),
         cacheOptions: { reload: true, backgroundReload: false },
+        op: 'query',
+      },
+      `query works with type and options`
+    );
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+  });
+
+  test('postQuery', function (assert) {
+    const result = postQuery(
+      'user-setting',
+      { include: 'user,friends', sort: 'name:asc', search: ['zeta', 'beta'] },
+      { reload: true, backgroundReload: false }
+    );
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/user-settings',
+        method: 'POST',
+        body: JSON.stringify({ include: 'user,friends', sort: 'name:asc', search: ['zeta', 'beta'] }),
+        headers: new Headers(JSON_API_HEADERS),
+        cacheOptions: {
+          reload: true,
+          backgroundReload: false,
+          key: 'https://api.example.com/api/v1/user-settings?include=friends%2Cuser&search=beta%2Czeta&sort=name%3Aasc',
+        },
         op: 'query',
       },
       `query works with type and options`

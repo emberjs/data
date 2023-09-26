@@ -24,6 +24,15 @@ export type QueryRequestOptions = {
   op: 'query';
 };
 
+export type PostQueryRequestOptions = {
+  url: string;
+  method: 'POST' | 'QUERY';
+  headers: Headers;
+  body: string;
+  cacheOptions: CacheOptions & { key: string };
+  op: 'query';
+};
+
 export type DeleteRequestOptions = {
   url: string;
   method: 'DELETE';
