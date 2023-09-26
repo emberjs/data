@@ -164,7 +164,7 @@ module.exports = {
         '@typescript-eslint/no-redundant-type-constituents': 'off',
         '@typescript-eslint/no-unsafe-declaration-merging': 'off',
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
-        'ember-data/prefer-static-type-import': 'error',
+        'ember-data-internal/prefer-static-type-import': 'error',
         'no-unused-vars': 'off',
         'prefer-const': 'off',
         'prefer-rest-params': 'off',
