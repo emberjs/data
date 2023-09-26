@@ -1,6 +1,6 @@
 {
   "name": "debug-encapsulation-test-app",
-  "version": "5.5.0-alpha.7",
+  "version": "5.5.0-alpha.8",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": {
@@ -44,13 +44,13 @@
   "devDependencies": {
     "@babel/core": "^7.22.20",
     "@babel/runtime": "^7.22.15",
-    "@ember-data/adapter": "workspace:5.5.0-alpha.7",
-    "@ember-data/legacy-compat": "workspace:5.5.0-alpha.7",
-    "@ember-data/model": "workspace:5.5.0-alpha.7",
-    "@ember-data/serializer": "workspace:5.5.0-alpha.7",
-    "@ember-data/store": "workspace:5.5.0-alpha.7",
-    "@ember-data/tracking": "workspace:5.5.0-alpha.7",
-    "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.7",
+    "@ember-data/adapter": "workspace:5.5.0-alpha.8",
+    "@ember-data/legacy-compat": "workspace:5.5.0-alpha.8",
+    "@ember-data/model": "workspace:5.5.0-alpha.8",
+    "@ember-data/serializer": "workspace:5.5.0-alpha.8",
+    "@ember-data/store": "workspace:5.5.0-alpha.8",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.8",
+    "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.8",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.2.0",
