@@ -1,6 +1,7 @@
 {
-  "name": "@ember-data/schema-record",
-  "version": "0.0.1-alpha.10",
+  "name": "@warp-drive/schema-record",
+  "version": "5.5.0-alpha.9",
+  "private": true,
   "description": "Never write a Model again",
   "keywords": [
     "ember-addon"
@@ -13,7 +14,9 @@
   "license": "MIT",
   "author": "",
   "scripts": {
-    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build:types": "tsc --build --force",
+    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build": "pnpm build:client && pnpm build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
@@ -28,53 +31,38 @@
     "addon",
     "README.md",
     "LICENSE.md",
-    "ember-data-logo-dark.svg",
-    "ember-data-logo-light.svg"
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg"
   ],
-  "peerDependencies": {
-    "@ember-data/graph": "workspace:5.4.0-alpha.10",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.10",
-    "@ember-data/store": "workspace:5.4.0-alpha.10",
-    "ember-inflector": "^4.0.2"
-  },
+  "peerDependencies": {},
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true,
-      "optional": true
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.10",
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.9",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.1",
-    "ember-cli-babel": "^8.0.0"
+    "ember-cli-babel": "^8.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.22.15",
-    "@babel/core": "^7.22.15",
-    "@babel/plugin-proposal-decorators": "^7.22.15",
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
+    "@babel/plugin-proposal-decorators": "^7.23.0",
     "@babel/plugin-transform-class-properties": "^7.22.5",
     "@babel/plugin-transform-private-methods": "^7.22.5",
     "@babel/plugin-transform-runtime": "^7.22.15",
     "@babel/plugin-transform-typescript": "^7.22.15",
-    "@babel/preset-env": "^7.22.15",
-    "@babel/preset-typescript": "^7.22.15",
-    "@babel/runtime": "^7.22.15",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-typescript": "^7.23.0",
+    "@babel/runtime": "^7.23.1",
     "@embroider/addon-dev": "^4.1.0",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.2.1",
-    "ember-source": "~5.2.0",
-    "rollup": "^3.28.1",
+    "ember-source": "~5.3.0",
+    "rollup": "^3.29.4",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0",
@@ -89,5 +77,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.7.1"
+  "packageManager": "pnpm@8.7.6"
 }

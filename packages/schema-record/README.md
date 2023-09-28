@@ -1,20 +1,19 @@
 <p align="center">
   <img
     class="project-logo"
-    src="./ember-data-logo-dark.svg#gh-dark-mode-only"
-    alt="EmberData SchemaRecord"
-    width="240px"
-    title="EmberData SchemaRecord"
-    />
+    src="./NCC-1701-a-blue.svg#gh-light-mode-only"
+    alt="WarpDrive"
+    width="120px"
+    title="WarpDrive" />
   <img
     class="project-logo"
-    src="./ember-data-logo-light.svg#gh-light-mode-only"
-    alt="EmberData SchemaRecord"
-    width="240px"
-    title="EmberData SchemaRecord"
-    />
+    src="./NCC-1701-a.svg#gh-dark-mode-only"
+    alt="WarpDrive"
+    width="120px"
+    title="WarpDrive" />
 </p>
 
+<h3 align="center">Your data, managed.</h3>
 <p align="center">🌲 Get back to Nature 🐿️ Or shipping 💚</p>
 
 SchemaRecord is:
@@ -30,10 +29,15 @@ This package provides presentation capabilities for your resource data. It works
 
 ## Installation
 
+> ⚠️ Private
+
+This package may currently only be used within EmberData. A public version is coming soon 💜
+
+#### 🔜 Soon 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
 ```no-highlight
-pnpm add @ember-data/schema-record
+pnpm add @warp-drive/schema-record
 ```
 
 ## Getting Started
@@ -49,7 +53,7 @@ data, it calls `instantiateRecord`. When it no longer needs that class, it will 
 
 ```ts
 import Store from '@ember-data/store';
-import SchemaRecord from '@ember-data/schema-record';
+import SchemaRecord from '@warp-drive/schema-record';
 import Cache from '@ember-data/json-api';
 
 const DestroyHook = Symbol.for('destroy');
@@ -75,7 +79,7 @@ Service. Schemas are simple json objects that follow a pattern.
 
 You could manually construct schemas, though that would be laborious. We recommend 
 compiling schemas from another available source such as your API's types. If you don't
-have a source from which to compile schemas, consider using `@ember-data/schema-dsl`.
+have a source from which to compile schemas, consider using `@warp-drive/schema-dsl`.
 
 The Schema DSL allows authoring rich, expressive schemas using familiar Typescript and
 Decorators, which compile at build into json schemas you can deliver to your app either
@@ -189,3 +193,64 @@ type Schemas = Array<[ResourceType, ResourceSchema]>
 
 You'll find this syntax is capable of describing most conceivable behaviors, including
 some emergent ones we're sure we haven't thought of yet.
+
+
+### ♥️ Credits
+
+ <details>
+   <summary>Brought to you with ♥️ love by <a href="https://emberjs.com" title="EmberJS">🐹 Ember</a></summary>
+
+  <style type="text/css">
+    img.project-logo {
+       padding: 0 5em 1em 5em;
+       width: 100px;
+       border-bottom: 2px solid #0969da;
+       margin: 0 auto;
+       display: block;
+     }
+    details > summary {
+      font-size: 1.1rem;
+      line-height: 1rem;
+      margin-bottom: 1rem;
+    }
+    details {
+      font-size: 1rem;
+    }
+    details > summary strong {
+      display: inline-block;
+      padding: .2rem 0;
+      color: #000;
+      border-bottom: 3px solid #0969da;
+    }
+
+    details > details {
+      margin-left: 2rem;
+    }
+    details > details > summary {
+      font-size: 1rem;
+      line-height: 1rem;
+      margin-bottom: 1rem;
+    }
+    details > details > summary strong {
+      display: inline-block;
+      padding: .2rem 0;
+      color: #555;
+      border-bottom: 2px solid #555;
+    }
+    details > details {
+      font-size: .85rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      details > summary strong {
+        color: #fff;
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      details > details > summary strong {
+        color: #afaba0;
+      border-bottom: 2px solid #afaba0;
+      }
+    }
+  </style>
+</details>
