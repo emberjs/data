@@ -474,7 +474,7 @@ export function upgradeDefinition(
   // TODO we want to assert this but this breaks all of our shoddily written tests
   /*
     if (DEBUG) {
-      let inverseDoubleCheck = inverseMeta.type.inverseFor(inverseRelationshipName, store);
+      let inverseDoubleCheck = inverseFor(inverseRelationshipName, store);
 
       assert(`The ${inverseBaseModelName}:${inverseRelationshipName} relationship declares 'inverse: null', but it was resolved as the inverse for ${baseModelName}:${relationshipName}.`, inverseDoubleCheck);
     }

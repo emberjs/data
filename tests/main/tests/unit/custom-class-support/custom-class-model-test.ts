@@ -165,7 +165,6 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                     async: false,
                   },
                   name: 'boats',
-                  key: 'boats',
                 },
                 'relationships def matches schem'
               );
@@ -177,7 +176,6 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                   type: 'house',
                   kind: 'belongsTo',
                   options: { inverse: null, async: false },
-                  key: 'house',
                   name: 'house',
                 },
                 'relationship def matches schem'
@@ -234,7 +232,6 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
               inverse: null,
               async: false,
             },
-            key: 'boats',
             name: 'boats',
           },
           house: {
@@ -244,7 +241,6 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
               inverse: null,
               async: false,
             },
-            key: 'house',
             name: 'house',
           },
         };
@@ -373,7 +369,6 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                 inverse: null,
                 async: true,
               },
-              key: 'house',
               name: 'house',
             },
           };

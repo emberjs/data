@@ -151,12 +151,12 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
   }
 
   // identifiers case
-
-  const fetches = new Array<globalThis.Promise<StableRecordIdentifier>>(identifiers!.length);
+  assert(`Expected an array of identifiers to fetch`, Array.isArray(identifiers));
+  const fetches = new Array<globalThis.Promise<StableRecordIdentifier>>(identifiers.length);
   const manager = store._fetchManager;
 
-  for (let i = 0; i < identifiers!.length; i++) {
-    let identifier = identifiers![i];
+  for (let i = 0; i < identifiers.length; i++) {
+    let identifier = identifiers[i];
     // TODO we probably can be lenient here and return from cache for the isNew case
     assertIdentifierHasId(identifier);
     fetches[i] = options.reload
@@ -183,10 +183,10 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
         try {
           let payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
           // eslint-disable-next-line no-console
-          console.log(`EmberData | Payload - ${operation!}`, payloadCopy);
+          console.log(`EmberData | Payload - ${operation}`, payloadCopy);
         } catch (e) {
           // eslint-disable-next-line no-console
-          console.log(`EmberData | Payload - ${operation!}`, payload);
+          console.log(`EmberData | Payload - ${operation}`, payload);
         }
       }
       let result: SingleResourceDataDocument;

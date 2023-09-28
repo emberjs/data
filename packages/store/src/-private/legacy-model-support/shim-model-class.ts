@@ -80,11 +80,11 @@ export default class ShimModelClass implements ModelSchema {
     });
   }
 
-  eachTransformedAttribute<T>(callback: (this: T | undefined, key: string, type?: string) => void, binding?: T) {
+  eachTransformedAttribute<T>(callback: (this: T | undefined, key: string, type: string | null) => void, binding?: T) {
     const attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     Object.keys(attrDefs).forEach((key) => {
       if (attrDefs[key]!.type) {
-        callback.call(binding, key, attrDefs[key]!.type);
+        callback.call(binding, key, attrDefs[key].type);
       }
     });
   }

@@ -1,7 +1,6 @@
-// import type Store from '@ember-data/store';
-type Store = { schema: SchemaService, cache: Cache };
+import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from "@ember-data/types/q/identifier";
-import type { Cache } from "@ember-data/types/cache/cache";
+import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
 export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');
@@ -16,8 +15,8 @@ export interface FieldSchema {
 
 type FieldSpec = {
   // legacy support
-  attributes: Record<string, FieldSchema>;
-  relationships: Record<string, FieldSchema>;
+  attributes: Record<string, AttributeSchema>;
+  relationships: Record<string, RelationshipSchema>;
   // new support
   fields: Map<string, FieldSchema>;
 }
@@ -40,11 +39,12 @@ export class SchemaService {
       fieldSpec.fields.set(field.name, field);
 
       if (field.kind === 'attribute') {
-        fieldSpec.attributes[field.name] = field;
+        fieldSpec.attributes[field.name] = field as AttributeSchema;
       } else if (field.kind === 'resource' || field.kind === 'collection') {
-        fieldSpec.relationships[field.name] = Object.assign({}, field, {
+        const relSchema = Object.assign({}, field, {
           kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
-        });
+        }) as unknown as RelationshipSchema;
+        fieldSpec.relationships[field.name] = relSchema;
       } else {
         throw new Error(`Unknown field kind ${field.kind}`);
       }
@@ -96,7 +96,7 @@ export default class SchemaRecord {
     this[RecordStore] = store;
     this[Identifier] = identifier;
 
-    const schema = store.schema;
+    const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
     const fields = schema.fields(identifier);
 

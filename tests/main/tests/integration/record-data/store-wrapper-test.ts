@@ -151,10 +151,10 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     const store = owner.lookup('service:store') as unknown as Store;
     store.cache;
 
-    let houseAttrs = {
+    const houseAttrs = {
       name: {
         type: 'string',
-        isAttribute: true,
+        kind: 'attribute' as const,
         options: {},
         name: 'name',
       },
@@ -166,10 +166,10 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       'can lookup attribute definitions for self'
     );
 
-    let carAttrs = {
+    const carAttrs = {
       make: {
         type: 'string',
-        isAttribute: true,
+        kind: 'attribute' as const,
         options: {},
         name: 'make',
       },
