@@ -45,6 +45,9 @@
 
     "paths": {
       "@ember-data/env": ["../../private-build-infra/virtual-packages/env.d.ts"],
+      "@ember-data/store": ["../../store/src"],
+      "@ember-data/types": ["../../../ember-data-types"],
+      "@ember-data/types/*": ["../../../ember-data-types/*"],
     }
   }
 }

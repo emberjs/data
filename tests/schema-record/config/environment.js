@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'builders-test-app',
+    modulePrefix: 'schema-record-test-app',
     environment,
     rootURL: '/',
     locationType: 'history',
