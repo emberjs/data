@@ -13,6 +13,7 @@ import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import type { StructuredDataDocument, StructuredDocument, StructuredErrorDocument } from '@ember-data/request';
+import Store from '@ember-data/store';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
@@ -689,6 +690,7 @@ export default class JSONAPICache implements Cache {
         switch (kind) {
           case 'attribute':
             this.setAttr(identifier, name, propertyValue);
+            createOptions[name] = propertyValue;
             break;
           case 'belongsTo':
             this.mutate({
@@ -1026,7 +1028,8 @@ export default class JSONAPICache implements Cache {
       return cached.remoteAttrs[attr];
     } else {
       const attrSchema = this.__storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier)[attr];
-      return getDefaultValue(attrSchema?.options);
+      // @ts-expect-error we reach into private API here
+      return getDefaultValue(attrSchema?.options, this.__storeWrapper._store);
     }
   }
 
@@ -1380,22 +1383,39 @@ function getRemoteState(rel) {
   return rel.remoteState;
 }
 
-function getDefaultValue(options: { defaultValue?: unknown } | undefined) {
+function getDefaultValue(
+  options: { options?: Record<string, unknown>; type: string | null; defaultValue?: unknown } | undefined,
+  store: Store
+) {
   if (!options) {
     return;
   }
+  // legacy support for defaultValues that are functions
   if (typeof options.defaultValue === 'function') {
     // If anyone opens an issue for args not working right, we'll restore + deprecate it via a Proxy
     // that lazily instantiates the record. We don't want to provide any args here
     // because in a non @ember-data/model world they don't make sense.
     return options.defaultValue();
-  } else {
+    // legacy support for defaultValues that are primitives
+  } else if ('defaultValue' in options) {
     let defaultValue = options.defaultValue;
     assert(
       `Non primitive defaultValues are not supported because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
       typeof defaultValue !== 'object' || defaultValue === null
     );
     return defaultValue;
+
+    // new style transforms
+  } else if (options.type) {
+    const transform = (
+      store.schema as unknown as {
+        transforms?: Map<string, { defaultValue(options: Record<string, unknown> | null, store: Store): unknown }>;
+      }
+    ).transforms?.get(options.type);
+
+    if (transform?.defaultValue) {
+      return transform.defaultValue(options.options || null, store);
+    }
   }
 }
 

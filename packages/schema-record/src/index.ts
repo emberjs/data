@@ -5,9 +5,10 @@ import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/re
 export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');
 export const Identifier = Symbol('Identifier');
+export const Editable = Symbol('Editable');
 
 export interface FieldSchema {
-  type: string;
+  type: string | null;
   name: string;
   kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array';
   options?: Record<string, unknown>;
@@ -21,11 +22,23 @@ type FieldSpec = {
   fields: Map<string, FieldSchema>;
 }
 
+export type Transform<T = unknown, PT = unknown> = {
+  serialize(value: PT, options: Record<string, unknown> | null, record: SchemaRecord): T;
+  hydrate(value: T, options: Record<string, unknown> | null, record: SchemaRecord): PT;
+  defaultValue?(options: Record<string, unknown> | null, store: Store): T;
+};
+
 export class SchemaService {
   declare schemas: Map<string, FieldSpec>;
+  declare transforms: Map<string, Transform>;
 
   constructor() {
     this.schemas = new Map();
+    this.transforms = new Map();
+  }
+
+  registerTransform<T = unknown, PT = unknown>(type: string, transform: Transform<T, PT>): void {
+    this.transforms.set(type, transform);
   }
 
   defineSchema(name: string, fields: FieldSchema[]): void {
@@ -88,13 +101,15 @@ export class SchemaService {
   }
 }
 
-export default class SchemaRecord {
+export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
+  declare [Editable]: boolean;
 
-  constructor(store: Store, identifier: StableRecordIdentifier) {
+  constructor(store: Store, identifier: StableRecordIdentifier, editable: boolean) {
     this[RecordStore] = store;
     this[Identifier] = identifier;
+    this[Editable] = editable;
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
@@ -118,7 +133,43 @@ export default class SchemaRecord {
         }
 
         if (field.kind === 'attribute') {
-          return cache.getAttr(identifier, prop as string);
+          const rawValue = cache.getAttr(identifier, prop as string);
+          if (field.type === null) {
+            return rawValue;
+          }
+          const transform = schema.transforms.get(field.type);
+          if (!transform) {
+            throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+          }
+          return transform.hydrate(rawValue, field.options ?? null, target);
+        }
+
+        throw new Error(`Unknown field kind ${field.kind}`);
+      },
+      set(target, prop, value) {
+        if (!target[Editable]) {
+          throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
+        }
+
+        const field = fields.get(prop as string);
+        if (!field) {
+          throw new Error(`There is no field named ${String(prop)} on ${identifier.type}`);
+        }
+
+        if (field.kind === 'attribute') {
+          if (field.type === null) {
+            cache.setAttr(identifier, prop as string, value);
+            return true;
+          }
+          const transform = schema.transforms.get(field.type);
+
+          if (!transform) {
+            throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+          }
+
+          const rawValue = transform.serialize(value, field.options ?? null, target);
+          cache.setAttr(identifier, prop as string, rawValue);
+          return true;
         }
 
         throw new Error(`Unknown field kind ${field.kind}`);
@@ -129,8 +180,13 @@ export default class SchemaRecord {
   [Destroy](): void {}
 }
 
-export function instantiateRecord(store: Store, identifier: StableRecordIdentifier): SchemaRecord {
-  return new SchemaRecord(store, identifier);
+export function instantiateRecord(store: Store, identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {
+  if (createArgs) {
+    const editable = new SchemaRecord(store, identifier, true);
+    Object.assign(editable, createArgs);
+    return editable;
+  }
+  return new SchemaRecord(store, identifier, false);
 }
 
 export function teardownRecord(record: SchemaRecord): void {

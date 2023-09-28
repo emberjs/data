@@ -22,8 +22,8 @@ export default class Store extends DataStore {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier): SchemaRecord {
-    return instantiateRecord(this, identifier);
+  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {
+    return instantiateRecord(this, identifier, createArgs);
   }
 
   teardownRecord(record: SchemaRecord): void {
