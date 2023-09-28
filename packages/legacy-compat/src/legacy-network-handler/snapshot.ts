@@ -150,7 +150,10 @@ export default class Snapshot implements Snapshot {
    */
   get record(): RecordInstance | null {
     const record = this._store.peekRecord(this.identifier);
-    assert(`Record ${this.identifier.type} ${this.identifier.id} (${this.identifier.lid}) is not yet loaded and thus cannot be accessed from the Snapshot during serialization`, record !== null);
+    assert(
+      `Record ${this.identifier.type} ${this.identifier.id} (${this.identifier.lid}) is not yet loaded and thus cannot be accessed from the Snapshot during serialization`,
+      record !== null
+    );
     return record;
   }
 
