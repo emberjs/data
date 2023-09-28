@@ -238,11 +238,9 @@ export default class RecordState {
 
     // we instantiate lazily
     // so we grab anything we don't have yet
-    if (!DEBUG) {
-      const lastRequest = requests.getLastRequestForRecord(identity);
-      if (lastRequest) {
-        handleRequest(lastRequest);
-      }
+    const lastRequest = requests.getLastRequestForRecord(identity);
+    if (lastRequest) {
+      handleRequest(lastRequest);
     }
 
     this.handler = notifications.subscribe(
