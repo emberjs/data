@@ -6,6 +6,7 @@ import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 
 interface User {
@@ -71,7 +72,7 @@ module('Reads | basic fields', function (hooks) {
         }
         return Number(value);
       },
-      defaultValue(_options: { precision?: number } | null, _store: Store): string {
+      defaultValue(_options: { precision?: number } | null, _identifier: StableRecordIdentifier): string {
         const v = 0;
         return v.toFixed(_options?.precision ?? 3);
       },

@@ -427,6 +427,22 @@ export default class JSONAPICache implements Cache {
           }
         });
       }
+
+      // @ts-expect-error we reach into private api here
+      const store: Store = this.__storeWrapper._store;
+      const attrs = this.__storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+      Object.keys(attrs).forEach((key) => {
+        if (key in attributes && attributes[key] !== undefined) {
+          return;
+        }
+        const attr = attrs[key]!;
+        const defaultValue = getDefaultValue(attr, identifier, store);
+
+        if (defaultValue !== undefined) {
+          attributes[key] = defaultValue;
+        }
+      });
+
       return {
         type,
         id,
@@ -1028,8 +1044,9 @@ export default class JSONAPICache implements Cache {
       return cached.remoteAttrs[attr];
     } else {
       const attrSchema = this.__storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier)[attr];
+
       // @ts-expect-error we reach into private API here
-      return getDefaultValue(attrSchema?.options, this.__storeWrapper._store);
+      return getDefaultValue(attrSchema, identifier, this.__storeWrapper._store);
     }
   }
 
@@ -1384,20 +1401,24 @@ function getRemoteState(rel) {
 }
 
 function getDefaultValue(
-  options: { options?: Record<string, unknown>; type: string | null; defaultValue?: unknown } | undefined,
+  schema: AttributeSchema | undefined,
+  identifier: StableRecordIdentifier,
   store: Store
-) {
-  if (!options) {
+): unknown {
+  const options = schema?.options;
+
+  if (!schema || (!options && !schema.type)) {
     return;
   }
+
   // legacy support for defaultValues that are functions
-  if (typeof options.defaultValue === 'function') {
+  if (typeof options?.defaultValue === 'function') {
     // If anyone opens an issue for args not working right, we'll restore + deprecate it via a Proxy
     // that lazily instantiates the record. We don't want to provide any args here
     // because in a non @ember-data/model world they don't make sense.
     return options.defaultValue();
     // legacy support for defaultValues that are primitives
-  } else if ('defaultValue' in options) {
+  } else if (options && 'defaultValue' in options) {
     let defaultValue = options.defaultValue;
     assert(
       `Non primitive defaultValues are not supported because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
@@ -1406,15 +1427,18 @@ function getDefaultValue(
     return defaultValue;
 
     // new style transforms
-  } else if (options.type) {
+  } else if (schema.type) {
     const transform = (
       store.schema as unknown as {
-        transforms?: Map<string, { defaultValue(options: Record<string, unknown> | null, store: Store): unknown }>;
+        transforms?: Map<
+          string,
+          { defaultValue(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): unknown }
+        >;
       }
-    ).transforms?.get(options.type);
+    ).transforms?.get(schema.type);
 
     if (transform?.defaultValue) {
-      return transform.defaultValue(options.options || null, store);
+      return transform.defaultValue(options || null, identifier);
     }
   }
 }

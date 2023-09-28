@@ -25,7 +25,7 @@ type FieldSpec = {
 export type Transform<T = unknown, PT = unknown> = {
   serialize(value: PT, options: Record<string, unknown> | null, record: SchemaRecord): T;
   hydrate(value: T, options: Record<string, unknown> | null, record: SchemaRecord): PT;
-  defaultValue?(options: Record<string, unknown> | null, store: Store): T;
+  defaultValue?(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): T;
 };
 
 export class SchemaService {
