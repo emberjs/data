@@ -864,8 +864,8 @@ importers:
         specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.23.0)
       babel-import-util:
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.0.1
+        version: 2.0.1
       babel-plugin-debug-macros:
         specifier: ^0.3.4
         version: 0.3.4(@babel/core@7.23.0)
@@ -5204,7 +5204,7 @@ packages:
       '@types/babel__code-frame': 7.0.3
       '@types/yargs': 17.0.24
       assert-never: 1.2.1
-      babel-import-util: 2.0.0
+      babel-import-util: 2.0.1
       babel-plugin-ember-template-compilation: 2.2.0
       babel-plugin-syntax-dynamic-import: 6.18.0
       babylon: 6.18.0
@@ -5317,7 +5317,7 @@ packages:
     resolution: {integrity: sha512-pFE05ebenWMC9XAPRjadYCXXb6VmqjkhYN5uqkhPo+VUmMHnx7sZYYxqGjxfVuhC/ghS/BNlOffOCXDOoE7k7g==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
-      babel-import-util: 2.0.0
+      babel-import-util: 2.0.1
       debug: 4.3.4(supports-color@8.1.1)
       ember-rfc176-data: 0.3.18
       fs-extra: 9.1.0
@@ -7267,6 +7267,10 @@ packages:
     resolution: {integrity: sha512-pkWynbLwru0RZmA9iKeQL63+CkkW0RCP3kL5njCtudd6YPUKb5Pa0kL4fb3bmuKn2QDBFwY5mvvhEK/+jv2Ynw==}
     engines: {node: '>= 12.*'}
 
+  /babel-import-util@2.0.1:
+    resolution: {integrity: sha512-N1ZfNprtf/37x0R05J0QCW/9pCAcuI+bjZIK9tlu0JEkwEST7ssdD++gxHRbD58AiG5QE5OuNYhRoEFsc1wESw==}
+    engines: {node: '>= 12.*'}
+
   /babel-loader@8.3.0(@babel/core@7.23.0)(webpack@5.88.2):
     resolution: {integrity: sha512-H8SvsMF+m9t15HNLMipppzkC+Y2Yq+v3SonZyU70RBL/h1gxPkH08Ot8pEE9Z4Kd+czyWJClmFS8qzIP9OZ04Q==}
     engines: {node: '>= 8.9'}
@@ -7331,7 +7335,7 @@ packages:
     engines: {node: '>= 12.*'}
     dependencies:
       '@glimmer/syntax': 0.84.3
-      babel-import-util: 2.0.0
+      babel-import-util: 2.0.1
 
   /babel-plugin-filter-imports@4.0.0:
     resolution: {integrity: sha512-jDLlxI8QnfKd7PtieH6pl4tZJzymzfCDCPGdTq/grgbiYAikwDPp/oL0IlFJn0HQjLpcLkyYhPKkUVneRESw5w==}
@@ -17799,7 +17803,7 @@ packages:
       '@babel/runtime': 7.23.1
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.1(@babel/core@7.23.0)
-      babel-import-util: 2.0.0
+      babel-import-util: 2.0.1
       babel-plugin-debug-macros: 0.3.4(@babel/core@7.23.0)
       babel-plugin-filter-imports: 4.0.0
       babel6-plugin-strip-class-callcheck: 6.0.0
