@@ -29,8 +29,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
   test(`We can access the lid when serializing a record`, async function (assert: Assert) {
     class TestSerializer extends EmberObject {
       serialize(snapshot: Snapshot) {
-        // TODO should snapshots have direct access to the identifier?
-        const identifier = recordIdentifierFor(snapshot.record);
+        const identifier = snapshot.identifier;
         return {
           type: snapshot.modelName,
           id: snapshot.id,
@@ -93,7 +92,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
             data: {
               type: 'user',
               id: '1',
-              lid: recordIdentifierFor(snapshot.record).lid,
+              lid: snapshot.identifier.lid,
               attributes: {
                 name: '@runspired',
               },
@@ -164,8 +163,8 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
 
     class TestAdapter extends Adapter {
       createRecord(store, ModelClass, snapshot) {
-        const cakeLid = recordIdentifierFor(snapshot.record).lid;
-        const ingredientLid = recordIdentifierFor(snapshot.record.ingredients.at(0)).lid;
+        const cakeLid = snapshot.identifier.lid;
+        const ingredientLid = recordIdentifierFor(snapshot.record!.ingredients.at(0)).lid;
         return resolve({
           data: {
             type: 'cake',
@@ -248,7 +247,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
 
     class TestAdapter extends Adapter {
       createRecord(store, ModelClass, snapshot) {
-        const lid = recordIdentifierFor(snapshot.record.topping).lid;
+        const lid = recordIdentifierFor(snapshot.record!.topping).lid;
         return resolve({
           data: {
             type: 'cake',
