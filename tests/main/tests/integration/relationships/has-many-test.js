@@ -198,28 +198,34 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }, /Assertion Failed: Encountered a relationship identifier without a type for the hasMany relationship 'comments' on <post:2>, expected an identifier with type 'comment' but found/);
   });
 
-  test('A record with an async hasMany relationship can safely be saved and later access the relationship', async function(assert) {
+  test('A record with an async hasMany relationship can safely be saved and later access the relationship', async function (assert) {
     const store = this.owner.lookup('service:store');
-    this.owner.register('adapter:application', class extends JSONAPIAdapter {
-      updateRecord(store, schema, snapshot) {
-        assert.step('updateRecord');
-        const data = store.serializerFor(schema.modelName).serialize(snapshot, { includeId: true });
+    this.owner.register(
+      'adapter:application',
+      class extends JSONAPIAdapter {
+        updateRecord(store, schema, snapshot) {
+          assert.step('updateRecord');
+          const data = store.serializerFor(schema.modelName).serialize(snapshot, { includeId: true });
 
-        return Promise.resolve(data);
+          return Promise.resolve(data);
+        }
+        findRecord(store, schema, id, snapshot) {
+          assert.step('findRecord');
+          return resolve({
+            data: { id, type: 'chapter', attributes: { title: `Chapter ${id}` } },
+          });
+        }
       }
-      findRecord(store, schema, id, snapshot) {
-        assert.step('findRecord');
-        return resolve({
-          data: { id, type: 'chapter', attributes: { title: `Chapter ${id}` } }
-        });
+    );
+    this.owner.register(
+      'serializer:application',
+      class extends JSONAPISerializer {
+        serialize(snapshot, options) {
+          assert.step('serialize');
+          return super.serialize(snapshot, options);
+        }
       }
-    });
-    this.owner.register('serializer:application', class extends JSONAPISerializer {
-      serialize(snapshot, options) {
-        assert.step('serialize');
-        return super.serialize(snapshot, options);
-      }
-    });
+    );
     const book = store.push({
       data: {
         type: 'book',
@@ -243,8 +249,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     const chapters = await book.chapters;
 
     assert.verifySteps(['findRecord', 'findRecord']);
-    assert.equal(chapters.length, 2);
-    assert.deepEqual(chapters.map(v => v.id), ['1', '2']);
+    assert.strictEqual(chapters.length, 2);
+    assert.deepEqual(
+      chapters.map((v) => v.id),
+      ['1', '2']
+    );
   });
 
   test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function (assert) {
