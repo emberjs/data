@@ -1,5 +1,5 @@
-import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+type Store = { peekRecord(identifier: StableRecordIdentifier): SchemaModel | unknown | null };
+type StableRecordIdentifier = { lid: string };
 
 export default class SchemaModel {
   constructor(store: Store, identifier: StableRecordIdentifier) {}
