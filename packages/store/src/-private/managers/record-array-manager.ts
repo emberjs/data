@@ -404,13 +404,13 @@ function sync(
     } else {
       if (arraySet.has(key)) {
         removes.push(key);
+        arraySet.delete(key);
       }
     }
   });
   if (removes.length) {
     if (removes.length === state.length) {
       state.length = 0;
-      arraySet.clear();
       // changing the reference breaks the Proxy
       // state = array[SOURCE] = [];
     } else {
