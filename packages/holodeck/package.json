@@ -13,7 +13,7 @@
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "engines": {
-    "node": "16.* || >= 18"
+    "node": ">= 18.*"
   },
   "keywords": [
     "http-mock"
@@ -33,8 +33,8 @@
     "README.md",
     "LICENSE.md",
     "server",
-    "ember-data-logo-dark.svg",
-    "ember-data-logo-light.svg"
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg"
   ],
   "bin": {
     "holodeck": "./bin/holodeck.js"

@@ -1,0 +1,81 @@
+{
+  "name": "@warp-drive/schema-record",
+  "version": "5.5.0-alpha.9",
+  "private": true,
+  "description": "Never write a Model again",
+  "keywords": [
+    "ember-addon"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/schema-record"
+  },
+  "license": "MIT",
+  "author": "",
+  "scripts": {
+    "build:types": "tsc --build --force",
+    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build": "pnpm build:client && pnpm build:types",
+    "start": "rollup --config --watch",
+    "prepack": "pnpm build",
+    "prepare": "pnpm build"
+  },
+  "ember-addon": {
+    "main": "addon-main.js",
+    "type": "addon",
+    "version": 1
+  },
+  "files": [
+    "addon-main.js",
+    "addon",
+    "README.md",
+    "LICENSE.md",
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg"
+  ],
+  "peerDependencies": {},
+  "dependenciesMeta": {
+    "@ember-data/private-build-infra": {
+      "injected": true
+    }
+  },
+  "dependencies": {
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.9",
+    "@ember/edition-utils": "^1.2.0",
+    "@embroider/macros": "^1.13.1",
+    "ember-cli-babel": "^8.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
+    "@babel/plugin-proposal-decorators": "^7.23.0",
+    "@babel/plugin-transform-class-properties": "^7.22.5",
+    "@babel/plugin-transform-private-methods": "^7.22.5",
+    "@babel/plugin-transform-runtime": "^7.22.15",
+    "@babel/plugin-transform-typescript": "^7.22.15",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-typescript": "^7.23.0",
+    "@babel/runtime": "^7.23.1",
+    "@embroider/addon-dev": "^4.1.0",
+    "@glimmer/component": "^1.1.2",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "ember-source": "~5.3.0",
+    "rollup": "^3.29.4",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2",
+    "walk-sync": "^3.0.0",
+    "webpack": "^5.88.2"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "engines": {
+    "node": ">= 18.*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.7.6"
+}

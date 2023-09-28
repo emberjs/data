@@ -81,7 +81,7 @@
     "zlib": "1.0.5"
   },
   "engines": {
-    "node": "16.* || >= 18.*",
+    "node": ">= 18.*",
     "yarn": "use pnpm",
     "npm": "use pnpm",
     "pnpm": "8.7.6"

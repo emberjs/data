@@ -89,7 +89,7 @@
     "ember-source": "~5.3.0"
   },
   "engines": {
-    "node": "16.* || >= 18.*"
+    "node": ">= 18.*"
   },
   "keywords": [
     "ember-addon"
