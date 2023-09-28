@@ -26,7 +26,7 @@
     "@embroider/macros": "^1.13.1",
     "broccoli-merge-trees": "^4.2.0",
     "ember-auto-import": "^2.6.3",
-    "ember-cli-babel": "^8.0.0",
+    "ember-cli-babel": "^8.1.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-get-config": "^2.1.1",
     "qunit": "^2.20.0",

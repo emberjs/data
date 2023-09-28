@@ -22,7 +22,7 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "ember-cli-babel": "^8.0.0"
+    "ember-cli-babel": "^8.1.0"
   },
   "files": [
     "addon-main.js",
