@@ -36,7 +36,7 @@
     "@embroider/macros": "^1.13.1",
     "broccoli-merge-trees": "^4.2.0",
     "ember-auto-import": "^2.6.3",
-    "ember-cli-babel": "^8.0.0",
+    "ember-cli-babel": "^8.1.0",
     "ember-inflector": "^4.0.2",
     "webpack": "^5.88.2"
   },

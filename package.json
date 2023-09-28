@@ -117,7 +117,7 @@
       "@embroider/macros": "^1.12.2",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
-      "ember-cli-babel": "^8.0.0",
+      "ember-cli-babel": "^8.1.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.2.1",
       "@ember/string": "3.1.1",
@@ -135,8 +135,7 @@
       ]
     },
     "patchedDependencies": {
-      "ember-compatibility-helpers@1.2.6": "patches/ember-compatibility-helpers@1.2.6.patch",
-      "ember-cli-babel@8.0.0": "patches/ember-cli-babel@8.0.0.patch"
+      "ember-compatibility-helpers@1.2.6": "patches/ember-compatibility-helpers@1.2.6.patch"
     }
   }
 }
