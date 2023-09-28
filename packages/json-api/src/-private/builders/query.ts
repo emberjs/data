@@ -17,6 +17,10 @@ import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
  * Builds request options to query for resources, usually by a primary
  * type, configured for the url and header expectations of most JSON:API APIs.
  *
+ * The key difference between this and `postQuery` is that this method will send the query
+ * as query params in the url of a "GET" request instead of as the JSON body of a "POST"
+ * request.
+ *
  * **Basic Usage**
  *
  * ```ts
@@ -95,10 +99,17 @@ export function query(
  * Builds request options to query for resources, usually by a primary
  * type, configured for the url and header expectations of most JSON:API APIs.
  *
+ * The key difference between this and `query` is that this method will send the query
+ * as the JSON body of a "POST" request instead of as query params in the url of a "GET"
+ * request.
+ *
+ * A CacheKey is generated from the url and query params, and used to cache the response
+ * in the store.
+ *
  * ```ts
  * import { postQuery } from '@ember-data/json-api/request';
  *
- * const options = query('person', { include: ['pets', 'friends'] });
+ * const options = postQuery('person', { include: ['pets', 'friends'] });
  * const data = await store.request(options);
  * ```
  *
@@ -117,9 +128,9 @@ export function query(
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { query } from '@ember-data/json-api/request';
+ * import { postQuery } from '@ember-data/json-api/request';
  *
- * const options = query('person', { include: ['pets', 'friends'] }, { reload: true });
+ * const options = postQuery('person', { include: ['pets', 'friends'] }, { reload: true });
  * const data = await store.request(options);
  * ```
  *

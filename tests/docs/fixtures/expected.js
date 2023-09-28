@@ -255,6 +255,7 @@ module.exports = {
     '(public) @ember-data/json-api Cache#rollbackRelationships',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#findRecord',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#query',
+    '(public) @ember-data/json-api/request @ember-data/json-api/request#postQuery',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#createRecord',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#deleteRecord',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#updateRecord',
