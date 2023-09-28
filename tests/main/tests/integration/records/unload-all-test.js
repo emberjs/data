@@ -142,8 +142,6 @@ module('Integration | Records | unloadAll', function(hooks) {
     store.unloadAll('post');
     await settled();
 
-    debugger;
-
     // round 3
     store.push({
       data: [
@@ -164,7 +162,6 @@ module('Integration | Records | unloadAll', function(hooks) {
       ]
     });
     await settled();
-    debugger;
     assert.strictEqual(store.peekAll('post').length, 2, '2 posts in the store');
     store.unloadAll('post');
     await settled();
