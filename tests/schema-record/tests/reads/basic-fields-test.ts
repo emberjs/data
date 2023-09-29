@@ -1,5 +1,6 @@
-import type { SchemaRecord, Transform } from '@warp-drive/schema-record';
-import { SchemaService } from '@warp-drive/schema-record';
+import type { SchemaRecord } from '@warp-drive/schema-record/record';
+import type { Transform } from '@warp-drive/schema-record/schema';
+import { SchemaService } from '@warp-drive/schema-record/schema';
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
