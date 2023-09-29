@@ -738,9 +738,9 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} relationship
   */
   serializePolymorphicType(snapshot, json, relationship) {
-    let key = relationship.key;
-    let typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
-    let belongsTo = snapshot.belongsTo(key);
+    let name = relationship.name;
+    let typeKey = this.keyForPolymorphicType(name, relationship.type, 'serialize');
+    let belongsTo = snapshot.belongsTo(name);
 
     if (!belongsTo) {
       json[typeKey] = null;

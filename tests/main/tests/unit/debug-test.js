@@ -62,7 +62,6 @@ if (HAS_DEBUG_PACKAGE) {
       // .readOnly()
       // .meta({
       //   options: { inverse: null },
-      //   isRelationship: true,
       //   kind: 'customRelationship',
       //   name: 'posts',
       //   type: 'post',

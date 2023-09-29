@@ -515,10 +515,11 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       evilMinion: evilMinion,
     });
 
-    serializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, {
-      key: 'evilMinion',
-      options: { polymorphic: true, async: true },
-    });
+    serializer.serializeBelongsTo(
+      doomsdayDevice._createSnapshot(),
+      json,
+      doomsdayDevice.constructor.relationshipsByName.get('evilMinion')
+    );
 
     assert.deepEqual(json, expected, 'returned JSON is correct');
   });
@@ -541,10 +542,11 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       evilMinion: evilMinion,
     });
 
-    serializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, {
-      key: 'evilMinion',
-      options: { polymorphic: true, async: true },
-    });
+    serializer.serializeBelongsTo(
+      doomsdayDevice._createSnapshot(),
+      json,
+      doomsdayDevice.constructor.relationshipsByName.get('evilMinion')
+    );
 
     assert.deepEqual(json, expected, 'returned JSON is correct');
   });

@@ -1,4 +1,4 @@
-import type SchemaRecord from '@warp-drive/schema-record';
+import type { SchemaRecord } from '@warp-drive/schema-record';
 import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record';
 
 import JSONAPICache from '@ember-data/json-api';

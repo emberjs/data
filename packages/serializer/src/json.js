@@ -1225,7 +1225,7 @@ const JSONSerializer = Serializer.extend({
 
     export default class PostSerializer extends JSONSerializer {
       serializeBelongsTo(snapshot, json, relationship) {
-        let key = relationship.key;
+        let key = relationship.name;
         let belongsTo = snapshot.belongsTo(key);
 
         key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
@@ -1242,17 +1242,17 @@ const JSONSerializer = Serializer.extend({
     @param {Object} relationship
   */
   serializeBelongsTo(snapshot, json, relationship) {
-    let key = relationship.key;
+    let name = relationship.name;
 
-    if (this._canSerialize(key)) {
-      let belongsToId = snapshot.belongsTo(key, { id: true });
+    if (this._canSerialize(name)) {
+      let belongsToId = snapshot.belongsTo(name, { id: true });
 
       // if provided, use the mapping provided by `attrs` in
       // the serializer
       let schema = this.store.modelFor(snapshot.modelName);
-      let payloadKey = this._getMappedKey(key, schema);
-      if (payloadKey === key && this.keyForRelationship) {
-        payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
+      let payloadKey = this._getMappedKey(name, schema);
+      if (payloadKey === name && this.keyForRelationship) {
+        payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
       }
 
       //Need to check whether the id is there for new&async records
@@ -1279,7 +1279,7 @@ const JSONSerializer = Serializer.extend({
 
    export default class PostSerializer extends JSONSerializer {
      serializeHasMany(snapshot, json, relationship) {
-       let key = relationship.key;
+       let key = relationship.name;
        if (key === 'comments') {
          return;
        } else {
@@ -1296,17 +1296,17 @@ const JSONSerializer = Serializer.extend({
    @param {Object} relationship
   */
   serializeHasMany(snapshot, json, relationship) {
-    let key = relationship.key;
+    let name = relationship.name;
 
-    if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
-      let hasMany = snapshot.hasMany(key, { ids: true });
+    if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
+      let hasMany = snapshot.hasMany(name, { ids: true });
       if (hasMany !== undefined) {
         // if provided, use the mapping provided by `attrs` in
         // the serializer
         let schema = this.store.modelFor(snapshot.modelName);
-        let payloadKey = this._getMappedKey(key, schema);
-        if (payloadKey === key && this.keyForRelationship) {
-          payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
+        let payloadKey = this._getMappedKey(name, schema);
+        if (payloadKey === name && this.keyForRelationship) {
+          payloadKey = this.keyForRelationship(name, 'hasMany', 'serialize');
         }
 
         json[payloadKey] = hasMany;
@@ -1328,7 +1328,7 @@ const JSONSerializer = Serializer.extend({
 
     export default class CommentSerializer extends JSONSerializer {
       serializePolymorphicType(snapshot, json, relationship) {
-        let key = relationship.key;
+        let key = relationship.name;
         let belongsTo = snapshot.belongsTo(key);
 
         key = this.keyForAttribute ? this.keyForAttribute(key, 'serialize') : key;

@@ -110,7 +110,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     class CreationStore extends CustomStore {
       instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
-        assert.deepEqual(createRecordArgs, { otherProp: 'unk' }, 'createRecordArg passed in');
+        assert.deepEqual(createRecordArgs, { name: 'chris', otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
         return returnValue;
       }

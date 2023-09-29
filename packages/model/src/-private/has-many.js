@@ -191,7 +191,7 @@ function hasMany(type, options) {
     options,
     isRelationship: true,
     kind: 'hasMany',
-    name: 'Has Many',
+    name: '<Unknown BelongsTo>',
     key: null,
   };
 

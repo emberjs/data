@@ -154,8 +154,10 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     const houseAttrs = {
       name: {
         type: 'string',
+        isAttribute: true,
         kind: 'attribute' as const,
         options: {},
+        key: 'name',
         name: 'name',
       },
     };
@@ -169,8 +171,10 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     const carAttrs = {
       make: {
         type: 'string',
+        isAttribute: true,
         kind: 'attribute' as const,
         options: {},
+        key: 'make',
         name: 'make',
       },
     };

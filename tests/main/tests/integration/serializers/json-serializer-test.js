@@ -177,7 +177,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: post });
     let json = {};
 
-    serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: 'post', options: {} });
+    serializer.serializeBelongsTo(comment._createSnapshot(), json, comment.constructor.relationshipsByName.get('post'));
 
     assert.deepEqual(json, { post: '1' });
   });
@@ -200,7 +200,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: null });
     let json = {};
 
-    serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: 'post', options: {} });
+    serializer.serializeBelongsTo(comment._createSnapshot(), json, comment.constructor.relationshipsByName.get('post'));
 
     assert.deepEqual(
       json,
@@ -229,7 +229,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: null });
     let json = {};
 
-    serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: 'post', options: {} });
+    serializer.serializeBelongsTo(comment._createSnapshot(), json, comment.constructor.relationshipsByName.get('post'));
 
     assert.deepEqual(
       json,
@@ -267,7 +267,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: post });
     let json = {};
 
-    store.serializerFor('post').serializeBelongsTo(comment._createSnapshot(), json, { key: 'post', options: {} });
+    store
+      .serializerFor('post')
+      .serializeBelongsTo(comment._createSnapshot(), json, comment.constructor.relationshipsByName.get('post'));
 
     assert.deepEqual(json, {
       POST: '1',
@@ -308,7 +310,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     let json = {};
 
-    store.serializerFor('post').serializeHasMany(post._createSnapshot(), json, { key: 'comments', options: {} });
+    store
+      .serializerFor('post')
+      .serializeHasMany(post._createSnapshot(), json, post.constructor.relationshipsByName.get('comments'));
 
     assert.deepEqual(json, {
       COMMENTS: ['1'],
@@ -341,7 +345,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     });
     let json = {};
 
-    store.serializerFor('post').serializeHasMany(post._createSnapshot(), json, { key: 'comments', options: {} });
+    store
+      .serializerFor('post')
+      .serializeHasMany(post._createSnapshot(), json, post.constructor.relationshipsByName.get('comments'));
 
     assert.notOk(hasOwn(json, 'comments'), 'Does not add the relationship key to json');
   });
@@ -405,7 +411,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     }
     class Comment extends Model {
       @attr('string') body;
-      @belongsTo('post', { inverse: null, async: true }) post;
+      @belongsTo('post', { inverse: null, async: true, polymorphic: true }) post;
     }
 
     this.owner.register('model:post', Post);
@@ -432,7 +438,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     store
       .serializerFor('comment')
-      .serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { polymorphic: true } });
+      .serializeBelongsTo(comment._createSnapshot(), {}, comment.constructor.relationshipsByName.get('post'));
   });
 
   test('serializePolymorphicType async', function (assert) {
@@ -443,7 +449,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     }
     class Comment extends Model {
       @attr('string') body;
-      @belongsTo('post', { inverse: null, async: true }) post;
+      @belongsTo('post', { inverse: null, async: true, polymorphic: true }) post;
     }
 
     this.owner.register('model:post', Post);
@@ -464,7 +470,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     store
       .serializerFor('comment')
-      .serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { async: true, polymorphic: true } });
+      .serializeBelongsTo(comment._createSnapshot(), {}, comment.constructor.relationshipsByName.get('post'));
   });
 
   test('normalizeResponse normalizes each record in the array', function (assert) {
@@ -1217,10 +1223,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let post = store.createRecord('post', { title: 'Kitties are omakase', id: '1' });
     let favorite = store.createRecord('favorite', { post: post, id: '3' });
 
-    store.serializerFor('favorite').serializeBelongsTo(favorite._createSnapshot(), json, {
-      key: 'post',
-      options: { polymorphic: true, async: true },
-    });
+    store
+      .serializerFor('favorite')
+      .serializeBelongsTo(favorite._createSnapshot(), json, favorite.constructor.relationshipsByName.get('post'));
 
     assert.deepEqual(json, expected, 'returned JSON is correct');
   });

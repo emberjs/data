@@ -186,6 +186,7 @@ export function instantiateRecord(store: Store, identifier: StableRecordIdentifi
     Object.assign(editable, createArgs);
     return editable;
   }
+
   return new SchemaRecord(store, identifier, false);
 }
 
