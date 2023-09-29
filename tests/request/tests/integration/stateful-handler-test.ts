@@ -22,6 +22,10 @@ module('RequestManager | Stateful Handlers', function (hooks) {
         t(key: string) {
           return key + ' was intl-ed';
         }
+
+        static create() {
+          return new this();
+        }
       }
     );
 
