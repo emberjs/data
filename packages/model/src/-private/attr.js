@@ -111,8 +111,10 @@ function attr(type, options) {
 
   let meta = {
     type: type,
+    kind: 'attribute',
     isAttribute: true,
     options: options,
+    key: null,
   };
 
   return computed({

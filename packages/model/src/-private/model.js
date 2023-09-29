@@ -75,7 +75,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
  * an expensive getter on first-access and thereafter
  * never recompute it.
  */
-function computeOnce(target, key, desc) {
+function computeOnce(target, propertyName, desc) {
   const cache = new WeakMap();
   let getter = desc.get;
   desc.get = function () {
@@ -138,8 +138,8 @@ class Model extends EmberObject {
     this.setProperties(createProps);
 
     let notifications = store.notifications;
-    this.___private_notifications = notifications.subscribe(identity, (identifier, type, key) => {
-      notifyChanges(identifier, type, key, this, store);
+    this.___private_notifications = notifications.subscribe(identity, (identifier, type, field) => {
+      notifyChanges(identifier, type, field, this, store);
     });
   }
 
@@ -155,9 +155,9 @@ class Model extends EmberObject {
     // notify individual changes once the delete has been signaled,
     // this decision is left to model instances.
 
-    this.eachRelationship((key, meta) => {
+    this.eachRelationship((name, meta) => {
       if (meta.kind === 'belongsTo') {
-        this.notifyPropertyChange(key);
+        this.notifyPropertyChange(name);
       }
     });
     LEGACY_SUPPORT.get(this)?.destroy();
@@ -633,12 +633,12 @@ class Model extends EmberObject {
     to trigger their flush. We wouldn't need to
     super in 4.0+ where sync observers are removed.
    */
-  notifyPropertyChange(key) {
-    let tag = peekTag(this, key);
+  notifyPropertyChange(prop) {
+    let tag = peekTag(this, prop);
     if (tag) {
       tag.notify();
     }
-    super.notifyPropertyChange(key);
+    super.notifyPropertyChange(prop);
   }
 
   /**
@@ -761,10 +761,10 @@ class Model extends EmberObject {
     // and protects with a try...finally block
     // previously used begin...endPropertyChanges but this is private API
     changeProperties(() => {
-      let key;
+      let prop;
       for (let i = 0, length = keys.length; i < length; i++) {
-        key = keys[i];
-        this.notifyPropertyChange(key);
+        prop = keys[i];
+        this.notifyPropertyChange(prop);
       }
     });
   }
@@ -1131,7 +1131,7 @@ class Model extends EmberObject {
 
    The relationship descriptor argument is an object with the following properties.
 
-   - **key** <span class="type">String</span> the name of this relationship on the Model
+   - **name** <span class="type">String</span> the name of this relationship on the Model
    - **kind** <span class="type">String</span> "hasMany" or "belongsTo"
    - **options** <span class="type">Object</span> the original options hash passed when the relationship was declared
    - **parentType** <span class="type">Model</span> the type of the Model that owns this relationship
@@ -1174,8 +1174,8 @@ class Model extends EmberObject {
     return this.constructor.relationshipsByName.get(name);
   }
 
-  inverseFor(key) {
-    return this.constructor.inverseFor(key, storeFor(this));
+  inverseFor(name) {
+    return this.constructor.inverseFor(name, storeFor(this));
   }
 
   eachAttribute(callback, binding) {
@@ -1588,7 +1588,7 @@ class Model extends EmberObject {
     };
 
     this.eachComputedProperty((name, meta) => {
-      if (meta.isRelationship) {
+      if (meta.kind === 'hasMany' || meta.kind === 'belongsTo') {
         names[meta.kind].push(name);
       }
     });
@@ -1683,9 +1683,9 @@ class Model extends EmberObject {
 
    let relationshipsByName = Blog.relationshipsByName;
    relationshipsByName.users;
-   //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
+   //=> { name: 'users', kind: 'hasMany', type: 'user', options: Object }
    relationshipsByName.owner;
-   //=> { key: 'owner', kind: 'belongsTo', type: 'user', options: Object, isRelationship: true }
+   //=> { name: 'owner', kind: 'belongsTo', type: 'user', options: Object }
    ```
 
    @property relationshipsByName
@@ -1705,10 +1705,10 @@ class Model extends EmberObject {
     let relationships = Object.keys(rels);
 
     for (let i = 0; i < relationships.length; i++) {
-      let key = relationships[i];
-      let value = rels[key];
+      let name = relationships[i];
+      let value = rels[name];
 
-      map.set(value.name || value.key, value);
+      map.set(value.name, value);
     }
 
     return map;
@@ -1724,7 +1724,8 @@ class Model extends EmberObject {
     let relationships = Object.create(null);
     let modelName = this.modelName;
     this.eachComputedProperty((name, meta) => {
-      if (meta.isRelationship) {
+      if (meta.kind === 'hasMany' || meta.kind === 'belongsTo') {
+        // TODO deprecate key being here
         meta.key = name;
         meta.name = name;
         meta.parentModelName = modelName;
@@ -1790,10 +1791,9 @@ class Model extends EmberObject {
     let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
-      // TODO end reliance on these booleans and stop leaking them in the spec
-      if (meta.isRelationship) {
+      if (meta.kind === 'hasMany' || meta.kind === 'belongsTo') {
         map.set(name, meta.kind);
-      } else if (meta.isAttribute) {
+      } else if (meta.kind === 'attribute') {
         map.set(name, 'attribute');
       }
     });
@@ -1855,7 +1855,7 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let knownKey = knownSide.key;
+    let knownKey = knownSide.name;
     let knownKind = knownSide.kind;
     let inverse = this.inverseFor(knownKey, store);
     // let key;
@@ -1903,9 +1903,9 @@ class Model extends EmberObject {
     });
 
    // prints:
-   // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
-   // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
-   // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+   // firstName {type: "string", kind: 'attribute', options: Object, parentType: function, name: "firstName"}
+   // lastName {type: "string", kind: 'attribute', options: Object, parentType: function, name: "lastName"}
+   // birthday {type: "date", kind: 'attribute', options: Object, parentType: function, name: "birthday"}
    ```
 
    @property attributes
@@ -1924,13 +1924,15 @@ class Model extends EmberObject {
     let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
-      if (meta.isAttribute) {
+      if (meta.kind === 'attribute') {
         assert(
           "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: attr('<type>')` from " +
             this.toString(),
           name !== 'id'
         );
 
+        // TODO deprecate key being here
+        meta.key = name;
         meta.name = name;
         map.set(name, meta);
       }
@@ -1987,9 +1989,9 @@ class Model extends EmberObject {
 
     let map = new Map();
 
-    this.eachAttribute((key, meta) => {
+    this.eachAttribute((name, meta) => {
       if (meta.type) {
-        map.set(key, meta.type);
+        map.set(name, meta.type);
       }
     });
 
@@ -2029,9 +2031,9 @@ class Model extends EmberObject {
     });
 
    // prints:
-   // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
-   // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
-   // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+   // firstName {type: "string", kind: 'attribute', options: Object, parentType: function, name: "firstName"}
+   // lastName {type: "string", kind: 'attribute', options: Object, parentType: function, name: "lastName"}
+   // birthday {type: "date", kind: 'attribute', options: Object, parentType: function, name: "birthday"}
    ```
 
    @method eachAttribute

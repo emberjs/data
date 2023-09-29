@@ -215,13 +215,12 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
       new TestSchema<'user'>({
         user: {
           attributes: {
-            name: { kind: 'attribute', name: 'name' },
+            name: { kind: 'attribute', name: 'name', type: null },
           },
           relationships: {
             bestFriend: {
               kind: 'belongsTo',
               type: 'user',
-              key: 'bestFriend',
               name: 'bestFriend',
               options: {
                 async: false,
@@ -231,7 +230,6 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
             worstEnemy: {
               kind: 'belongsTo',
               type: 'user',
-              key: 'worstEnemy',
               name: 'worstEnemy',
               options: {
                 async: false,
@@ -241,7 +239,6 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
             friends: {
               kind: 'hasMany',
               type: 'user',
-              key: 'friends',
               name: 'friends',
               options: {
                 async: false,

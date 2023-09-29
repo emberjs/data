@@ -667,19 +667,19 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeBelongsTo(snapshot, json, relationship) {
-    let key = relationship.key;
+    let name = relationship.name;
 
-    if (this._canSerialize(key)) {
-      let belongsTo = snapshot.belongsTo(key);
+    if (this._canSerialize(name)) {
+      let belongsTo = snapshot.belongsTo(name);
       let belongsToIsNotNew = belongsTo && !belongsTo.isNew;
 
       if (belongsTo === null || belongsToIsNotNew) {
         json.relationships = json.relationships || {};
 
         let schema = this.store.modelFor(snapshot.modelName);
-        let payloadKey = this._getMappedKey(key, schema);
-        if (payloadKey === key) {
-          payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
+        let payloadKey = this._getMappedKey(name, schema);
+        if (payloadKey === name) {
+          payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
         }
 
         let data = null;
@@ -698,17 +698,17 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeHasMany(snapshot, json, relationship) {
-    let key = relationship.key;
+    let name = relationship.name;
 
-    if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
-      let hasMany = snapshot.hasMany(key);
+    if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
+      let hasMany = snapshot.hasMany(name);
       if (hasMany !== undefined) {
         json.relationships = json.relationships || {};
 
         let schema = this.store.modelFor(snapshot.modelName);
-        let payloadKey = this._getMappedKey(key, schema);
-        if (payloadKey === key && this.keyForRelationship) {
-          payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
+        let payloadKey = this._getMappedKey(name, schema);
+        if (payloadKey === name && this.keyForRelationship) {
+          payloadKey = this.keyForRelationship(name, 'hasMany', 'serialize');
         }
 
         // only serialize has many relationships that are not new

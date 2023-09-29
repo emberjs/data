@@ -118,7 +118,7 @@ function belongsTo(modelName, options) {
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',
-    name: 'Belongs To',
+    name: '<Unknown BelongsTo>',
     key: null,
   };
 

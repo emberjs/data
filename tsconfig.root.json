@@ -53,6 +53,8 @@
       "@warp-drive/holodeck/*": ["packages/holodeck/dist/*"],
       "@ember-data/request": ["packages/request/addon"],
       "@ember-data/request/*": ["packages/request/addon/*"],
+      "@warp-drive/schema-record": ["packages/schema-record/src"],
+      "@warp-drive/schema-record/*": ["packages/schema-record/src/*"],
       "@ember-data/request-utils": ["packages/request-utils/src"],
       "@ember-data/request-utils/*": ["packages/request-utils/src/*"],
       "@ember-data/rest": ["packages/rest/src"],

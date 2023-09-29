@@ -26,7 +26,6 @@
       "ember-data-types/q/promise-proxies.ts",
       "ember-data-types/q/minimum-serializer-interface.ts",
       "ember-data-types/q/minimum-adapter-interface.ts",
-      "ember-data-types/q/identifier.ts",
       "ember-data-types/q/fetch-manager.ts",
       "ember-data-types/q/ember-data-json-api.ts",
       "tests/graph/tests/integration/graph/polymorphism/implicit-keys-test.ts",

@@ -2,7 +2,7 @@
   @module @ember-data/store
 */
 
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
+import { ImmutableRequestInfo } from '@ember-data/request';
 import {
   CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,

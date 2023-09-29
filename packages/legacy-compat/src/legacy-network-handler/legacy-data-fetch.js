@@ -16,7 +16,7 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
   promise = promise.then(
     (adapterPayload) => {
       assert(
-        `You made a 'findHasMany' request for a ${identifier.type}'s '${relationship.key}' relationship, using link '${link}' , but the adapter's response did not have any data`,
+        `You made a 'findHasMany' request for a ${identifier.type}'s '${relationship.name}' relationship, using link '${link}' , but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
       );
       const modelClass = store.modelFor(relationship.type);
@@ -115,7 +115,7 @@ function syncRelationshipDataFromLink(store, payload, parentIdentifier, relation
     id: parentIdentifier.id,
     type: parentIdentifier.type,
     relationships: {
-      [relationship.key]: relatedDataHash,
+      [relationship.name]: relatedDataHash,
     },
   };
 

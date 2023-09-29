@@ -74,14 +74,13 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
       new TestSchema<'user'>({
         user: {
           attributes: {
-            firstName: { kind: 'attribute', name: 'firstName' },
-            lastName: { kind: 'attribute', name: 'lastName' },
+            firstName: { kind: 'attribute', name: 'firstName', type: null },
+            lastName: { kind: 'attribute', name: 'lastName', type: null },
           },
           relationships: {
             bestFriend: {
               kind: 'belongsTo',
               type: 'user',
-              key: 'bestFriend',
               name: 'bestFriend',
               options: {
                 async: false,
@@ -91,7 +90,6 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
             worstEnemy: {
               kind: 'belongsTo',
               type: 'user',
-              key: 'worstEnemy',
               name: 'worstEnemy',
               options: {
                 async: false,
@@ -101,7 +99,6 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
             friends: {
               kind: 'hasMany',
               type: 'user',
-              key: 'friends',
               name: 'friends',
               options: {
                 async: false,

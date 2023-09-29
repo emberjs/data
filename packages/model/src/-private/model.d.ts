@@ -51,7 +51,7 @@ class Model extends EmberObject {
   static relationshipsByName: Map<string, RelationshipSchema>;
   static eachAttribute<T>(callback: (this: T, key: string, attribute: AttributeSchema) => void, binding?: T): void;
   static eachRelationship<T>(callback: (this: T, key: string, relationship: RelationshipSchema) => void, binding?: T): void;
-  static eachTransformedAttribute<T>(callback: (this: T, key: string, type?: string) => void, binding?: T): void;
+  static eachTransformedAttribute<T>(callback: (this: T, key: string, type: string | null) => void, binding?: T): void;
 
   static toString(): string;
   static isModel: true;
