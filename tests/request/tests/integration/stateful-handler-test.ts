@@ -51,6 +51,6 @@ module('RequestManager | Stateful Handlers', function (hooks) {
     const result = await manager.request(req);
     assert.strictEqual(calls, 1, 'we called our handler');
     assert.strictEqual(JSON.stringify(result.request), JSON.stringify(req));
-    assert.strictEqual(result.content, 'success!', 'we returned the expected result');
+    assert.strictEqual(result.content, 'success! was intl-ed', 'we returned the expected result');
   });
 });
