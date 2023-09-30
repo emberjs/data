@@ -70,7 +70,7 @@
     "lerna-changelog": "^2.2.0",
     "loader.js": "^4.7.0",
     "prettier": "^3.0.3",
-    "rimraf": "^5.0.4",
+    "rimraf": "^5.0.5",
     "semver": "^7.5.4",
     "silent-error": "^1.1.1",
     "testem": "^3.10.1",
