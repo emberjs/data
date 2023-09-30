@@ -57,8 +57,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.0)
       '@types/jquery':
-        specifier: ^3.5.19
-        version: 3.5.19
+        specifier: ^3.5.20
+        version: 3.5.20
       '@types/qunit':
         specifier: ^2.19.6
         version: 2.19.6
@@ -2041,8 +2041,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/ember':
-        specifier: ^4.0.5
-        version: 4.0.5(@babel/core@7.23.0)
+        specifier: ^4.0.6
+        version: 4.0.6(@babel/core@7.23.0)
       '@types/ember__owner':
         specifier: ^4.0.6
         version: 4.0.6
@@ -2146,8 +2146,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/ember':
-        specifier: ^4.0.5
-        version: 4.0.5(@babel/core@7.23.0)
+        specifier: ^4.0.6
+        version: 4.0.6(@babel/core@7.23.0)
       '@types/ember__owner':
         specifier: ^4.0.6
         version: 4.0.6
@@ -2757,8 +2757,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/ember':
-        specifier: ^4.0.5
-        version: 4.0.5(@babel/core@7.23.0)
+        specifier: ^4.0.6
+        version: 4.0.6(@babel/core@7.23.0)
       '@types/ember__debug':
         specifier: ^4.0.5
         version: 4.0.5(@babel/core@7.23.0)
@@ -3173,8 +3173,8 @@ importers:
         specifier: ^4.0.6
         version: 4.0.6
       '@types/morgan':
-        specifier: ^1.9.5
-        version: 1.9.5
+        specifier: ^1.9.6
+        version: 1.9.6
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -6209,8 +6209,8 @@ packages:
     dependencies:
       '@types/node': 20.5.9
 
-  /@types/ember@4.0.5(@babel/core@7.23.0):
-    resolution: {integrity: sha512-cTv/nW203GEPGsIJEL3bG6+5/Lmnkb0rNoITnHfkK1y7SPY1yg6K00VmE11LHkhQIt9BaMTFw7mqO53iexp7Hg==}
+  /@types/ember@4.0.6(@babel/core@7.23.0):
+    resolution: {integrity: sha512-5CAqPP20l1CWXT1E0NoiBnQUKqwuPSBq0JJVadEIX65CUzVz3zUIFvNoSl1erePwOeCIiQn9pHa568XwZnD6Mw==}
     dependencies:
       '@types/ember__application': 4.0.6(@babel/core@7.23.0)
       '@types/ember__array': 4.0.4(@babel/core@7.23.0)
@@ -6238,7 +6238,7 @@ packages:
     resolution: {integrity: sha512-ojZUGF8zmTpkTg6MJy4hplGvwTJEBCB3ku6UwgQhu0TizeGESBTUXxZIeyiORNBgfzkqT3Ugo+i+777zsIAfhg==}
     dependencies:
       '@glimmer/component': 1.1.2(@babel/core@7.23.0)
-      '@types/ember': 4.0.5(@babel/core@7.23.0)
+      '@types/ember': 4.0.6(@babel/core@7.23.0)
       '@types/ember__engine': 4.0.5(@babel/core@7.23.0)
       '@types/ember__object': 4.0.8(@babel/core@7.23.0)
       '@types/ember__owner': 4.0.6
@@ -6251,7 +6251,7 @@ packages:
   /@types/ember__array@4.0.4(@babel/core@7.23.0):
     resolution: {integrity: sha512-nMg0+2ooumlfHJjwmI1tnVTBg8TfORhXT4OdzJzCjweFjBCA25L7K0W9J/NKzTUTryJsaDil6VMbY3dCXpyBvA==}
     dependencies:
-      '@types/ember': 4.0.5(@babel/core@7.23.0)
+      '@types/ember': 4.0.6(@babel/core@7.23.0)
       '@types/ember__object': 4.0.8(@babel/core@7.23.0)
     transitivePeerDependencies:
       - '@babel/core'
@@ -6261,7 +6261,7 @@ packages:
   /@types/ember__component@4.0.15(@babel/core@7.23.0):
     resolution: {integrity: sha512-h4Z5kFg8dJT1DHX7qF0/gRc92QMYQGBztJBLbIHYVM36h7+4Sgpsoo1wYy8MCyV0zHwnk9icwpSbfANS20b1BA==}
     dependencies:
-      '@types/ember': 4.0.5(@babel/core@7.23.0)
+      '@types/ember': 4.0.6(@babel/core@7.23.0)
       '@types/ember__object': 4.0.8(@babel/core@7.23.0)
     transitivePeerDependencies:
       - '@babel/core'
@@ -6304,7 +6304,7 @@ packages:
   /@types/ember__object@4.0.8(@babel/core@7.23.0):
     resolution: {integrity: sha512-ZpMUVWnOr/FespCyriI2I3PvvJLUVkVZx8tlCFql9Cd3dqMF1O4RN4IdaFTWHcT/4rNdjAFKF5CxzoVSzKU/9A==}
     dependencies:
-      '@types/ember': 4.0.5(@babel/core@7.23.0)
+      '@types/ember': 4.0.6(@babel/core@7.23.0)
       '@types/rsvp': 4.0.4
     transitivePeerDependencies:
       - '@babel/core'
@@ -6321,7 +6321,7 @@ packages:
   /@types/ember__routing@4.0.13(@babel/core@7.23.0):
     resolution: {integrity: sha512-CNBx6RmGzZpe8ahuy6+aPYKc/EelmbkndqgCigGkkrqvV5B+ayb3rdeKa2XojyXIqSjvjmcYyj9TTvian0yDgg==}
     dependencies:
-      '@types/ember': 4.0.5(@babel/core@7.23.0)
+      '@types/ember': 4.0.6(@babel/core@7.23.0)
       '@types/ember__controller': 4.0.6(@babel/core@7.23.0)
       '@types/ember__object': 4.0.8(@babel/core@7.23.0)
       '@types/ember__service': 4.0.3(@babel/core@7.23.0)
@@ -6333,7 +6333,7 @@ packages:
   /@types/ember__runloop@4.0.4(@babel/core@7.23.0):
     resolution: {integrity: sha512-a8raelFWkQmkuWk4K6DmvwFYwC67SzV9yzurdfcKn3uTVj4EAX4KyuB+JUNRS6sHJYEUFlVsd8AHgYyU976Deg==}
     dependencies:
-      '@types/ember': 4.0.5(@babel/core@7.23.0)
+      '@types/ember': 4.0.6(@babel/core@7.23.0)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -6368,7 +6368,7 @@ packages:
   /@types/ember__utils@4.0.4(@babel/core@7.23.0):
     resolution: {integrity: sha512-RP6Phi3/oYskNxrH2rm4ZK0yNjxCRKRyY0A796gE2Mv31S6+kkRobqZ/LpH9bVa2FUgdl/4XZIyX/W4L1UWwig==}
     dependencies:
-      '@types/ember': 4.0.5(@babel/core@7.23.0)
+      '@types/ember': 4.0.6(@babel/core@7.23.0)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -6425,8 +6425,8 @@ packages:
   /@types/http-errors@2.0.1:
     resolution: {integrity: sha512-/K3ds8TRAfBvi5vfjuz8y6+GiAYBZ0x4tXv1Av6CWBWn0IlADc+ZX9pMq7oU0fNQPnBwIZl3rmeLp6SBApbxSQ==}
 
-  /@types/jquery@3.5.19:
-    resolution: {integrity: sha512-KFbmk+dXfphHGuVCmlopgcNRCegN/21mkeoD4BzuJhVH0SJW3Uo2mLuAwb6oqTNV79EsRp6J7yC1BbKymjpx/g==}
+  /@types/jquery@3.5.20:
+    resolution: {integrity: sha512-UI+EGhgYD4LdSZ8gaiziFqXYIIB38VQSDsnAs8jL/div7FGrzrShx4HKCykVzk3tPfiIlusdNP9Wi3G60LCF2Q==}
     dependencies:
       '@types/sizzle': 2.3.3
     dev: true
@@ -6456,8 +6456,8 @@ packages:
   /@types/minimatch@5.1.2:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
 
-  /@types/morgan@1.9.5:
-    resolution: {integrity: sha512-5TgfIWm0lcTGnbCZExwc19dCOMOMmAiiBZQj8Ko3NRxsVDgRxf+AEGRQTqNVA5Yh2xfdWp4clbAEMbYP+jkOqg==}
+  /@types/morgan@1.9.6:
+    resolution: {integrity: sha512-xfKogz5WcKww2DAiVT9zxMgrqQt+Shq8tDVeLT+otoj6dJnkRkyJxMF51mHtUc3JCPKGk5x1EBU0buuGpfftlQ==}
     dependencies:
       '@types/node': 20.5.9
     dev: true
