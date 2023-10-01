@@ -1300,15 +1300,15 @@ class Store extends EmberObject {
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
     @return {Model|null} record
   */
-  peekRecord(identifier: string, id: string | number): RecordInstance | null;
-  peekRecord(identifier: ResourceIdentifierObject): RecordInstance | null;
-  peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
+  peekRecord<T = RecordInstance>(identifier: string, id: string | number): T | null;
+  peekRecord<T = RecordInstance>(identifier: ResourceIdentifierObject): T | null;
+  peekRecord<T = RecordInstance>(identifier: ResourceIdentifierObject | string, id?: string | number): T | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       const stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
       const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
       // TODO come up with a better mechanism for determining if we have data and could peek.
       // this is basically an "are we not empty" query.
-      return isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
+      return isLoaded ? (this._instanceCache.getRecord(stableIdentifier) as T) : null;
     }
 
     if (DEBUG) {
@@ -1329,7 +1329,7 @@ class Store extends EmberObject {
     const stableIdentifier = this.identifierCache.peekRecordIdentifier(resource);
     const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
 
-    return isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
+    return isLoaded ? (this._instanceCache.getRecord(stableIdentifier) as T) : null;
   }
 
   /**

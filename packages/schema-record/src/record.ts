@@ -2,11 +2,19 @@ import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from "@ember-data/types/q/identifier";
 import type { FieldSchema, SchemaService } from './schema';
 import { Cache } from '@ember-data/types/q/cache';
+import { Document } from '@ember-data/store/-private/document';
+import { tracked } from '@glimmer/tracking';
+import { Link, Links, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
+import { Future } from '@ember-data/request';
+import { DEBUG } from '@ember-data/env';
 
 export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');
 export const Identifier = Symbol('Identifier');
 export const Editable = Symbol('Editable');
+export const Parent = Symbol('Parent');
+export const Checkout = Symbol('Checkout');
 
 function computeAttribute(schema: SchemaService, cache: Cache, record: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, prop: string): unknown {
   const rawValue = cache.getAttr(identifier, prop);
@@ -32,6 +40,72 @@ function computeDerivation(schema: SchemaService, record: SchemaRecord, identifi
   return derivation(record, field.options ?? null, prop);
 }
 
+// TODO probably this should just be a Document
+// but its separate until we work out the lid situation
+class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
+  declare lid: string;
+  declare [Parent]: SchemaRecord;
+  declare [RecordStore]: Store;
+  declare name: string;
+
+  @tracked declare data: T | null;
+  @tracked declare links: Links;
+  @tracked declare meta: Record<string, unknown>;
+
+  constructor(store: Store, cache: Cache, parent: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, name: string) {
+    const rawValue = cache.getRelationship(identifier, name) as SingleResourceRelationship;
+
+    // TODO setup true lids for relationship documents
+    // @ts-expect-error we need to put lid on the relationship
+    this.lid = rawValue.lid ?? rawValue.links?.self ?? `relationship:${identifier.lid}.${name}`;
+    this.data = rawValue.data ? store.peekRecord<T>(rawValue.data) : null;
+    this.name = name;
+
+    if (DEBUG) {
+      this.links = Object.freeze(Object.assign({}, rawValue.links));
+      this.meta = Object.freeze(Object.assign({}, rawValue.meta));
+    } else {
+      this.links = rawValue.links ?? {};
+      this.meta = rawValue.meta ?? {};
+    }
+
+    this[RecordStore] = store;
+    this[Parent] = parent;
+  }
+
+  fetch(options?: StoreRequestInput): Future<T> {
+    const url = options?.url ?? getHref(this.links.related) ?? getHref(this.links.self) ?? null;
+
+    if (!url) {
+      throw new Error(`Cannot ${options?.method ?? 'fetch'} ${this[Parent][Identifier].type}.${String(this.name)} because it has no related link`);
+    }
+    const request = Object.assign({
+      url,
+      method: 'GET',
+    }, options);
+
+    return this[RecordStore].request<T>(request);
+  }
+}
+
+function getHref(link?: Link | null): string | null {
+  if (!link) {
+    return null;
+  }
+  if (typeof link === 'string') {
+    return link;
+  }
+  return link.href;
+}
+
+function computeResource<T extends SchemaRecord>(store: Store, cache: Cache, parent: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, prop: string): ResourceRelationship<T> {
+  if (field.type !== 'resource') {
+    throw new Error(`The schema for ${identifier.type}.${String(prop)} is not a resource relationship`);
+  }
+
+  return new ResourceRelationship<T>(store, cache, parent, identifier, field, prop);
+}
+
 export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
@@ -52,6 +126,7 @@ export class SchemaRecord {
           return target[Destroy];
         }
 
+        // _, $, *
         if (prop === 'id') {
           return identifier.id;
         }
@@ -66,6 +141,9 @@ export class SchemaRecord {
         switch (field.kind) {
           case 'attribute':
             return computeAttribute(schema, cache, target, identifier, field, prop as string);
+          case 'resource':
+            return computeResource(store, cache, target, identifier, field, prop as string);
+
           case 'derived':
             return computeDerivation(schema, receiver, identifier, field, prop as string);
           default:
@@ -107,4 +185,7 @@ export class SchemaRecord {
   }
 
   [Destroy](): void {}
+  [Checkout](): Promise<SchemaRecord> {
+    return Promise.resolve(this);
+  }
 }
