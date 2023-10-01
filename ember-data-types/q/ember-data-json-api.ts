@@ -8,8 +8,8 @@ export type Meta = Record<string, JSONValue>;
 export type LinkObject = { href: string; meta?: Record<string, JSONValue> };
 export type Link = string | LinkObject;
 export interface Links {
-  related?: Link;
-  self?: Link;
+  related?: Link | null;
+  self?: Link | null;
 }
 export interface PaginationLinks extends Links {
   first?: Link | null;
