@@ -144,7 +144,7 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       rimraf:
-        specifier: ^5.0.4
+        specifier: ^5.0.5
         version: 5.0.5
       semver:
         specifier: ^7.5.4
