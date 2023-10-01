@@ -44,7 +44,7 @@ module('Reads | resource', function (hooks) {
         name: 'bestFriend',
         type: 'user',
         kind: 'resource',
-        options: { inverse: 'bestFriend' },
+        options: { inverse: 'bestFriend', async: true },
       },
     ]);
 
@@ -77,9 +77,11 @@ module('Reads | resource', function (hooks) {
       ],
     }) as User;
 
-    assert.strictEqual(record.id, null, 'id is accessible');
+    assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
-
     assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.bestFriend.data?.id, '2', 'bestFriend.id is accessible');
+    assert.strictEqual(record.bestFriend.data?.$type, 'user', 'bestFriend.user is accessible');
+    assert.strictEqual(record.bestFriend.data?.name, 'Rey', 'bestFriend.name is accessible');
   });
 });

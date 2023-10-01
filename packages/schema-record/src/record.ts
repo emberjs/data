@@ -99,7 +99,7 @@ function getHref(link?: Link | null): string | null {
 }
 
 function computeResource<T extends SchemaRecord>(store: Store, cache: Cache, parent: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, prop: string): ResourceRelationship<T> {
-  if (field.type !== 'resource') {
+  if (field.kind !== 'resource') {
     throw new Error(`The schema for ${identifier.type}.${String(prop)} is not a resource relationship`);
   }
 
