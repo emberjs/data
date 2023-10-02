@@ -55,14 +55,14 @@ function isArraySetter(prop: KeyType): boolean {
   return ARRAY_SETTER_METHODS.has(prop);
 }
 
-export const IDENTIFIER_ARRAY_TAG = Symbol('#tag');
+export const ARRAY_SIGNAL = Symbol('#signal');
 export const SOURCE = Symbol('#source');
 export const MUTATE = Symbol('#update');
 export const NOTIFY = Symbol('#notify');
 const IS_COLLECTION = Symbol.for('Collection');
 
 export function notifyArray(arr: IdentifierArray) {
-  addToTransaction(arr[IDENTIFIER_ARRAY_TAG]);
+  addToTransaction(arr[ARRAY_SIGNAL]);
 }
 
 function convertToInt(prop: KeyType): number | null {
@@ -161,7 +161,7 @@ class IdentifierArray {
   _updatingPromise: Promise<IdentifierArray> | null = null;
 
   [IS_COLLECTION] = true;
-  declare [IDENTIFIER_ARRAY_TAG]: Signal;
+  declare [ARRAY_SIGNAL]: Signal;
   [SOURCE]: StableRecordIdentifier[];
   [NOTIFY]() {
     notifyArray(this);
@@ -205,10 +205,10 @@ class IdentifierArray {
     this.store = options.store;
     this._manager = options.manager;
     this[SOURCE] = options.identifiers;
-    this[IDENTIFIER_ARRAY_TAG] = createSignal(this, 'length');
+    this[ARRAY_SIGNAL] = createSignal(this, 'length');
     const store = options.store;
     const boundFns = new Map<KeyType, ProxiedMethod>();
-    const _TAG = this[IDENTIFIER_ARRAY_TAG];
+    const _SIGNAL = this[ARRAY_SIGNAL];
     const PrivateState: PrivateState = {
       links: options.links || null,
       meta: options.meta || null,
@@ -222,23 +222,23 @@ class IdentifierArray {
     const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
       get(target: StableRecordIdentifier[], prop: KeyType, receiver: IdentifierArray): unknown {
         let index = convertToInt(prop);
-        if (_TAG.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
+        if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
-          _TAG.t = false;
-          _TAG.shouldReset = false;
+          _SIGNAL.t = false;
+          _SIGNAL.shouldReset = false;
         }
 
         if (index !== null) {
           const identifier = target[index];
           if (!transaction) {
-            subscribe(_TAG);
+            subscribe(_SIGNAL);
           }
           return identifier && store._instanceCache.getRecord(identifier);
         }
 
-        if (prop === 'meta') return subscribe(_TAG), PrivateState.meta;
-        if (prop === 'links') return subscribe(_TAG), PrivateState.links;
-        if (prop === '[]') return subscribe(_TAG), receiver;
+        if (prop === 'meta') return subscribe(_SIGNAL), PrivateState.meta;
+        if (prop === 'links') return subscribe(_SIGNAL), PrivateState.links;
+        if (prop === '[]') return subscribe(_SIGNAL), receiver;
 
         if (isArrayGetter(prop)) {
           let fn = boundFns.get(prop);
@@ -246,7 +246,7 @@ class IdentifierArray {
           if (fn === undefined) {
             if (prop === 'forEach') {
               fn = function () {
-                subscribe(_TAG);
+                subscribe(_SIGNAL);
                 transaction = true;
                 let result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
                 transaction = false;
@@ -254,7 +254,7 @@ class IdentifierArray {
               };
             } else {
               fn = function () {
-                subscribe(_TAG);
+                subscribe(_SIGNAL);
                 // array functions must run through Reflect to work properly
                 // binding via other means will not work.
                 transaction = true;
@@ -286,7 +286,7 @@ class IdentifierArray {
               transaction = true;
               let result: unknown = Reflect.apply(target[prop] as ProxiedMethod, receiver, args);
               self[MUTATE]!(prop as string, args, result);
-              addToTransaction(_TAG);
+              addToTransaction(_SIGNAL);
               // TODO handle cache updates
               transaction = false;
               return result;
@@ -299,7 +299,7 @@ class IdentifierArray {
         }
 
         if (prop in self) {
-          if (prop === NOTIFY || prop === IDENTIFIER_ARRAY_TAG || prop === SOURCE) {
+          if (prop === NOTIFY || prop === ARRAY_SIGNAL || prop === SOURCE) {
             return self[prop];
           }
 
@@ -310,7 +310,7 @@ class IdentifierArray {
 
           if (typeof outcome === 'function') {
             fn = function () {
-              subscribe(_TAG);
+              subscribe(_SIGNAL);
               // array functions must run through Reflect to work properly
               // binding via other means will not work.
               return Reflect.apply(outcome as ProxiedMethod, receiver, arguments) as unknown;
@@ -320,7 +320,7 @@ class IdentifierArray {
             return fn;
           }
 
-          return subscribe(_TAG), outcome;
+          return subscribe(_SIGNAL), outcome;
         }
 
         return target[prop];
@@ -330,7 +330,7 @@ class IdentifierArray {
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
-            addToTransaction(_TAG);
+            addToTransaction(_SIGNAL);
             Reflect.set(target, prop, value);
             self[MUTATE]!('length 0', []);
             transaction = false;
@@ -369,7 +369,7 @@ class IdentifierArray {
         (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         if (!transaction) {
           self[MUTATE]!('replace cell', [index, original, newIdentifier]);
-          addToTransaction(_TAG);
+          addToTransaction(_SIGNAL);
         }
 
         return true;
@@ -388,7 +388,7 @@ class IdentifierArray {
       },
     }) as IdentifierArray;
 
-    createArrayTags(proxy, _TAG);
+    createArrayTags(proxy, _SIGNAL);
 
     this[NOTIFY] = this[NOTIFY].bind(proxy);
 

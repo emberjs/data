@@ -115,7 +115,7 @@ declare const jQuery: JQueryStatic | undefined;
   {
     "posts": {
       "id": 1,
-      "title": "I'm Running to Reform the W3C's Tag",
+      "title": "I'm Running to Reform the W3C",
       "author": "Yehuda Katz"
     }
   }
@@ -129,7 +129,7 @@ declare const jQuery: JQueryStatic | undefined;
     "posts": [
       {
         "id": 1,
-        "title": "I'm Running to Reform the W3C's Tag",
+        "title": "I'm Running to Reform the W3C",
         "author": "Yehuda Katz"
       },
       {
@@ -187,7 +187,7 @@ declare const jQuery: JQueryStatic | undefined;
   {
     "posts": {
       "id": 5,
-      "title": "I'm Running to Reform the W3C's Tag",
+      "title": "I'm Running to Reform the W3C",
       "author": "Yehuda Katz",
       "comments": [1, 2]
     },
@@ -213,7 +213,7 @@ declare const jQuery: JQueryStatic | undefined;
   {
     "posts": {
       "id": 5,
-      "title": "I'm Running to Reform the W3C's Tag",
+      "title": "I'm Running to Reform the W3C",
       "author": "Yehuda Katz",
       "links": {
         "comments": "/posts/5/comments"

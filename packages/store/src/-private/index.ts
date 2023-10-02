@@ -27,7 +27,7 @@ export {
   notifyArray,
   SOURCE,
   MUTATE,
-  IDENTIFIER_ARRAY_TAG,
+  ARRAY_SIGNAL as IDENTIFIER_ARRAY_TAG,
 } from './record-arrays/identifier-array';
 export { default as RecordArrayManager, fastPush } from './managers/record-array-manager';
 
