@@ -1,17 +1,11 @@
 /**
   @module @ember-data/store
 */
-import { tagForProperty } from '@ember/-internals/metal';
 import { assert } from '@ember/debug';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { tracked } from '@glimmer/tracking';
-import { dirtyTag } from '@glimmer/validator';
-import Ember from 'ember';
 
-import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
+import { compat } from '@ember-data/tracking';
+import { addToTransaction, createSignal, defineSignal, Signal, subscribe } from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -62,15 +56,6 @@ const IS_COLLECTION = Symbol.for('Collection');
 
 export function notifyArray(arr: IdentifierArray) {
   addToTransaction(arr[IDENTIFIER_ARRAY_TAG]);
-
-  if (DEPRECATE_COMPUTED_CHAINS) {
-    // @ts-expect-error tagForProperty is mistyped to Tag instead of DirtyableTag
-    // eslint-disable-next-line
-    dirtyTag(tagForProperty(arr, 'length'));
-    // @ts-expect-error tagForProperty is mistyped to Tag instead of DirtyableTag
-    // eslint-disable-next-line
-    dirtyTag(tagForProperty(arr, '[]'));
-  }
 }
 
 function convertToInt(prop: KeyType): number | null {
@@ -81,28 +66,6 @@ function convertToInt(prop: KeyType): number | null {
   if (isNaN(num)) return null;
 
   return num % 1 === 0 ? num : null;
-}
-
-class Tag {
-  @tracked ref = null;
-  declare shouldReset: boolean;
-  /*
-   * whether this was part of a transaction when last mutated
-   */
-  declare t: boolean;
-  declare _debug_base: string;
-  declare _debug_prop: string;
-
-  constructor() {
-    if (DEBUG) {
-      const [arr, prop] = arguments as unknown as [IdentifierArray, string];
-
-      this._debug_base = arr.constructor.name + ':' + String(arr.modelName);
-      this._debug_prop = prop;
-    }
-    this.shouldReset = false;
-    this.t = false;
-  }
 }
 
 type ProxiedMethod = (...args: unknown[]) => unknown;
@@ -184,14 +147,14 @@ class IdentifierArray {
     @public
     @type Boolean
   */
-  @tracked isUpdating: boolean = false;
+  declare isUpdating: boolean;
   isLoaded: boolean = true;
   isDestroying: boolean = false;
   isDestroyed: boolean = false;
   _updatingPromise: Promise<IdentifierArray> | null = null;
 
   [IS_COLLECTION] = true;
-  declare [IDENTIFIER_ARRAY_TAG]: Tag;
+  declare [IDENTIFIER_ARRAY_TAG]: Signal;
   [SOURCE]: StableRecordIdentifier[];
   [NOTIFY]() {
     notifyArray(this);
@@ -220,20 +183,12 @@ class IdentifierArray {
   }
 
   // length must be on self for proxied methods to work properly
-  @dependentKeyCompat
+  @compat
   get length() {
     return this[SOURCE].length;
   }
   set length(value) {
     this[SOURCE].length = value;
-  }
-
-  // here to support computed chains
-  // and {{#each}}
-  get '[]'() {
-    if (DEPRECATE_COMPUTED_CHAINS) {
-      return this;
-    }
   }
 
   constructor(options: IdentifierArrayCreateOptions) {
@@ -243,8 +198,7 @@ class IdentifierArray {
     this.store = options.store;
     this._manager = options.manager;
     this[SOURCE] = options.identifiers;
-    // @ts-expect-error
-    this[IDENTIFIER_ARRAY_TAG] = DEBUG ? new Tag(this, 'length') : new Tag();
+    this[IDENTIFIER_ARRAY_TAG] = createSignal(this, 'length');
     const store = options.store;
     const boundFns = new Map<KeyType, ProxiedMethod>();
     const _TAG = this[IDENTIFIER_ARRAY_TAG];
@@ -427,13 +381,6 @@ class IdentifierArray {
       },
     }) as IdentifierArray;
 
-    if (DEBUG) {
-      const meta = Ember.meta(this);
-      meta.addMixin = (mixin: object) => {
-        assert(`Do not call A() on EmberData RecordArrays`);
-      };
-    }
-
     this[NOTIFY] = this[NOTIFY].bind(proxy);
 
     return proxy;
@@ -513,6 +460,20 @@ class IdentifierArray {
     return promise;
   }
 }
+
+// this will error if someone tries to call
+// A(identifierArray) since it is not configurable
+// which is preferrable to the `meta` override we used
+// before which required importing all of Ember
+Object.defineProperty(IdentifierArray.prototype, '[]', {
+  enumerable: true,
+  configurable: false,
+  get: function () {
+    return this as IdentifierArray;
+  },
+});
+
+defineSignal(IdentifierArray.prototype, 'isUpdating', false);
 
 export default IdentifierArray;
 

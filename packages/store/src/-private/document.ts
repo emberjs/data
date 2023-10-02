@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
-import { tracked } from '@glimmer/tracking';
 
 import { RequestInfo } from '@ember-data/request/-private/types';
+import { defineSignal } from '@ember-data/tracking/-private';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import { Link, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 
@@ -13,10 +13,10 @@ function urlFromLink(link: Link): string {
 }
 
 export class Document<T> {
-  @tracked links?: PaginationLinks;
-  @tracked data?: T;
-  @tracked errors?: object;
-  @tracked meta?: object;
+  declare links?: PaginationLinks;
+  declare data?: T;
+  declare errors?: object;
+  declare meta?: object;
 
   declare identifier: StableDocumentIdentifier | null;
 
@@ -78,3 +78,8 @@ export class Document<T> {
     return data;
   }
 }
+
+defineSignal(Document.prototype, 'data');
+defineSignal(Document.prototype, 'links');
+defineSignal(Document.prototype, 'errors');
+defineSignal(Document.prototype, 'meta');

@@ -4,8 +4,6 @@
 
 import { assert, warn } from '@ember/debug';
 import EmberObject from '@ember/object';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { importSync } from '@embroider/macros';
@@ -14,6 +12,8 @@ import { DEBUG } from '@ember-data/env';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/packages';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId, peekCache } from '@ember-data/store/-private';
+import { compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
 
 import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
@@ -181,7 +181,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get isEmpty() {
     return this.currentState.isEmpty;
   }
@@ -197,7 +197,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get isLoading() {
     return this.currentState.isLoading;
   }
@@ -224,7 +224,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get isLoaded() {
     return this.currentState.isLoaded;
   }
@@ -254,7 +254,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get hasDirtyAttributes() {
     return this.currentState.isDirty;
   }
@@ -282,7 +282,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get isSaving() {
     return this.currentState.isSaving;
   }
@@ -325,7 +325,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get isDeleted() {
     return this.currentState.isDeleted;
   }
@@ -352,7 +352,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get isNew() {
     return this.currentState.isNew;
   }
@@ -368,7 +368,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get isValid() {
     return this.currentState.isValid;
   }
@@ -394,7 +394,7 @@ class Model extends EmberObject {
     @type {String}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get dirtyType() {
     return this.currentState.dirtyType;
   }
@@ -419,7 +419,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @dependentKeyCompat
+  @compat
   get isError() {
     return this.currentState.isError;
   }
@@ -445,7 +445,6 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @tracked isReloading = false;
 
   /**
     All ember models have an id property. This is an identifier
@@ -598,7 +597,7 @@ class Model extends EmberObject {
     @public
     @type {AdapterError}
   */
-  @dependentKeyCompat
+  @compat
   get adapterError() {
     return this.currentState.adapterError;
   }
@@ -757,6 +756,7 @@ class Model extends EmberObject {
     @private
   */
   _notifyProperties(keys) {
+    throw new Error('why am i called?');
     // changeProperties defers notifications until after the delegate
     // and protects with a try...finally block
     // previously used begin...endPropertyChanges but this is private API
@@ -1199,7 +1199,7 @@ class Model extends EmberObject {
    Represents the model's class name as a string. This can be used to look up the model's class name through
    `Store`'s modelFor method.
 
-   `modelName` is generated for you by Ember Data. It will be a lowercased, dasherized string.
+   `modelName` is generated for you by EmberData. It will be a lowercased, dasherized string.
    For example:
 
    ```javascript
@@ -1625,9 +1625,9 @@ class Model extends EmberObject {
    ```
 
    @property relatedTypes
-    @public
+   @public
    @static
-   @type Ember.Array
+   @type Array
    @readOnly
    */
   @computeOnce
@@ -2125,6 +2125,8 @@ class Model extends EmberObject {
     return `model:${this.modelName}`;
   }
 }
+
+defineSignal(Model.prototype, 'isReloading', false);
 
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
