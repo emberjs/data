@@ -33,7 +33,7 @@
     "@ember-data/store": "workspace:5.5.0-alpha.10",
     "@ember-data/tracking": "workspace:5.5.0-alpha.10",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.13.1",
+    "@embroider/macros": "^1.13.2",
     "broccoli-merge-trees": "^4.2.0",
     "ember-auto-import": "^2.6.3",
     "ember-cli-babel": "^8.1.0",
