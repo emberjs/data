@@ -41,18 +41,27 @@ function createTransaction() {
   TRANSACTION = transaction;
 }
 
+function maybeConsume(tag: ReturnType<typeof tagForProperty> | null): void {
+  if (tag) {
+    // @ts-expect-error - we are using Ember's Tag not Glimmer's
+    consumeTag(tag);
+  }
+}
+
+function maybeDirty(tag: ReturnType<typeof tagForProperty> | null): void {
+  if (tag) {
+    // @ts-expect-error - we are using Ember's Tag not Glimmer's
+    dirtyTag(tag);
+  }
+}
+
 export function subscribe(obj: Tag | Signal): void {
   if (TRANSACTION) {
     TRANSACTION.sub.add(obj);
   } else if ('tag' in obj) {
     if (DEPRECATE_COMPUTED_CHAINS) {
-      if (obj.key === 'length') {
-        const altTag = obj['[]'];
-        if (altTag) {
-          // @ts-expect-error - we are using Ember's Tag not Glimmer's
-          consumeTag(altTag);
-        }
-      }
+      maybeConsume(obj['[]']);
+      maybeConsume(obj['@length']);
     }
     // @ts-expect-error - we are using Ember's Tag not Glimmer's
     consumeTag(obj.tag);
@@ -66,13 +75,8 @@ function updateRef(obj: Tag | Signal): void {
     try {
       if ('tag' in obj) {
         if (DEPRECATE_COMPUTED_CHAINS) {
-          if (obj.key === 'length') {
-            const altTag = obj['[]'];
-            if (altTag) {
-              // @ts-expect-error - we are using Ember's Tag not Glimmer's
-              dirtyTag(altTag);
-            }
-          }
+          maybeDirty(obj['[]']);
+          maybeDirty(obj['@length']);
         }
         // @ts-expect-error - we are using Ember's Tag not Glimmer's
         dirtyTag(obj.tag);
@@ -81,17 +85,11 @@ function updateRef(obj: Tag | Signal): void {
       }
     } catch (e: unknown) {
       if (e instanceof Error) {
-        if (e.message.includes('You attempted to update `ref` on `Tag`')) {
-          e.message = e.message.replace(
-            'You attempted to update `ref` on `Tag`',
-            // @ts-expect-error
-            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
-          );
-          e.stack = e.stack?.replace(
-            'You attempted to update `ref` on `Tag`',
-            // @ts-expect-error
-            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
-          );
+        if (e.message.includes('You attempted to update `undefined`')) {
+          // @ts-expect-error
+          const key = `<${obj._debug_base}>.${obj.key}`;
+          e.message = e.message.replace('You attempted to update `undefined`', `You attempted to update ${key}`);
+          e.stack = e.stack?.replace('You attempted to update `undefined`', `You attempted to update ${key}`);
 
           const lines = e.stack?.split(`\n`);
           const finalLines: string[] = [];
@@ -117,9 +115,9 @@ function updateRef(obj: Tag | Signal): void {
             }
           });
 
-          const splitstr = '`ref` was first used:';
+          const splitstr = '`undefined` was first used:';
           const parts = e.message.split(splitstr);
-          parts.splice(1, 0, `Original Stack\n=============\n${finalLines.join(`\n`)}\n\n${splitstr}`);
+          parts.splice(1, 0, `Original Stack\n=============\n${finalLines.join(`\n`)}\n\n\`${key}\` was first used:`);
 
           e.message = parts.join('');
         }
@@ -129,13 +127,8 @@ function updateRef(obj: Tag | Signal): void {
   } else {
     if ('tag' in obj) {
       if (DEPRECATE_COMPUTED_CHAINS) {
-        if (obj.key === 'length') {
-          const altTag = obj['[]'];
-          if (altTag) {
-            // @ts-expect-error - we are using Ember's Tag not Glimmer's
-            dirtyTag(altTag);
-          }
-        }
+        maybeDirty(obj['[]']);
+        maybeDirty(obj['@length']);
       }
       // @ts-expect-error - we are using Ember's Tag not Glimmer's
       dirtyTag(obj.tag);
@@ -159,13 +152,8 @@ function flushTransaction() {
   transaction.sub.forEach((obj) => {
     if ('tag' in obj) {
       if (DEPRECATE_COMPUTED_CHAINS) {
-        if (obj.key === 'length') {
-          const altTag = obj['[]'];
-          if (altTag) {
-            // @ts-expect-error - we are using Ember's Tag not Glimmer's
-            consumeTag(altTag);
-          }
-        }
+        maybeConsume(obj['[]']);
+        maybeConsume(obj['@length']);
       }
       // @ts-expect-error - we are using Ember's Tag not Glimmer's
       consumeTag(obj.tag);
@@ -309,8 +297,16 @@ export interface Signal {
   t: boolean;
   shouldReset: boolean;
   tag: ReturnType<typeof tagForProperty>;
-  '[]'?: ReturnType<typeof tagForProperty>;
-  lastValue?: unknown;
+  '[]': ReturnType<typeof tagForProperty> | null;
+  '@length': ReturnType<typeof tagForProperty> | null;
+  lastValue: unknown;
+}
+
+export function createArrayTags<T extends object>(obj: T, signal: Signal) {
+  if (DEPRECATE_COMPUTED_CHAINS) {
+    signal['[]'] = tagForProperty(obj, '[]');
+    signal['@length'] = tagForProperty(obj, 'length');
+  }
 }
 
 export function createSignal<T extends object, K extends keyof T & string>(obj: T, key: K): Signal {
@@ -320,17 +316,18 @@ export function createSignal<T extends object, K extends keyof T & string>(obj: 
 
     t: false,
     shouldReset: false,
+    '[]': null,
+    '@length': null,
+    lastValue: undefined,
   };
 
-  if (DEPRECATE_COMPUTED_CHAINS) {
-    if (obj instanceof Array && key === 'length') {
-      _signal['[]'] = tagForProperty(obj, '[]');
-    }
-  }
-
   if (DEBUG) {
+    // @ts-expect-error
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-base-to-string
-    _signal._debug_base = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
+    const modelName = obj.modelName ?? obj.constructor?.modelName ?? '';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-base-to-string
+    const className = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
+    _signal._debug_base = `${className}${modelName ? `:${modelName}` : ''}`;
   }
 
   return _signal;

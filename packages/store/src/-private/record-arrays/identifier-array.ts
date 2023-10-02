@@ -5,7 +5,14 @@ import { assert } from '@ember/debug';
 
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { compat } from '@ember-data/tracking';
-import { addToTransaction, createSignal, defineSignal, Signal, subscribe } from '@ember-data/tracking/-private';
+import {
+  addToTransaction,
+  createArrayTags,
+  createSignal,
+  defineSignal,
+  Signal,
+  subscribe,
+} from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -381,6 +388,8 @@ class IdentifierArray {
       },
     }) as IdentifierArray;
 
+    createArrayTags(proxy, _TAG);
+
     this[NOTIFY] = this[NOTIFY].bind(proxy);
 
     return proxy;
@@ -465,13 +474,15 @@ class IdentifierArray {
 // A(identifierArray) since it is not configurable
 // which is preferrable to the `meta` override we used
 // before which required importing all of Ember
-Object.defineProperty(IdentifierArray.prototype, '[]', {
+const desc = {
   enumerable: true,
   configurable: false,
   get: function () {
-    return this as IdentifierArray;
+    return this;
   },
-});
+};
+compat(desc);
+Object.defineProperty(IdentifierArray.prototype, '[]', desc);
 
 defineSignal(IdentifierArray.prototype, 'isUpdating', false);
 
@@ -512,7 +523,7 @@ export class Collection extends IdentifierArray {
 Collection.prototype.query = null;
 
 // Ensure instanceof works correctly
-//Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
+// Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 
