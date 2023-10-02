@@ -7,9 +7,9 @@ import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import IdentifierArray, {
+  ARRAY_SIGNAL,
   Collection,
   CollectionCreateOptions,
-  ARRAY_SIGNAL,
   NOTIFY,
   notifyArray,
   SOURCE,
