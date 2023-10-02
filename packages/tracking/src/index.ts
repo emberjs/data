@@ -1,1 +1,1 @@
-export { transact, memoTransact, untracked } from './-private';
+export { transact, memoTransact, untracked, entangleSignal } from './-private';
