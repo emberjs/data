@@ -1355,6 +1355,9 @@ importers:
       '@embroider/macros':
         specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.23.0)
+      '@glimmer/validator':
+        specifier: ^0.84.3
+        version: 0.84.3
       ember-cli-babel:
         specifier: ^8.1.0
         version: 8.1.0(@babel/core@7.23.0)
@@ -17999,6 +18002,7 @@ packages:
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@embroider/macros': 1.13.1(@babel/core@7.23.0)
+      '@glimmer/validator': 0.84.3
       ember-cli-babel: 8.1.0(@babel/core@7.23.0)
     transitivePeerDependencies:
       - '@babel/core'

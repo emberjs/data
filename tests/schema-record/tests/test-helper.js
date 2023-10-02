@@ -1,6 +1,7 @@
 import { setApplication } from '@ember/test-helpers';
 
 import * as QUnit from 'qunit';
+import { setup } from 'qunit-dom';
 
 import { start } from 'ember-qunit';
 
@@ -15,6 +16,9 @@ import config from '../config/environment';
 if (QUnit.urlParams.enableoptionalfeatures) {
   window.EmberDataENV = { ENABLE_OPTIONAL_FEATURES: true };
 }
+
+QUnit.dump.maxDepth = 6;
+setup(QUnit.assert);
 
 configureAsserts();
 

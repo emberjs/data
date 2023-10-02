@@ -1,3 +1,6 @@
+import { tagForProperty } from '@ember/-internals/metal';
+import { consumeTag, dirtyTag } from '@glimmer/validator';
+
 import { DEBUG } from '@ember-data/env';
 
 /**
@@ -18,8 +21,8 @@ type OpaqueFn = (...args: unknown[]) => unknown;
 type Tag = { ref: null; t: boolean };
 type Transaction = {
   cbs: Set<OpaqueFn>;
-  props: Set<Tag>;
-  sub: Set<Tag>;
+  props: Set<Tag | Signal>;
+  sub: Set<Tag | Signal>;
   parent: Transaction | null;
 };
 let TRANSACTION: Transaction | null = null;
@@ -37,18 +40,26 @@ function createTransaction() {
   TRANSACTION = transaction;
 }
 
-export function subscribe(obj: Tag): void {
+export function subscribe(obj: Tag | Signal): void {
   if (TRANSACTION) {
     TRANSACTION.sub.add(obj);
+  } else if ('tag' in obj) {
+    // @ts-expect-error - we are using Ember's Tag not Glimmer's
+    consumeTag(obj.tag);
   } else {
     obj.ref;
   }
 }
 
-function updateRef(obj: Tag): void {
+function updateRef(obj: Tag | Signal): void {
   if (DEBUG) {
     try {
-      obj.ref = null;
+      if ('tag' in obj) {
+        // @ts-expect-error - we are using Ember's Tag not Glimmer's
+        dirtyTag(obj.tag);
+      } else {
+        obj.ref = null;
+      }
     } catch (e: unknown) {
       if (e instanceof Error) {
         if (e.message.includes('You attempted to update `ref` on `Tag`')) {
@@ -97,7 +108,12 @@ function updateRef(obj: Tag): void {
       throw e;
     }
   } else {
-    obj.ref = null;
+    if ('tag' in obj) {
+      // @ts-expect-error - we are using Ember's Tag not Glimmer's
+      dirtyTag(obj.tag);
+    } else {
+      obj.ref = null;
+    }
   }
 }
 
@@ -107,13 +123,18 @@ function flushTransaction() {
   transaction.cbs.forEach((cb) => {
     cb();
   });
-  transaction.props.forEach((obj: Tag) => {
+  transaction.props.forEach((obj) => {
     // mark this mutation as part of a transaction
     obj.t = true;
     updateRef(obj);
   });
-  transaction.sub.forEach((obj: Tag) => {
-    obj.ref;
+  transaction.sub.forEach((obj) => {
+    if ('tag' in obj) {
+      // @ts-expect-error - we are using Ember's Tag not Glimmer's
+      consumeTag(obj.tag);
+    } else {
+      obj.ref;
+    }
   });
 }
 async function untrack() {
@@ -125,14 +146,14 @@ async function untrack() {
   transaction.cbs.forEach((cb) => {
     cb();
   });
-  transaction.props.forEach((obj: Tag) => {
+  transaction.props.forEach((obj) => {
     // mark this mutation as part of a transaction
     obj.t = true;
     updateRef(obj);
   });
 }
 
-export function addToTransaction(obj: Tag): void {
+export function addToTransaction(obj: Tag | Signal): void {
   if (TRANSACTION) {
     TRANSACTION.props.add(obj);
   } else {
@@ -212,4 +233,42 @@ export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]
     flushTransaction();
     return ret as ReturnType<T>;
   };
+}
+
+interface Signal {
+  _debug_base?: string;
+  _debug_prop?: string;
+
+  t: boolean;
+  shouldReset: boolean;
+  tag: ReturnType<typeof tagForProperty>;
+}
+
+export function createSignal<T extends object, K extends keyof T & string>(obj: T, key: K): Signal {
+  const _signal: Signal = {
+    tag: tagForProperty(obj, key),
+    t: false,
+    shouldReset: false,
+  };
+
+  if (DEBUG) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-base-to-string
+    _signal._debug_base = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
+    _signal._debug_prop = key;
+  }
+
+  return _signal;
+}
+
+export function entangleSignal<T extends object, K extends keyof T & string>(
+  signals: Map<K, Signal>,
+  obj: T,
+  key: K
+): void {
+  let signal = signals.get(key);
+  if (!signal) {
+    signal = createSignal(obj, key);
+    signals.set(key, signal);
+  }
+  subscribe(signal);
 }

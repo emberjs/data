@@ -2,12 +2,13 @@ import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from "@ember-data/types/q/identifier";
 import type { FieldSchema, SchemaService } from './schema';
 import { Cache } from '@ember-data/types/q/cache';
-import { Document } from '@ember-data/store/-private/document';
 import { tracked } from '@glimmer/tracking';
 import { Link, Links, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
 import { Future } from '@ember-data/request';
 import { DEBUG } from '@ember-data/env';
+import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import { addToTransaction, entangleSignal } from '@ember-data/tracking/-private';
 
 export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');
@@ -110,6 +111,7 @@ export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
   declare [Editable]: boolean;
+  declare ___notifications: unknown;
 
   constructor(store: Store, identifier: StableRecordIdentifier, editable: boolean) {
     this[RecordStore] = store;
@@ -119,6 +121,20 @@ export class SchemaRecord {
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
     const fields = schema.fields(identifier);
+
+    const signals = new Map();
+    this.___notifications = store.notifications.subscribe(identifier, (_: StableRecordIdentifier, type: NotificationType, key?: string) => {
+      switch (type) {
+        case 'attributes':
+          if (key) {
+            const signal = signals.get(key);
+            if (signal) {
+              addToTransaction(signal);
+            }
+          }
+          break;
+      }
+    });
 
     return new Proxy(this, {
       get(target, prop, receiver) {
@@ -140,8 +156,10 @@ export class SchemaRecord {
 
         switch (field.kind) {
           case 'attribute':
+            entangleSignal(signals, this, field.name);
             return computeAttribute(schema, cache, target, identifier, field, prop as string);
           case 'resource':
+            entangleSignal(signals, this, field.name);
             return computeResource(store, cache, target, identifier, field, prop as string);
 
           case 'derived':
