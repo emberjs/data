@@ -15,7 +15,6 @@ export default {
   external: [
     '@embroider/macros',
     '@ember/service',
-    'ember',
     'ember-inflector',
     '@ember/debug',
     '@ember/object/computed',

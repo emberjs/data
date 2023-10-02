@@ -6,10 +6,7 @@ import Model, { type ModelFactory } from './model';
 
 /*
     In case someone defined a relationship to a mixin, for example:
-    ```
-      import Model, { belongsTo, hasMany } from '@ember-data/model';
-      import Mixin from '@ember/object/mixin';
-
+    ```ts
       class CommentModel extends Model {
         @belongsTo('commentable', { polymorphic: true }) owner;
       }

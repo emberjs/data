@@ -2,9 +2,9 @@ import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
-import { cached } from '@glimmer/tracking';
 
 import type Store from '@ember-data/store';
+import { cached } from '@ember-data/tracking';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
 import { LegacySupport } from './legacy-relationships-support';

@@ -1,6 +1,4 @@
 import { assert } from '@ember/debug';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { cached, tracked } from '@glimmer/tracking';
 
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
@@ -8,6 +6,7 @@ import { storeFor } from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
+import { cached, compat, signal } from '@ember-data/tracking';
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -54,7 +53,7 @@ class Tag {
      */
     this.t = false;
   }
-  @tracked ref = null;
+  @signal ref = null;
 
   notify() {
     this.isDirty = true;
@@ -109,7 +108,7 @@ export function tagged(_target, key, desc) {
     // probably notify here but not yet.
     setter.call(this, v);
   };
-  dependentKeyCompat(desc);
+  compat(desc);
   return desc;
 }
 
@@ -312,7 +311,7 @@ export default class RecordState {
     this._lastError = null;
   }
 
-  @tracked isSaving = false;
+  @signal isSaving = false;
 
   @tagged
   get isLoading() {

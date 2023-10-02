@@ -818,7 +818,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    const theTag = store.push({ data: { type: 'tag', id: '1', attributes: { name: 'ember' } } });
+    const theTag = store.push({ data: { type: 'tag', id: '1', attributes: { name: 'Amber' } } });
     let person = store.createRecord('person', { tag: theTag });
     const personTag = person.tag;
     assert.ok(personTag.then, 'tag should be an async relationship');

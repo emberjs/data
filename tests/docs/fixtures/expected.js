@@ -69,7 +69,6 @@ module.exports = {
     '(private) @ember-data/model Errors#unknownProperty',
     '(private) @ember-data/model Model#_createSnapshot',
     '(private) @ember-data/model Model#_debugInfo',
-    '(private) @ember-data/model Model#_notifyProperties',
     '(private) @ember-data/model Model#create',
     '(private) @ember-data/model Model#currentState',
     '(private) @ember-data/model PromiseManyArray#forEach',

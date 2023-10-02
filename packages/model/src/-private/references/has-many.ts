@@ -1,6 +1,3 @@
-import { dependentKeyCompat } from '@ember/object/compat';
-import { cached, tracked } from '@glimmer/tracking';
-
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
 import { ManyArray } from 'ember-data/-private';
@@ -11,6 +8,7 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import { cached, compat, signal } from '@ember-data/tracking';
 import { CollectionRelationship } from '@ember-data/types/cache/relationship';
 import type {
   CollectionResourceDocument,
@@ -63,7 +61,7 @@ export default class HasManyReference {
   ___identifier: StableRecordIdentifier;
   ___relatedTokenMap!: Map<StableRecordIdentifier, object>;
 
-  @tracked _ref = 0;
+  @signal _ref = 0;
 
   constructor(
     store: Store,
@@ -106,7 +104,7 @@ export default class HasManyReference {
    * @public
    */
   @cached
-  @dependentKeyCompat
+  @compat
   get identifiers(): StableRecordIdentifier[] {
     this._ref; // consume the tracked prop
 

@@ -67,16 +67,18 @@
   your Adapter does not need the method.
 
   ```ts
-  import EmberObject from '@ember/object';
-
   async function fetchData(url, options = {}) {
     let response = await fetch(url, options);
     return response.toJSON();
   }
 
-  export default class ApplicationAdapter extends EmberObject {
+  export default class ApplicationAdapter {
     findRecord(_, { modelName }, id) {
       return fetchData(`./${modelName}s/${id}`);
+    }
+
+    static create() {
+      return new this();
     }
   }
   ```
@@ -147,7 +149,7 @@ Note: If you are using Ember and would like to make use of `service` injections 
   ```js
   import Store from '@ember-data/store';
   import Adapter from '@ember-data/adapter/json-api';
-  import { getOwner, setOwner } from '@ember/application';
+  import { getOwner, setOwner } from '@ember/owner';
 
   class extends Store {
     #adapter = null;

@@ -1,6 +1,3 @@
-import { dependentKeyCompat } from '@ember/object/compat';
-import { cached, tracked } from '@glimmer/tracking';
-
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
 import { DEBUG } from '@ember-data/env';
@@ -9,6 +6,7 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import { cached, compat, signal } from '@ember-data/tracking';
 import type {
   LinkObject,
   Links,
@@ -59,7 +57,7 @@ export default class BelongsToReference {
   declare ___token: object;
   declare ___relatedToken: object | null;
 
-  @tracked _ref = 0;
+  @signal _ref = 0;
 
   constructor(
     store: Store,
@@ -107,7 +105,7 @@ export default class BelongsToReference {
    * @public
    */
   @cached
-  @dependentKeyCompat
+  @compat
   get identifier(): StableRecordIdentifier | null {
     if (this.___relatedToken) {
       this.store.notifications.unsubscribe(this.___relatedToken);

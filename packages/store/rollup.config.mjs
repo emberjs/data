@@ -26,7 +26,6 @@ export default {
     '@ember/object/compat',
     '@ember/runloop',
     '@ember/string',
-    'ember',
 
     // investigate why these are present
     '@ember/application',

@@ -840,9 +840,7 @@ class Store extends EmberObject {
     snapshot:
 
     ```app/adapters/application.js
-    import EmberObject from '@ember/object';
-
-    export default class Adapter extends EmberObject {
+    export default class Adapter {
 
       findRecord(store, schema, id, snapshot) {
         let type = schema.modelName;
@@ -853,6 +851,10 @@ class Store extends EmberObject {
           return fetch(`./posts/${postId}/comments/${id}`)
             .then(response => response.json())
         }
+      }
+
+      static create() {
+        return new this();
       }
     }
     ```
@@ -871,10 +873,7 @@ class Store extends EmberObject {
     ```
 
     ```app/adapters/application.js
-    import EmberObject from '@ember/object';
-
-    export default class Adapter extends EmberObject {
-
+    export default class Adapter {
       findRecord(store, schema, id, snapshot) {
         let type = schema.modelName;
 
@@ -884,6 +883,10 @@ class Store extends EmberObject {
           return fetch(`./posts/${postId}/comments/${id}`)
             .then(response => response.json())
         }
+      }
+
+      static create() {
+        return new this();
       }
     }
     ```
@@ -1044,10 +1047,7 @@ class Store extends EmberObject {
     ```
 
     ```app/adapters/application.js
-    import EmberObject from '@ember/object';
-
-    export default class Adapter extends EmberObject {
-
+    export default class Adapter {
       findRecord(store, schema, id, snapshot) {
         let type = schema.modelName;
 
@@ -1057,6 +1057,10 @@ class Store extends EmberObject {
           return fetch(`./posts/${postId}?include=${includes}`)
             .then(response => response.json())
         }
+      }
+
+      static create() {
+        return new this();
       }
     }
     ```
