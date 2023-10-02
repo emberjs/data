@@ -346,3 +346,25 @@ export function entangleSignal<T extends object, K extends keyof T & string>(
   subscribe(_signal);
   return _signal;
 }
+
+interface Signaler {
+  [Signals]: Map<string, Signal>;
+}
+
+export function getSignal<T extends object, K extends keyof T & string>(obj: T, key: K, initialState: boolean): Signal {
+  const signals = ((obj as Signaler)[Signals] = (obj as Signaler)[Signals] || new Map());
+  let _signal = signals.get(key);
+  if (!_signal) {
+    _signal = createSignal(obj, key);
+    _signal.shouldReset = initialState;
+    signals.set(key, _signal);
+  }
+  return _signal;
+}
+
+export function peekSignal<T extends object, K extends keyof T & string>(obj: T, key: K): Signal | undefined {
+  const signals = (obj as Signaler)[Signals];
+  if (signals) {
+    return signals.get(key);
+  }
+}

@@ -17,7 +17,7 @@ import { defineSignal } from '@ember-data/tracking/-private';
 import Errors from './errors';
 import { LegacySupport } from './legacy-relationships-support';
 import notifyChanges from './notify-changes';
-import RecordState, { peekTag, tagged } from './record-state';
+import RecordState, { notifySignal, tagged } from './record-state';
 
 export const LEGACY_SUPPORT = new Map();
 
@@ -631,10 +631,7 @@ class Model extends EmberObject {
     super in 4.0+ where sync observers are removed.
    */
   notifyPropertyChange(prop) {
-    let tag = peekTag(this, prop);
-    if (tag) {
-      tag.notify();
-    }
+    notifySignal(this, prop);
     super.notifyPropertyChange(prop);
   }
 

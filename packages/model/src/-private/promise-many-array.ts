@@ -1,7 +1,8 @@
 import { assert } from '@ember/debug';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
-import { compat, signal } from '@ember-data/tracking';
+import { compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
 import { FindOptions } from '@ember-data/types/q/store';
 
 import type ManyArray from './many-array';
@@ -41,7 +42,7 @@ export default class PromiseManyArray {
 
   //---- Methods/Properties on ArrayProxy that we will keep as our API
 
-  @signal content: any | null = null;
+  declare content: ManyArray | null;
 
   /**
    * Retrieve the length of the content
@@ -56,17 +57,6 @@ export default class PromiseManyArray {
       this['[]'];
     }
     return this.content ? this.content.length : 0;
-  }
-
-  // ember-source < 3.23 (e.g. 3.20 lts)
-  // requires that the tag `'[]'` be notified
-  // on the ArrayProxy in order for `{{#each}}`
-  // to recompute. We entangle the '[]' tag from
-  @compat
-  get '[]'() {
-    if (DEPRECATE_COMPUTED_CHAINS) {
-      return this.content?.length && this.content;
-    }
   }
 
   /**
@@ -106,28 +96,28 @@ export default class PromiseManyArray {
    * @property {boolean} isPending
    * @public
    */
-  @signal isPending: boolean = false;
+  declare isPending: boolean;
   /**
    * Whether the loading promise rejected
    *
    * @property {boolean} isRejected
    * @public
    */
-  @signal isRejected: boolean = false;
+  declare isRejected: boolean;
   /**
    * Whether the loading promise succeeded
    *
    * @property {boolean} isFulfilled
    * @public
    */
-  @signal isFulfilled: boolean = false;
+  declare isFulfilled: boolean;
   /**
    * Whether the loading promise completed (resolved or rejected)
    *
    * @property {boolean} isSettled
    * @public
    */
-  @signal isSettled: boolean = false;
+  declare isSettled: boolean;
 
   /**
    * chain this promise
@@ -209,6 +199,11 @@ export default class PromiseManyArray {
     return new this(promise, content);
   }
 }
+defineSignal(PromiseManyArray.prototype, 'content', null);
+defineSignal(PromiseManyArray.prototype, 'isPending', false);
+defineSignal(PromiseManyArray.prototype, 'isRejected', false);
+defineSignal(PromiseManyArray.prototype, 'isFulfilled', false);
+defineSignal(PromiseManyArray.prototype, 'isSettled', false);
 
 // this will error if someone tries to call
 // A(identifierArray) since it is not configurable
@@ -223,6 +218,11 @@ if (DEPRECATE_COMPUTED_CHAINS) {
     },
   };
   compat(desc);
+
+  // ember-source < 3.23 (e.g. 3.20 lts)
+  // requires that the tag `'[]'` be notified
+  // on the ArrayProxy in order for `{{#each}}`
+  // to recompute. We entangle the '[]' tag from content
   Object.defineProperty(PromiseManyArray.prototype, '[]', desc);
 }
 

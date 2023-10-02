@@ -8,7 +8,8 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { cached, compat, signal } from '@ember-data/tracking';
+import { cached, compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
 import { CollectionRelationship } from '@ember-data/types/cache/relationship';
 import type {
   CollectionResourceDocument,
@@ -61,7 +62,7 @@ export default class HasManyReference {
   ___identifier: StableRecordIdentifier;
   ___relatedTokenMap!: Map<StableRecordIdentifier, object>;
 
-  @signal _ref = 0;
+  declare _ref: number;
 
   constructor(
     store: Store,
@@ -645,3 +646,4 @@ export default class HasManyReference {
     return support.reloadHasMany(this.key, options);
   }
 }
+defineSignal(HasManyReference.prototype, '_ref', 0);

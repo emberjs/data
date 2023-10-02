@@ -6,7 +6,8 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { cached, compat, signal } from '@ember-data/tracking';
+import { cached, compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
 import type {
   LinkObject,
   Links,
@@ -57,7 +58,7 @@ export default class BelongsToReference {
   declare ___token: object;
   declare ___relatedToken: object | null;
 
-  @signal _ref = 0;
+  declare _ref: number;
 
   constructor(
     store: Store,
@@ -600,3 +601,4 @@ export default class BelongsToReference {
     return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }
+defineSignal(BelongsToReference.prototype, '_ref', 0);
