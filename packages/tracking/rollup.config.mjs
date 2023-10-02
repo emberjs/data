@@ -12,7 +12,13 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: ['@embroider/macros', '@glimmer/validator'],
+  external: [
+    '@embroider/macros',
+    '@glimmer/validator',
+    '@ember/-internals/metal',
+    '@glimmer/tracking', // cached (6 usages in model)
+    '@ember/object/compat', // dependentKeyCompat (16 usages in model, 1 in store)
+  ],
 
   plugins: [
     // These are the modules that users should be able to import from your
