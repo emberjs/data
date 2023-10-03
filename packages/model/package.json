@@ -63,6 +63,18 @@
     },
     "@ember/string": {
       "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
     }
   },
   "dependencies": {

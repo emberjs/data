@@ -13,11 +13,12 @@ export default {
   output: addon.output(),
 
   external: [
+    '@ember/debug',
     '@embroider/macros',
     '@glimmer/validator',
     '@ember/-internals/metal',
-    '@glimmer/tracking', // cached (6 usages in model)
-    '@ember/object/compat', // dependentKeyCompat (16 usages in model, 1 in store)
+    '@glimmer/tracking/primitives/cache',
+    '@ember/object/compat',
   ],
 
   plugins: [

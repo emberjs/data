@@ -836,9 +836,17 @@ importers:
         specifier: ^5.88.2
         version: 5.88.2
     dependenciesMeta:
+      '@ember-data/graph':
+        injected: true
+      '@ember-data/json-api':
+        injected: true
+      '@ember-data/legacy-compat':
+        injected: true
       '@ember-data/private-build-infra':
         injected: true
       '@ember-data/store':
+        injected: true
+      '@ember-data/tracking':
         injected: true
       '@ember/string':
         injected: true
@@ -1268,9 +1276,6 @@ importers:
       '@embroider/macros':
         specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.23.0)
-      '@glimmer/validator':
-        specifier: ^0.84.3
-        version: 0.84.3
       ember-cli-babel:
         specifier: ^8.1.0
         version: 8.1.0(@babel/core@7.23.0)
