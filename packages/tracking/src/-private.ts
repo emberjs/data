@@ -1,4 +1,5 @@
 import { tagForProperty } from '@ember/-internals/metal';
+// eslint-disable-next-line no-restricted-imports
 import { consumeTag, dirtyTag } from '@glimmer/validator';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';

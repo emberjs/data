@@ -14,22 +14,16 @@ export default {
 
   external: [
     '@embroider/macros',
-    '@glimmer/tracking',
 
     '@ember-data/tracking/-private',
     '@ember-data/private-build-infra/current-deprecations',
-    '@ember/-internals/glimmer',
-    '@ember/-internals/metal',
-    '@glimmer/validator',
 
     // to eliminate
-    '@ember/object/compat',
     '@ember/runloop',
     '@ember/string',
 
     // investigate why these are present
     '@ember/application',
-    '@ember/object/computed',
 
     // deprecated usages only
     '@ember/object',

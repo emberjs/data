@@ -2,6 +2,7 @@ import { action } from '@ember/object';
 import { inject } from '@ember/service';
 import { click, findAll, render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
+// eslint-disable-next-line no-restricted-imports
 import { tracked } from '@glimmer/tracking';
 
 import { module, test } from 'qunit';

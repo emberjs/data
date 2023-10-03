@@ -1,4 +1,5 @@
 import { assert } from '@ember/debug';
+// eslint-disable-next-line no-restricted-imports
 import { tracked } from '@glimmer/tracking';
 
 type ApiMeta = {

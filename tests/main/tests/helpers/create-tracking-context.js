@@ -1,5 +1,6 @@
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
+// eslint-disable-next-line no-restricted-imports
 import { tracked } from '@glimmer/tracking';
 
 import { hbs } from 'ember-cli-htmlbars';

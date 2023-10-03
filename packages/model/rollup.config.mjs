@@ -18,7 +18,6 @@ export default {
     'ember-inflector',
     '@ember/debug',
     '@ember/object/computed',
-    '@ember/object/compat',
     '@ember-data/store/-private',
     '@ember-data/store',
     '@ember/object/internals',
@@ -31,7 +30,6 @@ export default {
     '@ember/object',
     '@ember/object/mixin',
     '@ember/application',
-    '@glimmer/tracking',
     '@ember/polyfills',
   ],
 
