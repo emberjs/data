@@ -540,8 +540,8 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2
       hono:
-        specifier: ^3.7.2
-        version: 3.7.2
+        specifier: ^3.7.3
+        version: 3.7.3
       pm2:
         specifier: ^5.3.0
         version: 5.3.0
@@ -12295,8 +12295,8 @@ packages:
     dependencies:
       parse-passwd: 1.0.0
 
-  /hono@3.7.2:
-    resolution: {integrity: sha512-5SWYrAQJlfjHggcDTnmKZd5zlUEXmoUiBjnmL6C1W8MX39/bUw6ZIvfEJZgpo7d7Z/vCJ5FRfkjIQPRH5yV/dQ==}
+  /hono@3.7.3:
+    resolution: {integrity: sha512-BQHdLPXb30hQ9k+04byeSi4QMHk20U1GUq0nT5kGUCGZtxeYhAS7mUJ1wgjn4SCvgiw1rcc6oBOAlwJQ7jQymA==}
     engines: {node: '>=16.0.0'}
 
   /hosted-git-info@4.1.0:
@@ -17556,7 +17556,7 @@ packages:
     dependencies:
       '@hono/node-server': 1.2.0
       chalk: 4.1.2
-      hono: 3.7.2
+      hono: 3.7.3
       pm2: 5.3.0
     transitivePeerDependencies:
       - bufferutil
