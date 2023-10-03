@@ -1256,7 +1256,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           type: 'tag',
           id: '1',
           attributes: {
-            name: 'ember',
+            name: 'Amber',
           },
         },
       ],
@@ -1265,7 +1265,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     await store.findRecord('person', '1').then((person) => {
       let tag = person.tags.at(0);
 
-      assert.strictEqual(tag.name, 'ember', 'precond - relationships work');
+      assert.strictEqual(tag.name, 'Amber', 'precond - relationships work');
 
       tag = store.createRecord('tag', { name: 'js' });
       person.tags.push(tag);
@@ -2152,7 +2152,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           type: 'tag',
           id: '1',
           attributes: {
-            name: 'ember',
+            name: 'Amber',
           },
         },
         {
@@ -2216,7 +2216,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
           type: 'tag',
           id: '1',
           attributes: {
-            name: 'ember',
+            name: 'Amber',
           },
         },
       ],
@@ -2224,7 +2224,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     let tag = person.tags.at(0);
 
-    assert.strictEqual(tag.name, 'ember', 'precond - relationships work');
+    assert.strictEqual(tag.name, 'Amber', 'precond - relationships work');
 
     person.tags.splice(0, 1);
 

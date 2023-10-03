@@ -1,7 +1,6 @@
 /**
   @module @ember-data/model
 */
-import { A } from '@ember/array';
 import { assert, deprecate } from '@ember/debug';
 import { computed } from '@ember/object';
 import { dasherize } from '@ember/string';
@@ -205,7 +204,7 @@ function hasMany(type, options) {
         }
       }
       if (this.isDestroying || this.isDestroyed) {
-        return A();
+        return [];
       }
       return lookupLegacySupport(this).getHasMany(key);
     },

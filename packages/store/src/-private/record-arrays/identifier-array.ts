@@ -1,17 +1,18 @@
 /**
   @module @ember-data/store
 */
-import { tagForProperty } from '@ember/-internals/metal';
 import { assert } from '@ember/debug';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { tracked } from '@glimmer/tracking';
-import { dirtyTag } from '@glimmer/validator';
-import Ember from 'ember';
 
-import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
+import { compat } from '@ember-data/tracking';
+import {
+  addToTransaction,
+  createArrayTags,
+  createSignal,
+  defineSignal,
+  Signal,
+  subscribe,
+} from '@ember-data/tracking/-private';
 import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -54,23 +55,14 @@ function isArraySetter(prop: KeyType): boolean {
   return ARRAY_SETTER_METHODS.has(prop);
 }
 
-export const IDENTIFIER_ARRAY_TAG = Symbol('#tag');
+export const ARRAY_SIGNAL = Symbol('#signal');
 export const SOURCE = Symbol('#source');
 export const MUTATE = Symbol('#update');
 export const NOTIFY = Symbol('#notify');
 const IS_COLLECTION = Symbol.for('Collection');
 
 export function notifyArray(arr: IdentifierArray) {
-  addToTransaction(arr[IDENTIFIER_ARRAY_TAG]);
-
-  if (DEPRECATE_COMPUTED_CHAINS) {
-    // @ts-expect-error tagForProperty is mistyped to Tag instead of DirtyableTag
-    // eslint-disable-next-line
-    dirtyTag(tagForProperty(arr, 'length'));
-    // @ts-expect-error tagForProperty is mistyped to Tag instead of DirtyableTag
-    // eslint-disable-next-line
-    dirtyTag(tagForProperty(arr, '[]'));
-  }
+  addToTransaction(arr[ARRAY_SIGNAL]);
 }
 
 function convertToInt(prop: KeyType): number | null {
@@ -81,28 +73,6 @@ function convertToInt(prop: KeyType): number | null {
   if (isNaN(num)) return null;
 
   return num % 1 === 0 ? num : null;
-}
-
-class Tag {
-  @tracked ref = null;
-  declare shouldReset: boolean;
-  /*
-   * whether this was part of a transaction when last mutated
-   */
-  declare t: boolean;
-  declare _debug_base: string;
-  declare _debug_prop: string;
-
-  constructor() {
-    if (DEBUG) {
-      const [arr, prop] = arguments as unknown as [IdentifierArray, string];
-
-      this._debug_base = arr.constructor.name + ':' + String(arr.modelName);
-      this._debug_prop = prop;
-    }
-    this.shouldReset = false;
-    this.t = false;
-  }
 }
 
 type ProxiedMethod = (...args: unknown[]) => unknown;
@@ -184,14 +154,14 @@ class IdentifierArray {
     @public
     @type Boolean
   */
-  @tracked isUpdating: boolean = false;
+  declare isUpdating: boolean;
   isLoaded: boolean = true;
   isDestroying: boolean = false;
   isDestroyed: boolean = false;
   _updatingPromise: Promise<IdentifierArray> | null = null;
 
   [IS_COLLECTION] = true;
-  declare [IDENTIFIER_ARRAY_TAG]: Tag;
+  declare [ARRAY_SIGNAL]: Signal;
   [SOURCE]: StableRecordIdentifier[];
   [NOTIFY]() {
     notifyArray(this);
@@ -220,20 +190,12 @@ class IdentifierArray {
   }
 
   // length must be on self for proxied methods to work properly
-  @dependentKeyCompat
+  @compat
   get length() {
     return this[SOURCE].length;
   }
   set length(value) {
     this[SOURCE].length = value;
-  }
-
-  // here to support computed chains
-  // and {{#each}}
-  get '[]'() {
-    if (DEPRECATE_COMPUTED_CHAINS) {
-      return this;
-    }
   }
 
   constructor(options: IdentifierArrayCreateOptions) {
@@ -243,11 +205,10 @@ class IdentifierArray {
     this.store = options.store;
     this._manager = options.manager;
     this[SOURCE] = options.identifiers;
-    // @ts-expect-error
-    this[IDENTIFIER_ARRAY_TAG] = DEBUG ? new Tag(this, 'length') : new Tag();
+    this[ARRAY_SIGNAL] = createSignal(this, 'length');
     const store = options.store;
     const boundFns = new Map<KeyType, ProxiedMethod>();
-    const _TAG = this[IDENTIFIER_ARRAY_TAG];
+    const _SIGNAL = this[ARRAY_SIGNAL];
     const PrivateState: PrivateState = {
       links: options.links || null,
       meta: options.meta || null,
@@ -261,23 +222,23 @@ class IdentifierArray {
     const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
       get(target: StableRecordIdentifier[], prop: KeyType, receiver: IdentifierArray): unknown {
         let index = convertToInt(prop);
-        if (_TAG.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
+        if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
-          _TAG.t = false;
-          _TAG.shouldReset = false;
+          _SIGNAL.t = false;
+          _SIGNAL.shouldReset = false;
         }
 
         if (index !== null) {
           const identifier = target[index];
           if (!transaction) {
-            subscribe(_TAG);
+            subscribe(_SIGNAL);
           }
           return identifier && store._instanceCache.getRecord(identifier);
         }
 
-        if (prop === 'meta') return subscribe(_TAG), PrivateState.meta;
-        if (prop === 'links') return subscribe(_TAG), PrivateState.links;
-        if (prop === '[]') return subscribe(_TAG), receiver;
+        if (prop === 'meta') return subscribe(_SIGNAL), PrivateState.meta;
+        if (prop === 'links') return subscribe(_SIGNAL), PrivateState.links;
+        if (prop === '[]') return subscribe(_SIGNAL), receiver;
 
         if (isArrayGetter(prop)) {
           let fn = boundFns.get(prop);
@@ -285,7 +246,7 @@ class IdentifierArray {
           if (fn === undefined) {
             if (prop === 'forEach') {
               fn = function () {
-                subscribe(_TAG);
+                subscribe(_SIGNAL);
                 transaction = true;
                 let result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
                 transaction = false;
@@ -293,7 +254,7 @@ class IdentifierArray {
               };
             } else {
               fn = function () {
-                subscribe(_TAG);
+                subscribe(_SIGNAL);
                 // array functions must run through Reflect to work properly
                 // binding via other means will not work.
                 transaction = true;
@@ -325,7 +286,7 @@ class IdentifierArray {
               transaction = true;
               let result: unknown = Reflect.apply(target[prop] as ProxiedMethod, receiver, args);
               self[MUTATE]!(prop as string, args, result);
-              addToTransaction(_TAG);
+              addToTransaction(_SIGNAL);
               // TODO handle cache updates
               transaction = false;
               return result;
@@ -338,7 +299,7 @@ class IdentifierArray {
         }
 
         if (prop in self) {
-          if (prop === NOTIFY || prop === IDENTIFIER_ARRAY_TAG || prop === SOURCE) {
+          if (prop === NOTIFY || prop === ARRAY_SIGNAL || prop === SOURCE) {
             return self[prop];
           }
 
@@ -349,7 +310,7 @@ class IdentifierArray {
 
           if (typeof outcome === 'function') {
             fn = function () {
-              subscribe(_TAG);
+              subscribe(_SIGNAL);
               // array functions must run through Reflect to work properly
               // binding via other means will not work.
               return Reflect.apply(outcome as ProxiedMethod, receiver, arguments) as unknown;
@@ -359,7 +320,7 @@ class IdentifierArray {
             return fn;
           }
 
-          return subscribe(_TAG), outcome;
+          return subscribe(_SIGNAL), outcome;
         }
 
         return target[prop];
@@ -369,7 +330,7 @@ class IdentifierArray {
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
-            addToTransaction(_TAG);
+            addToTransaction(_SIGNAL);
             Reflect.set(target, prop, value);
             self[MUTATE]!('length 0', []);
             transaction = false;
@@ -408,7 +369,7 @@ class IdentifierArray {
         (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         if (!transaction) {
           self[MUTATE]!('replace cell', [index, original, newIdentifier]);
-          addToTransaction(_TAG);
+          addToTransaction(_SIGNAL);
         }
 
         return true;
@@ -427,12 +388,7 @@ class IdentifierArray {
       },
     }) as IdentifierArray;
 
-    if (DEBUG) {
-      const meta = Ember.meta(this);
-      meta.addMixin = (mixin: object) => {
-        assert(`Do not call A() on EmberData RecordArrays`);
-      };
-    }
+    createArrayTags(proxy, _SIGNAL);
 
     this[NOTIFY] = this[NOTIFY].bind(proxy);
 
@@ -514,6 +470,22 @@ class IdentifierArray {
   }
 }
 
+// this will error if someone tries to call
+// A(identifierArray) since it is not configurable
+// which is preferrable to the `meta` override we used
+// before which required importing all of Ember
+const desc = {
+  enumerable: true,
+  configurable: false,
+  get: function () {
+    return this;
+  },
+};
+compat(desc);
+Object.defineProperty(IdentifierArray.prototype, '[]', desc);
+
+defineSignal(IdentifierArray.prototype, 'isUpdating', false);
+
 export default IdentifierArray;
 
 export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
@@ -551,7 +523,7 @@ export class Collection extends IdentifierArray {
 Collection.prototype.query = null;
 
 // Ensure instanceof works correctly
-//Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
+// Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
 
 type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
 

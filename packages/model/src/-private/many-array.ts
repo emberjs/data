@@ -5,7 +5,7 @@ import { assert } from '@ember/debug';
 
 import type Store from '@ember-data/store';
 import {
-  IDENTIFIER_ARRAY_TAG,
+  ARRAY_SIGNAL,
   MUTATE,
   notifyArray,
   RecordArray,
@@ -275,8 +275,8 @@ export default class RelatedCollection extends RecordArray {
   }
 
   notify() {
-    const tag = this[IDENTIFIER_ARRAY_TAG];
-    tag.shouldReset = true;
+    const signal = this[ARRAY_SIGNAL];
+    signal.shouldReset = true;
     // @ts-expect-error
     notifyArray(this);
   }

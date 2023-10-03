@@ -1,6 +1,8 @@
 import { tagForProperty } from '@ember/-internals/metal';
+// eslint-disable-next-line no-restricted-imports
 import { consumeTag, dirtyTag } from '@glimmer/validator';
 
+import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 
 /**
@@ -40,10 +42,28 @@ function createTransaction() {
   TRANSACTION = transaction;
 }
 
+function maybeConsume(tag: ReturnType<typeof tagForProperty> | null): void {
+  if (tag) {
+    // @ts-expect-error - we are using Ember's Tag not Glimmer's
+    consumeTag(tag);
+  }
+}
+
+function maybeDirty(tag: ReturnType<typeof tagForProperty> | null): void {
+  if (tag) {
+    // @ts-expect-error - we are using Ember's Tag not Glimmer's
+    dirtyTag(tag);
+  }
+}
+
 export function subscribe(obj: Tag | Signal): void {
   if (TRANSACTION) {
     TRANSACTION.sub.add(obj);
   } else if ('tag' in obj) {
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      maybeConsume(obj['[]']);
+      maybeConsume(obj['@length']);
+    }
     // @ts-expect-error - we are using Ember's Tag not Glimmer's
     consumeTag(obj.tag);
   } else {
@@ -55,6 +75,10 @@ function updateRef(obj: Tag | Signal): void {
   if (DEBUG) {
     try {
       if ('tag' in obj) {
+        if (DEPRECATE_COMPUTED_CHAINS) {
+          maybeDirty(obj['[]']);
+          maybeDirty(obj['@length']);
+        }
         // @ts-expect-error - we are using Ember's Tag not Glimmer's
         dirtyTag(obj.tag);
       } else {
@@ -62,17 +86,11 @@ function updateRef(obj: Tag | Signal): void {
       }
     } catch (e: unknown) {
       if (e instanceof Error) {
-        if (e.message.includes('You attempted to update `ref` on `Tag`')) {
-          e.message = e.message.replace(
-            'You attempted to update `ref` on `Tag`',
-            // @ts-expect-error
-            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
-          );
-          e.stack = e.stack?.replace(
-            'You attempted to update `ref` on `Tag`',
-            // @ts-expect-error
-            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
-          );
+        if (e.message.includes('You attempted to update `undefined`')) {
+          // @ts-expect-error
+          const key = `<${obj._debug_base}>.${obj.key}`;
+          e.message = e.message.replace('You attempted to update `undefined`', `You attempted to update ${key}`);
+          e.stack = e.stack?.replace('You attempted to update `undefined`', `You attempted to update ${key}`);
 
           const lines = e.stack?.split(`\n`);
           const finalLines: string[] = [];
@@ -98,9 +116,9 @@ function updateRef(obj: Tag | Signal): void {
             }
           });
 
-          const splitstr = '`ref` was first used:';
+          const splitstr = '`undefined` was first used:';
           const parts = e.message.split(splitstr);
-          parts.splice(1, 0, `Original Stack\n=============\n${finalLines.join(`\n`)}\n\n${splitstr}`);
+          parts.splice(1, 0, `Original Stack\n=============\n${finalLines.join(`\n`)}\n\n\`${key}\` was first used:`);
 
           e.message = parts.join('');
         }
@@ -109,6 +127,10 @@ function updateRef(obj: Tag | Signal): void {
     }
   } else {
     if ('tag' in obj) {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        maybeDirty(obj['[]']);
+        maybeDirty(obj['@length']);
+      }
       // @ts-expect-error - we are using Ember's Tag not Glimmer's
       dirtyTag(obj.tag);
     } else {
@@ -130,6 +152,10 @@ function flushTransaction() {
   });
   transaction.sub.forEach((obj) => {
     if ('tag' in obj) {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        maybeConsume(obj['[]']);
+        maybeConsume(obj['@length']);
+      }
       // @ts-expect-error - we are using Ember's Tag not Glimmer's
       consumeTag(obj.tag);
     } else {
@@ -235,26 +261,74 @@ export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]
   };
 }
 
-interface Signal {
+export const Signals = Symbol('Signals');
+
+export function defineSignal<T extends object, K extends keyof T & string>(obj: T, key: K, v?: unknown) {
+  Object.defineProperty(obj, key, {
+    enumerable: true,
+    configurable: false,
+    get(this: T & { [Signals]: Map<K, Signal> }) {
+      const signals = (this[Signals] = this[Signals] || new Map());
+      const existing = signals.has(key);
+      const _signal = entangleSignal(signals, this, key);
+      if (!existing && v !== undefined) {
+        _signal.lastValue = v;
+      }
+      return _signal.lastValue;
+    },
+    set(this: T & { [Signals]: Map<K, Signal> }, value: unknown) {
+      const signals = (this[Signals] = this[Signals] || new Map());
+      let _signal = signals.get(key);
+      if (!_signal) {
+        _signal = createSignal(this, key);
+        signals.set(key, _signal);
+      }
+      if (_signal.lastValue !== value) {
+        _signal.lastValue = value;
+        addToTransaction(_signal);
+      }
+    },
+  });
+}
+
+export interface Signal {
+  key: string;
   _debug_base?: string;
-  _debug_prop?: string;
 
   t: boolean;
   shouldReset: boolean;
   tag: ReturnType<typeof tagForProperty>;
+  '[]': ReturnType<typeof tagForProperty> | null;
+  '@length': ReturnType<typeof tagForProperty> | null;
+  lastValue: unknown;
+}
+
+export function createArrayTags<T extends object>(obj: T, signal: Signal) {
+  if (DEPRECATE_COMPUTED_CHAINS) {
+    signal['[]'] = tagForProperty(obj, '[]');
+    signal['@length'] = tagForProperty(obj, 'length');
+  }
 }
 
 export function createSignal<T extends object, K extends keyof T & string>(obj: T, key: K): Signal {
   const _signal: Signal = {
+    key,
     tag: tagForProperty(obj, key),
+
     t: false,
     shouldReset: false,
+    '[]': null,
+    '@length': null,
+    lastValue: undefined,
   };
 
   if (DEBUG) {
+    // @ts-expect-error
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-base-to-string
-    _signal._debug_base = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
-    _signal._debug_prop = key;
+    const modelName = obj.modelName ?? obj.constructor?.modelName ?? '';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-base-to-string
+    const className = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
+    _signal._debug_base = `${className}${modelName ? `:${modelName}` : ''}`;
   }
 
   return _signal;
@@ -264,11 +338,34 @@ export function entangleSignal<T extends object, K extends keyof T & string>(
   signals: Map<K, Signal>,
   obj: T,
   key: K
-): void {
-  let signal = signals.get(key);
-  if (!signal) {
-    signal = createSignal(obj, key);
-    signals.set(key, signal);
+): Signal {
+  let _signal = signals.get(key);
+  if (!_signal) {
+    _signal = createSignal(obj, key);
+    signals.set(key, _signal);
   }
-  subscribe(signal);
+  subscribe(_signal);
+  return _signal;
+}
+
+interface Signaler {
+  [Signals]: Map<string, Signal>;
+}
+
+export function getSignal<T extends object, K extends keyof T & string>(obj: T, key: K, initialState: boolean): Signal {
+  const signals = ((obj as Signaler)[Signals] = (obj as Signaler)[Signals] || new Map());
+  let _signal = signals.get(key);
+  if (!_signal) {
+    _signal = createSignal(obj, key);
+    _signal.shouldReset = initialState;
+    signals.set(key, _signal);
+  }
+  return _signal;
+}
+
+export function peekSignal<T extends object, K extends keyof T & string>(obj: T, key: K): Signal | undefined {
+  const signals = (obj as Signaler)[Signals];
+  if (signals) {
+    return signals.get(key);
+  }
 }

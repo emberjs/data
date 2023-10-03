@@ -7,9 +7,9 @@ import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import IdentifierArray, {
+  ARRAY_SIGNAL,
   Collection,
   CollectionCreateOptions,
-  IDENTIFIER_ARRAY_TAG,
   NOTIFY,
   notifyArray,
   SOURCE,
@@ -197,7 +197,7 @@ class RecordArrayManager {
     if (array === FAKE_ARR) {
       return;
     }
-    let tag = array[IDENTIFIER_ARRAY_TAG];
+    let tag = array[ARRAY_SIGNAL];
     if (!tag.shouldReset) {
       tag.shouldReset = true;
       addTransactionCB(array[NOTIFY]);

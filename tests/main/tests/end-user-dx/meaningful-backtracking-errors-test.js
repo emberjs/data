@@ -40,7 +40,7 @@ module('DX | Meaningful Backtracking Errors', function (hooks) {
         error.message.includes(
           'You attempted to update <IdentifierArray:user>.length, but it had already been used previously in the same computation'
         ),
-        'we have a meaningful error'
+        `we have a meaningful error: ${error.message}`
       );
       return false;
     }

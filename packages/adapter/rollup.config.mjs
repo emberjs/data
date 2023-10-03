@@ -14,16 +14,14 @@ export default {
 
   external: [
     '@embroider/macros',
-    '@ember/service',
+    '@ember/service', // inject the store to base Adapter
     '@ember-data/store/-private',
-    'require',
-    'ember-inflector',
-    '@ember/debug',
-    '@ember/string',
-    '@ember/object',
-    '@ember/object/mixin',
-    '@ember/application',
-    '@ember/polyfills',
+    'ember-inflector', // pluralize
+    '@ember/debug', // assert, deprecate
+    '@ember/string', // dasherize, camelize
+    '@ember/object', // Adapter base, computed for headers
+    '@ember/object/mixin', // BuildURLMixin
+    '@ember/application', // getOwner
   ],
 
   plugins: [

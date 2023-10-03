@@ -1,10 +1,8 @@
 import { assert } from '@ember/debug';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { tracked } from '@glimmer/tracking';
-import Ember from 'ember';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+import { compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
 import { FindOptions } from '@ember-data/types/q/store';
 
 import type ManyArray from './many-array';
@@ -40,25 +38,18 @@ export default class PromiseManyArray {
   constructor(promise: Promise<ManyArray>, content?: ManyArray) {
     this._update(promise, content);
     this.isDestroyed = false;
-
-    if (DEBUG) {
-      const meta = Ember.meta(this);
-      meta.addMixin = (mixin: object) => {
-        assert(`Do not use A() on an EmberData PromiseManyArray`);
-      };
-    }
   }
 
   //---- Methods/Properties on ArrayProxy that we will keep as our API
 
-  @tracked content: any | null = null;
+  declare content: ManyArray | null;
 
   /**
    * Retrieve the length of the content
    * @property length
    * @public
    */
-  @dependentKeyCompat
+  @compat
   get length(): number {
     // shouldn't be needed, but ends up being needed
     // for computed chains even in 4.x
@@ -66,17 +57,6 @@ export default class PromiseManyArray {
       this['[]'];
     }
     return this.content ? this.content.length : 0;
-  }
-
-  // ember-source < 3.23 (e.g. 3.20 lts)
-  // requires that the tag `'[]'` be notified
-  // on the ArrayProxy in order for `{{#each}}`
-  // to recompute. We entangle the '[]' tag from
-  @dependentKeyCompat
-  get '[]'() {
-    if (DEPRECATE_COMPUTED_CHAINS) {
-      return this.content?.length && this.content;
-    }
   }
 
   /**
@@ -116,28 +96,28 @@ export default class PromiseManyArray {
    * @property {boolean} isPending
    * @public
    */
-  @tracked isPending: boolean = false;
+  declare isPending: boolean;
   /**
    * Whether the loading promise rejected
    *
    * @property {boolean} isRejected
    * @public
    */
-  @tracked isRejected: boolean = false;
+  declare isRejected: boolean;
   /**
    * Whether the loading promise succeeded
    *
    * @property {boolean} isFulfilled
    * @public
    */
-  @tracked isFulfilled: boolean = false;
+  declare isFulfilled: boolean;
   /**
    * Whether the loading promise completed (resolved or rejected)
    *
    * @property {boolean} isSettled
    * @public
    */
-  @tracked isSettled: boolean = false;
+  declare isSettled: boolean;
 
   /**
    * chain this promise
@@ -190,7 +170,7 @@ export default class PromiseManyArray {
    * @property links
    * @public
    */
-  @dependentKeyCompat
+  @compat
   get links() {
     return this.content ? this.content.links : undefined;
   }
@@ -200,7 +180,7 @@ export default class PromiseManyArray {
    * @property meta
    * @public
    */
-  @dependentKeyCompat
+  @compat
   get meta() {
     return this.content ? this.content.meta : undefined;
   }
@@ -218,6 +198,32 @@ export default class PromiseManyArray {
   static create({ promise, content }: HasManyProxyCreateArgs): PromiseManyArray {
     return new this(promise, content);
   }
+}
+defineSignal(PromiseManyArray.prototype, 'content', null);
+defineSignal(PromiseManyArray.prototype, 'isPending', false);
+defineSignal(PromiseManyArray.prototype, 'isRejected', false);
+defineSignal(PromiseManyArray.prototype, 'isFulfilled', false);
+defineSignal(PromiseManyArray.prototype, 'isSettled', false);
+
+// this will error if someone tries to call
+// A(identifierArray) since it is not configurable
+// which is preferrable to the `meta` override we used
+// before which required importing all of Ember
+if (DEPRECATE_COMPUTED_CHAINS) {
+  const desc = {
+    enumerable: true,
+    configurable: false,
+    get: function (this: PromiseManyArray) {
+      return this.content?.length && this.content;
+    },
+  };
+  compat(desc);
+
+  // ember-source < 3.23 (e.g. 3.20 lts)
+  // requires that the tag `'[]'` be notified
+  // on the ArrayProxy in order for `{{#each}}`
+  // to recompute. We entangle the '[]' tag from content
+  Object.defineProperty(PromiseManyArray.prototype, '[]', desc);
 }
 
 function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {

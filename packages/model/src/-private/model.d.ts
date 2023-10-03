@@ -43,7 +43,6 @@ class Model extends EmberObject {
   deleteRecord(): void;
   unloadRecord(): void;
   serialize(): Record<string, unknown>;
-  _notifyProperties(keys: string[]): void;
 
   static modelName: string;
   static fields: Map<string, 'attribute' | 'belongsTo' | 'hasMany'>;

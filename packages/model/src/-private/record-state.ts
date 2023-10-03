@@ -1,14 +1,12 @@
 import { assert } from '@ember/debug';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { cached, tracked } from '@glimmer/tracking';
 
-import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
-import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
+import { cached, compat } from '@ember-data/tracking';
+import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
@@ -22,95 +20,42 @@ function isInvalidError(error) {
 }
 
 /**
- * Tag provides a cache for a getter
- * that recomputes only when a specific
- * tracked property that it manages is dirtied.
- *
- * This allows us to bust the cache for a value
- * that otherwise doesn't access anything tracked
- * as well as control the timing of that notification.
- *
- * @internal
- */
-class Tag {
-  declare rev: number;
-  declare isDirty: boolean;
-  declare value: any;
-  declare t: boolean;
-  declare _debug_base: string;
-  declare _debug_prop: string;
-
-  constructor() {
-    if (DEBUG) {
-      const [base, prop] = arguments as unknown as [string, string];
-      this._debug_base = base;
-      this._debug_prop = prop;
-    }
-    this.rev = 1;
-    this.isDirty = true;
-    this.value = undefined;
-    /*
-     * whether this was part of a transaction when mutated
-     */
-    this.t = false;
-  }
-  @tracked ref = null;
-
-  notify() {
-    this.isDirty = true;
-    addToTransaction(this);
-    this.rev++;
-  }
-  consume(v) {
-    this.isDirty = false;
-    this.value = v; // set cached value
-  }
-}
-
-const Tags = new WeakMap();
-function getTag(record, key) {
-  let tags = Tags.get(record);
-  if (!tags) {
-    tags = Object.create(null);
-    Tags.set(record, tags);
-  }
-  // @ts-expect-error
-  return (tags[key] = tags[key] || (DEBUG ? new Tag(record.constructor.modelName, key) : new Tag()));
-}
-
-export function peekTag(record, key) {
-  let tags = Tags.get(record);
-  return tags && tags[key];
-}
-
-/**
- * A decorattor that caches a getter while
+ * A decorator that caches a getter while
  * providing the ability to bust that cache
  * when we so choose in a way that notifies
- * glimmer's tracking system.
+ * tracking systems.
  *
  * @internal
  */
-export function tagged(_target, key, desc) {
+export function tagged<T extends object>(_target: T, key: string, desc) {
   const getter = desc.get;
   const setter = desc.set;
   desc.get = function () {
-    let tag = getTag(this, key);
-    subscribe(tag);
+    const signal = getSignal(this, key, true);
+    subscribe(signal);
 
-    if (tag.isDirty) {
-      tag.consume(getter.call(this));
+    if (signal.shouldReset) {
+      signal.shouldReset = false;
+      signal.lastValue = getter.call(this);
     }
 
-    return tag.value;
+    return signal.lastValue;
   };
-  desc.set = function (v) {
-    getTag(this, key); // ensure tag is setup in case we want to use it.
+  desc.set = function (v: unknown) {
+    getSignal(this, key, true); // ensure signal is setup in case we want to use it.
     // probably notify here but not yet.
     setter.call(this, v);
   };
-  dependentKeyCompat(desc);
+  compat(desc);
   return desc;
+}
+
+export function notifySignal<T extends object, K extends keyof T & string>(obj: T, key: K) {
+  const signal = peekSignal(obj, key);
+  if (signal) {
+    signal.shouldReset = true;
+    addToTransaction(signal);
+  }
 }
 
 /**
@@ -270,8 +215,8 @@ export default class RecordState {
     storeFor(this.record)!.notifications.unsubscribe(this.handler);
   }
 
-  notify(key) {
-    getTag(this, key).notify();
+  notify(key: keyof this & string) {
+    notifySignal(this, key);
   }
 
   updateInvalidErrors(errors) {
@@ -312,7 +257,7 @@ export default class RecordState {
     this._lastError = null;
   }
 
-  @tracked isSaving = false;
+  declare isSaving: boolean;
 
   @tagged
   get isLoading() {
@@ -471,6 +416,7 @@ export default class RecordState {
     }
   }
 }
+defineSignal(RecordState.prototype, 'isSaving', false);
 
 function notifyErrorsStateChanged(state: RecordState) {
   state.notify('isValid');

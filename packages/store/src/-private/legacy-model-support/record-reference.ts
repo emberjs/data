@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
-import { tracked } from '@glimmer/tracking';
 
+import { defineSignal } from '@ember-data/tracking/-private';
 /**
   @module @ember-data/store
 */
@@ -29,7 +29,7 @@ export default class RecordReference {
   ___token!: object;
   ___identifier: StableRecordIdentifier;
 
-  @tracked _ref = 0;
+  declare _ref: number;
 
   constructor(store: Store, identifier: StableRecordIdentifier) {
     this.store = store;
@@ -235,3 +235,5 @@ export default class RecordReference {
     assert(`Unable to fetch record of type ${this.type} without an id`);
   }
 }
+
+defineSignal(RecordReference.prototype, '_ref');

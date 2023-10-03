@@ -17,15 +17,9 @@ export default {
     '@ember-data/request-utils',
     '@ember-data/store',
     '@ember-data/store/-private',
-    '@ember/application',
-    '@ember/debug',
-    '@ember/object',
-    '@ember/object/mixin',
-    '@ember/polyfills',
-    '@ember/service',
-    '@ember/string',
+    '@ember/debug', // assert, deprecate
     '@embroider/macros',
-    'ember-inflector',
+    'ember-inflector', // pluralize
   ],
 
   plugins: [

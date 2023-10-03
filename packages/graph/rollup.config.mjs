@@ -15,14 +15,7 @@ export default {
   external: [
     '@embroider/macros',
     '@ember-data/store/-private',
-    '@ember/service',
-    'ember-inflector',
-    '@ember/debug',
-    '@ember/string',
-    '@ember/object',
-    '@ember/object/mixin',
-    '@ember/application',
-    '@ember/polyfills',
+    '@ember/debug', // assert, deprecate
   ],
 
   plugins: [

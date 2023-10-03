@@ -50,12 +50,18 @@ module.exports = {
     'no-restricted-imports': [
       'error',
       {
-        paths: ['@glimmer/env', '@ember/utils', '@ember/runloop'],
+        paths: [
+          '@glimmer/env',
+          '@ember/object/compat',
+          '@glimmer/tracking',
+          '@glimmer/validator',
+          '@ember/utils',
+          '@ember/runloop',
+        ],
       },
       // '@ember/string',
       // '@ember/object',
       // '@ember/service',
-      // '@ember/object/compat',
       // 'ember-inflector',
     ],
 
@@ -96,14 +102,18 @@ module.exports = {
         'no-restricted-imports': [
           'error',
           {
-            paths: ['@glimmer/env', '@ember/utils', '@ember/runloop'],
-            // patterns: ['@ember/*'],
+            paths: [
+              '@glimmer/env',
+              '@ember/object/compat',
+              '@glimmer/tracking',
+              '@glimmer/validator',
+              '@ember/utils',
+              '@ember/runloop',
+            ],
           },
-
           // '@ember/string',
           // '@ember/object',
           // '@ember/service',
-          // '@ember/object/compat',
           // 'ember-inflector',
         ],
       },
@@ -192,7 +202,6 @@ module.exports = {
         'packages/unpublished-test-infra/addon-test-support/qunit-asserts/assert-warning.ts',
         'packages/unpublished-test-infra/addon-test-support/qunit-asserts/assert-assertion.ts',
         'tests/fastboot/types/global.d.ts',
-        'tests/fastboot/types/fastboot-test-app/index.d.ts',
         'tests/fastboot/app/serializers/application.ts',
         'tests/fastboot/app/router.ts',
         'tests/fastboot/app/resolver.ts',
@@ -205,7 +214,6 @@ module.exports = {
         '@types/ember/index.d.ts',
         '@types/@glimmer/tracking.d.ts',
         '@types/@ember/utils/index.d.ts',
-        '@types/@ember/object/compat.d.ts',
         '@types/@ember/debug/index.d.ts',
         'ember-data-types/q/schema-definition-service.ts',
         'ember-data-types/q/record-instance.ts',

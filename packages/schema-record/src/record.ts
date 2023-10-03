@@ -2,13 +2,12 @@ import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from "@ember-data/types/q/identifier";
 import type { FieldSchema, SchemaService } from './schema';
 import { Cache } from '@ember-data/types/q/cache';
-import { tracked } from '@glimmer/tracking';
 import { Link, Links, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
 import { Future } from '@ember-data/request';
 import { DEBUG } from '@ember-data/env';
 import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { addToTransaction, entangleSignal } from '@ember-data/tracking/-private';
+import { addToTransaction, entangleSignal, defineSignal } from '@ember-data/tracking/-private';
 
 export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');
@@ -49,9 +48,9 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
   declare [RecordStore]: Store;
   declare name: string;
 
-  @tracked declare data: T | null;
-  @tracked declare links: Links;
-  @tracked declare meta: Record<string, unknown>;
+  declare data: T | null;
+  declare links: Links;
+  declare meta: Record<string, unknown>;
 
   constructor(store: Store, cache: Cache, parent: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, name: string) {
     const rawValue = cache.getRelationship(identifier, name) as SingleResourceRelationship;
@@ -88,6 +87,10 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
     return this[RecordStore].request<T>(request);
   }
 }
+
+defineSignal(ResourceRelationship.prototype, 'data');
+defineSignal(ResourceRelationship.prototype, 'links');
+defineSignal(ResourceRelationship.prototype, 'meta');
 
 function getHref(link?: Link | null): string | null {
   if (!link) {
