@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/holodeck",
   "description": "⚡️ Simple, Fast HTTP Mocking for Tests",
-  "version": "5.5.0-alpha.10",
+  "version": "5.5.0-alpha.11",
   "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -62,7 +62,7 @@
     "@embroider/addon-dev": "^4.1.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.2.1",
-    "@ember-data/request": "workspace:5.5.0-alpha.10",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
     "rollup": "^3.29.4",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
