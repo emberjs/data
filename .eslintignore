@@ -24,6 +24,8 @@
 /packages/data-worker/addon/
 /packages/holodeck/
 /packages/schema-record/
+/packages/schema/
+/tests/schema/
 
 **/DEBUG/
 
