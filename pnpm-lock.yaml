@@ -1105,6 +1105,16 @@ importers:
       '@ember/string':
         injected: true
 
+  packages/schema:
+    dependencies:
+      chalk:
+        specifier: ^5.3.0
+        version: 5.3.0
+    devDependencies:
+      bun-types:
+        specifier: 1.0.4-canary.20231004T140131
+        version: 1.0.4-canary.20231004T140131
+
   packages/schema-record:
     dependencies:
       '@ember-data/private-build-infra':
@@ -8526,6 +8536,10 @@ packages:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
     dependencies:
       semver: 7.5.4
+
+  /bun-types@1.0.4-canary.20231004T140131:
+    resolution: {integrity: sha512-k9DSGP8+mJTJHY/87Q2NqixeXRw04mgIHDSIi29D/bhOu7HqZbO1l+48/aiS8miUpj59ZgJVgpSi+Px33yMCJQ==}
+    dev: true
 
   /bundle-name@3.0.0:
     resolution: {integrity: sha512-PKA4BeSvBpQKQ8iPOGCSiell+N8P+Tf1DlwqmYhpe2gAhKPHn8EYOxVT+ShuGmhg8lN8XiSlS80yiExKXrURlw==}
