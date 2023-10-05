@@ -1,7 +1,11 @@
+import { createonly, readonly, optional } from '@warp-drive/schema-decorators';
+
 class User {
+  @optional
+  @createonly
   declare id: string;
-  declare firstName: string;
-  declare lastName: string;
+  @readonly
+  declare $type: 'user';
 }
 
-export default User;
+export { User };
