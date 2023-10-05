@@ -18,17 +18,18 @@ function getRelativePathToRoot($path: string) {
   return `~/${path.relative(os.homedir(), $path)}`;
 }
 
-async function loadOrCreateConfig() {
+async function loadOrCreateConfig(): Promise<Record<string, unknown> & { DID_GENERATE: boolean }> {
   const configPath = path.join(process.cwd(), './schema.json');
   const filePointer = Bun.file(configPath);
   const fileExists = await filePointer.exists();
 
   if (fileExists) {
     const config = await filePointer.json();
+    config.DID_GENERATE = false;
     return config;
   }
 
-  const config = {
+  const config: Record<string, unknown> = {
     schemas: "./schemas",
     "dest": "./dist"
   }
@@ -36,7 +37,8 @@ async function loadOrCreateConfig() {
   write(`\n\t🔨 Generating new ${chalk.yellow('schema.json')} configuration file in ${chalk.cyan(getRelativePathToRoot(process.cwd()))}`);
 
   await Bun.write(filePointer, JSON.stringify(config, null, 2));
-  return config;
+  config.DID_GENERATE = true;
+  return config as Record<string, unknown> & { DID_GENERATE: true };
 }
 
 function classify($name: string) {
@@ -62,7 +64,7 @@ function singularize($name: string) {
   }
 }
 
-function generateResource($type: string) {
+function generateFirstResource($type: string) {
   const className = classify(singularize($type));
 
   return `import { collection, createonly, derived, field, optional, readonly, resource, Resource } from '@warp-drive/schema-decorators';
@@ -78,7 +80,8 @@ class ${className} {
   // declare myField: string;
 
   // We use the field decorator to provide a "Transform" function for the field.
-  // The transform's return type will be used as the "UI" type for the field. e.g. "Date" instead of "string"
+  // The transform's return type will be used as the "UI" type for the field.
+  // e.g. "Date" instead of "string"
   // @field('luxon') declare someDateField: string;
 
   // We use the collection decorator to create a linkage to a collection of other resources
@@ -96,6 +99,22 @@ class ${className} {
 export { ${className} };
 `;
 }
+
+
+function generateResource($type: string) {
+  const className = classify(singularize($type));
+
+  return `import { Resource } from '@warp-drive/schema-decorators';
+
+@Resource
+class ${className} {
+  // ...
+}
+
+export { ${className} };
+`;
+}
+
 
 async function main() {
   const args = Bun.argv.slice(2);
@@ -127,7 +146,7 @@ async function main() {
 
   switch (resource) {
     case 'resource':
-      await Bun.write(file, generateResource(name));
+      await Bun.write(file, config.DID_GENERATE ? generateFirstResource(name) : generateResource(name));
       break;
     default:
       break;
