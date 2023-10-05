@@ -24,8 +24,7 @@
     "build:parse": "bun build src/parse.ts --compile --outfile parse",
     "build:scaffold": "bun build src/scaffold.ts --compile --outfile scaffold",
     "build": "pnpm run build:parse && pnpm run build:scaffold",
-    "prepack": "pnpm build",
-    "prepare": "pnpm build"
+    "prepack": "pnpm build"
   },
   "files": [
     "README.md",
