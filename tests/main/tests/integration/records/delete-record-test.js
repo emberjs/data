@@ -478,4 +478,41 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     group = store.peekRecord('group', '1');
     assert.strictEqual(group.employees.length, 1, 'expected 1 related record after delete and restore');
   });
+
+  test('Accessing state flags on a destroyed record should not error', async function (assert) {
+    class Company extends Model {
+      @attr name;
+    }
+
+    this.owner.register('model:company', Company);
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+
+    adapter.deleteRecord = function () {
+      return Promise.resolve({ data: null });
+    };
+
+    // Push the company as a long-lived record that will be referenced by the group
+    const company = store.push({
+      data: {
+        type: 'company',
+        id: '1',
+        attributes: {
+          name: 'Inc.',
+        },
+      },
+    });
+
+    await company.destroyRecord();
+
+    try {
+      assert.true(company.isDeleted, 'isDeleted should be true');
+      assert.true(company.isDestroying, 'isDestroying should be true');
+      assert.true(company.isDestroyed, 'isDestroyed should be true');
+      assert.strictEqual(company.id, undefined, 'id access should be safe');
+    } catch (e) {
+      assert.ok(false, `Should not throw an error, threw ${e.message}`);
+    }
+  });
 });
