@@ -1188,7 +1188,7 @@ export default class JSONAPICache implements Cache {
   }
 
   /**
-   * Query the cache for whether any mutated attributes exist
+   * Query the cache for whether any mutated relationships exist
    *
    * @method hasChangedRelationships
    * @public
