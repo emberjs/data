@@ -494,6 +494,9 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     await company.destroyRecord();
 
+    // wait for ember's runloop to flush
+    await settled();
+
     try {
       assert.true(company.isDeleted, 'isDeleted should be true');
       assert.true(company.isDestroying, 'isDestroying should be true');
