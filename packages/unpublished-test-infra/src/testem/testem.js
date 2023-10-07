@@ -24,7 +24,7 @@ console.log(
 );
 const TEST_PAGE_FLAGS = [
   'hidepassed',
-  process.env.TESTEM_NOCONTAINER || process.env.DEBUG_MEMORY ? 'nocontainer' : false,
+  'nocontainer',
   process.env.DEBUG_MEMORY ? 'debugMemory' : false,
   process.env.CI || process.env.DEBUG_MEMORY ? 'disableHtmlReporter' : false,
   process.env.DEBUG_PERFORMANCE ? 'debugPerformance' : false,
