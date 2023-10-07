@@ -13,7 +13,9 @@ overrides:
   ember-cli-htmlbars: ^6.3.0
   ember-cli-typescript: ^5.2.1
   '@ember/string': 3.1.1
+  qunit: 2.19.4
   ember-compatibility-helpers: ^1.2.6
+  testem@<3.10.1: ~3.10.1
 
 packageExtensionsChecksum: 412ea1f7b0456edcf429c4fd07d165d2
 
@@ -21,6 +23,12 @@ patchedDependencies:
   ember-compatibility-helpers@1.2.6:
     hash: 5qtypxbsewxcs5l7lcldb5aqhq
     path: patches/ember-compatibility-helpers@1.2.6.patch
+  qunit@2.19.4:
+    hash: h2fz5inojlzu6daraxt5bghsqy
+    path: patches/qunit@2.19.4.patch
+  testem@3.10.1:
+    hash: ne26ybtmre3r2x3hatfhkop2dm
+    path: patches/testem@3.10.1.patch
 
 importers:
 
@@ -154,7 +162,7 @@ importers:
         version: 1.1.1
       testem:
         specifier: ^3.10.1
-        version: 3.10.1(debug@4.3.4)
+        version: 3.10.1(patch_hash=ne26ybtmre3r2x3hatfhkop2dm)(debug@4.3.4)
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -1451,6 +1459,9 @@ importers:
       broccoli-merge-trees:
         specifier: ^4.2.0
         version: 4.2.0
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.88.2)
@@ -1464,8 +1475,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1(@babel/core@7.23.0)
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -1474,7 +1485,7 @@ importers:
         version: 7.5.4
       testem:
         specifier: ^3.10.1
-        version: 3.10.1(debug@4.3.4)
+        version: 3.10.1(patch_hash=ne26ybtmre3r2x3hatfhkop2dm)(debug@4.3.4)
       webpack:
         specifier: ^5.88.2
         version: 5.88.2
@@ -1532,7 +1543,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -1637,7 +1648,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -1648,8 +1659,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -1845,7 +1856,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -1859,8 +1870,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-console-grouper:
         specifier: ^0.3.0
         version: 0.3.0
@@ -1974,7 +1985,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -1985,8 +1996,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -2010,8 +2021,8 @@ importers:
   tests/docs:
     devDependencies:
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
 
   tests/embroider-basic-compat:
     dependencies:
@@ -2099,7 +2110,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -2113,8 +2124,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -2207,7 +2218,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -2221,8 +2232,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -2418,7 +2429,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -2435,8 +2446,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-console-grouper:
         specifier: ^0.3.0
         version: 0.3.0
@@ -2568,7 +2579,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -2585,8 +2596,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-console-grouper:
         specifier: ^0.3.0
         version: 0.3.0
@@ -2700,7 +2711,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -2711,8 +2722,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -2852,6 +2863,9 @@ importers:
       ember-disable-prototype-extensions:
         specifier: ^1.1.3
         version: 1.1.3
+      ember-exam:
+        specifier: ^8.0.0
+        version: 8.0.0(@babel/core@7.23.0)(ember-qunit@8.0.1)(qunit@2.19.4)(webpack@5.88.2)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.0)
@@ -2863,7 +2877,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -2889,8 +2903,8 @@ importers:
         specifier: ^3.4.7
         version: 3.4.7
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -3004,7 +3018,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -3015,8 +3029,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -3246,7 +3260,7 @@ importers:
         version: 8.0.0
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -3272,8 +3286,8 @@ importers:
         specifier: ^1.10.0
         version: 1.10.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-console-grouper:
         specifier: ^0.3.0
         version: 0.3.0
@@ -3396,7 +3410,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -3413,8 +3427,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-console-grouper:
         specifier: ^0.3.0
         version: 0.3.0
@@ -3528,7 +3542,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -3542,8 +3556,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-console-grouper:
         specifier: ^0.3.0
         version: 0.3.0
@@ -3658,7 +3672,7 @@ importers:
         version: 1.0.0(@babel/core@7.23.0)
       ember-qunit:
         specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0)
+        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -3669,8 +3683,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       qunit:
-        specifier: ^2.20.0
-        version: 2.20.0
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.23.0)
@@ -10177,7 +10191,7 @@ packages:
       sort-package-json: 1.57.0
       symlink-or-copy: 1.3.1
       temp: 0.9.4
-      testem: 3.10.1(debug@4.3.4)
+      testem: 3.10.1(patch_hash=ne26ybtmre3r2x3hatfhkop2dm)(debug@4.3.4)
       tiny-lr: 2.0.0
       tree-sync: 2.1.0
       uuid: 9.0.0
@@ -10274,6 +10288,44 @@ packages:
     engines: {node: '>= 0.10.0'}
     dev: true
 
+  /ember-exam@8.0.0(@babel/core@7.23.0)(ember-qunit@8.0.1)(qunit@2.19.4)(webpack@5.88.2):
+    resolution: {integrity: sha512-XKfFC0bpSDSJWFkmrcVxOtjwoVf8sPlMDizhNZF06O/R0UyH9lMOrUT/KWcIZ1vQd4Vqbg9DpakONmOyYQGXhw==}
+    engines: {node: 12.* || 14.* || >= 16}
+    peerDependencies:
+      ember-mocha: '*'
+      ember-qunit: '*'
+      qunit: 2.19.4
+    peerDependenciesMeta:
+      ember-mocha:
+        optional: true
+      ember-qunit:
+        optional: true
+      qunit:
+        optional: true
+    dependencies:
+      '@embroider/macros': 1.13.1(@babel/core@7.23.0)
+      chalk: 4.1.2
+      cli-table3: 0.6.3
+      debug: 4.3.4(supports-color@8.1.1)
+      ember-auto-import: 2.6.3(webpack@5.88.2)
+      ember-cli-babel: 8.1.0(@babel/core@7.23.0)
+      ember-cli-version-checker: 5.1.2
+      ember-qunit: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
+      execa: 4.1.0
+      fs-extra: 10.1.0
+      js-yaml: 4.1.0
+      npmlog: 6.0.2
+      qunit: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
+      rimraf: 3.0.2
+      semver: 7.5.4
+      silent-error: 1.1.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+      - webpack
+    dev: true
+
   /ember-get-config@2.1.1(@babel/core@7.23.0):
     resolution: {integrity: sha512-uNmv1cPG/4qsac8oIf5txJ2FZ8p88LEpG4P3dNcjsJS98Y8hd0GPMFwVqpnzI78Lz7VYRGQWY4jnE4qm5R3j4g==}
     engines: {node: 12.* || 14.* || >= 16}
@@ -10325,19 +10377,19 @@ packages:
       - supports-color
     dev: true
 
-  /ember-qunit@8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.20.0):
+  /ember-qunit@8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4):
     resolution: {integrity: sha512-13PtywHNPTQKkDW4o8QRkJvcdsZr8hRyvh6xh/YLAX8+HaRLd3nPL8mBF4O/Kur/DAj3QWLvjzktZ2uRNGSh3A==}
     peerDependencies:
       '@ember/test-helpers': '>=3.0.3'
       ember-source: '*'
-      qunit: ^2.13.0
+      qunit: 2.19.4
     dependencies:
       '@ember/test-helpers': 3.2.0(@babel/core@7.23.0)(ember-source@5.3.0)(webpack@5.88.2)
       '@embroider/addon-shim': 1.8.6
       '@embroider/macros': 1.13.1(@babel/core@7.23.0)
       ember-cli-test-loader: 3.1.0(@babel/core@7.23.0)
       ember-source: 5.3.0(@babel/core@7.23.0)(@glimmer/component@1.1.2)(webpack@5.88.2)
-      qunit: 2.20.0
+      qunit: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14996,14 +15048,15 @@ packages:
       - '@babel/core'
       - supports-color
 
-  /qunit@2.20.0:
-    resolution: {integrity: sha512-N8Fp1J55waE+QG1KwX2LOyqulZUToRrrPBqDOfYfuAMkEglFL15uwvmH1P4Tq/omQ/mGbBI8PEB3PhIfvUb+jg==}
+  /qunit@2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy):
+    resolution: {integrity: sha512-aqUzzUeCqlleWYKlpgfdHHw9C6KxkB9H3wNfiBg5yHqQMzy0xw/pbCRHYFkjl8MsP/t8qkTQE+JTYL71azgiew==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
       commander: 7.2.0
       node-watch: 0.7.3
       tiny-glob: 0.2.9
+    patched: true
 
   /rambda@7.5.0:
     resolution: {integrity: sha512-y/M9weqWAH4iopRd7EHDEQQvpFPHj1AA3oHozE9tfITHUtTR7Z9PSlIRRG2l1GuW7sefC1cXFfIcF+cgnShdBA==}
@@ -16292,7 +16345,7 @@ packages:
       stringify-object-es5: 2.5.0
       theredoc: 1.0.0
 
-  /testem@3.10.1(debug@4.3.4):
+  /testem@3.10.1(patch_hash=ne26ybtmre3r2x3hatfhkop2dm)(debug@4.3.4):
     resolution: {integrity: sha512-42c4e7qlAelwMd8O3ogtVGRbgbr6fJnX6H51ACOIG1V1IjsKPlcQtxPyOwaL4iikH22Dfh+EyIuJnMG4yxieBQ==}
     engines: {node: '>= 7.*'}
     hasBin: true
@@ -16383,6 +16436,7 @@ packages:
       - velocityjs
       - walrus
       - whiskers
+    patched: true
 
   /text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
@@ -18093,14 +18147,15 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.1(@babel/core@7.23.0)
       broccoli-merge-trees: 4.2.0
+      chalk: 4.1.2
       ember-auto-import: 2.6.3(webpack@5.88.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.0)
       ember-cli-blueprint-test-helpers: 0.19.2
       ember-get-config: 2.1.1(@babel/core@7.23.0)
-      qunit: 2.20.0
+      qunit: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom: 2.0.0(@babel/core@7.23.0)
       semver: 7.5.4
-      testem: 3.10.1(debug@4.3.4)
+      testem: 3.10.1(patch_hash=ne26ybtmre3r2x3hatfhkop2dm)(debug@4.3.4)
       webpack: 5.88.2
     transitivePeerDependencies:
       - '@babel/core'

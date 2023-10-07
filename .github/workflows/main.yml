@@ -79,19 +79,62 @@ jobs:
       - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
       - uses: ./.github/actions/setup
         with:
+          github-token: ${{ secrets.GH_PACKAGES_ACCESS_TOKEN }}
           restore-broccoli-cache: true
+          jobs: 2
+          parallel-build: true
           install: true
+
+      - name: Check for Test Failure Retry
+        id: retry-test-failures
+        uses: actions/cache/restore@v3
+        with:
+          path: failed-test-log.txt
+          key: failed-test-log_${{ github.sha }}
+
       - name: Development
+        run: timeout $BROWSER_TIMEOUT pnpm test
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
-        run: pnpm test
+          DEBUG: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' && 'engine,socket.io*' }}
+          # DISPLAY_TEST_NAMES: true # uncomment this line to see the test names in the logs
+          FORCE_COLOR: 2
+          BROWSER_TIMEOUT: 540
+
       - name: Production
-        timeout-minutes: 10
+        id: run-tests-production
+        run: timeout $BROWSER_TIMEOUT pnpm test:production
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
-        run: pnpm test:production
+          DEBUG: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' && 'engine,socket.io*' }}
+          # DISPLAY_TEST_NAMES: true # uncomment this line to see the test names in the logs
+          FORCE_COLOR: 2
+          BROWSER_TIMEOUT: 540
+
+      - name: Upload testem logs
+        if: ${{ always() && steps.run-tests-production.conclusion != 'skipped' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: client-testem-logs
+          path: './tests/main/testem.log'
+          retention-days: 1
+
+      - name: Maybe Cache Failures
+        if: always()
+        uses: actions/cache/save@v3
+        with:
+          path: failed-test-log.txt
+          key: failed-test-log_${{ github.sha }}
+
+      - name: Archive Tests Execution File
+        uses: actions/upload-artifact@v3
+        if: (success() || failure()) && steps.retry-test-failures.outputs.cache-hit != 'true'
+        with:
+          name: tests-execution-file-partition
+          path: 'tests/main/test-execution-*.json'
+          retention-days: 1
 
   lts:
     needs: [browser-tests]

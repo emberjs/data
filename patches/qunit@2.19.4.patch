@@ -1,0 +1,50 @@
+diff --git a/qunit/qunit.js b/qunit/qunit.js
+index 5e48b79303e8bfe33ba60a9407c2d67879a07841..6020dde7a608bb1a496824bc24c85bc2f7281326 100644
+--- a/qunit/qunit.js
++++ b/qunit/qunit.js
+@@ -5647,6 +5647,9 @@
+       appendToolbar(beginDetails);
+     }
+     function appendTest(name, testId, moduleName) {
++      if (window$1.DISABLE_QUNIT_HTML_REPORTER) {
++        return;
++      }
+       var tests = id('qunit-tests');
+       if (!tests) {
+         return;
+@@ -5831,6 +5834,13 @@
+       assertList.appendChild(assertLi);
+     });
+     QUnit.testDone(function (details) {
++      // This test passed if it has no unexpected failed assertions
++      var testPassed = details.failed > 0 ? details.todo : !details.todo;
++      if (!testPassed) {
++        stats.failedTests.push(details.testId);
++      }
++      stats.completed++;
++
+       var tests = id('qunit-tests');
+       var testItem = id('qunit-test-output-' + details.testId);
+       if (!tests || !testItem) {
+@@ -5849,13 +5859,10 @@
+       var good = details.passed;
+       var bad = details.failed;
+ 
+-      // This test passed if it has no unexpected failed assertions
+-      var testPassed = details.failed > 0 ? details.todo : !details.todo;
+       if (testPassed) {
+         // Collapse the passing tests
+         addClass(assertList, 'qunit-collapsed');
+       } else {
+-        stats.failedTests.push(details.testId);
+         if (config.collapse) {
+           if (!collapseNext) {
+             // Skip collapsing the first failing test
+@@ -5871,7 +5878,6 @@
+       var testTitle = testItem.firstChild;
+       var testCounts = bad ? "<b class='failed'>" + bad + '</b>, ' + "<b class='passed'>" + good + '</b>, ' : '';
+       testTitle.innerHTML += " <b class='counts'>(" + testCounts + details.assertions.length + ')</b>';
+-      stats.completed++;
+       if (details.skipped) {
+         testItem.className = 'skipped';
+         var skipped = document.createElement('em');

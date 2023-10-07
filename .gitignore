@@ -36,6 +36,7 @@ coverage/*
 libpeerconnection.log
 npm-debug.log*
 testem.log
+test-execution-*.json
 yarn-error.log
 .broccoli-cache
 tsconfig.tsbuildinfo

@@ -21,6 +21,23 @@
     {{content-for "body"}}
     {{content-for "test-body"}}
 
+    <script>
+			// works together with testem changes below
+			// our test-helpers.js file and our Dot Reporter
+			// to report memory stats after each test to
+			// the test runner.
+			// CAUTION: This will significantly slow down tests
+
+			const params = new URL(document.location).searchParams;
+			window.SHOW_SPANS = params.has('debugPerformance');
+			window.DEBUG_SETTLED_STATE = params.has('debugSettled');
+			window.DEBUG_MEMORY = params.has('debugMemory');
+			window.DISABLE_QUNIT_HTML_REPORTER = params.has('disableHtmlReporter');
+			window.DEBUG_PERMISSIONS = params.has('debugPermissions');
+			window.DELAY_TEST_START = params.has('delayTestStart');
+			window.GC_BREATHE_TIME = Number(params.get('gcBreatheTime') || 0);
+    </script>
+
     <div id="qunit"></div>
     <div id="qunit-fixture">
       <div id="ember-testing-container">
@@ -30,33 +47,37 @@
 
     <script src="/testem.js" integrity=""></script>
     <script type="text/javascript">
-			// disable testem log output
-			// by default testem serializes all of these logs
-			// and transmits them through the websocket even if
-			// the reporter is configured to ignore them. This results
-			// in extremely high memory and cpu utilization and eventually
-			// will crash the console.
-			const ignoredLogTypes = new Set(['log', 'warn', 'info', 'group', 'debug', 'groupEnd', 'error', 'trace', 'dir']);
-			// restore original functionality
-			ignoredLogTypes.forEach((method) => {
-        if (Testem.console[method]) {
-          console[method] = Testem.console[method];
-        }
-			});
-
 			// enable debugging memory over time
 			window.MEMORY_DATA = Object.create(null);
-			const originalEmitMessage = Testem.emitMessage;
-			Testem.emitMessage = function (...args) {
-				if (window.DEBUG_MEMORY) {
-					if (args[0] === 'test-result') {
-						// our custom DOT_REPORTER will utilize this
-						args[1].memoryUsage = MEMORY_DATA[args[1].testId];
-						MEMORY_DATA[args[1].testId] = null;
+
+			// Testem is not loaded when you visit /tests
+			if (typeof Testem !== 'undefined') {
+				// disable testem log output
+				// by default testem serializes all of these logs
+				// and transmits them through the websocket even if
+				// the reporter is configured to ignore them. This results
+				// in extremely high memory and cpu utilization and eventually
+				// will crash the console.
+				const ignoredLogTypes = new Set(['log', 'warn', 'info', 'group']);
+				// restore original functionality
+				ignoredLogTypes.forEach((method) => {
+          if (Testem.console[method]) {
+            console[method] = Testem.console[method];
+          }
+				});
+
+				const originalEmitMessage = Testem.emitMessage;
+				Testem.emitMessage = function (...args) {
+					if (window.DEBUG_MEMORY) {
+						if (args[0] === 'test-result') {
+							// our custom DOT_REPORTER will utilize this
+							args[1].memoryUsage = MEMORY_DATA[args[1].testId];
+							MEMORY_DATA[args[1].testId] = null;
+						}
 					}
-				}
-				return originalEmitMessage.call(Testem, ...args);
-			};
+					return originalEmitMessage.call(Testem, ...args);
+				};
+			}
 		</script>
     <script src="{{rootURL}}assets/vendor.js"></script>
     <script src="{{rootURL}}assets/test-support.js"></script>

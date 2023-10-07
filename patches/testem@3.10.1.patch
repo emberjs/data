@@ -1,0 +1,44 @@
+diff --git a/lib/runners/browser_test_runner.js b/lib/runners/browser_test_runner.js
+index 7c79e7349a9636b97ef6fd349d14d73f8bc55976..475fabca395829beb35a8127c470cbfa9cd750dd 100644
+--- a/lib/runners/browser_test_runner.js
++++ b/lib/runners/browser_test_runner.js
+@@ -142,6 +142,7 @@ module.exports = class BrowserTestRunner {
+     }
+ 
+     let tap = new BrowserTapConsumer(socket);
++    tap.on('tests-start', this.onTestsStart.bind(this));
+     tap.on('test-result', this.onTestResult.bind(this));
+     tap.on('all-test-results', this.onAllTestResults.bind(this));
+     tap.on('all-test-results', () => {
+@@ -165,8 +166,12 @@ module.exports = class BrowserTestRunner {
+ 
+   onTestsStart(testData) {
+     if (testData) {
++      Object.assign(testData, {
++        launcherId: this.launcherId
++      });
+       this.currentTestContext = testData;
+       this.currentTestContext.state = 'executing';
++      this.reporter.testStarted(this.launcher.name, testData);
+     }
+   }
+ 
+diff --git a/lib/utils/reporter.js b/lib/utils/reporter.js
+index 3b619b8b840fa0b5b3c1ad45f48c3df65b030359..e46d9489c7bf51b150e99b2986e5156eb36998f2 100644
+--- a/lib/utils/reporter.js
++++ b/lib/utils/reporter.js
+@@ -67,6 +67,14 @@ class Reporter {
+     }
+   }
+ 
++  testStarted(name, data) {
++    this.reporters.forEach(reporter => {
++      if (reporter.testStarted) {
++        reporter.testStarted(name, data);
++      }
++    });
++  }
++
+   close() {
+     this.finish();
+ 

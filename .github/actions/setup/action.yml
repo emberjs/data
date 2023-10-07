@@ -12,6 +12,10 @@ inputs:
     description: Whether to restore broccoli
     required: false
     default: false
+  use-production-caches:
+    description: Whether to restore from production caches
+    required: false
+    default: false
   install:
     description: Whether to install dependencies
     required: false
@@ -20,6 +24,10 @@ inputs:
     description: Whether to skip the prepare step for in-repo v2 addons when running pnpm install
     required: false
     default: false
+  adtl-install-args:
+    description: additional args to pass to pnpm install
+    required: false
+    default: ''
   parallel-build:
     description: Whether to build in parallel
     required: false
@@ -50,18 +58,21 @@ runs:
       shell: bash
       run: |
         echo "JOBS=${{ inputs.jobs }}" >> $GITHUB_ENV
-        echo "EXAM_SPLIT_COUNT=${{ inputs.jobs }}" >> $GITHUB_ENV
         echo "THROW_UNLESS_PARALLELIZABLE=1" >> $GITHUB_ENV
 
     - name: Install Dependencies
       if: ${{ inputs.install == 'true' && inputs.skip-addon-build == 'false' }}
       shell: bash
-      run: pnpm install --prefer-offline
+      run: pnpm install --prefer-offline $ADTL_ARGS
+      env:
+        ADTL_ARGS: ${{ inputs.adtl-install-args }}
 
     - name: Install Dependencies w/o Addon Builds
       if: ${{ inputs.install == 'true' && inputs.skip-addon-build == 'true' }}
       shell: bash
-      run: pnpm install --prefer-offline --ignore-scripts
+      run: pnpm install --prefer-offline --ignore-scripts $ADTL_ARGS
+      env:
+        ADTL_ARGS: ${{ inputs.adtl-install-args }}
 
     - name: Setup Broccoli Caching
       if: ${{ inputs.restore-broccoli-cache == 'true' }}
@@ -77,11 +88,12 @@ runs:
         path: |
           ${{ github.workspace }}/.broccoli-cache
           node_modules/.cache
-        key: broccoli-${{ github.head_ref }}-${{inputs.ref }}
+          tests/main/node_modules/.cache
+        key: broccoli${{inputs.use-production-caches == 'true' && '-production-' || '-'}}${{ github.head_ref }}-${{inputs.ref }}
         restore-keys: |
-          broccoli-${{ github.head_ref }}
-          broccoli-${{ github.base_ref }}
-          broccoli-main
+          broccoli${{inputs.use-production-caches == 'true' && '-production-' || '-'}}${{ github.head_ref }}
+          broccoli${{inputs.use-production-caches == 'true' && '-production-' || '-'}}${{ github.base_ref }}
+          broccoli${{inputs.use-production-caches == 'true' && '-production-' || '-'}}main
 
     - name: Restore Lint Caches
       if: ${{ inputs.restore-lint-caches == 'true' }}
