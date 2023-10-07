@@ -456,6 +456,12 @@ importers:
       '@ember/string':
         injected: true
 
+  packages/diagnostic:
+    devDependencies:
+      bun-types:
+        specifier: ^1.0.4
+        version: 1.0.4
+
   packages/eslint-plugin-ember-data: {}
 
   packages/graph:

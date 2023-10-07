@@ -1,0 +1,58 @@
+{
+  "name": "@warp-drive/diagnostic",
+  "version": "5.5.0-alpha.11",
+  "private": true,
+  "description": "Parse Declarative Typescript into JSON Schemas",
+  "keywords": [
+    "test",
+    "assert",
+    "testrunner",
+    "tap",
+    "reporter",
+    "junit",
+    "qunit",
+    "vitest",
+    "jest",
+    "mocha",
+    "chai"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/diagnostic"
+  },
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "files": [
+    "bin/",
+    "dist/",
+    "README.md",
+    "LICENSE.md",
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg"
+  ],
+  "bin": {
+    "diagnostic": "bin/diagnostic"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build:bin": "bun build src/index.ts --compile --outfile bin/diagnostic",
+    "build:runtime": "bun build --target=browser src/index.ts --outfile dist/diagnostic.js",
+    "build": "bun run build:bin && bun run build:runtime",
+    "prepack": "bun run build"
+  },
+  "peerDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "bun-types": "^1.0.4"
+  },
+  "engines": {
+    "node": ">= 18.*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.8.0"
+}
