@@ -121,7 +121,9 @@
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.2.1",
       "@ember/string": "3.1.1",
-      "ember-compatibility-helpers": "^1.2.6"
+      "qunit": "2.19.4",
+      "ember-compatibility-helpers": "^1.2.6",
+      "testem@<3.10.1": "~3.10.1"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
@@ -135,7 +137,9 @@
       ]
     },
     "patchedDependencies": {
-      "ember-compatibility-helpers@1.2.6": "patches/ember-compatibility-helpers@1.2.6.patch"
+      "ember-compatibility-helpers@1.2.6": "patches/ember-compatibility-helpers@1.2.6.patch",
+      "qunit@2.19.4": "patches/qunit@2.19.4.patch",
+      "testem@3.10.1": "patches/testem@3.10.1.patch"
     }
   }
 }

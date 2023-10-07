@@ -14,12 +14,13 @@
   },
   "scripts": {
     "build": "ember build",
+    "examine": "export EXAM_PARALLEL_COUNT=$(./bin/calculate-test-jobs); ember exam --test-port=0 --parallel=$EXAM_PARALLEL_COUNT --load-balance --wef  --testem_debug=testem.log",
     "test:try-one": "ember try:one",
     "holodeck:start-program": "holodeck start",
     "holodeck:end-program": "holodeck end",
     "launch:tests": "ember test --port=0 --serve --no-launch",
     "start": "holodeck run pnpm launch:tests",
-    "test": "holodeck run ember test --test-port=0"
+    "test": "holodeck run pnpm examine"
   },
   "author": "",
   "license": "MIT",
@@ -92,6 +93,7 @@
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^4.0.0",
     "ember-auto-import": "^2.6.3",
+    "ember-exam": "^8.0.0",
     "ember-cached-decorator-polyfill": "^1.0.2",
     "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.1.0",
