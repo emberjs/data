@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('Cache', function () {
   test('Test Suit Configured', function (assert) {

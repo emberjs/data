@@ -407,9 +407,9 @@ function addTestMetaToName(partitions, partitionsMap, result) {
     !result.skipped && !result.todo && result.originalResultObj?.memoryUsage
       ? formatBytes(result.originalResultObj.memoryUsage)
       : '';
-  const index = result.name.indexOf('-');
-  const remainder = result.name.substring(index);
-  const start = result.name.substring(0, index - 1);
+  //const index = result.name.indexOf('-');
+  const remainder = result.name; //result.name.substring(index);
+  const start = ''; //result.name.substring(0, index - 1);
   result.name = `${bytes}${start} #${result.originalResultObj?.id || '??'} ${remainder}`;
   partitions[start] = partitions[start] || [];
   partitionsMap[start] = result.launcherId;

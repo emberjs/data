@@ -37,6 +37,19 @@ module.exports = function (defaults) {
     This build file does *not* influence how the addon or the app using it
     behave. You most likely want to be modifying `./index.js` or app's build file
   */
+  app.import('node_modules/@warp-drive/diagnostic/dist/styles/dom-reporter.css');
+  const { Webpack } = require('@embroider/webpack');
 
-  return app.toTree();
+  return require('@embroider/compat').compatBuild(app, Webpack, {
+    staticAddonTestSupportTrees: true,
+    staticAddonTrees: true,
+    staticHelpers: true,
+    staticModifiers: true,
+    staticComponents: true,
+    // staticEmberSource: true,
+    // splitAtRoutes: ['route.name'], // can also be a RegExp
+    //packagerOptions: {
+    //  webpackConfig: { }
+    // }
+  });
 };

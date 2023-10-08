@@ -97,6 +97,17 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['tests/json-api/**'],
+      rules: {
+        'qunit/no-assert-equal': 'off',
+        'qunit/no-assert-logical-expression': 'off',
+        'qunit/no-conditional-assertions': 'off',
+        'qunit/no-early-return': 'off',
+        'qunit/no-identical-names': 'off',
+        'qunit/require-expect': 'off',
+      },
+    },
+    {
       files: ['packages/**'],
       rules: {
         'no-restricted-imports': [

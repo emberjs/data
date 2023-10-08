@@ -1,81 +1,28 @@
-import { Assert, ModuleInfo, GlobalHooks, HooksCallback, TestInfo, ModuleCallback, TestCallback, OrderedMap, GlobalCallback } from "./-types";
+import { assert, generateHash } from "./-utils";
+import { ModuleInfo, TestInfo, ModuleCallback, TestCallback, OrderedMap } from "./-types";
+import { SuiteReport } from "./-types/report";
 
-const Config: { globalHooks: {
-  beforeEach: HooksCallback[];
-  afterEach: HooksCallback[];
-  beforeModule: GlobalCallback[];
-  afterModule: GlobalCallback[];
-  onSuiteStart: GlobalCallback[];
-  onSuiteFinish: GlobalCallback[];
-} } = {
-  globalHooks: {
-    beforeEach: [],
-    afterEach: [],
-    beforeModule: [],
-    afterModule: [],
-    onSuiteStart: [],
-    onSuiteFinish: []
-  }
-}
+import { Config, HooksDelegate, getCurrentModule, instrument, setCurrentModule } from "./internals/config";
+import { DelegatingReporter } from "./internals/delegating-reporter";
+import { runModule } from "./internals/run";
+
+export { registerReporter } from "./internals/delegating-reporter";
+export { setupGlobalHooks, configure } from "./internals/config";
+
 const Modules: OrderedMap<ModuleInfo> = {
   byName: new Map(),
   byOrder: []
 }
-let currentModule: ModuleInfo;
-let isResolvingGlobalHooks = false;
-
-const HooksDelegate = {
-  beforeEach(cb: HooksCallback): void {
-    if (isResolvingGlobalHooks) {
-      Config.globalHooks.beforeEach.push(cb);
-    } else {
-      currentModule.config.beforeEach.push(cb);
-    }
-  },
-  afterEach(cb: HooksCallback): void {
-    if (isResolvingGlobalHooks) {
-      Config.globalHooks.afterEach.push(cb);
-    } else {
-      currentModule.config.afterEach.push(cb);
-    }
-  },
-  beforeModule(cb: GlobalCallback): void {
-    if (isResolvingGlobalHooks) {
-      Config.globalHooks.beforeModule.push(cb);
-    } else {
-      currentModule.config.beforeModule.push(cb);
-    }
-  },
-  afterModule(cb: GlobalCallback): void {
-    if (isResolvingGlobalHooks) {
-      Config.globalHooks.afterModule.push(cb);
-    } else {
-      currentModule.config.afterModule.push(cb);
-    }
-  },
-  onSuiteStart(cb: GlobalCallback): void {
-    assert(`Cannot add a global onSuiteStart hook inside of a module`, isResolvingGlobalHooks);
-    Config.globalHooks.onSuiteStart.push(cb);
-  },
-  onSuiteFinish(cb: GlobalCallback): void {
-    assert(`Cannot add a global onSuiteFinish hook inside of a module`, isResolvingGlobalHooks);
-    Config.globalHooks.onSuiteFinish.push(cb);
-  },
-}
-
-export function setupGlobalHooks(cb: (hooks: GlobalHooks) => void): void {
-  isResolvingGlobalHooks = true;
-  cb(HooksDelegate);
-  isResolvingGlobalHooks = false;
-}
 
 export function module(name: string, cb: ModuleCallback): void {
-  let parentModule = null;
+  const parentModule = getCurrentModule() ?? null;
   let moduleName = name;
-  if (currentModule) {
-    moduleName = `${currentModule.name} > ${name}`;
-    parentModule = currentModule;
+  if (parentModule) {
+    moduleName = `${parentModule.name} > ${name}`;
+  } else {
+    Config.totals.primaryModules++;
   }
+  Config.totals.modules++;
 
   assert(`Cannot add the same module name twice: ${moduleName}`, !Modules.byName.has(moduleName));
   const moduleConfig = {
@@ -96,7 +43,7 @@ export function module(name: string, cb: ModuleCallback): void {
     parent: parentModule,
   };
 
-  currentModule = moduleInfo;
+  setCurrentModule(moduleInfo);
 
   if (parentModule) {
     parentModule.modules.byName.set(name, moduleInfo);
@@ -107,20 +54,17 @@ export function module(name: string, cb: ModuleCallback): void {
   }
 
   cb(HooksDelegate);
-  currentModule = parentModule as unknown as ModuleInfo;
-}
-
-function assert(message: string, test: unknown): asserts test {
-  if (!test) {
-    throw new Error(message);
-  }
+  setCurrentModule(parentModule as unknown as ModuleInfo);
 }
 
 export function test(name: string, cb: TestCallback): void {
+  const currentModule = getCurrentModule();
   assert(`Cannot add a test outside of a module`, !!currentModule);
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
+  Config.totals.tests++;
 
   const testInfo = {
+    id: generateHash(currentModule.moduleName + ' > ' + name),
     name,
     cb,
     skip: false,
@@ -133,10 +77,13 @@ export function test(name: string, cb: TestCallback): void {
 }
 
 export function todo(name: string, cb: TestCallback): void {
+  const currentModule = getCurrentModule();
   assert(`Cannot add a test outside of a module`, !!currentModule);
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
+  Config.totals.todo++;
 
   const testInfo = {
+    id: generateHash(currentModule.moduleName + ' > ' + name),
     name,
     cb,
     skip: false,
@@ -149,10 +96,13 @@ export function todo(name: string, cb: TestCallback): void {
 }
 
 export function skip(name: string, cb: TestCallback): void {
+  const currentModule = getCurrentModule();
   assert(`Cannot add a test outside of a module`, !!currentModule);
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
+  Config.totals.skipped++;
 
   const testInfo = {
+    id: generateHash(currentModule.moduleName + ' > ' + name),
     name,
     cb,
     skip: true,
@@ -164,79 +114,21 @@ export function skip(name: string, cb: TestCallback): void {
   currentModule.tests.byOrder.push(testInfo);
 }
 
-function getChain(module: ModuleInfo, parents: ModuleInfo[] | null, prop: 'beforeEach' | 'afterEach'): HooksCallback[] {
-  const chain: HooksCallback[] = [];
-  if (parents) {
-    for (const parent of parents) {
-      if (parent.config[prop].length) {
-        chain.push(...parent.config[prop]);
-      }
-    }
-  }
-  if (module.config[prop].length) {
-    chain.push(...module.config[prop]);
-  }
-
-  if (prop === 'afterEach') {
-    chain.reverse();
-  }
-
-  return chain;
-}
-
-const Reporter = {
-  report(event: unknown): void {}
-}
-
-async function runTest(beforeChain: HooksCallback[], test: TestInfo, afterChain: HooksCallback[]) {
-  const testContext = {};
-  const Assert = {} as Assert;
-
-  if (test.skip) {
-    Reporter.report({ type: 'skip', test });
-    return;
-  }
-
-  for (const hook of beforeChain) {
-    await hook.call(testContext, Assert);
-  }
-
-  await test.cb.call(testContext, Assert);
-
-  for (const hook of afterChain) {
-    await hook.call(testContext, Assert);
-  }
-}
-
-async function runModule(module: ModuleInfo, parents: ModuleInfo[] | null) {
-  for (const hook of Config.globalHooks.beforeModule) {
-    await hook();
-  }
-
-  for (const hook of module.config.beforeModule) {
-    await hook();
-  }
-
-  // run tests
-  const beforeChain = getChain(module, parents, 'beforeEach');
-  const afterChain = getChain(module, parents, 'afterEach');
-  for (const test of module.tests.byOrder) {
-    await runTest(beforeChain, test, afterChain);
-  }
-
-  // run modules
-
-  for (const hook of module.config.afterModule) {
-    await hook();
-  }
-
-  for (const hook of Config.globalHooks.afterModule) {
-    await hook();
-  }
-}
-
-
 export async function start() {
+  const report: SuiteReport = {
+    totals: Object.assign({}, Config.totals),
+    passed: 0,
+    failed: 0,
+    skipped: 0,
+    todo: 0,
+    start: null,
+    end: null,
+    measure: null,
+  };
+  Config._current = report;
+  report.start = instrument() && performance.mark('@warp-drive/diagnostic:start');
+
+  DelegatingReporter.onSuiteStart(report);
   for (const hook of Config.globalHooks.onSuiteStart) {
     await hook();
   }
@@ -248,4 +140,7 @@ export async function start() {
   for (const hook of Config.globalHooks.onSuiteFinish) {
     await hook();
   }
+  report.end = instrument() && performance.mark('@warp-drive/diagnostic:end');
+  report.measure = instrument() && performance.measure('@warp-drive/diagnostic:run', report.start.name, report.end.name);
+  DelegatingReporter.onSuiteFinish(report);
 }

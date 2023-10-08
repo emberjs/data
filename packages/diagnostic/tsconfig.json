@@ -1,17 +1,31 @@
 {
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "lib": ["ESNext"],
+    // "composite": true,
+    "lib": ["DOM", "ESNext"],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "allowImportingTsExtensions": true,
+    "declarationDir": "dist",
     "strict": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": true
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "incremental": false,
+
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+
+    "baseUrl": "src"
   }
 }

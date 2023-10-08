@@ -1,6 +1,4 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import Cache from '@ember-data/json-api';
 import { serializePatch, serializeResources } from '@ember-data/json-api/request';
@@ -64,11 +62,9 @@ class TestSchema<T extends string> {
 }
 
 module('Integration | @ember-data/json-api/request', function (hooks) {
-  setupTest(hooks);
-
+  let store: TestStore;
   hooks.beforeEach(function () {
-    this.owner.register('service:store', TestStore);
-    const store = this.owner.lookup('service:store') as TestStore;
+    store = new TestStore();
 
     store.registerSchema(
       new TestSchema<'user'>({
@@ -169,8 +165,6 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
 
   module('serializePatch', function () {
     test('Correctly serializes only changed attributes and relationships', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
       const user1Identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       store.cache.setAttr(user1Identifier, 'firstName', 'Christopher');
 
@@ -204,12 +198,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
       });
 
       patch = serializePatch(store.cache, user1Identifier);
-      // we do this because we cannot trust deepEqual here. It ignores excess keys.
-      assert.strictEqual(
-        patch.data.attributes,
-        undefined,
-        'Correctly serializes changed attributes when there are none'
-      );
+      assert.equal(patch.data.attributes, undefined, 'Correctly serializes changed attributes when there are none');
       assert.deepEqual(
         patch,
         {
@@ -239,11 +228,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
       });
 
       patch = serializePatch(store.cache, user1Identifier);
-      assert.strictEqual(
-        patch.data.relationships?.bestFriend,
-        undefined,
-        'Correctly serializes rolled back relationships'
-      );
+      assert.equal(patch.data.relationships?.bestFriend, undefined, 'Correctly serializes rolled back relationships');
       assert.deepEqual(
         patch,
         {
@@ -334,7 +319,6 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
 
   module('serializeResources', function () {
     test('Correctly serializes single resources', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
       const payload = serializeResources(
         store.cache,
         store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' })
@@ -366,7 +350,6 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
       });
     });
     test('Correctly serializes multiple resources', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
       const payload = serializeResources(store.cache, [
         store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' }),
         store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
