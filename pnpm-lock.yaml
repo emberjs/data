@@ -65,8 +65,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.0)
       '@types/jquery':
-        specifier: ^3.5.20
-        version: 3.5.20
+        specifier: ^3.5.21
+        version: 3.5.22
       '@types/qunit':
         specifier: ^2.19.6
         version: 2.19.6
@@ -6376,8 +6376,8 @@ packages:
   /@types/http-errors@2.0.1:
     resolution: {integrity: sha512-/K3ds8TRAfBvi5vfjuz8y6+GiAYBZ0x4tXv1Av6CWBWn0IlADc+ZX9pMq7oU0fNQPnBwIZl3rmeLp6SBApbxSQ==}
 
-  /@types/jquery@3.5.20:
-    resolution: {integrity: sha512-UI+EGhgYD4LdSZ8gaiziFqXYIIB38VQSDsnAs8jL/div7FGrzrShx4HKCykVzk3tPfiIlusdNP9Wi3G60LCF2Q==}
+  /@types/jquery@3.5.22:
+    resolution: {integrity: sha512-ISQFeUK5GwRftLK4PVvKTWEVCxZ2BpaqBz0TWkIq5w4vGojxZP9+XkqgcPjxoqmPeew+HLyWthCBvK7GdF5NYA==}
     dependencies:
       '@types/sizzle': 2.3.3
     dev: true
