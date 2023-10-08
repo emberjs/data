@@ -51,6 +51,8 @@
       "@ember-data/tracking/*": ["packages/tracking/src/*"],
       "@warp-drive/holodeck": ["packages/holodeck/dist"],
       "@warp-drive/holodeck/*": ["packages/holodeck/dist/*"],
+      "@warp-drive/diagnostic": ["packages/diagnostic/dist"],
+      "@warp-drive/diagnostic/*": ["packages/diagnostic/dist/*"],
       "@ember-data/request": ["packages/request/addon"],
       "@ember-data/request/*": ["packages/request/addon/*"],
       "@warp-drive/schema-record": ["packages/schema-record/src"],
