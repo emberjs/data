@@ -2,7 +2,7 @@
 
 ## Welcome!
 
-We are so glad you are considering contributing to `EmberData`. Below you'll find links to topics
+We are so glad you are considering contributing to `EmberData`. Before that, kindly take a minute to read the [Code of Conduct](https://github.com/emberjs/data/blob/main/CODE_OF_CONDUCT.md). Below you'll find links to topics
 detailing how to become involved to best ensure your contributions are successful!
 
 - [Reporting Issues](./contributing/issues.md)
