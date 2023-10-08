@@ -177,6 +177,10 @@ let app = new EmberApp(defaults, {
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
 
+## Code of Conduct
+
+Refer to the [Code of Conduct](https://github.com/emberjs/data/blob/main/CODE_OF_CONDUCT.md) for community guidelines and inclusivity.
+
 ### License
 
 This project is licensed under the [MIT License](LICENSE.md).
