@@ -27,6 +27,7 @@ node_modules
 scripts/asset-size-tracking/current-data.json
 
 # misc
+.turbo/
 .env*
 .pnp*
 .sass-cache
