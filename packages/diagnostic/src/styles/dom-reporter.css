@@ -5,8 +5,8 @@
   --bg-color: #fff;
   --heading-color: #17abab;
   --heading-2-color: #e617ab;
-  --brand-pink: 317, 82%;
-  --brand-green: 180, 76%;
+  --brand-pink: hsl(317, 82%, 50%);
+  --brand-green: hsl(180, 76%, 50%);
   --brand-blue: 212, 92%;
   --brand-yellow: #deb008;
   --brand-main: var(--brand-green);
@@ -25,57 +25,6 @@
     --bg-color-2: #222222;
     --bg-color-3: #292929;
     --heading-color: #292922;
-  }
-}
-
-@keyframes pulseBlue {
-  0% {
-    border-color: var(--bg-color);
-    border-width: 0px;
-  }
-
-  100% {
-    border-color: hsl(var(--primary-color), 60%);
-    border-width: .5rem;
-  }
-}
-
-@keyframes pulseBlueThin {
-  0% {
-    border-color: var(--bg-color);
-  }
-
-  100% {
-    border-color: hsl(var(--primary-color), 60%);
-  }
-}
-
-@keyframes pulseGreenSoft {
-  from {
-    color: hsl(var(--brand-main), 30%);
-  }
-
-  to {
-    color: hsl(var(--brand-main), 70%);
-  }
-}
-
-@keyframes pulseBlueSoft {
-  from {
-    color: hsl(var(--primary-color), 30%);
-  }
-
-  to {
-    color: hsl(var(--primary-color), 70%);
-  }
-}
-@keyframes pulsePinkSoft {
-  from {
-    color: hsl(var(--brand-secondary), 30%);
-  }
-
-  to {
-    color: hsl(var(--brand-secondary), 70%);
   }
 }
 
@@ -166,32 +115,15 @@ body {
 #warp-drive__diagnostic h1 span.logo-main {
   color: var(--brand-main);
   font-weight: 500;
-  animation: pulseGreenSoft;
-  animation-duration: 3s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-out;
 }
 
 #warp-drive__diagnostic h1 span.logo-pink {
   color: var(--brand-secondary);
   font-weight: 300;
-  animation: pulsePinkSoft;
-  animation-duration: 3s;
-  animation-delay: .2s;
-  animation-fill-mode: backwards;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-out;
 }
 
 #warp-drive__diagnostic .text-blue {
   color: var(--primary-color);
-  animation: pulseBlueSoft;
-  animation-duration: 3s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-out;
 }
 
 
