@@ -2452,6 +2452,125 @@ importers:
       '@ember-data/unpublished-test-infra':
         injected: true
 
+  tests/ember-data__request:
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.23.0
+        version: 7.23.0(supports-color@8.1.1)
+      '@babel/runtime':
+        specifier: ^7.23.1
+        version: 7.23.1
+      '@ember-data/private-build-infra':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/private-build-infra
+      '@ember-data/request':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/request(@babel/core@7.23.0)
+      '@ember-data/unpublished-test-infra':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/unpublished-test-infra(@babel/core@7.23.0)(qunit@2.19.4)
+      '@ember/edition-utils':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@ember/optional-features':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@ember/string':
+        specifier: 3.1.1
+        version: 3.1.1(@babel/core@7.23.0)
+      '@ember/test-helpers':
+        specifier: ^3.2.0
+        version: 3.2.0(@babel/core@7.23.0)(ember-source@5.3.0)(webpack@5.88.2)
+      '@glimmer/component':
+        specifier: ^1.1.2
+        version: 1.1.2(@babel/core@7.23.0)
+      '@glimmer/tracking':
+        specifier: ^1.1.2
+        version: 1.1.2
+      '@types/ember__owner':
+        specifier: ^4.0.6
+        version: 4.0.6
+      '@warp-drive/diagnostic':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/diagnostic
+      '@warp-drive/holodeck':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/holodeck
+      ember-auto-import:
+        specifier: ^2.6.3
+        version: 2.6.3(webpack@5.88.2)
+      ember-cli:
+        specifier: ~5.3.0
+        version: 5.3.0(debug@4.3.4)
+      ember-cli-babel:
+        specifier: ^8.1.0
+        version: 8.1.0(@babel/core@7.23.0)
+      ember-cli-blueprint-test-helpers:
+        specifier: ^0.19.2
+        version: 0.19.2
+      ember-cli-dependency-checker:
+        specifier: ^3.3.2
+        version: 3.3.2(ember-cli@5.3.0)
+      ember-cli-htmlbars:
+        specifier: ^6.3.0
+        version: 6.3.0
+      ember-cli-inject-live-reload:
+        specifier: ^2.1.0
+        version: 2.1.0
+      ember-cli-sri:
+        specifier: ^2.1.1
+        version: 2.1.1
+      ember-cli-terser:
+        specifier: ~4.0.2
+        version: 4.0.2
+      ember-cli-test-loader:
+        specifier: ^3.1.0
+        version: 3.1.0(@babel/core@7.23.0)
+      ember-disable-prototype-extensions:
+        specifier: ^1.1.3
+        version: 1.1.3
+      ember-inflector:
+        specifier: ^4.0.2
+        version: 4.0.2(@babel/core@7.23.0)
+      ember-load-initializers:
+        specifier: ^2.1.2
+        version: 2.1.2(@babel/core@7.23.0)
+      ember-maybe-import-regenerator:
+        specifier: ^1.0.0
+        version: 1.0.0(@babel/core@7.23.0)
+      ember-resolver:
+        specifier: ^11.0.1
+        version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
+      ember-source:
+        specifier: ~5.3.0
+        version: 5.3.0(@babel/core@7.23.0)(@glimmer/component@1.1.2)(webpack@5.88.2)
+      ember-source-channel-url:
+        specifier: ^3.0.0
+        version: 3.0.0
+      ember-try:
+        specifier: ^3.0.0
+        version: 3.0.0
+      loader.js:
+        specifier: ^4.7.0
+        version: 4.7.0
+      silent-error:
+        specifier: ^1.1.1
+        version: 1.1.1
+      webpack:
+        specifier: ^5.88.2
+        version: 5.88.2
+    dependenciesMeta:
+      '@ember-data/private-build-infra':
+        injected: true
+      '@ember-data/request':
+        injected: true
+      '@ember-data/unpublished-test-infra':
+        injected: true
+      '@warp-drive/diagnostic':
+        injected: true
+      '@warp-drive/holodeck':
+        injected: true
+
   tests/ember-data__serializer:
     devDependencies:
       '@babel/core':
@@ -3320,125 +3439,6 @@ importers:
       '@ember-data/tracking':
         injected: true
       '@ember-data/unpublished-test-infra':
-        injected: true
-
-  tests/request:
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.23.0
-        version: 7.23.0(supports-color@8.1.1)
-      '@babel/runtime':
-        specifier: ^7.23.1
-        version: 7.23.1
-      '@ember-data/private-build-infra':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/private-build-infra
-      '@ember-data/request':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request(@babel/core@7.23.0)
-      '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/unpublished-test-infra(@babel/core@7.23.0)(qunit@2.19.4)
-      '@ember/edition-utils':
-        specifier: ^1.2.0
-        version: 1.2.0
-      '@ember/optional-features':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@ember/string':
-        specifier: 3.1.1
-        version: 3.1.1(@babel/core@7.23.0)
-      '@ember/test-helpers':
-        specifier: ^3.2.0
-        version: 3.2.0(@babel/core@7.23.0)(ember-source@5.3.0)(webpack@5.88.2)
-      '@glimmer/component':
-        specifier: ^1.1.2
-        version: 1.1.2(@babel/core@7.23.0)
-      '@glimmer/tracking':
-        specifier: ^1.1.2
-        version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.6
-        version: 4.0.6
-      '@warp-drive/diagnostic':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
-      '@warp-drive/holodeck':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/holodeck
-      ember-auto-import:
-        specifier: ^2.6.3
-        version: 2.6.3(webpack@5.88.2)
-      ember-cli:
-        specifier: ~5.3.0
-        version: 5.3.0(debug@4.3.4)
-      ember-cli-babel:
-        specifier: ^8.1.0
-        version: 8.1.0(@babel/core@7.23.0)
-      ember-cli-blueprint-test-helpers:
-        specifier: ^0.19.2
-        version: 0.19.2
-      ember-cli-dependency-checker:
-        specifier: ^3.3.2
-        version: 3.3.2(ember-cli@5.3.0)
-      ember-cli-htmlbars:
-        specifier: ^6.3.0
-        version: 6.3.0
-      ember-cli-inject-live-reload:
-        specifier: ^2.1.0
-        version: 2.1.0
-      ember-cli-sri:
-        specifier: ^2.1.1
-        version: 2.1.1
-      ember-cli-terser:
-        specifier: ~4.0.2
-        version: 4.0.2
-      ember-cli-test-loader:
-        specifier: ^3.1.0
-        version: 3.1.0(@babel/core@7.23.0)
-      ember-disable-prototype-extensions:
-        specifier: ^1.1.3
-        version: 1.1.3
-      ember-inflector:
-        specifier: ^4.0.2
-        version: 4.0.2(@babel/core@7.23.0)
-      ember-load-initializers:
-        specifier: ^2.1.2
-        version: 2.1.2(@babel/core@7.23.0)
-      ember-maybe-import-regenerator:
-        specifier: ^1.0.0
-        version: 1.0.0(@babel/core@7.23.0)
-      ember-resolver:
-        specifier: ^11.0.1
-        version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
-      ember-source:
-        specifier: ~5.3.0
-        version: 5.3.0(@babel/core@7.23.0)(@glimmer/component@1.1.2)(webpack@5.88.2)
-      ember-source-channel-url:
-        specifier: ^3.0.0
-        version: 3.0.0
-      ember-try:
-        specifier: ^3.0.0
-        version: 3.0.0
-      loader.js:
-        specifier: ^4.7.0
-        version: 4.7.0
-      silent-error:
-        specifier: ^1.1.1
-        version: 1.1.1
-      webpack:
-        specifier: ^5.88.2
-        version: 5.88.2
-    dependenciesMeta:
-      '@ember-data/private-build-infra':
-        injected: true
-      '@ember-data/request':
-        injected: true
-      '@ember-data/unpublished-test-infra':
-        injected: true
-      '@warp-drive/diagnostic':
-        injected: true
-      '@warp-drive/holodeck':
         injected: true
 
   tests/schema-record:
