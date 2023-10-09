@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'schema-record-test-app',
+    modulePrefix: 'warp-drive__schema-record',
     environment,
     rootURL: '/',
     locationType: 'history',

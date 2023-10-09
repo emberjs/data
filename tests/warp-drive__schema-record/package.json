@@ -1,13 +1,13 @@
 {
-  "name": "schema-record-test-app",
+  "name": "warp-drive__schema-record",
   "version": "5.5.0-alpha.11",
-  "description": "Provides tests for SchemaRecord",
+  "description": "Provides tests for @warp-drive/schema-record",
   "private": true,
   "keywords": [],
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "tests/schema-record"
+    "directory": "tests/warp-drive__schema-record"
   },
   "license": "MIT",
   "author": "",
