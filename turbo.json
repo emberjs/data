@@ -41,6 +41,16 @@
       ],
       "dependsOn": ["_syncPnpm"]
     },
+    "build:production": {
+      "outputs": [
+        "dist/**",
+        "declarations/**",
+        "addon/**",
+        "addon-test-support/**",
+        "blueprints"
+      ],
+      "dependsOn": ["_syncPnpm"]
+    },
     // See: https://github.com/pnpm/pnpm/issues/4965
     "_syncPnpm": {
       "dependsOn": ["^build"],
