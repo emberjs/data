@@ -104,7 +104,8 @@ body {
   color: var(--font-color);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   width: 100%;
-  height: 100%;
+  position: relative;
+  min-height: 100%;
   line-height: 1.5em;
   background-color: var(--bg-color);
   background-size: 1.5em 1.5em;

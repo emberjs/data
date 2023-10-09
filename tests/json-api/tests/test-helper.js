@@ -42,17 +42,9 @@ export function loadTests() {
   new TestLoader().loadModules();
 }
 
-// import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-support/assert-all-deprecations';
-// import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
-// import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';
+// import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
 
 // configureAsserts();
-
-// assertAllDeprecations();
-
-// if (window.Testem) {
-//   window.Testem.useCustomAdapter(customQUnitAdapter);
-// }
 
 loadTests();
 

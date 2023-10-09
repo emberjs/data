@@ -14,12 +14,12 @@ type CompatTestReport = {
   id: number;
   name: string;
   items: [];
-  failed: boolean;
-  passed: boolean;
-  skipped: boolean;
-  todo: boolean;
+  failed: number;
+  passed: number;
   total: number;
   runDuration: number;
+  skipped: boolean;
+  todo: boolean;
   testId: string;
 }
 
@@ -86,26 +86,29 @@ export class DOMReporter implements Reporter {
         id: this.suite.results.size + 1,
         name: this.modulePath.at(-1)!.name + ':' + test.name,
         items: [],
-        failed: false,
-        passed: false,
+        failed: 0,
+        passed: 0,
         skipped: test.skipped,
         todo: test.todo,
         total: 0,
         runDuration: 0,
-        testId: test.name,
+        testId: test.id,
       };
       this._socket?.emit('tests-start', this._compatTestReport);
     }
   }
 
   onTestFinish(test: TestReport): void {
+    if (test.result.failed) {
+      console.log(test);
+    }
     this.currentTest = null;
     this.stats.diagnostics += test.result.diagnostics.length;
     this.stats.diagnosticsPassed += test.result.diagnostics.filter(d => d.passed).length;
 
     if (this.settings.useTestem) {
-      this._compatTestReport.failed = test.result.failed;
-      this._compatTestReport.passed = test.result.passed;
+      this._compatTestReport.failed += test.result.failed ? 1 : 0;
+      this._compatTestReport.passed += test.result.passed ? 1 : 0;
       this._compatTestReport.skipped = test.skipped;
       this._compatTestReport.todo = test.todo;
       this._compatTestReport.total = test.result.diagnostics.length;

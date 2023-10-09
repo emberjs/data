@@ -1,15 +1,15 @@
-import { module } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module } from '@warp-drive/diagnostic';
 
 import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/deprecations';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 import { test } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('Integration | Graph | Duplicate Data', function (hooks: NestedHooks) {
+import { deprecatedTest } from '../../setup-test';
+
+module('Integration | Graph | Duplicate Data', function (hooks) {
   setupTest(hooks);
 
   deprecatedTest(
@@ -19,7 +19,7 @@ module('Integration | Graph | Duplicate Data', function (hooks: NestedHooks) {
       until: '6.0.0',
       count: 1,
     },
-    function (assert: Assert) {
+    function (assert) {
       const { owner } = this;
 
       class App extends Model {

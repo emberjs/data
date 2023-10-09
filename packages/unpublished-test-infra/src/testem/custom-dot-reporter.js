@@ -235,7 +235,7 @@ class CustomDotReporter extends DotReporter {
         )
       );
       this.out.write(
-        `\t\topen test locally: http://localhost:7357/tests/index.html?testId=${result.originalResultObj?.testId}\t`
+        `\t\topen test locally: http://localhost:7357/tests/index.html?testId=${result.originalResultObj?.testId}\n`
       );
     }
   }

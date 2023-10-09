@@ -25,7 +25,5 @@
     "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-
-    "baseUrl": "src"
   }
 }

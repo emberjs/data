@@ -39,6 +39,7 @@ export interface Diagnostic {
   true(actual: boolean, message?: string): void;
   false(actual: boolean, message?: string): void;
   ok(actual: unknown, message?: string): void;
+  notOk(actual: unknown, message?: string): void;
   expect(count: number): void;
   step(name: string): void;
   verifySteps(steps: string[], message?: string): void;

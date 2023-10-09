@@ -1,3 +1,4 @@
+import type { Config } from "./internals/config";
 import { HooksCallback, ModuleInfo } from "./-types";
 
 export function assert(message: string, test: unknown): asserts test {
@@ -13,8 +14,13 @@ export function getGlobal(): Window {
   return g;
 }
 
-export function getChain(module: ModuleInfo, parents: ModuleInfo[] | null, prop: 'beforeEach' | 'afterEach'): HooksCallback[] {
+export function getChain(globalHooks: typeof Config.globalHooks, module: ModuleInfo, parents: ModuleInfo[] | null, prop: 'beforeEach' | 'afterEach'): HooksCallback[] {
   const chain: HooksCallback[] = [];
+
+  if (globalHooks[prop].length) {
+    chain.push(...globalHooks[prop]);
+  }
+
   if (parents) {
     for (const parent of parents) {
       if (parent.config[prop].length) {

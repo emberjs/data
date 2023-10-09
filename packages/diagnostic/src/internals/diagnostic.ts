@@ -2,6 +2,22 @@ import { GlobalConfig, TestInfo } from "../-types";
 import { DiagnosticReport, Reporter, TestReport } from "../-types/report";
 import equiv from "../legacy/equiv";
 
+class InternalCompat {
+  declare _diagnostic: Diagnostic;
+
+  constructor(diagnostic: Diagnostic) {
+    this._diagnostic = diagnostic;
+  }
+
+  get expected() {
+    return this._diagnostic.expected;
+  }
+  set expected(value) {
+    this._diagnostic.expected = value;
+  }
+
+}
+
 export class Diagnostic {
   declare __currentTest: TestInfo;
   declare __report: TestReport;
@@ -10,6 +26,9 @@ export class Diagnostic {
   declare expected: number | null;
   declare _steps: string[];
 
+  // QUnit private API compat
+  declare test: InternalCompat;
+
   constructor(reporter: Reporter, config: GlobalConfig, test: TestInfo, report: TestReport) {
     this.__currentTest = test;
     this.__report = report;
@@ -17,10 +36,11 @@ export class Diagnostic {
     this.__reporter = reporter;
     this.expected = null;
     this._steps = [];
+    this.test = new InternalCompat(this);
   }
 
-  pushResult(result: Pick<DiagnosticReport, 'actual' | 'expected' | 'message' | 'passed' | 'stack'>): void {
-    const diagnostic = Object.assign({}, result, { testId: this.__currentTest.id });
+  pushResult(result: Pick<DiagnosticReport, 'actual' | 'expected' | 'message' | 'passed' | 'stack'> & { result?: boolean }): void {
+    const diagnostic = Object.assign({ passed: result.passed ?? result.result }, result, { testId: this.__currentTest.id });
     this.__report.result.diagnostics.push(diagnostic);
 
     if (!diagnostic.passed) {

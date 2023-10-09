@@ -64,6 +64,13 @@ module.exports = {
       // '@ember/service',
       // 'ember-inflector',
     ],
+    'no-restricted-globals': [
+      'error',
+      {
+        name: 'QUnit',
+        message: 'Use or provide this.server from the test context instead',
+      },
+    ],
 
     'mocha/no-exclusive-tests': 'error',
 
@@ -97,7 +104,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['tests/json-api/**'],
+      files: ['tests/json-api/**', 'tests/graph/**'],
       rules: {
         'qunit/no-assert-equal': 'off',
         'qunit/no-assert-logical-expression': 'off',
@@ -207,11 +214,6 @@ module.exports = {
         '@typescript-eslint/unbound-method': 'off',
       },
       files: [
-        'packages/unpublished-test-infra/addon-test-support/qunit-asserts/utils/is-thenable.ts',
-        'packages/unpublished-test-infra/addon-test-support/qunit-asserts/index.ts',
-        'packages/unpublished-test-infra/addon-test-support/qunit-asserts/check-matcher.ts',
-        'packages/unpublished-test-infra/addon-test-support/qunit-asserts/assert-warning.ts',
-        'packages/unpublished-test-infra/addon-test-support/qunit-asserts/assert-assertion.ts',
         'tests/fastboot/types/global.d.ts',
         'tests/fastboot/app/serializers/application.ts',
         'tests/fastboot/app/router.ts',
@@ -237,14 +239,6 @@ module.exports = {
         'ember-data-types/q/fetch-manager.ts',
         'ember-data-types/q/ember-data-json-api.ts',
         '@types/@ember/polyfills/index.d.ts',
-        'tests/graph/tests/integration/graph/polymorphism/implicit-keys-test.ts',
-        'tests/graph/tests/integration/graph/graph-test.ts',
-        'tests/graph/tests/integration/graph/operations-test.ts',
-        'tests/graph/tests/integration/graph/edge-test.ts',
-        'tests/graph/tests/integration/graph/edge-removal/setup.ts',
-        'tests/graph/tests/integration/graph/edge-removal/helpers.ts',
-        'tests/graph/tests/integration/graph/edge-removal/abstract-edge-removal-test.ts',
-        'tests/graph/tests/integration/graph.ts',
         'packages/json-api/src/-private/cache.ts',
         'packages/model/src/index.ts',
         'packages/model/src/-private/util.ts',

@@ -1,14 +1,14 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
-module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) {
+import { deprecatedTest } from '../../setup-test';
+
+module('Integration | Graph | Diff Preservation', function (hooks) {
   setupTest(hooks);
 
   deprecatedTest(
@@ -18,7 +18,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
       until: '6.0.0',
       count: 1,
     },
-    function (assert: Assert) {
+    function (assert) {
       const { owner } = this;
 
       class App extends Model {
@@ -134,7 +134,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
   );
 
   if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
-    test('updateRelationship operation from the collection side does not clear local state', function (assert: Assert) {
+    test('updateRelationship operation from the collection side does not clear local state', function (assert) {
       // tests that Many:Many, Many:One do not clear local state from
       // either side when updating the relationship from the Many side
       const { owner } = this;
@@ -450,7 +450,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
       });
     });
 
-    test('updateRelationship operation from the belongsTo side does not clear local state', function (assert: Assert) {
+    test('updateRelationship operation from the belongsTo side does not clear local state', function (assert) {
       // tests that One:Many, One:One do not clear local state from
       // either side when updating the relationship from the One side
       const { owner } = this;
@@ -564,7 +564,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
       // assert app relationships
       let configRelationship = graph.getData(appIdentifier, 'config');
-      assert.strictEqual(configRelationship.data, null, 'config is correct');
+      assert.equal(configRelationship.data, null, 'config is correct');
       let clusterRelationship = graph.getData(appIdentifier, 'cluster');
       assert.deepEqual(clusterRelationship.data, null, 'cluster is correct');
       let namespaceRelationship = graph.getData(appIdentifier, 'namespace');
@@ -572,7 +572,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
       // assert config relationships
       let appRelationship = graph.getData(configIdentifier, 'app');
-      assert.strictEqual(appRelationship.data, null, 'config app relationship is correct');
+      assert.equal(appRelationship.data, null, 'config app relationship is correct');
       let clusterAppRelationship = graph.getData(clusterIdentifier, 'app');
       assert.deepEqual(clusterAppRelationship.data, identifier('app', '3'), 'cluster app relationship is correct');
       let namespaceAppsRelationship = graph.getData(namespaceIdentifier, 'apps');
@@ -613,7 +613,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
       // assert app relationships
       configRelationship = graph.getData(appIdentifier, 'config');
-      assert.strictEqual(configRelationship.data, null, 'config is correct');
+      assert.equal(configRelationship.data, null, 'config is correct');
       clusterRelationship = graph.getData(appIdentifier, 'cluster');
       assert.deepEqual(clusterRelationship.data, null, 'cluster is correct');
       namespaceRelationship = graph.getData(appIdentifier, 'namespace');
@@ -621,7 +621,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
       // assert config relationships
       appRelationship = graph.getData(configIdentifier, 'app');
-      assert.strictEqual(appRelationship.data, null, 'config app relationship is correct');
+      assert.equal(appRelationship.data, null, 'config app relationship is correct');
       clusterAppRelationship = graph.getData(clusterIdentifier, 'app');
       assert.deepEqual(clusterAppRelationship.data, identifier('app', '3'), 'cluster app relationship is correct');
       namespaceAppsRelationship = graph.getData(namespaceIdentifier, 'apps');
@@ -656,7 +656,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
       // Ensure our state is still the same
       // assert app relationships
       configRelationship = graph.getData(appIdentifier, 'config');
-      assert.strictEqual(configRelationship.data, null, 'config is correct');
+      assert.equal(configRelationship.data, null, 'config is correct');
       clusterRelationship = graph.getData(appIdentifier, 'cluster');
       assert.deepEqual(clusterRelationship.data, null, 'cluster is correct');
       namespaceRelationship = graph.getData(appIdentifier, 'namespace');
@@ -664,7 +664,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
       // assert config relationships
       appRelationship = graph.getData(configIdentifier, 'app');
-      assert.strictEqual(appRelationship.data, null, 'config app relationship is correct');
+      assert.equal(appRelationship.data, null, 'config app relationship is correct');
       clusterAppRelationship = graph.getData(clusterIdentifier, 'app');
       assert.deepEqual(clusterAppRelationship.data, identifier('app', '3'), 'cluster app relationship is correct');
       namespaceAppsRelationship = graph.getData(namespaceIdentifier, 'apps');
@@ -710,7 +710,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
       // assert app relationships
       configRelationship = graph.getData(appIdentifier, 'config');
-      assert.strictEqual(configRelationship.data, configIdentifier, 'config is correct');
+      assert.equal(configRelationship.data, configIdentifier, 'config is correct');
       clusterRelationship = graph.getData(appIdentifier, 'cluster');
       assert.deepEqual(clusterRelationship.data, clusterIdentifier, 'cluster is correct');
       namespaceRelationship = graph.getData(appIdentifier, 'namespace');
@@ -718,7 +718,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
       // assert config relationships
       appRelationship = graph.getData(configIdentifier, 'app');
-      assert.strictEqual(appRelationship.data, appIdentifier, 'config app relationship is correct');
+      assert.equal(appRelationship.data, appIdentifier, 'config app relationship is correct');
       clusterAppRelationship = graph.getData(clusterIdentifier, 'app');
       assert.deepEqual(clusterAppRelationship.data, appIdentifier, 'cluster app relationship is correct');
       namespaceAppsRelationship = graph.getData(namespaceIdentifier, 'apps');
@@ -730,7 +730,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
     });
   }
 
-  test('updateRelationship operation from the collection side does not clear local state when `resetOnRemoteUpdate: false` is set', function (assert: Assert) {
+  test('updateRelationship operation from the collection side does not clear local state when `resetOnRemoteUpdate: false` is set', function (assert) {
     // tests that Many:Many, Many:One do not clear local state from
     // either side when updating the relationship from the Many side
     // we set the flag on the inverse to ensure that we detect this
@@ -1048,7 +1048,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
     });
   });
 
-  test('updateRelationship operation from the belongsTo side does not clear local state when `resetOnRemoteUpdate: false` is set', function (assert: Assert) {
+  test('updateRelationship operation from the belongsTo side does not clear local state when `resetOnRemoteUpdate: false` is set', function (assert) {
     // tests that One:Many, One:One do not clear local state from
     // either side when updating the relationship from the One side
     // we set the flag on the inverse to ensure that we detect this
@@ -1164,7 +1164,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
     // assert app relationships
     let configRelationship = graph.getData(appIdentifier, 'config');
-    assert.strictEqual(configRelationship.data, null, 'config is correct');
+    assert.equal(configRelationship.data, null, 'config is correct');
     let clusterRelationship = graph.getData(appIdentifier, 'cluster');
     assert.deepEqual(clusterRelationship.data, null, 'cluster is correct');
     let namespaceRelationship = graph.getData(appIdentifier, 'namespace');
@@ -1172,7 +1172,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
     // assert config relationships
     let appRelationship = graph.getData(configIdentifier, 'app');
-    assert.strictEqual(appRelationship.data, null, 'config app relationship is correct');
+    assert.equal(appRelationship.data, null, 'config app relationship is correct');
     let clusterAppRelationship = graph.getData(clusterIdentifier, 'app');
     assert.deepEqual(clusterAppRelationship.data, identifier('app', '3'), 'cluster app relationship is correct');
     let namespaceAppsRelationship = graph.getData(namespaceIdentifier, 'apps');
@@ -1213,7 +1213,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
     // assert app relationships
     configRelationship = graph.getData(appIdentifier, 'config');
-    assert.strictEqual(configRelationship.data, null, 'config is correct');
+    assert.equal(configRelationship.data, null, 'config is correct');
     clusterRelationship = graph.getData(appIdentifier, 'cluster');
     assert.deepEqual(clusterRelationship.data, null, 'cluster is correct');
     namespaceRelationship = graph.getData(appIdentifier, 'namespace');
@@ -1221,7 +1221,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
     // assert config relationships
     appRelationship = graph.getData(configIdentifier, 'app');
-    assert.strictEqual(appRelationship.data, null, 'config app relationship is correct');
+    assert.equal(appRelationship.data, null, 'config app relationship is correct');
     clusterAppRelationship = graph.getData(clusterIdentifier, 'app');
     assert.deepEqual(clusterAppRelationship.data, identifier('app', '3'), 'cluster app relationship is correct');
     namespaceAppsRelationship = graph.getData(namespaceIdentifier, 'apps');
@@ -1256,7 +1256,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
     // Ensure our state is still the same
     // assert app relationships
     configRelationship = graph.getData(appIdentifier, 'config');
-    assert.strictEqual(configRelationship.data, null, 'config is correct');
+    assert.equal(configRelationship.data, null, 'config is correct');
     clusterRelationship = graph.getData(appIdentifier, 'cluster');
     assert.deepEqual(clusterRelationship.data, null, 'cluster is correct');
     namespaceRelationship = graph.getData(appIdentifier, 'namespace');
@@ -1264,7 +1264,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
     // assert config relationships
     appRelationship = graph.getData(configIdentifier, 'app');
-    assert.strictEqual(appRelationship.data, null, 'config app relationship is correct');
+    assert.equal(appRelationship.data, null, 'config app relationship is correct');
     clusterAppRelationship = graph.getData(clusterIdentifier, 'app');
     assert.deepEqual(clusterAppRelationship.data, identifier('app', '3'), 'cluster app relationship is correct');
     namespaceAppsRelationship = graph.getData(namespaceIdentifier, 'apps');
@@ -1310,7 +1310,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
     // assert app relationships
     configRelationship = graph.getData(appIdentifier, 'config');
-    assert.strictEqual(configRelationship.data, configIdentifier, 'config is correct');
+    assert.equal(configRelationship.data, configIdentifier, 'config is correct');
     clusterRelationship = graph.getData(appIdentifier, 'cluster');
     assert.deepEqual(clusterRelationship.data, clusterIdentifier, 'cluster is correct');
     namespaceRelationship = graph.getData(appIdentifier, 'namespace');
@@ -1318,7 +1318,7 @@ module('Integration | Graph | Diff Preservation', function (hooks: NestedHooks) 
 
     // assert config relationships
     appRelationship = graph.getData(configIdentifier, 'app');
-    assert.strictEqual(appRelationship.data, appIdentifier, 'config app relationship is correct');
+    assert.equal(appRelationship.data, appIdentifier, 'config app relationship is correct');
     clusterAppRelationship = graph.getData(clusterIdentifier, 'app');
     assert.deepEqual(clusterAppRelationship.data, appIdentifier, 'cluster app relationship is correct');
     namespaceAppsRelationship = graph.getData(namespaceIdentifier, 'apps');

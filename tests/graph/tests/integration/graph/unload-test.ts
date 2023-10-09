@@ -1,6 +1,4 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import { graphFor } from '@ember-data/graph/-private';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
@@ -8,6 +6,7 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 module('Integration | Graph | Unload', function (hooks) {
   setupTest(hooks);
@@ -55,12 +54,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
           store._join(() => {
@@ -129,12 +128,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         const first = order[0];
         const rest = order.slice(1);
@@ -217,12 +216,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
           store._join(() => {
@@ -297,12 +296,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         const first = order[0];
         const rest = order.slice(1);
@@ -391,12 +390,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
           store._join(() => {
@@ -465,12 +464,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         const first = order[0];
         const rest = order.slice(1);
@@ -553,12 +552,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
           store._join(() => {
@@ -633,12 +632,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         const first = order[0];
         const rest = order.slice(1);
@@ -727,12 +726,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
           store._join(() => {
@@ -801,12 +800,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         const first = order[0];
         const rest = order.slice(1);
@@ -889,12 +888,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
           store._join(() => {
@@ -969,12 +968,12 @@ module('Integration | Graph | Unload', function (hooks) {
         const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
         const worstFriend = graph.get(identifier, 'worstFriend') as ResourceEdge;
 
-        assert.strictEqual(bestFriend.localState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
-        assert.strictEqual(worstFriend.localState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
-        assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-        assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend.localState, identifier2, 'precond - bestFriend is set');
+        assert.equal(bestFriend.remoteState, identifier2, 'precond - bestFriend is set');
+        assert.equal(worstFriend.localState, identifier3, 'precond - worstFriend is set');
+        assert.equal(worstFriend.remoteState, identifier3, 'precond - worstFriend is set');
+        assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+        assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         const first = order[0];
         const rest = order.slice(1);
@@ -1064,12 +1063,12 @@ module('Integration | Graph | Unload', function (hooks) {
       const bestFriend2 = graph.get(identifier2, 'bestFriend') as ResourceEdge;
       const worstFriend3 = graph.get(identifier3, 'worstFriend') as ResourceEdge;
 
-      assert.strictEqual(bestFriend2.localState, identifier, 'precond - bestFriend is set');
-      assert.strictEqual(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
-      assert.strictEqual(worstFriend3.localState, identifier, 'precond - worstFriend is set');
-      assert.strictEqual(worstFriend3.remoteState, identifier, 'precond - worstFriend is set');
-      assert.strictEqual(bestFriend.localState, null, 'precond - bestFriend is not set');
-      assert.strictEqual(bestFriend.remoteState, null, 'precond - bestFriend is not set');
+      assert.equal(bestFriend2.localState, identifier, 'precond - bestFriend is set');
+      assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
+      assert.equal(worstFriend3.localState, identifier, 'precond - worstFriend is set');
+      assert.equal(worstFriend3.remoteState, identifier, 'precond - worstFriend is set');
+      assert.equal(bestFriend.localState, null, 'precond - bestFriend is not set');
+      assert.equal(bestFriend.remoteState, null, 'precond - bestFriend is not set');
 
       store._join(() => {
         graph.push({

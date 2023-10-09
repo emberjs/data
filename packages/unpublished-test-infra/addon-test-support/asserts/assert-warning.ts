@@ -1,6 +1,6 @@
 import { registerWarnHandler } from '@ember/debug';
 
-import QUnit from 'qunit';
+import type Assert from 'ember-data-qunit-asserts';
 
 import { DEBUG } from '@ember-data/env';
 
@@ -11,7 +11,7 @@ let HAS_REGISTERED = false;
 let WARNINGS_FOR_TEST: FoundWarning[];
 let HANDLED_WARNINGS_FOR_TEST: FoundWarning[];
 
-interface WarningConfig {
+export interface WarningConfig {
   id: string;
   count?: number;
   until?: string;
@@ -101,94 +101,94 @@ function verifyNoWarning(label?: string): AssertNoneResult {
   };
 }
 
-export function configureWarningHandler() {
-  if (HAS_REGISTERED === true) {
-    throw new Error(`Attempting to re-register the assert-warning handler`);
+export function configureWarningHandler(assert: Assert) {
+  if (HAS_REGISTERED !== true) {
+    registerWarnHandler(function (message, options /*, next*/) {
+      if (WARNINGS_FOR_TEST && options) {
+        WARNINGS_FOR_TEST.push({ message, options });
+      }
+      // we do not call next to avoid spamming the console
+    });
+    HAS_REGISTERED = true;
   }
-  HAS_REGISTERED = true;
 
-  QUnit.testStart(function () {
+  WARNINGS_FOR_TEST = [];
+  HANDLED_WARNINGS_FOR_TEST = [];
+
+  assert.expectWarning = expectWarning;
+  assert.expectNoWarning = expectNoWarning;
+}
+
+async function expectWarning(
+  this: Assert,
+  cb: () => unknown,
+  config: string | RegExp | WarningConfig,
+  label?: string
+): Promise<void> {
+  let origWarnings = WARNINGS_FOR_TEST;
+  let callback: (() => unknown) | null = null;
+
+  if (typeof cb !== 'function') {
+    config = cb;
+    callback = null;
+  } else {
+    callback = cb;
+  }
+
+  if (typeof config === 'string' || config instanceof RegExp) {
+    config = {
+      id: 'unknown-data-warning',
+      count: 1,
+      message: config,
+      until: '4.0',
+    };
+  }
+
+  if (callback) {
     WARNINGS_FOR_TEST = [];
-    HANDLED_WARNINGS_FOR_TEST = [];
-  });
-
-  registerWarnHandler(function (message, options /*, next*/) {
-    if (WARNINGS_FOR_TEST && options) {
-      WARNINGS_FOR_TEST.push({ message, options });
+    let result = callback();
+    if (isThenable(result)) {
+      await result;
     }
-    // we do not call next to avoid spamming the console
-  });
+  }
 
-  QUnit.assert.expectWarning = async function (
-    cb: () => unknown,
-    config: string | RegExp | WarningConfig,
-    label?: string
-  ): Promise<void> {
-    let origWarnings = WARNINGS_FOR_TEST;
-    let callback: (() => unknown) | null = null;
+  let result = verifyWarning(config, label);
 
-    if (typeof cb !== 'function') {
-      config = cb;
-      callback = null;
-    } else {
-      callback = cb;
+  if (!DEBUG) {
+    result = {
+      result: true,
+      actual: { id: config.id, count: 0 },
+      expected: { id: config.id, count: 0 },
+      message: `Warnings do not trigger in production environments`,
+    };
+  }
+
+  this.pushResult(result);
+  WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
+}
+
+async function expectNoWarning(this: Assert, cb: () => void | Promise<void>, label?: string) {
+  let origWarnings = WARNINGS_FOR_TEST;
+
+  if (cb) {
+    WARNINGS_FOR_TEST = [];
+    let result = cb();
+    if (isThenable(result)) {
+      await result;
     }
+  }
 
-    if (typeof config === 'string' || config instanceof RegExp) {
-      config = {
-        id: 'unknown-data-warning',
-        count: 1,
-        message: config,
-        until: '4.0',
-      };
-    }
+  let result = verifyNoWarning(label);
 
-    if (callback) {
-      WARNINGS_FOR_TEST = [];
-      let result = callback();
-      if (isThenable(result)) {
-        await result;
-      }
-    }
+  if (!DEBUG) {
+    result = {
+      result: true,
+      actual: [],
+      expected: [],
+      message: `Warnings do not trigger in production environments`,
+    };
+  }
 
-    let result = verifyWarning(config, label);
-
-    if (!DEBUG) {
-      result = {
-        result: true,
-        actual: { id: config.id, count: 0 },
-        expected: { id: config.id, count: 0 },
-        message: `Warnings do not trigger in production environments`,
-      };
-    }
-
-    this.pushResult(result);
-    WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
-  };
-
-  QUnit.assert.expectNoWarning = async function (cb, label?: string) {
-    let origWarnings = WARNINGS_FOR_TEST;
-
-    if (cb) {
-      WARNINGS_FOR_TEST = [];
-      let result = cb();
-      if (isThenable(result)) {
-        await result;
-      }
-    }
-
-    let result = verifyNoWarning(label);
-
-    if (!DEBUG) {
-      result = {
-        result: true,
-        actual: [],
-        expected: [],
-        message: `Warnings do not trigger in production environments`,
-      };
-    }
-
-    this.pushResult(result);
-    WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
-  };
+  this.pushResult(result);
+  WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
 }

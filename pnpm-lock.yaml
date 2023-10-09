@@ -2409,9 +2409,18 @@ importers:
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.0)(ember-source@5.3.0)(webpack@5.88.2)
+      '@embroider/compat':
+        specifier: ^3.2.3
+        version: 3.2.3(@embroider/core@3.3.0)
+      '@embroider/core':
+        specifier: ^3.3.0
+        version: 3.3.0
       '@embroider/macros':
         specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.23.0)
+      '@embroider/webpack':
+        specifier: ^3.2.0
+        version: 3.2.0(@embroider/core@3.3.0)(webpack@5.88.2)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.0)
@@ -2421,6 +2430,9 @@ importers:
       '@types/ember__owner':
         specifier: ^4.0.6
         version: 4.0.6
+      '@warp-drive/diagnostic':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/diagnostic
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2466,9 +2478,6 @@ importers:
       ember-maybe-import-regenerator:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.23.0)
-      ember-qunit:
-        specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.0)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.0)(ember-source@5.3.0)
@@ -2484,15 +2493,6 @@ importers:
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
-      qunit:
-        specifier: 2.19.4
-        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
-      qunit-console-grouper:
-        specifier: ^0.3.0
-        version: 0.3.0
-      qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -2519,6 +2519,8 @@ importers:
       '@ember-data/tracking':
         injected: true
       '@ember-data/unpublished-test-infra':
+        injected: true
+      '@warp-drive/diagnostic':
         injected: true
 
   tests/json-api:

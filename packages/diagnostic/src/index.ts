@@ -14,6 +14,8 @@ const Modules: OrderedMap<ModuleInfo> = {
   byOrder: []
 }
 
+export type { Diagnostic, Hooks as NestedHooks, GlobalHooks, TestContext } from './-types';
+
 export function module(name: string, cb: ModuleCallback): void {
   const parentModule = getCurrentModule() ?? null;
   let moduleName = name;

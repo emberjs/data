@@ -1,7 +1,7 @@
 import { getChain } from "../-utils";
 import { ModuleInfo, HooksCallback, TestInfo, } from "../-types";
 import { TestReport, ModuleReport } from "../-types/report";
-import { Diagnostic } from "../internals/diagnostic";
+import { Diagnostic } from "./diagnostic";
 import { Config, groupLogs, instrument } from "./config";
 import { DelegatingReporter } from "./delegating-reporter";
 
@@ -35,7 +35,6 @@ export async function runTest(beforeChain: HooksCallback[], test: TestInfo, afte
     DelegatingReporter.onTestFinish(testReport);
     return;
   }
-
 
   for (const hook of beforeChain) {
     await hook.call(testContext, Assert);
@@ -90,8 +89,8 @@ export async function runModule(module: ModuleInfo, parents: ModuleInfo[] | null
   }
 
   // run tests
-  const beforeChain = getChain(module, parents, 'beforeEach');
-  const afterChain = getChain(module, parents, 'afterEach');
+  const beforeChain = getChain(Config.globalHooks, module, parents, 'beforeEach');
+  const afterChain = getChain(Config.globalHooks, module, parents, 'afterEach');
   for (const test of module.tests.byOrder) {
     await runTest(beforeChain, test, afterChain);
   }
