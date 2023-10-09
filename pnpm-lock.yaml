@@ -1650,7 +1650,7 @@ importers:
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
     dependenciesMeta:
       '@ember-data/private-build-infra':
-        injected: 'true'
+        injected: true
 
   tests/blueprints:
     devDependencies:
