@@ -1,31 +1,9 @@
-import { settled } from '@ember/test-helpers';
-
-import { module, test as runTest } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import type { TestConfig } from './helpers';
 import { setInitialState, testFinalState } from './helpers';
 import type { Context } from './setup';
 import { setupGraphTest } from './setup';
-
-/**
- * qunit-console-grouper groups by test but includes setup/teardown
- * and in-test as all one block. Adding this grouping allows us to
- * clearly notice when a log came during the test vs during setup/teardown.
- *
- * We should upstream this behavior to qunit-console-grouper
- */
-async function test(name: string, callback) {
-  const fn = async function (this: Context, ...args) {
-    console.groupCollapsed(name); // eslint-disable-line no-console
-    try {
-      await callback.call(this, ...args);
-    } finally {
-      console.groupEnd(); // eslint-disable-line no-console
-      console.log(`====(Begin Test Teardown)====`); // eslint-disable-line no-console
-    }
-  };
-  return runTest(name, fn);
-}
 
 module('Integration | Graph | Edge Removal', function (hooks) {
   setupGraphTest(hooks);
@@ -103,8 +81,8 @@ module('Integration | Graph | Edge Removal', function (hooks) {
         // now we delete
         john.deleteRecord();
 
-        // just in case there is a backburner flush
-        await settled();
+        // just in case there is async work
+        await Promise.resolve();
 
         /**
          * For deletions, since no state change has been persisted, we expect the cache to still
@@ -116,7 +94,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
          * However: for a newly created record any form of rollback, unload or persisted delete
          * will result in it being destroyed and cleared
          */
-        await testFinalState(
+        testFinalState(
           this,
           testState,
           config,
@@ -147,8 +125,8 @@ module('Integration | Graph | Edge Removal', function (hooks) {
         // now we unload
         john.unloadRecord();
 
-        // just in case there is a backburner flush
-        await settled();
+        // just in case there is async work
+        await Promise.resolve();
 
         /**
          * For unload, we treat it as a persisted deletion for new records and for sync relationships and
@@ -178,7 +156,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
         // we clear new records, or sync non-implicit relationships (client side delete semantics)
         let cleared = config.useCreate || (!config.async && !config.inverseNull);
 
-        await testFinalState(this, testState, config, { removed, cleared, implicitCleared: true }, assert);
+        testFinalState(this, testState, config, { removed, cleared, implicitCleared: true }, assert);
       });
     }
 
@@ -224,7 +202,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
         if (config.relType === 'hasMany' && !config.async && config.dirtyLocal) {
           cleared = false;
         }
-        await testFinalState(this, testState, config, { removed: true, cleared, implicitCleared: true }, assert);
+        testFinalState(this, testState, config, { removed: true, cleared, implicitCleared: true }, assert);
       });
     }
 
@@ -252,9 +230,10 @@ module('Integration | Graph | Edge Removal', function (hooks) {
           await john.save();
           john.unloadRecord();
 
-          await settled();
+          // just in case there is async work
+          await Promise.resolve();
 
-          await testFinalState(this, testState, config, { removed: true, cleared: true }, assert);
+          testFinalState(this, testState, config, { removed: true, cleared: true }, assert);
         });
       }
 

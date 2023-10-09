@@ -1,4 +1,6 @@
-import { type TestContext } from '@ember/test-helpers';
+import { TestContext } from '@ember/test-helpers';
+
+import type Assert from 'ember-data-qunit-asserts';
 
 import type Store from '@ember-data/store';
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
@@ -11,7 +13,7 @@ type NotificationStorage = Map<
   Map<NotificationType | CacheOperation, Counter | Map<string | symbol, Counter>>
 >;
 
-export function getCounter(
+function getCounter(
   context: TestContext,
   identifier: StableRecordIdentifier | StableDocumentIdentifier,
   bucket: NotificationType | CacheOperation,
@@ -53,7 +55,7 @@ export function getCounter(
   return counter;
 }
 
-export function clearNotifications(context: TestContext) {
+function clearNotifications(context: TestContext) {
   const storage = (context as unknown as { _notifications: NotificationStorage })._notifications;
   if (!storage) {
     throw new Error(`setupNotifications must be called before calling notified`);
@@ -61,9 +63,7 @@ export function clearNotifications(context: TestContext) {
   storage.clear();
 }
 
-export function setupNotifications(context: TestContext) {
-  const { owner } = context;
-  const store = owner.lookup('service:store') as unknown as Store;
+function setupNotifications(context: TestContext, store: Store) {
   (context as unknown as { _notifications: NotificationStorage })._notifications = new Map();
 
   const notifications = store.notifications;
@@ -79,5 +79,38 @@ export function setupNotifications(context: TestContext) {
 
     // @ts-expect-error TS is bad at curried overloads
     return originalNotify.apply(notifications, [identifier, bucket, key]);
+  };
+}
+
+export function configureNotificationsAssert(this: TestContext, assert: Assert) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const context = this;
+
+  assert.watchNotifications = function (store?: Store) {
+    store = store ?? (context.owner.lookup('service:store') as unknown as Store);
+    setupNotifications(context, store);
+  };
+
+  assert.notified = function (
+    this: Assert,
+    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    bucket: NotificationType | CacheOperation,
+    key: string | null,
+    count: number
+  ) {
+    const counter = getCounter(context, identifier, bucket, key);
+
+    this.pushResult({
+      result: counter.count === count,
+      actual: counter.count,
+      expected: count,
+      message: `Expected ${count} ${bucket} notifications for ${identifier.lid} ${key || ''}, got ${counter.count}`,
+    });
+
+    counter.count = 0;
+  };
+
+  assert.clearNotifications = function () {
+    clearNotifications(context);
   };
 }

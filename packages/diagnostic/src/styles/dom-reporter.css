@@ -1,0 +1,253 @@
+:root {
+  --primary-color: #302AE6;
+  --secondary-color: #536390;
+  --font-color: #424242;
+  --bg-color: #fff;
+  --heading-color: #17abab;
+  --heading-2-color: #e617ab;
+  --brand-pink: 317, 82%;
+  --brand-green: 180, 76%;
+  --brand-blue: 212, 92%;
+  --brand-yellow: #deb008;
+  --brand-main: var(--brand-green);
+  --brand-secondary: var(--brand-pink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: 212, 92%;
+    --secondary-color: #536390;
+    --heading-3-color: #deb008;
+    --heading-4-color: #0868de;
+    --heading-2-color: #999;
+    --font-color: #fff;
+    --bg-color: #191919;
+    --bg-color-2: #222222;
+    --bg-color-3: #292929;
+    --heading-color: #292922;
+  }
+}
+
+@keyframes pulseBlue {
+  0% {
+    border-color: var(--bg-color);
+    border-width: 0px;
+  }
+
+  100% {
+    border-color: hsl(var(--primary-color), 60%);
+    border-width: .5rem;
+  }
+}
+
+@keyframes pulseBlueThin {
+  0% {
+    border-color: var(--bg-color);
+  }
+
+  100% {
+    border-color: hsl(var(--primary-color), 60%);
+  }
+}
+
+@keyframes pulseGreenSoft {
+  from {
+    color: hsl(var(--brand-main), 30%);
+  }
+
+  to {
+    color: hsl(var(--brand-main), 70%);
+  }
+}
+
+@keyframes pulseBlueSoft {
+  from {
+    color: hsl(var(--primary-color), 30%);
+  }
+
+  to {
+    color: hsl(var(--primary-color), 70%);
+  }
+}
+@keyframes pulsePinkSoft {
+  from {
+    color: hsl(var(--brand-secondary), 30%);
+  }
+
+  to {
+    color: hsl(var(--brand-secondary), 70%);
+  }
+}
+
+html {
+  font-size: 125%;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+body {
+  font-size: .75rem;
+}
+
+
+#warp-drive__diagnostic, #warp-drive__diagnostic * {
+  box-sizing: border-box;
+}
+
+#warp-drive__diagnostic {
+  color: var(--font-color);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  width: 100%;
+  position: relative;
+  min-height: 100%;
+  line-height: 1.5em;
+  background-color: var(--bg-color);
+  background-size: 1.5em 1.5em;
+  background-image:
+  linear-gradient(to right, var(--bg-color-2) .1em, transparent 1px),
+  linear-gradient(to bottom, var(--bg-color-2) .1em, transparent 1px);
+}
+
+#warp-drive__diagnostic h2 {
+  font-size: 1.25em;
+  font-weight: normal;
+  color: var(--heading-2-color);
+  margin: 0;
+  padding: 0;
+  line-height: 1.25rem;
+  margin: .25rem 0 1rem;
+}
+
+#warp-drive__diagnostic h1 {
+  font-size: 1.5em;
+  font-weight: normal;
+  color: var(--heading-color);
+  margin: 0;
+  padding: 0;
+  line-height: 3rem;
+  float: left;
+  display: block;
+}
+
+#warp-drive__diagnostic-header {
+  min-width: 800px;
+}
+
+#warp-drive__diagnostic-header ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  float: right;
+  top: 0;
+  width: calc(100% - 250px);
+}
+
+#warp-drive__diagnostic-header ul li {
+  font-size: .85em;
+  float: right;
+  margin: .25em .5em;
+}
+
+#warp-drive__diagnostic-header {
+  height: 4.5rem;
+  padding: .5rem;
+  background: var(--bg-color-3);
+  box-shadow: 0 0 1rem rgba(0, 0, 0, .5);
+  border-bottom: .1rem solid hsl(var(--brand-blue), 50%);
+}
+
+#warp-drive__diagnostic h1 span.logo-main {
+  color: var(--brand-main);
+  font-weight: 500;
+  animation: pulseGreenSoft;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-out;
+}
+
+#warp-drive__diagnostic h1 span.logo-pink {
+  color: var(--brand-secondary);
+  font-weight: 300;
+  animation: pulsePinkSoft;
+  animation-duration: 3s;
+  animation-delay: .2s;
+  animation-fill-mode: backwards;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-out;
+}
+
+#warp-drive__diagnostic .text-blue {
+  color: var(--primary-color);
+  animation: pulseBlueSoft;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-out;
+}
+
+
+#warp-drive__diagnostic table {
+  border-collapse: separate;
+  border-spacing: 0 .1rem;
+  width: 100%;
+  padding: 1rem;
+}
+
+#warp-drive__diagnostic table tr {
+  color: lightgrey;
+  font-size: .85em;
+  line-height: 1rem;
+  text-align: left;
+  vertical-align: middle;
+  height: 1.2rem;
+  padding: .1rem;
+}
+
+#warp-drive__diagnostic table tr td strong {
+  color: gray;
+}
+
+#warp-drive__diagnostic table tr td a {
+  color: lightblue;
+}
+
+#warp-drive__diagnostic table tr td:first-of-type {
+  border-radius: .1rem 0 0 .1rem;
+  padding-left: .5rem;
+}
+#warp-drive__diagnostic table tr td:last-of-type {
+  padding-right: .5rem;
+  border-radius: 0 .1rem .1rem 0;
+}
+#warp-drive__diagnostic table tr:nth-last-of-type(even) {
+  background: rgba(0,0,0, .8);
+}
+#warp-drive__diagnostic table tr:nth-last-of-type(odd) {
+  background: rgba(0,0,0, .8);
+}
+#warp-drive__diagnostic table tr.passed td:nth-child(2) {
+  color: green;
+}
+#warp-drive__diagnostic table tr.skipped td:nth-child(2) {
+  color: yellow;
+}
+#warp-drive__diagnostic table tr.todo td:nth-child(2) {
+  color: cyan;
+}
+#warp-drive__diagnostic table tr.failed td:nth-child(2) {
+  color: red;
+}
+#warp-drive__diagnostic table td:nth-child(3) {
+  color: yellow;
+  font-size: .75em;
+  line-height: .75rem;
+}

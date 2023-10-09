@@ -9,8 +9,18 @@ module.exports = function (defaults) {
 
   const config = {
     compatWith,
+    includeDataAdapterInProduction: true,
+    includeDataAdapter: true,
     debug: {
-      // LOG_GRAPH: true,
+      LOG_PAYLOADS: process.env.DEBUG_DATA ? true : false,
+      LOG_OPERATIONS: process.env.DEBUG_DATA ? true : false,
+      LOG_MUTATIONS: process.env.DEBUG_DATA ? true : false,
+      LOG_NOTIFICATIONS: process.env.DEBUG_DATA ? true : false,
+      LOG_REQUESTS: process.env.DEBUG_DATA ? true : false,
+      LOG_REQUEST_STATUS: process.env.DEBUG_DATA ? true : false,
+      LOG_IDENTIFIERS: process.env.DEBUG_DATA ? true : false,
+      LOG_GRAPH: process.env.DEBUG_DATA ? true : false,
+      LOG_INSTANCE_CACHE: process.env.DEBUG_DATA ? true : false,
     },
     deprecations: require('@ember-data/private-build-infra/src/deprecations')(compatWith || null),
     features: require('@ember-data/private-build-infra/src/features')(isProd),
@@ -41,12 +51,21 @@ module.exports = function (defaults) {
     },
   });
 
-  /*
-    This build file specifies the options for the dummy test app of this
-    addon, located in `/tests/dummy`
-    This build file does *not* influence how the addon or the app using it
-    behave. You most likely want to be modifying `./index.js` or app's build file
-  */
+  app.import('node_modules/@warp-drive/diagnostic/dist/styles/dom-reporter.css');
 
   return app.toTree();
+  // const { Webpack } = require('@embroider/webpack');
+
+  // return require('@embroider/compat').compatBuild(app, Webpack, {
+  //   // staticAddonTestSupportTrees: true,
+  //   // staticAddonTrees: true,
+  //   // staticHelpers: true,
+  //   // staticModifiers: true,
+  //   // staticComponents: true,
+  //   // staticEmberSource: true,
+  //   // splitAtRoutes: ['route.name'], // can also be a RegExp
+  //   //packagerOptions: {
+  //   //  webpackConfig: { }
+  //   // }
+  // });
 };

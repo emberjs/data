@@ -5,29 +5,15 @@ import { setup } from 'qunit-dom';
 
 import { start } from 'ember-qunit';
 
-import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-support/assert-all-deprecations';
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
-import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';
+import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
 
 import Application from '../app';
 import config from '../config/environment';
 
-// Handle testing feature flags
-if (QUnit.urlParams.enableoptionalfeatures) {
-  window.EmberDataENV = { ENABLE_OPTIONAL_FEATURES: true };
-}
-
 setup(QUnit.assert);
-
-configureAsserts();
+configureAsserts(QUnit.hooks);
 
 setApplication(Application.create(config.APP));
-
-assertAllDeprecations();
-
-if (window.Testem) {
-  window.Testem.useCustomAdapter(customQUnitAdapter);
-}
 
 QUnit.config.testTimeout = 2000;
 QUnit.config.urlConfig.push({

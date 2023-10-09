@@ -1,11 +1,9 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
-import { setupNotifications } from '@ember-data/unpublished-test-infra/test-support/setup-notifications';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 class App extends Model {
   @attr declare name: string;
@@ -43,7 +41,6 @@ module('Graph | Order Preservation', function (hooks) {
 
   module('during local mutation', function (innerHooks) {
     innerHooks.beforeEach(function (assert: Assert) {
-      setupNotifications(this);
       const { owner } = this;
 
       const store = owner.lookup('service:store') as Store;
@@ -130,8 +127,7 @@ module('Graph | Order Preservation', function (hooks) {
         graph.getData(groupIdentifier, 'apps');
       });
 
-      // start each test with a clean slate
-      assert.clearNotifications();
+      assert.watchNotifications();
     });
 
     test('order is preserved when doing a full replace of a hasMany', function (assert) {
@@ -638,7 +634,7 @@ module('Graph | Order Preservation', function (hooks) {
 
       // assert mutated state
       const config4State = graph.getData(identifier('config', '4'), 'app');
-      assert.strictEqual(config4State.data, appIdentifier, 'config 4 has the expected app');
+      assert.equal(config4State.data, appIdentifier, 'config 4 has the expected app');
 
       const configState2 = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -698,7 +694,7 @@ module('Graph | Order Preservation', function (hooks) {
 
       // assert mutated state
       const config1State = graph.getData(identifier('config', '1'), 'app');
-      assert.strictEqual(config1State.data, null, 'config 1 has the expected app');
+      assert.equal(config1State.data, null, 'config 1 has the expected app');
 
       const configState2 = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(

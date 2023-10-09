@@ -1,10 +1,9 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 module('Integration | Graph | Implicit Keys', function (hooks) {
   setupTest(hooks);
@@ -30,7 +29,7 @@ module('Integration | Graph | Implicit Keys', function (hooks) {
     const graph = graphFor(store);
     let user, product, organization;
 
-    assert.expectNoAssertion(() => {
+    await assert.expectNoAssertion(() => {
       [user, product, organization] = store.push({
         data: [
           {
@@ -67,6 +66,6 @@ module('Integration | Graph | Implicit Keys', function (hooks) {
     const productOrg = graph.get(productIdentifier, 'organization');
     const productImpl = graph.get(organizationIdentifier, productOrg.definition.inverseKey);
 
-    assert.notStrictEqual(userImpl, productImpl, 'We have separate implicit caches');
+    assert.notEqual(userImpl, productImpl, 'We have separate implicit caches');
   });
 });

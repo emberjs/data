@@ -19,9 +19,13 @@ declare global {
   }
 
   interface Assert {
-    expectDeprecation(options: { id: string; count: number; until?: string }): void;
-    expectDeprecation(callback: () => unknown, options: DeprecationConfig | string | RegExp): Promise<void>;
-    expectNoDeprecation(callback: () => unknown): Promise<void>;
+    expectDeprecation(options: DeprecationConfig, label?: string): void;
+    expectDeprecation(callback: () => void | Promise<void>, options: DeprecationConfig | string | RegExp, label?: string): Promise<void>;
+    expectNoDeprecation(
+      callback: () => void | Promise<void>,
+      label?: string,
+      filter?: (deprecation: FoundDeprecation) => boolean
+    ): Promise<void>;
     expectWarning(callback: () => unknown, options: WarningConfig | string | RegExp): Promise<void>;
     expectNoWarning(callback: () => unknown): Promise<void>;
     expectAssertion(callback: () => unknown, matcher: string | RegExp): Promise<void>;
@@ -45,14 +49,19 @@ declare global {
       count: number
     ): void;
 
+    watchNotifications(store?: unknown): void;
     clearNotifications(): void;
   }
 
   namespace QUnit {
     export interface Assert {
       expectDeprecation(options: { id: string; count: number; until?: string }): void;
-      expectDeprecation(callback: () => unknown, options: DeprecationConfig | string | RegExp): Promise<void>;
-      expectNoDeprecation(callback: () => unknown): Promise<void>;
+      expectDeprecation(callback: () => void | Promise<void>, options: DeprecationConfig | string | RegExp): Promise<void>;
+      expectNoDeprecation(
+        callback: () => void | Promise<void>,
+        label?: string,
+        filter?: (deprecation: FoundDeprecation) => boolean
+      ): Promise<void>;
       expectWarning(callback: () => unknown, options: WarningConfig | string | RegExp): Promise<void>;
       expectNoWarning(callback: () => unknown): Promise<void>;
       expectAssertion(callback: () => unknown, matcher: string | RegExp): Promise<void>;
@@ -65,6 +74,7 @@ declare global {
         count: number
       ): void;
 
+      watchNotifications(store?: unknown): void;
       clearNotifications(): void;
     }
   }

@@ -1,4 +1,4 @@
-import QUnit, { module } from 'qunit';
+import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
@@ -38,8 +38,8 @@ async function payloadError(owner, payload, expectedError, assert) {
 module('integration/store/json-validation', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function () {
-    QUnit.assert.payloadError = payloadError.bind(QUnit.assert);
+  hooks.beforeEach(function (assert) {
+    assert.payloadError = payloadError;
 
     const Person = Model.extend({
       updatedAt: attr('string'),
@@ -49,10 +49,6 @@ module('integration/store/json-validation', function (hooks) {
     });
 
     this.owner.register('model:person', Person);
-  });
-
-  hooks.afterEach(function () {
-    QUnit.assert.payloadError = null;
   });
 
   testInDebug("when normalizeResponse returns undefined (or doesn't return), throws an error", async function (assert) {

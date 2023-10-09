@@ -1,4 +1,6 @@
-import { setupTest } from 'ember-qunit';
+import { TestContext } from '@ember/test-helpers';
+
+import type { EmberHooks } from '@warp-drive/diagnostic';
 
 import { graphFor } from '@ember-data/graph/-private';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
@@ -16,6 +18,7 @@ import type {
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 class AbstractMap {
   constructor(
@@ -49,7 +52,7 @@ class AbstractGraph {
 
   getImplicit(identifier: StableRecordIdentifier): Record<string, ImplicitEdge> {
     const rels = graphFor(this.store).identifiers.get(identifier);
-    let implicits = Object.create(null);
+    let implicits = Object.create(null) as Record<string, ImplicitEdge>;
     if (rels) {
       Object.keys(rels).forEach((key) => {
         let rel = rels[key]!;
@@ -119,14 +122,14 @@ class Adapter {
     return Promise.resolve();
   }
   async deleteRecord() {
-    return { data: null };
+    return Promise.resolve({ data: null });
   }
 }
 class Serializer {
   static create() {
     return new this();
   }
-  normalizeResponse(_, __, data) {
+  normalizeResponse(_, __, data: unknown) {
     return data;
   }
 }
@@ -137,10 +140,9 @@ export interface UserRecord extends Model {
   bestFriends?: UserRecord[];
 }
 
-export interface Context {
+export interface Context extends TestContext {
   store: TestStore<UserRecord>;
   graph: AbstractGraph;
-  owner: any;
 }
 
 interface TestStore<T extends RecordInstance> extends Store {
@@ -150,12 +152,12 @@ interface TestStore<T extends RecordInstance> extends Store {
   push(data: JsonApiDocument): T | T[] | null;
 }
 
-export function setupGraphTest(hooks) {
+export function setupGraphTest(hooks: EmberHooks<Context>) {
   setupTest(hooks);
   hooks.beforeEach(function (this: Context) {
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', Serializer);
-    this.store = this.owner.lookup('service:store');
+    this.store = this.owner.lookup('service:store') as TestStore<UserRecord>;
     this.graph = graphForTest(this.store);
   });
 }

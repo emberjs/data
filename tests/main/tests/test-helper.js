@@ -9,9 +9,7 @@ import { setup } from 'qunit-dom';
 
 import start from 'ember-exam/test-support/start';
 
-import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-support/assert-all-deprecations';
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
-import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';
+import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
 
 import Application from '../app';
 import config from '../config/environment';
@@ -166,8 +164,7 @@ function setupMemoryTracking() {
 // so that it runs last. This also ensures we catch things
 // that don't use our custom test helpers.
 setupMemoryTracking();
-configureAsserts();
-assertAllDeprecations();
+configureAsserts(QUnit.hooks);
 
 QUnit.config.testTimeout = 2000;
 QUnit.dump.maxDepth = 6;
@@ -178,10 +175,6 @@ QUnit.hooks.beforeEach(function (assert) {
 QUnit.hooks.afterEach(function (assert) {
   setTestId(null);
 });
-
-if (window.Testem) {
-  window.Testem.useCustomAdapter(customQUnitAdapter);
-}
 
 setup(QUnit.assert);
 setApplication(Application.create(config.APP));
