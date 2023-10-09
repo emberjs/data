@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
@@ -13,9 +13,9 @@ module('RequestManager | Custom Abort', function () {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal');
-        assert.strictEqual(context.request.signal, controller.signal, 'we receive the correct signal');
+        assert.equal(context.request.signal, controller.signal, 'we receive the correct signal');
         // @ts-expect-error
-        assert.strictEqual(context.request.controller, undefined, 'we do not receive the controller');
+        assert.equal(context.request.controller, undefined, 'we do not receive the controller');
         const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
@@ -43,9 +43,9 @@ module('RequestManager | Custom Abort', function () {
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         const future = next(context.request);
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler1');
-        assert.strictEqual(context.request.signal, controller.signal, 'we receive the correct signal');
+        assert.equal(context.request.signal, controller.signal, 'we receive the correct signal');
         // @ts-expect-error
-        assert.strictEqual(context.request.controller, undefined, 'we do not receive the controller');
+        assert.equal(context.request.controller, undefined, 'we do not receive the controller');
         return (await future).content;
       },
     };
@@ -53,9 +53,9 @@ module('RequestManager | Custom Abort', function () {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler2');
-        assert.strictEqual(context.request.signal, controller.signal, 'we receive the correct signal');
+        assert.equal(context.request.signal, controller.signal, 'we receive the correct signal');
         // @ts-expect-error
-        assert.strictEqual(context.request.controller, undefined, 'we do not receive the controller');
+        assert.equal(context.request.controller, undefined, 'we do not receive the controller');
         const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;

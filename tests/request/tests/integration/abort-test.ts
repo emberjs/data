@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
@@ -125,11 +125,7 @@ module('RequestManager | Abort', function () {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive an abort signal in handler2');
-        assert.strictEqual(
-          context.request.signal,
-          controller.signal,
-          'we receive the expected abort signal in handler2'
-        );
+        assert.equal(context.request.signal, controller.signal, 'we receive the expected abort signal in handler2');
         resolvePre();
         await beforeFetch;
 
@@ -152,7 +148,7 @@ module('RequestManager | Abort', function () {
       assert.ok(false, 'aborting a request should result in the promise rejecting');
     } catch (e) {
       assert.true(e instanceof Error);
-      assert.strictEqual((e as Error).message, 'The user aborted a request.', 'We got the correct error');
+      assert.equal((e as Error).message, 'The user aborted a request.', 'We got the correct error');
     }
   });
 
@@ -182,11 +178,7 @@ module('RequestManager | Abort', function () {
       // @ts-expect-error
       async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive an abort signal in handler2');
-        assert.strictEqual(
-          context.request.signal,
-          controller.signal,
-          'we receive the expected abort signal in handler2'
-        );
+        assert.equal(context.request.signal, controller.signal, 'we receive the expected abort signal in handler2');
         resolvePre();
         await beforeFetch;
 
@@ -209,7 +201,7 @@ module('RequestManager | Abort', function () {
       assert.ok(false, 'aborting a request should result in the promise rejecting');
     } catch (e) {
       assert.true(e instanceof Error);
-      assert.strictEqual((e as Error).message, 'The user aborted a request.', 'We got the correct error');
+      assert.equal((e as Error).message, 'The user aborted a request.', 'We got the correct error');
       assert.false(signal.aborted, 'The root signal is not aborted');
     }
   });

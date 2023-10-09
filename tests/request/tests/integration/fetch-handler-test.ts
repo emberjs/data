@@ -1,6 +1,6 @@
+import { module, test } from '@warp-drive/diagnostic';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
-import { module, test } from 'qunit';
 
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
@@ -103,11 +103,11 @@ module('RequestManager | Fetch Handler', function (hooks) {
     } catch (e) {
       isNetworkError(e);
       assert.true(e instanceof AggregateError, 'The error is an AggregateError');
-      assert.strictEqual(e.message, '[404] - https://localhost:1135/users/1', 'The error message is correct');
-      assert.strictEqual(e.status, 404, 'The error status is correct');
-      assert.strictEqual(e.statusText, 'Not Found', 'The error statusText is correct');
-      assert.strictEqual(e.code, 404, 'The error code is correct');
-      assert.strictEqual(e.name, 'NotFoundError', 'The error code is correct');
+      assert.equal(e.message, '[404] - https://localhost:1135/users/1', 'The error message is correct');
+      assert.equal(e.status, 404, 'The error status is correct');
+      assert.equal(e.statusText, 'Not Found', 'The error statusText is correct');
+      assert.equal(e.code, 404, 'The error code is correct');
+      assert.equal(e.name, 'NotFoundError', 'The error code is correct');
       assert.true(e.isRequestError, 'The error is a request error');
 
       // error.content is present
@@ -163,11 +163,11 @@ module('RequestManager | Fetch Handler', function (hooks) {
     } catch (e) {
       isNetworkError(e);
       assert.true(e instanceof DOMException, 'The error is a DOMException');
-      assert.strictEqual(e.message, 'The user aborted a request.', 'The error message is correct');
-      assert.strictEqual(e.status, 20, 'The error status is correct');
-      assert.strictEqual(e.statusText, 'Aborted', 'The error statusText is correct');
-      assert.strictEqual(e.code, 20, 'The error code is correct');
-      assert.strictEqual(e.name, 'AbortError', 'The error name is correct');
+      assert.equal(e.message, 'The user aborted a request.', 'The error message is correct');
+      assert.equal(e.status, 20, 'The error status is correct');
+      assert.equal(e.statusText, 'Aborted', 'The error statusText is correct');
+      assert.equal(e.code, 20, 'The error code is correct');
+      assert.equal(e.name, 'AbortError', 'The error name is correct');
       assert.true(e.isRequestError, 'The error is a request error');
     }
   });

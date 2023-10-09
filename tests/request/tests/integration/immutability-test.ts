@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
@@ -41,7 +41,7 @@ module('RequestManager | Immutability', function () {
       await manager.request({ url: '/foo', headers: new Headers([['foo', 'bar']]) });
       assert.ok(false, 'we should have erred');
     } catch (e) {
-      assert.strictEqual(
+      assert.equal(
         (e as Error).message,
         'Cannot Mutate Immutatable Headers, use headers.clone to get a copy',
         `expected ${(e as Error).message} to match the expected error`

@@ -104,7 +104,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['tests/json-api/**', 'tests/graph/**'],
+      files: ['tests/json-api/**', 'tests/graph/**', 'tests/request/**'],
       rules: {
         'qunit/no-assert-equal': 'off',
         'qunit/no-assert-logical-expression': 'off',

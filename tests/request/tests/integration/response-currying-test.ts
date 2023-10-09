@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
@@ -40,7 +40,9 @@ module('RequestManager | Response Currying', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
+          ['connection', 'keep-alive'],
           ['content-type', 'application/json; charset=UTF-8'],
+          ['keep-alive', 'timeout=5'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
           // ['last-modified', 'Tue, 22 Nov 2022 04:55:48 GMT'],
@@ -75,7 +77,7 @@ module('RequestManager | Response Currying', function () {
 
     const doc = await manager.request({ url: '../assets/demo-fetch.json' });
 
-    assert.strictEqual(doc.response, null, 'The response is processed correctly');
+    assert.equal(doc.response, null, 'The response is processed correctly');
   });
 
   test('We curry when we return directly', async function (assert) {
@@ -112,7 +114,9 @@ module('RequestManager | Response Currying', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
+          ['connection', 'keep-alive'],
           ['content-type', 'application/json; charset=UTF-8'],
+          ['keep-alive', 'timeout=5'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
           // ['last-modified', 'Tue, 22 Nov 2022 04:55:48 GMT'],
@@ -166,7 +170,9 @@ module('RequestManager | Response Currying', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
+          ['connection', 'keep-alive'],
           ['content-type', 'application/json; charset=UTF-8'],
+          ['keep-alive', 'timeout=5'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
           // ['last-modified', 'Tue, 22 Nov 2022 04:55:48 GMT'],
@@ -233,7 +239,9 @@ module('RequestManager | Response Currying', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
+          ['connection', 'keep-alive'],
           ['content-type', 'application/json; charset=UTF-8'],
+          ['keep-alive', 'timeout=5'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
           // ['last-modified', 'Tue, 22 Nov 2022 04:55:48 GMT'],
@@ -270,6 +278,6 @@ module('RequestManager | Response Currying', function () {
 
     const doc = await manager.request({ url: '../assets/demo-fetch.json' });
 
-    assert.strictEqual(doc.response, null, 'The response is processed correctly');
+    assert.equal(doc.response, null, 'The response is processed correctly');
   });
 });
