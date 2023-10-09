@@ -5,8 +5,8 @@
   --bg-color: #fff;
   --heading-color: #17abab;
   --heading-2-color: #e617ab;
-  --brand-pink: 317, 82%;
-  --brand-green: 180, 76%;
+  --brand-pink: hsl(317, 82%, 50%);
+  --brand-green: hsl(180, 76%, 50%);
   --brand-blue: 212, 92%;
   --brand-yellow: #deb008;
   --brand-main: var(--brand-green);
