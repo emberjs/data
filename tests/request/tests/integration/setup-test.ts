@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context as HandlerRequestContext } from '@ember-data/request/-private/context';
@@ -30,9 +30,9 @@ module('RequestManager | Basic Setup', function () {
       url: '/foos',
     };
     const result = await manager.request(req);
-    assert.strictEqual(calls, 1, 'we called our handler');
-    assert.strictEqual(JSON.stringify(result.request), JSON.stringify(req));
-    assert.strictEqual(result.content, 'success!', 'we returned the expected result');
+    assert.equal(calls, 1, 'we called our handler');
+    assert.equal(JSON.stringify(result.request), JSON.stringify(req));
+    assert.equal(result.content, 'success!', 'we returned the expected result');
   });
 
   test('We can register multiple handlers with `.use(<Handler[]>)`', async function (assert) {
@@ -58,10 +58,10 @@ module('RequestManager | Basic Setup', function () {
       url: '/foos',
     };
     const result = await manager.request<string>(req);
-    assert.strictEqual(calls, 1, 'we called our handler');
-    assert.strictEqual(callsB, 1, 'we called our next handler');
-    assert.strictEqual(JSON.stringify(result.request), JSON.stringify(req));
-    assert.strictEqual(result.content, 'success!', 'we returned the expected result');
+    assert.equal(calls, 1, 'we called our handler');
+    assert.equal(callsB, 1, 'we called our next handler');
+    assert.equal(JSON.stringify(result.request), JSON.stringify(req));
+    assert.equal(result.content, 'success!', 'we returned the expected result');
   });
 
   test('We can register the same handler more than once with `.use(<Handler[]>)`', async function (assert) {
@@ -84,8 +84,8 @@ module('RequestManager | Basic Setup', function () {
       url: '/foos',
     };
     const result = await manager.request<string>(req);
-    assert.strictEqual(calls, 2, 'we called our handler');
-    assert.strictEqual(JSON.stringify(result.request), JSON.stringify(req));
-    assert.strictEqual(result.content, 'success!', 'we returned the expected result');
+    assert.equal(calls, 2, 'we called our handler');
+    assert.equal(JSON.stringify(result.request), JSON.stringify(req));
+    assert.equal(result.content, 'success!', 'we returned the expected result');
   });
 });

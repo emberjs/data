@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
@@ -114,7 +114,7 @@ module('RequestManager | Streams', function () {
     const future = manager.request({ url: '../assets/demo-fetch.json' });
     const stream = await future.getStream();
 
-    assert.strictEqual(stream, null, 'we receive the null as the stream');
+    assert.equal(stream, null, 'we receive the null as the stream');
     const result = await future;
     assert.deepEqual(
       result.content,
@@ -236,7 +236,7 @@ module('RequestManager | Streams', function () {
     const future = manager.request({ url: '../assets/demo-fetch.json' });
     const stream = await future.getStream();
 
-    assert.strictEqual(stream, null, 'we do not receive the stream');
+    assert.equal(stream, null, 'we do not receive the stream');
     const result = await future;
     assert.deepEqual(
       result.content,

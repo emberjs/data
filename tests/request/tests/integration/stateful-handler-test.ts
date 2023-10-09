@@ -1,13 +1,12 @@
 import { setOwner } from '@ember/owner';
 import { service } from '@ember/service';
 
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context as HandlerRequestContext } from '@ember-data/request/-private/context';
 import type { NextFn } from '@ember-data/request/-private/types';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 module('RequestManager | Stateful Handlers', function (hooks) {
   setupTest(hooks);
@@ -49,8 +48,8 @@ module('RequestManager | Stateful Handlers', function (hooks) {
       url: '/foos',
     };
     const result = await manager.request(req);
-    assert.strictEqual(calls, 1, 'we called our handler');
-    assert.strictEqual(JSON.stringify(result.request), JSON.stringify(req));
-    assert.strictEqual(result.content, 'success! was intl-ed', 'we returned the expected result');
+    assert.equal(calls, 1, 'we called our handler');
+    assert.equal(JSON.stringify(result.request), JSON.stringify(req));
+    assert.equal(result.content, 'success! was intl-ed', 'we returned the expected result');
   });
 });

@@ -216,8 +216,8 @@ export function createServer(options) {
     createServer: (_, requestListener) => {
       return http2.createSecureServer(
         {
-          key: fs.readFileSync(`${__dirname}/localhost-privkey.pem`),
-          cert: fs.readFileSync(`${__dirname}/localhost-cert.pem`),
+          key: fs.readFileSync(`${__dirname}/localhost-key.pem`),
+          cert: fs.readFileSync(`${__dirname}/localhost.pem`),
         },
         requestListener
       );

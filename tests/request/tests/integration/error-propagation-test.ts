@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
@@ -19,7 +19,7 @@ module('RequestManager | Error Propagation', function () {
           // await to catch, else error is curried
           return await next(context.request);
         } catch (e) {
-          assert.strictEqual((e as Error).message, 'Oops!', 'We caught the error');
+          assert.equal((e as Error).message, 'Oops!', 'We caught the error');
           return 'We are happy' as T;
         }
       },
@@ -32,7 +32,7 @@ module('RequestManager | Error Propagation', function () {
     };
     manager.use([catchingHandler, throwingHandler]);
     const { content } = await manager.request({ url: '/wat' });
-    assert.strictEqual(content, 'We are happy', 'we caught and handled the error');
+    assert.equal(content, 'We are happy', 'we caught and handled the error');
   });
 
   test('Errors thrown by a handler curry the request properly', async function (assert) {

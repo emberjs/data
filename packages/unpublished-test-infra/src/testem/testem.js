@@ -58,6 +58,7 @@ module.exports = {
   parallel: process.env.EMBER_EXAM_SPLIT_COUNT || process.env.EXAM_PARALLEL_COUNT,
   browser_disconnect_timeout: 45,
   browser_start_timeout: 45,
+  client_decycle_depth: 10,
   socket_heartbeat_timeout: 75, // test timeout is 60s, so this needs to be longer
   browser_reconnect_limit: 10,
   // See https://github.com/testem/testem/issues/1021#issuecomment-1186607152
@@ -92,7 +93,7 @@ module.exports = {
         '--disable-3d-apis',
         '--disable-software-rasterizer',
         '--disable-webgl',
-        '--disable-web-security',
+        // '--disable-web-security',
         '--disable-remote-fonts',
         '--blink-settings=imagesEnabled=false',
         '--mute-audio',
@@ -110,7 +111,7 @@ module.exports = {
         '--headless=new',
         '--no-sandbox',
 
-        // this may help debug in some situations
+        // this may help debug CI in some situations
         '--enable-logging=stderr',
         '--v=1',
 
@@ -127,16 +128,22 @@ module.exports = {
         // and slows you down on smaller. We are on a bigger CI box now.
         // '--disable-dev-shm-usage',
         '--disable-gpu',
+        '--disable-extensions',
+        '--disable-translate',
         '--disable-3d-apis',
         '--disable-software-rasterizer',
         '--disable-webgl',
+        // '--disable-web-security',
         '--disable-remote-fonts',
         '--blink-settings=imagesEnabled=false',
         '--mute-audio',
 
-        '--remote-debugging-port=9222',
+        // ubuntu-16-core seems to be unhappy with this being set to a non-zero port
+        // throws: ERROR:socket_posix.cc(147)] bind() failed: Address already in use (98)
+        '--remote-debugging-port=0',
         '--remote-debugging-address=0.0.0.0',
         '--window-size=1440,900',
+        '--no-proxy-server',
         '--proxy-bypass-list=*',
         "--proxy-server='direct://'",
       ],

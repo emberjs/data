@@ -9,6 +9,10 @@ class InternalCompat {
     this._diagnostic = diagnostic;
   }
 
+  get testId() {
+    return this._diagnostic.__currentTest.id;
+  }
+
   get expected() {
     return this._diagnostic.expected;
   }
@@ -102,8 +106,8 @@ export class Diagnostic {
             message: message || 'deepEqual',
             stack: (err as Error).stack!,
             passed: false,
-            actual: false,
-            expected: true
+            actual,
+            expected
           });
         }
       } else {
@@ -111,8 +115,8 @@ export class Diagnostic {
           message: message || 'deepEqual',
           stack: '',
           passed: false,
-          actual: false,
-          expected: true
+          actual,
+          expected
         });
       }
     } else {
@@ -137,8 +141,8 @@ export class Diagnostic {
             message: message || 'notDeepEqual',
             stack: (err as Error).stack!,
             passed: false,
-            actual: false,
-            expected: true
+            actual,
+            expected
           });
         }
       } else {
@@ -146,8 +150,8 @@ export class Diagnostic {
           message: message || 'notDeepEqual',
           stack: '',
           passed: false,
-          actual: false,
-          expected: true
+          actual,
+          expected
         });
       }
     } else {

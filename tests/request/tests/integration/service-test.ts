@@ -1,26 +1,21 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { getOwner } from '@ember/application';
 import Service, { inject as service } from '@ember/service';
-import { TestContext } from '@ember/test-helpers';
 
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
-module('RequestManager | Ember Service Setup', function (hooks: NestedHooks) {
+module('RequestManager | Ember Service Setup', function (hooks) {
   setupTest(hooks);
 
-  test('We can register RequestManager as a service', function (this: TestContext, assert: Assert) {
+  test('We can register RequestManager as a service', function (assert) {
     this.owner.register('service:request', RequestManager);
     const manager = this.owner.lookup('service:request');
     assert.ok(manager instanceof RequestManager, 'We instantiated');
   });
 
-  test('We can use injections when registering the RequestManager as a service', function (this: TestContext, assert: Assert) {
+  test('We can use injections when registering the RequestManager as a service', function (assert) {
     class CustomManager extends RequestManager {
       @service cache;
     }
@@ -31,6 +26,6 @@ module('RequestManager | Ember Service Setup', function (hooks: NestedHooks) {
     assert.ok(manager instanceof RequestManager, 'We instantiated');
     assert.ok(manager instanceof CustomManager, 'We instantiated');
     assert.ok(manager.cache instanceof Cache, 'We can utilize injections');
-    assert.strictEqual(getOwner(manager), this.owner, 'The manager correctly sets owner');
+    assert.equal(getOwner(manager), this.owner, 'The manager correctly sets owner');
   });
 });

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
@@ -45,7 +45,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when not passing an array');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
+      assert.equal(
         `Cannot add a Handler to a RequestManager after a request has been made`,
         (e as Error).message,
         `${(e as Error).message} does not match the expected error`
@@ -89,7 +89,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when the handler returns undefined');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
+      assert.equal(
         `Expected handler.request to return a promise, instead received a synchronous value.`,
         (e as Error).message,
         `${(e as Error).message} does not match the expected error`
@@ -112,7 +112,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when the handler returns undefined');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
+      assert.equal(
         `Expected handler.request to return a promise, instead received undefined.`,
         (e as Error).message,
         `${(e as Error).message} does not match the expected error`
@@ -135,7 +135,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when the request is missing');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error when the request is missing');
-      assert.strictEqual(
+      assert.equal(
         (e as Error).message,
         'Expected RequestManager.request(<request>) to be called with a request, but none was provided.',
         `Expected: ${(e as Error).message} - to match the expected error`
@@ -148,7 +148,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when the request is not an object');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error when the request is not an object');
-      assert.strictEqual(
+      assert.equal(
         (e as Error).message,
         'The `request` passed to `RequestManager.request(<request>)` should be an object, received `array`',
         `Expected: ${(e as Error).message} - to match the expected error`
@@ -160,7 +160,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when the request has no keys');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error when the request has no keys');
-      assert.strictEqual(
+      assert.equal(
         (e as Error).message,
         'The `request` passed to `RequestManager.request(<request>)` was empty (`{}`). Requests need at least one valid key.',
         `Expected: ${(e as Error).message} - to match the expected error`
@@ -176,7 +176,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when no handler is present');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
+      assert.equal(
         (e as Error).message,
         `No handler was able to handle this request.`,
         `Expected ${(e as Error).message} to match the expected error`
@@ -197,7 +197,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when no handler is present');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
+      assert.equal(
         (e as Error).message,
         `No handler was able to handle this request.`,
         `Expected ${(e as Error).message} to match the expected error`
@@ -248,7 +248,7 @@ module('RequestManager | Graceful Errors', function () {
       assert.ok(false, 'we should error when the handler returns undefined');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
+      assert.equal(
         `Invalid Request passed to \`RequestManager.request(<request>)\`.
 
 The following issues were found:
@@ -281,7 +281,7 @@ The following issues were found:
       assert.ok(false, 'we should error when the handler returns undefined');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error');
-      assert.strictEqual(
+      assert.equal(
         `Invalid Request passed to \`RequestManager.request(<request>)\`.
 
 The following issues were found:
