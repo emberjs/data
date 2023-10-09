@@ -1,8 +1,8 @@
 import EmberObject from '@ember/object';
 
-import Store from 'adapter-encapsulation-test-app/services/store';
 import { module, test } from 'qunit';
 
+import Store from 'ember-data__adapter/services/store';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
