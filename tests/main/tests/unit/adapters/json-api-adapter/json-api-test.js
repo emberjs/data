@@ -2,7 +2,7 @@ import { module, test } from 'qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-module('unit/adapters/json-api-test', function () {
+module('unit/adapters/json-api', function () {
   test('coalesceFindRequests default', function (assert) {
     const adapter = JSONAPIAdapter.extend();
     assert.false(adapter.create().coalesceFindRequests, 'default result is false');
