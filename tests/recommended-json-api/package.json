@@ -76,7 +76,6 @@
     "@html-next/vertical-collection": "^4.0.2",
     "@types/ember__owner": "^4.0.6",
     "@types/morgan": "^1.9.6",
-    "broccoli-asset-rev": "^3.0.0",
     "ember-auto-import": "^2.6.3",
     "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.1.0",
