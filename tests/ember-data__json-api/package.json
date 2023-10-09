@@ -1,5 +1,5 @@
 {
-  "name": "json-api-test-app",
+  "name": "ember-data__json-api",
   "version": "5.5.0-alpha.11",
   "private": true,
   "description": "Provides tests for @ember-data/json-api",
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "tests/json-api"
+    "directory": "tests/ember-data__json-api"
   },
   "license": "MIT",
   "author": "",
