@@ -97,8 +97,8 @@
       "main-test-app/*": ["tests/main/app/*"],
       "ember-data__graph/tests/*": ["tests/ember-data__graph/tests/*"],
       "ember-data__graph/*": ["tests/ember-data__graph/app/*"],
-      "request-test-app/tests/*": ["tests/request/tests/*"],
-      "request-test-app/*": ["tests/request/app/*"],
+      "ember-data__request/tests/*": ["tests/ember-data__request/tests/*"],
+      "ember-data__request/*": ["tests/ember-data__request/app/*"],
       "*": ["@types/*", "packages/fastboot-test-app/types/*"],
       "ember-inflector": ["tests/main/node_modules/ember-inflector","packages/-ember-data/node_modules/ember-inflector"]
     }

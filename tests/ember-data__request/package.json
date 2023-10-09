@@ -1,12 +1,12 @@
 {
-  "name": "request-test-app",
+  "name": "ember-data__request",
   "version": "5.5.0-alpha.11",
-  "description": "Provides tests for the RequestManager",
+  "description": "Provides tests for @ember-data/request",
   "keywords": [],
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "tests/request"
+    "directory": "tests/ember-data__request"
   },
   "license": "MIT",
   "author": "",

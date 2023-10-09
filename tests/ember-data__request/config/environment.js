@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'request-test-app',
+    modulePrefix: 'ember-data__request',
     environment,
     rootURL: '/',
     locationType: 'history',
