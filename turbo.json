@@ -1,0 +1,58 @@
+{
+  "baseBranch": "origin/main",
+  // Additive to package.json and turbo.json
+  //
+  // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
+  "globalDependencies": [
+    "pnpm-lock.yaml",
+    "patches",
+    ".github",
+    "private-build-infra"
+  ],
+  "pipeline": {
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    //
+    //         Local Dev
+    //
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    "start": {
+      "dependsOn": ["_syncPnpm", "^build"],
+      "outputs": [],
+      "cache": false,
+      "persistent": true
+    },
+
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    //
+    //         C.I. / C.D.
+    //
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    "build": {
+      "outputs": [
+        "dist/**",
+        "declarations/**",
+        "addon/**",
+        "addon-test-support/**",
+        "blueprints"
+      ],
+      "dependsOn": ["_syncPnpm"]
+    },
+    // See: https://github.com/pnpm/pnpm/issues/4965
+    "_syncPnpm": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "test": {
+      "outputs": [],
+      "dependsOn": ["_syncPnpm", "^build"]
+    },
+    "test:production": {
+      "outputs": [],
+      "dependsOn": ["_syncPnpm", "^build"]
+    }
+  }
+}

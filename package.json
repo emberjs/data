@@ -140,5 +140,8 @@
       "qunit@2.19.4": "patches/qunit@2.19.4.patch",
       "testem@3.10.1": "patches/testem@3.10.1.patch"
     }
+  },
+  "dependencies": {
+    "turbo": "^1.10.15"
   }
 }
