@@ -1,8 +1,8 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import Store from 'serializer-encapsulation-test-app/services/store';
 
+import Store from 'ember-data__serializer/services/store';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';

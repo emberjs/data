@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'serializer-encapsulation-test-app',
+    modulePrefix: 'ember-data__serializer',
     environment,
     rootURL: '/',
     locationType: 'history',

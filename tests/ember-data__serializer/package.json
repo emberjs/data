@@ -1,12 +1,12 @@
 {
-  "name": "serializer-encapsulation-test-app",
+  "name": "ember-data__serializer",
   "version": "5.5.0-alpha.11",
   "private": true,
-  "description": "Small description for encapsulation-test-app goes here",
+  "description": "Tests for the @ember-data/serializer package",
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
-    "directory": "tests/serializer-encapsulation"
+    "directory": "tests/ember-data__serializer"
   },
   "license": "MIT",
   "author": "",
