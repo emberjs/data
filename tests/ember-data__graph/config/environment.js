@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'graph-test-app',
+    modulePrefix: 'ember-data__graph',
     environment,
     rootURL: '/',
     locationType: 'history',
