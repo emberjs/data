@@ -68,6 +68,7 @@
     "json-typescript": "^1.1.2",
     "lerna-changelog": "^2.2.0",
     "loader.js": "^4.7.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
     "semver": "^7.5.4",

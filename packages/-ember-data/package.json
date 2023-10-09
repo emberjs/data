@@ -12,7 +12,8 @@
     "test": "tests"
   },
   "scripts": {
-    "prepack": "cd ../../ && pnpm build:docs"
+    "prepack": "cd ../../ && pnpm build:docs",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "author": "",
   "license": "MIT",
@@ -86,7 +87,8 @@
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-source": "~5.3.0"
+    "ember-source": "~5.3.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "engines": {
     "node": ">= 18.*"

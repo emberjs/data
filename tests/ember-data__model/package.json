@@ -19,7 +19,8 @@
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
-    "test": "ember test --test-port=0"
+    "test": "ember test --test-port=0",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/adapter": {
@@ -69,6 +70,7 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.3.0",
     "loader.js": "^4.7.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.0",
     "qunit-dom": "^2.0.0",
     "webpack": "^5.88.2"

@@ -40,7 +40,8 @@
     "build": "pnpm build:client && pnpm build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
-    "prepare": "pnpm build"
+    "prepare": "pnpm build",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "ember-addon": {
     "main": "addon-main.js",
@@ -66,6 +67,7 @@
     "@embroider/addon-dev": "^4.1.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.2",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^3.29.4",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",

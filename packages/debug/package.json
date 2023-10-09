@@ -13,7 +13,9 @@
   "license": "MIT",
   "author": "",
   "directories": {},
-  "scripts": {},
+  "scripts": {
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+  },
   "peerDependencies": {
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember/string": "^3.1.1"
@@ -45,5 +47,8 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.0"
+  "packageManager": "pnpm@8.9.0",
+  "devDependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
 }

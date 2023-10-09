@@ -19,7 +19,8 @@
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
-    "test": "ember test  --test-port=0"
+    "test": "ember test  --test-port=0",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/debug": {
@@ -102,5 +103,8 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.0"
+  "packageManager": "pnpm@8.9.0",
+  "devDependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
 }

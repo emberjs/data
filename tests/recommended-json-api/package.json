@@ -17,7 +17,8 @@
   "scripts": {
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
-    "test": "ember test --test-port=0"
+    "test": "ember test --test-port=0",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/json-api": {
@@ -100,6 +101,7 @@
     "glob": "^10.3.10",
     "loader.js": "^4.7.0",
     "morgan": "^1.10.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.0",
     "qunit-console-grouper": "^0.3.0",
     "qunit-dom": "^2.0.0",

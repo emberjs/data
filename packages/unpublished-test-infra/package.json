@@ -18,7 +18,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "ember test"
+    "test": "ember test",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "peerDependencies": {
     "qunit": "^2.20.0"
@@ -69,8 +70,9 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.3.0",
     "loader.js": "^4.7.0",
-    "webpack": "^5.88.2",
-    "qunit": "^2.20.0"
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "qunit": "^2.20.0",
+    "webpack": "^5.88.2"
   },
   "engines": {
     "node": ">= 18.*"

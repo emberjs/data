@@ -16,7 +16,8 @@
   },
   "scripts": {
     "build": "ember build",
-    "start": "ember serve"
+    "start": "ember serve",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependencies": {
     "@ember/string": "3.1.1",
@@ -49,6 +50,7 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.3.0",
     "loader.js": "^4.7.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "terser-webpack-plugin": "^5.3.9",
     "webpack": "^5.88.2",
     "zlib": "1.0.5"
