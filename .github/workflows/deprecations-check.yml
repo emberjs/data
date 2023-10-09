@@ -20,11 +20,6 @@ jobs:
           CI: true
           ASSERT_ALL_DEPRECATIONS: true
         run: pnpm test
-      - name: Encapsulation tests
-        env:
-          CI: true
-          ASSERT_ALL_DEPRECATIONS: true
-        run: pnpm test:encapsulation
 
   test-all-deprecations-releases:
     strategy:
