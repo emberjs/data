@@ -13,7 +13,7 @@ type SuiteLayout = {
 type CompatTestReport = {
   id: number;
   name: string;
-  items: [];
+  items: { passed: boolean; message: string; }[];
   failed: number;
   passed: number;
   total: number;
@@ -99,9 +99,6 @@ export class DOMReporter implements Reporter {
   }
 
   onTestFinish(test: TestReport): void {
-    if (test.result.failed) {
-      console.log(test);
-    }
     this.currentTest = null;
     this.stats.diagnostics += test.result.diagnostics.length;
     this.stats.diagnosticsPassed += test.result.diagnostics.filter(d => d.passed).length;
@@ -113,8 +110,25 @@ export class DOMReporter implements Reporter {
       this._compatTestReport.todo = test.todo;
       this._compatTestReport.total = test.result.diagnostics.length;
       this._compatTestReport.runDuration = test.end!.startTime - test.start!.startTime;
+      this._compatTestReport.items = test.result.diagnostics.map(d => {
+        // more expensive to serialize the whole diagnostic
+        if (this.settings.params.debug.value) {
+          return d;
+        }
+        return {
+          passed: d.passed,
+          message: d.message,
+        };
+      });
+
+      if (this._compatTestReport.failed > 0 || test.result.failed) {
+        this.settings.params.debug.value && console.log(test, this._compatTestReport);
+      }
+
       this._socket?.emit('test-result', this._compatTestReport);
       this._compatTestReport = null as unknown as CompatTestReport;
+    } else if (test.result.failed) {
+      this.settings.params.debug.value && console.log(test);
     }
 
     if (this.settings.params.hideReport.value) {

@@ -4,6 +4,8 @@ import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
 
+const IGNORED_HEADERS = new Set(['connection', 'keep-alive', 'content-length', 'date', 'etag', 'last-modified']);
+
 module('RequestManager | Response', function () {
   test('Handlers may set response via Response', async function (assert) {
     const manager = new RequestManager();
@@ -21,7 +23,7 @@ module('RequestManager | Response', function () {
     // @ts-expect-error
     serialized.headers = (serialized.headers as [string, string][]).filter((v) => {
       // don't test headers that change every time
-      return !['content-length', 'date', 'etag', 'last-modified'].includes(v[0]);
+      return !IGNORED_HEADERS.has(v[0]);
     });
     // @ts-expect-error port is unstable in CI
     delete serialized.url;
@@ -34,9 +36,7 @@ module('RequestManager | Response', function () {
         headers: [
           ['accept-ranges', 'bytes'],
           ['cache-control', 'public, max-age=0'],
-          ['connection', 'keep-alive'],
           ['content-type', 'application/json; charset=UTF-8'],
-          ['keep-alive', 'timeout=5'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
           // ['last-modified', 'Tue, 22 Nov 2022 04:55:48 GMT'],

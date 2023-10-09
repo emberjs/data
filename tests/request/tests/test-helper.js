@@ -62,10 +62,11 @@ export function loadTests() {
 loadTests();
 
 configure({
-  tryCatch: false,
+  tryCatch: true,
+  debug: true,
   groupLogs: false,
   instrument: true,
-  hideReport: false,
+  hideReport: true,
 });
 
 setApplication(Application.create(config.APP));

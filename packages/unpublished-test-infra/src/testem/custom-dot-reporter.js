@@ -418,6 +418,7 @@ function addTestMetaToName(partitions, partitionsMap, result) {
 }
 
 function printFailure(out, result) {
+  console.log(JSON.stringify(result, null, 2));
   out.write(chalk.red(`\n\t💥 Failed: ${result.runDuration.toLocaleString('en-US')}ms ${result.name}\n`));
   const error = result.error;
 
