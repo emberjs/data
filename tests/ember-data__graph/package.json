@@ -1,5 +1,5 @@
 {
-  "name": "graph-test-app",
+  "name": "ember-data__graph",
   "version": "5.5.0-alpha.11",
   "private": true,
   "description": "Provides tests for @ember-data/graph",
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "tests/graph"
+    "directory": "tests/ember-data__graph"
   },
   "license": "MIT",
   "author": "",
