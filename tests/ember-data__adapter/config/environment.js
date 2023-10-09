@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'adapter-encapsulation-test-app',
+    modulePrefix: 'ember-data__adapter',
     environment,
     rootURL: '/',
     locationType: 'history',
