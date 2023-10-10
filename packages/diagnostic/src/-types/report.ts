@@ -27,6 +27,7 @@ export interface TestReport {
     passed: boolean;
     failed: boolean;
   }
+  module: ModuleReport;
 }
 export interface ModuleReport {
   name: string;

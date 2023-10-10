@@ -56,7 +56,7 @@ This package may currently only be used within EmberData. A public version is co
 ```ts
 import { GET } from '@warp-drive/holodeck/mock';
 
-await GET('users/1', () => ({
+await GET(context, 'users/1', () => ({
   data: {
     id: '1',
     type: 'user',

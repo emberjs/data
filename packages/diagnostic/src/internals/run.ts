@@ -5,7 +5,7 @@ import { Diagnostic } from "./diagnostic";
 import { Config, groupLogs, instrument } from "./config";
 import { DelegatingReporter } from "./delegating-reporter";
 
-export async function runTest(beforeChain: HooksCallback[], test: TestInfo, afterChain: HooksCallback[]) {
+export async function runTest(moduleReport: ModuleReport, beforeChain: HooksCallback[], test: TestInfo, afterChain: HooksCallback[]) {
   const testContext = {};
   const testReport: TestReport = {
     id: test.id,
@@ -19,7 +19,8 @@ export async function runTest(beforeChain: HooksCallback[], test: TestInfo, afte
       diagnostics: [],
       passed: true,
       failed: false,
-    }
+    },
+    module: moduleReport,
   }
   testReport.start = instrument() && performance.mark(`test:${test.module.moduleName} > ${test.name}:start`);
   const Assert = new Diagnostic(DelegatingReporter, Config, test, testReport);
@@ -67,7 +68,7 @@ export async function runTest(beforeChain: HooksCallback[], test: TestInfo, afte
   DelegatingReporter.onTestFinish(testReport);
 }
 
-export async function runModule(module: ModuleInfo, parents: ModuleInfo[] | null) {
+export async function runModule(module: ModuleInfo, parents: ModuleInfo[] | null, promises: Promise<void>[]) {
   groupLogs() && console.groupCollapsed(module.name);
   const moduleReport: ModuleReport = {
     name: module.moduleName,
@@ -91,13 +92,43 @@ export async function runModule(module: ModuleInfo, parents: ModuleInfo[] | null
   // run tests
   const beforeChain = getChain(Config.globalHooks, module, parents, 'beforeEach');
   const afterChain = getChain(Config.globalHooks, module, parents, 'afterEach');
-  for (const test of module.tests.byOrder) {
-    await runTest(beforeChain, test, afterChain);
+
+  if (Config.params.concurrency.value && Config.concurrency > 1) {
+    const tests = module.tests.byOrder;
+    let remainingTests = tests.length;
+    let currentTest = 0;
+
+    // once remaining tests is 0, we move on
+    // to the next module after at least one race has completed
+    while (remainingTests > 0) {
+      const needed = Config.concurrency - promises.length;
+      const available = Math.min(needed, remainingTests, Config.concurrency);
+      for (let i = 0; i < available; i++) {
+        const test = tests[currentTest++]!;
+        remainingTests--;
+        const promise = runTest(moduleReport, beforeChain, test, afterChain)
+          .finally(() => {
+            const index = promises.indexOf(promise);
+            promises.splice(index, 1);
+          });
+        promises.push(promise);
+      }
+
+      if (promises.length === Config.concurrency) {
+        await Promise.race(promises);
+      }
+    }
+  } else {
+    for (const test of module.tests.byOrder) {
+      await runTest(moduleReport, beforeChain, test, afterChain);
+    }
   }
+
+
 
   // run modules
   for (const childModule of module.modules.byOrder) {
-    await runModule(childModule, [...(parents || []), module]);
+    await runModule(childModule, [...(parents || []), module], promises);
   }
 
   for (const hook of module.config.afterModule) {

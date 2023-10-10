@@ -65,8 +65,8 @@ export class Diagnostic {
             message: message || 'equal',
             stack: (err as Error).stack!,
             passed: false,
-            actual: false,
-            expected: true
+            actual,
+            expected
           });
         }
       } else {
@@ -74,8 +74,8 @@ export class Diagnostic {
           message: message || 'equal',
           stack: '',
           passed: false,
-          actual: false,
-          expected: true
+          actual,
+          expected
         });
       }
     } else {

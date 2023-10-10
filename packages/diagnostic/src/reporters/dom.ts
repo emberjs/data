@@ -28,19 +28,19 @@ export class DOMReporter implements Reporter {
   declare settings: ReturnType<typeof getSettings>;
   declare suite: SuiteLayout;
   declare suiteReport: SuiteReport;
-  declare currentTest: TestReport | null;
+  declare currentTests: Map<string, CompatTestReport>;
+  declare nextTestId: number;
   declare stats: {
     diagnostics: number;
     diagnosticsPassed: number;
     modules: number;
     modulesPassed: number;
   }
-  declare modulePath: ModuleReport[];
   declare _pendingUpdate: number | null;
-  declare _compatTestReport: CompatTestReport;
   declare _socket?: { emit: (name: string, data?: CompatTestReport) => void };
 
   constructor(element: HTMLElement) {
+    this.nextTestId = 1;
     this.element = element;
     this.settings = getSettings();
     this.stats = {
@@ -49,8 +49,8 @@ export class DOMReporter implements Reporter {
       modules: 0,
       modulesPassed: 0,
     };
-    this.modulePath = [];
     this._pendingUpdate = null;
+    this.currentTests = new Map();
 
     if (this.settings.useTestem) {
       // @ts-expect-error
@@ -64,8 +64,12 @@ export class DOMReporter implements Reporter {
   }
 
   onSuiteStart(report: SuiteReport): void {
-    this.element.innerHTML = '';
-    this.suite = renderSuite(this.element, report);
+    if (this.element.children.length) {
+      this.element.innerHTML = '';
+    }
+    const fragment = document.createDocumentFragment();
+    this.suite = renderSuite(fragment, report);
+    this.element.appendChild(fragment);
     this.suiteReport = report;
     if (this.settings.useTestem) {
       this._socket?.emit('tests-start');
@@ -79,12 +83,11 @@ export class DOMReporter implements Reporter {
   }
 
   onTestStart(test: TestReport): void {
-    this.currentTest = test;
     this.scheduleUpdate();
     if (this.settings.useTestem) {
-      this._compatTestReport = {
-        id: this.suite.results.size + 1,
-        name: this.modulePath.at(-1)!.name + ':' + test.name,
+      const compatTestReport = {
+        id: this.nextTestId++,
+        name: test.module.name + ':' + test.name,
         items: [],
         failed: 0,
         passed: 0,
@@ -94,23 +97,26 @@ export class DOMReporter implements Reporter {
         runDuration: 0,
         testId: test.id,
       };
-      this._socket?.emit('tests-start', this._compatTestReport);
+      this.currentTests.set(test.id, compatTestReport);
+      this._socket?.emit('tests-start', compatTestReport);
     }
   }
 
   onTestFinish(test: TestReport): void {
-    this.currentTest = null;
     this.stats.diagnostics += test.result.diagnostics.length;
     this.stats.diagnosticsPassed += test.result.diagnostics.filter(d => d.passed).length;
 
     if (this.settings.useTestem) {
-      this._compatTestReport.failed += test.result.failed ? 1 : 0;
-      this._compatTestReport.passed += test.result.passed ? 1 : 0;
-      this._compatTestReport.skipped = test.skipped;
-      this._compatTestReport.todo = test.todo;
-      this._compatTestReport.total = test.result.diagnostics.length;
-      this._compatTestReport.runDuration = test.end!.startTime - test.start!.startTime;
-      this._compatTestReport.items = test.result.diagnostics.map(d => {
+      const compatTestReport = this.currentTests.get(test.id)!;
+      console.log(compatTestReport.id, test.name);
+      this.currentTests.delete(test.id);
+      compatTestReport.failed += test.result.failed ? 1 : 0;
+      compatTestReport.passed += test.result.passed ? 1 : 0;
+      compatTestReport.skipped = test.skipped;
+      compatTestReport.todo = test.todo;
+      compatTestReport.total = test.result.diagnostics.length;
+      compatTestReport.runDuration = test.end!.startTime - test.start!.startTime;
+      compatTestReport.items = test.result.diagnostics.map(d => {
         // more expensive to serialize the whole diagnostic
         if (this.settings.params.debug.value) {
           return d;
@@ -121,12 +127,11 @@ export class DOMReporter implements Reporter {
         };
       });
 
-      if (this._compatTestReport.failed > 0 || test.result.failed) {
-        this.settings.params.debug.value && console.log(test, this._compatTestReport);
+      if (compatTestReport.failed > 0 || test.result.failed) {
+        this.settings.params.debug.value && console.log(test, compatTestReport);
       }
 
-      this._socket?.emit('test-result', this._compatTestReport);
-      this._compatTestReport = null as unknown as CompatTestReport;
+      this._socket?.emit('test-result', compatTestReport);
     } else if (test.result.failed) {
       this.settings.params.debug.value && console.log(test);
     }
@@ -135,17 +140,14 @@ export class DOMReporter implements Reporter {
       return;
     }
     // @ts-expect-error
-    test.moduleName = this.modulePath.at(-1)!.name;
+    test.moduleName = test.module.name;
     this.suite.results.set(test, null);
     this.scheduleUpdate();
   }
 
-  onModuleStart(module: ModuleReport): void {
-    this.modulePath.push(module);
-  }
+  onModuleStart(module: ModuleReport): void {}
 
   onModuleFinish(module: ModuleReport): void {
-    this.modulePath.pop();
     this.stats.modules++;
     this.stats.modulesPassed += module.passed ? 1 : 0;
     this.scheduleUpdate();
@@ -169,18 +171,51 @@ export class DOMReporter implements Reporter {
     // render infos
     // render any tests
     let i = 0;
+    const fragment = document.createDocumentFragment();
     this.suite.results.forEach((element, test) => {
       i++;
       if (element) {
         return;
       }
       const tr = document.createElement('tr');
-      tr.classList.add('diagnostic-result');
+      fragment.appendChild(tr);
       tr.classList.add(classForTestStatus(test));
-      tr.innerHTML = `<td>${i}.</td><td>${iconForTestStatus(test)} ${labelForTestStatus(test)}</td><td>${durationForTest(test)}</td><td><strong>${(test as unknown as { moduleName: string}).moduleName} ></strong> ${test.name} (${test.result.diagnostics.length}) </td><td><a href="${getURL(test.id)}">rerun</a></td>`;
-      this.suite.resultsList.appendChild(tr);
+      makeRow(tr, [
+        i + '.',
+        `${iconForTestStatus(test)} ${labelForTestStatus(test)}`,
+        durationForTest(test),
+        `${test.module.name} > `,
+        `${test.name} (${test.result.diagnostics.length})`,
+        getURL(test.id),
+      ]);
       this.suite.results.set(test, tr);
     });
+    this.suite.resultsList.appendChild(fragment);
+  }
+}
+
+function makeRow(tr: HTMLTableRowElement, cells: string[]) {
+  for (let i = 0; i < cells.length; i++) {
+    const cell = cells[i];
+    const td = document.createElement('td');
+    if (i === 3) {
+      const strong = document.createElement('strong');
+      const text = document.createTextNode(cell);
+      strong.appendChild(text);
+      td.appendChild(strong);
+      i++;
+      const text2 = document.createTextNode(cells[i]);
+      td.appendChild(text2);
+    } else if (i === 5) {
+      const a = document.createElement('a');
+      a.href = cell;
+      a.appendChild(document.createTextNode('rerun'));
+      td.appendChild(a);
+    } else {
+      const text = document.createTextNode(cell);
+      td.appendChild(text);
+    }
+    tr.appendChild(td);
   }
 }
 
@@ -236,7 +271,7 @@ function classForTestStatus(test: TestReport) {
   return 'failed';
 }
 
-function renderSuite(element: HTMLElement, suiteReport: SuiteReport): SuiteLayout {
+function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): SuiteLayout {
   const cleanup: (() => void)[] = [];
 
   // ==== Create the Header Section

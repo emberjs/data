@@ -135,8 +135,12 @@ export async function start() {
     await hook();
   }
 
+  const promises: Promise<void>[] = [];
   for (const module of Modules.byOrder) {
-    await runModule(module, null);
+    await runModule(module, null, promises);
+  }
+  if (promises.length) {
+    await Promise.all(promises);
   }
 
   for (const hook of Config.globalHooks.onSuiteFinish) {

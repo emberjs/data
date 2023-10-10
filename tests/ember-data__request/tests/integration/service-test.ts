@@ -5,9 +5,10 @@ import { module, test } from '@warp-drive/diagnostic';
 
 import RequestManager from '@ember-data/request';
 import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
+import Resolver from 'ember-resolver';
 
 module('RequestManager | Ember Service Setup', function (hooks) {
-  setupTest(hooks);
+  setupTest(hooks, { resolver: new Resolver() });
 
   test('We can register RequestManager as a service', function (assert) {
     this.owner.register('service:request', RequestManager);
