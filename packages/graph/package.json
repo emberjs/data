@@ -16,7 +16,6 @@
     "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
-    "prepare": "pnpm build",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "ember-addon": {

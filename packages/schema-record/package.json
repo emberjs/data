@@ -18,7 +18,6 @@
     "build": "pnpm build:client",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
-    "prepare": "pnpm build",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "ember-addon": {

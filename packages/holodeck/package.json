@@ -45,7 +45,6 @@
     "build": "pnpm build:client && pnpm build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
-    "prepare": "pnpm build",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {

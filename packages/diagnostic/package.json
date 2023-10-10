@@ -46,8 +46,7 @@
     "build:runtime": "rollup --config",
     "build": "pnpm build:runtime && pnpm build:types",
     "start": "rollup --config --watch",
-    "prepack": "pnpm build",
-    "prepare": "pnpm build"
+    "prepack": "pnpm build"
   },
   "peerDependencies": {},
   "dependencies": {},
