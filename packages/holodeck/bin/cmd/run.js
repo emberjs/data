@@ -31,6 +31,7 @@ export default async function run(args) {
     try {
       if (isPkgScript) {
         const cmdArgs = pkg.scripts[cmd].split(' ');
+        console.log({ cmdArgs });
         await spawn(cmdArgs);
       } else {
         await spawn(['pnpm', 'exec', ...args]);
