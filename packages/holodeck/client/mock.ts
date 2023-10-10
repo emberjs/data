@@ -31,11 +31,13 @@ export type ResponseGenerator = () => Record<string, unknown>;
  * @returns
  */
 export function GET(
+  owner: object,
   url: string,
   response: ResponseGenerator,
   options?: Partial<Omit<Scaffold, 'response' | 'url' | 'method'>> & { RECORD?: boolean }
 ): Promise<void> {
   return mock(
+    owner,
     () => ({
       status: options?.status ?? 200,
       statusText: options?.statusText ?? 'OK',

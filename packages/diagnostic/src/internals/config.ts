@@ -13,11 +13,17 @@ export const Config: GlobalConfig = {
   },
   // @ts-expect-error
   useTestem: typeof Testem !== 'undefined',
+  concurrency: 1,
   params: {
     hideReport: {
       id: 'hideReport',
       label: 'Hide Report',
       value: true
+    },
+    concurrency: {
+      id: 'concurrency',
+      label: 'Enable Concurrency',
+      value: false
     },
     memory: {
       id: 'memory',
@@ -116,6 +122,7 @@ export function setupGlobalHooks(cb: (hooks: GlobalHooks) => void): void {
 }
 
 export type ConfigOptions = {
+  concurrency: number;
   instrument: boolean;
   tryCatch: boolean;
   debug: boolean;
@@ -126,14 +133,19 @@ export type ConfigOptions = {
   params: Record<string, ParamConfig>;
   useTestem: boolean;
 };
-const configOptions = ['tryCatch', 'instrument', 'hideReport', 'memory', 'groupLogs', 'debug', 'container'] as const;
+const configOptions = ['concurrency', 'tryCatch', 'instrument', 'hideReport', 'memory', 'groupLogs', 'debug', 'container'] as const;
 export function configure(options: ConfigOptions): void {
   if ('useTestem' in options && typeof options.useTestem === 'boolean') {
     Config.useTestem = options.useTestem;
   }
+  if ('concurrency' in options && typeof options.concurrency === 'number') {
+    Config.concurrency = options.concurrency;
+    // @ts-expect-error
+    options.concurrency = options.concurrency > 1;
+  }
   configOptions.forEach(key => {
     if (key in options && typeof options[key] === 'boolean') {
-      Config.params[key].value = options[key];
+      Config.params[key].value = options[key] as boolean;
     }
     // don't allow setting these params via configure
     if (options.params?.[key]) {
@@ -148,6 +160,7 @@ export function configure(options: ConfigOptions): void {
 export function getSettings() {
   return {
     useTestem: Config.useTestem,
+    concurrency: Config.concurrency,
     params: Config.params,
   }
 }

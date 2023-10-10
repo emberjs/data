@@ -1,5 +1,3 @@
-import { setApplication } from '@ember/test-helpers';
-
 import { configure, setupGlobalHooks } from '@warp-drive/diagnostic';
 import { start } from '@warp-drive/diagnostic/runners/dom';
 import { setTestId } from '@warp-drive/holodeck';
@@ -8,19 +6,16 @@ import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
 
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
 
-import Application from '../app';
-import config from '../config/environment';
-
 let moduleLoadFailures = [];
 
 setupGlobalHooks((hooks) => {
   configureAsserts(hooks);
 
   hooks.beforeEach(function (assert) {
-    setTestId(assert.test.testId);
+    setTestId(this, assert.test.testId);
   });
   hooks.afterEach(function () {
-    setTestId(null);
+    setTestId(this, null);
   });
 
   hooks.onSuiteFinish(() => {
@@ -62,12 +57,12 @@ export function loadTests() {
 loadTests();
 
 configure({
-  tryCatch: true,
-  debug: true,
+  tryCatch: false,
+  debug: false,
+  concurrency: 10,
   groupLogs: false,
   instrument: true,
   hideReport: true,
 });
 
-setApplication(Application.create(config.APP));
 start();

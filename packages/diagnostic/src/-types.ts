@@ -7,9 +7,10 @@ export type ParamConfig = {
 }
 
 export type GlobalConfig =  {
-  params: { [key in 'tryCatch' | 'instrument' | 'hideReport' | 'memory' | 'groupLogs' | 'debug' | 'container']: ParamConfig };
+  params: { [key in 'concurrency' | 'tryCatch' | 'instrument' | 'hideReport' | 'memory' | 'groupLogs' | 'debug' | 'container']: ParamConfig };
   _current: SuiteReport | null;
   useTestem: boolean;
+  concurrency: number;
   globalHooks: {
     beforeEach: HooksCallback[];
     afterEach: HooksCallback[];

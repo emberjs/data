@@ -1,31 +1,24 @@
 :root {
-  --primary-color: #302AE6;
-  --secondary-color: #536390;
-  --font-color: #424242;
-  --bg-color: #fff;
+  /*
   --heading-color: #17abab;
   --heading-2-color: #e617ab;
+  */
   --brand-pink: hsl(317, 82%, 50%);
   --brand-green: hsl(180, 76%, 50%);
   --brand-blue: 212, 92%;
   --brand-yellow: #deb008;
   --brand-main: var(--brand-green);
   --brand-secondary: var(--brand-pink);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary-color: 212, 92%;
-    --secondary-color: #536390;
-    --heading-3-color: #deb008;
-    --heading-4-color: #0868de;
-    --heading-2-color: #999;
-    --font-color: #fff;
-    --bg-color: #191919;
-    --bg-color-2: #222222;
-    --bg-color-3: #292929;
-    --heading-color: #292922;
-  }
+  --primary-color: 212, 92%;
+  --secondary-color: #536390;
+  --heading-3-color: #deb008;
+  --heading-4-color: #0868de;
+  --heading-2-color: #999;
+  --font-color: #fff;
+  --bg-color: #191919;
+  --bg-color-2: #222222;
+  --bg-color-3: #292929;
+  --heading-color: #292922;
 }
 
 html {
@@ -44,12 +37,8 @@ body {
   font-size: .75rem;
 }
 
-
-#warp-drive__diagnostic, #warp-drive__diagnostic * {
-  box-sizing: border-box;
-}
-
 #warp-drive__diagnostic {
+  box-sizing: border-box;
   color: var(--font-color);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   width: 100%;
@@ -61,6 +50,10 @@ body {
   background-image:
   linear-gradient(to right, var(--bg-color-2) .1em, transparent 1px),
   linear-gradient(to bottom, var(--bg-color-2) .1em, transparent 1px);
+}
+
+#warp-drive__diagnostic * {
+  box-sizing: border-box;
 }
 
 #warp-drive__diagnostic h2 {

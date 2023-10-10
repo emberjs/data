@@ -22,9 +22,9 @@ function isNetworkError(e: unknown): asserts e is Error & {
 module('RequestManager | Fetch Handler', function (hooks) {
   test('Parses 200 Responses', async function (assert) {
     const manager = new RequestManager();
-    manager.use([MockServerHandler, Fetch]);
+    manager.use([new MockServerHandler(this), Fetch]);
 
-    await GET('users/1', () => ({
+    await GET(this, 'users/1', () => ({
       data: {
         id: '1',
         type: 'user',
@@ -77,9 +77,9 @@ module('RequestManager | Fetch Handler', function (hooks) {
 
   test('It provides useful errors', async function (assert) {
     const manager = new RequestManager();
-    manager.use([MockServerHandler, Fetch]);
+    manager.use([new MockServerHandler(this), Fetch]);
 
-    await mock(() => ({
+    await mock(this, () => ({
       url: 'users/1',
       status: 404,
       headers: {},
@@ -142,9 +142,9 @@ module('RequestManager | Fetch Handler', function (hooks) {
 
   test('It provides useful error during abort', async function (assert) {
     const manager = new RequestManager();
-    manager.use([MockServerHandler, Fetch]);
+    manager.use([new MockServerHandler(this), Fetch]);
 
-    await GET('users/1', () => ({
+    await GET(this, 'users/1', () => ({
       data: {
         id: '1',
         type: 'user',

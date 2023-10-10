@@ -1,4 +1,4 @@
-import { ModuleReport, Reporter, SuiteReport } from "../-types/report";
+import { Reporter, SuiteReport } from "../-types/report";
 
 const Reporters = new Set<Reporter>();
 export function registerReporter(reporter: Reporter) {
@@ -6,7 +6,6 @@ export function registerReporter(reporter: Reporter) {
 }
 
 let activeSuite: SuiteReport;
-const modulePath: ModuleReport[] = [];
 export const DelegatingReporter: Reporter = {
   onSuiteStart(report) {
     if (activeSuite) {
@@ -34,7 +33,7 @@ export const DelegatingReporter: Reporter = {
     activeSuite.skipped += report.skipped ? 1 : 0;
     activeSuite.todo += report.result.passed && report.todo ? 1 : 0;
 
-    const module = modulePath.at(-1)!;
+    const module = report.module;
     module.failed = report.result.failed || module.failed;
     module.passed = !module.failed;
 
@@ -43,13 +42,11 @@ export const DelegatingReporter: Reporter = {
     }
   },
   onModuleStart(report) {
-    modulePath.push(report);
-    for (const reporter of Reporters) {
+   for (const reporter of Reporters) {
       reporter.onModuleStart(report);
     }
   },
   onModuleFinish(report) {
-    modulePath.pop();
     for (const reporter of Reporters) {
       reporter.onModuleFinish(report);
     }

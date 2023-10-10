@@ -3,11 +3,13 @@ import Service, { inject as service } from '@ember/service';
 
 import { module, test } from '@warp-drive/diagnostic';
 
+import Resolver from 'ember-resolver';
+
 import RequestManager from '@ember-data/request';
 import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 module('RequestManager | Ember Service Setup', function (hooks) {
-  setupTest(hooks);
+  setupTest(hooks, { resolver: new Resolver() });
 
   test('We can register RequestManager as a service', function (assert) {
     this.owner.register('service:request', RequestManager);
