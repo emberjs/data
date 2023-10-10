@@ -5,9 +5,9 @@
   // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
   "globalDependencies": [
     "pnpm-lock.yaml",
-    "patches",
-    ".github",
-    "private-build-infra"
+    "tsconfig.*",
+    "patches/*",
+    ".github/*"
   ],
   "pipeline": {
     /////////////////////////////////////////////////
@@ -33,15 +33,11 @@
     /////////////////////////////////////////////////
     "build": {
       "inputs": [
-        // V1 convention
-        "blueprints",
-        "fastboot",
-
         // + V2-Addon convention
         "src/**",
         "addon-main.*",
         "babel.*",
-        "rollup-config.mjs"
+        "rollup-config.*"
       ],
       "outputs": [
         // V1-Addon convention
@@ -54,11 +50,20 @@
       "dependsOn": ["_syncPnpm"]
     },
     "build:production": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "babel.*",
+        "rollup-config.*"
+      ],
       "outputs": [
-        "dist/**",
-        "declarations/**",
+        // V1-Addon convention
         "addon/**",
-        "addon-test-support/**"
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "declarations/**"
       ],
       "dependsOn": ["_syncPnpm"]
     },
