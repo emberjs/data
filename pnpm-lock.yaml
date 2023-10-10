@@ -350,8 +350,6 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
     dependenciesMeta:
-      '@ember-data/store':
-        injected: true
       '@ember/string':
         injected: true
       ember-inflector:
@@ -470,10 +468,6 @@ importers:
         version: 0.0.10
     dependenciesMeta:
       '@ember-data/private-build-infra':
-        injected: true
-      '@ember-data/store':
-        injected: true
-      '@ember/string':
         injected: true
 
   packages/diagnostic:
@@ -600,8 +594,6 @@ importers:
         version: 5.88.2
     dependenciesMeta:
       '@ember-data/private-build-infra':
-        injected: true
-      '@ember-data/store':
         injected: true
 
   packages/holodeck:
@@ -747,15 +739,10 @@ importers:
         specifier: ^5.88.2
         version: 5.88.2
     dependenciesMeta:
-      '@ember-data/graph':
-        injected: true
       '@ember-data/private-build-infra':
         injected: true
       '@ember-data/request-utils':
-        injected: true
         optional: true
-      '@ember-data/store':
-        injected: true
 
   packages/legacy-compat:
     dependencies:
@@ -824,13 +811,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
     dependenciesMeta:
-      '@ember-data/graph':
-        injected: true
-      '@ember-data/json-api':
-        injected: true
       '@ember-data/private-build-infra':
-        injected: true
-      '@ember-data/request':
         injected: true
 
   packages/model:
@@ -921,17 +902,7 @@ importers:
         specifier: ^5.88.2
         version: 5.88.2
     dependenciesMeta:
-      '@ember-data/graph':
-        injected: true
-      '@ember-data/json-api':
-        injected: true
-      '@ember-data/legacy-compat':
-        injected: true
       '@ember-data/private-build-infra':
-        injected: true
-      '@ember-data/store':
-        injected: true
-      '@ember-data/tracking':
         injected: true
       '@ember/string':
         injected: true
@@ -1191,8 +1162,6 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
     dependenciesMeta:
-      '@ember-data/store':
-        injected: true
       '@ember/string':
         injected: true
 
