@@ -32,12 +32,24 @@
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     "build": {
+      "inputs": [
+        // V1 convention
+        "blueprints",
+        "fastboot",
+
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "babel.*",
+        "rollup-config.mjs"
+      ],
       "outputs": [
-        "dist/**",
-        "declarations/**",
+        // V1-Addon convention
         "addon/**",
         "addon-test-support/**",
-        "blueprints"
+        // V2-Addon convention
+        "dist/**",
+        "declarations/**"
       ],
       "dependsOn": ["_syncPnpm"]
     },
@@ -46,8 +58,7 @@
         "dist/**",
         "declarations/**",
         "addon/**",
-        "addon-test-support/**",
-        "blueprints"
+        "addon-test-support/**"
       ],
       "dependsOn": ["_syncPnpm"]
     },
