@@ -322,7 +322,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       rollup:
         specifier: ^4.0.2
@@ -399,7 +399,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       ember-source:
         specifier: ~5.3.0
@@ -483,7 +483,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       rollup:
         specifier: ^4.0.2
@@ -555,7 +555,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       ember-source:
         specifier: ~5.3.0
@@ -624,7 +624,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       rollup:
         specifier: ^4.0.2
@@ -697,7 +697,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       ember-source:
         specifier: ~5.3.0
@@ -777,7 +777,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       rollup:
         specifier: ^4.0.2
@@ -865,7 +865,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       ember-source:
         specifier: ~5.3.0
@@ -1022,7 +1022,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       rollup:
         specifier: ^4.0.2
@@ -1080,7 +1080,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       rollup:
         specifier: ^4.0.2
@@ -1135,7 +1135,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       rollup:
         specifier: ^4.0.2
@@ -1220,7 +1220,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       ember-source:
         specifier: ~5.3.0
@@ -1302,7 +1302,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       ember-source:
         specifier: ~5.3.0
@@ -1380,7 +1380,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       ember-source:
         specifier: ~5.3.0
@@ -1464,7 +1464,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.0)(rollup@4.0.2)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
+        specifier: ^15.2.3
         version: 15.2.3(rollup@4.0.2)
       ember-source:
         specifier: ~5.3.0
