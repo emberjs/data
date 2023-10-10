@@ -53,6 +53,12 @@ runs:
         node-version-file: 'package.json'
         cache: 'pnpm'
 
+    - name: 'Setup local TurboRepo server'
+      if: ${{ inputs.repo-token }}
+      uses: felixmosh/turborepo-gh-artifacts@v2
+      with:
+        repo-token: ${{ inputs.repo-token }}
+
     - name: Configure Parallel Builds
       if: ${{ inputs.parallel-build == 'true' }}
       shell: bash

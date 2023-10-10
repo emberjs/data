@@ -3,6 +3,12 @@ name: 'Check Deprecations'
 on:
   workflow_dispatch:
 
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 jobs:
   test-all-deprecations:
     runs-on: ubuntu-latest

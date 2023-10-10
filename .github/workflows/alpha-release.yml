@@ -6,6 +6,11 @@ on:
     - cron: '0 20 * * 2' # weekly (Tuesday) 12 PM PST
     - cron: '0 20 * * 5' # weekly (Friday) 12 PM PST
 
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 jobs:
   release:
     name: Run publish script
@@ -26,6 +31,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Make sure git user is setup
         run: |
           git config --local user.email 'tomster@emberjs.com'

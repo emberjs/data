@@ -3,6 +3,13 @@ name: Canary-Mirror-Beta Release
 on:
   workflow_dispatch:
 
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
+
 jobs:
   release:
     name: Run publish script
@@ -25,6 +32,7 @@ jobs:
         with:
           build-addons: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Make sure git user is setup
         run: |
           git config --local user.email 'tomster@emberjs.com'

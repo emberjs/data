@@ -18,6 +18,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Test Docs
         run: pnpm test:docs
       - name: Test Blueprints

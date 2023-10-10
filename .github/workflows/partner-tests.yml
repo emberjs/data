@@ -9,6 +9,12 @@ on:
       - synchronize
       - ready_for_review
 
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 concurrency:
   group: partners-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -54,6 +60,7 @@ jobs:
           restore-broccoli-cache: true
           install: true
           build-addons: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate package tarballs
         run: node ./scripts/packages-for-commit.js
       - name: Run Tests
