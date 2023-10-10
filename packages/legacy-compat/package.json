@@ -48,15 +48,6 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/json-api": {
-      "injected": true
     }
   },
   "peerDependencies": {

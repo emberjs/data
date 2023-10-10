@@ -33,9 +33,6 @@
     "ember-inflector": {
       "injected": true
     },
-    "@ember-data/store": {
-      "injected": true
-    },
     "@ember/string": {
       "injected": true
     }

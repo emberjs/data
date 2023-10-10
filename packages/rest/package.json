@@ -32,9 +32,6 @@
   "dependenciesMeta": {
     "@ember/string": {
       "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
     }
   },
   "files": [
