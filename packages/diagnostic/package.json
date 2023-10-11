@@ -67,7 +67,7 @@
     "walk-sync": "^3.0.0"
   },
   "engines": {
-    "node": ">= 18.*"
+    "node": ">= 18.18.0"
   },
   "volta": {
     "extends": "../../package.json"

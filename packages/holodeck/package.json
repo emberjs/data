@@ -13,7 +13,7 @@
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "engines": {
-    "node": ">= 18.*"
+    "node": ">= 18.18.0"
   },
   "keywords": [
     "http-mock"

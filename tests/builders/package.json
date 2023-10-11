@@ -98,7 +98,7 @@
     "edition": "octane"
   },
   "engines": {
-    "node": ">= 18.*"
+    "node": ">= 18.18.0"
   },
   "volta": {
     "extends": "../../package.json"
