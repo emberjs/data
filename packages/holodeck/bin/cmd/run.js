@@ -8,7 +8,7 @@ import fs from 'fs';
 export default async function run(args) {
   const pkg = JSON.parse(fs.readFileSync('./package.json'), 'utf8');
   const cmd = args[0];
-  const isPkgScript = args.length === 1 && pkg.scripts[cmd];
+  const isPkgScript = pkg.scripts[cmd];
 
   if (isBun) {
     await spawn(['bun', 'run', 'holodeck:start-program']);
@@ -31,6 +31,9 @@ export default async function run(args) {
     try {
       if (isPkgScript) {
         const cmdArgs = pkg.scripts[cmd].split(' ');
+        if (args.length > 1) {
+          cmdArgs.push(...args.slice(1));
+        }
         console.log({ cmdArgs });
         await spawn(cmdArgs);
       } else {
