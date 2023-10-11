@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Addon fixture package for ember-cli-blueprint-test-helpers",
   "engines": {
-    "node": ">= 18.*"
+    "node": ">= 18.18.0"
   },
   "devDependencies": {
     "ember-cli": "*",

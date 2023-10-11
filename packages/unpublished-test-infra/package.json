@@ -73,7 +73,7 @@
     "qunit": "^2.20.0"
   },
   "engines": {
-    "node": ">= 18.*"
+    "node": ">= 18.18.0"
   },
   "ember": {
     "edition": "octane"
