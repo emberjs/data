@@ -14,17 +14,315 @@
 </p>
 
 <h3 align="center">⚡️ A Lightweight Modern Test Runner</h3>
-<p align="center">QUnit Compatible</p>
-
-`@warp-drive/schema` allows you to easily use the typescript you already know as a statically analyzable schema language.
-
-Its like GraphQL, RPC, or Protobuf... but for anything!
-
-## Usage
+<p align="center">QUnit Compatible (mostly! 🙈)</p>
 
 > ⚠️ Private
 
-This package may only be used within EmberData.
+This package may currently only be used within EmberData. A public version is coming soon 💜
+
+```cli
+pnpm install @warp-drive/diagnostic
+```
+
+**@warp-drive/** *diagnostic* is a ground-up revisiting of the APIs [QUnit](https://qunitjs.com/) popularized and [Ember](https://github.com/emberjs/ember-qunit)
+polished.
+
+- 💜 Fully Typed
+- :electron: Universal
+- ⚡️ Fast
+- ✅ Easy to use
+
+It works best paired with something like [Testem](https://github.com/testem/testem) as a launcher.
+
+## Quickstart
+
+- [Writing Tests](#writing-tests)
+- [Running Tests](#running-tests)
+- [Using the DOM Reporter](#using-the-domreporter)
+- [Concurrency](#concurrency)
+- [🔜 Parallelism](#parallelism)
+- [🔜 Randomization](#randomization)
+- [Why Is It Fast?](#why-is-it-fast)
+- [Migration From QUnit](#migration-from-qunit)
+
+### Writing Tests
+
+```ts
+import { module, test } from '@warp-drive/diagnostic';
+
+module('My Module', function(hooks) {
+  hooks.beforeEach(async function() {
+    // do setup
+  });
+
+  test('It Works!', async function(assert) {
+    assert.ok('We are up and running');
+  });
+});
+```
+
+Tests and hooks may be async or sync.
+
+The `this` context and `assert` instance passed to a `beforeEach` or `afterEach` hook is the same as will be used for the given test but is not shared across tests.
+
+This makes `this` a convenient pattern for accessing or stashing state during setup/teardown in a manner that is safe for *test concurrency*.
+
+Global and module level state that is not safely shared between multiple tests potentially running simultaneously should be avoided.
+
+When augmenting `this`, import `TestContext`.
+
+```ts
+import { type TestContext } from '@warp-drive/diagnostic';
+
+interface ModuleContext extends TestContext {
+  some: 'state';
+}
+
+module('My Module', function(hooks) {
+  hooks.beforeEach(async function(this: ModuleContext) {
+    this.some = 'state';
+  });
+
+  test('It Works!', async function(this: ModuleContext, assert) {
+    assert.equal(this.some, 'state', 'We are up and running');
+  });
+});
+```
+
+Alternatively, key some state to a WeakMap and avoid the
+type gymnastics.
+
+```ts
+interface ModuleState {
+  some: 'state';
+}
+const STATES = new WeakMap<object, ModuleState>();
+
+export function setState(key: object, state: ModuleState) {
+  STATES.set(key, state);
+}
+
+export function getState(key: object) {
+  const state = STATES.get(key);
+  if (!state) {
+    throw new Error(`Failed to setup state`);
+  }
+  return state;
+}
+```
+
+Now all we need to do is use the `this` we already have!
+
+```ts
+import { setState, getState } from './helpers';
+
+module('My Module', function(hooks) {
+  hooks.beforeEach(async function() {
+    setState(this, { some: 'state' });
+  });
+
+  test('It Works!', async function(assert) {
+    const state = getState(this);
+    assert.equal(state.some, 'state', 'We are up and running');
+  });
+});
+```
+
+### Running Tests
+
+> **Note** This section is nuanced, read carefully!
+
+
+To run your tests, import and run `start`.
+
+```ts
+import { start } from '@warp-drive/diagnostic';
+
+start();
+```
+
+Start will immediately begin running any tests it knows about,
+so when you call start matters.
+
+For instance, if your tests require DOM to be setup, making sure `start` is called only once DOM exists is important.
+
+If there are global hooks that need configured, that configuration needs to happen *before* you call `start`. Similar with any reporters, `registerReporter` must be called first.
+
+```ts
+import { registerReporter, setupGlobalHooks, start } from '@warp-drive/diagnostic';
+import CustomReporter from './my-custom-reporter';
+
+setupGlobalHooks((hooks) => {
+  hooks.beforeEach(() => {
+    // .. some setup
+  });
+  hooks.afterEach(() => {
+    // .. some teardown
+  });
+});
+
+registerReporter(new CustomReporter());
+
+start();
+```
+
+### Using the DOMReporter
+
+For convenience, a `DOMReporter` is provided. When using the `DOMReporter` it expects to be given an element to render the report into.
+
+```ts
+import { registerReporter, start } from '@warp-drive/diagnostic';
+import { DOMReporter } from '@warp-drive/diagnostic/reporters/dom';
+
+const container = document.getElementById('warp-drive__diagnostic');
+registerReporter(new DOMReporter(container));
+
+start();
+```
+
+When using this reporter you will likely want to include the `css` for it, which can be imported from `@warp-drive/diagnostic/dist/styles/dom-reporter.css`
+
+The specific container element `id` of `warp-drive__diagnostic` only matters if using the provided dom-reporter CSS, custom CSS may be used.
+
+For convenience, the above code can be condensed by using the DOM `runner`.
+
+```ts
+import { start } from '@warp-drive/diagnostic/runners/dom';
+
+start();
+```
+
+### Concurrency
+
+By default, diagnostic will only run tests one at a time, waiting for all `beforeEach` 
+and `afterEach` hooks to be called for a test before moving on to the next. 
+
+This is exactly as QUnit would have run the tests. For most this linear mode is
+likely a requirement due to state having been stored in module scope or global scope.
+
+But if you are starting fresh, or have a test suite and program that is very well encapsulated, you may benefit from using test concurrency.
+
+Emphasis on *may* because concurrency will only help if there is significany empty time
+during each test due to things such as `requestAnimationFrame`, `setTimeout` or a 
+`fetch` request.
+
+Concurrency is activated by providing a concurrency option in your test suite config. The option should be a positive integer
+greater than `1` for it to have any effect.
+
+```ts
+import { configure, start } from '@warp-drive/diagnostic';
+
+configure({
+  concurrency: 10
+});
+
+start();
+```
+
+### Parallelism
+
+[Coming Soon]
+
+### Randomization
+
+[Coming Soon]
+
+### Why Is It Fast?
+
+There's a number of micro-optimizations, but the primary difference is in "yielding".
+
+`QUnit` and `ember-qunit` both schedule async checks using `setTimeout`. Even if no work needs to happen and the thread is free, `setTimeout` will delay `~4.5ms` before executing its callback.
+
+When you delay in this manner multiple times per test, and have lots of tests, things add up.
+
+In our experience working on EmberData, most of our tests, even our more complicated ones, had
+completion times in the `4-30ms` range, the duration of which was dominated by free-time spent
+waiting for `setTimeout` callbacks. We did some math and realized that most of our tests run in
+less than `0.5ms`, and even our average was `<4ms`, smaller than the time for even a single `setTimeout`
+callback.
+
+`@warp-drive/diagnostic` runs tests as microtasks. Yielding out of the microtask queue only occurs if
+the test itself needs to do so.
+
+> **Note** soon we will elect to periodically yield just to allow the DOMReporter to show results, currently its so fast though that the tests are done before you'd care.
+
+Next, diagnostic, uses several singleton patterns internally to keep allocations to a minimum while
+running tests.
+
+By not waiting for DOMComplete and by being more intelligent about yielding, we start running tests
+sooner. In most situations this means test runs start 100-200ms quicker.
+
+We further noticed that the qunit DOM Reporter was its own bottleneck for both memory and compute time. For our version we made a few tweaks to reduce this cost, which should especially help test suites with thousands or tens of thousands of tests.
+
+Lastly, we noticed that the serialization and storage of objects being reported had a high cost.
+This was a problem shared between the launcher (Testem) and what QUnit was providing to it. For this,
+we opted to reduce the amount of information shared to Testem by default to the bare minimum, but with a fast `debug` toggle to switch into the more verbose mode.
+
+### Migration from QUnit
+
+1. Replace `qunit` with `@warp-drive/diagnostic`
+
+```diff
+index 2fbga6a55..c9537dd37 100644
+--- a/package.json
++++ b/package.json
+@@ -23,5 +23,5 @@
+- "qunit": "2.20.0",
++ "@warp-drive/diagnostic": "latest",
+```
+
+2. Update imports from `qunit` to `@warp-drive/diagnostic`
+
+```diff
+--- a/tests/example.ts
++++ b/tests/example.ts
+@@ -1,0 +1,0 @@
+- import { module, test } from 'qunit';
++ import { module, test } from '@warp-drive/diagnostic';
+```
+
+
+3. Use `equal` and `notEqual`
+
+Diagnostic has no loose comparison mode. So instead of `strictEqual` and `notStrictEqual` we can just use `equal` and `notEqual` which are already strict.
+
+4. Update module hooks
+
+`beforeEach` and `afterEach` are unchanged.
+`before` and `after` become `beforeModule` and `afterModule`.
+
+```diff
+module('My Module', function(hooks) {
+-  hooks.before(function(assert) {
++  hooks.beforeModule(function(assert) {
+    // ...
+  });
+
+- hooks.after(function(assert) {
++ hooks.afterModule(function(assert) {
+    // ...
+  });
+});
+```
+
+5. Update global hooks
+
+`QUnit.begin` and `QUnit.done` become `onSuiteStart` and `onSuiteFinish` respectively.
+
+`QUnit.hooks` becomes `setupGlobalHooks`.
+
+```diff
++ import { setupGlobalHooks } from '@warp-drive/diagnostic';
+
+- QUnit.begin(function() {});
+- QUnit.done(function() {});
+- QUnit.hooks.beforeEach(function() {});
++ setupGlobalHooks(function(hooks) {
++   hooks.onSuiteStart(function() {});
++   hooks.onSuiteFinish(function() {});
++   hooks.beforeEach(function() {});
++ });
+```
 
 ### ♥️ Credits
 
