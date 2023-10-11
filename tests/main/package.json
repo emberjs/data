@@ -19,8 +19,8 @@
     "holodeck:start-program": "holodeck start",
     "holodeck:end-program": "holodeck end",
     "launch:tests": "ember test --port=0 --serve --no-launch",
-    "start": "holodeck run pnpm launch:tests",
-    "test": "holodeck run pnpm examine"
+    "start": "holodeck run launch:tests",
+    "test": "holodeck run examine"
   },
   "author": "",
   "license": "MIT",

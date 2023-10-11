@@ -3,8 +3,13 @@
 const isBun = typeof Bun !== 'undefined';
 const { process } = globalThis;
 import { spawn } from './spawn.js';
+import fs from 'fs';
 
 export default async function run(args) {
+  const pkg = JSON.parse(fs.readFileSync('./package.json'), 'utf8');
+  const cmd = args[0];
+  const isPkgScript = pkg.scripts[cmd];
+
   if (isBun) {
     await spawn(['bun', 'run', 'holodeck:start-program']);
 
@@ -24,7 +29,16 @@ export default async function run(args) {
 
     let exitCode = 0;
     try {
-      await spawn(['pnpm', 'exec', ...args]);
+      if (isPkgScript) {
+        const cmdArgs = pkg.scripts[cmd].split(' ');
+        if (args.length > 1) {
+          cmdArgs.push(...args.slice(1));
+        }
+        console.log({ cmdArgs });
+        await spawn(cmdArgs);
+      } else {
+        await spawn(['pnpm', 'exec', ...args]);
+      }
     } catch (e) {
       exitCode = e;
     }

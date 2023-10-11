@@ -5,6 +5,8 @@ const isBun = typeof Bun !== 'undefined';
 export async function spawn(args, options) {
   if (isBun) {
     const proc = Bun.spawn(args, {
+      env: process.env,
+      cwd: process.cwd(),
       stdout: 'inherit',
       stderr: 'inherit',
     });
@@ -33,5 +35,6 @@ export async function spawn(args, options) {
 
   await pSpawn(args.shift(), args, {
     stdio: 'inherit',
+    shell: true,
   });
 }
