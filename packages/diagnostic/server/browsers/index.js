@@ -2,12 +2,13 @@ import { debug } from "../utils/debug";
 import os from 'os';
 import path from 'path';
 import tmp from 'tmp';
+import { isWin, platformName } from "../utils/platform";
 
 export function getHomeDir() {
   return process.env.HOME || process.env.USERPROFILE;
 }
 
-export function chromeWinPaths(name) {
+function chromeWinPaths(name) {
   const homeDir = getHomeDir();
   return [
     homeDir + '\\Local Settings\\Application Data\\Google\\' + name + '\\Application\\chrome.exe',
@@ -17,7 +18,7 @@ export function chromeWinPaths(name) {
   ];
 }
 
-export function chromeOSXPaths(name) {
+function chromeDarwinPaths(name) {
   const homeDir = getHomeDir();
   return [
     homeDir + '/Applications/' + name + '.app/Contents/MacOS/' + name,
@@ -25,21 +26,117 @@ export function chromeOSXPaths(name) {
   ];
 }
 
-export const WinChromeStable = chromeWinPaths('Chrome');
-export const WinChromeBeta = chromeWinPaths('Chrome Beta');
-export const WinChromeCanary = chromeWinPaths('Chrome SxS');
-export const OSXChromeStable = chromeOSXPaths('Google Chrome');
-export const OSXChromeBeta = chromeOSXPaths('Google Chrome Beta');
-export const OSXChromeCanary = chromeOSXPaths('Google Chrome Canary');
+const ChromePaths = {
+  win: chromeWinPaths,
+  darwin: chromeDarwinPaths,
+}
 
-export const ChromeExeNames = [
-  'google-chrome',
-  'google-chrome-stable',
-  'chrome'
-];
+const ChromeTags = {
+  win: {
+    stable: 'Chrome',
+    beta: 'Chrome Beta',
+    canary: 'Chrome SxS'
+  },
+  darwin: {
+    stable: 'Google Chrome',
+    beta: 'Google Chrome Beta',
+    canary: 'Google Chrome Canary'
+  }
+}
+
+const ChromeExeNames = {
+  stable: [
+    'google-chrome-stable',
+    'google-chrome',
+    'chrome'
+  ],
+  beta: [
+    'google-chrome-beta',
+  ],
+  canary: [
+    'google-chrome-unstable'
+  ]
+}
+
+async function executableExists(exe) {
+  const cmd = isWin() ? 'where' : 'which';
+  const result = Bun.spawnSync([cmd, exe], {
+    stdout: 'inherit'
+  });
+
+  return result.success;
+};
+
+async function isInstalled(browser) {
+  const result = await checkBrowser(browser.possiblePath, fileExists);
+  if (result) {
+    return result;
+  }
+
+  return checkBrowser(browser.possibleExe, function(exe) {
+    return executableExists(exe);
+  });
+}
+
+async function fileExists(file) {
+  const pointer = Bun.file(file);
+  return pointer.exists();
+}
+
+async function checkBrowser(lookups, method) {
+  if (!lookups) {
+    return false;
+  }
+
+  if (Array.isArray(lookups)) {
+    for (const option of lookups) {
+      const result = await method(option);
+      if (result) {
+        return option;
+      }
+    }
+    return false;
+  }
+
+  if (await method(lookups)) {
+    return lookups;
+  }
+}
+
+async function getChrome(browser, tag) {
+  const platform = platformName();
+  const pathName = ChromeTags[platform]?.[tag];
+  const paths = ChromePaths[platform]?.(pathName) ?? [];
+
+  const lookupInfo = {
+    name: browser.toLowerCase(),
+    possiblePath: paths,
+    possibleExe: ChromeExeNames[tag]
+  };
+
+  const result = await isInstalled(lookupInfo);
+  if (!result) {
+    throw new Error(`Could not find ${lookupInfo.name} on your system (${platform}).\n\n\tChecked Paths:\n\t\t${lookupInfo.possiblePath.join('\n\t\t')}\n\tChecked Executable Names:\n\t\t${lookupInfo.possibleExe.join('\n\t\t')}`);
+  }
+
+  debug(`Found ${lookupInfo.name} executable ${result}`)
+
+  return result;
+}
 
 export async function getBrowser(browser) {
-  return '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome';
+  const name = browser.toLowerCase();
+  if (name === 'chrome') {
+    return getChrome(name, 'stable');
+  }
+  if (name === 'chrome-beta') {
+    return getChrome(name, 'beta');
+  }
+  if (name === 'chrome-canary') {
+    return getChrome(name, 'canary');
+  }
+
+  throw new Error(`@warp-drive/diagnostic has no launch information for ${browser}`);
 }
 
 const TMP_DIRS = new Map();
@@ -61,18 +158,18 @@ export function getTmpDir(browser) {
   return tmpDir.name;
 }
 
-export function recommendedArgs(browser) {
+export function recommendedArgs(browser, options = {}) {
   if (!browser || browser.toLowerCase() !== 'chrome') {
     return [];
   }
-  const DEBUG = debug.enabled;
-  const DEBUG_MEMORY = process.env.DEBUG_MEMORY;
+  const DEBUG = options.debug || debug.enabled;
+  const DEBUG_MEMORY = options.memory || process.env.DEBUG_MEMORY;
 
   // See https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
   // For more details on these flags
   return [
     '--user-data-dir=' + getTmpDir(browser),
-    '--headless=new',
+    options.headless ? '--headless=new' : false,
     '--no-sandbox',
     // these prevent user account
     // and extensions from mucking with things
@@ -186,8 +283,8 @@ export function recommendedArgs(browser) {
 
     // ubuntu-16-core seems to be unhappy with this being set to a non-zero port
     // throws: ERROR:socket_posix.cc(147)] bind() failed: Address already in use (98)
-    '--remote-debugging-port=0',
-    '--remote-debugging-address=0.0.0.0',
+    options.useEventSimulation ? '--remote-debugging-port=0' : false,
+    options.useEventSimulation ? '--remote-debugging-address=0.0.0.0' : false,
     '--window-size=1440,900',
     // no-proxy seems to cause browser not able to connect issues
     // '--no-proxy-server',
