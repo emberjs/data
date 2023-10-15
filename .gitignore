@@ -5,6 +5,7 @@
 /packages/-ember-data/docs/
 concat-stats-for
 dist
+dist-*
 tmp
 packages/tracking/addon
 packages/request/addon

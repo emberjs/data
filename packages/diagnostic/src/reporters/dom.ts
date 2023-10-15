@@ -1,4 +1,5 @@
 /* global Testem */
+import { CompatTestReport, Emitter } from "../-types";
 import { DiagnosticReport, ModuleReport, Reporter, SuiteReport, TestReport } from "../-types/report";
 import { getSettings, updateConfigValue, updateSuiteState } from "../internals/config";
 
@@ -9,19 +10,6 @@ type SuiteLayout = {
   results: Map<TestReport, HTMLElement | null>;
   cleanup: (() => void)[];
 };
-
-type CompatTestReport = {
-  id: number;
-  name: string;
-  items: { passed: boolean; message: string; }[];
-  failed: number;
-  passed: number;
-  total: number;
-  runDuration: number;
-  skipped: boolean;
-  todo: boolean;
-  testId: string;
-}
 
 export class DOMReporter implements Reporter {
   declare element: HTMLElement;
@@ -37,9 +25,9 @@ export class DOMReporter implements Reporter {
     modulesPassed: number;
   }
   declare _pendingUpdate: number | null;
-  declare _socket?: { emit: (name: string, data?: CompatTestReport) => void };
+  declare _socket: Emitter | null;
 
-  constructor(element: HTMLElement) {
+  constructor(element: HTMLElement, emitter?: Emitter | null) {
     this.nextTestId = 1;
     this.element = element;
     this.settings = getSettings();
@@ -51,16 +39,7 @@ export class DOMReporter implements Reporter {
     };
     this._pendingUpdate = null;
     this.currentTests = new Map();
-
-    if (this.settings.useTestem) {
-      // @ts-expect-error
-      if (typeof window.Testem !== 'undefined') {
-        // @ts-expect-error
-        window.Testem.useCustomAdapter((socket) => {
-          this._socket = socket;
-        });
-      }
-    }
+    this._socket = emitter || null;
   }
 
   onSuiteStart(report: SuiteReport): void {
@@ -71,20 +50,16 @@ export class DOMReporter implements Reporter {
     this.suite = renderSuite(fragment, report);
     this.element.appendChild(fragment);
     this.suiteReport = report;
-    if (this.settings.useTestem) {
-      this._socket?.emit('tests-start');
-    }
+    this._socket?.emit('suite-start');
   }
 
   onSuiteFinish(_report: SuiteReport): void {
-    if (this.settings.useTestem) {
-      this._socket?.emit('all-test-results');
-    }
+    this._socket?.emit('suite-finish');
   }
 
   onTestStart(test: TestReport): void {
     this.scheduleUpdate();
-    if (this.settings.useTestem) {
+    if (this._socket) {
       const compatTestReport = {
         id: this.nextTestId++,
         name: test.module.name + ':' + test.name,
@@ -98,7 +73,7 @@ export class DOMReporter implements Reporter {
         testId: test.id,
       };
       this.currentTests.set(test.id, compatTestReport);
-      this._socket?.emit('tests-start', compatTestReport);
+      this._socket.emit('test-start', compatTestReport);
     }
   }
 
@@ -106,7 +81,7 @@ export class DOMReporter implements Reporter {
     this.stats.diagnostics += test.result.diagnostics.length;
     this.stats.diagnosticsPassed += test.result.diagnostics.filter(d => d.passed).length;
 
-    if (this.settings.useTestem) {
+    if (this._socket) {
       const compatTestReport = this.currentTests.get(test.id)!;
       console.log(compatTestReport.id, test.name);
       this.currentTests.delete(test.id);
@@ -131,7 +106,7 @@ export class DOMReporter implements Reporter {
         this.settings.params.debug.value && console.log(test, compatTestReport);
       }
 
-      this._socket?.emit('test-result', compatTestReport);
+      this._socket.emit('test-finish', compatTestReport);
     } else if (test.result.failed) {
       this.settings.params.debug.value && console.log(test);
     }
