@@ -1,16 +1,3 @@
-import launch from '../server';
-import { recommendedArgs, getBrowser } from '../server/browsers';
+import launch from '../server/default-setup';
 
-const chrome = await getBrowser('chrome');
-
-await launch({
-  entry: './index.html',
-  assets: '.',
-  parallel: 1,
-  launchers: {
-    chrome: {
-      command: chrome,
-      args: recommendedArgs('chrome'),
-    },
-  }
-});
+await launch();

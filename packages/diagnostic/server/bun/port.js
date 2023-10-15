@@ -1,5 +1,6 @@
-/* global Bun */
-import { debug } from '../utils/debug';
+import { debug } from '../utils/debug.js';
+
+/** @type {import('bun-types')} */
 
 export async function checkPort(port) {
   debug(`Checking if port ${port} is available`);

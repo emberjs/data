@@ -164,12 +164,13 @@ export function recommendedArgs(browser, options = {}) {
   }
   const DEBUG = options.debug || debug.enabled;
   const DEBUG_MEMORY = options.memory || process.env.DEBUG_MEMORY;
+  const HEADLESS = 'headless' in options ? options.headless : true;
 
   // See https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
   // For more details on these flags
   return [
     '--user-data-dir=' + getTmpDir(browser),
-    options.headless ? '--headless=new' : false,
+    HEADLESS ? '--headless=new' : false,
     '--no-sandbox',
     // these prevent user account
     // and extensions from mucking with things
