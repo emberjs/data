@@ -29,7 +29,7 @@
 			const width = window.outerWidth;
 			const height = window.outerHeight;
 			pages.forEach((page, index) => {
-				const dims = `width=${width},height=${height},left=${25 * (index + 1)},top=0`;
+				const dims = `noopener,width=${width},height=${height},left=${25 * (index + 1)},top=0`;
 				const win = window.open(page, '_blank', dims);
 			});
       window.close();

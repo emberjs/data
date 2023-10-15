@@ -72,7 +72,7 @@ export function recommendedArgs(browser) {
   // For more details on these flags
   return [
     '--user-data-dir=' + getTmpDir(browser),
-    // '--headless=new',
+    '--headless=new',
     '--no-sandbox',
     // these prevent user account
     // and extensions from mucking with things

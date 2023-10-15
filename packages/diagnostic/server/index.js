@@ -111,8 +111,12 @@ export default async function launch(config) {
             }
 
             const route = pathParts.join('/');
-            debug(`Serving asset ${route} for browser ${bId} window ${wId}`);
+            if (route === 'favicon.ico') {
+              return new Response('Not Found', { status: 404 });
+            }
+
             // serve test assets
+            debug(`Serving asset ${route} for browser ${bId} window ${wId}`);
             return new Response(Bun.file(path.join(process.cwd(), config.assets, route)));
           }
         },
