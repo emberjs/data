@@ -50,11 +50,11 @@ export class DOMReporter implements Reporter {
     this.suite = renderSuite(fragment, report);
     this.element.appendChild(fragment);
     this.suiteReport = report;
-    this._socket?.emit('suite-start');
+    this._socket?.emit('suite-start', report);
   }
 
-  onSuiteFinish(_report: SuiteReport): void {
-    this._socket?.emit('suite-finish');
+  onSuiteFinish(report: SuiteReport): void {
+    this._socket?.emit('suite-finish', report);
   }
 
   onTestStart(test: TestReport): void {

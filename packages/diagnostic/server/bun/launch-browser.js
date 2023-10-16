@@ -38,7 +38,10 @@ export async function launchBrowsers(config, state) {
       stdout: 'inherit',
       stderr: 'inherit',
     });
-    state.browsers.set(bId, browser);
+    state.browsers.set(String(bId), {
+      launcher,
+      proc: browser,
+    });
     info(`${launcher} spawned with pid ${browser.pid}`);
     print(chalk.magenta(`⚛️  Launched ${launcher}`));
   }

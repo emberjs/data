@@ -60,7 +60,7 @@ export default async function launchDefault() {
     parallelMode: 'window', // 'tab' | 'browser' | 'window'
 
     reporter: new DefaultReporter({
-      mode: process.env.DIAGNOSTIC_REPORTER_MODE || 'dot', // 'dot' | 'compact' | 'verbose'
+      mode: process.env.DIAGNOSTIC_REPORTER_MODE || 'compact', // 'dot' | 'compact' | 'verbose'
     }),
 
     suiteTimeout: SUITE_TIMEOUT,

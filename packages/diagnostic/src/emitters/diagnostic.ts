@@ -1,9 +1,10 @@
 import { CompatTestReport, Emitter } from "../-types";
+import { SuiteReport } from "../-types/report";
 import { assert } from "../-utils";
 
 type EmitEvent = {
   name: 'suite-start' | 'suite-finish' | 'test-start' | 'test-finish';
-  data?: CompatTestReport
+  data: SuiteReport | CompatTestReport
 }
 
 class DiagnosticEmitter implements Emitter {
@@ -41,13 +42,7 @@ class DiagnosticEmitter implements Emitter {
         console.log(`[Diagnostic] Remote Reporter Connection established`);
         this.connected = true;
         this.buffer.forEach((event) => {
-          if (event.data) {
-            assert(`Expected event.name to be one of 'test-start' or 'test-finish'`, (['test-start', 'test-finish']).includes(event.name ));
-            this.emit(event.name as 'test-start', event.data);
-          } else {
-            assert(`Expected event.name to be one of 'suite-start' or 'suite-finish'`, (['suite-start', 'suite-finish']).includes(event.name ));
-            this.emit(event.name as 'suite-finish');
-          }
+          this.emit(event.name as 'suite-start', event.data as SuiteReport);
         });
         this.buffer = [];
       };
@@ -81,11 +76,11 @@ class DiagnosticEmitter implements Emitter {
     }
   }
 
-  emit(name: 'suite-start'): void;
-  emit(name: 'suite-finish'): void;
+  emit(name: 'suite-start', data: SuiteReport): void;
+  emit(name: 'suite-finish', data: SuiteReport): void;
   emit(name: 'test-start', data: CompatTestReport): void;
   emit(name: 'test-finish', data: CompatTestReport): void;
-  emit(name: 'suite-start' | 'suite-finish' | 'test-start' | 'test-finish', data?: CompatTestReport) {
+  emit(name: 'suite-start' | 'suite-finish' | 'test-start' | 'test-finish', data: SuiteReport | CompatTestReport) {
     if (!this.socket) {
       return;
     }
@@ -94,13 +89,21 @@ class DiagnosticEmitter implements Emitter {
       return;
     }
 
-    assert(`Cannot emit suite-start with data`, name !== 'suite-start' || typeof data === 'undefined');
-    assert(`Cannot emit suite-finish with data`, name !== 'suite-finish' || typeof data === 'undefined');
-    assert(`Cannot emit test-start without data`, name !== 'test-start' || typeof data !== 'undefined');
-    assert(`Cannot emit test-finish without data`, name !== 'test-finish' || typeof data !== 'undefined');
-    this.socket.send(JSON.stringify({ browserId: this.browserId, windowId: this.windowId, name, data }));
+    assert(`Expected event.name to be one of 'suite-start', 'suite-finish', 'test-start' or 'test-finish'`, (['suite-start', 'suite-finish', 'test-start', 'test-finish']).includes(name));
+    assert(`Expected event.data to be defined`, typeof data !== 'undefined');
+    const event = { browserId: this.browserId, windowId: this.windowId, name, data, timestamp: Date.now() };
+
+    this.socket.send(JSON.stringify(event));
   }
 }
+
+// function getRelativeTimeStamp(timestamp: number) {
+//   const now = Date.now();
+//   const perfNow = performance.now();
+
+//   const diff = perfNow - timestamp;
+//   return now - diff;
+// }
 
 export function createDiagnosticEmitter(): Promise<Emitter> {
   return Promise.resolve(new DiagnosticEmitter());

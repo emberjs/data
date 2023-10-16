@@ -15,8 +15,8 @@ export type CompatTestReport = {
 }
 
 export interface Emitter {
-  emit(name: 'suite-start'): void;
-  emit(name: 'suite-finish'): void;
+  emit(name: 'suite-start', data: SuiteReport): void;
+  emit(name: 'suite-finish', data: SuiteReport): void;
   emit(name: 'test-start', data: CompatTestReport): void;
   emit(name: 'test-finish', data: CompatTestReport): void;
 }

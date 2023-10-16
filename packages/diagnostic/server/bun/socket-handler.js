@@ -7,13 +7,14 @@ export function buildHandler(config, state) {
     perMessageDeflate: true,
     message(ws, message) {
       const msg = JSON.parse(message);
+      msg.launcher = state.browsers.get(msg.browserId).launcher;
       info(`${chalk.green('➡')} [${chalk.cyan(msg.browserId)}/${chalk.cyan(msg.windowId)}] ${chalk.green(msg.name)}`);
 
       switch (msg.name) {
         case 'suite-start':
           if (!state.started) {
             state.started = true;
-            config.reporter.onRunStart();
+            config.reporter.onRunStart(msg);
           }
           config.reporter.onSuiteStart(msg);
           break;
@@ -31,11 +32,11 @@ export function buildHandler(config, state) {
           state.completed++;
           debug(`${chalk.green('✅ [Complete]')} ${chalk.cyan(msg.browserId)}/${chalk.cyan(msg.windowId)} ${chalk.yellow('@' + sinceStart())}`);
           if (state.completed === state.expected) {
-            config.reporter.onRunFinish();
+            config.reporter.onRunFinish(msg);
             debug(`${chalk.green('✅ [All Complete]')} ${chalk.yellow('@' + sinceStart())}`);
             state.browsers.forEach((browser) => {
-              browser.kill();
-              browser.unref();
+              browser.proc.kill();
+              browser.proc.unref();
             });
             state.server.stop();
           }

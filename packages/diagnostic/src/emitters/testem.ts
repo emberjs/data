@@ -1,6 +1,7 @@
 /* global Testem */
 
 import { Emitter, CompatTestReport } from "../-types";
+import { SuiteReport } from "../-types/report";
 import { assert } from "../-utils";
 
 type TestemSocket = {
@@ -17,23 +18,22 @@ class TestemEmitter implements Emitter {
     this.socket = socket;
   }
 
-  emit(name: 'suite-start'): void;
-  emit(name: 'suite-finish'): void;
+  emit(name: 'suite-start', data: SuiteReport): void;
+  emit(name: 'suite-finish', data: SuiteReport): void;
   emit(name: 'test-start', data: CompatTestReport): void;
   emit(name: 'test-finish', data: CompatTestReport): void;
-  emit(name: 'suite-start' | 'suite-finish' | 'test-start' | 'test-finish', data?: CompatTestReport) {
+  emit(name: 'suite-start' | 'suite-finish' | 'test-start' | 'test-finish', data: SuiteReport | CompatTestReport) {
+    assert(`Expected event.name to be one of 'suite-start', 'suite-finish', 'test-start' or 'test-finish'`, (['suite-start', 'suite-finish', 'test-start', 'test-finish']).includes(name));
+    assert(`Expected event.data to be defined`, typeof data !== 'undefined');
+
     if (name === 'suite-start') {
-      assert(`Cannot emit suite-start with data`, typeof data === 'undefined');
       this.socket.emit('tests-start');
     } else if (name === 'suite-finish') {
-      assert(`Cannot emit suite-finish with data`, typeof data === 'undefined');
       this.socket.emit('all-test-results');
     } else if (name === 'test-start') {
-      assert(`Cannot emit test-start without data`, typeof data !== 'undefined')
-      this.socket.emit('tests-start', data!);
+      this.socket.emit('tests-start', data as CompatTestReport);
     } else if (name === 'test-finish') {
-      assert(`Cannot emit test-finish without data`, typeof data !== 'undefined')
-      this.socket.emit('test-result', data!);
+      this.socket.emit('test-result', data as CompatTestReport);
     }
   }
 }

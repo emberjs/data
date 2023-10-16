@@ -56,7 +56,12 @@ export default async function launch(config) {
         websocket: buildHandler(config, state),
       });
       print(chalk.magenta(`🚀 Serving on ${chalk.white(protocol + '://' + hostname + ':')}${chalk.magenta(port)}`));
-
+      config.reporter.serverConfig = {
+        port,
+        hostname,
+        protocol,
+        url: `${protocol}://${hostname}:${port}`
+      };
       await launchBrowsers(config, state);
     } catch (e) {
       error(`Error: ${e?.message ?? e}`);
