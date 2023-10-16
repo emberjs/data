@@ -9,6 +9,7 @@ export function assert(message: string, test: unknown): asserts test {
 }
 
 export function getGlobal(): Window {
+  // @ts-expect-error global is node only
   const g = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : null);
   assert(`Expected to find a global object`, g !== null);
   return g as unknown as Window;
