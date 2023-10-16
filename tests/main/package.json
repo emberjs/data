@@ -118,7 +118,7 @@
     "loader.js": "^4.7.0",
     "pretender": "^3.4.7",
     "qunit": "^2.20.0",
-    "qunit-dom": "^2.0.0",
+    "qunit-dom": "^3.0.0",
     "typescript": "~5.2.2",
     "webpack": "^5.88.2"
   },
