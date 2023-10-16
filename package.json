@@ -72,7 +72,6 @@
     "rimraf": "^5.0.5",
     "semver": "^7.5.4",
     "silent-error": "^1.1.1",
-    "testem": "^3.10.1",
     "typescript": "~5.2.2",
     "url": "^0.11.3",
     "webpack": "^5.88.2",

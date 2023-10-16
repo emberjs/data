@@ -160,9 +160,6 @@ importers:
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
-      testem:
-        specifier: ^3.10.1
-        version: 3.10.1(patch_hash=ne26ybtmre3r2x3hatfhkop2dm)(debug@4.3.4)
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
