@@ -1791,8 +1791,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -1929,8 +1929,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       webpack:
         specifier: ^5.88.2
         version: 5.88.2
@@ -2322,8 +2322,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       webpack:
         specifier: ^5.88.2
         version: 5.88.2
@@ -2559,8 +2559,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       webpack:
         specifier: ^5.88.2
         version: 5.88.2
@@ -2686,8 +2686,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -2791,8 +2791,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -3029,8 +3029,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -3300,8 +3300,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -3441,8 +3441,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.23.0)
+        specifier: ^3.0.0
+        version: 3.0.0
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -14820,17 +14820,8 @@ packages:
       - supports-color
     dev: true
 
-  /qunit-dom@2.0.0(@babel/core@7.23.0):
-    resolution: {integrity: sha512-mElzLN99wYPOGekahqRA+mq7NcThXY9c+/tDkgJmT7W5LeZAFNyITr2rFKNnCbWLIhuLdFw88kCBMrJSfyBYpA==}
-    engines: {node: 12.* || 14.* || >= 16.*}
-    dependencies:
-      broccoli-funnel: 3.0.8
-      broccoli-merge-trees: 4.2.0
-      ember-cli-babel: 8.1.0(@babel/core@7.23.0)
-      ember-cli-version-checker: 5.1.2
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
+  /qunit-dom@3.0.0:
+    resolution: {integrity: sha512-rqGZ9ZgOvtOY+Ph2ElCJ4pRIHouMZmI3DWK35Xr3x3c17/gIwOHHyKAQk6XetqhqepS6p+oXvK6Bx1uZu5jJuw==}
 
   /qunit@2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy):
     resolution: {integrity: sha512-aqUzzUeCqlleWYKlpgfdHHw9C6KxkB9H3wNfiBg5yHqQMzy0xw/pbCRHYFkjl8MsP/t8qkTQE+JTYL71azgiew==}

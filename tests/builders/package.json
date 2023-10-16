@@ -90,7 +90,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.20.0",
     "qunit-console-grouper": "^0.3.0",
-    "qunit-dom": "^2.0.0",
+    "qunit-dom": "^3.0.0",
     "silent-error": "^1.1.1",
     "webpack": "^5.88.2"
   },
