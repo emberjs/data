@@ -16,9 +16,8 @@
   },
   "scripts": {
     "build": "ember build --output-path=dist-test --suppress-sizes",
-    "prepare": "pnpm build",
-    "test": "bun ./diagnostic.js",
-    "test:production": "export IS_TESTING=true; ember build --output-path=dist-test -e production --suppress-sizes; bun ./diagnostic.js"
+    "test": "pnpm build && bun ./diagnostic.js",
+    "test:production": "pnpm build -e production; bun ./diagnostic.js"
   },
   "dependenciesMeta": {
     "@warp-drive/diagnostic": {
