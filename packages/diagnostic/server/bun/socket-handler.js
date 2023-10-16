@@ -32,15 +32,15 @@ export function buildHandler(config, state) {
           state.completed++;
           debug(`${chalk.green('✅ [Complete]')} ${chalk.cyan(msg.browserId)}/${chalk.cyan(msg.windowId)} ${chalk.yellow('@' + sinceStart())}`);
           if (state.completed === state.expected) {
-            config.reporter.onRunFinish(msg);
+            const exitCode = config.reporter.onRunFinish(msg);
             debug(`${chalk.green('✅ [All Complete]')} ${chalk.yellow('@' + sinceStart())}`);
             state.browsers.forEach((browser) => {
               browser.proc.kill();
               browser.proc.unref();
             });
             state.server.stop();
+            process.exit(exitCode);
           }
-
 
           break;
       }

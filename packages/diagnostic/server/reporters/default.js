@@ -183,7 +183,7 @@ export default class CustomDotReporter {
       `\n\n${HEADER_STR}\n  Test Run Complete\n\tSuite End: ${chalk.cyan(realEndDate.toLocaleString('en-US'))} (elapsed ${chalk.cyan(suiteElapsed.toLocaleString('en-US'))} ms)\n\tReporter End: ${chalk.cyan(endDate.toLocaleString('en-US'))} (elapsed ${chalk.cyan(runElapsed.toLocaleString('en-US'))} ms)\n\tRun Duration ${chalk.cyan(fullElapsed.toLocaleString('en-US'))} ms\n${HEADER_STR}\n\n`,
     );
 
-    process.exit(this.failedTests.length ? 1 : 0);
+    return this.failedTests.length ? 1 : 0;
   }
 
   addLauncher(data) {
