@@ -30,8 +30,8 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.23.0",
-    "@babel/runtime": "^7.23.1",
+    "@babel/core": "^7.23.2",
+    "@babel/runtime": "^7.23.2",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^3.2.0",
     "@embroider/compat": "^3.2.3",
@@ -41,7 +41,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@types/ember__owner": "^4.0.6",
     "ember-cli": "~5.3.0",
-    "ember-cli-babel": "^8.1.0",
+    "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-load-initializers": "^2.1.2",
