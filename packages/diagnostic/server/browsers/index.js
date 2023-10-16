@@ -268,8 +268,9 @@ export function recommendedArgs(browser, options = {}) {
     '--no-pings',
 
     // On Ubuntu this dev-shm-usage speeds you up on bigger machines
-    // and slows you down on smaller. We are on a bigger CI box now.
-    // '--disable-dev-shm-usage',
+    // and slows you down on smaller. If you are on a larger CI box
+    // you should consider re-enabling this.
+    '--disable-dev-shm-usage',
 
     // Potentially no longer needed settings
     // =====================================
