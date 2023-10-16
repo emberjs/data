@@ -2,7 +2,7 @@
   "name": "@warp-drive/diagnostic",
   "version": "5.5.0-alpha.11",
   "private": true,
-  "description": "Parse Declarative Typescript into JSON Schemas",
+  "description": "⚡️ A Lightweight Modern Test Runner",
   "keywords": [
     "test",
     "assert",
@@ -25,6 +25,7 @@
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "files": [
     "dist/",
+    "server/",
     "README.md",
     "LICENSE.md",
     "NCC-1701-a.svg",
