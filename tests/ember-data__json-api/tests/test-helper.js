@@ -42,16 +42,11 @@ export function loadTests() {
   new TestLoader().loadModules();
 }
 
-// import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
-
-// configureAsserts();
-
 loadTests();
 
 start({
   groupLogs: false,
   instrument: true,
-  hideReport: false,
-  // useTestem: false,
-  // useDiagnostic: true,
+  hideReport: true,
+  useDiagnostic: true,
 });

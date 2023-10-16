@@ -56,7 +56,7 @@ configure({
   tryCatch: false,
   groupLogs: false,
   instrument: true,
-  hideReport: false,
+  hideReport: true,
 });
 
 setApplication(Application.create(config.APP));
