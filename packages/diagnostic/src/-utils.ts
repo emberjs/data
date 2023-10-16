@@ -1,3 +1,4 @@
+/* global window, globalThis, global, self */
 import type { Config } from "./internals/config";
 import { HooksCallback, ModuleInfo } from "./-types";
 
@@ -8,10 +9,10 @@ export function assert(message: string, test: unknown): asserts test {
 }
 
 export function getGlobal(): Window {
-  // @ts-expect-error global not in our libs
+  // @ts-expect-error global is node only
   const g = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : null);
   assert(`Expected to find a global object`, g !== null);
-  return g;
+  return g as unknown as Window;
 }
 
 export function getChain(globalHooks: typeof Config.globalHooks, module: ModuleInfo, parents: ModuleInfo[] | null, prop: 'beforeEach' | 'afterEach'): HooksCallback[] {

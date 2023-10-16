@@ -1,5 +1,26 @@
 import { SuiteReport } from "./-types/report";
 
+
+export type CompatTestReport = {
+  id: number;
+  name: string;
+  items: { passed: boolean; message: string; }[];
+  failed: number;
+  passed: number;
+  total: number;
+  runDuration: number;
+  skipped: boolean;
+  todo: boolean;
+  testId: string;
+}
+
+export interface Emitter {
+  emit(name: 'suite-start', data: SuiteReport): void;
+  emit(name: 'suite-finish', data: SuiteReport): void;
+  emit(name: 'test-start', data: CompatTestReport): void;
+  emit(name: 'test-finish', data: CompatTestReport): void;
+}
+
 export type ParamConfig = {
   id: string;
   label: string;
@@ -10,6 +31,7 @@ export type GlobalConfig =  {
   params: { [key in 'concurrency' | 'tryCatch' | 'instrument' | 'hideReport' | 'memory' | 'groupLogs' | 'debug' | 'container']: ParamConfig };
   _current: SuiteReport | null;
   useTestem: boolean;
+  useDiagnostic: boolean;
   concurrency: number;
   globalHooks: {
     beforeEach: HooksCallback[];

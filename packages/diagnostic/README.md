@@ -24,15 +24,21 @@ This package may currently only be used within EmberData. A public version is co
 pnpm install @warp-drive/diagnostic
 ```
 
-**@warp-drive/** *diagnostic* is a ground-up revisiting of the APIs [QUnit](https://qunitjs.com/) popularized and [Ember](https://github.com/emberjs/ember-qunit)
-polished.
+**@warp-drive/** *diagnostic* is a ground-up revisiting of the APIs [QUnit](https://qunitjs.com/) popularized and [Ember](https://github.com/emberjs/ember-qunit) polished.
 
 - 💜 Fully Typed
 - :electron: Universal
 - ⚡️ Fast
 - ✅ Easy to use
 
-It works best paired with something like [Testem](https://github.com/testem/testem) as a launcher.
+**@warp-drive/** *diagnostic* is ***also*** a test launcher/runner inspired by the likes of [Testem](https://github.com/testem/testem), [ember exam](https://github.com/ember-cli/ember-exam) and the [ember test](https://cli.emberjs.com/release/basic-use/cli-commands/#testingyourapp) command. It is similarly flexible, but faster and more lightweight while somehow bringing a more robust feature set to the table.
+
+- 🚀 Easy Browser Setup Included
+- :octocat: Runs without fuss on Github Actions
+- 📦 Out of the box randomization, parallelization, load balancing, and more.
+
+But don't worry, if you're not ready to leave your existing stack the launcher/runner portion is optional. Out of the box, it comes ready with a [Testem](https://github.com/testem/testem) integration,
+or you can add your own.
 
 ## Quickstart
 
@@ -40,10 +46,13 @@ It works best paired with something like [Testem](https://github.com/testem/test
 - [Running Tests](#running-tests)
 - [Using the DOM Reporter](#using-the-domreporter)
 - [Concurrency](#concurrency)
+- [Using The Launcher](#using-the-launcher)
 - [🔜 Parallelism](#parallelism)
 - [🔜 Randomization](#randomization)
 - [Why Is It Fast?](#why-is-it-fast)
 - [Migration From QUnit](#migration-from-qunit)
+
+---
 
 ### Writing Tests
 
@@ -128,7 +137,11 @@ module('My Module', function(hooks) {
 });
 ```
 
+---
+
 ### Running Tests
+
+> **Note** This section is about how to setup your tests to run once launched. To learn about launching tests, read [Using The Launcher](#using-the-launcher)
 
 > **Note** This section is nuanced, read carefully!
 
@@ -166,6 +179,8 @@ registerReporter(new CustomReporter());
 start();
 ```
 
+---
+
 ### Using the DOMReporter
 
 For convenience, a `DOMReporter` is provided. When using the `DOMReporter` it expects to be given an element to render the report into.
@@ -191,6 +206,8 @@ import { start } from '@warp-drive/diagnostic/runners/dom';
 
 start();
 ```
+
+---
 
 ### Concurrency
 
@@ -219,13 +236,83 @@ configure({
 start();
 ```
 
+---
+
+## Using The Launcher
+
+#### Quick Setup
+
+> Skip to [Advanced](#advanced-setup)
+
+First, we need to add a configuration file for the launcher to our project.
+
+If our build assets are located in `<dir>/dist-test/*` and the entry point for tests is `dist-test/tests/index.html`, then the default configuration will get us setup with no further effort.
+
+*\<dir>/diagnostic.js*
+```ts
+import launch from '@warp-drive/diagnostic/server/default-setup.js';
+
+await launch();
+```
+
+Next, adjust the configuration for `start` to tell the runner to emit test information to the diagnostic server.
+
+```diff
+start({
+  groupLogs: false,
+  instrument: true,
+  hideReport: false,
++ useDiagnostic: true,
+});
+```
+
+Next, we will want to install `bun`. (We intend to pre-bundle the runner as an executable in the near future, but until then this is required).
+
+For github-actions, [use the official bun action](https://github.com/oven-sh/setup-bun#readme)
+
+```yml
+- uses: oven-sh/setup-bun@v1
+  with:
+    bun-version: latest
+```
+
+Finally, give your tests a run to make sure they still work as expected.
+
+```cli
+bun ./diagnostic.js
+```
+
+And update any necessary scripts in `package.json`
+
+```diff
+{
+  "scripts": {
+     "build" "ember build",
+-    "test": "ember test"
++    "test": "bun run build && bun ./diagnostic.js"
+  }
+}
+```
+
+✅ That's all! You're ready to test! 💜
+
+---
+
+#### Advanced Setup
+
+---
+
 ### Parallelism
 
 [Coming Soon]
 
+---
+
 ### Randomization
 
 [Coming Soon]
+
+---
 
 ### Why Is It Fast?
 
@@ -257,6 +344,8 @@ We further noticed that the qunit DOM Reporter was its own bottleneck for both m
 Lastly, we noticed that the serialization and storage of objects being reported had a high cost.
 This was a problem shared between the launcher (Testem) and what QUnit was providing to it. For this,
 we opted to reduce the amount of information shared to Testem by default to the bare minimum, but with a fast `debug` toggle to switch into the more verbose mode.
+
+---
 
 ### Migration from QUnit
 
@@ -323,6 +412,8 @@ module('My Module', function(hooks) {
 +   hooks.beforeEach(function() {});
 + });
 ```
+
+---
 
 ### ♥️ Credits
 

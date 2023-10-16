@@ -53,6 +53,10 @@ runs:
         node-version-file: 'package.json'
         cache: 'pnpm'
 
+    - uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: latest
+
     - name: Configure Parallel Builds
       if: ${{ inputs.parallel-build == 'true' }}
       shell: bash

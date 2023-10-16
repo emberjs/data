@@ -13,6 +13,8 @@ export const Config: GlobalConfig = {
   },
   // @ts-expect-error
   useTestem: typeof Testem !== 'undefined',
+  // @ts-expect-error
+  useDiagnostic: typeof Testem === 'undefined',
   concurrency: 1,
   params: {
     hideReport: {
@@ -132,12 +134,22 @@ export type ConfigOptions = {
   hideReport: boolean;
   params: Record<string, ParamConfig>;
   useTestem: boolean;
+  useDiagnostic: boolean;
 };
 const configOptions = ['concurrency', 'tryCatch', 'instrument', 'hideReport', 'memory', 'groupLogs', 'debug', 'container'] as const;
 export function configure(options: ConfigOptions): void {
+  if (options.useTestem && options.useDiagnostic) {
+    throw new Error(`Cannot use both Testem and Diagnostic at the same time. Please remove one of these options or set it to false.`);
+  }
   if ('useTestem' in options && typeof options.useTestem === 'boolean') {
     Config.useTestem = options.useTestem;
+    Config.useDiagnostic = !options.useTestem;
   }
+  if ('useDiagnostic' in options && typeof options.useDiagnostic === 'boolean') {
+    Config.useDiagnostic = options.useDiagnostic;
+    Config.useTestem = !options.useDiagnostic;
+  }
+
   if ('concurrency' in options && typeof options.concurrency === 'number') {
     Config.concurrency = options.concurrency;
     // @ts-expect-error
@@ -160,6 +172,7 @@ export function configure(options: ConfigOptions): void {
 export function getSettings() {
   return {
     useTestem: Config.useTestem,
+    useDiagnostic: Config.useDiagnostic,
     concurrency: Config.concurrency,
     params: Config.params,
   }

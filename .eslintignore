@@ -7,6 +7,8 @@
 **/dist/
 **/dist-control/
 **/dist-experiment/
+**/dist-tests/
+**/dist-test/
 **/tmp/
 /packages/-ember-data/docs/
 /packages/tracking/addon/

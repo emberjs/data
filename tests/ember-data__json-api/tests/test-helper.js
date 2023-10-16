@@ -1,4 +1,4 @@
-import { configure, setupGlobalHooks } from '@warp-drive/diagnostic';
+import { setupGlobalHooks } from '@warp-drive/diagnostic';
 import { start } from '@warp-drive/diagnostic/runners/dom';
 
 import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
@@ -42,16 +42,11 @@ export function loadTests() {
   new TestLoader().loadModules();
 }
 
-// import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
-
-// configureAsserts();
-
 loadTests();
 
-configure({
+start({
   groupLogs: false,
   instrument: true,
-  hideReport: false,
+  hideReport: true,
+  useDiagnostic: true,
 });
-
-start();

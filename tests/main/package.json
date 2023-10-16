@@ -20,7 +20,8 @@
     "holodeck:end-program": "holodeck end",
     "launch:tests": "ember test --port=0 --serve --no-launch",
     "start": "holodeck run launch:tests",
-    "test": "holodeck run examine"
+    "test": "holodeck run examine",
+    "test:production": "holodeck run examine -e production"
   },
   "author": "",
   "license": "MIT",
