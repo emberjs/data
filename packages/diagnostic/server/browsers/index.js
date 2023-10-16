@@ -270,7 +270,9 @@ export function recommendedArgs(browser, options = {}) {
     // On Ubuntu this dev-shm-usage speeds you up on bigger machines
     // and slows you down on smaller. If you are on a larger CI box
     // you should consider re-enabling this.
-    '--disable-dev-shm-usage',
+    // off because ubuntu vms currently seem to crash without this
+    // due to missing drivers
+    // '--disable-dev-shm-usage',
 
     // Potentially no longer needed settings
     // =====================================
