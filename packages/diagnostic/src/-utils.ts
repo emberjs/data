@@ -1,3 +1,4 @@
+/* global window, globalThis, global, self */
 import type { Config } from "./internals/config";
 import { HooksCallback, ModuleInfo } from "./-types";
 
