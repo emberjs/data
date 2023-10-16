@@ -15,9 +15,10 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
-    "start": "ember test --port=0 --serve --no-launch",
-    "test": "ember test --test-port=0"
+    "build": "ember build --output-path=dist-test --suppress-sizes",
+    "prepare": "pnpm build",
+    "test": "bun ./diagnostic.js",
+    "test:production": "export IS_TESTING=true; ember build --output-path=dist-test -e production --suppress-sizes; bun ./diagnostic.js"
   },
   "dependenciesMeta": {
     "@warp-drive/diagnostic": {
@@ -70,8 +71,6 @@
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
-    "ember-cli-sri": "^2.1.1",
-    "ember-cli-terser": "~4.0.2",
     "ember-cli-test-loader": "^3.1.0",
     "ember-cli": "~5.3.0",
     "ember-disable-prototype-extensions": "^1.1.3",

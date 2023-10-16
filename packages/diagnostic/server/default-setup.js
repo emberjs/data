@@ -54,13 +54,13 @@ const SUITE_TIMEOUT = process.env.SUITE_TIMEOUT
 
 export default async function launchDefault() {
   await launch({
-    entry: `./dist-test/index.html?${TEST_PAGE_FLAGS.join('&')}`,
+    entry: `./dist-test/tests/index.html?${TEST_PAGE_FLAGS.join('&')}`,
     assets: './dist-test',
     parallel,
     parallelMode: 'window', // 'tab' | 'browser' | 'window'
 
     reporter: new DefaultReporter({
-      mode: process.env.DIAGNOSTIC_REPORTER_MODE || 'tap', // 'dot' | 'compact' | 'verbose'
+      mode: process.env.DIAGNOSTIC_REPORTER_MODE || 'dot', // 'dot' | 'compact' | 'verbose'
     }),
 
     suiteTimeout: SUITE_TIMEOUT,

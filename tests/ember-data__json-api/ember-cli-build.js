@@ -9,6 +9,7 @@ module.exports = function (defaults) {
     emberData: {
       compatWith,
     },
+    tests: true,
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
@@ -25,9 +26,6 @@ module.exports = function (defaults) {
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
       enableTypeScriptTransform: true,
-    },
-    'ember-cli-terser': {
-      exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js'],
     },
   });
 

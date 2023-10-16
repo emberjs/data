@@ -42,6 +42,11 @@
       },
       "default": "./server/index.js"
     },
+    "./server/*": {
+      "node": "./server/*.js",
+      "bun": "./server/*.js",
+      "deno": "./server/*.js"
+    },
     "./*": {
       "types": "./dist/*.d.ts",
       "default": "./dist/*.js"
@@ -59,7 +64,8 @@
   "peerDependencies": {},
   "dependencies": {
     "chalk": "^5.3.0",
-    "debug": "^4.3.4"
+    "debug": "^4.3.4",
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",

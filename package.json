@@ -12,7 +12,7 @@
     "preinstall": "npx only-allow pnpm",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "test": "pnpm --filter \"ember-data__*\" --filter \"warp-drive__*\" --filter main-test-app --filter builders-test-app run test",
-    "test:production": "pnpm --filter main-test-app --filter ember-data__graph --filter ember-data__json-api run test -e production",
+    "test:production": "pnpm --filter main-test-app --filter ember-data__graph --filter ember-data__json-api run test:production",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
     "test:docs": "pnpm build:docs && pnpm --filter docs-tests test",
     "test:fastboot": "pnpm --filter fastboot-test-app test",

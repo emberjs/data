@@ -464,6 +464,9 @@ importers:
       debug:
         specifier: ^4.3.4
         version: 4.3.4(supports-color@8.1.1)
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@babel/cli':
         specifier: ^7.23.0
@@ -2187,12 +2190,6 @@ importers:
       ember-cli-inject-live-reload:
         specifier: ^2.1.0
         version: 2.1.0
-      ember-cli-sri:
-        specifier: ^2.1.1
-        version: 2.1.1
-      ember-cli-terser:
-        specifier: ~4.0.2
-        version: 4.0.2
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.23.0)
@@ -16353,7 +16350,6 @@ packages:
     engines: {node: '>=8.17.0'}
     dependencies:
       rimraf: 3.0.2
-    dev: true
 
   /tmpl@1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
@@ -17417,6 +17413,7 @@ packages:
     dependencies:
       chalk: 5.3.0
       debug: 4.3.4(supports-color@8.1.1)
+      tmp: 0.2.1
     transitivePeerDependencies:
       - supports-color
     dev: true

@@ -17,7 +17,8 @@
   "scripts": {
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
-    "test": "ember test --test-port=0"
+    "test": "ember test --test-port=0",
+    "test:production": "ember test --test-port=0 --environment=production"
   },
   "dependenciesMeta": {
     "@warp-drive/diagnostic": {
