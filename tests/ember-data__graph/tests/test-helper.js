@@ -1,6 +1,6 @@
 import { setApplication } from '@ember/test-helpers';
 
-import { configure, setupGlobalHooks } from '@warp-drive/diagnostic';
+import { setupGlobalHooks } from '@warp-drive/diagnostic';
 import { start } from '@warp-drive/diagnostic/runners/dom';
 
 import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
@@ -52,12 +52,11 @@ export function loadTests() {
 
 loadTests();
 
-configure({
+setApplication(Application.create(config.APP));
+start({
   tryCatch: false,
   groupLogs: false,
   instrument: true,
   hideReport: true,
+  useDiagnostic: true,
 });
-
-setApplication(Application.create(config.APP));
-start();
