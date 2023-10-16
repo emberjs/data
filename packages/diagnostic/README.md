@@ -52,6 +52,8 @@ or you can add your own.
 - [Why Is It Fast?](#why-is-it-fast)
 - [Migration From QUnit](#migration-from-qunit)
 
+---
+
 ### Writing Tests
 
 ```ts
@@ -135,6 +137,8 @@ module('My Module', function(hooks) {
 });
 ```
 
+---
+
 ### Running Tests
 
 > **Note** This section is about how to setup your tests to run once launched. To learn about launching tests, read [Using The Launcher](#using-the-launcher)
@@ -175,6 +179,8 @@ registerReporter(new CustomReporter());
 start();
 ```
 
+---
+
 ### Using the DOMReporter
 
 For convenience, a `DOMReporter` is provided. When using the `DOMReporter` it expects to be given an element to render the report into.
@@ -200,6 +206,8 @@ import { start } from '@warp-drive/diagnostic/runners/dom';
 
 start();
 ```
+
+---
 
 ### Concurrency
 
@@ -228,7 +236,9 @@ configure({
 start();
 ```
 
-### Using The Launcher
+---
+
+## Using The Launcher
 
 #### Quick Setup
 
@@ -286,15 +296,23 @@ And update any necessary scripts in `package.json`
 
 ✅ That's all! You're ready to test! 💜
 
+---
+
 #### Advanced Setup
+
+---
 
 ### Parallelism
 
 [Coming Soon]
 
+---
+
 ### Randomization
 
 [Coming Soon]
+
+---
 
 ### Why Is It Fast?
 
@@ -326,6 +344,8 @@ We further noticed that the qunit DOM Reporter was its own bottleneck for both m
 Lastly, we noticed that the serialization and storage of objects being reported had a high cost.
 This was a problem shared between the launcher (Testem) and what QUnit was providing to it. For this,
 we opted to reduce the amount of information shared to Testem by default to the bare minimum, but with a fast `debug` toggle to switch into the more verbose mode.
+
+---
 
 ### Migration from QUnit
 
@@ -392,6 +412,8 @@ module('My Module', function(hooks) {
 +   hooks.beforeEach(function() {});
 + });
 ```
+
+---
 
 ### ♥️ Credits
 
