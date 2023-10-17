@@ -26,7 +26,7 @@
     "ember-auto-import": "^2.6.3",
     "ember-data": "workspace:5.5.0-alpha.11",
     "ember-inflector": "^4.0.2",
-    "webpack": "^5.88.2"
+    "webpack": "^5.89.0"
   },
   "dependenciesMeta": {
     "ember-data": {

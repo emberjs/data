@@ -78,7 +78,7 @@
     "qunit-console-grouper": "^0.3.0",
     "qunit-dom": "^3.0.0",
     "silent-error": "^1.1.1",
-    "webpack": "^5.88.2"
+    "webpack": "^5.89.0"
   },
   "ember": {
     "edition": "octane"

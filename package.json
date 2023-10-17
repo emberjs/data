@@ -74,7 +74,7 @@
     "silent-error": "^1.1.1",
     "typescript": "~5.2.2",
     "url": "^0.11.3",
-    "webpack": "^5.88.2",
+    "webpack": "^5.89.0",
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"
   },
