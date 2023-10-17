@@ -9,6 +9,7 @@ module.exports = function (defaults) {
     emberData: {
       compatWith,
     },
+    tests: true,
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
@@ -26,9 +27,6 @@ module.exports = function (defaults) {
       throwUnlessParallelizable: true,
       enableTypeScriptTransform: true,
     },
-    'ember-cli-terser': {
-      exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js'],
-    },
   });
 
   /*
@@ -37,6 +35,7 @@ module.exports = function (defaults) {
     This build file does *not* influence how the addon or the app using it
     behave. You most likely want to be modifying `./index.js` or app's build file
   */
+  app.import('node_modules/@warp-drive/diagnostic/dist/styles/dom-reporter.css');
 
   return app.toTree();
 };

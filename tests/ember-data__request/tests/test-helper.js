@@ -1,4 +1,4 @@
-import { configure, setupGlobalHooks } from '@warp-drive/diagnostic';
+import { setupGlobalHooks } from '@warp-drive/diagnostic';
 import { start } from '@warp-drive/diagnostic/runners/dom';
 import { setTestId } from '@warp-drive/holodeck';
 
@@ -56,13 +56,12 @@ export function loadTests() {
 
 loadTests();
 
-configure({
+start({
   tryCatch: false,
   debug: false,
   concurrency: 10,
   groupLogs: false,
   instrument: true,
   hideReport: true,
+  useDiagnostic: true,
 });
-
-start();

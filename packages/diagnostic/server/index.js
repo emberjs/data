@@ -12,6 +12,11 @@ const isBun = typeof Bun !== 'undefined';
 export default async function launch(config) {
   if (isBun) {
     debug(`Bun detected, using Bun.serve()`);
+    if (config.setup) {
+      debug(`Running configured setup hook`);
+      await config.setup();
+      debug(`Configured setup hook completed`);
+    }
     const { checkPort } = await import('./bun/port.js');
     const hostname = config.hostname ?? 'localhost';
     const protocol = config.protocol ?? 'http';
@@ -65,9 +70,14 @@ export default async function launch(config) {
       await launchBrowsers(config, state);
     } catch (e) {
       error(`Error: ${e?.message ?? e}`);
+      if (config.cleanup) {
+        debug(`Running configured cleanup hook`);
+        await config.cleanup();
+        debug(`Configured cleanup hook completed`);
+      }
       throw e;
     }
   } else {
-    throw new Error(`Holodeck is not supported in this environment.`);
+    throw new Error(`Diagnostic is not supported in this environment.`);
   }
 }

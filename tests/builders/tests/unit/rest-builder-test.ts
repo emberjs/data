@@ -1,15 +1,14 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import { createRecord, deleteRecord, findRecord, query, updateRecord } from '@ember-data/rest/request';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 import UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
 
-const REST_HEADERS = { accept: 'application/json; charset=utf-8' };
+const REST_HEADERS = { accept: 'application/json;charset=utf-8' };
 
 module('REST | Request Builders', function (hooks) {
   setupTest(hooks);

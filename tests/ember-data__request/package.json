@@ -14,12 +14,9 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
-    "holodeck:start-program": "holodeck start",
-    "holodeck:end-program": "holodeck end",
-    "launch:tests": "ember test --port=0 --serve --no-launch",
-    "start": "holodeck run pnpm launch:tests",
-    "test": "holodeck run ember test --test-port=0"
+    "build": "ember build --output-path=dist-test --suppress-sizes",
+    "test": "pnpm build && bun ./diagnostic.js",
+    "test:production": "pnpm build -e production; bun ./diagnostic.js"
   },
   "dependenciesMeta": {
     "@warp-drive/diagnostic": {
@@ -72,6 +69,7 @@
     "ember-source-channel-url": "^3.0.0",
     "ember-try": "^3.0.0",
     "loader.js": "^4.7.0",
+    "bun-types": "^1.0.6",
     "silent-error": "^1.1.1",
     "webpack": "^5.88.2"
   },

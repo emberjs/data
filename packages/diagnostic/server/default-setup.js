@@ -52,23 +52,26 @@ const SUITE_TIMEOUT = process.env.SUITE_TIMEOUT
   ? Number(process.env.SUITE_TIMEOUT) - SUITE_TIMEOUT_BUFFER
   : DEFAULT_SUITE_TIMEOUT;
 
-export default async function launchDefault() {
+export default async function launchDefault(overrides = {}) {
   await launch({
-    entry: `./dist-test/tests/index.html?${TEST_PAGE_FLAGS.join('&')}`,
-    assets: './dist-test',
-    parallel,
-    parallelMode: 'window', // 'tab' | 'browser' | 'window'
+    entry: overrides.entry ?? `./dist-test/tests/index.html?${TEST_PAGE_FLAGS.join('&')}`,
+    assets: overrides.assets ?? './dist-test',
+    parallel: overrides.parallel ?? parallel,
+    parallelMode: overrides.parallelMode ?? 'window', // 'tab' | 'browser' | 'window'
 
-    reporter: new DefaultReporter({
+    reporter: overrides.reporter ?? new DefaultReporter({
       mode: process.env.DIAGNOSTIC_REPORTER_MODE || 'dot', // 'dot' | 'compact' | 'verbose'
     }),
 
-    suiteTimeout: SUITE_TIMEOUT,
-    browserDisconnectTimeout: 15,
-    browserStartTimeout: 15,
-    socketHeartbeatTimeout: 15,
+    suiteTimeout: overrides.suiteTimeout ?? SUITE_TIMEOUT,
+    browserDisconnectTimeout: overrides.browserDisconnectTimeout ?? 15,
+    browserStartTimeout: overrides.browserStartTimeout ?? 15,
+    socketHeartbeatTimeout: overrides.socketHeartbeatTimeout ?? 15,
 
-    launchers: {
+    setup: overrides.setup ?? (() => {}),
+    cleanup: overrides.cleanup ?? (() => {}),
+
+    launchers: overrides.launchers ?? {
       [BROWSER_TAG]: {
         command: browser,
         args: recommendedArgs(BROWSER_TAG),

@@ -25,34 +25,6 @@
     <div id="ember-testing"></div>
   </div>
 
-  <script src="/testem.js" integrity=""></script>
-  <script type="text/javascript">
-    // disable testem log output
-    // by default testem serializes all of these logs
-    // and transmits them through the websocket even if
-    // the reporter is configured to ignore them. This results
-    // in extremely high memory and cpu utilization and eventually
-    // will crash the console.
-    const ignoredLogTypes = new Set(['log', 'warn', 'info', 'group']);
-    // restore original functionality
-    ignoredLogTypes.forEach((method) => {
-      console[method] = Testem.console[method];
-    });
-
-    // enable debugging memory over time
-    window.MEMORY_DATA = Object.create(null);
-    const originalEmitMessage = Testem.emitMessage;
-    Testem.emitMessage = function (...args) {
-      if (window.DEBUG_MEMORY) {
-        if (args[0] === 'test-result') {
-          // our custom DOT_REPORTER will utilize this
-          args[1].memoryUsage = MEMORY_DATA[args[1].testId];
-          MEMORY_DATA[args[1].testId] = null;
-        }
-      }
-      return originalEmitMessage.call(Testem, ...args);
-    };
-  </script>
   <script src="{{rootURL}}assets/vendor.js"></script>
   <script src="{{rootURL}}assets/test-support.js"></script>
   <script src="{{rootURL}}assets/ember-data__request.js"></script>

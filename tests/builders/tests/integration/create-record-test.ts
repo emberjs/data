@@ -1,6 +1,4 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import JSONAPICache from '@ember-data/json-api';
 import { createRecord } from '@ember-data/json-api/request';
@@ -17,6 +15,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-w
 import { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { JsonApiError } from '@ember-data/types/q/record-data-json-api';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 class TestStore extends DataStore {
   constructor(args: unknown) {
@@ -131,8 +130,8 @@ module('Integration - createRecord', function (hooks) {
 
     await promise;
 
-    assert.strictEqual(user.id, '1', 'The user is updated from the response');
-    assert.strictEqual(user.name, 'Chris', 'The user is updated from the response');
+    assert.equal(user.id, '1', 'The user is updated from the response');
+    assert.equal(user.name, 'Chris', 'The user is updated from the response');
     assert.false(user.hasDirtyAttributes, 'The user is no longer dirty');
     assert.false(user.isNew, 'The user is no longer new');
     assert.false(user.isSaving, 'The user is no longer saving');
@@ -223,15 +222,15 @@ module('Integration - createRecord', function (hooks) {
       assert.ok(false, 'The promise should reject');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'The error is an error');
-      assert.strictEqual((e as Error).message, 'Something went wrong', 'The error has the expected error message');
+      assert.equal((e as Error).message, 'Something went wrong', 'The error has the expected error message');
       assert.true(
         Array.isArray((e as { content: { errors: JsonApiError[] } })?.content?.errors),
         'The error has an errors array'
       );
     }
 
-    assert.strictEqual(user.id, null, 'The user is not updated from the response');
-    assert.strictEqual(user.name, 'John', 'The user is not updated from the response');
+    assert.equal(user.id, null, 'The user is not updated from the response');
+    assert.equal(user.name, 'John', 'The user is not updated from the response');
     assert.true(user.hasDirtyAttributes, 'The user is still dirty');
     assert.true(user.isNew, 'The user is still new');
     assert.false(user.isDeleted, 'The user is not deleted');
@@ -244,12 +243,8 @@ module('Integration - createRecord', function (hooks) {
       message: string;
     }>;
 
-    assert.strictEqual(nameErrors.length, 1, 'The user has the expected number of errors');
-    assert.strictEqual(
-      nameErrors[0]?.message,
-      'Name must be capitalized',
-      'The user has the expected error for the field'
-    );
+    assert.equal(nameErrors.length, 1, 'The user has the expected number of errors');
+    assert.equal(nameErrors[0]?.message, 'Name must be capitalized', 'The user has the expected error for the field');
 
     assert.verifySteps([
       `willCommit ${identifier.lid}`,

@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import { parseCacheControl } from '@ember-data/request-utils';
 import { test as debug } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';

@@ -39,7 +39,10 @@ class Model extends EmberObject {
   rollbackAttributes(): void;
   changedAttributes(): Record<string, [unknown, unknown]>;
   [key: string]: unknown;
+  isSaving: boolean;
+  isNew: boolean;
   isDeleted: boolean;
+  hasDirtyAttributes: boolean;
   deleteRecord(): void;
   unloadRecord(): void;
   serialize(): Record<string, unknown>;
