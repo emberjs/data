@@ -30,11 +30,11 @@
     "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.0",
+    "@babel/core": "^7.23.2",
     "@babel/eslint-parser": "^7.22.15",
-    "@babel/plugin-proposal-decorators": "^7.23.0",
+    "@babel/plugin-proposal-decorators": "^7.23.2",
     "@babel/plugin-transform-typescript": "^7.22.15",
-    "@babel/runtime": "^7.23.1",
+    "@babel/runtime": "^7.23.2",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",

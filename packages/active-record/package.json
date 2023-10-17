@@ -22,7 +22,7 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "ember-cli-babel": "^8.1.0"
+    "ember-cli-babel": "^8.2.0"
   },
   "peerDependencies": {
     "@ember-data/store": "^4.12.0 || ^5.0.0",
@@ -61,14 +61,14 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
-    "@babel/core": "^7.23.0",
-    "@babel/plugin-proposal-decorators": "^7.23.0",
+    "@babel/core": "^7.23.2",
+    "@babel/plugin-proposal-decorators": "^7.23.2",
     "@babel/plugin-transform-class-properties": "^7.22.5",
-    "@babel/plugin-transform-runtime": "^7.22.15",
+    "@babel/plugin-transform-runtime": "^7.23.2",
     "@babel/plugin-transform-typescript": "^7.22.15",
-    "@babel/preset-env": "^7.22.20",
-    "@babel/preset-typescript": "^7.23.0",
-    "@babel/runtime": "^7.23.1",
+    "@babel/preset-env": "^7.23.2",
+    "@babel/preset-typescript": "^7.23.2",
+    "@babel/runtime": "^7.23.2",
     "@embroider/addon-dev": "^4.1.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
