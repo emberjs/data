@@ -92,10 +92,14 @@ export function promiseArray(promise, label) {
 
 // constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
+const ALLOWABLE_PROPS = ['__ec_yieldable__', '__ec_cancel__'];
 
 export function deprecatedPromiseObject(promise) {
   const handler = {
     get(target, prop) {
+      if (ALLOWABLE_PROPS.includes(prop)) {
+        return target[prop];
+      }
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
           `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
