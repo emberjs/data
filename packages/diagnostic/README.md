@@ -47,6 +47,7 @@ or you can add your own.
 - [Using the DOM Reporter](#using-the-domreporter)
 - [Concurrency](#concurrency)
 - [Using The Launcher](#using-the-launcher)
+- [Adding A Sidecar](#adding-a-sidecar)
 - [🔜 Parallelism](#parallelism)
 - [🔜 Randomization](#randomization)
 - [Why Is It Fast?](#why-is-it-fast)
@@ -299,6 +300,23 @@ And update any necessary scripts in `package.json`
 ---
 
 #### Advanced Setup
+
+---
+
+### Adding A Sidecar
+
+Diagnostic's launcher supports running additional services alongside your test suite
+when they are necessary for your tests to run correctly. For instance, you may want
+to start a local API instance, http mock service, or a build process.
+
+#### Use with @warp-drive/holodeck
+
+@warp-drive/holodeck is an http mock service for test suites. We can start and stop
+the holodeck server along side our test server with an easy integration.
+
+```ts
+
+```
 
 ---
 

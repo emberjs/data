@@ -104,7 +104,12 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['tests/ember-data__json-api/**', 'tests/ember-data__graph/**', 'tests/ember-data__request/**'],
+      files: [
+        'tests/ember-data__json-api/**',
+        'tests/ember-data__graph/**',
+        'tests/ember-data__request/**',
+        'tests/builders/**',
+      ],
       rules: {
         'qunit/no-assert-equal': 'off',
         'qunit/no-assert-logical-expression': 'off',
@@ -270,6 +275,20 @@ module.exports = {
         'tests/main/tests/integration/identifiers/configuration-test.ts',
         'tests/main/tests/helpers/accessors.ts',
       ],
+    },
+
+    // modern node files
+    {
+      files: ['tests/*/diagnostic.js'],
+      parserOptions: {
+        sourceType: 'module',
+        ecmaVersion: 2022,
+      },
+      env: {
+        browser: false,
+        node: true,
+        es6: true,
+      },
     },
 
     // node files

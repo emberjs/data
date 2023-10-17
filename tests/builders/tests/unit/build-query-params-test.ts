@@ -1,10 +1,10 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import { buildQueryParams } from '@ember-data/request-utils';
 
 module('buildQueryParams', function (hooks) {
   test('It serializes objects with stable key order', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams({
         foo: 'bar',
         baz: 'qux',
@@ -12,7 +12,7 @@ module('buildQueryParams', function (hooks) {
       'baz=qux&foo=bar',
       `buildQueryParams works`
     );
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams({
         baz: 'qux',
         foo: 'bar',
@@ -30,12 +30,12 @@ module('buildQueryParams', function (hooks) {
     params2.append('baz', 'qux');
     params2.append('foo', 'bar');
 
-    assert.strictEqual(buildQueryParams(params1), 'baz=qux&foo=bar', `buildQueryParams works`);
-    assert.strictEqual(buildQueryParams(params2), 'baz=qux&foo=bar', `buildQueryParams works`);
+    assert.equal(buildQueryParams(params1), 'baz=qux&foo=bar', `buildQueryParams works`);
+    assert.equal(buildQueryParams(params2), 'baz=qux&foo=bar', `buildQueryParams works`);
   });
 
   test('It serializes objects with stable value order', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams({
         foo: ['c', 'b', 'a'],
         baz: ['f', 'd', 'e'],
@@ -43,7 +43,7 @@ module('buildQueryParams', function (hooks) {
       'baz=d%2Ce%2Cf&foo=a%2Cb%2Cc',
       `buildQueryParams works`
     );
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams({
         foo: ['c', 'b', 'a'],
         baz: ['f', 'd', 'e'],
@@ -69,19 +69,19 @@ module('buildQueryParams', function (hooks) {
     params2.append('baz', 'd');
     params2.append('baz', 'e');
 
-    assert.strictEqual(buildQueryParams(params1), 'baz=d%2Ce%2Cf&foo=a%2Cb%2Cc', `buildQueryParams works`);
-    assert.strictEqual(buildQueryParams(params2), 'baz=d%2Ce%2Cf&foo=a%2Cb%2Cc', `buildQueryParams works`);
+    assert.equal(buildQueryParams(params1), 'baz=d%2Ce%2Cf&foo=a%2Cb%2Cc', `buildQueryParams works`);
+    assert.equal(buildQueryParams(params2), 'baz=d%2Ce%2Cf&foo=a%2Cb%2Cc', `buildQueryParams works`);
   });
 
   test('It special cases object.include', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams({
         include: ['foo', 'bar'],
       }),
       'include=bar%2Cfoo',
       `buildQueryParams works`
     );
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams({
         include: 'foo,bar',
       }),
@@ -91,7 +91,7 @@ module('buildQueryParams', function (hooks) {
   });
 
   test('It allows for customizing the arrayFormat', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams(
         {
           foo: ['c', 'b', 'a'],
@@ -102,7 +102,7 @@ module('buildQueryParams', function (hooks) {
       'baz%5B%5D=d&baz%5B%5D=e&baz%5B%5D=f&foo%5B%5D=a&foo%5B%5D=b&foo%5B%5D=c',
       `buildQueryParams works`
     );
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams(
         {
           foo: ['c', 'b', 'a'],
@@ -113,7 +113,7 @@ module('buildQueryParams', function (hooks) {
       'baz%5B0%5D=d&baz%5B1%5D=e&baz%5B2%5D=f&foo%5B0%5D=a&foo%5B1%5D=b&foo%5B2%5D=c',
       `buildQueryParams works`
     );
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams(
         {
           foo: ['c', 'b', 'a'],
@@ -124,7 +124,7 @@ module('buildQueryParams', function (hooks) {
       'baz=d&baz=e&baz=f&foo=a&foo=b&foo=c',
       `buildQueryParams works`
     );
-    assert.strictEqual(
+    assert.equal(
       buildQueryParams(
         {
           foo: ['c', 'b', 'a'],

@@ -14,9 +14,9 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
-    "start": "ember test --port=0 --serve --no-launch",
-    "test": "ember test --test-port=0"
+    "build": "ember build --output-path=dist-test --suppress-sizes",
+    "test": "pnpm build && bun ./diagnostic.js",
+    "test:production": "pnpm build -e production; bun ./diagnostic.js"
   },
   "dependenciesMeta": {
     "@ember-data/json-api": {
@@ -48,6 +48,9 @@
     },
     "@ember-data/unpublished-test-infra": {
       "injected": true
+    },
+    "@warp-drive/diagnostic": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -72,6 +75,7 @@
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@types/ember__owner": "^4.0.6",
+    "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",
     "ember-auto-import": "^2.6.3",
     "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.2.0",
@@ -83,14 +87,10 @@
     "ember-inflector": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-qunit": "^8.0.1",
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.3.0",
     "ember-source-channel-url": "^3.0.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.20.0",
-    "qunit-console-grouper": "^0.3.0",
-    "qunit-dom": "^3.0.0",
     "silent-error": "^1.1.1",
     "webpack": "^5.88.2"
   },

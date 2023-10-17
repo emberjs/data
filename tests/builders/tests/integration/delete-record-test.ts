@@ -1,6 +1,4 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import JSONAPICache from '@ember-data/json-api';
 import { deleteRecord } from '@ember-data/json-api/request';
@@ -17,6 +15,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-w
 import { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { JsonApiError } from '@ember-data/types/q/record-data-json-api';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 class TestStore extends DataStore {
   constructor(args: unknown) {
@@ -135,8 +134,8 @@ module('Integration - deleteRecord', function (hooks) {
     assert.true(user.isDeleted, 'The user is deleted');
     assert.false(user.isSaving, 'The user is not saving');
     assert.true(user.hasDirtyAttributes, 'The user is dirty');
-    assert.strictEqual(user.currentState.stateName, 'root.deleted.uncommitted', 'The user is in the correct state');
-    assert.strictEqual(user.dirtyType, 'deleted', 'The user is dirty with the correct type');
+    assert.equal(user.currentState.stateName, 'root.deleted.uncommitted', 'The user is in the correct state');
+    assert.equal(user.dirtyType, 'deleted', 'The user is dirty with the correct type');
 
     const promise = store.request(deleteRecord(user));
     assert.true(user.isSaving, 'The user is saving');
@@ -144,16 +143,16 @@ module('Integration - deleteRecord', function (hooks) {
     await promise;
 
     assert.false(user.hasDirtyAttributes, 'The user is not dirty');
-    assert.strictEqual(user.currentState.stateName, 'root.deleted.saved', 'The user is in the correct state');
-    assert.strictEqual(user.dirtyType, '', 'The user is no longer dirty');
+    assert.equal(user.currentState.stateName, 'root.deleted.saved', 'The user is in the correct state');
+    assert.equal(user.dirtyType, '', 'The user is no longer dirty');
     assert.true(user.isDeleted, 'The user is deleted');
     assert.false(user.isSaving, 'The user is no longer saving');
 
     assert.verifySteps([`willCommit ${identifier.lid}`, 'handle deleteRecord request', `didCommit ${identifier.lid}`]);
 
     const user2 = store.peekRecord('user', '2') as User;
-    assert.notStrictEqual(user2, null, 'The user is in the store');
-    assert.strictEqual(user2?.name, 'John', 'The user has the expected name');
+    assert.notEqual(user2, null, 'The user is in the store');
+    assert.equal(user2?.name, 'John', 'The user has the expected name');
   });
 
   test('Rejecting while persisting a deletion with a deleteRecord op works as expected', async function (assert) {
@@ -231,8 +230,8 @@ module('Integration - deleteRecord', function (hooks) {
     assert.true(user.isDeleted, 'The user is deleted');
     assert.false(user.isSaving, 'The user is not saving');
     assert.true(user.hasDirtyAttributes, 'The user is dirty');
-    assert.strictEqual(user.currentState.stateName, 'root.deleted.uncommitted', 'The user is in the correct state');
-    assert.strictEqual(user.dirtyType, 'deleted', 'The user is dirty with the correct type');
+    assert.equal(user.currentState.stateName, 'root.deleted.uncommitted', 'The user is in the correct state');
+    assert.equal(user.dirtyType, 'deleted', 'The user is dirty with the correct type');
 
     const validationError: Error & {
       content: { errors: JsonApiError[] };
@@ -261,7 +260,7 @@ module('Integration - deleteRecord', function (hooks) {
       assert.ok(false, 'The promise should reject');
     } catch (e: unknown) {
       assert.true(e instanceof Error, 'The error is an error');
-      assert.strictEqual((e as Error).message, '405 | Not Authorized', 'The error has the expected error message');
+      assert.equal((e as Error).message, '405 | Not Authorized', 'The error has the expected error message');
       assert.true(
         Array.isArray((e as { content: { errors: JsonApiError[] } })?.content?.errors),
         'The error has an errors array'
@@ -271,9 +270,9 @@ module('Integration - deleteRecord', function (hooks) {
     assert.false(user.isDestroying, 'The user is not destroying');
     assert.false(user.isDestroyed, 'The user is not destroyed');
     assert.true(user.hasDirtyAttributes, 'The user is still dirty');
-    assert.strictEqual(user.currentState.stateName, 'root.deleted.invalid', 'The user is in the correct state');
-    assert.strictEqual(user.dirtyType, 'deleted', 'The user is still dirty');
-    assert.strictEqual(user.adapterError?.message, '405 | Not Authorized', 'The user has the expected error message');
+    assert.equal(user.currentState.stateName, 'root.deleted.invalid', 'The user is in the correct state');
+    assert.equal(user.dirtyType, 'deleted', 'The user is still dirty');
+    assert.equal(user.adapterError?.message, '405 | Not Authorized', 'The user has the expected error message');
     assert.true(user.isDeleted, 'The user is still deleted');
     assert.false(user.isSaving, 'The user is no longer saving');
 

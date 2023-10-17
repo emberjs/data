@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import { buildBaseURL, setBuildURLConfig } from '@ember-data/request-utils';
 import { test as debug } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -9,7 +9,7 @@ module('buildBaseURL', function (hooks) {
   });
 
   test('simple cases (no optional options and no global config)', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRecord',
         identifier: { type: 'user', id: '1' },
@@ -17,7 +17,7 @@ module('buildBaseURL', function (hooks) {
       '/user/1',
       `buildBaseURL works for findRecord`
     );
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'updateRecord',
         identifier: { type: 'user', id: '1' },
@@ -26,7 +26,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for updateRecord`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'deleteRecord',
         identifier: { type: 'user', id: '1' },
@@ -35,7 +35,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for deleteRecord`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
@@ -45,7 +45,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for findRelatedRecord`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedCollection',
         identifier: { type: 'user', id: '1' },
@@ -55,7 +55,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for findRelatedCollection`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'query',
         identifier: { type: 'user' },
@@ -64,7 +64,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for query`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findMany',
         identifiers: [
@@ -78,7 +78,7 @@ module('buildBaseURL', function (hooks) {
   });
 
   test('resourcePath (no global config)', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRecord',
         identifier: { type: 'user', id: '1' },
@@ -87,7 +87,7 @@ module('buildBaseURL', function (hooks) {
       '/people/1',
       `buildBaseURL works for findRecord`
     );
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'updateRecord',
         identifier: { type: 'user', id: '1' },
@@ -97,7 +97,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for updateRecord`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'deleteRecord',
         identifier: { type: 'user', id: '1' },
@@ -107,7 +107,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for deleteRecord`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
@@ -118,7 +118,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for findRelatedRecord`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedCollection',
         identifier: { type: 'user', id: '1' },
@@ -129,7 +129,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for findRelatedCollection`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'query',
         identifier: { type: 'user' },
@@ -139,7 +139,7 @@ module('buildBaseURL', function (hooks) {
       `buildBaseURL works for query`
     );
 
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findMany',
         identifiers: [
@@ -154,7 +154,7 @@ module('buildBaseURL', function (hooks) {
   });
 
   test('namespace uses local when present (no global config)', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
@@ -169,7 +169,7 @@ module('buildBaseURL', function (hooks) {
 
   test('namespace (global config)', function (assert) {
     setBuildURLConfig({ namespace: 'api/v2', host: '' });
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
@@ -183,7 +183,7 @@ module('buildBaseURL', function (hooks) {
 
   test('namespace uses local when present (global config)', function (assert) {
     setBuildURLConfig({ namespace: 'api/v2', host: '' });
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
@@ -197,7 +197,7 @@ module('buildBaseURL', function (hooks) {
   });
 
   test('host uses local when present (no global config)', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
@@ -212,7 +212,7 @@ module('buildBaseURL', function (hooks) {
 
   test('host (global config)', function (assert) {
     setBuildURLConfig({ namespace: '', host: 'https://api2.example.com' });
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
@@ -226,7 +226,7 @@ module('buildBaseURL', function (hooks) {
 
   test('host uses local when present (global config)', function (assert) {
     setBuildURLConfig({ namespace: '', host: 'https://api2.example.com' });
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },
@@ -240,7 +240,7 @@ module('buildBaseURL', function (hooks) {
   });
 
   test('host may start with a /', function (assert) {
-    assert.strictEqual(
+    assert.equal(
       buildBaseURL({
         op: 'findRelatedRecord',
         identifier: { type: 'user', id: '1' },

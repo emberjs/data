@@ -5,7 +5,7 @@ import { sinceStart } from "../utils/time.js";
 export function buildHandler(config, state) {
   return {
     perMessageDeflate: true,
-    message(ws, message) {
+    async message(ws, message) {
       const msg = JSON.parse(message);
       msg.launcher = state.browsers.get(msg.browserId).launcher;
       info(`${chalk.green('➡')} [${chalk.cyan(msg.browserId)}/${chalk.cyan(msg.windowId)}] ${chalk.green(msg.name)}`);
@@ -39,6 +39,11 @@ export function buildHandler(config, state) {
               browser.proc.unref();
             });
             state.server.stop();
+            if (config.cleanup) {
+              debug(`Running configured cleanup hook`);
+              await config.cleanup();
+              debug(`Configured cleanup hook completed`);
+            }
             process.exit(exitCode);
           }
 

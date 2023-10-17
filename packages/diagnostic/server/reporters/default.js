@@ -421,11 +421,11 @@ export default class CustomDotReporter {
       result.items.forEach((diagnostic) => {
         this.write(`\t\t${diagnostic.passed ? chalk.green('✅ Pass') : chalk.red('💥 Fail')} ${diagnostic.message}\n`);
 
-        if ('expected' in diagnostic && 'actual' in diagnostic) {
-          this.write(`\n\t\texpected: ${diagnostic.expected}\n\t\tactual: ${diagnostic.actual}\n`);
+        if (!diagnostic.passed && 'expected' in diagnostic && 'actual' in diagnostic) {
+          this.write(`\n\t\texpected: ${printValue(diagnostic.expected, 3)}\n\t\tactual: ${printValue(diagnostic.actual, 3)}\n`);
         }
 
-        if (diagnostic.stack) {
+        if (!diagnostic.passed && diagnostic.stack) {
           this.write(`\n${indent(diagnostic.stack)}\n`);
         }
       });
@@ -497,4 +497,22 @@ export default class CustomDotReporter {
 // in the cache as well.
 function remove(filePath) {
 	fs.writeFileSync(filePath, '', { encoding: 'utf-8' });
+}
+
+function printValue(value, tabs = 0) {
+  if (typeof value === 'string') {
+    return value;
+  } else if (typeof value === 'number') {
+    return value;
+  } else if (typeof value === 'boolean') {
+    return String(value);
+  } else if (value === null) {
+    return 'null';
+  } else if (value === undefined) {
+    return 'undefined';
+  } else if (Array.isArray(value)) {
+    return indent(`[\n ${value.map((v) => printValue(v, tabs + 1)).join(',\n ')}\n]`, tabs);
+  } else if (typeof value === 'object') {
+    return JSON.stringify(value, null, tabs * 4);
+  }
 }

@@ -4,6 +4,6 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-createServer({
+export default createServer({
   projectRoot: __dirname,
 });
