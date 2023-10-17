@@ -36,7 +36,7 @@
     "@embroider/macros": "^1.13.2",
     "ember-auto-import": "^2.6.3",
     "ember-cli-babel": "^8.2.0",
-    "webpack": "^5.88.2"
+    "webpack": "^5.89.0"
   },
   "engines": {
     "node": ">= 18.18.0"
