@@ -54,9 +54,9 @@ loadTests();
 
 setApplication(Application.create(config.APP));
 start({
-  tryCatch: true,
+  tryCatch: false,
   groupLogs: false,
   instrument: true,
-  hideReport: false,
+  hideReport: true,
   useDiagnostic: true,
 });
