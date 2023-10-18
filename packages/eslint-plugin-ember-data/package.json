@@ -1,5 +1,5 @@
 {
-  "name": "eslint-plugin-ember-data-best-practices",
+  "name": "eslint-plugin-ember-data",
   "description": "ESLint rules for Applications using EmberData",
   "main": "./src/index.js",
   "version": "5.5.0-alpha.11",
