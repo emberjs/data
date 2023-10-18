@@ -48,6 +48,10 @@
       "bun": "./server/*.js",
       "deno": "./server/*.js"
     },
+    "./ember": {
+      "types": "./dist/ember.d.ts",
+      "default": "./dist/ember.js"
+    },
     "./*": {
       "types": "./dist/*.d.ts",
       "default": "./dist/*.js"

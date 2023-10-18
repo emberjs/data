@@ -12,7 +12,7 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: ["@ember/test-helpers", "ember-cli-test-loader/test-support/index"],
+  external: ["@ember/test-helpers/index.js", "ember-cli-test-loader/test-support/index.js"],
 
   plugins: [
     // These are the modules that users should be able to import from your

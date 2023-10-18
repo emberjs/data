@@ -1,5 +1,5 @@
-import { getTestMetadata, setupContext, SetupContextOptions, teardownContext, TestContext } from '@ember/test-helpers';
-import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
+import { getTestMetadata, setupContext, SetupContextOptions, teardownContext, TestContext } from '@ember/test-helpers/index.js';
+import AbstractTestLoader from 'ember-cli-test-loader/test-support/index.js';
 
 import type { Hooks } from './-types';
 
