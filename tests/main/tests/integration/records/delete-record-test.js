@@ -2,7 +2,6 @@
 
 import EmberObject, { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
-import { DEBUG } from '@ember-data/env';
 
 import { module, test } from 'qunit';
 import { all, Promise as EmberPromise } from 'rsvp';
@@ -12,6 +11,7 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
+import { DEBUG } from '@ember-data/env';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
